@@ -1,0 +1,59 @@
+#Ignore blog archives
+/src/archive/
+/src/new/
+
+# Ignore OS files
+.DS_Store
+Desktop.ini
+Thumbs.db
+*.diff
+*.err
+*.log
+*.zip
+
+# Ignore Webstorm files
+.idea/
+
+# Ignore Docs
+docs/
+
+# Ignore Node files
+nodejs/
+node_modules/
+
+# Ignore Grunt Files
+validation-status.json
+validation-report.json
+
+# Ignore Kendo UI
+src/js/2013.*/
+src/styles/2013.*/
+src/js/2014.*/
+src/styles/2014.*/
+
+# Ignore vendor versions
+src/js/vendor/*.0
+src/js/vendor/*.1
+src/js/vendor/*.2
+src/js/vendor/*.3
+src/js/vendor/*.4
+src/js/vendor/*.5
+src/js/vendor/*.6
+src/js/vendor/*.7
+src/js/vendor/*.8
+src/js/vendor/*.9
+src/js/vendor/*.10
+src/styles/vendor/*.0
+src/styles/vendor/*.1
+src/styles/vendor/*.2
+src/styles/vendor/*.3
+src/styles/vendor/*.4
+src/styles/vendor/*.5
+src/styles/vendor/*.6
+src/styles/vendor/*.7
+src/styles/vendor/*.8
+src/styles/vendor/*.9
+src/styles/vendor/*.10
+
+# Ignore Dummy Files
+temp/

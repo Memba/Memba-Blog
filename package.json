@@ -1,0 +1,38 @@
+{
+    "name": "memba.blog",
+    "description": "TODO",
+    "version": "0.1.0",
+    "keywords": ["blog"],
+    "homepage": "http://blogengine.memba.com",
+    "author": "Memba Sarl",
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/Memba/Memba-Blog.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Memba/Memba-Blog/issues"
+    },
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.gnu.org/licenses/gpl.txt"
+        },
+        {
+            "type": "MIT",
+            "url": "http://opensource.org/licenses/MIT"
+        }
+    ],
+    "devDependencies": {
+        "grunt": "~0.4.2",
+        "grunt-contrib-uglify": "~0.2.7",
+        "grunt-contrib-qunit": "~0.3.0",
+        "grunt-contrib-concat": "~0.3.0",
+        "grunt-contrib-jshint": "~0.8.0",
+        "grunt-contrib-watch": "~0.5.3",
+        "grunt-contrib-cssmin": "~0.7.0",
+        "grunt-contrib-csslint": "~0.2.0",
+        "grunt-kendo-lint": "0.0.3",
+        "grunt-blog": "0.1.0"
+    }
+}
+

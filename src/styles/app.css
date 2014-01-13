@@ -1,0 +1,81 @@
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Droid+Serif:400,700,400italic,700italic);
+/* General display */
+html, body {
+    margin: 0px !important;
+    padding: 0px;
+    font-family: 'Droid Serif', serif;
+}
+h1, h2, h3, header, footer {
+    font-family: 'Droid Sans', sans-serif;
+}
+h1 {
+    font-size: xx-large;
+}
+h2 {
+    font-size: large;
+}
+@media (min-width: 768px) {
+    /*create some space between main content and side list*/
+    div#index-view-left {
+        padding-right: 40px;
+    }
+}
+footer {
+    margin-top: 1rem;
+}
+/* Index list */
+div.authorship, div.readmore {
+    font-family: 'Droid Sans', sans-serif;
+    font-size: small;
+    color: #777;
+}
+div.summary {
+    margin-top: 2rem;
+    min-height: 100px; /*thumbnail height*/
+}
+div.thumb { /*bootstrap has a thumbnail class*/
+    float: left;
+    height: 100px;
+    width: 150px;
+    overflow: hidden;
+    margin-right: 1em;
+    margin-bottom: 0.5em;
+}
+div.thumb img {
+    width: 150px;
+}
+div.readmore {
+    margin: 1rem 0px;
+}
+/* Side lists */
+section.side-section {
+    margin-bottom: 3rem;
+}
+section.side-section h2 {
+    margin-bottom: 0.5rem;
+}
+section.side-section h2 + hr {
+    margin-top: 0px;
+    margin-bottom: 1rem;
+}
+ul#index-list, ul#categories-list, ul#archive-list {
+    list-style: none;
+    border-style: none;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    margin: 0px 0px 2rem 0px;
+    padding: 0px;
+}
+.categories, .archive {
+    margin : 0.5rem;
+}
+.categories .count, .archive .count {
+    background-color: #428BCA;
+    -moz-border-radius: 1.2rem;
+    -webkit-border-radius: 1.2rem;
+    border-radius: 1.2rem;
+    color: #FFFFFF;
+    font-size: small;
+    margin-left: 0.5rem;
+    padding: 0.2rem 0.5rem 0.2rem 0.5rem;
+}

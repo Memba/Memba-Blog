@@ -1,0 +1,145 @@
+/*Copyright ©2011-2012 Memba® Sarl. All rights reserved.*/
+/*******************************************************************/
+/* Breadcrumb (kendoBreadCrumb)
+/*******************************************************************/
+.k-breadcrumb {
+    border:none;
+}
+.k-breadcrumb ul {
+    background-image:url('./images/bc_bg.png');
+    background-repeat:repeat-x;
+    height:30px;
+    line-height:30px;
+    width:100%;
+    overflow:hidden;
+    margin:0px;
+    padding:0px;
+}
+.k-breadcrumb li {
+    list-style-type:none;
+    float:left;
+    padding-left:10px;
+}
+.k-breadcrumb a {
+    height:30px;
+    display:block;
+    background-image:url('./images/bc_separator.png');
+    background-repeat:no-repeat;
+    background-position:right;
+    padding-right:15px;
+    text-decoration:none;
+    cursor:pointer;
+    color:#454545;
+}
+.k-breadcrumb a:hover {
+    color:#BDE5F8;
+}
+/*Copyright ©2011-2012 Memba® Sarl. All rights reserved.*/
+/*******************************************************************/
+/* Icon Selector (kendoIconSelector)
+/*******************************************************************/
+.k-iconselector {
+}
+.k-iconselector-icon {
+    border:1px solid transparent;
+    list-style:none;
+    float:left;
+    margin:5px;
+    padding:5px;
+}
+.k-iconselector-icon:hover {
+    border:1px solid #99CCFF;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    -o-border-radius:5px;
+    background-color:#DFEFFF;
+    cursor:pointer;
+}
+.k-iconselector-selected {
+    border:1px solid Red;
+    border-radius:5px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    -o-border-radius:5px;
+    list-style:none;
+    float:left;
+    margin:5px;
+    padding:5px;
+}
+
+/*Copyright ©2011-2012 Memba® Sarl. All rights reserved.*/
+/*******************************************************************/
+/* Information Box (kendoInfoBox)
+/* SEE: http://swiftthemes.com/2009/12/css-tips-and-hacks/problem-with-height-of-div-containing-floats-and-inline-lists
+/*******************************************************************/
+.k-infobox {
+    border-top:1px solid;
+    border-bottom:1px solid;
+    padding:15px 10px 15px 48px;
+    background-repeat:no-repeat;
+    background-position:8px 8px;
+}
+/*TODO: Retina Displays*/
+.k-infobox-info {
+    color:#00529B;
+    background-color:#BDE5F8;
+    background-image:url('./icons/info32.png');
+}
+.k-infobox-success {
+    color:#4F8A10;
+    background-color:#DFF2BF;
+    background-image:url('./icons/success32.png');
+}
+.k-infobox-warning {
+    color:#9F6000;
+    background-color:#FEEFB3;
+    background-image:url('./icons/warning32.png');
+}
+.k-infobox-error {
+    color:#D8000C;
+    background-color:#FFBABA;
+    background-image:url('./icons/error32.png');
+}
+.k-markdown{
+}
+
+/*Copyright ©2011-2012 Memba® Sarl. All rights reserved.*/
+/*******************************************************************/
+/* Rating (kendoRating)
+/* SEE: http://css-tricks.com/star-ratings/
+/*******************************************************************/
+.k-rating {
+    background-color:transparent;
+    border:none;
+    font-size:30px;
+    unicode-bidi:bidi-override;
+    direction:rtl;
+}
+.k-rating-star {
+    font-family:FontAwesome;
+    font-weight:normal;
+    font-style:normal;
+    display:inline-block;
+}
+.k-rating-star.k-rating-selected:before {
+    content:"\f005";
+    padding-right:5px;
+    color:#00529B;
+}
+.k-rating-star:hover {
+    cursor:pointer;
+}
+.k-rating-star:not(.k-rating-selected):before {
+    content:"\f006";
+    padding-right:5px;
+    color:#AAAAAA;
+}
+.k-rating-star:hover:before,
+.k-rating-star:hover ~ .k-rating-star:before {
+    content:"\f005";
+    color:#BDE5F8;
+}
+.k-websearch {
+
+}
