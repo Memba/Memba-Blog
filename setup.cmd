@@ -11,4 +11,4 @@ REM ----------------------------
 
 call "%ProgramFiles%\nodejs\nodevars.bat"
 cd %~dp0
-call npm install
+call npm install --save-dev
