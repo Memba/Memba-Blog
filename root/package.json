@@ -1,0 +1,20 @@
+{
+  "name": "memba.blog",
+  "description": "TODO",
+  "version": "0.1.0",
+  "keywords": [
+    "blog"
+  ],
+  "homepage": "http://blogengine.memba.com",
+  "author": "Memba Sarl",
+  /*
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/Memba/Memba-Blog.git"
+  },
+  */
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-blog": "~0.1.2"
+  }
+}
