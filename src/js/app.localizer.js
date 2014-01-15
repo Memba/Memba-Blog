@@ -1,6 +1,7 @@
 //Copyright ©2013-2014 Memba® Sarl. All rights reserved.
 /*jslint browser:true*/
 /*jshint browser:true*/
+/*global Modernizr: false, jQuery: false*/
 
 (function ($, undefined) {
 
@@ -23,7 +24,7 @@
      */
     app.localize = function (resources) {        //TODO: maybe the localize function should load resources
 
-        var locale = resources.LOCALE || (global.navigator.userLanguage || global.navigator.language).substr(0, 2);
+        var wrap, locale = resources.LOCALE || (global.navigator.userLanguage || global.navigator.language).substr(0, 2);
         if (DEBUG && global.console) {
             global.console.log(MODULE + 'external templates should be loaded before starting localization');
             global.console.log(MODULE + 'starting localization in ' + locale);
@@ -53,7 +54,7 @@
 
         //Application layout
         if($(elements.APPLICATION_LAYOUT).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.APPLICATION_LAYOUT).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.APPLICATION_LAYOUT).html() + WRAP_CLOSE);
             wrap.find(elements.ALL_POSTS_SECTION_TITLE).html(resources.ALL_POSTS_SECTION_TITLE);
             wrap.find(elements.RSS_SECTION_TITLE).html(resources.RSS_SECTION_TITLE);
             $(elements.APPLICATION_LAYOUT).html(wrap.html());
@@ -61,7 +62,7 @@
 
         //Header - Navigation Bar
         if($(elements.HEADER_VIEW).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.HEADER_VIEW).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.HEADER_VIEW).html() + WRAP_CLOSE);
             wrap.find(elements.HEADER_VIEW_NAVBAR_BRAND).html(resources.HEADER_VIEW_NAVBAR_BRAND);
             wrap.find(elements.HEADER_VIEW_NAVBAR_TOGGLE).html(resources.HEADER_VIEW_NAVBAR_TOGGLE);
             if (Modernizr.input.placeholder) {
@@ -88,7 +89,7 @@
 
         //Footer
         if($(elements.FOOTER_VIEW).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.FOOTER_VIEW).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.FOOTER_VIEW).html() + WRAP_CLOSE);
             //wrap.find('label[for="' + elements.strip(elements.FOOTER_VIEW_LANGUAGE_SELECT)  + '"]').html(resources.FOOTER_VIEW_LANGUAGE_SELECT);
             //wrap.find('label[for="' + elements.strip(elements.FOOTER_VIEW_AGE_INPUT)  + '"]').html(resources.FOOTER_VIEW_AGE_INPUT);
             //wrap.find('label[for="' + elements.strip(elements.FOOTER_VIEW_THEME_SELECT)  + '"]').html(resources.FOOTER_VIEW_THEME_SELECT);
@@ -98,14 +99,14 @@
 
         //Categories View
         if($(elements.CATEGORIES_VIEW).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.CATEGORIES_VIEW).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.CATEGORIES_VIEW).html() + WRAP_CLOSE);
             wrap.find(elements.CATEGORIES_SECTION_TITLE).html(resources.CATEGORIES_SECTION_TITLE);
             $(elements.CATEGORIES_VIEW).html(wrap.html());
         }
 
         //Archive View
         if($(elements.ARCHIVE_VIEW).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.ARCHIVE_VIEW).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.ARCHIVE_VIEW).html() + WRAP_CLOSE);
             wrap.find(elements.ARCHIVE_SECTION_TITLE).html(resources.ARCHIVE_SECTION_TITLE);
             $(elements.ARCHIVE_VIEW).html(wrap.html());
         }
@@ -117,7 +118,7 @@
         }
         */
         if($(elements.INDEX_LIST_TEMPLATE).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.INDEX_LIST_TEMPLATE).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.INDEX_LIST_TEMPLATE).html() + WRAP_CLOSE);
             wrap.find(elements.ARTICLE_READMORE).html(resources.ARTICLE_READMORE);
             $(elements.INDEX_LIST_TEMPLATE).html(wrap.html());
         }

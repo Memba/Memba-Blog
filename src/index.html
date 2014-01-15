@@ -24,7 +24,7 @@
     <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
     <script type="text/javascript" charset="utf-8" src="./js/vendor/modernizr.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="./js/app.init.js"></script>
+    <script type="text/javascript" charset="utf-8" src="./js/init.js"></script>
 </head>
 
 <body>
@@ -80,7 +80,7 @@
 </script>
 <script id="archive-list-template" type="text/x-kendo-template">
     <li class="archive">
-        <a href="#= items[0].periodLink #">#: items[0].displayPeriod #</a>&nbsp;<span class="count">#: items.length#</span>
+        <a href="#= items[0].periodLink #">#: kendo.toString(items[0].pubDate, 'Y', app.resources.LOCALE) #</a>&nbsp;<span class="count">#: items.length#</span>
     </li>
 </script>
 

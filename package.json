@@ -2,6 +2,7 @@
   "name": "memba.blog",
   "description": "TODO",
   "version": "0.1.0",
+  "copyright": "Copyright (c) 2013-2014 Memba. All rights reserved.",
   "keywords": [
     "blog"
   ],

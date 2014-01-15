@@ -66,7 +66,9 @@
         CATEGORY_PARAMETER: ':category',
         ARCHIVE: '/archive/:period',
         PERIOD_PARAMETER: ':period',
-        DETAIL: '/blog/:period/:slug',
+        DETAIL: '/blog/:year/:month/:slug',
+        YEAR_PARAMETER: ':year',
+        MONTH_PARAMETER: ':month',
         SLUG_PARAMETER: ':slug',
         GUID: '/guid/:guid',
         GUID_PARAMETER: ':guid',
@@ -195,10 +197,12 @@
     });
 
 }(jQuery));
+
 ;
 //Copyright ©2013-2014 Memba® Sarl. All rights reserved.
 /*jslint browser:true*/
 /*jshint browser:true*/
+/*global Modernizr: false, jQuery: false*/
 
 (function ($, undefined) {
 
@@ -216,7 +220,7 @@
         tags = app.tags,
         types = app.types,
         //TITLE = 'title',
-        DEBUG = true,
+        DEBUG = false,
         MODULE = 'app.controller.js: ';
 
     var storage = {
@@ -231,13 +235,17 @@
             }
             return undefined;
         }
-    }
+    };
 
     /**
      * Once document is ready and external (shared) templates are loaded
      * jQuery and kendo can safely be used against the DOM
      */
     $(document).bind(events.INITIALIZE, function(e /*, params*/) {
+
+        if(DEBUG && global.console) {
+            console.log(MODULE + 'initialize event fired');
+        }
 
         //Localize
         app.localize(app.resources);
@@ -297,13 +305,13 @@
             listDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
             applicationLayout.showIn(elements.CONTENT_SECTION, listView);
         });
-        router.route(routes.DETAIL, function (period, slug) {
+        router.route(routes.DETAIL, function (year, month, slug) {
             var listDataSource = app.listViewModel.get('list');
-            var found = jQuery.grep(listDataSource.data(), function(item) {
-                return item.link.indexOf(period + constants.PATH_SEP + slug) > 0;
+            var found = $.grep(listDataSource.data(), function(item) {
+                return item.link.indexOf(year + constants.PATH_SEP + month + constants.PATH_SEP + slug) > 0;
             });
             if (found.length > 0) {
-                app.detailViewModel.set('contentUrl', hrefs.ARCHIVE + period + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
+                app.detailViewModel.set('contentUrl', hrefs.ARCHIVE + year + constants.PATH_SEP + month + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
                 app.detailViewModel.set('title', found[0].title);
                 app.detailViewModel.set('author', found[0].author);
                 app.detailViewModel.set('pubDate', kendo.toString(found[0].pubDate, constants.DATE_FORMAT));
@@ -316,7 +324,10 @@
             var listDataSource = app.listViewModel.get('list');
             var found = listDataSource.get(guid);
             if (found) {
-                var rx = new RegExp(routes.HASH + routes.DETAIL.replace(routes.PERIOD_PARAMETER, '([^/]+)').replace(routes.SLUG_PARAMETER, '([^/]+)') + '$');
+                var rx = new RegExp(routes.HASH + routes.DETAIL
+                    .replace(routes.YEAR_PARAMETER, '([^/]+)')
+                    .replace(routes.MONTH_PARAMETER, '([^/]+)')
+                    .replace(routes.SLUG_PARAMETER, '([^/]+)') + '$');
                 var matches = rx.exec(found.link);
                 app.detailViewModel.set('url', hrefs.ARCHIVE + matches[1] + constants.PATH_SEP + matches[2] + constants.MARKDOWN_EXT);
                 app.detailViewModel.set('title', found.title);
@@ -337,6 +348,17 @@
         /**
          * Bind events
          */
+        //Window
+        $(window).keydown(function(e){
+            if(e.keyCode == 13) {
+                if ($(elements.HEADER_VIEW_SEARCH_INPUT).val().trim().length > 0) {
+                    $(elements.HEADER_VIEW_SEARCH_BUTTON).trigger(events.CLICK);
+                }
+                e.preventDefault();
+                return false;
+            }
+        });
+
         //Header
         $(elements.HEADER_VIEW_SEARCH_INPUT).bind(events.KEYUP, function(e) {
             if ($(e.target).val().trim().length > 0) {
@@ -345,16 +367,11 @@
                 $(elements.HEADER_VIEW_SEARCH_BUTTON).addClass('disabled');
             }
         });
-
         $(elements.HEADER_VIEW_SEARCH_BUTTON).bind(events.CLICK, function(e){
             router.navigate(routes.SEARCH);
             //window.location.assign(routes.HASH + routes.SEARCH + '?q=' + encodeURIComponent(app.searchViewModel.get('search')));
         });
 
-
-        searchView.bind('show', function(e) {
-            $.noop();
-        });
 
         //Footer
         $(elements.INDEX_PAGER).find(elements.INDEX_PAGER_SIZES).bind(events.CHANGE, function(e) {
@@ -363,184 +380,14 @@
 
     });
 
-    /**
-     * once document is ready, load external templates (header and footer)
-     * and trigger events.INITIALIZE when templates are loaded
-     */
-    $(document).ready(function () {
-
-        $.when($.ajax(hrefs.HEADER), $.ajax(hrefs.FOOTER)).then(
-            function(a1, a2) { //success callback
-                //See: http://api.jquery.com/jQuery.when/
-                //a1 and a2 are arrays where
-                //aN[0] = data = response/template content
-                //aN[1] = textStatus = 'success'
-                //aN[2] = jqXHR
-                //See: http://docs.kendoui.com/howto/load-templates-external-files
-                $(tags.BODY).append(a1[0]);
-                $(tags.BODY).append(a2[0]);
-                $(document).trigger(events.INITIALIZE); //, [params]);
-            },
-            function(jqXHR, textStatus, errorThrown) { //error callback
-                if (DEBUG && global.console && $.type(global.console.error) === types.FUNCTION) {
-                   global.console.error(MODULE + hrefs.HEADER + ' or ' + hrefs.FOOTER + ' ' + errorThrown);
-                }
-            }
-        );
-    });
-
 }(jQuery));
 
+
 ;
-/*Copyright 2013-2014 Memba Sarl. All rights reserved.*/
-/*jslint browser:true */
-/*jshint browser:true */
-
-/*******************************************************************************************
- * Application loader
- *******************************************************************************************/
-(function () {
-
-    "use strict";
-
-    var fn = Function,
-        global = fn('return this')(),
-        Modernizr = global.Modernizr,
-        KENDO_VERSION = '2013.3.1119',
-
-        DEBUG = true,
-        MODULE = 'app.init.js: ';
-
-
-    if (DEBUG && global.console) {
-        global.console.log(MODULE + global.navigator.userAgent);
-        global.console.log(MODULE + global.location.href);
-    }
-
-    Modernizr.load([
-        //jQuery
-        {
-            load: 'http://code.jquery.com/jquery-1.9.1.min.js',
-            callback: function (url) { //called both in case of success and failure
-                if (DEBUG && global.console) {
-                    global.console.log(MODULE + url + ' loading attempt');
-                }
-            },
-            complete: function () {
-                if (!global.jQuery) {
-                    Modernizr.load('./js/' + KENDO_VERSION + '/jquery.min.js');
-                }
-            }
-        },
-        //Bootstrap and font awesome
-        {
-            load: [
-                'http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css',
-                'http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css',
-                'http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js'
-            ],
-            callback: function (url) {
-                if (DEBUG && global.console) {
-                    global.console.log(MODULE + url + ' loading attempt');
-                }
-            },
-            complete: function () {
-                if ($ && !($.fn.affix && $.fn.carousel && $.fn.popover && $.fn.tab && $.fn.tooltip)) {
-                    Modernizr.load([{
-                        load: [
-                            './styles/vendor/font-awesome.css',
-                            './styles/vendor/bootstrap.css',
-                            './js/vendor/bootstrap.min.js'
-                        ]
-                    }]);
-                }
-            }
-        },
-        //Kendo UI
-        {
-            load: [
-                'http://cdn.kendostatic.com/' + KENDO_VERSION + '/styles/kendo.common-bootstrap.min.css',
-                'http://cdn.kendostatic.com/' + KENDO_VERSION + '/styles/kendo.bootstrap.min.css',
-                'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/kendo.web.min.js',
-                //'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/kendo.timezones.min.js'
-                'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.en.min.js', //default culture
-                'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.' + (global.navigator.userLanguage || global.navigator.language).substr(0, 2) + '.min.js', //replace default culture
-                'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.fr.min.js' //TODO DEBUG
-            ],
-            callback: function (url) {
-                if (DEBUG && global.console) {
-                    global.console.log(MODULE + url + ' loading attempt');
-                }
-            },
-            complete: function () {
-                if (!global.kendo) {
-                    Modernizr.load([{
-                        load: [
-                            './styles/' + KENDO_VERSION + '/kendo.common-bootstrap.min.css',
-                            './styles/' + KENDO_VERSION + '/kendo.bootstrap.min.css',
-                            './js/' + KENDO_VERSION + '/kendo.web.min.js',
-                            //'./js/' + KENDO_VERSION + '/kendo.timezones.min.js',
-                            './js/' + KENDO_VERSION + '/cultures/kendo.culture.en.min.js', //default culture
-                            './js/' + KENDO_VERSION + '/cultures/kendo.culture.' + (global.navigator.userLanguage || global.navigator.language).substring(0, 2) + '.min.js', //replace default culture
-                            './js/' + KENDO_VERSION + '/cultures/kendo.culture.fr.min.js' //TODO DEBUG
-                        ]
-                    }]);
-                }
-            }
-        },
-        //Other 3rd party libraries libraries
-        {
-            load: [
-                'http://yandex.st/highlightjs/7.5/styles/solarized_light.min.css',
-                'http://yandex.st/highlightjs/7.5/highlight.min.js', //code highlighting
-                'http://cdnjs.cloudflare.com/ajax/libs/marked/0.2.9/marked.min.js', //markdown
-                './styles/vendor/memba.widgets.min.css',
-                './js/vendor/memba.widgets.min.js'
-            ],
-            callback: function (url) {
-                if (DEBUG && global.console) {
-                    global.console.log(MODULE + url + ' loading attempt');
-                }
-            },
-            complete: function() {
-                if(!global.hljs) {
-                    Modernizr.load([{
-                        load: [
-                            './styles/vendor/highlight/solarized_light.min.css',
-                            './js/vendor/highlight.min.js'
-                        ]
-                    }]);
-                }
-                if(!global.marked) {
-                    Modernizr.load('./js/vendor/marked.js');
-                }
-            }
-        },
-        //Application libraries
-        {
-            load: [
-                './styles/app.css',
-                './js/app.constants.js',
-                './js/cultures/app.culture.en.js', //default culture
-                //TODO: http://stackoverflow.com/questions/1043339/javascript-for-detecting-browser-language-preference
-                //Basically, this is not something you can get in Javascript; you need to read HTTP_USER_AGENT on the server
-                './js/cultures/app.culture.' + (global.navigator.userLanguage || global.navigator.language).substring(0, 2) + '.js', //replace default culture
-                './js/cultures/app.culture.fr.js', //TODO DEBUG
-                './js/app.localizer.js',
-                './js/app.viewmodels.js',
-                './js/app.controller.js'
-            ],
-            callback: function (url) {
-                if (DEBUG && global.console) {
-                    global.console.log(MODULE + url + ' loading attempt');
-                }
-            }
-        }
-    ]);
-}());;
 //Copyright ©2013-2014 Memba® Sarl. All rights reserved.
 /*jslint browser:true*/
 /*jshint browser:true*/
+/*global Modernizr: false, jQuery: false*/
 
 (function ($, undefined) {
 
@@ -552,7 +399,7 @@
         app = global.app,
         elements = app.elements,
         tags = app.tags,
-        DEBUG = true,
+        DEBUG = false,
         MODULE = 'app.localizer.js: ',
         WRAP_OPEN = '<wrap>',
         WRAP_CLOSE = '</wrap>';
@@ -563,13 +410,14 @@
      */
     app.localize = function (resources) {        //TODO: maybe the localize function should load resources
 
+        var wrap, locale = resources.LOCALE || (global.navigator.userLanguage || global.navigator.language).substr(0, 2);
         if (DEBUG && global.console) {
             global.console.log(MODULE + 'external templates should be loaded before starting localization');
-            global.console.log(MODULE + 'starting localization in ' + (global.navigator.userLanguage || global.navigator.language));
+            global.console.log(MODULE + 'starting localization in ' + locale);
         }
 
         //load kendo culture
-        kendo.culture(resources.LOCALE || (global.navigator.userLanguage || global.navigator.language).substr(0, 2));
+        kendo.culture(locale);
 
         /**
          * IMPORTANT: jQuery interprets the content of script tags (kendo templates) as free text and not DOM
@@ -592,7 +440,7 @@
 
         //Application layout
         if($(elements.APPLICATION_LAYOUT).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.APPLICATION_LAYOUT).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.APPLICATION_LAYOUT).html() + WRAP_CLOSE);
             wrap.find(elements.ALL_POSTS_SECTION_TITLE).html(resources.ALL_POSTS_SECTION_TITLE);
             wrap.find(elements.RSS_SECTION_TITLE).html(resources.RSS_SECTION_TITLE);
             $(elements.APPLICATION_LAYOUT).html(wrap.html());
@@ -600,7 +448,7 @@
 
         //Header - Navigation Bar
         if($(elements.HEADER_VIEW).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.HEADER_VIEW).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.HEADER_VIEW).html() + WRAP_CLOSE);
             wrap.find(elements.HEADER_VIEW_NAVBAR_BRAND).html(resources.HEADER_VIEW_NAVBAR_BRAND);
             wrap.find(elements.HEADER_VIEW_NAVBAR_TOGGLE).html(resources.HEADER_VIEW_NAVBAR_TOGGLE);
             if (Modernizr.input.placeholder) {
@@ -627,7 +475,7 @@
 
         //Footer
         if($(elements.FOOTER_VIEW).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.FOOTER_VIEW).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.FOOTER_VIEW).html() + WRAP_CLOSE);
             //wrap.find('label[for="' + elements.strip(elements.FOOTER_VIEW_LANGUAGE_SELECT)  + '"]').html(resources.FOOTER_VIEW_LANGUAGE_SELECT);
             //wrap.find('label[for="' + elements.strip(elements.FOOTER_VIEW_AGE_INPUT)  + '"]').html(resources.FOOTER_VIEW_AGE_INPUT);
             //wrap.find('label[for="' + elements.strip(elements.FOOTER_VIEW_THEME_SELECT)  + '"]').html(resources.FOOTER_VIEW_THEME_SELECT);
@@ -637,14 +485,14 @@
 
         //Categories View
         if($(elements.CATEGORIES_VIEW).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.CATEGORIES_VIEW).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.CATEGORIES_VIEW).html() + WRAP_CLOSE);
             wrap.find(elements.CATEGORIES_SECTION_TITLE).html(resources.CATEGORIES_SECTION_TITLE);
             $(elements.CATEGORIES_VIEW).html(wrap.html());
         }
 
         //Archive View
         if($(elements.ARCHIVE_VIEW).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.ARCHIVE_VIEW).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.ARCHIVE_VIEW).html() + WRAP_CLOSE);
             wrap.find(elements.ARCHIVE_SECTION_TITLE).html(resources.ARCHIVE_SECTION_TITLE);
             $(elements.ARCHIVE_VIEW).html(wrap.html());
         }
@@ -656,7 +504,7 @@
         }
         */
         if($(elements.INDEX_LIST_TEMPLATE).length === 1) {
-            var wrap = $(WRAP_OPEN + $(elements.INDEX_LIST_TEMPLATE).html() + WRAP_CLOSE);
+            wrap = $(WRAP_OPEN + $(elements.INDEX_LIST_TEMPLATE).html() + WRAP_CLOSE);
             wrap.find(elements.ARTICLE_READMORE).html(resources.ARTICLE_READMORE);
             $(elements.INDEX_LIST_TEMPLATE).html(wrap.html());
         }
@@ -682,7 +530,8 @@
 
     };
 
-}(jQuery));;
+}(jQuery));
+;
 //Copyright ©2013-2014 Memba® Sarl. All rights reserved.
 /*jslint browser:true*/
 /*jshint browser:true*/
@@ -700,7 +549,7 @@
         routes = app.routes,
         types = app.types,
 
-        DEBUG = true,
+        DEBUG = false,
         MODULE = 'app.index.viewmodels.js: ';
 
     /**
@@ -783,15 +632,6 @@
                                 global.console.log(MODULE + 'parse value ' + value);
                             }
                             return kendo.parseDate(value);
-                        }
-                    },
-                    displayPeriod: {
-                        field: 'pubDate/text()',
-                        type: types.STRING,
-                        editable: false,
-                        parse: function(value) {
-                            var d = kendo.parseDate(value);
-                            return kendo.toString(d, 'Y', app.resources.LOCALE);
                         }
                     },
                     period: {
@@ -913,7 +753,7 @@
         },
         refresh: function() {
             var that = this,
-                url = that.bindings['url'].get(), //get the value from detailViewModel
+                url = that.bindings.url.get(), //get the value from detailViewModel
                 widget = $(that.element).data('kendoMarkDown');
             if (widget instanceof kendo.ui.MarkDown) {
                 widget.url(url); //update the widget url

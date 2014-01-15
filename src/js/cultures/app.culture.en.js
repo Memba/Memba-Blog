@@ -38,7 +38,7 @@
         ALL_POSTS_SECTION_TITLE: '<i class="fa fa-home"></i>&nbsp;All Posts',
         CATEGORIES_SECTION_TITLE: '<i class="fa fa-tags"></i>&nbsp;Categories',
         ARCHIVE_SECTION_TITLE: '<i class="fa fa-calendar"></i>&nbsp;Archive',
-        RSS_SECTION_TITLE: '><i class="fa fa-rss-square"></i>&nbsp;RSS Feed',
+        RSS_SECTION_TITLE: '<i class="fa fa-rss-square"></i>&nbsp;RSS Feed',
 
         //List View
         ARTICLE_READMORE: 'Read full article&nbsp;<i class="fa fa-caret-square-o-right"></i>',

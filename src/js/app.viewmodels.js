@@ -100,15 +100,6 @@
                             return kendo.parseDate(value);
                         }
                     },
-                    displayPeriod: {
-                        field: 'pubDate/text()',
-                        type: types.STRING,
-                        editable: false,
-                        parse: function(value) {
-                            var d = kendo.parseDate(value);
-                            return kendo.toString(d, 'Y', app.resources.LOCALE);
-                        }
-                    },
                     period: {
                         field: 'pubDate/text()',
                         type: types.STRING,
@@ -228,7 +219,7 @@
         },
         refresh: function() {
             var that = this,
-                url = that.bindings['url'].get(), //get the value from detailViewModel
+                url = that.bindings.url.get(), //get the value from detailViewModel
                 widget = $(that.element).data('kendoMarkDown');
             if (widget instanceof kendo.ui.MarkDown) {
                 widget.url(url); //update the widget url

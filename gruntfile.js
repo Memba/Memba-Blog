@@ -6,28 +6,62 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        clean: ['dist/'],
+        copy: {
+            dist: {
+                options: {
+                    process: function(src, filepath) {
+                        //Replace with min versions
+                        var ret;
+                        if (filepath === 'src/js/init.js'){
+                            ret = src
+                                .replace(/DEBUG[\s]*=[\s]*true/gm, 'DEBUG = false')
+                                .replace(/init.js/gm, 'init.min.js');
+                        }
+                        return ret || src;
+                    }
+                },
+                files: [
+                    { cwd: 'dist_root', src: ['**'], dest: 'dist/', expand: true },
+                    { cwd: 'src/archive', src: ['**'], dest: 'dist/archive', expand: true },
+                    { cwd: 'src/js', src: ['init.js'], dest: 'dist/js', expand: true },
+                    { cwd: 'src/js', src: ['vendor/bootstrap.min.js', 'vendor/highlight.min.js', 'vendor/marked.min.js', 'vendor/memba.widgets.min.js', 'vendor/memba.widgets.map', 'vendor/modernizr.min.js'], dest: 'dist/js', expand: true },
+                    { cwd: 'src/styles', src: ['fonts/**'], dest: 'dist/styles', expand: true },
+                    { cwd: 'src/styles', src: ['images/**'], dest: 'dist/styles', expand: true },
+                    { cwd: 'src/styles', src: ['vendor/**/*.min.css', 'vendor/**/*.jpg', 'vendor/**/*.png'], dest: 'dist/styles', expand: true }
+                ]
+            }
+        },
         concat: {
             css: {
-                src: ['src/styles/ap*.css'],
+                src: ['src/styles/app*.css'],
                 dest: 'dist/styles/<%= pkg.name %>.css'
             },
             js: {
                 options: {
-                    separator: ';\n'
+                    separator: '\n;\n',
+                    process: function(src, filepath) {
+                        //Replace DEBUG = true with DEBUG = false
+                        var ret = src.replace(/DEBUG[\s]*=[\s]*true/gm, 'DEBUG = false');
+                        return ret;
+                    }
                 },
-                src: [/*'src/js/vendor/*.js',*/ 'src/js/app*.js'],
+                src: ['src/js/app*.js'],
                 dest: 'dist/js/<%= pkg.name %>.js'
             }
         },
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
-                sourceMap: 'dist/js/<%= pkg.name %>.map'
+                banner: '// <%= pkg.name %> <%= pkg.version %> built on <%= grunt.template.today("dd-mm-yyyy") %> - <%= pkg.copyright %>\n'
             },
             dist: {
-                files: {
-                    'dist/js/<%= pkg.name %>.min.js': ['<%= concat.js.dest %>']
-                }
+                files: [
+                    { 'dist/js/init.min.js': ['src/js/init.js'] },
+                    //{ 'dist/js/vendor/marked.min.js': ['src/js/vendor/marked.js'] },
+                    { 'dist/js/<%= pkg.name %>.min.js': ['<%= concat.js.dest %>'] },
+                    { 'dist/js/cultures/<%= pkg.name %>.culture.en.min.js': ['src/js/cultures/app.culture.en.js'] },
+                    { 'dist/js/cultures/<%= pkg.name %>.culture.fr.min.js': ['src/js/cultures/app.culture.fr.js'] }
+                ]
             }
         },
         /*
@@ -65,10 +99,30 @@ module.exports = function (grunt) {
         cssmin: {
             add_banner: {
                 options: {
-                    banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+                    banner: '// <%= pkg.name %> <%= pkg.version %> built on <%= grunt.template.today("dd-mm-yyyy") %> - <%= pkg.copyright %>\n'
                 },
                 files: {
                     'dist/styles/<%= pkg.name %>.min.css': ['<%= concat.css.dest %>']
+                }
+            }
+        },
+        htmlmin: {
+            dist: {
+                options: {
+                    removeComments: true,
+                    collapseWhitespace: true,
+                    collapseBooleanAttributes: true,
+                    //removeAttributeQuotes: true,
+                    removeRedundantAttributes: true,
+                    useShortDoctype: true
+                    //removeEmptyAttributes: true,
+                    //removeOptionalTags: true,
+                    //removeEmptyElements: true
+                },
+                files: {
+                    'dist/index.html': 'src/index.html',
+                    'dist/footer.tmpl.html': 'src/footer.tmpl.html',
+                    'dist/header.tmpl.html': 'src/header.tmpl.html'
                 }
             }
         }/*,
@@ -88,8 +142,10 @@ module.exports = function (grunt) {
     });
 
     //File management
-    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-concat');
 
     //Javascript
     grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -101,11 +157,14 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-csslint');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
 
+    //Html
+    grunt.loadNpmTasks('grunt-contrib-htmlmin');
+
     //Documentation
     //grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-blog');
 
     grunt.registerTask('test', ['jshint', 'qunit']);
-    grunt.registerTask('default', ['jshint', 'qunit', 'concat', 'uglify', 'cssmin']);
+    grunt.registerTask('default', ['clean', 'jshint', 'qunit', 'copy', 'concat', 'uglify', 'cssmin', 'htmlmin']);
 
 };

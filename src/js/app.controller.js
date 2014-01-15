@@ -1,6 +1,7 @@
 //Copyright ©2013-2014 Memba® Sarl. All rights reserved.
 /*jslint browser:true*/
 /*jshint browser:true*/
+/*global Modernizr: false, jQuery: false*/
 
 (function ($, undefined) {
 
@@ -33,13 +34,17 @@
             }
             return undefined;
         }
-    }
+    };
 
     /**
      * Once document is ready and external (shared) templates are loaded
      * jQuery and kendo can safely be used against the DOM
      */
     $(document).bind(events.INITIALIZE, function(e /*, params*/) {
+
+        if(DEBUG && global.console) {
+            console.log(MODULE + 'initialize event fired');
+        }
 
         //Localize
         app.localize(app.resources);
@@ -101,7 +106,7 @@
         });
         router.route(routes.DETAIL, function (year, month, slug) {
             var listDataSource = app.listViewModel.get('list');
-            var found = jQuery.grep(listDataSource.data(), function(item) {
+            var found = $.grep(listDataSource.data(), function(item) {
                 return item.link.indexOf(year + constants.PATH_SEP + month + constants.PATH_SEP + slug) > 0;
             });
             if (found.length > 0) {
@@ -142,6 +147,17 @@
         /**
          * Bind events
          */
+        //Window
+        $(window).keydown(function(e){
+            if(e.keyCode == 13) {
+                if ($(elements.HEADER_VIEW_SEARCH_INPUT).val().trim().length > 0) {
+                    $(elements.HEADER_VIEW_SEARCH_BUTTON).trigger(events.CLICK);
+                }
+                e.preventDefault();
+                return false;
+            }
+        });
+
         //Header
         $(elements.HEADER_VIEW_SEARCH_INPUT).bind(events.KEYUP, function(e) {
             if ($(e.target).val().trim().length > 0) {
@@ -150,48 +166,17 @@
                 $(elements.HEADER_VIEW_SEARCH_BUTTON).addClass('disabled');
             }
         });
-
         $(elements.HEADER_VIEW_SEARCH_BUTTON).bind(events.CLICK, function(e){
             router.navigate(routes.SEARCH);
             //window.location.assign(routes.HASH + routes.SEARCH + '?q=' + encodeURIComponent(app.searchViewModel.get('search')));
         });
 
 
-        searchView.bind('show', function(e) {
-            $.noop();
-        });
-
         //Footer
         $(elements.INDEX_PAGER).find(elements.INDEX_PAGER_SIZES).bind(events.CHANGE, function(e) {
             storage.set(constants.PAGE_SIZE, kendo.parseInt(e.target.value));
         });
 
-    });
-
-    /**
-     * once document is ready, load external templates (header and footer)
-     * and trigger events.INITIALIZE when templates are loaded
-     */
-    $(document).ready(function () {
-
-        $.when($.ajax(hrefs.HEADER), $.ajax(hrefs.FOOTER)).then(
-            function(a1, a2) { //success callback
-                //See: http://api.jquery.com/jQuery.when/
-                //a1 and a2 are arrays where
-                //aN[0] = data = response/template content
-                //aN[1] = textStatus = 'success'
-                //aN[2] = jqXHR
-                //See: http://docs.kendoui.com/howto/load-templates-external-files
-                $(tags.BODY).append(a1[0]);
-                $(tags.BODY).append(a2[0]);
-                $(document).trigger(events.INITIALIZE); //, [params]);
-            },
-            function(jqXHR, textStatus, errorThrown) { //error callback
-                if (DEBUG && global.console && $.type(global.console.error) === types.FUNCTION) {
-                   global.console.error(MODULE + hrefs.HEADER + ' or ' + hrefs.FOOTER + ' ' + errorThrown);
-                }
-            }
-        );
     });
 
 }(jQuery));
