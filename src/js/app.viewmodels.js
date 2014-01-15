@@ -69,7 +69,18 @@
                     link: {
                         field: 'link/text()',
                         type: types.STRING,
-                        editable: false
+                        editable: false,
+                        parse: function(value) {
+                            //This allows the web site to work both in the development environment and the production environment
+                            //Be careful with the RSS index though
+                            if ($.type(value) === types.STRING) {
+                                var pos = value.indexOf(routes.HASH);
+                                if (pos >= 0) {
+                                    return value.substr(pos);
+                                }
+                            }
+                            return value;
+                        }
                     },
                     description: {
                         field: 'description/text()',
@@ -77,12 +88,18 @@
                         editable: false
                     },
                     enclosure: {
-                        //TODO: check that this is an image + default value
-                        //<enclosure url="http://www.scripting.com/mp3s/weatherReportSuite.mp3" length="0" type="audio/mpeg" />
                         field: 'enclosure/@url',
                         type: types.STRING,
-                        editable: false
-                        //TODO defaultValue: ''
+                        editable: false,
+                        parse: function(value) {
+                            if($.type(value) === types.STRING) {
+                                //TODO: check that value is an image (file extension and/or content type)
+                                //<enclosure url="http://www.scripting.com/mp3s/weatherReportSuite.mp3" length="0" type="audio/mpeg" />
+                                return value;
+                            } else {
+                                return kendo.format(hrefs.THUMBNAIL, Math.floor(1 + constants.MAX_THUMBNAILS* Math.random()));
+                            }
+                        }
                     },
                     author: {
                         field: 'author/text()',
