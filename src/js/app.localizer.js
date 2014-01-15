@@ -12,6 +12,7 @@
         kendo = global.kendo,
         app = global.app,
         elements = app.elements,
+        hrefs = app.hrefs,
         tags = app.tags,
         DEBUG = true,
         MODULE = 'app.localizer.js: ',
@@ -56,7 +57,9 @@
         if($(elements.APPLICATION_LAYOUT).length === 1) {
             wrap = $(WRAP_OPEN + $(elements.APPLICATION_LAYOUT).html() + WRAP_CLOSE);
             wrap.find(elements.ALL_POSTS_SECTION_TITLE).html(resources.ALL_POSTS_SECTION_TITLE);
-            wrap.find(elements.RSS_SECTION_TITLE).html(resources.RSS_SECTION_TITLE);
+            wrap.find(elements.RSS_SECTION_TITLE)
+                .html(resources.RSS_SECTION_TITLE)
+                .attr(tags.HREF, hrefs.ARCHIVE + hrefs.RSS);
             $(elements.APPLICATION_LAYOUT).html(wrap.html());
         }
 

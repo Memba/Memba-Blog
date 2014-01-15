@@ -101,6 +101,7 @@
         DATA_COLUMNS: 'data-columns',
         DIV: 'div',
         DIV_ELEMENT: '<div/>',
+        HREF: 'href',
         ID: 'id',
         INPUT: 'input',
         INPUT_ELEMENT: '<input/>',
