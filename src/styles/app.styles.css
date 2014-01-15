@@ -8,11 +8,20 @@ html, body {
 h1, h2, h3, header, footer {
     font-family: 'Droid Sans', sans-serif;
 }
-h1 {
+article h1 {
     font-size: xx-large;
 }
-h2 {
+article h2 {
+    font-size: x-large;
+}
+article h2:before {
+    content:'\007C\00a0'; /*http://css-tricks.com/css-content*/
+}
+article h3 {
     font-size: large;
+}
+article h3:before {
+    content:'\22EE\00a0'; /*http://css-tricks.com/css-content*/
 }
 @media (min-width: 768px) {
     /*create some space between main content and side list*/
@@ -52,6 +61,7 @@ section.side-section {
     margin-bottom: 3rem;
 }
 section.side-section h2 {
+    font-size: large;
     margin-bottom: 0.5rem;
 }
 section.side-section h2 + hr {
