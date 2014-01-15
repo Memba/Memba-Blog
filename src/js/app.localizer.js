@@ -145,6 +145,12 @@
         }
         */
 
+        if($(elements.ERROR_VIEW).length === 1) {
+            wrap = $(WRAP_OPEN + $(elements.ERROR_VIEW).html() + WRAP_CLOSE);
+            wrap.find(elements.ERROR_VIEW_TITLE).html(resources.ERROR_VIEW_TITLE);
+            wrap.find(elements.ERROR_VIEW_MESSAGE).html(resources.ERROR_VIEW_MESSAGE);
+            $(elements.ERROR_VIEW).html(wrap.html());
+        }
     };
 
 }(jQuery));

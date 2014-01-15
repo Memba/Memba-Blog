@@ -52,6 +52,10 @@
 
         //FAQs View
 
+        //Error View
+        ERROR_VIEW_TITLE: 'Erreur 404',
+        ERROR_VIEW_MESSAGE: 'Nous sommes désolés, la page demandée est introuvable. L\'URL est peut-être erronée ou la page recherchée n\'est plus disponible.',
+
         //Dummy
         DUMMY: 'toto'
     });

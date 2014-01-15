@@ -26,7 +26,8 @@
         PATH_SEP: '/',
         PAGE_SIZE: 'pageSize',
         DEFAULT_PAGE_SIZE: 5,
-        DATE_FORMAT: 'dd MMM yyyy'
+        DATE_FORMAT: 'dd MMM yyyy',
+        MAX_THUMBNAILS: 4
     });
 
     /**
@@ -52,7 +53,8 @@
         RSS: 'index.rss',
         INDEX: './index.html',
         HEADER: './header.tmpl.html',
-        FOOTER: './footer.tmpl.html'
+        FOOTER: './footer.tmpl.html',
+        THUMBNAIL: './styles/images/blog{0}.jpg'
     });
 
     /**
@@ -193,6 +195,11 @@
 
         //FAQs View
         FAQS_VIEW: '#faqs-view',
+
+        //Error View
+        ERROR_VIEW: '#error-view',
+        ERROR_VIEW_TITLE: 'h1',
+        ERROR_VIEW_MESSAGE: 'div.alert',
 
         DUMMY: 'dummy'
     });

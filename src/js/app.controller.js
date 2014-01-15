@@ -58,6 +58,7 @@
             listView = new kendo.View(elements.LIST_VIEW, { model: app.listViewModel }),
             detailView = new kendo.View(elements.DETAIL_VIEW, { model: app.detailViewModel }),
             searchView = new kendo.View(elements.SEARCH_VIEW, { model: app.searchViewModel }),
+            errorView = new kendo.View(elements.ERROR_VIEW),
 
         //Initialize router
             router = new kendo.Router({
@@ -77,11 +78,11 @@
                     if (DEBUG && global.console) {
                         global.console.log(MODULE + 'Route missing at ' + e.url);
                     }
+                    applicationLayout.showIn(elements.CONTENT_SECTION, errorView);
                 }
             });
 
         //Add routes
-        //TODO: error 404 route missing????
         router.route(routes.HOME, function () {
             var listDataSource = app.listViewModel.get('list');
             listDataSource.filter(null);
