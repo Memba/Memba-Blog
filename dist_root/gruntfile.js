@@ -9,8 +9,15 @@ module.exports = function (grunt) {
         blog: {
             main: {
                 options: {
-                    newsRoot: 'dist/new',
-                    archiveRoot: 'dist/archive'
+                    home: 'http://miniblog.memba.com', //The path to your Mini Blog Engine
+                    newsRoot: 'new', //your news directory
+                    archiveRoot: 'archive', //your archive directory
+                    title: 'Memba Mini Blog Engine',
+                    link: 'http://miniblog.memba.com',
+                    description: 'A static blog engine which displays your markdown content live (What You Write Is What You Publish)',
+                    copyright: 'Copyright (c) 2013-2014 Memba Sarl. All rights reserved.',
+                    category: 'Web Development', //The default category for your blog posts
+                    managingEditor: 'Memba'
                 }
             }
         }
