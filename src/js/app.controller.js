@@ -86,6 +86,9 @@
         router.route(routes.HOME, function () {
             var listDataSource = app.listViewModel.get('list');
             listDataSource.filter(null);
+            if (!listDataSource.sort()) {
+                listDataSource.sort({ field: 'pubDate', dir: 'desc' });
+            }
             listDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
             applicationLayout.showIn(elements.CONTENT_SECTION, listView);
         });
