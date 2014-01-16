@@ -1,6 +1,6 @@
-# Mini Blog Engine
+# Memba Mini Blog Engine
 
->  A simple engine that separates layout from content for static blogs and web sites
+>  A static blog engine which displays your markdown content live (What You Write Is What You Publish).
 
 ## Why a new blog engine?
 Jekyll or Octopress definitely does the job but the files you write (markdown) are not the files you publish (html).
