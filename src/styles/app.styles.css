@@ -1,5 +1,5 @@
 @import url(http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Droid+Serif:400,700,400italic,700italic);
-/* General display */
+/* General layout, header, footer */
 html, body {
     margin: 0px !important;
     padding: 0px;
@@ -17,9 +17,14 @@ h1, h2, h3, header, footer {
     padding-bottom: 14px;
 }
 .navbar-brand img {
+    outline: 0;
     padding-left: 5px;
     height: 50px;
 }
+footer {
+    margin-top: 1rem;
+}
+/* Articles */
 article h1 {
     font-size: xx-large;
 }
@@ -35,20 +40,34 @@ article h3 {
 article h3:before {
     content:'\22EE\00a0'; /*http://css-tricks.com/css-content*/
 }
+article pre code {
+    background-color: #F5F5F5;
+}
+article img {
+    outline: 0;
+    max-width: 80%;
+    height: auto;
+    display: block;
+    margin: 2rem auto;
+    /*-moz-box-shadow:    inset 0 0 10px #000000;
+    -webkit-box-shadow: inset 0 0 10px #000000;
+    box-shadow:         inset 0 0 10px #000000;*/
+
+}
 @media (min-width: 768px) {
     /*create some space between main content and side list*/
     div#index-view-left {
         padding-right: 40px;
     }
 }
-footer {
-    margin-top: 1rem;
-}
 /* Index list */
 div.authorship, div.readmore {
     font-family: 'Droid Sans', sans-serif;
     font-size: small;
     color: #777;
+}
+div.readmore {
+    margin: 1rem 0px;
 }
 div.summary {
     margin-top: 2rem;
@@ -64,9 +83,6 @@ div.thumb { /*bootstrap has a thumbnail class*/
 }
 div.thumb img {
     width: 150px;
-}
-div.readmore {
-    margin: 1rem 0px;
 }
 /* Side lists */
 section.side-section {
