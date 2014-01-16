@@ -20,7 +20,7 @@
         //Application layout
 
         // Header - Navigation Bar
-        HEADER_VIEW_NAVBAR_BRAND: '<img src="./styles/images/logo.png" alt="Memba Mini Blog Engine">',
+        //HEADER_VIEW_NAVBAR_BRAND: '<img src="./styles/images/logo.png" alt="Memba Mini Blog Engine">',
         HEADER_VIEW_NAVBAR_TOGGLE: 'Toggle navigation',
         HEADER_VIEW_NAVBAR_SEARCH_INPUT: 'Search',
         HEADER_VIEW_NAVBAR_SEARCH_BUTTON: 'Go',

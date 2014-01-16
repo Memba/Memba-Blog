@@ -154,7 +154,7 @@
 
         //Header
         HEADER_VIEW: '#header-view',
-        HEADER_VIEW_NAVBAR_BRAND: '#header-view-navbar-brand',
+        //HEADER_VIEW_NAVBAR_BRAND: '#header-view-navbar-brand',
         HEADER_VIEW_SEARCH_INPUT: '#header-view-navbar-search-input',
         HEADER_VIEW_SEARCH_BUTTON: '#header-view-navbar-search-button',
 
