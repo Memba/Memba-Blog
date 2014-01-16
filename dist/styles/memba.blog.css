@@ -1,5 +1,5 @@
 @import url(http://fonts.googleapis.com/css?family=Droid+Sans:400,700|Droid+Serif:400,700,400italic,700italic);
-/* General display */
+/* General layout, header, footer */
 html, body {
     margin: 0px !important;
     padding: 0px;
@@ -8,11 +8,51 @@ html, body {
 h1, h2, h3, header, footer {
     font-family: 'Droid Sans', sans-serif;
 }
-h1 {
+.navbar-brand, .navbar-form, .navbar-nav {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.navbar-toggle {
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+.navbar-brand img {
+    outline: 0;
+    padding-left: 5px;
+    height: 50px;
+}
+footer {
+    margin-top: 1rem;
+}
+/* Articles */
+article h1 {
     font-size: xx-large;
 }
-h2 {
+article h2 {
+    font-size: x-large;
+}
+article h2:before {
+    content:'\007C\00a0'; /*http://css-tricks.com/css-content*/
+}
+article h3 {
     font-size: large;
+}
+article h3:before {
+    content:'\22EE\00a0'; /*http://css-tricks.com/css-content*/
+}
+article pre code {
+    background-color: #F5F5F5;
+}
+article img {
+    outline: 0;
+    max-width: 80%;
+    height: auto;
+    display: block;
+    margin: 2rem auto;
+    /*-moz-box-shadow:    inset 0 0 10px #000000;
+    -webkit-box-shadow: inset 0 0 10px #000000;
+    box-shadow:         inset 0 0 10px #000000;*/
+
 }
 @media (min-width: 768px) {
     /*create some space between main content and side list*/
@@ -20,14 +60,14 @@ h2 {
         padding-right: 40px;
     }
 }
-footer {
-    margin-top: 1rem;
-}
 /* Index list */
 div.authorship, div.readmore {
     font-family: 'Droid Sans', sans-serif;
     font-size: small;
     color: #777;
+}
+div.readmore {
+    margin: 1rem 0px;
 }
 div.summary {
     margin-top: 2rem;
@@ -44,14 +84,12 @@ div.thumb { /*bootstrap has a thumbnail class*/
 div.thumb img {
     width: 150px;
 }
-div.readmore {
-    margin: 1rem 0px;
-}
 /* Side lists */
 section.side-section {
     margin-bottom: 3rem;
 }
 section.side-section h2 {
+    font-size: large;
     margin-bottom: 0.5rem;
 }
 section.side-section h2 + hr {

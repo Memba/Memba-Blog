@@ -26,7 +26,8 @@
         PATH_SEP: '/',
         PAGE_SIZE: 'pageSize',
         DEFAULT_PAGE_SIZE: 5,
-        DATE_FORMAT: 'dd MMM yyyy'
+        DATE_FORMAT: 'dd MMM yyyy',
+        MAX_THUMBNAILS: 4
     });
 
     /**
@@ -52,7 +53,8 @@
         RSS: 'index.rss',
         INDEX: './index.html',
         HEADER: './header.tmpl.html',
-        FOOTER: './footer.tmpl.html'
+        FOOTER: './footer.tmpl.html',
+        THUMBNAIL: './styles/images/blog{0}.jpg'
     });
 
     /**
@@ -101,6 +103,7 @@
         DATA_COLUMNS: 'data-columns',
         DIV: 'div',
         DIV_ELEMENT: '<div/>',
+        HREF: 'href',
         ID: 'id',
         INPUT: 'input',
         INPUT_ELEMENT: '<input/>',
@@ -151,7 +154,7 @@
 
         //Header
         HEADER_VIEW: '#header-view',
-        HEADER_VIEW_NAVBAR_BRAND: '#header-view-navbar-brand',
+        //HEADER_VIEW_NAVBAR_BRAND: '#header-view-navbar-brand',
         HEADER_VIEW_SEARCH_INPUT: '#header-view-navbar-search-input',
         HEADER_VIEW_SEARCH_BUTTON: '#header-view-navbar-search-button',
 
@@ -192,6 +195,11 @@
 
         //FAQs View
         FAQS_VIEW: '#faqs-view',
+
+        //Error View
+        ERROR_VIEW: '#error-view',
+        ERROR_VIEW_TITLE: 'h1',
+        ERROR_VIEW_MESSAGE: 'div.alert',
 
         DUMMY: 'dummy'
     });
@@ -259,6 +267,7 @@
             listView = new kendo.View(elements.LIST_VIEW, { model: app.listViewModel }),
             detailView = new kendo.View(elements.DETAIL_VIEW, { model: app.detailViewModel }),
             searchView = new kendo.View(elements.SEARCH_VIEW, { model: app.searchViewModel }),
+            errorView = new kendo.View(elements.ERROR_VIEW),
 
         //Initialize router
             router = new kendo.Router({
@@ -278,11 +287,11 @@
                     if (DEBUG && global.console) {
                         global.console.log(MODULE + 'Route missing at ' + e.url);
                     }
+                    applicationLayout.showIn(elements.CONTENT_SECTION, errorView);
                 }
             });
 
         //Add routes
-        //TODO: error 404 route missing????
         router.route(routes.HOME, function () {
             var listDataSource = app.listViewModel.get('list');
             listDataSource.filter(null);
@@ -398,6 +407,7 @@
         kendo = global.kendo,
         app = global.app,
         elements = app.elements,
+        hrefs = app.hrefs,
         tags = app.tags,
         DEBUG = false,
         MODULE = 'app.localizer.js: ',
@@ -442,14 +452,16 @@
         if($(elements.APPLICATION_LAYOUT).length === 1) {
             wrap = $(WRAP_OPEN + $(elements.APPLICATION_LAYOUT).html() + WRAP_CLOSE);
             wrap.find(elements.ALL_POSTS_SECTION_TITLE).html(resources.ALL_POSTS_SECTION_TITLE);
-            wrap.find(elements.RSS_SECTION_TITLE).html(resources.RSS_SECTION_TITLE);
+            wrap.find(elements.RSS_SECTION_TITLE)
+                .html(resources.RSS_SECTION_TITLE)
+                .attr(tags.HREF, hrefs.ARCHIVE + hrefs.RSS);
             $(elements.APPLICATION_LAYOUT).html(wrap.html());
         }
 
         //Header - Navigation Bar
         if($(elements.HEADER_VIEW).length === 1) {
             wrap = $(WRAP_OPEN + $(elements.HEADER_VIEW).html() + WRAP_CLOSE);
-            wrap.find(elements.HEADER_VIEW_NAVBAR_BRAND).html(resources.HEADER_VIEW_NAVBAR_BRAND);
+            //wrap.find(elements.HEADER_VIEW_NAVBAR_BRAND).html(resources.HEADER_VIEW_NAVBAR_BRAND);
             wrap.find(elements.HEADER_VIEW_NAVBAR_TOGGLE).html(resources.HEADER_VIEW_NAVBAR_TOGGLE);
             if (Modernizr.input.placeholder) {
                 wrap.find(elements.HEADER_VIEW_NAVBAR_SEARCH_INPUT).attr(tags.PLACEHOLDER, resources.HEADER_VIEW_NAVBAR_SEARCH_INPUT);
@@ -528,6 +540,12 @@
         }
         */
 
+        if($(elements.ERROR_VIEW).length === 1) {
+            wrap = $(WRAP_OPEN + $(elements.ERROR_VIEW).html() + WRAP_CLOSE);
+            wrap.find(elements.ERROR_VIEW_TITLE).html(resources.ERROR_VIEW_TITLE);
+            wrap.find(elements.ERROR_VIEW_MESSAGE).html(resources.ERROR_VIEW_MESSAGE);
+            $(elements.ERROR_VIEW).html(wrap.html());
+        }
     };
 
 }(jQuery));
@@ -603,7 +621,18 @@
                     link: {
                         field: 'link/text()',
                         type: types.STRING,
-                        editable: false
+                        editable: false,
+                        parse: function(value) {
+                            //This allows the web site to work both in the development environment and the production environment
+                            //Be careful with the RSS index though
+                            if ($.type(value) === types.STRING) {
+                                var pos = value.indexOf(routes.HASH);
+                                if (pos >= 0) {
+                                    return value.substr(pos);
+                                }
+                            }
+                            return value;
+                        }
                     },
                     description: {
                         field: 'description/text()',
@@ -611,12 +640,18 @@
                         editable: false
                     },
                     enclosure: {
-                        //TODO: check that this is an image + default value
-                        //<enclosure url="http://www.scripting.com/mp3s/weatherReportSuite.mp3" length="0" type="audio/mpeg" />
                         field: 'enclosure/@url',
                         type: types.STRING,
-                        editable: false
-                        //TODO defaultValue: ''
+                        editable: false,
+                        parse: function(value) {
+                            if($.type(value) === types.STRING) {
+                                //TODO: check that value is an image (file extension and/or content type)
+                                //<enclosure url="http://www.scripting.com/mp3s/weatherReportSuite.mp3" length="0" type="audio/mpeg" />
+                                return value;
+                            } else {
+                                return kendo.format(hrefs.THUMBNAIL, Math.floor(1 + constants.MAX_THUMBNAILS* Math.random()));
+                            }
+                        }
                     },
                     author: {
                         field: 'author/text()',
