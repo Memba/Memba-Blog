@@ -168,7 +168,7 @@
         },
         error: function (e) {
             if (DEBUG && global.console && $.type(global.console.error) === types.FUNCTION) {
-                global.console.error(MODULE + 'Error %O',  e.errors);
+                global.console.error(MODULE + 'error ' +  e.errorThrown);
             }
         }
     });
