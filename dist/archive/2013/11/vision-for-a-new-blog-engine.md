@@ -1,11 +1,11 @@
 title: Vision for a new blog engine
 description: We needed a free blogging platform to match the layout and style of an existing web application based on Twitter Bootstrap. We have discarded Blogger and Wordpress after realizing that building and maintaining a template based on Bootstrap was complex. We have come across Markdown as a nice way to separate layout from content, so we have searched for blog engines based on static site generators. We have found Jekyll and Octopress, which we have also discarded. So we have decided to develop <strong>Memba Mini Blog Engine</strong>.
-author: webmaster@memba.org (Memba)
 slug: vision-for-a-new-blog-engine
+author: webmaster@memba.org (Memba)
 category: Design
 pubDate: 2013-11-23T12:37:02.341Z
 guid: 1FD270AE-DDAD-47C1-AE44-B533E12D48DE
-link: http://localhost:63342/Blog/src/www/index.html#/blog/2013/11/vision-for-a-new-blog-engine
+link: #/blog/2013/11/vision-for-a-new-blog-engine
 
 ## Background
 
@@ -25,5 +25,5 @@ The vision for **Memba Mini Blog Engine** is:
 
 1. An easy setup to start a new project in minutes (not in hours) with free tools;
 2. Blog posts that you write in Markdown and that you publish 'AS IS', allowing modifications that you can check live without rebuilding/republishing;
-2. A layout that is very easy to change, assuming you understand Twitter Bootstrap (We might also consider an [HTML5 Boilerplate](http://html5boilerplate.com/) template to start with in the future);
+2. A layout that is very easy to change, assuming you understand [Twitter Bootstrap](http://getbootstrap.com) and [Kendo UI Single Page Application framework](http://docs.kendoui.com/getting-started/framework/spa/overview);
 3. A simple command to build indexes.
