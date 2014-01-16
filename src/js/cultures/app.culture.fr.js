@@ -23,7 +23,7 @@
         //Application layout
 
         //Header - Navigation Bar
-        HEADER_VIEW_NAVBAR_BRAND: 'Blog Engine', //TODO: Add Memba Logo
+        HEADER_VIEW_NAVBAR_BRAND: '<img src="./styles/images/logo.png" alt="Memba Mini Blog Engine">',
         HEADER_VIEW_NAVBAR_TOGGLE: 'Déployer la navigation',
         HEADER_VIEW_NAVBAR_SEARCH_INPUT: 'Recherche',
         HEADER_VIEW_NAVBAR_SEARCH_BUTTON: 'Go',
