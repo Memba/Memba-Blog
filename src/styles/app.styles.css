@@ -31,19 +31,19 @@ article h1 {
 article h2 {
     font-size: x-large;
 }
-article h2:before {
-    content:'\007C\00a0'; /*http://css-tricks.com/css-content*/
-}
 article h3 {
     font-size: large;
 }
-article h3:before {
+div.k-markdown article h2:before {
+    content:'\007C\00a0'; /*http://css-tricks.com/css-content*/
+}
+div.k-markdown h3:before {
     content:'\22EE\00a0'; /*http://css-tricks.com/css-content*/
 }
-article pre code {
+div.k-markdown pre code {
     background-color: #F5F5F5;
 }
-article img {
+div.k-markdown img {
     outline: 0;
     max-width: 80%;
     height: auto;
