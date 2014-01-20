@@ -1,4 +1,5 @@
 #Ignore blog archives
+news/
 src/news/
 dist/news/
 
