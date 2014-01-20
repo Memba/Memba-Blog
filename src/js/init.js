@@ -99,7 +99,7 @@
             load: [
                 'http://yandex.st/highlightjs/7.5/styles/solarized_light.min.css',
                 'http://yandex.st/highlightjs/7.5/highlight.min.js', //code highlighting
-                'http://cdnjs.cloudflare.com/ajax/libs/marked/0.2.9/marked.min.js', //markdown
+                'http://cdnjs.cloudflare.com/ajax/libs/marked/0.3.0/marked.min.js', //markdown
                 './styles/vendor/memba.widgets.min.css',
                 './js/vendor/memba.widgets.min.js'
             ],
@@ -118,7 +118,7 @@
                     }]);
                 }
                 if(!global.marked) {
-                    Modernizr.load('./js/vendor/marked.js');
+                    Modernizr.load('./js/vendor/marked.min.js');
                 }
             }
         },
