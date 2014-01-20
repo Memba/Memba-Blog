@@ -6,6 +6,14 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        blog: {
+            main: {
+                options: {
+                    newRoots: 'src/news/',
+                    postsRoot: 'src/posts/'
+                }
+            }
+        },
         clean: ['dist/'],
         copy: {
             dist: {
@@ -19,11 +27,12 @@ module.exports = function (grunt) {
                                 .replace(/init.js/gm, 'init.min.js');
                         }
                         return ret || src;
-                    }
+                    },
+                    noProcess: ['**/*.{png,gif,jpg,ico,psd}'] //otherwise images are corrupeted
                 },
                 files: [
                     { cwd: 'dist_root', src: ['**'], dest: 'dist/', expand: true },
-                    { cwd: 'src/archive', src: ['**'], dest: 'dist/archive', expand: true },
+                    { cwd: 'src/posts', src: ['**'], dest: 'dist/posts', expand: true },
                     { cwd: 'src/js', src: ['init.js'], dest: 'dist/js', expand: true },
                     { cwd: 'src/js', src: ['vendor/bootstrap.min.js', 'vendor/highlight.min.js', 'vendor/marked.min.js', 'vendor/memba.widgets.min.js', 'vendor/memba.widgets.map', 'vendor/modernizr.min.js'], dest: 'dist/js', expand: true },
                     { cwd: 'src/styles', src: ['fonts/**'], dest: 'dist/styles', expand: true },
@@ -165,6 +174,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-blog');
 
     grunt.registerTask('test', ['jshint', 'qunit']);
-    grunt.registerTask('default', ['clean', 'jshint', 'qunit', 'copy', 'concat', 'uglify', 'cssmin', 'htmlmin']);
+    grunt.registerTask('default', ['blog', 'clean', 'jshint', 'qunit', 'copy', 'concat', 'uglify', 'cssmin', 'htmlmin']);
 
 };
