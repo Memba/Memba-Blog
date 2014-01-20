@@ -10,14 +10,14 @@ module.exports = function (grunt) {
             main: {
                 options: {
                     home: 'http://miniblog.memba.com', //The path to your Mini Blog Engine
-                    newsRoot: 'new', //your news directory
-                    archiveRoot: 'archive', //your archive directory
+                    newsRoot: 'news', //your news directory (with new blog posts)
+                    postsRoot: 'posts', //your posts directory (with existing blog posts)
                     title: 'Memba Mini Blog Engine',
-                    link: 'http://miniblog.memba.com',
-                    description: 'A static blog engine which displays your markdown content live (What You Write Is What You Publish)',
+                    link: 'http://miniblog.memba.com/posts/index.rss',
+                    description: 'A static blog engine which displays live markdown content (What You Write Is What You Publish)',
                     copyright: 'Copyright (c) 2013-2014 Memba Sarl. All rights reserved.',
                     category: 'Web Development', //The default category for your blog posts
-                    managingEditor: 'Memba'
+                    managingEditor: 'Memba' //The default author for your blog posts
                 }
             }
         }
