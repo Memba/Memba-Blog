@@ -9,7 +9,8 @@ module.exports = function (grunt) {
         blog: {
             main: {
                 options: {
-                    newRoots: 'src/news/',
+                    homeRoot: 'src/',
+                    newsRoot: 'src/news/',
                     postsRoot: 'src/posts/'
                 }
             }
