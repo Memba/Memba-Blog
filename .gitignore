@@ -1,6 +1,8 @@
 #Ignore blog archives
-/src/archive/
-/src/new/
+src/archive/
+src/posts/
+src/new/
+src/news/
 
 # Ignore OS files
 .DS_Store
