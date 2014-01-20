@@ -27,7 +27,7 @@
 
     /**
      * Datasources
-     * @type {DataSource}
+     * @type {kendo.data.DataSource}
      */
     var categoriesDataSource = new kendo.data.DataSource({}),
         archiveDataSource = new kendo.data.DataSource({}),

@@ -16,8 +16,8 @@
         events = app.events,
         hrefs = app.hrefs,
         routes = app.routes,
-        tags = app.tags,
-        types = app.types,
+        //tags = app.tags,
+        //types = app.types,
         //TITLE = 'title',
         DEBUG = true,
         MODULE = 'app.controller.js: ';
@@ -40,7 +40,7 @@
      * Once document is ready and external (shared) templates are loaded
      * jQuery and kendo can safely be used against the DOM
      */
-    $(document).bind(events.INITIALIZE, function(e /*, params*/) {
+    $(document).bind(events.INITIALIZE, function(/*e , params*/) {
 
         if(DEBUG && global.console) {
             console.log(MODULE + 'initialize event fired');
@@ -141,7 +141,7 @@
                 //TODO
             }
         });
-        router.route(routes.SEARCH, function(params) {
+        router.route(routes.SEARCH, function() {
             applicationLayout.showIn(elements.CONTENT_SECTION, searchView);
 
         });
@@ -160,6 +160,7 @@
                 e.preventDefault();
                 return false;
             }
+            return true;
         });
 
         //Header
@@ -170,7 +171,7 @@
                 $(elements.HEADER_VIEW_SEARCH_BUTTON).addClass('disabled');
             }
         });
-        $(elements.HEADER_VIEW_SEARCH_BUTTON).bind(events.CLICK, function(e){
+        $(elements.HEADER_VIEW_SEARCH_BUTTON).bind(events.CLICK, function(/*e*/){
             router.navigate(routes.SEARCH);
             //window.location.assign(routes.HASH + routes.SEARCH + '?q=' + encodeURIComponent(app.searchViewModel.get('search')));
         });
