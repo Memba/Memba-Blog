@@ -49,7 +49,7 @@
      * @type {*}
      */
     app.hrefs = $.extend(app.hrefs || {}, {
-        ARCHIVE: './archive/',
+        ARCHIVE: './posts/',
         RSS: 'index.rss',
         INDEX: './index.html',
         HEADER: './header.tmpl.html',
