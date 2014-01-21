@@ -9,6 +9,6 @@
   "author": "Memba Sarl",
   "devDependencies": {
     "grunt": "~0.4.2",
-    "grunt-blog": "~0.1.2"
+    "grunt-blog": "~0.1.4"
   }
 }
