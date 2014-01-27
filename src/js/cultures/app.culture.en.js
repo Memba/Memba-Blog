@@ -51,7 +51,7 @@
 
         //Error View
         ERROR_VIEW_TITLE: 'Error 404',
-        ERROR_VIEW_MESSAGE: 'We are sorry, the page that you requested cannot be found. The URL may have been misspelled or the page that you\'re looking may no longer be available.',
+        ERROR_VIEW_MESSAGE: 'We are sorry, the page that you requested cannot be found. The URL may have been misspelled or the page that you\'re looking for may no longer be available.',
 
         //Dummy
         DUMMY: 'dummy'
