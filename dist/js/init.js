@@ -12,7 +12,7 @@
     var fn = Function,
         global = fn('return this')(),
         Modernizr = global.Modernizr,
-        KENDO_VERSION = '2013.3.1119',
+        KENDO_VERSION = '2013.3.1316', //1119',
 
         DEBUG = false,
         MODULE = 'app.init.min.js: ';
@@ -23,7 +23,10 @@
         global.console.log(MODULE + global.location.href);
     }
 
-    Modernizr.load([
+    //Do not execute on Google's Ajax crawling scheme
+    //if(global.location.search.indexOf('_escaped_fragment_') < 0) {
+
+        Modernizr.load([
         //jQuery
         {
             load: 'http://code.jquery.com/jquery-1.9.1.min.js',
@@ -178,4 +181,6 @@
             }
         }
     ]);
+
+    //}
 }());

@@ -27,7 +27,8 @@
         PAGE_SIZE: 'pageSize',
         DEFAULT_PAGE_SIZE: 5,
         DATE_FORMAT: 'dd MMM yyyy',
-        MAX_THUMBNAILS: 4
+        MAX_THUMBNAILS: 4,
+        ESC_FRAGMENT: '_escaped_fragment_'
     });
 
     /**
@@ -63,19 +64,20 @@
      */
     app.routes = $.extend(app.routes || {}, {
         HASH: '#',
-        HOME: '/',
-        CATEGORY: '/category/:category',
+        ROOT: '/',
+        HOME: '!/',
+        CATEGORY: '!/category/:category',
         CATEGORY_PARAMETER: ':category',
-        ARCHIVE: '/archive/:period',
+        ARCHIVE: '!/archive/:period',
         PERIOD_PARAMETER: ':period',
-        DETAIL: '/blog/:year/:month/:slug',
+        DETAIL: '!/blog/:year/:month/:slug',
         YEAR_PARAMETER: ':year',
         MONTH_PARAMETER: ':month',
         SLUG_PARAMETER: ':slug',
-        GUID: '/guid/:guid',
+        GUID: '!/guid/:guid',
         GUID_PARAMETER: ':guid',
-        SEARCH: '/search',
-        FAQS: '/faqs'
+        SEARCH: '!/search',
+        sFAQS: '!/faqs'
     });
 
     /**
@@ -226,7 +228,7 @@
         hrefs = app.hrefs,
         routes = app.routes,
         //tags = app.tags,
-        //types = app.types,
+        types = app.types,
         //TITLE = 'title',
         DEBUG = false,
         MODULE = 'app.controller.js: ';
@@ -269,7 +271,7 @@
             searchView = new kendo.View(elements.SEARCH_VIEW, { model: app.searchViewModel }),
             errorView = new kendo.View(elements.ERROR_VIEW),
 
-        //Initialize router
+            //Initialize router
             router = new kendo.Router({
                 init: function () {
                     applicationLayout.render(elements.APPLICATION_ROOT);
@@ -292,7 +294,7 @@
             });
 
         //Add routes
-        router.route(routes.HOME, function () {
+        var homeRouteHandler = function () {
             var listDataSource = app.listViewModel.get('list');
             listDataSource.filter(null);
             if (!listDataSource.sort()) {
@@ -300,14 +302,16 @@
             }
             listDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
             applicationLayout.showIn(elements.CONTENT_SECTION, listView);
-        });
-        router.route(routes.CATEGORY, function (category) {
+        };
+        router.route(routes.HOME, homeRouteHandler);
+        var categoryRouteHandler = function (category) {
             var listDataSource = app.listViewModel.get('list');
             listDataSource.filter( { field: 'category', operator: 'eq', value: category });
             listDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
             applicationLayout.showIn(elements.CONTENT_SECTION, listView);
-        });
-        router.route(routes.ARCHIVE, function (period) {
+        };
+        router.route(routes.CATEGORY, categoryRouteHandler);
+        var archiveRouteHandler = function (period) {
             var listDataSource = app.listViewModel.get('list');
             if (period.length < 6) {
                 listDataSource.filter({ field: 'period', operator: 'startswith', value: period });
@@ -316,8 +320,9 @@
             }
             listDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
             applicationLayout.showIn(elements.CONTENT_SECTION, listView);
-        });
-        router.route(routes.DETAIL, function (year, month, slug) {
+        };
+        router.route(routes.ARCHIVE, archiveRouteHandler);
+        var detailRouteHandler = function (year, month, slug) {
             var listDataSource = app.listViewModel.get('list');
             var found = $.grep(listDataSource.data(), function(item) {
                 return item.link.indexOf(year + constants.PATH_SEP + month + constants.PATH_SEP + slug) > 0;
@@ -331,8 +336,9 @@
             } else {
                 //TODO
             }
-        });
-        router.route(routes.GUID, function (guid) {
+        };
+        router.route(routes.DETAIL, detailRouteHandler);
+        var guidRouteHandler = function (guid) {
             var listDataSource = app.listViewModel.get('list');
             var found = listDataSource.get(guid);
             if (found) {
@@ -349,11 +355,49 @@
             } else {
                 //TODO
             }
-        });
-        router.route(routes.SEARCH, function() {
+        };
+        router.route(routes.GUID, guidRouteHandler);
+        var searchRouteHandler = function() {
             applicationLayout.showIn(elements.CONTENT_SECTION, searchView);
-
-        });
+        };
+        router.route(routes.SEARCH, searchRouteHandler);
+        /*
+         * We call the following rootRouteHandler but we might as well have called it googleRouteHandler
+         * because it is all about compatibility with the Google Ajax crawling scheme
+         * See: https://developers.google.com/webmasters/ajax-crawling/docs/getting-started
+         * See http://ajax.rswebanalytics.com/
+         */
+        var rootRouteHandler = function(params) {
+            if (!params[constants.ESC_FRAGMENT]
+                && global.location.search.indexOf(constants.ESC_FRAGMENT) < 0) { //not a URL like index.html?_escaped_fragment=...............
+                homeRouteHandler();
+            } else { //URL like index.html?_escaped_fragment=...............
+                var frag = params[constants.ESC_FRAGMENT]; //If kendo.Router was working properly, we should find params._escaped_fragment
+                if(!frag) { //unfortunately, we need this hack because it does not return such value
+                    var search = function() {
+                        var s = global.location.search.substr(1),
+                            p = s.split(/\&/), l = p.length, kv, r = {};
+                        if (l === 0) {return false;}
+                        while (l--) {
+                            kv = p[l].split(/\=/);
+                            r[kv[0]] = decodeURIComponent(kv[1] || '') || true;
+                        }
+                        return r;
+                    }();
+                    frag = search[constants.ESC_FRAGMENT];
+                }
+                //we need to compare frag against the router's existing routes
+                $.each(router.routes, function(index, value) {
+                    var rx = new RegExp(value.route.source.replace('^!/', '^/')),
+                        matches = rx.exec(frag);
+                    if($.isArray(matches)) {
+                        value._callback(matches[1], matches[2], matches[3], matches[4]); //more matches required?
+                        return false; //break for loop
+                    }
+                });
+            }
+        };
+        router.route(routes.ROOT, rootRouteHandler);
         //Start router
         router.start();
 
