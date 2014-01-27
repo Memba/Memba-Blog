@@ -5,8 +5,8 @@
     <link>http://miniblog.memba.com/posts/index.rss</link>
     <description><![CDATA[A static blog engine which displays live markdown content (What You Write Is What You Publish).]]></description>
     <generator>http://miniblog.memba.com</generator>
-    <pubDate>2014-01-20T18:36:41.477Z</pubDate>
-    <lastBuildDate>2014-01-20T18:36:41.477Z</lastBuildDate>
+    <pubDate>2014-01-27T10:48:26.766Z</pubDate>
+    <lastBuildDate>2014-01-27T10:48:26.766Z</lastBuildDate>
     <category>Web Development</category>
     <copyright>Copyright (c) 2013-2014 Memba. All rights reserved.</copyright>
     <docs>http://cyber.law.harvard.edu/rss/</docs>
@@ -21,7 +21,7 @@
     <webMaster>Memba</webMaster>
     <item>
       <title>Vision for a new blog engine</title>
-      <link>http://miniblog.memba.com#/blog/2013/11/vision-for-a-new-blog-engine</link>
+      <link>http://miniblog.memba.com#!/blog/2013/11/vision-for-a-new-blog-engine</link>
       <description><![CDATA[We needed a free blogging platform to match the layout and style of an existing web application based on Twitter Bootstrap. We have discarded Blogger and Wordpress after realizing that building and maintaining a template based on Bootstrap was complex. We have come across Markdown as a nice way to separate layout from content, so we have searched for blog engines based on static site generators. We have found Jekyll and Octopress, which we have also discarded. So we have decided to develop <strong>Memba Mini Blog Engine</strong>.]]></description>
       <author>webmaster@memba.org (Memba)</author>
       <category>Design</category>
@@ -30,7 +30,7 @@
     </item>
     <item>
       <title>Architecture and blogging process</title>
-      <link>http://miniblog.memba.com#/blog/2013/12/architecture-and-blogging-process</link>
+      <link>http://miniblog.memba.com#!/blog/2013/12/architecture-and-blogging-process</link>
       <description><![CDATA[<div><strong>Memba Mini Blog Engine</strong> has 3 building blocks:<ol><li>The content which you write as markdown files (with metadata);</li><li>A Grunt task which you execute on the command line to build an RSS index of your content;</li><li>A Single Page Application (SPA) embedding widgets to display indexes, content, comments and like buttons in the browser.</li></ol></div>]]></description>
       <author>webmaster@memba.org (Memba)</author>
       <category>Design</category>
@@ -40,7 +40,7 @@
     </item>
     <item>
       <title>Converting markdown into html</title>
-      <link>http://miniblog.memba.com#/blog/2013/12/converting-markdown-into-html</link>
+      <link>http://miniblog.memba.com#!/blog/2013/12/converting-markdown-into-html</link>
       <description><![CDATA[The feasibility of the vision for <strong>Memba Mini Blog Engine</strong> was dependent upon finding an open source royalty-free Javascript API to convert Markdown into HTML. We have shortlisted 2 API's based on popularity. Our tests have demonstrated a significant difference between the two APIs.]]></description>
       <author>webmaster@memba.org (Memba)</author>
       <category>Development</category>
@@ -49,7 +49,7 @@
     </item>
     <item>
       <title>Building and debugging memba-blog</title>
-      <link>http://miniblog.memba.com#/blog/2014/01/building-and-debugging-memba-blog</link>
+      <link>http://miniblog.memba.com#!/blog/2014/01/building-and-debugging-memba-blog</link>
       <description><![CDATA[fdsfdsfdsfds]]></description>
       <author>webmaster@memba.org (Memba)</author>
       <category>Development</category>
@@ -58,7 +58,7 @@
     </item>
     <item>
       <title>Publish your blog to GitHub pages</title>
-      <link>http://miniblog.memba.com#/blog/2014/01/publish-your-blog-to-github-pages</link>
+      <link>http://miniblog.memba.com#!/blog/2014/01/publish-your-blog-to-github-pages</link>
       <description><![CDATA[dsadsadasdas]]></description>
       <author>webmaster@memba.org (Memba)</author>
       <category>Production</category>
@@ -67,7 +67,7 @@
     </item>
     <item>
       <title>Setup a blogging environment</title>
-      <link>http://miniblog.memba.com#/blog/2014/01/setup-a-blogging-environment</link>
+      <link>http://miniblog.memba.com#!/blog/2014/01/setup-a-blogging-environment</link>
       <description><![CDATA[bla bla vbla]]></description>
       <author>webmaster@memba.org (Memba)</author>
       <category>Production</category>
@@ -76,7 +76,7 @@
     </item>
     <item>
       <title>Setup a development environment</title>
-      <link>http://miniblog.memba.com#/blog/2014/01/setup-a-development-environment</link>
+      <link>http://miniblog.memba.com#!/blog/2014/01/setup-a-development-environment</link>
       <description><![CDATA[Learn how to setup your development environment including nodejs and grunt to develop the <strong>grunt-blog</strong> plugin and the <strong>memba-blog</strong> single page application which together form the <strong>Memba Mini Blog Engine</strong>.]]></description>
       <author>webmaster@memba.org (Memba)</author>
       <category>Development</category>

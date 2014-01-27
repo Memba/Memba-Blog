@@ -27,7 +27,8 @@
         PAGE_SIZE: 'pageSize',
         DEFAULT_PAGE_SIZE: 5,
         DATE_FORMAT: 'dd MMM yyyy',
-        MAX_THUMBNAILS: 4
+        MAX_THUMBNAILS: 4,
+        ESC_FRAGMENT: '_escaped_fragment_'
     });
 
     /**
@@ -63,19 +64,20 @@
      */
     app.routes = $.extend(app.routes || {}, {
         HASH: '#',
-        HOME: '/',
-        CATEGORY: '/category/:category',
+        ROOT: '/',
+        HOME: '!/',
+        CATEGORY: '!/category/:category',
         CATEGORY_PARAMETER: ':category',
-        ARCHIVE: '/archive/:period',
+        ARCHIVE: '!/archive/:period',
         PERIOD_PARAMETER: ':period',
-        DETAIL: '/blog/:year/:month/:slug',
+        DETAIL: '!/blog/:year/:month/:slug',
         YEAR_PARAMETER: ':year',
         MONTH_PARAMETER: ':month',
         SLUG_PARAMETER: ':slug',
-        GUID: '/guid/:guid',
+        GUID: '!/guid/:guid',
         GUID_PARAMETER: ':guid',
-        SEARCH: '/search',
-        FAQS: '/faqs'
+        SEARCH: '!/search',
+        sFAQS: '!/faqs'
     });
 
     /**
