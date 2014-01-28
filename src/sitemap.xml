@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://miniblog.memba.com?r=%2Fblog%2F2013%2F11%2Fvision-for-a-new-blog-engine</loc>
+    <lastmod>2013-11-23T12:37:02.341Z</lastmod>
+  </url>
+  <url>
+    <loc>http://miniblog.memba.com?r=%2Fblog%2F2013%2F12%2Farchitecture-and-blogging-process</loc>
+    <lastmod>2013-12-15T10:33:07.222Z</lastmod>
+  </url>
+  <url>
+    <loc>http://miniblog.memba.com?r=%2Fblog%2F2013%2F12%2Fconverting-markdown-into-html</loc>
+    <lastmod>2013-12-07T18:17:41.125Z</lastmod>
+  </url>
+  <url>
+    <loc>http://miniblog.memba.com?r=%2Fblog%2F2014%2F01%2Fbuilding-and-debugging-memba-blog</loc>
+    <lastmod>2014-01-15T22:20:42.284Z</lastmod>
+  </url>
+  <url>
+    <loc>http://miniblog.memba.com?r=%2Fblog%2F2014%2F01%2Fpublish-your-blog-to-github-pages</loc>
+    <lastmod>2014-01-16T09:52:37.671Z</lastmod>
+  </url>
+  <url>
+    <loc>http://miniblog.memba.com?r=%2Fblog%2F2014%2F01%2Fsetup-a-blogging-environment</loc>
+    <lastmod>2014-01-16T09:45:04.376Z</lastmod>
+  </url>
+  <url>
+    <loc>http://miniblog.memba.com?r=%2Fblog%2F2014%2F01%2Fsetup-a-development-environment</loc>
+    <lastmod>2014-01-06T08:50:54.852Z</lastmod>
+  </url>
+</urlset>

@@ -151,6 +151,10 @@
             wrap.find(elements.ERROR_VIEW_MESSAGE).html(resources.ERROR_VIEW_MESSAGE);
             $(elements.ERROR_VIEW).html(wrap.html());
         }
+
+        if (DEBUG && global.console) {
+            global.console.log(MODULE + 'done with localization in ' + locale);
+        }
     };
 
 }(jQuery));
