@@ -50,10 +50,9 @@ module.exports = function (grunt) {
             js: {
                 options: {
                     separator: '\n;\n',
-                    process: function(src, filepath) {
+                    process: function(src /*, filepath*/) {
                         //Replace DEBUG = true with DEBUG = false
-                        var ret = src.replace(/DEBUG[\s]*=[\s]*true/gm, 'DEBUG = false');
-                        return ret;
+                        return src.replace(/DEBUG[\s]*=[\s]*true/gm, 'DEBUG = false');
                     }
                 },
                 src: ['src/js/app*.js'],
@@ -109,7 +108,7 @@ module.exports = function (grunt) {
         cssmin: {
             add_banner: {
                 options: {
-                    banner: '// <%= pkg.name %> <%= pkg.version %> built on <%= grunt.template.today("dd-mm-yyyy") %> - <%= pkg.copyright %>\n'
+                    banner: '/* <%= pkg.name %> <%= pkg.version %> built on <%= grunt.template.today("dd-mm-yyyy") %> - <%= pkg.copyright %> */\n'
                 },
                 files: {
                     'dist/styles/<%= pkg.name %>.min.css': ['<%= concat.css.dest %>']
