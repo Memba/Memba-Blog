@@ -154,18 +154,10 @@
                     './js/app.localizer.js',
                     './js/app.viewmodels.js',
                     './js/app.controller.js',
-                    './js/cultures/app.culture.en.js', //default culture
-                    //TODO: http://stackoverflow.com/questions/1043339/javascript-for-detecting-browser-language-preference
-                    //Basically, navigator.language returns the OS language, not the browser accepted language;
-                    //the browser language is not something you can't get in Javascript: you need to read HTTP_USER_AGENT on the server.
-                    './js/cultures/app.culture.' + (global.navigator.userLanguage || global.navigator.language).substring(0, 2) + '.js', //replace default culture
-                    './js/cultures/app.culture.fr.js' //Force culture
                 ],
                 nope: [
                     './styles/memba.blog.min.css',
                     './js/memba.blog.min.js',
-                    './js/cultures/memba.blog.culture.en.min.js',
-                    './js/cultures/memba.blog.culture.' + (global.navigator.userLanguage || global.navigator.language).substring(0, 2) + '.min.js'
                 ],
                 callback: function (url) {
                     if (DEBUG && global.console) {
@@ -187,7 +179,7 @@
                                 //array[1] = textStatus = 'success'
                                 //array[2] = jqXHR
                                 var app = global.app || {};
-                                app.config = $.parseJSON(config[0]);
+                                app.config = config[0];
                                 //See: http://docs.kendoui.com/howto/load-templates-external-files
                                 $(app.tags.BODY).append(header[0]);
                                 $(app.tags.BODY).append(footer[0]);

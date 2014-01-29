@@ -54,6 +54,7 @@
         INDEX: './index.html',
         HEADER: './header.tmpl.html',
         FOOTER: './footer.tmpl.html',
+        CONFIG: './config.json',
         THUMBNAIL: './styles/images/blog{0}.jpg'
     });
 
@@ -68,14 +69,14 @@
         CATEGORY_PARAMETER: ':category',
         ARCHIVE: '/archive/:period',
         PERIOD_PARAMETER: ':period',
-        DETAIL: '/blog/:year/:month/:slug',
+        BLOG: '/blog/:year/:month/:slug',
         YEAR_PARAMETER: ':year',
         MONTH_PARAMETER: ':month',
         SLUG_PARAMETER: ':slug',
         GUID: '/guid/:guid',
         GUID_PARAMETER: ':guid',
         SEARCH: '/search',
-        FAQS: '/faqs'
+        PAGES: '/pages/:page'
     });
 
     /**
@@ -147,10 +148,11 @@
         //Application layout
         APPLICATION_ROOT: '#application',
         APPLICATION_LAYOUT: '#application-layout',
-        APPLICATION_HEADER: '#application-header',
-        APPLICATION_CONTAINER: '#application-container',
-        APPLICATION_FOOTER: '#application-footer',
-        CONTENT_SECTION: '#content',
+        APPLICATION_HEADER: '#header',
+        APPLICATION_CONTAINER: '#container',
+        APPLICATION_CONTENT: '#content',
+        APPLICATION_SIDE: '#side',
+        APPLICATION_FOOTER: '#footer',
 
         //Header
         HEADER_VIEW: '#header-view',
@@ -168,38 +170,37 @@
         FOOTER_VIEW: '#footer-view',
         FOOTER_VIEW_COPYRIGHT: '#footer-view-copyright',
 
-        //Side sections
-        ALL_POSTS_SECTION: '#all-posts',
-        ALL_POSTS_SECTION_TITLE: '#all-posts-title > a',
-        CATEGORIES_SECTION: '#categories',
-        CATEGORIES_SECTION_TITLE: '#categories-title',
-        CATEGORIES_VIEW: '#categories-view',
-        ARCHIVE_SECTION: '#archive',
-        ARCHIVE_SECTION_TITLE: '#archive-title',
-        ARCHIVE_VIEW: '#archive-view',
-        RSS_SECTION: '#rss',
-        RSS_SECTION_TITLE: '#rss-title > a',
-
-        //List View
-        LIST_VIEW: '#list-view',
-        INDEX_LIST_TEMPLATE: '#index-list-template',
-        ARTICLE_READMORE: 'div.readmore > div.pull-right > a',
-        INDEX_PAGER: '#index-pager',
-        INDEX_PAGER_SIZES: 'span.k-pager-sizes select',
-
-        //Detail View
-        DETAIL_VIEW: '#detail-view',
+        //FAQs View
+        PAGE_VIEW: '#page-view',
 
         //Search View
         SEARCH_VIEW: '#search-view',
-
-        //FAQs View
-        FAQS_VIEW: '#faqs-view',
 
         //Error View
         ERROR_VIEW: '#error-view',
         ERROR_VIEW_TITLE: 'h1',
         ERROR_VIEW_MESSAGE: 'div.alert',
+
+        //Blog side navigation
+        BLOG_NAVIGATION_VIEW: '#blog-navigation-view',
+        ALL_POSTS_SECTION: '#all-posts',
+        ALL_POSTS_SECTION_TITLE: '#all-posts-title > a',
+        CATEGORIES_SECTION: '#categories',
+        CATEGORIES_SECTION_TITLE: '#categories-title',
+        ARCHIVE_SECTION: '#archive',
+        ARCHIVE_SECTION_TITLE: '#archive-title',
+        RSS_SECTION: '#rss',
+        RSS_SECTION_TITLE: '#rss-title > a',
+
+        //Blog list View
+        BLOG_LIST_VIEW: '#blog-list-view',
+        BLOG_LIST_TEMPLATE: '#blog-list-template',
+        BLOG_PAGER: '#blog-pager',
+        BLOG_PAGER_SIZES: 'span.k-pager-sizes select',
+        BLOG_POST_READMORE: 'div.readmore > div.pull-right > a',
+
+        //Blog Post View
+        DETAIL_VIEW: '#detail-view',
 
         DUMMY: 'dummy'
     });

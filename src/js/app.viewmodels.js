@@ -23,7 +23,7 @@
      * @type {*}
      */
     //TODO use a model
-    var Blog = kendo.data.Model.define({});
+    //var Blog = kendo.data.Model.define({});
 
     /**
      * Datasources
@@ -31,7 +31,7 @@
      */
     var categoriesDataSource = new kendo.data.DataSource({}),
         archiveDataSource = new kendo.data.DataSource({}),
-        listDataSource = new kendo.data.DataSource({}),
+        blogListDataSource = new kendo.data.DataSource({}),
         blogDataSource = new kendo.data.DataSource({
         //schema: { model: {} },
         transport: { read: { url: hrefs.ARCHIVE + hrefs.RSS, dataType: 'xml' } },
@@ -163,7 +163,7 @@
                 archiveDataSource.data(e.sender.data());
                 archiveDataSource.group({field: 'period'});
 
-                listDataSource.data(e.sender.data());
+                blogListDataSource.data(e.sender.data());
             }
         },
         error: function (e) {
@@ -176,6 +176,14 @@
     blogDataSource.read();
 
     /**
+     * ViewModel for pageView
+     * @type {*}
+     */
+    app.pageViewModel = kendo.observable({
+        contentUrl: ''
+    });
+
+    /**
      * ViewModel for headerView and searchView
      * @type {*}
      */
@@ -184,21 +192,14 @@
     });
 
     /**
-     * ViewModel for categoriesView
+     * ViewModel for blogNavigationView
      * @type {*}
      */
-    app.categoriesViewModel = kendo.observable({
+    app.blogNavigationViewModel = kendo.observable({
         _categories : categoriesDataSource,
         categories: function () {
             return this.get('_categories').view();
-        }
-    });
-
-    /**
-     * ViewModel for archiveView
-     * @type {*}
-     */
-    app.archiveViewModel = kendo.observable({
+        },
         _archive: archiveDataSource,
         archive: function () {
             return this.get('_archive').view();
@@ -206,18 +207,18 @@
     });
 
     /**
-     * ViewModel for listView
+     * ViewModel for blogListView
      * @type {*}
      */
-    app.listViewModel = kendo.observable({
-        list: listDataSource
+    app.blogListViewModel = kendo.observable({
+        list: blogListDataSource
     });
 
     /**
-     * ViewModel for detailView
+     * ViewModel for blogPostView
      * @type {*}
      */
-    app.detailViewModel = kendo.observable({
+    app.blogPostViewModel = kendo.observable({
         contentUrl: '',
         title: '',
         author: '',
@@ -236,7 +237,7 @@
         },
         refresh: function() {
             var that = this,
-                url = that.bindings.url.get(), //get the value from detailViewModel
+                url = that.bindings.url.get(), //get the value from blogPostViewModel
                 widget = $(that.element).data('kendoMarkDown');
             if (widget instanceof kendo.ui.MarkDown) {
                 widget.url(url); //update the widget url

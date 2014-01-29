@@ -59,7 +59,7 @@ div.k-markdown img {
 }
 @media (min-width: 768px) {
     /*create some space between main content and side list*/
-    div#index-view-left {
+    div#main {
         padding-right: 40px;
     }
 }
@@ -88,18 +88,18 @@ div.thumb img {
     width: 150px;
 }
 /* Side lists */
-section.side-section {
+section.side {
     margin-bottom: 3rem;
 }
-section.side-section h2 {
+section.side h2 {
     font-size: large;
     margin-bottom: 0.5rem;
 }
-section.side-section h2 + hr {
+section.side h2 + hr {
     margin-top: 0px;
     margin-bottom: 1rem;
 }
-ul#index-list, ul#categories-list, ul#archive-list {
+ul#blog-list, ul#categories-list, ul#archive-list {
     list-style: none;
     border-style: none;
     box-shadow: none;

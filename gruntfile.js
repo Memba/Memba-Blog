@@ -67,9 +67,7 @@ module.exports = function (grunt) {
                 files: [
                     { 'dist/js/init.min.js': ['src/js/init.js'] },
                     //{ 'dist/js/vendor/marked.min.js': ['src/js/vendor/marked.js'] },
-                    { 'dist/js/<%= pkg.name %>.min.js': ['<%= concat.js.dest %>'] },
-                    { 'dist/js/cultures/<%= pkg.name %>.culture.en.min.js': ['src/js/cultures/app.culture.en.js'] },
-                    { 'dist/js/cultures/<%= pkg.name %>.culture.fr.min.js': ['src/js/cultures/app.culture.fr.js'] }
+                    { 'dist/js/<%= pkg.name %>.min.js': ['<%= concat.js.dest %>'] }
                 ]
             }
         },

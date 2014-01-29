@@ -1,11 +1,40 @@
-{"menu": {
-    "id": "file",
-    "value": "File",
-    "popup": {
-        "menuitem": [
-            {"value": "New", "onclick": "CreateNewDoc()"},
-            {"value": "Open", "onclick": "OpenDoc()"},
-            {"value": "Close", "onclick": "CloseDoc()"}
-        ]
+{
+    "language": "en",
+    "logo": "",
+    "title": "Memba Mini Blog Engine",
+    "description": "Memba Mini Blog Engine",
+    "keywords": "Memba Mini Blog Engine",
+    "author": "Memba",
+    "copyright": "Copyright &copy;Memba 2013-2014. All rights reserved.",
+    "search": {
+        "placeholder": "Search",
+        "button": "Go"
+    },
+    "home": "home.md",
+    "menu": [
+        { "text": "Home", "href": "#/" },
+        { "text": "Blog", "href": "#/blog" },
+        { "text": "Pages",
+            "items": [
+                { "text": "About us", "href": "#/pages/about-us" },
+                { "text": "FAQs", "href": "#/pages/faqs" }
+            ]
+        }
+    ],
+    "navigation": {
+        "toggle": "Toggle navigation",
+        "allposts": "<i class=\"fa fa-home\"></i>&nbsp;All Posts",
+        "categories": "<i class=\"fa fa-tags\"></i>&nbsp;Categories",
+        "archive": "<i class=\"fa fa-calendar\"></i>&nbsp;Archive",
+        "rssfeed": "<i class=\"fa fa-rss-square\"></i>&nbsp;RSS Feed"
+    },
+    "blog": {
+        "readmore": "Read full article&nbsp;<i class=\"fa fa-caret-square-o-right\"></i>"
+    },
+    "errors": {
+        "error404": {
+            "title": "Error 404",
+            "message": "We are sorry, the page that you requested cannot be found. The URL may have been misspelled or the page that you're looking for may no longer be available."
+        }
     }
-}}
+}
