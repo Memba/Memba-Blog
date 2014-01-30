@@ -49,7 +49,7 @@
         Modernizr.load([
             //jQuery
             {
-                load: 'http://code.jquery.com/jquery-1.9.1.min.js',
+                load: '//code.jquery.com/jquery-1.9.1.min.js',
                 callback: function (url) { //called both in case of success and failure
                     if (DEBUG && global.console) {
                         global.console.log(MODULE + url + ' loading attempt');
@@ -64,9 +64,9 @@
             //Bootstrap and font awesome
             {
                 load: [
-                    'http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css',
-                    'http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css',
-                    'http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js'
+                    '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css',
+                    '//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css',
+                    '//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js'
                 ],
                 callback: function (url) {
                     if (DEBUG && global.console) {
@@ -88,13 +88,13 @@
             //Kendo UI
             {
                 load: [
-                    'http://cdn.kendostatic.com/' + KENDO_VERSION + '/styles/kendo.common-bootstrap.min.css',
-                    'http://cdn.kendostatic.com/' + KENDO_VERSION + '/styles/kendo.bootstrap.min.css',
-                    'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/kendo.web.min.js',
-                    //'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/kendo.timezones.min.js'
-                    'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.en.min.js', //default culture
-                    'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.' + (global.navigator.userLanguage || global.navigator.language).substr(0, 2) + '.min.js', //replace default culture
-                    'http://cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.fr.min.js' //TODO DEBUG
+                    '//cdn.kendostatic.com/' + KENDO_VERSION + '/styles/kendo.common-bootstrap.min.css',
+                    '//cdn.kendostatic.com/' + KENDO_VERSION + '/styles/kendo.bootstrap.min.css',
+                    '//cdn.kendostatic.com/' + KENDO_VERSION + '/js/kendo.web.min.js',
+                    //'//cdn.kendostatic.com/' + KENDO_VERSION + '/js/kendo.timezones.min.js'
+                    '//cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.en.min.js', //default culture
+                    '//cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.' + (global.navigator.userLanguage || global.navigator.language).substr(0, 2) + '.min.js', //replace default culture
+                    '//cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.fr.min.js' //TODO DEBUG
                 ],
                 callback: function (url) {
                     if (DEBUG && global.console) {
@@ -120,9 +120,9 @@
             //Other 3rd party libraries libraries
             {
                 load: [
-                    'http://yandex.st/highlightjs/7.5/styles/solarized_light.min.css',
-                    'http://yandex.st/highlightjs/7.5/highlight.min.js', //code highlighting
-                    'http://cdnjs.cloudflare.com/ajax/libs/marked/0.3.0/marked.min.js', //markdown
+                    '//yandex.st/highlightjs/7.5/styles/solarized_light.min.css',
+                    '//yandex.st/highlightjs/7.5/highlight.min.js', //code highlighting
+                    '//cdnjs.cloudflare.com/ajax/libs/marked/0.3.0/marked.min.js', //markdown
                     './styles/vendor/memba.widgets.min.css',
                     './js/vendor/memba.widgets.min.js'
                 ],
