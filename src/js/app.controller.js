@@ -17,7 +17,7 @@
         hrefs = app.hrefs,
         routes = app.routes,
         //tags = app.tags,
-        types = app.types,
+        //types = app.types,
         //TITLE = 'title',
         DEBUG = true,
         MODULE = 'app.controller.js: ';
@@ -124,7 +124,7 @@
         });
 
         //Routes like /blog/2013/11/vision-for-a-new-blog-engine
-        router.route(routes.DETAIL,  function (year, month, slug) {
+        router.route(routes.BLOG,  function (year, month, slug) {
             var blogListDataSource = app.blogListViewModel.get('list');
             var found = $.grep(blogListDataSource.data(), function(item) {
                 return item.link.indexOf(year + constants.PATH_SEP + month + constants.PATH_SEP + slug) > 0;
@@ -145,7 +145,7 @@
             var blogListDataSource = app.blogListViewModel.get('list');
             var found = blogListDataSource.get(guid);
             if (found) {
-                var rx = new RegExp(routes.HASH + routes.DETAIL
+                var rx = new RegExp(routes.HASH + routes.BLOG
                     .replace(routes.YEAR_PARAMETER, '([^/]+)')
                     .replace(routes.MONTH_PARAMETER, '([^/]+)')
                     .replace(routes.SLUG_PARAMETER, '([^/]+)') + '$');
