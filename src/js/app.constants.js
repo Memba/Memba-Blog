@@ -65,16 +65,16 @@
     app.routes = $.extend(app.routes || {}, {
         HASH: '#',
         HOME: '/',
+        PAGE: '/pages/:page',
         CATEGORY: '/category/:category',
-        CATEGORY_PARAMETER: ':category',
+        //CATEGORY_PARAMETER: ':category',
         BLOG: '/blog(/:year)(/:month)(/:slug)',
         YEAR_PARAMETER: ':year',
         MONTH_PARAMETER: ':month',
         SLUG_PARAMETER: ':slug',
         GUID: '/guid/:guid',
-        GUID_PARAMETER: ':guid',
-        SEARCH: '/search',
-        PAGES: '/pages/:page'
+        //GUID_PARAMETER: ':guid',
+        SEARCH: '/search'
     });
 
     /**
@@ -165,11 +165,6 @@
 
         //Header
         HEADER_VIEW: '#header-view',
-        //HEADER_VIEW_NAVBAR_BRAND: '#header-view-navbar-brand',
-        HEADER_VIEW_SEARCH_INPUT: '#header-view-navbar-search-input',
-        HEADER_VIEW_SEARCH_BUTTON: '#header-view-navbar-search-button',
-
-        //Header - Navigation Bar
         HEADER_VIEW_NAVBAR_BRAND: '#header-view-navbar-brand',
         HEADER_VIEW_NAVBAR_TOGGLE: '#header-view-navbar-toggle',
         HEADER_VIEW_NAVBAR_SEARCH_INPUT: '#header-view-navbar-search-input',
@@ -180,7 +175,7 @@
         FOOTER_VIEW: '#footer-view',
         FOOTER_VIEW_COPYRIGHT: '#footer-view-copyright',
 
-        //FAQs View
+        //Page View
         PAGE_VIEW: '#page-view',
 
         //Search View

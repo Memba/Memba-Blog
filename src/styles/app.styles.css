@@ -58,8 +58,8 @@ div.k-markdown img {
 
 }
 @media (min-width: 768px) {
-    /*create some space between main content and side list*/
-    div#main {
+    /*create some space between content and side list*/
+    .spacing {
         padding-right: 40px;
     }
 }

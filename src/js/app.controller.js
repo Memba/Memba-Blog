@@ -105,7 +105,7 @@
             }
         });
 
-        router.route('/pages/:page', function(page) {
+        router.route(routes.PAGE, function(page) {
             app.pageViewModel.set('contentUrl', './pages/' + page + constants.MARKDOWN_EXT);
             applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
             blogNavigationView.hide();
@@ -180,21 +180,14 @@
             global.console.log(MODULE + 'routes configured');
         }
 
-        //Start router
-        router.start();
-
-        if(DEBUG && global.console) {
-            global.console.log(MODULE + 'router started');
-        }
-
         /**
          * Bind events
          */
         //Window
         $(window).keydown(function(e){
             if(e.keyCode == 13) {
-                if ($(elements.HEADER_VIEW_SEARCH_INPUT).val().trim().length > 0) {
-                    $(elements.HEADER_VIEW_SEARCH_BUTTON).trigger(events.CLICK);
+                if ($(elements.HEADER_VIEW_NAVBAR_SEARCH_INPUT).val().trim().length > 0) {
+                    $(elements.HEADER_VIEW_NAVBAR_SEARCH_BUTTON).trigger(events.CLICK);
                 }
                 e.preventDefault();
                 return false;
@@ -227,31 +220,38 @@
             if (DEBUG && global.console.log) {
                 global.console.log(MODULE + 'blog navigation shown');
             }
-            //TODO change column styles
+            $(elements.APPLICATION_CONTENT).removeClass('col-lg-12 col-md-12 col-sm-12');
+            $(elements.APPLICATION_CONTENT).addClass('col-lg-10 col-md-9 col-sm-8 spacing');
+            $(elements.APPLICATION_SIDE).removeClass('hidden');
+            $(elements.APPLICATION_SIDE).addClass('col-lg-2 col-md-3 col-sm-4');
         });
 
         blogNavigationView.bind(events.HIDE, function(e) {
             if (DEBUG && global.console.log) {
                 global.console.log(MODULE + 'blog navigation hidden');
             }
-            //TODO chnage column styles
+            $(elements.APPLICATION_CONTENT).removeClass('col-lg-10 col-md-9 col-sm-8 spacing');
+            $(elements.APPLICATION_CONTENT).addClass('col-lg-12 col-md-12 col-sm-12');
+            $(elements.APPLICATION_SIDE).removeClass('col-lg-2 col-md-3 col-sm-4');
+            $(elements.APPLICATION_SIDE).addClass('hidden');
+
         });
 
         //Header
-        $(elements.HEADER_VIEW_SEARCH_INPUT).bind(events.KEYUP, function(e) {
+        $(elements.HEADER_VIEW_NAVBAR_SEARCH_INPUT).bind(events.KEYUP, function(e) {
             if ($(e.target).val().trim().length > 0) {
-                $(elements.HEADER_VIEW_SEARCH_BUTTON).removeClass('disabled');
+                $(elements.HEADER_VIEW_NAVBAR_SEARCH_BUTTON).removeClass('disabled');
             } else {
-                $(elements.HEADER_VIEW_SEARCH_BUTTON).addClass('disabled');
+                $(elements.HEADER_VIEW_NAVBAR_SEARCH_BUTTON).addClass('disabled');
             }
         });
-        $(elements.HEADER_VIEW_SEARCH_BUTTON).bind(events.CLICK, function(/*e*/){
+        $(elements.HEADER_VIEW_NAVBAR_SEARCH_BUTTON).bind(events.CLICK, function(/*e*/){
             router.navigate(routes.SEARCH);
             //window.location.assign(routes.HASH + routes.SEARCH + '?q=' + encodeURIComponent(app.searchViewModel.get('search')));
         });
 
 
-        //Footer
+        //Pager
         $(elements.BLOG_PAGER).find(elements.BLOG_PAGER_SIZES).bind(events.CHANGE, function(e) {
             storage.set(constants.PAGE_SIZE, kendo.parseInt(e.target.value));
         });
@@ -260,6 +260,13 @@
             console.log(MODULE + 'events bound');
         }
 
+
+        //Start router
+        router.start();
+
+        if(DEBUG && global.console) {
+            global.console.log(MODULE + 'router started');
+        }
     });
 
 }(jQuery));
