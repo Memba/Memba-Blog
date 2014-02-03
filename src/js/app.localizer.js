@@ -67,13 +67,18 @@
         //Header - Navigation Bar
         if($(elements.HEADER_VIEW).length === 1) {
             wrap = $(WRAP_OPEN + $(elements.HEADER_VIEW).html() + WRAP_CLOSE);
-            //TODO: logo
-            //wrap.find(elements.HEADER_VIEW_NAVBAR_BRAND).html(resources.HEADER_VIEW_NAVBAR_BRAND);
+            //logo
+            wrap.find(elements.HEADER_VIEW_NAVBAR_BRAND + ' ' + tags.IMG)
+                .attr(tags.SRC, config.logo)
+                .attr(tags.ALT, config.title);
+            //toggle button (only displays on mobiles)
             wrap.find(elements.HEADER_VIEW_NAVBAR_TOGGLE).html(config.navigation.toggle);
+            //search box
             if (Modernizr.input.placeholder) {
                 wrap.find(elements.HEADER_VIEW_NAVBAR_SEARCH_INPUT).attr(tags.PLACEHOLDER, config.search.placeholder);
             }
             wrap.find(elements.HEADER_VIEW_NAVBAR_SEARCH_BUTTON).html(config.search.button);
+            //menu
             var menu = wrap.find(elements.HEADER_VIEW_NAVBAR_MENU);
             $.each(config.menu, function (index, item) {
                 if ($.type(item.href) === types.STRING && !item.items) {
