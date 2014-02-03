@@ -72,7 +72,7 @@
                 .attr(tags.SRC, config.logo)
                 .attr(tags.ALT, config.title);
             //toggle button (only displays on mobiles)
-            wrap.find(elements.HEADER_VIEW_NAVBAR_TOGGLE).html(config.navigation.toggle);
+            wrap.find(elements.HEADER_VIEW_NAVBAR_TOGGLE).html(config.blog.navigation.toggle);
             //search box
             if (Modernizr.input.placeholder) {
                 wrap.find(elements.HEADER_VIEW_NAVBAR_SEARCH_INPUT).attr(tags.PLACEHOLDER, config.search.placeholder);
@@ -131,11 +131,11 @@
         //Blog Navigation View
         if($(elements.BLOG_NAVIGATION_VIEW).length === 1) {
             wrap = $(WRAP_OPEN + $(elements.BLOG_NAVIGATION_VIEW).html() + WRAP_CLOSE);
-            wrap.find(elements.ALL_POSTS_SECTION_TITLE).html(config.navigation.allposts);
-            wrap.find(elements.CATEGORIES_SECTION_TITLE).html(config.navigation.categories);
-            wrap.find(elements.ARCHIVE_SECTION_TITLE).html(config.navigation.archive);
+            wrap.find(elements.ALL_POSTS_SECTION_TITLE).html(config.blog.navigation.allposts);
+            wrap.find(elements.CATEGORIES_SECTION_TITLE).html(config.blog.navigation.categories);
+            wrap.find(elements.ARCHIVE_SECTION_TITLE).html(config.blog.navigation.archive);
             wrap.find(elements.RSS_SECTION_TITLE)
-                .html(config.navigation.rssfeed)
+                .html(config.blog.navigation.rssfeed)
                 .attr(tags.HREF, hrefs.ARCHIVE + hrefs.RSS);
             $(elements.BLOG_NAVIGATION_VIEW).html(wrap.html());
         }
@@ -164,12 +164,27 @@
     };
 
     /**
-     * Used metaData and default form config to set page meta tags
+     * Set page meta tags from metaData and application config
      * @method app.setMetaTags
      * @param metaData
      * @param config
      */
     app.setMetaTags = function(metaData, config) {
+        var head = $(tags.HEAD);
+        //set title
+        if (head.length > 0 && (metaData.title || config.title)){
+            var title = head.find(tags.TITLE);
+            if (title.length === 0) {
+                title = $(tags.TITLE_ELEMENT);
+                head.prepend(title);
+            }
+            title.text(metaData.title || config.title);
+        }
+        //set page heading
+        var heading = $(tags.ARTICLE + ' ' + tags.HEADING1);
+        if (heading.length > 0  && (metaData.title || config.title)){
+            heading.text(metaData.title || config.title);
+        }
 
     };
 

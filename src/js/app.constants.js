@@ -67,9 +67,7 @@
         HOME: '/',
         CATEGORY: '/category/:category',
         CATEGORY_PARAMETER: ':category',
-        ARCHIVE: '/archive/:period',
-        PERIOD_PARAMETER: ':period',
-        BLOG: '/blog/:year/:month/:slug',
+        BLOG: '/blog(/:year)(/:month)(/:slug)',
         YEAR_PARAMETER: ':year',
         MONTH_PARAMETER: ':month',
         SLUG_PARAMETER: ':slug',
@@ -86,13 +84,16 @@
     app.events = $.extend(app.events || {}, {
         CHANGE: 'change',
         CLICK: 'click',
-        DBLCLICK: 'dblclick',
-        DRAGSTART: 'dragstart',
-        DRAGENTER: 'dragenter',
-        DRAGOVER: 'dragover',
-        DROP: 'drop',
+        //DBLCLICK: 'dblclick',
+        //DRAGSTART: 'dragstart',
+        //DRAGENTER: 'dragenter',
+        //DRAGOVER: 'dragover',
+        //DROP: 'drop',
+        HIDE: 'hide',
+        INIT: 'init',
         INITIALIZE: 'initialize',
-        KEYUP: 'keyup'
+        KEYUP: 'keyup',
+        SHOW: 'show'
     });
 
     /**
@@ -101,10 +102,13 @@
      */
     app.tags = $.extend(app.tags || {}, {
         ALT: 'alt',
+        ARTICLE: 'article',
         BODY: 'body',
         DATA_COLUMNS: 'data-columns',
         DIV: 'div',
         DIV_ELEMENT: '<div/>',
+        HEAD: 'head',
+        HEADING1: 'h1',
         HREF: 'href',
         ID: 'id',
         IMG: 'img',
@@ -115,7 +119,9 @@
         SPAN_ELEMENT: '<span/>',
         SRC: 'src',
         TEXTAREA: 'textarea',
-        TEXTAREA_ELEMENT: '<textarea/>'
+        TEXTAREA_ELEMENT: '<textarea/>',
+        TITLE: 'title',
+        TITLE_ELEMENT: '<title></title>'
         //TBODY: 'tbody',
         //TBODY_ELEMENT: '<tbody/>',
         //DISABLED: 'disabled',

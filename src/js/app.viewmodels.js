@@ -123,16 +123,7 @@
                         editable: false,
                         parse: function(value) {
                             var d = kendo.parseDate(value);
-                            return kendo.toString(d, 'yyyyMM');
-                        }
-                    },
-                    periodLink: {
-                        field: 'pubDate/text()',
-                        type: types.STRING,
-                        editable: false,
-                        parse: function(value) {
-                            var d = kendo.parseDate(value);
-                            return hrefs.INDEX + routes.HASH + routes.ARCHIVE.replace(routes.PERIOD_PARAMETER, encodeURIComponent(kendo.toString(d, 'yyyyMM')));
+                            return kendo.toString(d, 'yyyy/MM');
                         }
                     },
                     //TODO: How to support multiple category tags according to RSS spec?
@@ -140,14 +131,6 @@
                         field: 'category/text()',
                         type: types.STRING,
                         editable: false
-                    },
-                    categoryLink: {
-                        field: 'category/text()',
-                        type: types.STRING,
-                        editable: false,
-                        parse: function(value) {
-                            return hrefs.INDEX + routes.HASH + routes.CATEGORY.replace(routes.CATEGORY_PARAMETER, encodeURIComponent(value));
-                        }
                     }
                 }
             }
@@ -180,7 +163,8 @@
      * @type {*}
      */
     app.pageViewModel = kendo.observable({
-        contentUrl: ''
+        contentUrl: '',
+        title: ''
     });
 
     /**

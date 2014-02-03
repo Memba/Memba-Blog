@@ -17,7 +17,7 @@
         hrefs = app.hrefs,
         routes = app.routes,
         //tags = app.tags,
-        //types = app.types,
+        types = app.types,
         //TITLE = 'title',
         DEBUG = true,
         MODULE = 'app.controller.js: ';
@@ -67,7 +67,7 @@
                     applicationLayout.showIn(elements.APPLICATION_HEADER, headerView);
                     applicationLayout.showIn(elements.APPLICATION_FOOTER, footerView);
                     applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
-                    applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
+                    //applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
                 },
                 change: function (e) {
                     if (DEBUG && global.console) {
@@ -88,19 +88,27 @@
 
         //Routes like /
         router.route(routes.HOME, function () {
-            var blogListDataSource = app.blogListViewModel.get('list');
-            blogListDataSource.filter(null);
-            if (!blogListDataSource.sort()) {
-                blogListDataSource.sort({ field: 'pubDate', dir: 'desc' });
+            //if config designates a home page, show it
+            if($.type(app.config.home) === types.STRING && app.config.home.length > 0) {
+                app.pageViewModel.set('contentUrl', app.config.home);
+                applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
+                blogNavigationView.hide();
+            } else { //otherwise list blog posts (same as /blog)
+                var blogListDataSource = app.blogListViewModel.get('list');
+                blogListDataSource.filter(null);
+                if (!blogListDataSource.sort()) {
+                    blogListDataSource.sort({ field: 'pubDate', dir: 'desc' });
+                }
+                blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
+                applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
+                applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
             }
-            blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
-            applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
         });
 
         router.route('/pages/:page', function(page) {
             app.pageViewModel.set('contentUrl', './pages/' + page + constants.MARKDOWN_EXT);
-            blogNavigationView.hide();
             applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
+            blogNavigationView.hide();
         });
 
         //Routes like /category/Design
@@ -109,35 +117,38 @@
             blogListDataSource.filter( { field: 'category', operator: 'eq', value: category });
             blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
             applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
-        });
-
-        //Routes like /archive/201305
-        router.route(routes.ARCHIVE, function (period) {
-            var blogListDataSource = app.blogListViewModel.get('list');
-            if (period.length < 6) {
-                blogListDataSource.filter({ field: 'period', operator: 'startswith', value: period });
-            } else {
-                blogListDataSource.filter({ field: 'period', operator: 'eq', value: period });
-            }
-            blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
-            applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
+            applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
         });
 
         //Routes like /blog/2013/11/vision-for-a-new-blog-engine
         router.route(routes.BLOG,  function (year, month, slug) {
             var blogListDataSource = app.blogListViewModel.get('list');
-            var found = $.grep(blogListDataSource.data(), function(item) {
-                return item.link.indexOf(year + constants.PATH_SEP + month + constants.PATH_SEP + slug) > 0;
-            });
-            if (found.length > 0) {
-                app.blogPostViewModel.set('contentUrl', hrefs.ARCHIVE + year + constants.PATH_SEP + month + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
-                app.blogPostViewModel.set('title', found[0].title);
-                app.blogPostViewModel.set('author', found[0].author);
-                app.blogPostViewModel.set('pubDate', kendo.toString(found[0].pubDate, constants.DATE_FORMAT));
-                applicationLayout.showIn(elements.APPLICATION_CONTENT, blogPostView);
+            if ($.type(slug) === types.STRING) {
+                var found = $.grep(blogListDataSource.data(), function(item) {
+                    return item.link.indexOf(year + constants.PATH_SEP + month + constants.PATH_SEP + slug) > 0;
+                });
+                if (found.length > 0) {
+                    app.blogPostViewModel.set('contentUrl', hrefs.ARCHIVE + year + constants.PATH_SEP + month + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
+                    app.blogPostViewModel.set('title', found[0].title);
+                    app.blogPostViewModel.set('author', found[0].author);
+                    app.blogPostViewModel.set('pubDate', kendo.toString(found[0].pubDate, constants.DATE_FORMAT));
+                    applicationLayout.showIn(elements.APPLICATION_CONTENT, blogPostView);
+                }
             } else {
-                //TODO
+                if (!isNaN(parseInt(month))) {
+                    blogListDataSource.filter({ field: 'period', operator: 'eq', value: year + '/' + month});
+                } else if (!isNaN(parseInt(year))) {
+                    blogListDataSource.filter({ field: 'period', operator: 'startsWith', value: year });
+                } else {
+                    blogListDataSource.filter(null);
+                }
+                if (!blogListDataSource.sort()) {
+                    blogListDataSource.sort({ field: 'pubDate', dir: 'desc' });
+                }
+                blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
+                applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
             }
+            applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
         });
 
         //Routes like /guid/569114ED-9700-4439-825F-C4A5FE2DC42E
@@ -155,25 +166,25 @@
                 app.blogPostViewModel.set('author', found.author);
                 app.blogPostViewModel.set('pubDate', kendo.toString(found.pubDate, constants.DATE_FORMAT));
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, blogPostView);
-            } else {
-                //TODO
+                applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
             }
         });
 
         //routes like /search
         router.route(routes.SEARCH, function() {
             applicationLayout.showIn(elements.APPLICATION_CONTENT, searchView);
+            blogNavigationView.hide();
         });
 
         if(DEBUG && global.console) {
-            console.log(MODULE + 'routes configured');
+            global.console.log(MODULE + 'routes configured');
         }
 
         //Start router
         router.start();
 
         if(DEBUG && global.console) {
-            console.log(MODULE + 'router started');
+            global.console.log(MODULE + 'router started');
         }
 
         /**
@@ -189,6 +200,41 @@
                 return false;
             }
             return true;
+        });
+
+        //views
+        pageView.bind(events.INIT, function(e) {
+            //Handler bound to the change event of the markdown widget to set the page meta tags
+            e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, function(e) {
+                if (DEBUG && global.console.log) {
+                    global.console.log(MODULE + 'new markdown loaded');
+                }
+                app.setMetaTags(e.sender.metadata(), app.config);
+            });
+        });
+
+        blogPostView.bind(events.INIT, function(e) {
+            //Handler bound to the change event of the markdown widget to set the page meta tags
+           e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, function(e) {
+                if (DEBUG && global.console.log) {
+                    global.console.log(MODULE + 'new markdown loaded');
+                }
+                app.setMetaTags(e.sender.metadata(), app.config);
+            });
+        });
+
+        blogNavigationView.bind(events.SHOW, function(e) {
+            if (DEBUG && global.console.log) {
+                global.console.log(MODULE + 'blog navigation shown');
+            }
+            //TODO change column styles
+        });
+
+        blogNavigationView.bind(events.HIDE, function(e) {
+            if (DEBUG && global.console.log) {
+                global.console.log(MODULE + 'blog navigation hidden');
+            }
+            //TODO chnage column styles
         });
 
         //Header

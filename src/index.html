@@ -9,8 +9,6 @@
     <meta name="author" content="Memba">
     <meta name="keywords" content="blog">
     <meta name="description" content="My Blog">
-    <!-- stick to indexing the site map -->
-    <meta name="robots" content="nofollow">
     <!-- icons -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -19,7 +17,7 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="./styles/images/touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="./styles/images/touch-icon-144-precomposed.png">
     <link rel="apple-touch-startup-image" href="./styles/images/splash.png">
-    <link rel="shortcut icon" href="styles/images/favicon.png">
+    <link rel="shortcut icon" href="./styles/images/favicon.png">
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -57,8 +55,10 @@
 
 <!-- page view -->
 <script id="page-view" type="text/x-kendo-template">
-    <h1>Page View</h1>
-    <div id="markdown" itemprop="text" data-role="markdown" data-bind="url: contentUrl"></div>
+    <article itemscope itemtype="http://schema.org/Article">
+        <h1 itemprop="name" data-bind="text: title"></h1>
+        <div id="markdown" itemprop="text" data-role="markdown" data-bind="url: contentUrl"></div>
+    </article>
 </script>
 
 <!-- search view -->
@@ -77,7 +77,7 @@
 <!-- blog navigation view -->
 <script id="blog-navigation-view" type="text/x-kendo-template">
     <section id="all-posts" class="side">
-        <h2 id="all-posts-title"><a href="#/"></a></h2><hr/>
+        <h2 id="all-posts-title"><a href="#/blog"></a></h2><hr/>
     </section>
     <section id="categories" class="side">
         <h2 id="categories-title"></h2><hr/>
@@ -94,13 +94,13 @@
 <!-- categories list -->
 <script id="categories-list-template" type="text/x-kendo-template">
     <li class="categories">
-        <a href="#= items[0].categoryLink #">#: value #</a>&nbsp;<span class="count">#: items.length#</span>
+        <a href="\#/category/#= value #">#: value #</a>&nbsp;<span class="count">#: items.length #</span>
     </li>
 </script>
 <!-- archive list -->
 <script id="archive-list-template" type="text/x-kendo-template">
     <li class="archive">
-        <a href="#= items[0].periodLink #">#: kendo.toString(items[0].pubDate, 'Y', app.config.language) #</a>&nbsp;<span class="count">#: items.length#</span>
+        <a href="\#/blog/#= value #">#: kendo.toString(items[0].pubDate, 'Y', app.config.language) #</a>&nbsp;<span class="count">#: items.length#</span>
     </li>
 </script>
 
@@ -124,7 +124,7 @@
             </div>
             <div class="clearfix"></div>
             <div class="readmore">
-                <div class="pull-left"><a href="#= categoryLink #"><i class="fa fa-tag"></i>&nbsp;<span itemProp="keywords">#: category #</span></a></div>
+                <div class="pull-left"><a href="\#/categoy/#= category #"><i class="fa fa-tag"></i>&nbsp;<span itemProp="keywords">#: category #</span></a></div>
                 <div class="pull-right"><a href="#= link #"></a></div>
             </div>
             <div class="clearfix"></div>

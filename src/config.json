@@ -1,6 +1,6 @@
 {
     "language": "en",
-    "logo": "",
+    "logo": "./styles/images/logo.png",
     "title": "Memba Mini Blog Engine",
     "description": "Memba Mini Blog Engine",
     "keywords": "Memba Mini Blog Engine",
@@ -8,28 +8,31 @@
     "copyright": "Copyright &copy;Memba 2013-2014. All rights reserved.",
     "search": {
         "placeholder": "Search",
-        "button": "Go"
+        "button": "Go",
+        "engine": "Google",
+        "key": ""
     },
-    "home": "home.md",
+    "home": "./pages/home.md",
     "menu": [
         { "text": "Home", "href": "#/" },
         { "text": "Blog", "href": "#/blog" },
-        { "text": "Pages",
+        { "text": "More",
             "items": [
-                { "text": "About us", "href": "#/pages/about-us" },
-                { "text": "FAQs", "href": "#/pages/faqs" }
+                { "text": "FAQs", "href": "#/pages/faqs" },
+                { "text": "About Us", "href": "#/pages/about-us" },
+                { "text": "Google", "href": "http://www.google.com" }
             ]
         }
     ],
-    "navigation": {
-        "toggle": "Toggle navigation",
-        "allposts": "<i class=\"fa fa-home\"></i>&nbsp;All Posts",
-        "categories": "<i class=\"fa fa-tags\"></i>&nbsp;Categories",
-        "archive": "<i class=\"fa fa-calendar\"></i>&nbsp;Archive",
-        "rssfeed": "<i class=\"fa fa-rss-square\"></i>&nbsp;RSS Feed"
-    },
     "blog": {
-        "readmore": "Read full article&nbsp;<i class=\"fa fa-caret-square-o-right\"></i>"
+        "readmore": "Read full article&nbsp;<i class=\"fa fa-caret-square-o-right\"></i>",
+        "navigation": {
+            "toggle": "Toggle navigation",
+            "allposts": "<i class=\"fa fa-home\"></i>&nbsp;All Posts",
+            "categories": "<i class=\"fa fa-tags\"></i>&nbsp;Categories",
+            "archive": "<i class=\"fa fa-calendar\"></i>&nbsp;Archive",
+            "rssfeed": "<i class=\"fa fa-rss-square\"></i>&nbsp;RSS Feed"
+        }
     },
     "errors": {
         "error404": {
