@@ -100,17 +100,20 @@
      * @type {*}
      */
     app.tags = $.extend(app.tags || {}, {
+        ALT: 'alt',
         BODY: 'body',
         DATA_COLUMNS: 'data-columns',
         DIV: 'div',
         DIV_ELEMENT: '<div/>',
         HREF: 'href',
         ID: 'id',
+        IMG: 'img',
         INPUT: 'input',
         INPUT_ELEMENT: '<input/>',
         PLACEHOLDER: 'placeholder',
         SPAN: 'span',
         SPAN_ELEMENT: '<span/>',
+        SRC: 'src',
         TEXTAREA: 'textarea',
         TEXTAREA_ELEMENT: '<textarea/>'
         //TBODY: 'tbody',
@@ -161,6 +164,7 @@
         HEADER_VIEW_SEARCH_BUTTON: '#header-view-navbar-search-button',
 
         //Header - Navigation Bar
+        HEADER_VIEW_NAVBAR_BRAND: '#header-view-navbar-brand',
         HEADER_VIEW_NAVBAR_TOGGLE: '#header-view-navbar-toggle',
         HEADER_VIEW_NAVBAR_SEARCH_INPUT: '#header-view-navbar-search-input',
         HEADER_VIEW_NAVBAR_SEARCH_BUTTON: '#header-view-navbar-search-button',
