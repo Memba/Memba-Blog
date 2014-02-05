@@ -18,7 +18,7 @@
     var fn = Function,
         global = fn('return this')(),
         Modernizr = global.Modernizr,
-        KENDO_VERSION = '2013.3.1316', //1119',
+        KENDO_VERSION = '2013.3.1324', //1316', //1119',
 
         DEBUG = true,
         MODULE = 'app.init.js: ';
@@ -66,8 +66,8 @@
         {
             load: [
                 '//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css',
-                '//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css',
-                '//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js'
+                '//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css',
+                '//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js'
             ],
             callback: function (url) {
                 if (DEBUG && global.console) {
@@ -121,9 +121,9 @@
         //Other 3rd party libraries libraries
         {
             load: [
-                '//yandex.st/highlightjs/7.5/styles/solarized_light.min.css',
-                '//yandex.st/highlightjs/7.5/highlight.min.js', //code highlighting
-                '//cdnjs.cloudflare.com/ajax/libs/marked/0.3.0/marked.min.js', //markdown
+                '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/styles/solarized_light.min.css',
+                '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/highlight.min.js', //code highlighting
+                '//cdnjs.cloudflare.com/ajax/libs/marked/0.3.1/marked.min.js', //markdown
                 './styles/vendor/memba.widgets.min.css',
                 './js/vendor/memba.widgets.min.js'
             ],
@@ -158,7 +158,7 @@
             ],
             nope: [
                 './styles/memba.blog.min.css',
-                './js/memba.blog.min.js',
+                './js/memba.blog.min.js'
             ],
             callback: function (url) {
                 if (DEBUG && global.console) {
