@@ -1,3 +1,5 @@
+.k-addthis {
+}
 /*Copyright ©2011-2012 Memba® Sarl. All rights reserved.*/
 /*******************************************************************/
 /* Breadcrumb (kendoBreadCrumb)
@@ -33,6 +35,12 @@
 }
 .k-breadcrumb a:hover {
     color:#BDE5F8;
+}
+.k-disqus {
+
+}
+.k-gravatar {
+
 }
 /*Copyright ©2011-2012 Memba® Sarl. All rights reserved.*/
 /*******************************************************************/
@@ -131,15 +139,16 @@
     cursor:pointer;
 }
 .k-rating-star:not(.k-rating-selected):before {
-    content:"\f006";
+    content:"\f006"; /*fa-star-o*/
     padding-right:5px;
     color:#AAAAAA;
 }
 .k-rating-star:hover:before,
 .k-rating-star:hover ~ .k-rating-star:before {
-    content:"\f005";
+    content:"\f005"; /*fa-star*/
     color:#BDE5F8;
 }
+
 .k-websearch {
 
 }
