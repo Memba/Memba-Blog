@@ -395,6 +395,8 @@
         init: function (element, options) {
             var that = this;
             Widget.fn.init.call(that, element, options);
+            //A wrapper is required for visible and other bindings to work
+            that.wrapper = that.element;
             that._layout();
         },
 
@@ -930,6 +932,54 @@
         }
     });
 
+    /**
+     * url custom binding
+     * see http://docs.kendoui.com/getting-started/framework/mvvm/bindings/custom
+     * @type {*|void}
+     */
+    kendo.data.binders.widget.url = kendo.data.Binder.extend({
+        init: function(widget, bindings, options) {
+            //call the base constructor
+            kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
+        },
+        refresh: function() {
+            var that = this,
+                value = that.bindings.url.get(), //get the value from the View-Model
+                widget = kendo.widgetInstance($(that.element));
+            if (widget instanceof ui.MarkDown) {
+                widget.url(value); //update our widget
+            } else if ($.type(widget.url) === FUNCTION) { //try not to mess with other widgets
+                try {
+                    widget.url(value);
+                } catch(err) {}
+            }
+        }
+    });
+
+
+    /**
+     * Enable binding the active value of a Template widget
+     * @type {*|void}
+     */
+    kendo.data.binders.widget.active = kendo.data.Binder.extend({
+        init: function(widget, bindings, options) {
+            //call the base constructor
+            kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
+        },
+        refresh: function() {
+            var that = this,
+                value = that.bindings.active.get(), //get the value from the View-Model
+                widget = kendo.widgetInstance($(that.element));
+            if (widget instanceof ui.Template) {
+                widget.active(value); //update our widget
+            } else if ($.type(widget.active) === FUNCTION) { //try not to mess with other widgets
+                try {
+                    widget.active(value);
+                } catch(err) {}
+            }
+        }
+    });
+
 } (jQuery));
 ;
 //Copyright ©2012-2014 Memba® Sarl. All rights reserved.
@@ -1205,6 +1255,8 @@
         init: function (element, options) {
             var that = this;
             Widget.fn.init.call(that, element, options);
+            //A wrapper is required for visible and other bindings to work
+            that.wrapper = that.element;
             that._layout();
         },
 
@@ -1478,6 +1530,8 @@
         init: function (element, options) {
             var that = this;
             Widget.fn.init.call(that, element, options);
+            //A wrapper is required for visible and other bindings to work
+            that.wrapper = that.element;
             that._layout();
         },
 
@@ -2903,6 +2957,189 @@
     function formatValue(value) {
         return (value + "").replace(".", kendo.cultures.current.numberFormat["."]);
     }
+
+} (jQuery));
+;
+//Copyright ©2012-2014 Memba® Sarl. All rights reserved.
+/*jslint browser:true, jquery:true*/
+/*jshint browser:true, jquery:true*/
+
+(function ($, undefined) {
+
+    "use strict";
+
+    // shorten references to variables for uglification
+    var fn = Function,
+        global = fn('return this')(),
+        kendo = global.kendo,
+        ui = kendo.ui,
+        Widget = ui.Widget,
+
+        //Types
+        BOOLEAN = 'boolean',
+        STRING = 'string',
+        FUNCTION = 'function',
+
+        //Widget
+        DISPLAY = 'display',
+        NONE = 'none',
+        DUMMY = function() { return ''; };
+
+        //DEBUG
+        //MODULE = 'memba.template.js: ',
+        //DEBUG = false;
+
+    /*******************************************************************************************
+     * Template Widget
+     *******************************************************************************************/
+
+    /**
+     * Template (kendoTemplate)
+     * @class Template
+     * @extend Widget
+     */
+    var Template = Widget.extend({
+
+        /**
+         * Initializes the widget
+         * @method init
+         * @param element
+         * @param options
+         */
+        init: function (element, options) {
+            var that = this;
+            Widget.fn.init.call(that, element, options);
+            //all widgets need a wrapper otherwise visible and other bindings do not work
+            that.wrapper = that.element;
+            //template initialized in code returns a string
+            //template initialized with a data attribute return a proper kendo.template function
+            //TODO: also consider loading external templates designated by a URL
+            if ($.type(that.options.template) === STRING) {
+                try {
+                    //try to find a script tag on the page
+                    var script = $('#' + that.options.template);
+                    if (script.length > 0) {
+                        that.options.template = kendo.template(script.html());
+                    } else {
+                        that.options.template = kendo.template(that.options.template);
+                    }
+                } catch(err) {
+                    that.options.template = DUMMY;
+                }
+            }
+            that._layout();
+        },
+
+        /**
+         * Widget options
+         * @property options
+         */
+        options: {
+            name: "Template",
+            template: DUMMY,
+            value: {},
+            active: true
+        },
+
+        /**
+         * Data to be merged with the template
+         * @method value
+         * @param value
+         * @return {*}
+         */
+        value: function (value) {
+            var that = this;
+            if (value !== undefined) {
+                if(that.options.value !== value) {
+                    that.options.value = value;
+                    that.refresh();
+                }
+            }
+            else {
+                return that.options.value;
+            }
+        },
+
+        /**
+         * Activates/deactivates the template
+         * @method active
+         * @param value
+         * @return {*}
+         */
+        active: function (value) {
+            var that = this;
+            if (value !== undefined) {
+                if ($.type(value) !== BOOLEAN) {
+                    throw new TypeError();
+                }
+                if(that.options.active !== value) {
+                    that.options.active = value;
+                    that.refresh();
+                }
+            }
+            else {
+                return that.options.active;
+            }
+        },
+
+        /**
+         * Builds the widget layout
+         * @method _layout
+         * @private
+         */
+        _layout: function () {
+            //CONSIDER check whether values have actually changed before executing and optimize in the case only text has changed
+            //Styling inspired from http://www.jankoatwarpspeed.com/post/2008/05/22/CSS-Message-Boxes-for-different-message-types.aspx
+            var that = this;
+            that._clear();
+            $(that.element).addClass('k-widget k-template');
+            that.refresh();
+        },
+
+        /**
+         * Refreshes the widget
+         * @method refresh
+         */
+        refresh: function() {
+            var that = this;
+            if (that.active()) {
+                var html = that.options.template(that.value());
+                $(that.element).html(html);
+            } else {
+                $(that.element).find('*').off();
+                $(that.element).empty();
+            }
+        },
+
+        /**
+         * Clears the DOM from modifications made by the widget
+         * @method _clear
+         * @private
+         */
+        _clear: function() {
+            var that = this;
+            //unbind descendant events
+            $(that.element).find('*').off();
+            //clear element
+            $(that.element)
+                .empty()
+                .off()
+                .removeClass('k-widget k-template');
+        },
+
+        /**
+         * Destroys the widget
+         * @method destroy
+         */
+        destroy: function () {
+            var that = this;
+            that._clear();
+            Widget.fn.destroy.call(this);
+        }
+
+    });
+
+    ui.plugin(Template);
 
 } (jQuery));
 ;
