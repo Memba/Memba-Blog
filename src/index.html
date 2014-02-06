@@ -43,21 +43,29 @@
     <div id="container" class="container">
         <div class="row">
             <!-- Main content on the left -->
-            <div id="content" class="col-lg-10 col-md-9 col-sm-8"></div>
+            <div id="main" class="col-lg-10 col-md-9 col-sm-8">
+                <div id="content"></div>
+                <div id="comments"></div>
+            </div>
             <!-- Side navigation on the right -->
             <div id="side" class="col-lg-2 col-md-3 col-sm-4"></div>
         </div>
     </div>
     <!-- Footer -->
     <footer id="footer"></footer>
-    <!-- TODO: google analytics -->
+    <div data-role="template" data-template="analytics-template" style="display:none"></div>
 </script>
 
 <!-- page view -->
 <script id="page-view" type="text/x-kendo-template">
-    <article itemscope itemtype="http://schema.org/Article">
+    <article id="page-article" itemscope itemtype="http://schema.org/Article">
         <h1 itemprop="name" data-bind="text: title"></h1>
-        <div id="page-markdown" itemprop="text" data-role="markdown" data-bind="url: contentUrl"></div>
+        <div class="authorship">
+            <div class="pull-right">
+                <div data-role="template" data-template="addthis-template"></div>
+            </div>
+        </div>
+        <div itemprop="text" data-role="markdown" data-bind="url: contentUrl"></div>
     </article>
 </script>
 
@@ -114,7 +122,7 @@
         <article itemscope itemtype="http://schema.org/BlogPosting">
             <h1 itemprop="name"><a href="#: link #">#: title #</a></h1>
             <div class="authorship">
-                <div class="pull-left"><i class="fa fa-user"></i>&nbsp;<span itemprop="author">#: author#</span></div>
+                <div class="pull-left"><img data-role="gravatar" data-value="#= author #" data-size="16">&nbsp;<span itemprop="author">#: author #</span></div>
                 <div class="pull-right"><i class="fa fa-calendar"></i>&nbsp;<time itemprop="datePublished">#: kendo.toString(pubDate, 'dd MMM yyyy')#</time></div>
             </div>
             <div class="clearfix"></div>
@@ -124,7 +132,10 @@
             </div>
             <div class="clearfix"></div>
             <div class="readmore">
-                <div class="pull-left"><a href="\#/categoy/#= category #"><i class="fa fa-tag"></i>&nbsp;<span itemProp="keywords">#: category #</span></a></div>
+                <div class="pull-left">
+                    <a href="\#/categoy/#= category #"><i class="fa fa-tag"></i>&nbsp;<span itemProp="keywords">#: category #</span></a>
+                    <!-- TODO add comment count -->
+                </div>
                 <div class="pull-right"><a href="#= link #"></a></div>
             </div>
             <div class="clearfix"></div>
@@ -135,21 +146,40 @@
 
 <!-- blog post view -->
 <script id="post-view" type="text/x-kendo-template">
-    <article itemscope itemtype="http://schema.org/BlogPosting"><!-- add about attribute -->
+    <article id="post-article" itemscope itemtype="http://schema.org/BlogPosting">
         <h1 itemprop="name" data-bind="text: title"></h1>
         <div class="authorship">
-            <div class="pull-left"><i class="fa fa-user"></i>&nbsp;<span itemprop="author" data-bind="text: author"></span></div>
-            <div class="pull-right"><i class="fa fa-calendar"></i>&nbsp;<time itemprop="datePublished" data-bind="text: pubDate"></time></div>
+            <div class="pull-left">
+                <div><i class="fa fa-user"></i>&nbsp;<span itemprop="author" data-bind="text: author"></span></div>
+                <div><i class="fa fa-calendar"></i>&nbsp;<time itemprop="datePublished" data-bind="text: pubDate"></time></div>
+            </div>
+            <div class="pull-right">
+                <div data-role="template" data-template="addthis-template"></div>
+            </div>
         </div>
         <div class="clearfix"></div>
-        <!-- TODO: addthis -->
-        <div id="post-markdown" itemprop="text" data-role="markdown" data-bind="url: contentUrl"></div>
+        <div itemprop="text" data-role="markdown" data-bind="url: contentUrl"></div>
     </article>
 </script>
 
-<script id="comment-template" type="text/x-kendo-template">
-    <div id="comments" data-role="disqus" data-type="thread" data-shortname="#= app.config.disqus.shortname #"></div>
+<!-- analytics template -->
+<script id="analytics-template" type="text/x-kendo-template">
+    <div id="analytics" data-role="analytics" data-tracking-id="#= app.config.widgets.analytics.trackingId #"></div>
 </script>
+
+<!-- addthis template -->
+<script id="addthis-template" type="text/x-kendo-template">
+    <div data-role="addthis" data-pub-id="#= app.config.widgets.addthis.pubId #" data-max="4" data-services="facebook, twitter" data-addthis-counter="true"></div>
+</script>
+
+<!-- comments view -->
+<script id="comments-view" type="text/x-kendo-template">
+    <div data-role="template" data-template="comments-template"></div>
+</script>
+<script id="comments-template" type="text/x-kendo-template">
+    <div id="disqus" data-role="disqus" data-type="thread" data-shortname="#= app.config.widgets.disqus.shortname #" data-language="#= app.config.language #" data-bind="title: title, url: url, identifier: identifier"></div>
+</script>
+
 
 </body>
 </html>

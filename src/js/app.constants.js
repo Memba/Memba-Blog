@@ -160,7 +160,9 @@
         APPLICATION_LAYOUT: '#application-layout',
         APPLICATION_HEADER: '#header',
         APPLICATION_CONTAINER: '#container',
+        APPLICATION_MAIN: '#main',
         APPLICATION_CONTENT: '#content',
+        APPLICATION_COMMENTS: '#comments',
         APPLICATION_SIDE: '#side',
         APPLICATION_FOOTER: '#footer',
 
@@ -207,6 +209,9 @@
 
         //Blog Post View
         BLOG_POST_VIEW: '#post-view',
+
+        //Commments View
+        COMMENTS_VIEW: '#comments-view',
 
         DUMMY: 'dummy'
     });

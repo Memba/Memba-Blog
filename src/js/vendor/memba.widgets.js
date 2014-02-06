@@ -909,6 +909,76 @@
         ui = kendo.ui,
         FUNCTION = 'function';
 
+
+    /**
+     * Enable binding the active value of a Template widget
+     * @type {*|void}
+     */
+    kendo.data.binders.widget.active = kendo.data.Binder.extend({
+        init: function(widget, bindings, options) {
+            //call the base constructor
+            kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
+        },
+        refresh: function() {
+            var that = this,
+                value = that.bindings.active.get(), //get the value from the View-Model
+                widget = kendo.widgetInstance($(that.element));
+            if (widget instanceof ui.Template) {
+                widget.active(value); //update our widget
+            } else if ($.type(widget.active) === FUNCTION) { //try not to mess with other widgets
+                try {
+                    widget.active(value);
+                } catch(err) {}
+            }
+        }
+    });
+
+    /**
+     * Enable binding the identifier value of a Disqus widget
+     * @type {*|void}
+     */
+    kendo.data.binders.widget.identifier = kendo.data.Binder.extend({
+        init: function(widget, bindings, options) {
+            //call the base constructor
+            kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
+        },
+        refresh: function() {
+            var that = this,
+                value = that.bindings.identifier.get(), //get the value from the View-Model
+                widget = kendo.widgetInstance($(that.element));
+            if (widget instanceof ui.Disqus) {
+                widget.identifier(value); //update our widget
+            } else if ($.type(widget.identifier) === FUNCTION) { //try not to mess with other widgets
+                try {
+                    widget.identifier(value);
+                } catch(err) {}
+            }
+        }
+    });
+    
+    /**
+     * Enable binding the title value of a Disqus widget
+     * @type {*|void}
+     */
+    kendo.data.binders.widget.title = kendo.data.Binder.extend({
+        init: function(widget, bindings, options) {
+            //call the base constructor
+            kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
+        },
+        refresh: function() {
+            var that = this,
+                value = that.bindings.title.get(), //get the value from the View-Model
+                widget = kendo.widgetInstance($(that.element));
+            if (widget instanceof ui.Disqus) {
+                widget.title(value); //update our widget
+            } else if ($.type(widget.title) === FUNCTION) { //try not to mess with other widgets
+                try {
+                    widget.title(value);
+                } catch(err) {}
+            }
+        }
+    });
+    
     /**
      * Enable binding the type value of an InfoBox widget
      * @type {*|void}
@@ -933,7 +1003,7 @@
     });
 
     /**
-     * url custom binding
+     * Enable binding the url value of a Disqus or MarkDown widget
      * see http://docs.kendoui.com/getting-started/framework/mvvm/bindings/custom
      * @type {*|void}
      */
@@ -946,7 +1016,7 @@
             var that = this,
                 value = that.bindings.url.get(), //get the value from the View-Model
                 widget = kendo.widgetInstance($(that.element));
-            if (widget instanceof ui.MarkDown) {
+            if (widget instanceof ui.Disqus || widget instanceof ui.MarkDown) {
                 widget.url(value); //update our widget
             } else if ($.type(widget.url) === FUNCTION) { //try not to mess with other widgets
                 try {
@@ -956,29 +1026,6 @@
         }
     });
 
-
-    /**
-     * Enable binding the active value of a Template widget
-     * @type {*|void}
-     */
-    kendo.data.binders.widget.active = kendo.data.Binder.extend({
-        init: function(widget, bindings, options) {
-            //call the base constructor
-            kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
-        },
-        refresh: function() {
-            var that = this,
-                value = that.bindings.active.get(), //get the value from the View-Model
-                widget = kendo.widgetInstance($(that.element));
-            if (widget instanceof ui.Template) {
-                widget.active(value); //update our widget
-            } else if ($.type(widget.active) === FUNCTION) { //try not to mess with other widgets
-                try {
-                    widget.active(value);
-                } catch(err) {}
-            }
-        }
-    });
 
 } (jQuery));
 ;
@@ -3092,7 +3139,8 @@
             //Styling inspired from http://www.jankoatwarpspeed.com/post/2008/05/22/CSS-Message-Boxes-for-different-message-types.aspx
             var that = this;
             that._clear();
-            $(that.element).addClass('k-widget k-template');
+            //$(that.element).addClass('k-widget k-template');
+            $(that.element).addClass('k-template');
             that.refresh();
         },
 
@@ -3124,7 +3172,8 @@
             $(that.element)
                 .empty()
                 .off()
-                .removeClass('k-widget k-template');
+                //.removeClass('k-widget k-template');
+                .removeClass('k-template');
         },
 
         /**

@@ -120,3 +120,14 @@ ul#blog-list, ul#categories-list, ul#archive-list {
     margin-left: 0.5rem;
     padding: 0.2rem 0.5rem 0.2rem 0.5rem;
 }
+/*widgets*/
+#post-article .addthis_counter.addthis_bubble_style,
+#page-article .addthis_counter.addthis_bubble_style {
+    width: 64px !important;
+}
+.k-disqus-thread{
+    border-style: none !important;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+}

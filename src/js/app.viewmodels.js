@@ -20,7 +20,7 @@
 
 
     //The following view models only applies to the spa page
-    if(window.location.href.indexOf(hrefs.INDEX.replace(/\./g, '')) === -1) { return; }
+    if(window.location.pathname.indexOf(hrefs.INDEX.replace(/^\./, '')) === -1) { return; }
 
     /**
      * Blog Model
@@ -172,15 +172,6 @@
     });
 
     /**
-     * ViewModel for pageView
-     * @type {*}
-     */
-    app.pageViewModel = kendo.observable({
-        contentUrl: '',
-        title: ''
-    });
-
-    /**
      * ViewModel for blogNavigationView
      * @type {*}
      */
@@ -204,14 +195,16 @@
     });
 
     /**
-     * ViewModel for blogPostView
+     * ViewModel for pageView and blogPostView
      * @type {*}
      */
-    app.blogPostViewModel = kendo.observable({
-        contentUrl: '',
+    app.contentViewModel = kendo.observable({
+        url: '', //the html page
+        contentUrl: '', //the markdown file
         title: '',
         author: '',
-        pubDate: Date.now()
+        pubDate: Date.now(),
+        identifier: ''
     });
 
 }(jQuery));

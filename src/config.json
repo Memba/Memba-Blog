@@ -33,6 +33,12 @@
         }
     },
     "widgets": {
+        "addthis": {
+            "pubId": "jlchereau"
+        },
+        "analytics": {
+            "trackingId": "UA-111111-1"
+        },
         "disqus": {
             "shortname": "example"
         }

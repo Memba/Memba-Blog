@@ -37,7 +37,7 @@
     };
 
     //This controller only applies to the spa page
-    if(window.location.href.indexOf(hrefs.INDEX.replace(/\./g, '')) === -1) { return; }
+    if(window.location.pathname.indexOf(hrefs.INDEX.replace(/^\./, '')) === -1) { return; }
 
     /**
      * Once document is ready and external (shared) templates are loaded
@@ -56,12 +56,13 @@
         var applicationLayout = new kendo.Layout(elements.APPLICATION_LAYOUT),
             headerView = new kendo.View(elements.HEADER_VIEW, { model: app.searchViewModel }),
             footerView = new kendo.View(elements.FOOTER_VIEW),
-            pageView = new kendo.View(elements.PAGE_VIEW, { model: app.pageViewModel }),
+            pageView = new kendo.View(elements.PAGE_VIEW, { model: app.contentViewModel }),
             searchView = new kendo.View(elements.SEARCH_VIEW, { model: app.searchViewModel }),
             errorView = new kendo.View(elements.ERROR_VIEW),
             blogNavigationView = new kendo.View(elements.BLOG_NAVIGATION_VIEW, { model: app.blogNavigationViewModel }),
             blogListView = new kendo.View(elements.BLOG_LIST_VIEW, { model: app.blogListViewModel }),
-            blogPostView = new kendo.View(elements.BLOG_POST_VIEW, { model: app.blogPostViewModel }),
+            blogPostView = new kendo.View(elements.BLOG_POST_VIEW, { model: app.contentViewModel }),
+            commentsView = new kendo.View(elements.COMMENTS_VIEW, { model: app.contentViewModel }),
 
             //Initialize router
             router = new kendo.Router({
@@ -69,12 +70,18 @@
                     applicationLayout.render(elements.APPLICATION_ROOT);
                     applicationLayout.showIn(elements.APPLICATION_HEADER, headerView);
                     applicationLayout.showIn(elements.APPLICATION_FOOTER, footerView);
+                    applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                     applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
                     //applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
                 },
                 change: function (e) {
                     if (DEBUG && global.console) {
                         global.console.log(MODULE + 'Open view ' + e.url);
+                    }
+                    //Call analytics
+                    var analytics = $('#analytics').data('kendoAnalytics');
+                    if ((analytics instanceof kendo.ui.Analytics) && ($.type(analytics.options.pubId) === types.STRING)) {
+                        analytics.send(window.location.protocol + "//" + window.location.host + window.location.pathname + hrefs.HASH + e.url);
                     }
                 },
                 routeMissing: function(e) {
@@ -93,8 +100,9 @@
         router.route(routes.HOME, function () {
             //if config designates a home page, show it
             if($.type(app.config.home) === types.STRING && app.config.home.length > 0) {
-                app.pageViewModel.set('contentUrl', hrefs.PAGES + app.config.home);
+                app.contentViewModel.set('contentUrl', hrefs.PAGES + app.config.home);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
+                applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                 blogNavigationView.hide();
             } else { //otherwise list blog posts (same as /blog)
                 var blogListDataSource = app.blogListViewModel.get('list');
@@ -104,13 +112,15 @@
                 }
                 blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
+                commentsView.hide();
                 applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
             }
         });
 
         router.route(routes.PAGE, function(page) {
-            app.pageViewModel.set('contentUrl', hrefs.PAGES + page + constants.MARKDOWN_EXT);
+            app.contentViewModel.set('contentUrl', hrefs.PAGES + page + constants.MARKDOWN_EXT);
             applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
+            applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
             blogNavigationView.hide();
         });
 
@@ -120,6 +130,7 @@
             blogListDataSource.filter( { field: 'category', operator: 'eq', value: category });
             blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
             applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
+            commentsView.hide();
             applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
         });
 
@@ -131,11 +142,9 @@
                     return item.link.indexOf(year + constants.PATH_SEP + month + constants.PATH_SEP + slug) > 0;
                 });
                 if (found.length > 0) {
-                    app.blogPostViewModel.set('contentUrl', hrefs.ARCHIVE + year + constants.PATH_SEP + month + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
-                    app.blogPostViewModel.set('title', found[0].title);
-                    app.blogPostViewModel.set('author', found[0].author);
-                    app.blogPostViewModel.set('pubDate', kendo.toString(found[0].pubDate, constants.DATE_FORMAT));
+                    app.contentViewModel.set('contentUrl', hrefs.ARCHIVE + year + constants.PATH_SEP + month + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
                     applicationLayout.showIn(elements.APPLICATION_CONTENT, blogPostView);
+                    applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                 }
             } else {
                 if (!isNaN(parseInt(month))) {
@@ -150,11 +159,13 @@
                 }
                 blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
+                commentsView.hide();
             }
             applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
         });
 
         //Routes like /guid/569114ED-9700-4439-825F-C4A5FE2DC42E
+        //TODO: check
         router.route(routes.GUID, function (guid) {
             var blogListDataSource = app.blogListViewModel.get('list');
             var found = blogListDataSource.get(guid);
@@ -164,11 +175,9 @@
                     .replace(routes.MONTH_PARAMETER, '([^/]+)')
                     .replace(routes.SLUG_PARAMETER, '([^/]+)') + '$');
                 var matches = rx.exec(found.link);
-                app.blogPostViewModel.set('url', hrefs.ARCHIVE + matches[1] + constants.PATH_SEP + matches[2] + constants.MARKDOWN_EXT);
-                app.blogPostViewModel.set('title', found.title);
-                app.blogPostViewModel.set('author', found.author);
-                app.blogPostViewModel.set('pubDate', kendo.toString(found.pubDate, constants.DATE_FORMAT));
+                app.contentViewModel.set('contentUrl', hrefs.ARCHIVE + matches[1] + constants.PATH_SEP + matches[2] + constants.MARKDOWN_EXT);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, blogPostView);
+                applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                 applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
             }
         });
@@ -176,6 +185,7 @@
         //routes like /search
         router.route(routes.SEARCH, function() {
             applicationLayout.showIn(elements.APPLICATION_CONTENT, searchView);
+            commentsView.hide();
             blogNavigationView.hide();
         });
 
@@ -199,32 +209,37 @@
         });
 
         //views
+        var onMarkDownChange = function(e) {
+            if (DEBUG && global.console.log) {
+                global.console.log(MODULE + 'new markdown loaded');
+            }
+            var metaData = e.sender.metadata(),
+                pubDate = new Date(metaData.pubDate);
+            //Update view Model
+            app.contentViewModel.set('title', $.type(metaData.title) === types.STRING ? metaData.title : '');
+            app.contentViewModel.set('author', $.type(metaData.author) === types.STRING ? metaData.author : '');
+            app.contentViewModel.set('pubDate', $.type(pubDate) === types.DATE && !isNaN(pubDate.getTime()) ? kendo.toString(pubDate, constants.DATE_FORMAT) : kendo.toString(new Date(), constants.DATE_FORMAT));
+            app.contentViewModel.set('identifier', $.type(metaData.guid) === types.STRING ? metaData.guid : '');
+            //Set page meta tags
+            app.setMetaTags(metaData, app.config);
+        };
+        
         pageView.bind(events.INIT, function(e) {
             //Handler bound to the change event of the markdown widget to set the page meta tags
-            e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, function(e) {
-                if (DEBUG && global.console.log) {
-                    global.console.log(MODULE + 'new markdown loaded');
-                }
-                app.setMetaTags(e.sender.metadata(), app.config);
-            });
+            e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, onMarkDownChange);
         });
 
         blogPostView.bind(events.INIT, function(e) {
             //Handler bound to the change event of the markdown widget to set the page meta tags
-           e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, function(e) {
-                if (DEBUG && global.console.log) {
-                    global.console.log(MODULE + 'new markdown loaded');
-                }
-                app.setMetaTags(e.sender.metadata(), app.config);
-            });
+            e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, onMarkDownChange);
         });
 
         blogNavigationView.bind(events.SHOW, function(e) {
             if (DEBUG && global.console.log) {
                 global.console.log(MODULE + 'blog navigation shown');
             }
-            $(elements.APPLICATION_CONTENT).removeClass('col-lg-12 col-md-12 col-sm-12');
-            $(elements.APPLICATION_CONTENT).addClass('col-lg-10 col-md-9 col-sm-8 spacing');
+            $(elements.APPLICATION_MAIN).removeClass('col-lg-12 col-md-12 col-sm-12');
+            $(elements.APPLICATION_MAIN).addClass('col-lg-10 col-md-9 col-sm-8 spacing');
             $(elements.APPLICATION_SIDE).removeClass('hidden');
             $(elements.APPLICATION_SIDE).addClass('col-lg-2 col-md-3 col-sm-4');
         });
@@ -233,8 +248,8 @@
             if (DEBUG && global.console.log) {
                 global.console.log(MODULE + 'blog navigation hidden');
             }
-            $(elements.APPLICATION_CONTENT).removeClass('col-lg-10 col-md-9 col-sm-8 spacing');
-            $(elements.APPLICATION_CONTENT).addClass('col-lg-12 col-md-12 col-sm-12');
+            $(elements.APPLICATION_MAIN).removeClass('col-lg-10 col-md-9 col-sm-8 spacing');
+            $(elements.APPLICATION_MAIN).addClass('col-lg-12 col-md-12 col-sm-12');
             $(elements.APPLICATION_SIDE).removeClass('col-lg-2 col-md-3 col-sm-4');
             $(elements.APPLICATION_SIDE).addClass('hidden');
 
