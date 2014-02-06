@@ -66,7 +66,6 @@ module.exports = function (grunt) {
             dist: {
                 files: [
                     { 'dist/js/init.min.js': ['src/js/init.js'] },
-                    //{ 'dist/js/vendor/marked.min.js': ['src/js/vendor/marked.js'] },
                     { 'dist/js/<%= pkg.name %>.min.js': ['<%= concat.js.dest %>'] }
                 ]
             }
@@ -112,7 +111,7 @@ module.exports = function (grunt) {
                     'dist/styles/<%= pkg.name %>.min.css': ['<%= concat.css.dest %>']
                 }
             }
-        },
+        }/*,
         htmlmin: {
             dist: {
                 options: {
@@ -132,7 +131,7 @@ module.exports = function (grunt) {
                     'dist/header.tmpl.html': 'src/header.tmpl.html'
                 }
             }
-        }/*,
+        },
         yuidoc: {
             compile: {
                 name: '<%= pkg.name %>',

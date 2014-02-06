@@ -8,11 +8,9 @@
     "copyright": "Copyright &copy;Memba 2013-2014. All rights reserved.",
     "search": {
         "placeholder": "Search",
-        "button": "Go",
-        "engine": "Google",
-        "key": ""
+        "button": "Go"
     },
-    "home": "./pages/home.md",
+    "home": "home.md",
     "menu": [
         { "text": "Home", "href": "#/" },
         { "text": "Blog", "href": "#/blog" },
@@ -32,6 +30,11 @@
             "categories": "<i class=\"fa fa-tags\"></i>&nbsp;Categories",
             "archive": "<i class=\"fa fa-calendar\"></i>&nbsp;Archive",
             "rssfeed": "<i class=\"fa fa-rss-square\"></i>&nbsp;RSS Feed"
+        }
+    },
+    "widgets": {
+        "disqus": {
+            "shortname": "example"
         }
     },
     "errors": {
