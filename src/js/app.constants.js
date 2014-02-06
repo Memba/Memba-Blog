@@ -55,6 +55,7 @@
         HEADER: './header.tmpl.html',
         FOOTER: './footer.tmpl.html',
         CONFIG: './config.json',
+        PAGES: './pages/',
         THUMBNAIL: './styles/images/blog{0}.jpg'
     });
 
@@ -205,7 +206,7 @@
         BLOG_POST_READMORE: 'div.readmore > div.pull-right > a',
 
         //Blog Post View
-        DETAIL_VIEW: '#detail-view',
+        BLOG_POST_VIEW: '#post-view',
 
         DUMMY: 'dummy'
     });

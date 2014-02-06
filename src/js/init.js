@@ -13,7 +13,7 @@
     //http://www.useragentstring.com/pages/Crawlerlist/
     //https://support.google.com/webmasters/answer/1061943?hl=en
     //http://www.bing.com/webmaster/help/which-crawlers-does-bing-use-8c184ec0
-    if (/bot|crawl|spider|preview/i.test(navigator.userAgent)) { return; }
+    //if (/bot|crawl|spider|preview/i.test(navigator.userAgent)) { return; }
 
     var fn = Function,
         global = fn('return this')(),
@@ -30,6 +30,7 @@
 
     //If we have reached here, this is not a bot otherwise it does not comply with robots.txt
     //So if we get a querystring, we need to forward the user to the corresponding hash URL
+    /*
     if(global.location.search.length > 1) {
         var search = function() {
             var s = window.location.search.substr(1),
@@ -45,12 +46,13 @@
             global.location.assign(global.location.protocol + '//' + global.location.host + global.location.pathname + '#' + search.r); // encodeURIComponent(search.r));
         }
     }
+    */
 
     //We are good and can load our JavaScript libraries
     Modernizr.load([
         //jQuery
         {
-            load: '//code.jquery.com/jquery-1.9.1.min.js',
+            load: '//code.jquery.com/jquery-1.10.2.min.js',
             callback: function (url) { //called both in case of success and failure
                 if (DEBUG && global.console) {
                     global.console.log(MODULE + url + ' loading attempt');
@@ -188,7 +190,7 @@
                         },
                         function(jqXHR, textStatus, errorThrown) { //error callback
                             if (DEBUG && global.console && $.type(global.console.error) === app.types.FUNCTION) {
-                                global.console.error(MODULE + app.hrefs.HEADER + ' or ' + app.hrefs.FOOTER + ' ' + errorThrown);
+                                global.console.error(MODULE + app.hrefs.CONFIG + ' or ' + app.hrefs.HEADER + ' or ' + app.hrefs.FOOTER + ' ' + errorThrown);
                             }
                         }
                     );

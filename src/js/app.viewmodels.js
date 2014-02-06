@@ -18,12 +18,17 @@
         DEBUG = true,
         MODULE = 'app.index.viewmodels.js: ';
 
+
+    //The following view models only applies to the spa page
+    if(window.location.href.indexOf(hrefs.INDEX.replace(/\./g, '')) === -1) { return; }
+
     /**
      * Blog Model
      * @type {*}
      */
     //TODO use a model
     //var Blog = kendo.data.Model.define({});
+
 
     /**
      * Datasources
@@ -159,20 +164,20 @@
     blogDataSource.read();
 
     /**
+     * ViewModel for headerView and searchView
+     * @type {*}
+     */
+    app.searchViewModel = kendo.observable({
+        search: ''
+    });
+
+    /**
      * ViewModel for pageView
      * @type {*}
      */
     app.pageViewModel = kendo.observable({
         contentUrl: '',
         title: ''
-    });
-
-    /**
-     * ViewModel for headerView and searchView
-     * @type {*}
-     */
-    app.searchViewModel = kendo.observable({
-        search: ''
     });
 
     /**
@@ -207,26 +212,6 @@
         title: '',
         author: '',
         pubDate: Date.now()
-    });
-
-    /**
-     * url custom binding
-     * see http://docs.kendoui.com/getting-started/framework/mvvm/bindings/custom
-     * @type {*|void}
-     */
-    kendo.data.binders.widget.url = kendo.data.Binder.extend({
-        init: function(widget, bindings, options) {
-            //call the base constructor
-            kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
-        },
-        refresh: function() {
-            var that = this,
-                url = that.bindings.url.get(), //get the value from blogPostViewModel
-                widget = $(that.element).data('kendoMarkDown');
-            if (widget instanceof kendo.ui.MarkDown) {
-                widget.url(url); //update the widget url
-            }
-        }
     });
 
 }(jQuery));

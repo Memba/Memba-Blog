@@ -36,11 +36,14 @@
         }
     };
 
+    //This controller only applies to the spa page
+    if(window.location.href.indexOf(hrefs.INDEX.replace(/\./g, '')) === -1) { return; }
+
     /**
      * Once document is ready and external (shared) templates are loaded
      * jQuery and kendo can safely be used against the DOM
      */
-    $(document).bind(events.INITIALIZE, function(/*e , params*/) {
+    $(document).on(events.INITIALIZE, function(/*e , params*/) {
 
         if(DEBUG && global.console) {
             console.log(MODULE + 'initialize event fired');
@@ -58,7 +61,7 @@
             errorView = new kendo.View(elements.ERROR_VIEW),
             blogNavigationView = new kendo.View(elements.BLOG_NAVIGATION_VIEW, { model: app.blogNavigationViewModel }),
             blogListView = new kendo.View(elements.BLOG_LIST_VIEW, { model: app.blogListViewModel }),
-            blogPostView = new kendo.View(elements.DETAIL_VIEW, { model: app.blogPostViewModel }),
+            blogPostView = new kendo.View(elements.BLOG_POST_VIEW, { model: app.blogPostViewModel }),
 
             //Initialize router
             router = new kendo.Router({
@@ -90,7 +93,7 @@
         router.route(routes.HOME, function () {
             //if config designates a home page, show it
             if($.type(app.config.home) === types.STRING && app.config.home.length > 0) {
-                app.pageViewModel.set('contentUrl', app.config.home);
+                app.pageViewModel.set('contentUrl', hrefs.PAGES + app.config.home);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
                 blogNavigationView.hide();
             } else { //otherwise list blog posts (same as /blog)
@@ -106,7 +109,7 @@
         });
 
         router.route(routes.PAGE, function(page) {
-            app.pageViewModel.set('contentUrl', './pages/' + page + constants.MARKDOWN_EXT);
+            app.pageViewModel.set('contentUrl', hrefs.PAGES + page + constants.MARKDOWN_EXT);
             applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
             blogNavigationView.hide();
         });
@@ -267,6 +270,7 @@
         if(DEBUG && global.console) {
             global.console.log(MODULE + 'router started');
         }
+
     });
 
 }(jQuery));
