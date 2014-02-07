@@ -7,10 +7,16 @@
     "author": "Memba",
     "copyright": "Copyright &copy;Memba 2013-2014. All rights reserved.",
     "paths": {
-        "posts": "./posts/",
-        "pages": "./pages/",
+        "root": "./",
+        "posts": "posts/",
+        "pages": "pages/",
         "home": "home.md",
-        "sitemap": "./sitemap.xml"
+        "rss": "index.rss",
+        "sitemap": "sitemap.xml",
+        "index": "index.html",
+        "header": "header.tmpl.html",
+        "footer": "footer.tmpl.html",
+        "thumbnail": "styles/images/blog{0}.jpg"
     },
     "routes": {
         "blog": "/blog(/:year)(/:month)(/:slug)"
