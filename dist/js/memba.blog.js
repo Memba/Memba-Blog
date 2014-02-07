@@ -568,7 +568,7 @@
             wrap = $(WRAP_OPEN + $(elements.HEADER_VIEW).html() + WRAP_CLOSE);
             //logo
             wrap.find(elements.HEADER_VIEW_NAVBAR_BRAND + ' ' + tags.IMG)
-                .attr(tags.SRC, config.logo)
+                .attr(tags.SRC, config.root + config.logo)
                 .attr(tags.ALT, config.title);
             //toggle button (only displays on mobiles)
             wrap.find(elements.HEADER_VIEW_NAVBAR_TOGGLE).html(config.blog.navigation.toggle);
