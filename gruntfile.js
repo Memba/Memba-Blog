@@ -32,6 +32,7 @@ module.exports = function (grunt) {
                     noProcess: ['**/*.{png,gif,jpg,ico,psd}'] //otherwise images are corrupeted
                 },
                 files: [
+                    { cwd: 'src', src: ['*.html', '*.json'], dest: 'dist/', expand: true },
                     { cwd: 'dist_root', src: ['**'], dest: 'dist/', expand: true },
                     { cwd: 'src/posts', src: ['**'], dest: 'dist/posts', expand: true },
                     { cwd: 'src/pages', src: ['**'], dest: 'dist/pages', expand: true },
