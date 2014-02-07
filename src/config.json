@@ -6,11 +6,19 @@
     "keywords": "Memba Mini Blog Engine",
     "author": "Memba",
     "copyright": "Copyright &copy;Memba 2013-2014. All rights reserved.",
+    "paths": {
+        "posts": "./posts/",
+        "pages": "./pages/",
+        "home": "home.md",
+        "sitemap": "./sitemap.xml"
+    },
+    "routes": {
+        "blog": "/blog(/:year)(/:month)(/:slug)"
+    },
     "search": {
         "placeholder": "Search",
         "button": "Go"
     },
-    "home": "home.md",
     "menu": [
         { "text": "Home", "href": "#/" },
         { "text": "Blog", "href": "#/blog" },
