@@ -34,6 +34,7 @@ module.exports = function (grunt) {
                 files: [
                     { cwd: 'dist_root', src: ['**'], dest: 'dist/', expand: true },
                     { cwd: 'src/posts', src: ['**'], dest: 'dist/posts', expand: true },
+                    { cwd: 'src/pages', src: ['**'], dest: 'dist/pages', expand: true },
                     { cwd: 'src/js', src: ['init.js'], dest: 'dist/js', expand: true },
                     { cwd: 'src/js', src: ['vendor/bootstrap.min.js', 'vendor/highlight.min.js', 'vendor/marked.min.js', 'vendor/memba.widgets.min.js', 'vendor/memba.widgets.map', 'vendor/modernizr.min.js'], dest: 'dist/js', expand: true },
                     { cwd: 'src/styles', src: ['fonts/**'], dest: 'dist/styles', expand: true },
