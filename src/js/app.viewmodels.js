@@ -10,8 +10,8 @@
         global = fn('return this')(),
         kendo = global.kendo,
         app = global.app,
+        config = app.config,
         constants = app.constants,
-        hrefs = app.hrefs,
         routes = app.routes,
         types = app.types,
 
@@ -20,7 +20,7 @@
 
 
     //The following view models only applies to the spa page
-    if(window.location.pathname.indexOf(hrefs.INDEX.replace(/^\./, '')) === -1) { return; }
+    if(window.location.pathname.indexOf(config.paths.index) === -1) { return; }
 
     /**
      * Blog Model
@@ -39,7 +39,7 @@
         blogListDataSource = new kendo.data.DataSource({}),
         blogDataSource = new kendo.data.DataSource({
         //schema: { model: {} },
-        transport: { read: { url: hrefs.ARCHIVE + hrefs.RSS, dataType: 'xml' } },
+        transport: { read: { url: config.paths.root + config.paths.posts + config.paths.rss, dataType: 'xml' } },
         schema: {
             // specify the the schema is XML
             type: 'xml',
@@ -102,7 +102,7 @@
                                 //<enclosure url="http://www.scripting.com/mp3s/weatherReportSuite.mp3" length="0" type="audio/mpeg" />
                                 return value;
                             } else {
-                                return kendo.format(hrefs.THUMBNAIL, Math.floor(1 + constants.MAX_THUMBNAILS* Math.random()));
+                                return kendo.format(config.paths.root + config.paths.thumbnail, Math.floor(1 + constants.MAX_THUMBNAILS* Math.random()));
                             }
                         }
                     },

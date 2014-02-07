@@ -45,21 +45,6 @@
     });
 
     /**
-     * HREFs
-     * @type {*}
-     */
-    app.hrefs = $.extend(app.hrefs || {}, {
-        ARCHIVE: './posts/',
-        RSS: 'index.rss',
-        INDEX: './index.html',
-        HEADER: './header.tmpl.html',
-        FOOTER: './footer.tmpl.html',
-        CONFIG: './config.json',
-        PAGES: './pages/',
-        THUMBNAIL: './styles/images/blog{0}.jpg'
-    });
-
-    /**
      * Routes
      * @type {*}
      */

@@ -11,10 +11,10 @@
         global = fn('return this')(),
         kendo = global.kendo,
         app = global.app,
+        config = app.config,
         constants = app.constants,
         elements = app.elements,
         events = app.events,
-        hrefs = app.hrefs,
         routes = app.routes,
         //tags = app.tags,
         types = app.types,
@@ -37,7 +37,7 @@
     };
 
     //This controller only applies to the spa page
-    if(window.location.pathname.indexOf(hrefs.INDEX.replace(/^\./, '')) === -1) { return; }
+    if(window.location.pathname.indexOf(config.paths.index) === -1) { return; }
 
     /**
      * Once document is ready and external (shared) templates are loaded
@@ -81,7 +81,7 @@
                     //Call analytics
                     var analytics = $('#analytics').data('kendoAnalytics');
                     if ((analytics instanceof kendo.ui.Analytics) && ($.type(analytics.options.pubId) === types.STRING)) {
-                        analytics.send(window.location.protocol + "//" + window.location.host + window.location.pathname + hrefs.HASH + e.url);
+                        analytics.send(window.location.protocol + "//" + window.location.host + window.location.pathname + routes.HASH + e.url);
                     }
                 },
                 routeMissing: function(e) {
@@ -99,8 +99,8 @@
         //Routes like /
         router.route(routes.HOME, function () {
             //if config designates a home page, show it
-            if($.type(app.config.home) === types.STRING && app.config.home.length > 0) {
-                app.contentViewModel.set('contentUrl', hrefs.PAGES + app.config.home);
+            if($.type(app.config.paths.home) === types.STRING && app.config.paths.home.length > 0) {
+                app.contentViewModel.set('contentUrl', config.paths.root + config.paths.pages + app.config.paths.home);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
                 applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                 blogNavigationView.hide();
@@ -118,7 +118,7 @@
         });
 
         router.route(routes.PAGE, function(page) {
-            app.contentViewModel.set('contentUrl', hrefs.PAGES + page + constants.MARKDOWN_EXT);
+            app.contentViewModel.set('contentUrl', config.paths.root + config.paths.pages + page + constants.MARKDOWN_EXT);
             applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
             applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
             blogNavigationView.hide();
@@ -142,7 +142,7 @@
                     return item.link.indexOf(year + constants.PATH_SEP + month + constants.PATH_SEP + slug) > 0;
                 });
                 if (found.length > 0) {
-                    app.contentViewModel.set('contentUrl', hrefs.ARCHIVE + year + constants.PATH_SEP + month + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
+                    app.contentViewModel.set('contentUrl', config.paths.root + config.paths.posts + year + constants.PATH_SEP + month + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
                     applicationLayout.showIn(elements.APPLICATION_CONTENT, blogPostView);
                     applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                 }
@@ -175,7 +175,7 @@
                     .replace(routes.MONTH_PARAMETER, '([^/]+)')
                     .replace(routes.SLUG_PARAMETER, '([^/]+)') + '$');
                 var matches = rx.exec(found.link);
-                app.contentViewModel.set('contentUrl', hrefs.ARCHIVE + matches[1] + constants.PATH_SEP + matches[2] + constants.MARKDOWN_EXT);
+                app.contentViewModel.set('contentUrl', config.paths.root + config.paths.posts + matches[1] + constants.PATH_SEP + matches[2] + constants.MARKDOWN_EXT);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, blogPostView);
                 applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                 applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);

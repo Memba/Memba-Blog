@@ -12,7 +12,6 @@
         kendo = global.kendo,
         app = global.app,
         elements = app.elements,
-        hrefs = app.hrefs,
         tags = app.tags,
         types = app.types,
 
@@ -136,7 +135,7 @@
             wrap.find(elements.ARCHIVE_SECTION_TITLE).html(config.blog.navigation.archive);
             wrap.find(elements.RSS_SECTION_TITLE)
                 .html(config.blog.navigation.rssfeed)
-                .attr(tags.HREF, hrefs.ARCHIVE + hrefs.RSS);
+                .attr(tags.HREF, config.paths.root + config.paths.posts + config.paths.rss);
             $(elements.BLOG_NAVIGATION_VIEW).html(wrap.html());
         }
 
