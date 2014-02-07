@@ -16,7 +16,7 @@ var CONFIG = './config.json';
     //https://support.google.com/webmasters/answer/1061943?hl=en
     //http://www.bing.com/webmaster/help/which-crawlers-does-bing-use-8c184ec0
 
-    if (true) { ///bot|crawl|spider|preview/i.test(navigator.userAgent)) {
+    if (/bot|crawl|spider|preview/i.test(navigator.userAgent)) {
         // Note: the following is pure JavaScript (no api) to be executed by search engine bots
         var LF = '\n', COLON = ':',
         /**
