@@ -20,7 +20,7 @@
 
 
     //The following view models only applies to the spa page
-    if(window.location.pathname.indexOf(config.paths.index) === -1) { return; }
+    //if(window.location.pathname.indexOf(config.paths.index) === -1) { return; }
 
     /**
      * Blog Model
