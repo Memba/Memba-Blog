@@ -1,11 +1,15 @@
 # Memba Mini Blog Engine
 
->  A static blog engine which displays your markdown content live (What You Write Is What You Publish).
+>  A static blog engine which displays live markdown content (What You Write Is What You Publish).
+
+## Demo
+
+See a demo running at http://miniblog.memba.com.
 
 ## Why a new blog engine?
 Jekyll or Octopress definitely does the job but the files you write (markdown) are not the files you publish (html).
 Additionally, there is some infrastructure including Ruby to run Jekyll, which is not as simple as advertised.
-The Mini Blog Engine relies on a simpler infrastructure to publish the same files you write in markdown language.
+The Memba Mini Blog Engine relies on a simpler infrastructure to publish the same files you write in markdown language.
 
 ## Architecture and process
 index.html is the default and only template based on [Twitter bootstrap] (http://www.getboostrap.com).
@@ -16,7 +20,7 @@ This is the essential conceptual difference with Jekyll: there is no merging of 
 
 ## Getting Started
 The requirements are those of Grunt: you need to install [NodeJS] (http://nodejs.org/) and [Grunt] (http://gruntjs.com/).
-Then we recommend cloning this Git project
+Then we recommend cloning this Git project or downloading an archive. More on the [Memba Mini Blog Engine web site](http://http://miniblog.memba.com).
 
 ## Disclaimer
 Before you get too excited please consider that this is 'work in progress' which has not even reached an 'alpha' stage.
