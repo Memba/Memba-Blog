@@ -34,13 +34,13 @@
     },
     "widgets": {
         "addthis": {
-            "pubId": "jlchereau"
+            "pubId": ""
         },
         "analytics": {
-            "trackingId": "UA-111111-1"
+            "trackingId": ""
         },
         "disqus": {
-            "shortname": "example"
+            "shortname": ""
         }
     },
     "errors": {
