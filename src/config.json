@@ -1,6 +1,5 @@
 {
     "language": "en",
-    "logo": "./styles/images/logo.png",
     "title": "Memba Mini Blog Engine",
     "description": "Memba Mini Blog Engine",
     "keywords": "Memba Mini Blog Engine",
@@ -16,7 +15,8 @@
         "index": "index.html",
         "header": "header.tmpl.html",
         "footer": "footer.tmpl.html",
-        "thumbnail": "styles/images/blog{0}.jpg"
+        "thumbnail": "styles/images/blog{0}.jpg",
+        "logo": "styles/images/logo.png"
     },
     "routes": {
         "blog": "/blog(/:year)(/:month)(/:slug)"
