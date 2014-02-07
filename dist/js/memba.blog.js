@@ -45,20 +45,6 @@
     });
 
     /**
-     * HREFs
-     * @type {*}
-     */
-    app.hrefs = $.extend(app.hrefs || {}, {
-        ARCHIVE: './posts/',
-        RSS: 'index.rss',
-        INDEX: './index.html',
-        HEADER: './header.tmpl.html',
-        FOOTER: './footer.tmpl.html',
-        CONFIG: './config.json',
-        THUMBNAIL: './styles/images/blog{0}.jpg'
-    });
-
-    /**
      * Routes
      * @type {*}
      */
@@ -159,7 +145,9 @@
         APPLICATION_LAYOUT: '#application-layout',
         APPLICATION_HEADER: '#header',
         APPLICATION_CONTAINER: '#container',
+        APPLICATION_MAIN: '#main',
         APPLICATION_CONTENT: '#content',
+        APPLICATION_COMMENTS: '#comments',
         APPLICATION_SIDE: '#side',
         APPLICATION_FOOTER: '#footer',
 
@@ -205,7 +193,10 @@
         BLOG_POST_READMORE: 'div.readmore > div.pull-right > a',
 
         //Blog Post View
-        DETAIL_VIEW: '#detail-view',
+        BLOG_POST_VIEW: '#post-view',
+
+        //Commments View
+        COMMENTS_VIEW: '#comments-view',
 
         DUMMY: 'dummy'
     });
@@ -226,10 +217,10 @@
         global = fn('return this')(),
         kendo = global.kendo,
         app = global.app,
+        config = app.config,
         constants = app.constants,
         elements = app.elements,
         events = app.events,
-        hrefs = app.hrefs,
         routes = app.routes,
         //tags = app.tags,
         types = app.types,
@@ -251,11 +242,14 @@
         }
     };
 
+    //This controller only applies to the spa page
+    if(window.location.pathname.indexOf(config.paths.index) === -1) { return; }
+
     /**
      * Once document is ready and external (shared) templates are loaded
      * jQuery and kendo can safely be used against the DOM
      */
-    $(document).bind(events.INITIALIZE, function(/*e , params*/) {
+    $(document).on(events.INITIALIZE, function(/*e , params*/) {
 
         if(DEBUG && global.console) {
             console.log(MODULE + 'initialize event fired');
@@ -268,12 +262,13 @@
         var applicationLayout = new kendo.Layout(elements.APPLICATION_LAYOUT),
             headerView = new kendo.View(elements.HEADER_VIEW, { model: app.searchViewModel }),
             footerView = new kendo.View(elements.FOOTER_VIEW),
-            pageView = new kendo.View(elements.PAGE_VIEW, { model: app.pageViewModel }),
+            pageView = new kendo.View(elements.PAGE_VIEW, { model: app.contentViewModel }),
             searchView = new kendo.View(elements.SEARCH_VIEW, { model: app.searchViewModel }),
             errorView = new kendo.View(elements.ERROR_VIEW),
             blogNavigationView = new kendo.View(elements.BLOG_NAVIGATION_VIEW, { model: app.blogNavigationViewModel }),
             blogListView = new kendo.View(elements.BLOG_LIST_VIEW, { model: app.blogListViewModel }),
-            blogPostView = new kendo.View(elements.DETAIL_VIEW, { model: app.blogPostViewModel }),
+            blogPostView = new kendo.View(elements.BLOG_POST_VIEW, { model: app.contentViewModel }),
+            commentsView = new kendo.View(elements.COMMENTS_VIEW, { model: app.contentViewModel }),
 
             //Initialize router
             router = new kendo.Router({
@@ -281,12 +276,18 @@
                     applicationLayout.render(elements.APPLICATION_ROOT);
                     applicationLayout.showIn(elements.APPLICATION_HEADER, headerView);
                     applicationLayout.showIn(elements.APPLICATION_FOOTER, footerView);
+                    applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                     applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
                     //applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
                 },
                 change: function (e) {
                     if (DEBUG && global.console) {
                         global.console.log(MODULE + 'Open view ' + e.url);
+                    }
+                    //Call analytics
+                    var analytics = $('#analytics').data('kendoAnalytics');
+                    if ((analytics instanceof kendo.ui.Analytics) && ($.type(analytics.options.pubId) === types.STRING)) {
+                        analytics.send(window.location.protocol + "//" + window.location.host + window.location.pathname + routes.HASH + e.url);
                     }
                 },
                 routeMissing: function(e) {
@@ -304,9 +305,10 @@
         //Routes like /
         router.route(routes.HOME, function () {
             //if config designates a home page, show it
-            if($.type(app.config.home) === types.STRING && app.config.home.length > 0) {
-                app.pageViewModel.set('contentUrl', app.config.home);
+            if($.type(app.config.paths.home) === types.STRING && app.config.paths.home.length > 0) {
+                app.contentViewModel.set('contentUrl', config.paths.root + config.paths.pages + app.config.paths.home);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
+                applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                 blogNavigationView.hide();
             } else { //otherwise list blog posts (same as /blog)
                 var blogListDataSource = app.blogListViewModel.get('list');
@@ -316,13 +318,15 @@
                 }
                 blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
+                commentsView.hide();
                 applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
             }
         });
 
         router.route(routes.PAGE, function(page) {
-            app.pageViewModel.set('contentUrl', './pages/' + page + constants.MARKDOWN_EXT);
+            app.contentViewModel.set('contentUrl', config.paths.root + config.paths.pages + page + constants.MARKDOWN_EXT);
             applicationLayout.showIn(elements.APPLICATION_CONTENT, pageView);
+            applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
             blogNavigationView.hide();
         });
 
@@ -332,6 +336,7 @@
             blogListDataSource.filter( { field: 'category', operator: 'eq', value: category });
             blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
             applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
+            commentsView.hide();
             applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
         });
 
@@ -343,11 +348,9 @@
                     return item.link.indexOf(year + constants.PATH_SEP + month + constants.PATH_SEP + slug) > 0;
                 });
                 if (found.length > 0) {
-                    app.blogPostViewModel.set('contentUrl', hrefs.ARCHIVE + year + constants.PATH_SEP + month + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
-                    app.blogPostViewModel.set('title', found[0].title);
-                    app.blogPostViewModel.set('author', found[0].author);
-                    app.blogPostViewModel.set('pubDate', kendo.toString(found[0].pubDate, constants.DATE_FORMAT));
+                    app.contentViewModel.set('contentUrl', config.paths.root + config.paths.posts + year + constants.PATH_SEP + month + constants.PATH_SEP + slug + constants.MARKDOWN_EXT);
                     applicationLayout.showIn(elements.APPLICATION_CONTENT, blogPostView);
+                    applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                 }
             } else {
                 if (!isNaN(parseInt(month))) {
@@ -362,11 +365,13 @@
                 }
                 blogListDataSource.pageSize(storage.get(constants.PAGE_SIZE) || constants.DEFAULT_PAGE_SIZE);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, blogListView);
+                commentsView.hide();
             }
             applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
         });
 
         //Routes like /guid/569114ED-9700-4439-825F-C4A5FE2DC42E
+        //TODO: check
         router.route(routes.GUID, function (guid) {
             var blogListDataSource = app.blogListViewModel.get('list');
             var found = blogListDataSource.get(guid);
@@ -376,11 +381,9 @@
                     .replace(routes.MONTH_PARAMETER, '([^/]+)')
                     .replace(routes.SLUG_PARAMETER, '([^/]+)') + '$');
                 var matches = rx.exec(found.link);
-                app.blogPostViewModel.set('url', hrefs.ARCHIVE + matches[1] + constants.PATH_SEP + matches[2] + constants.MARKDOWN_EXT);
-                app.blogPostViewModel.set('title', found.title);
-                app.blogPostViewModel.set('author', found.author);
-                app.blogPostViewModel.set('pubDate', kendo.toString(found.pubDate, constants.DATE_FORMAT));
+                app.contentViewModel.set('contentUrl', config.paths.root + config.paths.posts + matches[1] + constants.PATH_SEP + matches[2] + constants.MARKDOWN_EXT);
                 applicationLayout.showIn(elements.APPLICATION_CONTENT, blogPostView);
+                applicationLayout.showIn(elements.APPLICATION_COMMENTS, commentsView);
                 applicationLayout.showIn(elements.APPLICATION_SIDE, blogNavigationView);
             }
         });
@@ -388,6 +391,7 @@
         //routes like /search
         router.route(routes.SEARCH, function() {
             applicationLayout.showIn(elements.APPLICATION_CONTENT, searchView);
+            commentsView.hide();
             blogNavigationView.hide();
         });
 
@@ -411,32 +415,37 @@
         });
 
         //views
+        var onMarkDownChange = function(e) {
+            if (DEBUG && global.console.log) {
+                global.console.log(MODULE + 'new markdown loaded');
+            }
+            var metaData = e.sender.metadata(),
+                pubDate = new Date(metaData.pubDate);
+            //Update view Model
+            app.contentViewModel.set('title', $.type(metaData.title) === types.STRING ? metaData.title : '');
+            app.contentViewModel.set('author', $.type(metaData.author) === types.STRING ? metaData.author : '');
+            app.contentViewModel.set('pubDate', $.type(pubDate) === types.DATE && !isNaN(pubDate.getTime()) ? kendo.toString(pubDate, constants.DATE_FORMAT) : kendo.toString(new Date(), constants.DATE_FORMAT));
+            app.contentViewModel.set('identifier', $.type(metaData.guid) === types.STRING ? metaData.guid : '');
+            //Set page meta tags
+            app.setMetaTags(metaData, app.config);
+        };
+        
         pageView.bind(events.INIT, function(e) {
             //Handler bound to the change event of the markdown widget to set the page meta tags
-            e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, function(e) {
-                if (DEBUG && global.console.log) {
-                    global.console.log(MODULE + 'new markdown loaded');
-                }
-                app.setMetaTags(e.sender.metadata(), app.config);
-            });
+            e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, onMarkDownChange);
         });
 
         blogPostView.bind(events.INIT, function(e) {
             //Handler bound to the change event of the markdown widget to set the page meta tags
-           e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, function(e) {
-                if (DEBUG && global.console.log) {
-                    global.console.log(MODULE + 'new markdown loaded');
-                }
-                app.setMetaTags(e.sender.metadata(), app.config);
-            });
+            e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, onMarkDownChange);
         });
 
         blogNavigationView.bind(events.SHOW, function(e) {
             if (DEBUG && global.console.log) {
                 global.console.log(MODULE + 'blog navigation shown');
             }
-            $(elements.APPLICATION_CONTENT).removeClass('col-lg-12 col-md-12 col-sm-12');
-            $(elements.APPLICATION_CONTENT).addClass('col-lg-10 col-md-9 col-sm-8 spacing');
+            $(elements.APPLICATION_MAIN).removeClass('col-lg-12 col-md-12 col-sm-12');
+            $(elements.APPLICATION_MAIN).addClass('col-lg-10 col-md-9 col-sm-8 spacing');
             $(elements.APPLICATION_SIDE).removeClass('hidden');
             $(elements.APPLICATION_SIDE).addClass('col-lg-2 col-md-3 col-sm-4');
         });
@@ -445,8 +454,8 @@
             if (DEBUG && global.console.log) {
                 global.console.log(MODULE + 'blog navigation hidden');
             }
-            $(elements.APPLICATION_CONTENT).removeClass('col-lg-10 col-md-9 col-sm-8 spacing');
-            $(elements.APPLICATION_CONTENT).addClass('col-lg-12 col-md-12 col-sm-12');
+            $(elements.APPLICATION_MAIN).removeClass('col-lg-10 col-md-9 col-sm-8 spacing');
+            $(elements.APPLICATION_MAIN).addClass('col-lg-12 col-md-12 col-sm-12');
             $(elements.APPLICATION_SIDE).removeClass('col-lg-2 col-md-3 col-sm-4');
             $(elements.APPLICATION_SIDE).addClass('hidden');
 
@@ -482,6 +491,7 @@
         if(DEBUG && global.console) {
             global.console.log(MODULE + 'router started');
         }
+
     });
 
 }(jQuery));
@@ -502,7 +512,6 @@
         kendo = global.kendo,
         app = global.app,
         elements = app.elements,
-        hrefs = app.hrefs,
         tags = app.tags,
         types = app.types,
 
@@ -626,7 +635,7 @@
             wrap.find(elements.ARCHIVE_SECTION_TITLE).html(config.blog.navigation.archive);
             wrap.find(elements.RSS_SECTION_TITLE)
                 .html(config.blog.navigation.rssfeed)
-                .attr(tags.HREF, hrefs.ARCHIVE + hrefs.RSS);
+                .attr(tags.HREF, config.paths.root + config.paths.posts + config.paths.rss);
             $(elements.BLOG_NAVIGATION_VIEW).html(wrap.html());
         }
 
@@ -692,13 +701,17 @@
         global = fn('return this')(),
         kendo = global.kendo,
         app = global.app,
+        config = app.config,
         constants = app.constants,
-        hrefs = app.hrefs,
         routes = app.routes,
         types = app.types,
 
         DEBUG = false,
         MODULE = 'app.index.viewmodels.js: ';
+
+
+    //The following view models only applies to the spa page
+    if(window.location.pathname.indexOf(config.paths.index) === -1) { return; }
 
     /**
      * Blog Model
@@ -706,6 +719,7 @@
      */
     //TODO use a model
     //var Blog = kendo.data.Model.define({});
+
 
     /**
      * Datasources
@@ -716,7 +730,7 @@
         blogListDataSource = new kendo.data.DataSource({}),
         blogDataSource = new kendo.data.DataSource({
         //schema: { model: {} },
-        transport: { read: { url: hrefs.ARCHIVE + hrefs.RSS, dataType: 'xml' } },
+        transport: { read: { url: config.paths.root + config.paths.posts + config.paths.rss, dataType: 'xml' } },
         schema: {
             // specify the the schema is XML
             type: 'xml',
@@ -779,7 +793,7 @@
                                 //<enclosure url="http://www.scripting.com/mp3s/weatherReportSuite.mp3" length="0" type="audio/mpeg" />
                                 return value;
                             } else {
-                                return kendo.format(hrefs.THUMBNAIL, Math.floor(1 + constants.MAX_THUMBNAILS* Math.random()));
+                                return kendo.format(config.paths.root + config.paths.thumbnail, Math.floor(1 + constants.MAX_THUMBNAILS* Math.random()));
                             }
                         }
                     },
@@ -841,15 +855,6 @@
     blogDataSource.read();
 
     /**
-     * ViewModel for pageView
-     * @type {*}
-     */
-    app.pageViewModel = kendo.observable({
-        contentUrl: '',
-        title: ''
-    });
-
-    /**
      * ViewModel for headerView and searchView
      * @type {*}
      */
@@ -881,34 +886,16 @@
     });
 
     /**
-     * ViewModel for blogPostView
+     * ViewModel for pageView and blogPostView
      * @type {*}
      */
-    app.blogPostViewModel = kendo.observable({
-        contentUrl: '',
+    app.contentViewModel = kendo.observable({
+        url: '', //the html page
+        contentUrl: '', //the markdown file
         title: '',
         author: '',
-        pubDate: Date.now()
-    });
-
-    /**
-     * url custom binding
-     * see http://docs.kendoui.com/getting-started/framework/mvvm/bindings/custom
-     * @type {*|void}
-     */
-    kendo.data.binders.widget.url = kendo.data.Binder.extend({
-        init: function(widget, bindings, options) {
-            //call the base constructor
-            kendo.data.Binder.fn.init.call(this, widget.element[0], bindings, options);
-        },
-        refresh: function() {
-            var that = this,
-                url = that.bindings.url.get(), //get the value from blogPostViewModel
-                widget = $(that.element).data('kendoMarkDown');
-            if (widget instanceof kendo.ui.MarkDown) {
-                widget.url(url); //update the widget url
-            }
-        }
+        pubDate: Date.now(),
+        identifier: ''
     });
 
 }(jQuery));
