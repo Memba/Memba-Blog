@@ -19,7 +19,6 @@ Thumbs.db
 docs/
 
 # Ignore Node files
-nodejs/
 node_modules/
 
 # Ignore Grunt Files
