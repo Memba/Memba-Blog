@@ -237,15 +237,16 @@ var CONFIG = './config.json';
                         }
                     },
                     //Kendo UI
+                    //See http://www.telerik.com/forums/https
                     {
                         load: [
-                            '//cdn.kendostatic.com/' + KENDO_VERSION + '/styles/kendo.common-bootstrap.min.css',
-                            '//cdn.kendostatic.com/' + KENDO_VERSION + '/styles/kendo.bootstrap.min.css',
-                            '//cdn.kendostatic.com/' + KENDO_VERSION + '/js/kendo.web.min.js',
-                            //'//cdn.kendostatic.com/' + KENDO_VERSION + '/js/kendo.timezones.min.js'
-                            '//cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.en.min.js', //default culture
-                            '//cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.' + (global.navigator.userLanguage || global.navigator.language).substr(0, 2) + '.min.js', //replace default culture
-                            '//cdn.kendostatic.com/' + KENDO_VERSION + '/js/cultures/kendo.culture.fr.min.js' //TODO DEBUG
+                            '//da7xgjtj801h2.cloudfront.net/' + KENDO_VERSION + '/styles/kendo.common-bootstrap.min.css',
+                            '//da7xgjtj801h2.cloudfront.net/' + KENDO_VERSION + '/styles/kendo.bootstrap.min.css',
+                            '//da7xgjtj801h2.cloudfront.net/' + KENDO_VERSION + '/js/kendo.web.min.js',
+                            //'//da7xgjtj801h2.cloudfront.net/' + KENDO_VERSION + '/js/kendo.timezones.min.js'
+                            '//da7xgjtj801h2.cloudfront.net/' + KENDO_VERSION + '/js/cultures/kendo.culture.en.min.js', //default culture
+                            '//da7xgjtj801h2.cloudfront.net/' + KENDO_VERSION + '/js/cultures/kendo.culture.' + (global.navigator.userLanguage || global.navigator.language).substr(0, 2) + '.min.js', //replace default culture
+                            '//da7xgjtj801h2.cloudfront.net/' + KENDO_VERSION + '/js/cultures/kendo.culture.fr.min.js' //TODO DEBUG
                         ],
                         callback: function (url) {
                             if (DEBUG && global.console) {
