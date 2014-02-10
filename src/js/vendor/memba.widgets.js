@@ -640,12 +640,17 @@
             var that = this;
             //TODO - See: http://support.addthis.com/customer/portal/articles/1365325-rendering-tools-with-javascript
             if(global.addthis) {
+                var toolbox;
                 if ($(that.element).hasClass(TOOLBOX_CLASS)) {
-                    global.addthis.toolbox(that.element);
+                    toolbox = $(that.element);
                 } else {
-                    var toolbox = $(that.element).find('div.' + TOOLBOX_CLASS);
-                    if (toolbox.length > 0) {
-                        global.addthis.toolbox(toolbox.get(0));
+                    toolbox = $(that.element).find('div.' + TOOLBOX_CLASS);
+                }
+                if (toolbox && toolbox.length > 0) {
+                    global.addthis.toolbox(toolbox[0]);
+                    var counter = toolbox.find('a.addthis_counter');
+                    if (counter && counter.length > 0) {
+                        global.addthis.counter(counter[0]);
                     }
                 }
             }
