@@ -410,7 +410,7 @@
             url: undefined,
             title: undefined,
             description: undefined,
-            gatracker: undefined, //TODO
+            ga: undefined,
             floating: false,
             useFonts: false,
             services: EMPTY,
@@ -541,8 +541,11 @@
                 if ($.type(global.addthis_config) !== OBJECT) {
                     global.addthis_congig = {
                         data_track_clickback:true,
-                        ui_508_compliant: true
-                        //data_ga_tracker //See http://www.addthis.com/help/google-analytics-integration
+                        ui_508_compliant: true,
+                        //data_ga_tracker
+                        // See http://www.addthis.com/help/google-analytics-integration
+                        data_ga_property: that.options.ga,
+                        data_ga_social : true
                     };
                     var script = (document.location.protocol === 'https:' ? 'https:' : 'http:') + '//s7.addthis.com/js/300/addthis_widget.js#pubid=' + that.options.pubid;
                     $.getScript(script);
@@ -2247,7 +2250,7 @@
                         }
                     }
 
-                    if (lang && hljs.LANGUAGES.hasOwnProperty(lang)) {
+                    if (lang && hljs.getLanguage(lang)) {
                         return '<pre><code class="hljs ' +
                             (options.langPrefix || '') +
                             lang +
