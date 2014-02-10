@@ -441,6 +441,16 @@
             e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, onMarkDownChange);
         });
 
+        pageView.bind(events.SHOW, function(e) {
+            e.sender.element.find('[data-role=addthis]').data('kendoAddThis').refresh();
+            console.log('refresh()');
+        });
+
+        blogPostView.bind(events.SHOW, function(e) {
+            e.sender.element.find('[data-role=addthis]').data('kendoAddThis').refresh();
+            console.log('refresh()');
+        });
+
         blogNavigationView.bind(events.SHOW, function(e) {
             if (DEBUG && global.console.log) {
                 global.console.log(MODULE + 'blog navigation shown');

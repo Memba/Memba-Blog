@@ -273,7 +273,7 @@ var CONFIG = './config.json';
                         load: [
                             '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/styles/solarized_light.min.css',
                             '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.0/highlight.min.js', //code highlighting
-                            '//cdnjs.cloudflare.com/ajax/libs/marked/0.3.1/marked.min.js', //markdown
+                            '//cdnjs.cloudflare.com/ajax/libs/marked/0.3.0/marked.min.js', //markdown
                             config.paths.root + 'styles/vendor/memba.widgets.min.css',
                             config.paths.root + 'js/vendor/memba.widgets.min.js'
                         ],
