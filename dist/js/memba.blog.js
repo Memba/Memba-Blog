@@ -433,22 +433,32 @@
         
         pageView.bind(events.INIT, function(e) {
             //Handler bound to the change event of the markdown widget to set the page meta tags
-            e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, onMarkDownChange);
+            var markdown =  e.sender.element.find('[data-role=markdown]').data('kendoMarkDown');
+            if (markdown instanceof kendo.ui.MarkDown) {
+                markdown.bind(events.CHANGE, onMarkDownChange);
+            }
         });
 
         blogPostView.bind(events.INIT, function(e) {
             //Handler bound to the change event of the markdown widget to set the page meta tags
-            e.sender.element.find('[data-role=markdown]').data('kendoMarkDown').bind(events.CHANGE, onMarkDownChange);
+            var markdown =  e.sender.element.find('[data-role=markdown]').data('kendoMarkDown');
+            if (markdown instanceof kendo.ui.MarkDown) {
+                markdown.bind(events.CHANGE, onMarkDownChange);
+            }
         });
 
         pageView.bind(events.SHOW, function(e) {
-            e.sender.element.find('[data-role=addthis]').data('kendoAddThis').refresh();
-            console.log('refresh()');
+            var addthis = e.sender.element.find('[data-role=addthis]').data('kendoAddThis');
+            if (addthis instanceof kendo.ui.AddThis) {
+                addthis.refresh();
+            }
         });
 
         blogPostView.bind(events.SHOW, function(e) {
-            e.sender.element.find('[data-role=addthis]').data('kendoAddThis').refresh();
-            console.log('refresh()');
+            var addthis = e.sender.element.find('[data-role=addthis]').data('kendoAddThis');
+            if (addthis instanceof kendo.ui.AddThis) {
+                addthis.refresh();
+            }
         });
 
         blogNavigationView.bind(events.SHOW, function(e) {
@@ -481,6 +491,7 @@
             }
         });
         $(elements.HEADER_VIEW_NAVBAR_SEARCH_BUTTON).bind(events.CLICK, function(/*e*/){
+            //TODO: Not sure router.naviaget vs. window.location.assign
             router.navigate(routes.SEARCH);
             //window.location.assign(routes.HASH + routes.SEARCH + '?q=' + encodeURIComponent(app.searchViewModel.get('search')));
         });

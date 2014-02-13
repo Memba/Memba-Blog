@@ -16,6 +16,7 @@
         //Types
         STRING = 'string',
         OBJECT = 'object',
+        NULL = null,
         //Widget Constants
         EMPTY = '',
         //WIDGET_CLASS = 'k-widget k-addthis'; //We do not really want kendo styles to apply here
@@ -407,10 +408,10 @@
         options: {
             name: 'AddThis',
             pubId: 'jlchereau',
-            url: undefined,
-            title: undefined,
-            description: undefined,
-            ga: undefined,
+            url: NULL,
+            title: NULL,
+            description: NULL,
+            ga: NULL,
             floating: false,
             useFonts: false,
             services: EMPTY,
@@ -753,7 +754,7 @@
          */
         options: {
             name: 'Analytics',
-            trackingId: undefined,
+            trackingId: null,
             autoSend: true,
             ssl: false,
             debug: DEBUG
@@ -1269,6 +1270,7 @@
         ui = kendo.ui,
         Widget = ui.Widget,
         STRING = 'string',
+        NULL = null,
         FUNCTION = 'function',
 
         //Widget
@@ -1323,9 +1325,9 @@
             name: 'Disqus',
             shortname: 'example',
             type: TYPE_THREAD, //thread or count
-            url: '',
-            identifier: '',
-            title: '',
+            url: NULL,
+            identifier: NULL,
+            title: NULL,
             language: ENGLISH
             //Consider:
             //http://help.disqus.com/customer/portal/articles/466258-capturing-disqus-commenting-activity-via-callbacks
@@ -2504,6 +2506,7 @@
         TBODY = 'tbody',
         //TBODY_ELEMENT = '<tbody/>',
         TYPE = 'type',
+        NULL = null,
         //DATA_ID = 'data-id',
         DATA_ROLE = 'data-role',
         DATA_BIND = 'data-bind',
@@ -2537,9 +2540,9 @@
          */
         options: {
             name: 'PropertyGrid',
-            properties: null,
-            schema: null,
-            rows: null
+            properties: NULL,
+            schema: NULL,
+            rows: NULL
         },
 
         /**
