@@ -6,20 +6,15 @@
 /* jshint browser: true, jquery: true */
 /* globals require: false */
 
-//---------------------------------------------------------------------------------
-//Load CSS ASAP
-require('../styles/app.page.error.less');
-
-//App files
-require('./app.common.js');
-//---------------------------------------------------------------------------------
-
 (function ($, undefined) {
 
     'use strict';
 
     var app = window.app = window.app || {},
         LOCALE = app.locale && $.isFunction(app.locale.getValue) ? app.locale.getValue() : 'en';
+
+    require('../styles/app.page.error.less');
+    require('./app.common.js');
 
     /**
      * Logs a message

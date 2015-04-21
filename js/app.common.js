@@ -26,9 +26,6 @@ require('./vendor/bootstrap/collapse.js');
 
 //Localization
 require('./app.locale.js');
-
-//App files
-require('./app.models.js');
 //---------------------------------------------------------------------------------
 
 (function ($, undefined) {
@@ -61,29 +58,7 @@ require('./app.models.js');
      * Initialize viewModel
      */
     function initViewModel() {
-        $.when(
-            viewModel.currentUser.load(),
-            viewModel.newSummary.load()
-        )
-            .always(function () {
-                kendo.bind($('header'), viewModel);
-                kendo.bind($('#create-window'), viewModel); //#create-window is moved outside header by kendo ui, so it needs to be bound specifically
-                kendo.bind($('footer'), viewModel);
-                viewModel.bind(CHANGE, function (e) {
-                    switch (e.field) {
-                        case 'locale':
-                            app.locale.changeLocale(this.get('locale'));
-                            break;
-                        case 'theme':
-                            //app.theme.changeTheme(this.get('theme'));
-                            break;
-                    }
 
-                });
-            })
-            .fail(function (xhr, status, error) {
-                app.notification.error(app.culture.common.MSG_CANNOT_GET_AUTHENTICATED_USER);
-            });
     }
 
     /**
