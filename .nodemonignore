@@ -1,0 +1,14 @@
+/graphics/*
+/js/*
+/node_modules/*
+/styles/*
+/temp/*
+/test/*
+.*
+*.cmd
+*.css
+*.gif
+*.jpg
+*.md
+*.png
+*.svg
