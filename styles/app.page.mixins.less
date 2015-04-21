@@ -1,0 +1,43 @@
+/**
+ * Variables
+ */
+
+@navbarHeight: 50px;
+@toolbarHeight: 44px;
+@footerHeight: 44px;
+
+/**
+ * Bootstrap mixins
+ * TODO: will be deprecated in v4 - See https://github.com/passy/autoprefixer-loader
+ */
+
+@import "./vendor/bootstrap/mixins.less";
+
+/**
+ * Custom mixins
+ */
+
+.toolbar {
+    position: absolute;
+    top: @navbarHeight;
+    width:100%;
+    border-left: none;
+    border-right: none;
+    label {
+        font-weight: normal;
+    }
+}
+.splitter {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: auto;
+    border: none;
+    top: @navbarHeight;
+    bottom: @footerHeight;
+}
+.wrapper {
+    .splitter();
+    overflow-y: scroll;
+}
+

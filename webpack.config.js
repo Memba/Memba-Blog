@@ -33,7 +33,7 @@ var dedupePlugin = new webpack.optimize.DedupePlugin();
  * @type {webpack.optimize.CommonsChunkPlugin}
  */
 var commonsChunkPlugin =
-    new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['blog', 'page'] });
+    new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['blog', 'page', 'error'] });
 
 //TODO read copyright from package.json
 //var bannerPlugin = new webpack.BannerPlugin('Copyright');
@@ -53,11 +53,11 @@ module.exports = {
     context: path.join(__dirname, '/webapp'),
     entry: {
         //We need init especially because of FOUJI
-        init:       '../js/app.init.js',
+        init:   '../js/app.init.js',
         //one entry per view
         blog:   '../js/app.blog.js',
-        page:   '../js/app.editor.js',
-        error:  '../js/app.error.js',
+        page:   '../js/app.page.js',
+        error:  '../js/app.error.js'
     },
     externals: { //CDN modules
         jquery: 'jQuery'
@@ -83,7 +83,7 @@ module.exports = {
             },
             {
                 test: /^app\.theme\.[a-z]+\.less$/,
-                loader: ExtractTextPlugin.extract('style', 'css!less')
+                loader: 'bundle?name=[name]!style/useable!css!less'
             },
             {
                 test: /\.less$/,

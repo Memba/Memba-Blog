@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="<%- getLocale() %>">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="<%- __('meta.author') %>">
+    <meta name="description" content="<%= description %>">
+    <% // TODO Add facebook open graph meta-data + favicon - check express %>
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title><%= title %></title>
+    <% // IE10 viewport hack for Surface/desktop Windows 8 bug %>
+    <!--script src="//getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script-->
+    <% // HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries %>
+    <!--[if lt IE 9]>
+    <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="/assets/init.bundle.js"></script>
+    <style>
+        html,body{
+            width:100%;
+            margin:0;
+            overflow:auto;
+        }
+        body>div.k-loading-image{
+            top:0;
+            width:100%;
+            height:100%;
+            background-color: #FFFFFF;
+            position:absolute;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+
+<% // Google Tag Manager %>
+<!--noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-PQ8XTN"
+                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-PQ8XTN');</script-->
+<% // End Google Tag Manager %>
+
+<% // preload progress image - SEE http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui %>
+<div class="k-content k-loading-image hidden-print"></div>
+
+<header class="hidden-print" role="banner">
+    <% // Navigation bar at the top of the page %>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only"><%- __('header.navbar.toggle') %></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/"><img src="<%- format(config.uris.cdn.images, __('header.logo.png')) %>" alt="<%-  __('header.logo.alt') %>"></a>
+            </div>
+            <% // Section of the navigation bar which collapses on small devices %>
+            <div class="navbar-collapse collapse">
+                <form class="navbar-form navbar-right" role="form">
+                    <div class="form-group">
+                        <a id="navbar-help" role="button">
+                            <i class="kf kf-help"></i>
+                            <span><%- __('header.navbar.help.text') %></span>
+                        </a>
+                        <a id="navbar-find" role="button" href="<%- format(config.uris.webapp.finder, getLocale()) %>">
+                            <i class="kf kf-home"></i>
+                            <span><%- __('header.navbar.find.text') %></span>
+                        </a>
+                    </div>
+                    <div class="form-group has-feedback">
+                        <input id="navbar-search-input" type="search" class="k-textbox" data-bind="value:search.navbar" placeholder="<%- __('header.navbar.search.placeholder') %>">
+                        <span class="glyphicon glyphicon-search form-control-feedback"></span>
+                        <!--span class="k-textbox k-space-right"><input type="search" value="Input with icon right" /><a href="#" class="k-icon k-i-search">&nbsp;</a></span-->
+                    </div>
+                    <div class="form-group">
+                        <a id="navbar-search" role="button">
+                            <i class="kf kf-search-adv"></i>
+                            <span><%- __('header.navbar.search.text') %></span>
+                        </a>
+                        <a id="navbar-create" role="button" data-bind="visible: currentUser.isAuthenticated$">
+                            <i class="kf kf-create"></i>
+                            <span><%- __('header.navbar.create.text') %></span>
+                        </a>
+                        <a id="navbar-signin" role="button" data-bind="invisible: currentUser.isAuthenticated$">
+                            <i class="kf kf-signin"></i>
+                            <span><%- __('header.navbar.signin.text') %></span>
+                        </a>
+                        <a id="navbar-user" role="button" class="navbar-link" data-bind="visible: currentUser.isAuthenticated$, attr: { href: currentUser.uri$ }">
+                            <img class="img-circle" data-bind="attr: { src: currentUser.picture$, alt: currentUser.name$ }">
+                            <span data-bind="text: currentUser.name$"></span>
+                        </a>
+                        <a id="navbar-signout" role="button" data-bind="visible: currentUser.isAuthenticated$">
+                            <i class="kf kf-signout"></i>
+                            <span><%- __('header.navbar.signout.text') %></span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <% // search panel %>
+    <div id="search-panel" class="km-popover-root">
+        <div class="km-widget km-popup km-pane">
+            <div class="k-widget k-content">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>
+                            <img src="<%= format(config.uris.cdn.svg.office, __('header.search.svg')) %>" alt="<%- __('header.search.title') %>">
+                            <span><%- __('header.search.title') %></span>
+                        </h1>
+                    </div>
+                    <form role="form">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="search-panel-text" class="control-label"><%- __('header.search.text.label') %></label>
+                                    <input id="search-panel-text" type="text" class="k-textbox" data-bind="value:search.text" placeholder="<%- __('header.search.text.placeholder') %>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="search-panel-category" class="control-label"><%- __('header.search.category.label') %></label>
+                                    <select id="search-panel-category" name="category" data-role="dropdownlist" data-bind="value: search.category, source: categories" data-option-label="{'id':'','name':'<%- __('header.create.category.placeholder') %>', icon:'spacer'}" data-value-field="id" data-text-field="name" data-template="search-panel-category-template" data-value-template="search-panel-category-template"></select>
+                                    <script id="search-panel-category-template" type="text/x-kendo-template">
+                                        <img src="#: kendo.format(app.uris.cdn.svg.office, data.icon || 'spacer') #" alt="#: data.name #" />&nbsp;<span>#: data.name #</span>
+                                    </script>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="search-panel-owner" class="control-label"><%- __('header.search.author.label') %></label>
+                                    <input id="search-panel-owner" type="text" class="k-textbox" data-bind="value:search.author" placeholder="<%- __('header.search.author.placeholder') %>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="search-panel-age" class="control-label"><%- __('header.search.age.label') %></label>
+                                    <input id="search-panel-age" type="number" data-role="numerictextbox" data-bind="value:search.age" data-min="0" data-max="99" data-format="n0" data-decimals="0" placeholder="<%- __('header.search.age.placeholder') %>">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label class="control-label"><%- __('header.search.sort.label') %></label>
+                                    <span class="radio-inline">
+                                        <input id="search-panel-sort-date" type="radio" name="search-panel-sort" class="k-radio" value="d" data-bind="checked: search.sort">
+                                        <label for="search-panel-sort-date" class="k-radio-label"><%- __('header.search.sort.date') %></label>
+                                    </span>
+                                    <span class="radio-inline">
+                                        <input id="search-panel-sort-rate" type="radio" name="search-panel-sort" class="k-radio" value="r" data-bind="checked: search.sort">
+                                        <label for="search-panel-sort-rate" class="k-radio-label"><%- __('header.search.sort.rate') %></label>
+                                    </span>
+                                    <span class="radio-inline">
+                                        <input id="search-panel-sort-view" type="radio" name="search-panel-sort" class="k-radio" value="v" data-bind="checked: search.sort">
+                                        <label for="search-panel-sort-view" class="k-radio-label"><%- __('header.search.sort.view') %></label>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <span class="checkbox-inline">
+                                        <input id="search-panel-save-checked" type="checkbox" class="k-checkbox" data-bind="checked: search.saveChecked">
+                                        <label for="search-panel-save-checked" class="k-checkbox-label"><%- __('header.search.saveas.label') %></label>
+                                    </span>
+                                    <input id="search-panel-save-text" type="text" class="k-textbox" data-bind="enabled: search.saveChecked, value: search.favourite" placeholder="<%- __('header.search.saveas.placeholder') %>">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group pull-right">
+                                    <button type="button" data-role="button" data-icon="search" data-command="ok"><%- __('header.search.buttons.search') %></button>
+                                    <button type="button" data-role="button" data-icon="cancel" data-command="cancel"><%- __('header.search.buttons.search') %></button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% // create window %>
+    <div id="create-window" data-role="window" data-title="<%- __('header.create.heading') %>" data-visible="false" data-modal="true" data-width="640" data-height="470">
+        <div class="container-fluid">
+            <form role="form">
+                <div class="form-group">
+                    <div class="k-widget k-notification k-notification-info" data-role="alert">
+                        <div class="k-notification-wrap"><span class="k-icon k-i-note"></span><%- __('header.create.welcome') %></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="create-window-type" class="control-label"><%- __('header.create.type.label') %><span class="k-invalid-msg" data-for="category"></span></label>
+                    <select id="create-window-type" data-role="dropdownlist" data-bind="value: newSummary.type, source: types" data-option-label="{'value':null,'text':'<%- __('header.create.type.placeholder') %>', icon:'&nbsp;'}" data-value-field="value" data-text-field="text" data-template="create-window-type-template" data-value-template="create-window-type-template"></select>
+                    <script id="create-window-type-template" type="text/x-kendo-template">
+                        <span>#= data.icon ##: data.text #</span>
+                    </script>
+                </div>
+                <div class="form-group">
+                    <label for="create-window-title" class="control-label"><%- __('header.create.title.label') %><span class="k-invalid-msg" data-for="title"></span></label>
+                    <input id="create-window-title" type="text" class="k-textbox" placeholder="<%- __('header.create.title.placeholder') %>" data-bind="value: newSummary.title">
+                </div>
+                <div class="form-group">
+                    <label class="control-label"><%- __('header.create.language.label') %></label>
+                    <p class="form-control-static" data-bind="text: newSummary.language$ "></p>
+                </div>
+                <div class="form-group">
+                    <label for="create-window-category" class="control-label"><%- __('header.create.category.label') %><span class="k-invalid-msg" data-for="category"></span></label>
+                    <select id="create-window-category" data-role="dropdownlist" data-bind="value: newSummary.category, source: categories" data-option-label="{'id':'','name':'<%- __('header.create.category.placeholder') %>', icon:'spacer'}" data-value-field="id" data-text-field="name" data-template="create-window-category-template" data-value-template="create-window-category-template"></select>
+                    <script id="create-window-category-template" type="text/x-kendo-template">
+                        <img src="#: kendo.format(app.uris.cdn.svg.office, data.icon || 'spacer') #" alt="#: data.name #" />&nbsp;<span>#: data.name #</span>
+                    </script>
+                </div>
+                <div class="form-group">
+                    <label class="control-label"><%- __('header.create.author.label') %></label>
+                    <p class="form-control-static" data-bind="text: newSummary.author$"></p>
+                </div>
+                <div class="form-group">
+                    <span class="pull-right">
+                        <button type="button" data-role="button" data-icon="tick" data-command="ok"><%- __('header.create.buttons.create') %></button>&nbsp;
+                        <button type="button" data-role="button" data-icon="cancel" data-command="cancel"><%- __('header.create.buttons.cancel') %></button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <% // signin window %>
+    <div id="signin-window" data-role="window" data-title="<%- __('header.signin.heading') %>" data-visible="false" data-modal="true" data-width="400" data-height="310">
+        <div class="container-fluid">
+            <form role="form">
+                <div class="form-group">
+                    <div class="k-widget k-notification k-notification-info" data-role="alert">
+                        <div class="k-notification-wrap"><span class="k-icon k-i-note"></span><%- __('header.signin.welcome') %></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <a class="btn btn-lg btn-danger btn-login" data-provider="google" role="button" href="#"><i class="fa fa-google-plus"></i>&nbsp;Google</a>
+                </div>
+                <div class="form-group">
+                    <a class="btn btn-lg btn-primary btn-login" data-provider="facebook" role="button" href="#"><i class="fa fa-facebook"></i>&nbsp;Facebook</a>
+                </div>
+                <div class="form-group">
+                    <a class="btn btn-lg btn-info btn-login" data-provider="twitter" role="button" href="#"><i class="fa fa-twitter"></i>&nbsp;Twitter</a>
+                </div>
+                <div class="form-group">
+                    <a class="btn btn-lg btn-success btn-login" data-provider="windowslive" role="button" href="#"><i class="fa fa-windows"></i>&nbsp;Windows Live</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</header>
+
+<% // notifications %>
+<div id="notification" class="hidden-print"></div>

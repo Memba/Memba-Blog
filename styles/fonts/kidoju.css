@@ -1,0 +1,111 @@
+@font-face {
+  font-family: "kidoju";
+  src: url("kidoju.eot");
+  src: url("kidoju.eot?#iefix") format("embedded-opentype"), url("kidoju.woff") format("woff"), url("kidoju.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+.kf {
+  font-family: "kidoju";
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  font-weight: normal;
+  font-style: normal;
+  speak: none;
+  text-decoration: inherit;
+  text-transform: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.kf-android:before {
+  content: "\f101";
+}
+.kf-apple:before {
+  content: "\f102";
+}
+.kf-blog:before {
+  content: "\f103";
+}
+.kf-signout:before {
+  content: "\f104";
+}
+.kf-view:before {
+  content: "\f105";
+}
+.kf-facebook:before {
+  content: "\f106";
+}
+.kf-feed:before {
+  content: "\f107";
+}
+.kf-search-adv:before {
+  content: "\f108";
+}
+.kf-flashcard:before {
+  content: "\f109";
+}
+.kf-google:before {
+  content: "\f10a";
+}
+.kf-home:before {
+  content: "\f10b";
+}
+.kf-kidoju:before {
+  content: "\f10c";
+}
+.kf-linkedin:before {
+  content: "\f10d";
+}
+.kf-live:before {
+  content: "\f10e";
+}
+.kf-signin:before {
+  content: "\f10f";
+}
+.kf-comment:before {
+  content: "\f110";
+}
+.kf-pinterest:before {
+  content: "\f111";
+}
+.kf-create:before {
+  content: "\f112";
+}
+.kf-publish:before {
+  content: "\f113";
+}
+.kf-help:before {
+  content: "\f114";
+}
+.kf-quiz:before {
+  content: "\f115";
+}
+.kf-report:before {
+  content: "\f116";
+}
+.kf-star:before {
+  content: "\2605";
+}
+.kf-star-o:before {
+  content: "\2606";
+}
+.kf-stumbleupon:before {
+  content: "\f117";
+}
+.kf-tags:before {
+  content: "\f118";
+}
+.kf-score:before {
+  content: "\f119";
+}
+.kf-twitter:before {
+  content: "\f11a";
+}
+.kf-user:before {
+  content: "\f11b";
+}
+.kf-youtube:before {
+  content: "\f11c";
+}

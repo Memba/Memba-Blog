@@ -1,0 +1,26 @@
+{
+    "debug": true,
+    "express": {
+        "port"  : 3000
+    },
+    "locales" : [ "en", "fr" ],
+    "github" : {
+        "repository": "memba/test"
+    },
+    "uris" : {
+        "cdn": {
+            "root":  "https://d2rvsmwqptocm.cloudfront.net",
+            "default": "/images/%s",
+            "svg": {
+                "office": "/images/o_collection/svg/office/%s.svg",
+                "white": "/images/o_collection/svg/white/%s.svg",
+                "dark_grey": "/images/o_collection/svg/dark_grey/%s.svg"
+            }
+        },
+        "webapp": {
+            "root": "//localhost:3000",
+            "page": "/%s/%s",
+            "blog": "/%s/posts/%s"
+        }
+    }
+}
