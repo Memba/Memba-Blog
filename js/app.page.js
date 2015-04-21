@@ -31,7 +31,7 @@
      */
     $(document).ready(function () {
         $(document).on('locale.loaded', function() {
-            log('Site page initialized in ' + LOCALE);
+            log('site page initialized in ' + LOCALE);
         });
     });
 

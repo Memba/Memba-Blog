@@ -140,91 +140,18 @@
 	"header": {
 		"navbar": {
 			"toggle": "header.navbar.toggle",
-			"help": {
-				"text": "header.navbar.help.text"
-			},
-			"find": {
-				"text": "header.navbar.find.text"
-			},
 			"search": {
 				"placeholder": "header.navbar.search.placeholder",
 				"text": "header.navbar.search.text"
-			},
-			"create": {
-				"text": "header.navbar.create.text"
-			},
-			"signin": {
-				"text": "header.navbar.signin.text"
-			},
-			"signout": {
-				"text": "header.navbar.signout.text"
 			}
 		},
 		"logo": {
 			"png": "header.logo.png",
 			"alt": "header.logo.alt"
 		},
-		"search": {
-			"svg": "header.search.svg",
-			"title": "header.search.title",
-			"text": {
-				"label": "header.search.text.label",
-				"placeholder": "header.search.text.placeholder"
-			},
-			"category": {
-				"label": "header.search.category.label"
-			},
-			"author": {
-				"label": "header.search.author.label",
-				"placeholder": "header.search.author.placeholder"
-			},
-			"age": {
-				"label": "header.search.age.label",
-				"placeholder": "header.search.age.placeholder"
-			},
-			"sort": {
-				"label": "header.search.sort.label",
-				"date": "header.search.sort.date",
-				"rate": "header.search.sort.rate",
-				"view": "header.search.sort.view"
-			},
-			"saveas": {
-				"label": "header.search.saveas.label",
-				"placeholder": "header.search.saveas.placeholder"
-			},
-			"buttons": {
-				"search": "header.search.buttons.search"
-			}
-		},
-		"create": {
-			"category": {
-				"placeholder": "header.create.category.placeholder",
-				"label": "header.create.category.label"
-			},
-			"heading": "header.create.heading",
-			"welcome": "header.create.welcome",
-			"type": {
-				"label": "header.create.type.label",
-				"placeholder": "header.create.type.placeholder"
-			},
-			"title": {
-				"label": "header.create.title.label",
-				"placeholder": "header.create.title.placeholder"
-			},
-			"language": {
-				"label": "header.create.language.label"
-			},
-			"author": {
-				"label": "header.create.author.label"
-			},
-			"buttons": {
-				"create": "header.create.buttons.create",
-				"cancel": "header.create.buttons.cancel"
-			}
-		},
-		"signin": {
-			"heading": "header.signin.heading",
-			"welcome": "header.signin.welcome"
+		"reset": {
+			"heading": "header.reset.heading",
+			"welcome": "header.reset.welcome"
 		}
 	},
 	"footer": {
@@ -237,5 +164,8 @@
 			"tooltip": "footer.theme.tooltip",
 			"label": "footer.theme.label"
 		}
+	},
+	"errors": {
+		"500": "errors.500"
 	}
 }

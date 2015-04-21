@@ -137,7 +137,35 @@
 		"description": "Kidoju - A new way to teach and learn",
 		"keywords": "Kidoju - A new way to teach and learn"
 	},
-	"errors": {
-		"500": "errors.500"
-	}
+    "header": {
+        "navbar": {
+            "toggle": "header.navbar.toggle",
+            "search": {
+                "placeholder": "header.navbar.search.placeholder",
+                "text": "header.navbar.search.text"
+            }
+        },
+        "logo": {
+            "png": "header.logo.png",
+            "alt": "header.logo.alt"
+        },
+        "reset": {
+            "heading": "Reset cache",
+            "welcome": "header.reset.welcome"
+        }
+    },
+    "footer": {
+        "copyright": "footer.copyright",
+        "language": {
+            "tooltip": "footer.language.tooltip",
+            "label": "footer.language.label"
+        },
+        "theme": {
+            "tooltip": "footer.theme.tooltip",
+            "label": "footer.theme.label"
+        }
+    },
+    "errors": {
+        "500": "errors.500"
+    }
 }

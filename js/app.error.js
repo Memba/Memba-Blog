@@ -29,10 +29,8 @@
     /**
      * Wait until document is ready to initialize UI
      */
-    $(document).ready(function () {
-        $(document).on('locale.loaded', function() {
-            log('Error page initialized in ' + LOCALE);
-        });
+    $(document).on('locale.loaded', function() {
+        log('error page initialized in ' + LOCALE);
     });
 
 }(window.jQuery));

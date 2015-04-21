@@ -13,15 +13,18 @@
     //Require config
     require('./app.config.jsx?env=' + process.env.NODE_ENV);
 
-    var app = window.app = window.app || {};
-    app.cultures = app.cultures || {};
+    var app = window.app = window.app || {},
+        cultures = app.cultures = app.cultures || {},
+        FUNCTION = 'function',
+        STRING = 'string',
+        UNDEFINED = 'undefined';
 
     /**
      * Log a message
      * @param message
      */
     function log(message) {
-        if (app.DEBUG && window.console && (typeof window.console.log === 'function')) {
+        if (app.DEBUG && window.console && (typeof window.console.log === FUNCTION)) {
             window.console.log('app.locale: ' + message);
         }
     }
@@ -44,14 +47,14 @@
             function setLocale() {
                 app.locale.culture = app.cultures[locale];
                 //TODO set kendo
-                if (typeof callback === 'function') {
+                if (typeof callback === FUNCTION) {
                     callback();
                 }
             }
 
             //If already loaded
             if(app.cultures[locale]) {
-                setLocale()
+                setLocale();
                 //Otherwise
             } else {
                 //https://github.com/webpack/webpack/issues/923
@@ -61,28 +64,27 @@
         },
 
         /**
-         * Get locale
+         * Get/set locale
          * Value set by the server on the html element of the page base on the url
          * @returns {string|string}
          */
-        getValue: function () {
-            return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
-        },
-
-        /**
-         * Change locale
-         * Redirects to new url
-         * @param value
-         */
-        changeLocale: function (value) {
-            window.location.href = app.uris.webapp.find.replace('{0}', value);
-        },
+        value: function (locale) {
+            if (typeof locale === STRING) {
+                //TODO Reject locales not in config
+                window.location.href = app.uris.webapp.page.replace('{0}', locale).replace('{1}', '');
+            } else if (typeof locale === UNDEFINED) {
+                return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
+            } else {
+                throw new TypeError('bad locale');
+            }
+        }
 
         /**
          * Get languages
          * @param value
          * @returns {*}
          */
+            /**
         getLanguages: function (value) {
             //TODO: Return localized version
             var languages = {
@@ -91,15 +93,18 @@
             };
             return languages[value];
         }
+             **/
 
     };
 
     //Load page locale
-    var locale = app.locale.getValue();
+    var locale = app.locale.value();
     app.locale.load(locale, function() {
-        log('initialized with ' + locale);
-        //trigger ready event
-        $(document).trigger('locale.loaded');
+        $(document).ready(function() {
+            log(locale + ' locale loaded');
+            //trigger event for individual page scripts
+            $(document).trigger('locale.loaded');
+        });
     });
 
 }(window.jQuery));

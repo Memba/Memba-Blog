@@ -6,41 +6,98 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-//Load CSS ASAP
-require('../styles/bootstrap.custom.less');
-require('../styles/fonts/kidoju.less');
-require('../styles/vendor/kendo/web/kendo.common.less');
-//require('../styles/vendor/kendo/web/kendo.highcontrast.less');
-//require('../styles/app.theme.highcontrast.less');
-
-(function(f, define){
-    'use strict';
-    //define(['./app.config.jsx?env=' + process.env.NODE_ENV], f); //<-------------------this won't work
-    define([], f);
-})(function(){
+(function () {
 
     'use strict';
 
-    (function () {
+    //Load common styles
+    require('../styles/bootstrap.custom.less');
+    require('../styles/fonts/kidoju.less');
+    require('../styles/vendor/kendo/web/kendo.common.less');
+    //require('../styles/vendor/kendo/web/kendo.highcontrast.less');
+    //require('../styles/app.theme.highcontrast.less');
 
-        var app = window.app = window.app || {};
+    var app = window.app = window.app || {},
+        FUNCTION = 'function',
+        STRING = 'string',
+        UNDEFINED = 'undefined',
+        THEME = 'theme',
+        DEFAULT = 'default';
+
+    /**
+     * Log a message
+     * @param message
+     */
+    function log(message) {
+        if (app.DEBUG && window.console && typeof window.console.log === FUNCTION) {
+            window.console.log('app.theme: ' + message);
+        }
+    }
+
+    /**
+     *
+     */
+    app.theme = {
 
         /**
-         * Log a message
-         * @param message
+         *
+         * @param theme
+         * @param callback
          */
-        function log(message) {
-            if (app.DEBUG && window.console && (typeof window.console.log === 'function')) {
-                window.console.log('app.theme: ' + message);
+        load: function (theme, callback) {
+            //See https://github.com/webpack/style-loader/issues/48
+            //See https://github.com/webpack/webpack/issues/924
+            //See //https://github.com/webpack/webpack/issues/993
+            var oldTheme = localStorage.getItem(THEME), loader;
+            if(oldTheme) {
+                try {
+                    loader = require('bundle?name=[name]!style/useable!css!less!../styles/theme.' + oldTheme + '.less');
+                    loader(function(style) {
+                        style.unuse();
+                    });
+                } catch(e) {
+                    log(e.message);
+                }
+            }
+            localStorage.setItem(THEME, theme);
+            try {
+                //loader = require('bundle?name=[name]!style/useable!css!less!../styles/app.theme.' + theme + '.less');
+                loader = require('../styles/app.theme.' + theme + '.less');
+                loader(function(style) {
+                    style.use();
+                    localStorage.setItem(THEME, theme);
+                    if (typeof callback === FUNCTION) {
+                       callback();
+                    }
+                });
+            } catch (e) {
+                log(e.message);
+            }
+        },
+
+        /**
+         *
+         * @param theme
+         */
+        value: function (theme) {
+            if (typeof theme === STRING) {
+                //TODO Reject unlisted theme
+                app.theme.load(theme);
+            } else if (typeof theme === UNDEFINED) {
+                return localStorage.getItem(THEME);
+            } else {
+                throw new TypeError('bad theme');
             }
         }
 
-        app.theme = {
+    };
 
-        };
+    //load theme
+    var theme = app.theme.value();
+    if(theme) {
+        app.theme.load(theme);
+    } else {
+        app.theme.load(DEFAULT);
+    }
 
-    }());
-
-    return window.app.theme;
-
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}());

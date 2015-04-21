@@ -74,11 +74,11 @@ module.exports = {
     module: {
         loaders: [
             {
-                test: /\.jsx/, //see ./web_modules/jsx-loader
+                test: /\.jsx$/, //see ./web_modules/jsx-loader
                 loader: 'jsx?config=webapp/config'
             },
             {
-                test: /\.json/,
+                test: /\.json$/,
                 loader: 'json'
             },
             {
