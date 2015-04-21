@@ -139,32 +139,32 @@
 	},
 	"header": {
 		"navbar": {
-			"toggle": "header.navbar.toggle",
+            "toggle": "Changer la navigation",
 			"search": {
-				"placeholder": "header.navbar.search.placeholder",
-				"text": "header.navbar.search.text"
+                "text": "Rechercher",
+                "placeholder": "Recherche..."
 			}
 		},
 		"logo": {
 			"png": "header.logo.png",
-			"alt": "header.logo.alt"
+            "alt": "Memba Logo"
 		},
 		"reset": {
 			"heading": "header.reset.heading",
 			"welcome": "header.reset.welcome"
 		}
 	},
-	"footer": {
-		"copyright": "footer.copyright",
-		"language": {
-			"tooltip": "footer.language.tooltip",
-			"label": "footer.language.label"
-		},
-		"theme": {
-			"tooltip": "footer.theme.tooltip",
-			"label": "footer.theme.label"
-		}
-	},
+    "footer": {
+        "copyright": "Copyright &copy; 2013-2015 Memba Sarl",
+        "language": {
+            "label": "Langue:",
+            "tooltip": "Changez votre langue."
+        },
+        "theme": {
+            "label": "Thème:",
+            "tooltip": "Changez le thème de votre page."
+        }
+    },
 	"errors": {
 		"500": "errors.500"
 	}
