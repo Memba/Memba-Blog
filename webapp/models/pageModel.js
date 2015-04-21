@@ -17,16 +17,18 @@ module.exports = {
 
     /**
      * Get page
-     * @param slug
+     * @param query
      * @param callback
      */
-    getPage: function(slug, callback) {
+    getContent: function(query, callback) {
 
         //scan lru-cache for slug
 
         //if located in cache, find from disk
 
         //otherwise download from github and update cache
+
+        callback();
 
     }
 

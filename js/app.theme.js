@@ -45,27 +45,27 @@
          * @param callback
          */
         load: function (theme, callback) {
-            //See https://github.com/webpack/style-loader/issues/48
-            //See https://github.com/webpack/webpack/issues/924
-            //See //https://github.com/webpack/webpack/issues/993
             var oldTheme = localStorage.getItem(THEME), loader;
-            if(oldTheme) {
+            if(typeof oldTheme === STRING && oldTheme !== theme) {
                 try {
-                    loader = require('bundle?name=[name]!style/useable!css!less!../styles/theme.' + oldTheme + '.less');
+                    //See https://github.com/webpack/style-loader/issues/48
+                    //See https://github.com/webpack/webpack/issues/924
+                    //See //https://github.com/webpack/webpack/issues/993
+                    //loader = require('bundle?name=[name]!style/useable!css!less../styles/app.theme.' + oldTheme + '.less');
+                    loader = require('../styles/app.theme.' + oldTheme + '.less');
                     loader(function(style) {
                         style.unuse();
                     });
                 } catch(e) {
                     log(e.message);
                 }
+                localStorage.setItem(THEME, theme);
             }
-            localStorage.setItem(THEME, theme);
             try {
                 //loader = require('bundle?name=[name]!style/useable!css!less!../styles/app.theme.' + theme + '.less');
                 loader = require('../styles/app.theme.' + theme + '.less');
                 loader(function(style) {
                     style.use();
-                    localStorage.setItem(THEME, theme);
                     if (typeof callback === FUNCTION) {
                        callback();
                     }

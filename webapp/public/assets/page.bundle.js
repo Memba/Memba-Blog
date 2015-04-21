@@ -14,8 +14,7 @@ webpackJsonp([1],[
 
 	    'use strict';
 
-	    var app = window.app = window.app || {},
-	        LOCALE = app.locale && $.isFunction(app.locale.getValue) ? app.locale.getValue() : 'en';
+	    var app = window.app = window.app || {};
 
 	    __webpack_require__(6);
 	    __webpack_require__(2);
@@ -33,10 +32,8 @@ webpackJsonp([1],[
 	    /**
 	     * Wait until document is ready to initialize UI
 	     */
-	    $(document).ready(function () {
-	        $(document).on('locale.loaded', function() {
-	            log('Site page initialized in ' + LOCALE);
-	        });
+	    $(document).on('locale.loaded', function() {
+	        log('site page initialized in ' + app.locale.value());
 	    });
 
 	}(window.jQuery));
@@ -57,7 +54,7 @@ webpackJsonp([1],[
 	var content = __webpack_require__(7);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(23)(content, {});
+	var update = __webpack_require__(20)(content, {});
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
@@ -74,7 +71,7 @@ webpackJsonp([1],[
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(79)();
+	exports = module.exports = __webpack_require__(76)();
 	exports.push([module.id, "/**\n * Variables\n */\n/**\n * Bootstrap mixins\n * TODO: will be deprecated in v4 - See https://github.com/passy/autoprefixer-loader\n */\n/**\n * Custom mixins\n */\n.toolbar {\n  position: absolute;\n  top: 50px;\n  width: 100%;\n  border-left: none;\n  border-right: none;\n}\n.toolbar label {\n  font-weight: normal;\n}\n.splitter {\n  position: absolute;\n  left: 0;\n  right: 0;\n  height: auto;\n  border: none;\n  top: 50px;\n  bottom: 44px;\n}\n.wrapper {\n  position: absolute;\n  left: 0;\n  right: 0;\n  height: auto;\n  border: none;\n  top: 50px;\n  bottom: 44px;\n  overflow-y: scroll;\n}\n/*********************************************\n * Home page\n ********************************************/\n#home-wrapper {\n  position: absolute;\n  left: 0;\n  right: 0;\n  height: auto;\n  border: none;\n  top: 50px;\n  bottom: 44px;\n  overflow-y: scroll;\n}\n/*********************************************\n * Printing\n ********************************************/\n", ""]);
 
 /***/ }

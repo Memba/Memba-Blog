@@ -167,7 +167,7 @@
 
 	    return window.app.support;
 
-	}, __webpack_require__(24));
+	}, __webpack_require__(21));
 
 
 /***/ },
@@ -221,11 +221,11 @@
 	         * where %s placeholders are replaced with {i} placeholders
 	         */
 	        function format(value) {
-	            if (app.DEBUG && (value.match(/%s/g) || []).length > 3) {
+	            if (app.DEBUG && (value.match(/%s/g) || []).length > 5) {
 	                var msg = 'value has too many %s to format';
 	                log(msg); throw new Error(msg);
 	            }
-	            return value.replace(/%s/, '{0}').replace(/%s/, '{1}').replace(/%s/, '{2}');
+	            return value.replace(/%s/, '{0}').replace(/%s/, '{1}').replace(/%s/, '{2}').replace(/%s/, '{3}').replace(/%s/, '{4}');
 	        }
 
 	        /**
@@ -242,8 +242,9 @@
 	                }
 	            },
 	            webapp: {
+	                home: format('/'),
 	                page: format('/%s/%s'),
-	                blog: format('/%s/posts/%s')
+	                blog: format('/%s/posts/%s/%s/%s/%s')
 	            }
 	        };
 
@@ -251,12 +252,12 @@
 
 	    return window.app.uris;
 
-	}, __webpack_require__(24));
+	}, __webpack_require__(21));
 
 
 /***/ },
 
-/***/ 24:
+/***/ 21:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };

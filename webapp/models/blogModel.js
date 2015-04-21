@@ -17,10 +17,10 @@ module.exports = {
 
     /**
      * Get content
-     * @param slug
+     * @param query
      * @param callback
      */
-    getContent: function(slug, callback) {
+    getContent: function(query, callback) {
 
         //scan lru-cache for slug
 
@@ -31,6 +31,8 @@ module.exports = {
         //Read yml
 
         //Return complex object
+
+        callback();
 
     }
 

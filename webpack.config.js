@@ -74,7 +74,8 @@ module.exports = {
     module: {
         loaders: [
             {
-                test: /\.jsx$/, //see ./web_modules/jsx-loader
+                //Do not put a $ at the end of teh test regex
+                test: /\.jsx/, //see ./web_modules/jsx-loader
                 loader: 'jsx?config=webapp/config'
             },
             {
@@ -82,12 +83,12 @@ module.exports = {
                 loader: 'json'
             },
             {
-                test: /^app\.theme\.[a-z]+\.less$/,
+                test: /app\.theme\.[a-z]+\.less$/,
                 loader: 'bundle?name=[name]!style/useable!css!less'
             },
             {
                 test: /\.less$/,
-                exclude: /^app\.theme\.[a-z]+\.less$/,
+                exclude: /app\.theme\.[a-z]+\.less$/,
                 loader: 'style!css!less'
             },
             {

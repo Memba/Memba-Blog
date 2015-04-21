@@ -5,7 +5,15 @@
     },
     "locales" : [ "en", "fr" ],
     "github" : {
-        "repository": "memba/test"
+        "repository": "memba/test",
+        "en": {
+            "pages" : "en/pages",
+            "posts" : "en/posts"
+        },
+        "fr": {
+            "pages" : "fr/pages",
+            "posts" : "fr/posts"
+        }
     },
     "uris" : {
         "cdn": {
@@ -19,8 +27,9 @@
         },
         "webapp": {
             "root": "//localhost:3000",
+            "home": "/",
             "page": "/%s/%s",
-            "blog": "/%s/posts/%s"
+            "blog": "/%s/posts/%s/%s/%s/%s"
         }
     }
 }

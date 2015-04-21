@@ -44,11 +44,11 @@
          * where %s placeholders are replaced with {i} placeholders
          */
         function format(value) {
-            if (app.DEBUG && (value.match(/%s/g) || []).length > 3) {
+            if (app.DEBUG && (value.match(/%s/g) || []).length > 5) {
                 var msg = 'value has too many %s to format';
                 log(msg); throw new Error(msg);
             }
-            return value.replace(/%s/, '{0}').replace(/%s/, '{1}').replace(/%s/, '{2}');
+            return value.replace(/%s/, '{0}').replace(/%s/, '{1}').replace(/%s/, '{2}').replace(/%s/, '{3}').replace(/%s/, '{4}');
         }
 
         /**
@@ -65,6 +65,7 @@
                 }
             },
             webapp: {
+                home: format('<%- uris.webapp.home %>'),
                 page: format('<%- uris.webapp.page %>'),
                 blog: format('<%- uris.webapp.blog %>')
             }

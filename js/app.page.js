@@ -10,8 +10,7 @@
 
     'use strict';
 
-    var app = window.app = window.app || {},
-        LOCALE = app.locale && $.isFunction(app.locale.getValue) ? app.locale.getValue() : 'en';
+    var app = window.app = window.app || {};
 
     require('../styles/app.page.page.less');
     require('./app.common.js');
@@ -29,10 +28,8 @@
     /**
      * Wait until document is ready to initialize UI
      */
-    $(document).ready(function () {
-        $(document).on('locale.loaded', function() {
-            log('site page initialized in ' + LOCALE);
-        });
+    $(document).on('locale.loaded', function() {
+        log('site page initialized in ' + app.locale.value());
     });
 
 }(window.jQuery));

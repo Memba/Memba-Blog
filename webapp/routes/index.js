@@ -13,10 +13,14 @@ var express = require('express'),
     router = express.Router(),
     config = require('../config'),
     locals = require('../middleware/locals'),
-    slug = require('../middleware/slug'),
     language = require('../middleware/language'),
+    year = require('../middleware/year'),
+    month = require('../middleware/month'),
+    day = require('../middleware/day'),
+    slug = require('../middleware/slug'),
     notFound = require('../middleware/notFound'),
     error = require('../middleware/error'),
+    homeRoute = require('./homeRoute'),
     pageRoute = require('./pageRoute'),
     blogRoute = require('./blogRoute');
 
@@ -33,19 +37,27 @@ router.use(locals);
 
 //Validate parameters
 router.param('language', language.validate);
+router.param('year', year.validate);
+router.param('month', month.validate);
+router.param('day', day.validate);
 router.param('slug', slug.validate);
+
+//sitemap.xml (one sitemap per language/category)
+//router.get('/:language/sitemap/:category?', sitemapRoute.getXmlSitemap); //TODO
+//RSS = TODO
+
+//Home
+router.route(config.get('uris:webapp:home'))
+    .get(homeRoute.getHtmlPage);
+
+//Blog posts
+router.route(util.format(config.get('uris:webapp:blog'),':language', ':year?', ':month?', ':day?', ':slug?'))
+    .get(blogRoute.getHtmlPage);
 
 //Pages
 router.route(util.format(config.get('uris:webapp:page'),':language', ':slug?'))
     .get(pageRoute.getHtmlPage);
 
-//Blog posts
-router.route(util.format(config.get('uris:webapp:blog'),':language', ':slug?'))
-    .get(blogRoute.getHtmlPage);
-
-//sitemap.xml (one sitemap per language/category)
-//router.get('/:language/sitemap/:category?', sitemapRoute.getXmlSitemap); //TODO
-//RSS = TODO
 
 /*
  router.route('/:language/unicode').get(function(req, res) {

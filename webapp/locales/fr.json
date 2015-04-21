@@ -140,6 +140,20 @@
 	"header": {
 		"navbar": {
             "toggle": "Changer la navigation",
+            "menu": [
+                { "text": "Home", "href": "#/" },
+                { "text": "Blog", "href": "#/blog" },
+                { "text": "More",
+                    "items": [
+                        { "text": "FAQs", "href": "#/pages/faqs" },
+                        { "text": "Donate", "href": "#/pages/donate" },
+                        { "text": "Sources on Github", "href": "https://github.com/Memba/Memba-Blog" },
+                        { "text": "Grunt-Blog Task", "href": "https://npmjs.org/package/grunt-blog" },
+                        { "text": "Memba Widgets", "href": "http://widgets.memba.com" },
+                        { "text": "Memba", "href": "http://www.memba.com" }
+                    ]
+                }
+            ],
 			"search": {
                 "text": "Rechercher",
                 "placeholder": "Recherche..."

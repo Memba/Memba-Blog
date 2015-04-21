@@ -23,6 +23,7 @@
 
     //Bootstrap files (toggled navbar)
     require('./vendor/bootstrap/collapse.js');
+    require('./vendor/bootstrap/dropdown.js');
 
     //Localization
     require('./app.locale.js');
@@ -41,13 +42,6 @@
         if (app.DEBUG && window.console && ($.isFunction(window.console.log))) {
             window.console.log('app.common: ' + message);
         }
-    }
-
-    /**
-     * Initialize viewModel
-     */
-    function initViewModel() {
-        $.noop();
     }
 
     /**
@@ -172,8 +166,8 @@
         kendo.init('body'); //, kendo.mobile.ui);
         initHeader();
         initNotifications();
-        initViewModel();
         initFooter();
+        kendo.bind('footer', viewModel);
         hidePreload();
         log('header and footer initialized in ' + viewModel.get('locale'));
     });

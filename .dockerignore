@@ -1,6 +1,5 @@
 .git
 .idea
-cache
 coverage
 graphics
 js
@@ -9,6 +8,7 @@ styles
 temp
 test
 web_modules
+webapp/cache
 .editorconfig
 .gitattributes
 .gitignore

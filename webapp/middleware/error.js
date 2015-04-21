@@ -52,7 +52,8 @@ module.exports = {
         //Display error
         res.status(error.status).render('error', {
             description: error.description || 'ATTENTION: Missing error description',
-            title: error.title || 'ATTENTION: Missing error title'
+            title: error.title || 'ATTENTION: Missing error title',
+            menu: res.locals.getCatalog().header.navbar.menu,
         });
     }
 

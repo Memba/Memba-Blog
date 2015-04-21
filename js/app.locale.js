@@ -10,9 +10,6 @@
 
     'use strict';
 
-    //Require config
-    require('./app.config.jsx?env=' + process.env.NODE_ENV);
-
     var app = window.app = window.app || {},
         cultures = app.cultures = app.cultures || {},
         FUNCTION = 'function',
@@ -78,22 +75,6 @@
                 throw new TypeError('bad locale');
             }
         }
-
-        /**
-         * Get languages
-         * @param value
-         * @returns {*}
-         */
-            /**
-        getLanguages: function (value) {
-            //TODO: Return localized version
-            var languages = {
-                en: 'English',
-                fr: 'French'
-            };
-            return languages[value];
-        }
-             **/
 
     };
 
