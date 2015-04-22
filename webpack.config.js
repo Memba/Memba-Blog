@@ -3,12 +3,13 @@
 // http://slidedeck.io/unindented/webpack-presentation
 // http://christianalfoni.github.io/javascript/2014/12/13/did-you-know-webpack-and-react-is-awesome.html
 
-//For debugging in WebStorm see https://github.com/webpack/webpack/issues/238
+'use strict';
+
 var webpack = require('webpack'),
     path = require('path');
 
 /**
- * This plugin defines a global variable which is only available when running webpack
+ * definePlugin defines a global variable which is only available when running webpack
  * We use it to merge app.config.jsx with the proper
  * @type {webpack.DefinePlugin}
  * @see http://webpack.github.io/docs/list-of-plugins.html#defineplugin
@@ -21,7 +22,7 @@ var definePlugin = new webpack.DefinePlugin({
 });
 
 /**
- * This plugin deduplicates identical files
+ * dedupePlugin deduplicates chunks
  * @type {webpack.optimize.DedupePlugin}
  * @see http://webpack.github.io/docs/optimization.html#deduplication
  * @see http://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
@@ -29,20 +30,22 @@ var definePlugin = new webpack.DefinePlugin({
 var dedupePlugin = new webpack.optimize.DedupePlugin();
 
 /**
- *
- * @type {webpack.optimize.CommonsChunkPlugin}
+ * commonsChunkPlugin builds a common denominator of the designated chunks
  */
 var commonsChunkPlugin =
     new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['blog', 'page', 'error'] });
 
+
 //TODO read copyright from package.json
 //var bannerPlugin = new webpack.BannerPlugin('Copyright');
 
-/*
- var sourceMapDevToolPlugin = new webpack.SourceMapDevToolPlugin(
- 'bundle.js.map', null,
- '[absolute-resource-path]', '[absolute-resource-path]');
+/**
+ * SourceMapDevToolPlugin builds source maps
+ * For debugging in WebStorm see https://github.com/webpack/webpack/issues/238
  */
+var sourceMapDevToolPlugin = new webpack.SourceMapDevToolPlugin(
+    '[file].map', null,
+    "[absolute-resource-path]", "[absolute-resource-path]");
 
 /**
  * Webpack configuration
@@ -108,7 +111,7 @@ module.exports = {
     plugins: [
         definePlugin,
         dedupePlugin,
-        commonsChunkPlugin
-        //sourceMapDevToolPlugin
+        commonsChunkPlugin,
+        sourceMapDevToolPlugin
     ]
 };
