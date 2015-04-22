@@ -17,6 +17,7 @@ node_modules/
 
 # Ignore Cache
 webapp/cache
+webapp/public/assets
 
 # Ignore Grunt Files
 validation-status.json
