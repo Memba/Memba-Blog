@@ -141,16 +141,13 @@
         "navbar": {
             "toggle": "Toggle navigation",
             "menu": [
-                { "text": "Home", "href": "/en/home" },
-                { "text": "Blog", "href": "/en/posts" },
+                { "text": "Support", "href": "./en/" },
+                { "text": "Blog", "href": "./en/posts" },
                 { "text": "More",
                     "items": [
-                        { "text": "FAQs", "href": "/en/faqs" },
-                        { "text": "Donate", "href": "#/pages/donate" },
-                        { "text": "Sources on Github", "href": "https://github.com/Memba/Memba-Blog" },
-                        { "text": "Grunt-Blog Task", "href": "https://npmjs.org/package/grunt-blog" },
-                        { "text": "Memba Widgets", "href": "http://widgets.memba.com" },
-                        { "text": "Memba", "href": "http://www.memba.com" }
+                        { "text": "FAQs", "href": "./en/faqs" },
+                        { "text": "Privacy Policy", "href": "./en/privacy" },
+                        { "text": "Terms of Use", "href": "./en/terms" }
                     ]
                 }
             ],
@@ -180,6 +177,15 @@
         }
     },
     "errors": {
-        "500": "errors.500"
+        "404": {
+            "status": 404,
+            "title": "404 - Not Found",
+            "description": "We are sorry, the page you requested cannot be found. The URL may be misspelled or the page you're looking for is no longer available."
+        },
+        "500": {
+            "status": 500,
+            "title": "500 - Unknown Error",
+            "description": "Cannot read property 'NotFound' of undefined"
+        }
     }
 }

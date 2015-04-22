@@ -141,16 +141,13 @@
 		"navbar": {
             "toggle": "Changer la navigation",
             "menu": [
-                { "text": "Home", "href": "#/" },
-                { "text": "Blog", "href": "#/blog" },
-                { "text": "More",
+                { "text": "Support", "href": "./en/" },
+                { "text": "Blog", "href": "./en/posts" },
+                { "text": "Plus",
                     "items": [
-                        { "text": "FAQs", "href": "#/pages/faqs" },
-                        { "text": "Donate", "href": "#/pages/donate" },
-                        { "text": "Sources on Github", "href": "https://github.com/Memba/Memba-Blog" },
-                        { "text": "Grunt-Blog Task", "href": "https://npmjs.org/package/grunt-blog" },
-                        { "text": "Memba Widgets", "href": "http://widgets.memba.com" },
-                        { "text": "Memba", "href": "http://www.memba.com" }
+                        { "text": "FAQs", "href": "./en/faqs" },
+                        { "text": "Confidentialité des Données", "href": "./en/privacy" },
+                        { "text": "Conditions d'Utilisation", "href": "./en/terms" }
                     ]
                 }
             ],
@@ -164,7 +161,7 @@
             "alt": "Memba Logo"
 		},
 		"reset": {
-			"heading": "header.reset.heading",
+			"heading": "Réinitialisation du cache",
 			"welcome": "header.reset.welcome"
 		}
 	},
@@ -180,6 +177,15 @@
         }
     },
 	"errors": {
-		"500": "errors.500"
+        "404": {
+            "status": 404,
+            "title": "404 - Introuvable",
+            "description": "Désolé, la page demandée est introuvable. L'URL est peut-être mal ortographiée ou la page que vous recherchez n'est peut-être plus disponible."
+        },
+        "500": {
+            "status": 500,
+            "title": "500 - Erreur Inconnue",
+            "description": "Il y a eu une erreur inconnue. Si nous arrivons à la reproduire, nous la corrigerons avec amour et attention."
+        }
 	}
 }
