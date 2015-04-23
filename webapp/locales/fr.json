@@ -159,10 +159,6 @@
 		"logo": {
 			"png": "header.logo.png",
             "alt": "Memba Logo"
-		},
-		"reset": {
-			"heading": "Réinitialisation du cache",
-			"welcome": "header.reset.welcome"
 		}
 	},
     "footer": {

@@ -19,7 +19,6 @@
     require('./vendor/kendo/kendo.button.js');
     require('./vendor/kendo/kendo.dropdownlist.js');
     require('./vendor/kendo/kendo.notification.js');
-    require('./vendor/kendo/kendo.window.js');
 
     //Bootstrap files (toggled navbar)
     require('./vendor/bootstrap/collapse.js');
@@ -126,18 +125,6 @@
             return false; // Prevent a form submission
         } else {
             return true; //accept any other character
-        }
-    }
-
-    /**
-     * Event handler triggered when clicking the signin icon in the navbar
-     * @param e
-     */
-    function onResetButtonClick(e) {
-        e.preventDefault();
-        var resetWindow = $('#reset-window').data('kendoWindow');
-        if (resetWindow instanceof kendo.ui.Window) {
-            resetWindow.center().open();
         }
     }
 

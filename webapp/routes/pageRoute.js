@@ -43,7 +43,7 @@ module.exports = {
                 slug: req.params.slug
             };
 
-            model.getContent(query, function(err, data) {
+            model.getPageData(query, function(err, data) {
                 if(!err && data) {
                     res
                         .set({
@@ -54,11 +54,11 @@ module.exports = {
                         })
                         .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                         .render('page', {
-                            sessionId: sessionId,
-                            description: 'TODO',
-                            title: 'TODO',
+                            content: data.content,
+                            description: data.description,
                             menu: res.locals.getCatalog().header.navbar.menu,
-                            content: data
+                            sessionId: sessionId,
+                            title: data.title
                         });
                 } else {
                     next(err);

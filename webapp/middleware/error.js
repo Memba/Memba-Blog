@@ -8,6 +8,9 @@
 
 'use strict';
 
+var logger = require('../lib/logger'),
+    utils = require('../lib/utils');
+
 module.exports = {
 
     /**
@@ -49,11 +52,27 @@ module.exports = {
             }
        }
 
+        //Create a sessionId that we can track in the browser
+        var sessionId = utils.uuid();
+
+        //Log the error //TODO
+        logger.error({
+            message: 'requesting a page',
+            module: 'routes/pageRoute',
+            method: 'getHtmlPage',
+            sessionId: sessionId,
+            ip: req.ip,
+            url: req.url,
+            query: req.query,
+            agent: req.headers['user-agent']
+        });
+
         //Display error
         res.status(error.status).render('error', {
+            sessionId: sessionId,
             description: error.description || 'ATTENTION: Missing error description',
             title: error.title || 'ATTENTION: Missing error title',
-            menu: res.locals.getCatalog().header.navbar.menu,
+            menu: res.locals.getCatalog().header.navbar.menu
         });
     }
 

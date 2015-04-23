@@ -38,13 +38,13 @@ router.param('slug', slug.validate);
 router.route(config.get('uris:webapp:home'))
     .get(homeRoute.getHtmlPage);
 
-// Pages
-router.route(util.format(config.get('uris:webapp:page'),':language', ':slug?'))
-    .get(pageRoute.getHtmlPage);
-
 // Blog posts
 router.route(util.format(config.get('uris:webapp:blog'),':language', ':year?', ':month?', ':day?', ':slug?'))
     .get(blogRoute.getHtmlPage);
+
+// Pages
+router.route(util.format(config.get('uris:webapp:page'),':language', ':slug?'))
+    .get(pageRoute.getHtmlPage);
 
 //sitemap.xml (one sitemap per language/category)
 //router.get('/:language/sitemap/:category?', sitemapRoute.getXmlSitemap); //TODO

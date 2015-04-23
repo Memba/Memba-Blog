@@ -8,10 +8,23 @@
 
 'use strict';
 
-var request = require('request'),
-    util = require('util'),
-    config = require('../config'),
-    HttpError = require('./httpError');
+var github = require('../lib/github'),
+    marked = require('marked'),
+    highlight = require('highlight.js');
+
+marked.setOptions({
+    renderer: new marked.Renderer(),
+    gfm: true,
+    tables: true,
+    breaks: false,
+    pedantic: false,
+    sanitize: true,
+    smartLists: true,
+    smartypants: false,
+    highlight: function (code) {
+        return highlight.highlightAuto(code).value;
+    }
+});
 
 module.exports = {
 
@@ -20,7 +33,7 @@ module.exports = {
      * @param query
      * @param callback
      */
-    getContent: function(query, callback) {
+    getPageData: function(query, callback) {
 
         //scan lru-cache for slug
 
@@ -28,7 +41,20 @@ module.exports = {
 
         //otherwise download from github and update cache
 
-        callback(false, {});
+
+        github.getContent('', '', function(error, response) {
+            if(!error && response) {
+                var data = {
+                    content: marked(response),
+                    description: '',
+                    title: ''
+                };
+                callback(null, data);
+            } else {
+                callback(error)
+            }
+
+        });
 
     }
 

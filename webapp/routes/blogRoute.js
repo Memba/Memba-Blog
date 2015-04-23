@@ -8,7 +8,9 @@
 
 'use strict';
 
-var model = require('../models/blogModel');
+var logger = require('../lib/logger'),
+    utils = require('../lib/utils'),
+    model = require('../models/blogModel');
 
 module.exports = {
 
