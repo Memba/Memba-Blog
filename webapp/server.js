@@ -25,6 +25,7 @@ var express = require('express'),
 
 //Configure
 app.disable('x-powered-by');
+//TODO app.enable('trust proxy');
 app.set('port', process.env.PORT || config.get('express:port'));
 
 //i18n
@@ -38,7 +39,6 @@ app.use(i18n.init);
 
 //File processing
 app.engine('.ejs', require('ejs').__express);
-app.use(express.static(__dirname + '/public'));
 // Optional since express defaults to CWD/views
 app.set('views', __dirname + '/views');
 // Without this you would need to supply the extension to res.render(), ex: res.render('users.html').
