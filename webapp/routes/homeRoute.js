@@ -8,6 +8,9 @@
 
 'use strict';
 
+var logger = require('../lib/logger'),
+    utils = require('../lib/utils');
+
 module.exports = {
 
     /**
@@ -19,6 +22,21 @@ module.exports = {
     getHtmlPage: function(req, res, next) {
         try {
 
+            //Create a sessionId that we can track in the browser
+            var sessionId = utils.uuid();
+
+            //Log the request
+            logger.info({
+                message: 'requesting the home page',
+                method: 'getHtmlPage',
+                module: 'routes/homeRoute',
+                sessionId: sessionId,
+                ip: req.ip,
+                url: req.url,
+                query: req.query,
+                agent: req.headers['user-agent']
+            });
+
             res
                 .set({
                     //Cache-Control
@@ -28,6 +46,7 @@ module.exports = {
                 })
                 .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                 .render('home', {
+                    sessionId: sessionId,
                     description: 'TODO',
                     title: 'TODO',
                     menu: res.locals.getCatalog().header.navbar.menu

@@ -58,8 +58,8 @@ module.exports = {
         //We need init especially because of FOUJI
         init:   '../js/app.init.js',
         //one entry per view
-        blog:   '../js/app.blog.js',
         page:   '../js/app.page.js',
+        blog:   '../js/app.blog.js',
         error:  '../js/app.error.js'
     },
     externals: { //CDN modules

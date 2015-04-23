@@ -48,6 +48,10 @@
 <% // preload progress image - SEE http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui %>
 <div class="k-content k-loading-image hidden-print"></div>
 
+<% // hidden session id for logging %>
+<input id="session" type="hidden" value="<%- sessionId %>">
+
+<% //header including navbar %>
 <header class="hidden-print" role="banner">
     <% // Navigation bar at the top of the page %>
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">

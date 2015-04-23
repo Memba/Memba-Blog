@@ -10,26 +10,20 @@
 
     'use strict';
 
-    var app = window.app = window.app || {};
-
     require('../styles/app.page.error.less');
     require('./app.common.js');
 
-    /**
-     * Logs a message
-     * @param message
-     */
-    function log(message) {
-        if (app.DEBUG && window.console && ($.isFunction(window.console.log))) {
-            window.console.log('app.error: ' + message);
-        }
-    }
+    var app = window.app = window.app || {},
+        logEntry = {
+            module: 'app.error.js',
+            sessionId: $('#session').val()
+        };
 
     /**
      * Wait until document is ready to initialize UI
      */
     $(document).on('locale.loaded', function() {
-        log('error page initialized in ' + app.locale.value());
+        app.logger.info($.extend(logEntry, { message: 'error page initialized in ' + app.locale.value() }));
     });
 
 }(window.jQuery));

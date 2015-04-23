@@ -10,7 +10,7 @@
 
 var cache = require('lru-cache');
 
-module.exports = exports = {
+module.exports = {
 
 
 

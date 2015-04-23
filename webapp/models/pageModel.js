@@ -28,7 +28,7 @@ module.exports = {
 
         //otherwise download from github and update cache
 
-        callback();
+        callback(false, {});
 
     }
 

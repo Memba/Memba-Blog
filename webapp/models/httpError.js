@@ -38,4 +38,4 @@ function HttpError(statusCode) {
 util.inherits(HttpError, Error);
 
 //Export the constructor function as the export of this module file.
-exports = module.exports = HttpError;
+module.exports = HttpError;

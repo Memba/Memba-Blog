@@ -7,4 +7,6 @@
 /* globals require: false */
 
 require('./app.config.jsx?env=' + process.env.NODE_ENV);
+require('./app.logger.js');
 require('./app.support.js');
+

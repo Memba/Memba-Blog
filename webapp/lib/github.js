@@ -8,11 +8,16 @@
 
 'use strict';
 
-var github = require('octonode');
+var github = require('octonode'),
+    config = require('nconf') ;
 
-module.exports = exports = {
 
 
+module.exports = {
+
+    getPageContent: function(language, fileName) {
+
+    }
 
 
 };

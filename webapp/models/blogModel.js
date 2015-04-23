@@ -32,7 +32,7 @@ module.exports = {
 
         //Return complex object
 
-        callback();
+        callback(false, {});
 
     }
 

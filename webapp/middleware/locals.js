@@ -13,13 +13,18 @@ var util = require('util'),
 
 module.exports = function(req, res, next) {
 
-    //Set res.locals values that we want available in our EJS templates
+    //Set res.locals values that we want available in our EJS templates, including for app.config.jsx
     res.locals.config = {
-        debug               : config.get('debug'),
-        uris : {
+        debug                   : config.get('debug'),
+        logentries: {
+            browser: {
+                token: config.get('logentries:browser:debug')
+            }
+        },
+        uris: {
             cdn: {
                 images          : config.get('uris:cdn:root') + config.get('uris:cdn:default'),
-                svg : {
+                svg: {
                     office      : config.get('uris:cdn:root') + config.get('uris:cdn:svg:office'),
                     white       : config.get('uris:cdn:root') + config.get('uris:cdn:svg:white'),
                     dark_grey   : config.get('uris:cdn:root') + config.get('uris:cdn:svg:dark_grey')
@@ -27,13 +32,10 @@ module.exports = function(req, res, next) {
             },
             webapp: {
                 home            : config.get('uris:webapp:root') + config.get('uris:webapp:home'),
-                finder          : config.get('uris:webapp:root') + config.get('uris:webapp:finder'),
-                summary         : config.get('uris:webapp:root') + config.get('uris:webapp:summary'),
-                player          : config.get('uris:webapp:root') + config.get('uris:webapp:player'),
-                editor          : config.get('uris:webapp:root') + config.get('uris:webapp:editor'),
-                user            : config.get('uris:webapp:root') + config.get('uris:webapp:user'),
-                rss             : config.get('uris:webapp:root') + config.get('uris:webapp:rss'),
-                sitemap         : config.get('uris:webapp:root') + config.get('uris:webapp:sitemap')
+                page            : config.get('uris:webapp:root') + config.get('uris:webapp:page'),
+                blog            : config.get('uris:webapp:root') + config.get('uris:webapp:blog')
+                //rss           : config.get('uris:webapp:root') + config.get('uris:webapp:rss'),
+                //sitemap       : config.get('uris:webapp:root') + config.get('uris:webapp:sitemap')
             }
         }
     };

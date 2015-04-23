@@ -8,7 +8,9 @@
 
 'use strict';
 
-module.exports = exports = {
+var uuid = require('node-uuid');
+
+module.exports = {
 
     /**
      * Checks if `obj` is an object.
@@ -48,5 +50,16 @@ module.exports = exports = {
             }
         }
         return obj;
+    },
+
+    /**
+     * uuid generator
+     * @see https://github.com/broofa/node-uuid
+     * @see http://jsperf.com/node-uuid-performance/24
+     * @returns {string}
+     */
+    uuid: function() {
+        return uuid.v1();
     }
+
 };
