@@ -4,17 +4,32 @@
 
 ## Demo
 
-See a demo running at http://miniblog.memba.com.
+See a demo running at http://www.memba.com and http://kidoju.com/support.
 
 ## Why a new blog engine?
 
+We needed a blog engine with:
+1. pages and blog posts,
+2. same look and feel as Kidoju, that is based on Twitter bootstrap (not easy to achieve with Wordpress, Ghost or Blogger),
+3. multi-user with live edit (which discards the likes of Jekyll and Octopress).
 
-## Architecture and process
-TODO
+and possibly the following nice-to-have:
+1. nodeJS tooling,
+2. markdown sources,
+3. editing in Github.
 
-## Getting Started
-The requirements are those of Grunt: you need to install [NodeJS] (http://nodejs.org/) and [Grunt] (http://gruntjs.com/).
-Then we recommend cloning this Git project or downloading an archive. More on the [Memba Mini Blog Engine web site](http://http://miniblog.memba.com).
+## History
+
+We initially built a server-less single page HTML application (version 0.0.1) which would pull markdown from URLs (possibly from Github) but we realized that it was poorly indexed by search engines.
+So we rearchitected the project to convert markdown into html server side, dropping the SPA architecture.
+
+## Architecture
+
+This is a nodeJS + expressJS application which pulls markdown content from a Github repository.
+
+## Getting started
+
+//TODO
 
 ## Disclaimer
 Before you get too excited please consider that this is 'work in progress' which has not even reached an 'alpha' stage.
@@ -23,10 +38,11 @@ Before you get too excited please consider that this is 'work in progress' which
 You can help by testing and reporting defects, making suggestions or even better contributing code fixes and improvements. In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/). We have provided setup.cmd and make.cmd to this effect.
 
 ## Release History
-_v0.1.0_ - First commit
+_v0.0.1_ - SPA sevrer-less architecture
+_v0.0.1_ - SPA architecture
 
 ## Licensing
 This code is bound to the GPL license considering the use of [Telerik's Kendo UI framework] (http://www.kendoui.com).
 As far as Memba is concerned, this code is free to use for all types of applications.
 
-Copyright (c) 2013-2014 Memba. All rights reserved.
+Copyright (c) 2013-2015 Memba. All rights reserved.
