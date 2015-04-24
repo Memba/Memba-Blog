@@ -1,6 +1,6 @@
 # Memba Blog Engine
 
->  A static blog engine which displays live markdown content (What You Write Is What You Publish).
+>  A nodeJS blog engine pulling markdown content from a Github repository.
 
 ## Demo
 
