@@ -33,8 +33,9 @@ module.exports = {
 
     /**
      * Similar to $.extend
+     * @see https://github.com/unclechu/node-deep-extend
      * @param obj
-     * @param properties
+     * @param obj1, obj2, ...
      */
     deepExtend: deepExtend,
 
