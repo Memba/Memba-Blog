@@ -8,7 +8,8 @@
 
 'use strict';
 
-var uuid = require('node-uuid');
+var uuid = require('node-uuid'),
+    deepExtend = require('deep-extend');
 
 module.exports = {
 
@@ -35,22 +36,7 @@ module.exports = {
      * @param obj
      * @param properties
      */
-    extendObject: function (obj, properties) {
-        for (var name in properties) {
-            if (properties.hasOwnProperty(name)) {
-                var value = properties[name];
-                if (exports.isObject(value)) {
-                    if (!exports.isObject(obj[name])) {
-                        obj[name] = {};
-                    }
-                    exports.extendObject(obj[name], value);
-                } else {
-                    obj[name] = value;
-                }
-            }
-        }
-        return obj;
-    },
+    deepExtend: deepExtend,
 
     /**
      * uuid generator
@@ -58,8 +44,6 @@ module.exports = {
      * @see http://jsperf.com/node-uuid-performance/24
      * @returns {string}
      */
-    uuid: function() {
-        return uuid.v1();
-    }
+    uuid: uuid.v1
 
 };
