@@ -9,27 +9,12 @@
 'use strict';
 
 var github = require('../lib/github'),
-    marked = require('marked'),
-    highlight = require('highlight.js');
-
-marked.setOptions({
-    renderer: new marked.Renderer(),
-    gfm: true,
-    tables: true,
-    breaks: false,
-    pedantic: false,
-    sanitize: true,
-    smartLists: true,
-    smartypants: false,
-    highlight: function (code) {
-        return highlight.highlightAuto(code).value;
-    }
-});
+    markdown = require('../lib/markdown');
 
 module.exports = {
 
     /**
-     * Get page
+     * Get page data
      * @param query
      * @param callback
      */
@@ -44,11 +29,13 @@ module.exports = {
 
         github.getContent('', '', function(error, response) {
             if(!error && response) {
-                var data = {
-                    content: marked(response),
-                    description: '',
-                    title: ''
-                };
+                var yml = markdown.yml(response),
+                    data = {
+                        content: markdown.render(response),
+                        description: yml.description,
+                        icon: null,
+                        title: yml.title
+                    };
                 callback(null, data);
             } else {
                 callback(error)

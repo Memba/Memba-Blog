@@ -40,13 +40,13 @@ module.exports = {
 
             var query = {
                 language: req.params.language,
-                year: req.params.language,
-                month: req.params.language,
-                day: req.params.language,
+                year: req.params.year,
+                month: req.params.month,
+                day: req.params.day,
                 slug: req.params.slug
             };
 
-            model.getContent(query, function(err, data) {
+            model.getBlogData(query, function(err, data) {
                 if (!err && data) {
                     res
                         .set({
@@ -56,13 +56,10 @@ module.exports = {
                             //Content-Security-Policy
                         })
                         .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                        .render('page', {
-                            sessionId: sessionId,
-                            description: 'TODO',
-                            title: 'TODO',
+                        .render('blog', utils.deepExtend(data, {
                             menu: res.locals.getCatalog().header.navbar.menu,
-                            content: data
-                        });
+                            sessionId: sessionId
+                        }));
                 } else {
                     next(err);
                 }

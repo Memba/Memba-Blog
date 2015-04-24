@@ -8,19 +8,17 @@
 
 'use strict';
 
-var request = require('request'),
-    util = require('util'),
-    config = require('../config'),
-    HttpError = require('./httpError');
+var github = require('../lib/github'),
+    markdown = require('../lib/markdown');
 
 module.exports = {
 
     /**
-     * Get content
+     * Get blog data
      * @param query
      * @param callback
      */
-    getContent: function(query, callback) {
+    getBlogData: function(query, callback) {
 
         //scan lru-cache for slug
 

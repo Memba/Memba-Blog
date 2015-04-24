@@ -53,13 +53,10 @@ module.exports = {
                             //Content-Security-Policy
                         })
                         .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                        .render('page', {
-                            content: data.content,
-                            description: data.description,
+                        .render('page', utils.deepExtend(data, {
                             menu: res.locals.getCatalog().header.navbar.menu,
-                            sessionId: sessionId,
-                            title: data.title
-                        });
+                            sessionId: sessionId
+                        }));
                 } else {
                     next(err);
                 }
