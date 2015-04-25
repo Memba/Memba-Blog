@@ -33,7 +33,7 @@ var dedupePlugin = new webpack.optimize.DedupePlugin();
  * commonsChunkPlugin builds a common denominator of the designated chunks
  */
 var commonsChunkPlugin =
-    new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['blog', 'page', 'error'] });
+    new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['home', 'blog', 'page', 'error'] });
 
 
 //TODO read copyright from package.json
@@ -58,6 +58,7 @@ module.exports = {
         //We need init especially because of FOUJI
         init:   '../js/app.init.js',
         //one entry per view
+        home:   '../js/app.home.js',
         page:   '../js/app.page.js',
         blog:   '../js/app.blog.js',
         error:  '../js/app.error.js'
