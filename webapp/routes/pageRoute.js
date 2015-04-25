@@ -8,9 +8,11 @@
 
 'use strict';
 
-var logger = require('../lib/logger'),
+var async = require('async'),
+    logger = require('../lib/logger'),
     utils = require('../lib/utils'),
-    model = require('../models/pageModel');
+    model = require('../models/pageModel'),
+    menu = require('../models/menuModel');
 
 module.exports = {
 
@@ -32,35 +34,40 @@ module.exports = {
                 module: 'routes/pageRoute',
                 method: 'getHtmlPage',
                 sessionId: sessionId,
-                ip: req.ip,
-                url: req.url,
-                query: req.query,
-                agent: req.headers['user-agent']
+                request: req
             });
 
-            var query = {
-                language: req.params.language,
-                slug: req.params.slug
-            };
-
-            model.getPageData(query, function(err, data) {
-                if(!err && data) {
-                    res
-                        .set({
-                            //Cache-Control
-                            'Content-Type': 'text/html; charset=utf-8',
-                            'Content-Language': res.getLocale()
-                            //Content-Security-Policy
-                        })
-                        .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                        .render('page', utils.deepExtend(data, {
-                            menu: res.locals.getCatalog().header.navbar.menu,
-                            sessionId: sessionId
-                        }));
-                } else {
-                    next(err);
+            async.parallel(
+                [
+                    //get blog data
+                    function(callback) {
+                        var query = {
+                            language: req.params.language,
+                            slug: req.params.slug
+                        };
+                        model.getPageData(query, callback);
+                    },
+                    //get menu
+                    function(callback) {
+                        menu.get(req.params.language, callback);
+                    }
+                ],
+                function(error, data) {
+                    if(!error && Array.isArray(data)) {
+                        res
+                            .set({
+                                //Cache-Control
+                                'Content-Type': 'text/html; charset=utf-8',
+                                'Content-Language': res.getLocale()
+                                //Content-Security-Policy
+                            })
+                            .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                            .render('page', utils.deepExtend({}, data[0], { menu: data[1], sessionId: sessionId }));
+                    } else {
+                        next(error); //TODO  || not found
+                    }
                 }
-            });
+            );
 
         } catch (exception) {
             next(exception);
