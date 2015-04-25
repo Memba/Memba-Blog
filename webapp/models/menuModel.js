@@ -31,7 +31,7 @@ module.exports = {
                 if (!error && data) {
                     try {
                         menu = JSON.parse(data);
-                        if (config.get('cache')) {
+                        if (config.get('cache$')) { //Note: `cache` breaks webpack build
                             cache.set(uri, menu);
                         }
                         callback(null, menu);

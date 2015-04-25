@@ -1,6 +1,6 @@
 {
     "debug": true,
-    "cache": true,
+    "cache$": true,
     "express": {
         "port"  : 3000
     },

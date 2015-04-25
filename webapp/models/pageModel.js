@@ -27,7 +27,7 @@ function ensureYml(uri, response, yml, callback) {
 
     //TODO author and date
 
-    
+
 
     if (!yml.description) {
         yml.description = i18n.__('meta.description');
@@ -81,7 +81,7 @@ module.exports = {
                     var yml = markdown.yml(response);
                     ensureYml(uri, response, yml);
                     data = utils.deepExtend({ content: markdown.render(response) }, yml);
-                    if (config.get('cache')) {
+                    if (config.get('cache$')) { //Note: `cache` breaks webpack build
                         cache.set(uri, data);
                     }
                     callback(null, data);
