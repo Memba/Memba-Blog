@@ -21,8 +21,13 @@ var octonode = require('octonode'),
 
 module.exports = {
 
-    getContent: function(language, fileName, callback) {
-        repository.contents('README.md', branch, function(error, response) {
+    /**
+     * Get content from github
+     * @param uri
+     * @param callback
+     */
+    getContent: function(uri, callback) {
+        repository.contents(uri, branch, function(error, response) {
             if(!error && response) {
                 var buf = new Buffer(response.content, 'base64');
                 callback(null, buf.toString());
@@ -30,7 +35,6 @@ module.exports = {
                 callback(error);
             }
         });
-
     }
 
 };
