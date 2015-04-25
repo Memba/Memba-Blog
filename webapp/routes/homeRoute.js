@@ -9,7 +9,8 @@
 'use strict';
 
 var logger = require('../lib/logger'),
-    utils = require('../lib/utils');
+    utils = require('../lib/utils'),
+    menu = require('../models/menuModel');
 
 module.exports = {
 
@@ -31,26 +32,30 @@ module.exports = {
                 method: 'getHtmlPage',
                 module: 'routes/homeRoute',
                 sessionId: sessionId,
-                ip: req.ip,
-                url: req.url,
-                query: req.query,
-                agent: req.headers['user-agent']
+                request: req
             });
 
-            res
-                .set({
-                    //Cache-Control
-                    'Content-Type': 'text/html; charset=utf-8',
-                    'Content-Language' : res.getLocale()
-                    //Content-Security-Policy
-                })
-                .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                .render('home', {
-                    sessionId: sessionId,
-                    description: 'TODO',
-                    title: 'TODO',
-                    menu: res.locals.getCatalog().header.navbar.menu
-                });
+            //Get menu with english as default language
+            menu.get('en', function(error, data) {
+                if(!error && data) {
+                    res
+                        .set({
+                            //Cache-Control
+                            'Content-Type': 'text/html; charset=utf-8',
+                            'Content-Language': res.getLocale()
+                            //Content-Security-Policy
+                        })
+                        .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                        .render('home', {
+                            description: 'TODO',
+                            menu: data,
+                            sessionId: sessionId,
+                            title: 'TODO'
+                        });
+                } else {
+                    next(error);
+                }
+            });
 
 
         } catch (exception) {

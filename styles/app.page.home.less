@@ -1,0 +1,56 @@
+@import "./app.page.mixins.less";
+
+/*********************************************
+ * Site page
+ ********************************************/
+#home-wrapper {
+    .wrapper();
+    .jumbotron {
+        background: url("./images/kidoju.home.jpg") no-repeat center center;
+        background-size: cover;
+        height: 60%;
+    }
+    .container {
+        .col-sm-6 {
+            margin-bottom: 20px;
+            text-align: center;
+            .flag {
+                height: 160px;
+                width: 160px;
+                border-radius: 50%;
+                margin: 0 auto;
+            }
+            .uk {
+                background: url("./images/flag_united_kingdom.png") no-repeat center center;
+            }
+            .fr {
+                background: url("./images/flag_france.png") no-repeat center center;
+            }
+            h2 {
+                font-weight: normal;
+            }
+            p {
+                margin-right: 10px;
+                margin-left: 10px;
+            }
+        }
+    }
+}
+
+/*********************************************
+ * Printing
+ ********************************************/
+
+// See http://getbootstrap.com/css/#responsive-utilities-print
+@media print {
+    //Make sure we fit page width
+    .container {
+        width: auto;
+    }
+    //Reposition content for hiding header, footer and toolbar
+    #page-wrapper {
+        position: relative;
+        top: 0px;
+        overflow: visible;
+    }
+}
