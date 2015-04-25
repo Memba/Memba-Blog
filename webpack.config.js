@@ -78,7 +78,7 @@ module.exports = {
     module: {
         loaders: [
             {
-                //Do not put a $ at the end of teh test regex
+                //Do not put a $ at the end of the test regex
                 test: /\.jsx/, //see ./web_modules/jsx-loader
                 loader: 'jsx?config=webapp/config'
             },
