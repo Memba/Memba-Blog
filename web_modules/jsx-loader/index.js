@@ -25,8 +25,8 @@ module.exports = function(source) {
                         return done(err);
                     } else {
                         try {
-                            var data = JSON.parse(content);
-                            done(null, data);
+                            content = JSON.parse(content);
+                            done(null, content);
                         } catch (exception) {
                             done(exception);
                         }
@@ -39,8 +39,8 @@ module.exports = function(source) {
                         return done(err);
                     } else {
                         try {
-                            var data = JSON.parse(content);
-                            done(null, data);
+                            content = JSON.parse(content);
+                            done(null, content);
                         } catch (exception) {
                             done(exception);
                         }
