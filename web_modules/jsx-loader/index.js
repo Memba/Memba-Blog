@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+var webpack = require('webpack'),
     loaderUtils = require('loader-utils'),
     ejs = require('ejs'),
     path = require('path'),
