@@ -6,7 +6,15 @@ Graphics are produced with Adobe Illustrator unless specified otherwise.
 
 Font elements need to be converted as outline before exporting to SVG.
 
-Then the SVG file needs to be opened and disable dlayers need to be removed to save space:
+First the following lines need to be removed:
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.1.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+```
+
+Then the SVG file needs to be opened and disable layers need to be removed to save space:
 
 ```xml
 <g id="Black_background" display="none">
