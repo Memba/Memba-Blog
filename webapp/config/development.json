@@ -1,5 +1,6 @@
 {
     "debug": true,
+    "cache": true,
     "express": {
         "port"  : 3000
     },
@@ -16,10 +17,12 @@
         "repository": "memba/test",
         "branch": "master",
         "en": {
-            "pages" : "en/pages",
-            "posts" : "en/posts"
+            "menu": "en/menu.json",
+            "pages": "en/pages",
+            "posts": "en/posts"
         },
         "fr": {
+            "menu": "fr/menu.json",
             "pages" : "fr/pages",
             "posts" : "fr/posts"
         }
@@ -35,7 +38,7 @@
             }
         },
         "webapp": {
-            "root": "//localhost:3000",
+            "root": "http://localhost:3000",
             "home": "/",
             "page": "/%s/%s",
             "blog": "/%s/posts/%s/%s/%s/%s"

@@ -141,13 +141,13 @@
 		"navbar": {
             "toggle": "Changer la navigation",
             "menu": [
-                { "text": "Support", "href": "./en/" },
-                { "text": "Blog", "href": "./en/posts" },
+                { "text": "Support", "href": "./fr/", "content": "support.md" },
+                { "text": "Blog", "href": "./fr/posts" },
                 { "text": "Plus",
                     "items": [
-                        { "text": "FAQs", "href": "./en/faqs" },
-                        { "text": "Confidentialité des Données", "href": "./en/privacy" },
-                        { "text": "Conditions d'Utilisation", "href": "./en/terms" }
+                        { "text": "FAQs", "href": "./fr/faqs", "content": "faqs.md" },
+                        { "text": "Confidentialité des Données", "href": "./fr/privacy", "content": "privacy.md" },
+                        { "text": "Conditions d'Utilisation", "href": "./fr/terms", "content": "terms.md" }
                     ]
                 }
             ],
@@ -157,7 +157,7 @@
 			}
 		},
 		"logo": {
-			"png": "header.logo.png",
+            "src": "kidoju.logo.svg",
             "alt": "Memba Logo"
 		}
 	},
