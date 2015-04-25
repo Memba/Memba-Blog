@@ -24,12 +24,8 @@ module.exports = function(source) {
                     if(err) {
                         return done(err);
                     } else {
-                        try {
-                            content = JSON.parse(content);
-                            done(null, content);
-                        } catch (exception) {
-                            done(exception);
-                        }
+                        content = JSON.parse(content);
+                        done(null, content);
                     }
                 });
             },
@@ -38,12 +34,8 @@ module.exports = function(source) {
                     if(err) {
                         return done(err);
                     } else {
-                        try {
-                            content = JSON.parse(content);
-                            done(null, content);
-                        } catch (exception) {
-                            done(exception);
-                        }
+                        content = JSON.parse(content);
+                        done(null, content);
                     }
                 });
             }
