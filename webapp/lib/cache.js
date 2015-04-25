@@ -15,20 +15,32 @@ var LRU = require("lru-cache"),
     },
     cache = LRU(options);
 
+/**
+ * preprocessing of keys for compatibility with lru-cache
+ * @param key
+ */
+function process(key) {
+    return key.replace(/\/|\\/g, '$');
+}
+
 module.exports = {
 
     /**
      * Get the value from a key
      * @param key
      */
-    get: cache.get,
+    get: function(key) {
+        return cache.get(process(key));
+    },
 
     /**
      *  Set the value of a key
      *  @param key
      *  @param value
      */
-    set: cache.set,
+    set: function(key, value) {
+        cache.set(process(key), value);
+    },
 
     /**
      * Reset (empty) the cache
