@@ -15,7 +15,7 @@
 
     var app = window.app = window.app || {},
         logEntry = {
-            module: 'app.error.js',
+            module: 'app.error',
             sessionId: $('#session').val()
         };
 

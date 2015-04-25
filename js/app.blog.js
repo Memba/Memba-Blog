@@ -15,7 +15,7 @@
 
     var app = window.app = window.app || {},
         logEntry = {
-            module: 'app.blog.js',
+            module: 'app.blog',
             sessionId: $('#session').val()
         };
 
