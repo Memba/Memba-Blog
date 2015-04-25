@@ -12,6 +12,10 @@ var marked = require('marked'),
     hljs = require('highlight.js'),
     renderer = new marked.Renderer();
 
+var RX_YML = /^---\n([\s\S]*)\n---/,
+    RX_KEYVAL = /([^:\n]+):([^:\n]+)/g,
+    KEY_BLACKLIST = /[-\s]/g;
+
 //hack: we need a renderer to add proper pre code classes until markedjs catches up with highlighjs v0.8x
 //See https://github.com/chjj/marked/issues/336
 renderer.code = function(code, lang) {
@@ -48,12 +52,12 @@ marked.setOptions({
 module.exports = {
 
     /**
-     * Render markdown as HTML
+     * Render markdown as HTML after removing yml
      * @param markdown
      * @returns {*}
      */
     render: function(markdown) {
-        return marked(markdown);
+        return marked(module.exports.clean(markdown));
     },
 
     /**
@@ -62,28 +66,30 @@ module.exports = {
      * @returns {{title: string, description: string}}
      */
     yml: function(markdown) {
-        return {
-            title: '',
-            description: ''
-        };
+        var yml = {},
+            ymlMatches = markdown.match(RX_YML);
+        if (Array.isArray(ymlMatches) && ymlMatches.length > 1) {
+            var keyvalMatches = ymlMatches[1].match(RX_KEYVAL);
+            if (Array.isArray(keyvalMatches) && keyvalMatches.length) {
+                for (var i = 0; i < keyvalMatches.length; i++) {
+                    var keyval = keyvalMatches[i].split(':');
+                    if(Array.isArray(keyval) && keyval.length === 2) {
+                        yml[keyval[0].trim().replace(KEY_BLACKLIST, '_')] = keyval[1].trim();
+                    }
+                }
+            }
+        }
+        return yml;
     },
 
     /**
-     * Preprocess a page (adds yml)
+     * Clean markdown from yml
      * @param markdown
-     * @private
+     * @returns {*}
      */
-    _page: function(markdown) {
-
-    },
-
-    /**
-     * Preprocess a blog post (adds yml)
-     * @param markdown
-     * @private
-     */
-    _post: function(markdown) {
-
+    clean: function(markdown) {
+        return markdown.replace(RX_YML, '').trim();
     }
+
 };
 

@@ -8,8 +8,58 @@
 
 'use strict';
 
-var github = require('../lib/github'),
+var path = require('path'),
+    i18n = require("i18n"),
+    config = require('../config'),
+    utils = require('../lib/utils'),
+    cache = require('../lib/cache'),
+    github = require('../lib/github'),
     markdown = require('../lib/markdown');
+
+function ensureYml(uri, response, yml, callback) {
+    var noyml = markdown.clean(response),
+        update = false;
+    if (!yml.uuid) {
+        yml.uuid = utils.uuid();
+        update = true;
+    }
+
+
+    //TODO author and date
+
+    
+
+    if (!yml.description) {
+        yml.description = i18n.__('meta.description');
+        update = true;
+    }
+    if(!yml.icon) {
+        yml.icon = null;
+        //update = true; //no icon is fine
+    }
+    if (!yml.keywords) {
+        yml.keywords = i18n.__('meta.keywords');
+        update = true;
+    }
+    if (!yml.title) {
+        yml.title = i18n.__('meta.title');
+        update = true;
+    }
+    if (update) {
+        var out = '---\n';
+        for (var key in yml) {
+            if (key !== 'icon' && yml.hasOwnProperty(key)) {
+                out += key + ': ' + yml[key] + '\n';
+            }
+        }
+        out += '---\n' + noyml;
+        github.updateContent(uri, out, function(err) {
+            if(err) {
+                console.error(err);
+            }
+        });
+    }
+}
 
 module.exports = {
 
@@ -20,28 +70,26 @@ module.exports = {
      */
     getPageData: function(query, callback) {
 
-        //scan lru-cache for slug
+        var uri = path.join(config.get('github:' + query.language + ':pages'), (query.slug || 'index') + '.md'),
+            data = cache.get(uri);
 
-        //if located in cache, find from disk
-
-        //otherwise download from github and update cache
-
-
-        github.getContent('', '', function(error, response) {
-            if(!error && response) {
-                var yml = markdown.yml(response),
-                    data = {
-                        content: markdown.render(response),
-                        description: yml.description,
-                        icon: null,
-                        title: yml.title
-                    };
-                callback(null, data);
-            } else {
-                callback(error)
-            }
-
-        });
+        if(data) {
+            callback(null, data);
+        } else {
+            github.getContent(uri, function (error, response) {
+                if (!error && response) {
+                    var yml = markdown.yml(response);
+                    ensureYml(uri, response, yml);
+                    data = utils.deepExtend({ content: markdown.render(response) }, yml);
+                    if (config.get('cache')) {
+                        cache.set(uri, data);
+                    }
+                    callback(null, data);
+                } else {
+                    callback(error); //TODO || not found
+                }
+            });
+        }
 
     }
 

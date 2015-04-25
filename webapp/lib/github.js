@@ -35,6 +35,22 @@ module.exports = {
                 callback(error);
             }
         });
+    },
+
+    /**
+     * Update content into github
+     * @param uri
+     * @param content
+     * @param callback
+     */
+    updateContent: function(uri, content, callback) {
+        repository.contents(uri, branch, function(error, response) {
+            if(!error && response) {
+                repository.updateContents(uri, 'bot update', content, response.sha, callback);
+            } else {
+                callback(error);
+            }
+        });
     }
 
 };
