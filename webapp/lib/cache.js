@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
@@ -45,6 +44,9 @@ module.exports = {
     /**
      * Reset (empty) the cache
      */
-    reset: cache.reset
+    reset: function() {
+        //reset: cache.reset does not work
+        cache.reset();
+    }
 
 };
