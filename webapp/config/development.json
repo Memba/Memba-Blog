@@ -16,16 +16,9 @@
     "github": {
         "repository": "memba/test",
         "branch": "master",
-        "en": {
-            "menu": "en/menu.json",
-            "pages": "en/pages",
-            "posts": "en/posts"
-        },
-        "fr": {
-            "menu": "fr/menu.json",
-            "pages" : "fr/pages",
-            "posts" : "fr/posts"
-        }
+        "menu": "%s/menu.json",
+        "pages": "%s/pages",
+        "posts": "%s/posts"
     },
     "uris" : {
         "cdn": {
@@ -40,6 +33,7 @@
         "webapp": {
             "root": "http://localhost:3000",
             "home": "/",
+            "hook": "/hook",
             "page": "/%s/%s",
             "blog": "/%s/posts/%s/%s/%s/%s"
         }
