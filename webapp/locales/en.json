@@ -49,6 +49,15 @@
 				"#5a4b43"
 			]
 		},
+        {
+            "value": "fiori",
+            "name": "Fiori",
+            "colors": [
+                "#007cc0",
+                "#e6f2f9",
+                "#f0f0f0"
+            ]
+        },
 		{
 			"value": "flat",
 			"name": "Flat",
@@ -112,6 +121,15 @@
 				"#212a33"
 			]
 		},
+        {
+            "value": "office365",
+            "name": "Office 365",
+            "colors": [
+                "#0072c6",
+                "#cde6f7",
+                "#fff"
+            ]
+        },
 		{
 			"value": "silver",
 			"name": "Silver",
