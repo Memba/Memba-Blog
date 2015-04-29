@@ -3,34 +3,36 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
 
-var config = require('../config'),
+var util = require('util'),
+    config = require('../config'),
     cache = require('../lib/cache'),
     github = require('../lib/github');
 
 module.exports = {
 
     /**
-     * Get menu in current locale
-     * @param locale
+     * Get menu in current language
+     * @param language
      * @param callback
      */
-    get : function(locale, callback) {
+    get : function(language, callback) {
 
-        var uri = config.get('github:' + locale + ':menu'),
+        var uri = util.format(config.get('github:menu'), language),
             menu = cache.get(uri);
 
         if(menu) {
             callback(null, menu);
         } else {
-            github.getContent(uri, function (error, data) {
-                if (!error && data) {
+            github.getContent(uri, function (error, response) {
+                if (!error && response) {
                     try {
-                        menu = JSON.parse(data);
+                        var buf = new Buffer(response.content, 'base64'),
+                            content = buf.toString(),
+                        menu = JSON.parse(content);
                         if (config.get('cache$')) { //Note: `cache` breaks webpack build
                             cache.set(uri, menu);
                         }
