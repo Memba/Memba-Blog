@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -231,7 +231,6 @@
                 },
                 notes: {
                     icon: {
-                        size: 7,
                         border: {
                             width: 1
                         }
@@ -3414,6 +3413,217 @@
         }
 
         registerTheme("fiori", {
+            chart: {
+                title: {
+                    color: TEXT
+                },
+                legend: {
+                    labels: {
+                        color: TEXT
+                    },
+                    inactiveItems: {
+                        labels: {
+                            color: INACTIVE
+                        },
+                        markers: {
+                            color: INACTIVE
+                        }
+                    }
+                },
+                seriesDefaults: {
+                    labels: {
+                        color: TEXT
+                    },
+                    errorBars: {
+                        color: TEXT
+                    },
+                    notes: noteStyle(),
+                    candlestick: {
+                        downColor: AXIS,
+                        line: {
+                            color: INACTIVE_SHAPE
+                        }
+                    },
+                    area: {
+                        opacity: 0.8
+                    },
+                    waterfall: {
+                        line: {
+                            color: AXIS
+                        }
+                    },
+                    horizontalWaterfall: {
+                        line: {
+                            color: AXIS
+                        }
+                    },
+                    overlay: {
+                        gradient: "none"
+                    },
+                    border: {
+                        _brightness: 1
+                    }
+                },
+                seriesColors: SERIES,
+                axisDefaults: {
+                    line: {
+                        color: AXIS
+                    },
+                    labels: {
+                        color: TEXT
+                    },
+                    minorGridLines: {
+                        color: AXIS_MINOR
+                    },
+                    majorGridLines: {
+                        color: AXIS
+                    },
+                    title: {
+                        color: TEXT
+                    },
+                    crosshair: {
+                        color: INACTIVE
+                    },
+                    notes: noteStyle()
+                }
+            },
+            gauge: {
+                pointer: {
+                    color: PRIMARY
+                },
+                scale: {
+                    rangePlaceholderColor: AXIS,
+                    labels: {
+                        color: TEXT
+                    },
+                    minorTicks: {
+                        color: TEXT
+                    },
+                    majorTicks: {
+                        color: TEXT
+                    },
+                    line: {
+                        color: TEXT
+                    }
+                }
+            },
+            diagram: {
+                shapeDefaults: {
+                    fill: {
+                        color: PRIMARY
+                    },
+                    connectorDefaults: {
+                        fill: {
+                            color: TEXT
+                        },
+                        stroke: {
+                            color: DIAGRAM_HOVER
+                        },
+                        hover: {
+                            fill: {
+                                color: DIAGRAM_HOVER
+                            },
+                            stroke: {
+                                color: TEXT
+                            }
+                        }
+                    },
+                    content: {
+                        color: TEXT
+                    }
+                },
+                editable: {
+                    resize: {
+                        handles: {
+                            fill: {
+                                color: DIAGRAM_HOVER
+                            },
+                            stroke: {
+                                color: INACTIVE_SHAPE
+                            },
+                            hover: {
+                                fill: {
+                                    color: INACTIVE_SHAPE
+                                },
+                                stroke: {
+                                    color: INACTIVE_SHAPE
+                                }
+                            }
+                        }
+                    },
+                    rotate: {
+                        thumb: {
+                            stroke: {
+                                color: INACTIVE_SHAPE
+                            },
+                            fill: {
+                                color: INACTIVE_SHAPE
+                            }
+                        }
+                    }
+                },
+                selectable: {
+                    stroke: {
+                        color: INACTIVE_SHAPE
+                    }
+                },
+                connectionDefaults: {
+                    stroke: {
+                        color: INACTIVE_SHAPE
+                    },
+                    content: {
+                        color: INACTIVE_SHAPE
+                    },
+                    selection: {
+                        handles: {
+                            fill: {
+                                color: DIAGRAM_HOVER
+                            },
+                            stroke: {
+                                color: INACTIVE_SHAPE
+                            }
+                        },
+                        stroke: {
+                            color: INACTIVE_SHAPE
+                        }
+                    }
+                }
+            },
+            treeMap: {
+                colors: fuse(SERIES, SERIES_LIGHT)
+            }
+        });
+    })();
+
+    (function() {
+        var TEXT            = "#4e4e4e";
+        var INACTIVE        = "#7f7f7f";
+        var INACTIVE_SHAPE  = "#bdbdbd";
+        var AXIS            = "#c8c8c8";
+        var AXIS_MINOR      = "#e5e5e5";
+        var SERIES          = ["#0072c6", "#5db2ff", "#008a17", "#82ba00", "#ff8f32", "#ac193d"];
+        var SERIES_LIGHT    = ["#cbe2f3", "#deeffe", "#cbe7d0", "#e5f0cb", "#fee8d5", "#eed0d7"];
+        var PRIMARY         = SERIES[0];
+        var DIAGRAM_HOVER   = WHITE;
+
+        function noteStyle() {
+            return {
+                icon: {
+                    background: "#00b0ff",
+                    border: {
+                        color: "#00b0ff"
+                    }
+                },
+                label: {
+                    color: "#ffffff"
+                },
+                line: {
+                    color: AXIS
+                }
+            };
+        }
+
+        registerTheme("office365", {
             chart: {
                 title: {
                     color: TEXT

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -403,6 +403,8 @@
             return;
         }
 
+        var form  = $(widget.element).parents("form");
+        var ngForm = scope[form.attr("name")];
         var getter = $parse(kNgModel);
         var setter = getter.assign;
         var updating = false;
@@ -435,6 +437,11 @@
 
         widget.first("change", function(){
             updating = true;
+
+            if (ngForm && ngForm.$pristine) {
+                ngForm.$setDirty();
+            }
+
             scope.$apply(function(){
                 setter(scope, widget.$angular_getLogicValue());
             });
@@ -953,12 +960,20 @@
         var self = this.self;
         var options = self.options;
         var valueField = options.dataValueField;
+        var text = options.text || "";
 
-        if (valueField && !options.valuePrimitive) {
-            val = val != null ? val[options.dataValueField || options.dataTextField] : null;
+        val = val || "";
+
+        if (valueField && !options.valuePrimitive && val) {
+            text = val[options.dataTextField] || "";
+            val = val[valueField || options.dataTextField];
         }
 
-        self.value(val);
+        if (self.options.autoBind === false && !self.listView.isBound()) {
+            self._preselect(val, text);
+        } else {
+            self.value(val);
+        }
     });
 
     defadvice("ui.MultiSelect", "$angular_getLogicValue", function() {
@@ -978,16 +993,23 @@
         if (val == null) {
             val = [];
         }
-        var self = this.self,
-            valueField = self.options.dataValueField;
 
-        if (valueField && !self.options.valuePrimitive) {
+        var self = this.self;
+        var options = self.options;
+        var valueField = options.dataValueField;
+        var data = val;
+
+        if (valueField && !options.valuePrimitive) {
             val = $.map(val, function(item) {
                 return item[valueField];
             });
         }
 
-        self.value(val);
+        if (options.autoBind === false && !options.valuePrimitive && !self.listView.isBound()) {
+            self._preselect(data, val);
+        } else {
+            self.value(val);
+        }
     });
 
     defadvice("ui.AutoComplete", "$angular_getLogicValue", function(){

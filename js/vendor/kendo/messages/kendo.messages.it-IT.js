@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,8 +10,7 @@
     define([], f);
 })(function(){
 
-
-
+(function ($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -376,6 +375,7 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "showWorkDay": "Mostra solo le ore lavorative"
 });
 }
+})(window.kendo.jQuery);
 
 
 return window.kendo;

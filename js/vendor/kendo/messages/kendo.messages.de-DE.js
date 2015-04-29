@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,8 +10,7 @@
     define([], f);
 })(function(){
 
-
-
+(function ($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -235,7 +234,7 @@ var browserMessages = {
   "deleteFile" : 'Sind Sie sicher, dass Sie "{0}" wirklich löschen wollen?',
   "invalidFileType" : "Die ausgewählte Datei \"{0}\" ist ungültig. Unterstützte Dateitypen sind {1}.",
   "overwriteFile" : "Eine Datei namens \"{0}\" existiert bereits im aktuellen Ordner. Überschreiben?",
-  "dropFilesHere" : "Dateien hier verschieben",  
+  "dropFilesHere" : "Dateien hier verschieben",
   "search": "Suchen"
 };
 
@@ -431,6 +430,7 @@ $.extend(true, kendo.ui.Validator.prototype.options.messages,{
   "date": "{0} ist kein gültiges Datum"
 });
 }
+})(window.kendo.jQuery);
 
 
 return window.kendo;

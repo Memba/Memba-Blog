@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -7630,6 +7630,12 @@ var FormattingTool = DelayedExecutionTool.extend({
             i, context,
             ancestor = dom.commonAncestor.apply(null, nodes);
 
+        if (this._ancestor == ancestor) {
+            return;
+        } else {
+            this._ancestor = ancestor;
+        }
+
         for (i = 0; i < items.length; i++) {
             context = items[i].context;
 
@@ -7643,6 +7649,10 @@ var FormattingTool = DelayedExecutionTool.extend({
         selectBox.value(this.getFormattingValue(dataSource.view(), nodes));
 
         selectBox.wrapper.toggleClass("k-state-disabled", !dataSource.view().length);
+    },
+
+    destroy: function() {
+        this._ancestor = null;
     }
 });
 
@@ -7650,7 +7660,7 @@ var CleanFormatCommand = Command.extend({
     exec: function() {
         var listFormatter = new Editor.ListFormatter('ul');
         var range = this.lockRange(true);
-        var remove = this.options.remove || "strong,em,span,sup,sub,del".split(",");
+        var remove = this.options.remove || "strong,em,span,sup,sub,del,b,i,u,font".split(",");
 
         RangeUtils.wrapSelectedElements(range);
 
@@ -8375,7 +8385,11 @@ var PopupTool = Tool.extend({
     },
 
     update: function(ui) {
-        this.popup().close();
+        var popup = this.popup();
+
+        if (popup.wrapper && popup.wrapper.css("display") == "block") {
+            popup.close();
+        }
 
         ui.removeClass("k-state-hover");
     },

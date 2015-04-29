@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -3973,7 +3973,7 @@
             var element = container.firstChild.firstChild;
             if (element) {
                 if (defined(pos)) {
-                    domElement.insertBefore(element, domElement.childNodes[pos]);
+                    domElement.insertBefore(element, domElement.childNodes[pos] || null);
                 } else {
                     domElement.appendChild(element);
                 }
@@ -5476,7 +5476,7 @@
 
             var img = this.img = new Image();
 
-            if (cors) {
+            if (cors && !(/^data:/i.test(srcElement.src()))) {
                 img.crossOrigin = cors;
             }
 
@@ -7075,10 +7075,11 @@
             var adjust = 0;
 
             $(container).css({
-                display  : "block",
-                position : "absolute",
-                left     : "-10000px",
-                top      : "-10000px"
+                display   : "block",
+                position  : "absolute",
+                boxSizing : "content-box",
+                left      : "-10000px",
+                top       : "-10000px"
             });
 
             if (pageWidth) {
@@ -7241,6 +7242,7 @@
                 var page = doc.createElement("KENDO-PDF-PAGE");
                 $(page).css({
                     display  : "block",
+                    boxSizing: "content-box",
                     width    : pageWidth || "auto",
                     padding  : (margin.top + "px " +
                                 margin.right + "px " +
@@ -7997,6 +7999,38 @@
         return r;
     }
 
+    function adjustBorderRadiusForBox(box, rTL, rTR, rBR, rBL) {
+        // adjust border radiuses such that the sum of adjacent
+        // radiuses is not bigger than the length of the side.
+        // seems the correct algorithm is variant (3) from here:
+        // http://www.w3.org/Style/CSS/Tracker/issues/29?changelog
+        var tl_x = Math.max(0, rTL.x), tl_y = Math.max(0, rTL.y);
+        var tr_x = Math.max(0, rTR.x), tr_y = Math.max(0, rTR.y);
+        var br_x = Math.max(0, rBR.x), br_y = Math.max(0, rBR.y);
+        var bl_x = Math.max(0, rBL.x), bl_y = Math.max(0, rBL.y);
+
+        var f = Math.min(
+            box.width / (tl_x + tr_x),
+            box.height / (tr_y + br_y),
+            box.width / (br_x + bl_x),
+            box.height / (bl_y + tl_y)
+        );
+
+        if (f < 1) {
+            tl_x *= f; tl_y *= f;
+            tr_x *= f; tr_y *= f;
+            br_x *= f; br_y *= f;
+            bl_x *= f; bl_y *= f;
+        }
+
+        return {
+            tl: { x: tl_x, y: tl_y },
+            tr: { x: tr_x, y: tr_y },
+            br: { x: br_x, y: br_y },
+            bl: { x: bl_x, y: bl_y }
+        };
+    }
+
     function elementRoundBox(element, box, type) {
         var style = getComputedStyle(element);
 
@@ -8040,12 +8074,13 @@
     // bounding box and the border-radiuses in CSS order (top-left,
     // top-right, bottom-right, bottom-left).  The radiuses must be
     // objects containing x (horiz. radius) and y (vertical radius).
-    function roundBox(box, rTL, rTR, rBR, rBL) {
+    function roundBox(box, rTL0, rTR0, rBR0, rBL0) {
+        var tmp = adjustBorderRadiusForBox(box, rTL0, rTR0, rBR0, rBL0);
+        var rTL = tmp.tl;
+        var rTR = tmp.tr;
+        var rBR = tmp.br;
+        var rBL = tmp.bl;
         var path = new drawing.Path({ fill: null, stroke: null });
-        sanitizeRadius(rTL);
-        sanitizeRadius(rTR);
-        sanitizeRadius(rBR);
-        sanitizeRadius(rBL);
         path.moveTo(box.left, box.top + rTL.y);
         if (rTL.x) {
             addArcToPath(path, box.left + rTL.x, box.top + rTL.y, {
@@ -8194,10 +8229,10 @@
         var bottom = getBorder(style, "bottom");
         var left = getBorder(style, "left");
 
-        var rTL = getBorderRadius(style, "top-left");
-        var rTR = getBorderRadius(style, "top-right");
-        var rBL = getBorderRadius(style, "bottom-left");
-        var rBR = getBorderRadius(style, "bottom-right");
+        var rTL0 = getBorderRadius(style, "top-left");
+        var rTR0 = getBorderRadius(style, "top-right");
+        var rBL0 = getBorderRadius(style, "bottom-left");
+        var rBR0 = getBorderRadius(style, "bottom-right");
 
         var dir = getPropertyValue(style, "direction");
 
@@ -8423,7 +8458,7 @@
 
         function drawBackground(box) {
             var background = new drawing.Group();
-            setClipping(background, roundBox(box, rTL, rTR, rBR, rBL));
+            setClipping(background, roundBox(box, rTL0, rTR0, rBR0, rBL0));
             group.append(background);
 
             if (element.tagName == "A" && element.href && !/^#?$/.test($(element).attr("href"))) {
@@ -8737,7 +8772,7 @@
 
                 // if border radiuses are zero and widths are at most one pixel, we can again use simple
                 // paths.
-                if (rTL.x === 0 && rTR.x === 0 && rBR.x === 0 && rBL.x === 0) {
+                if (rTL0.x === 0 && rTR0.x === 0 && rBR0.x === 0 && rBL0.x === 0) {
                     // alright, 1.9px will do as well.  the difference in color blending should not be
                     // noticeable.
                     if (top.width < 2 && left.width < 2 && right.width < 2 && bottom.width < 2) {
@@ -8790,6 +8825,12 @@
                 }
 
             }
+
+            var tmp = adjustBorderRadiusForBox(box, rTL0, rTR0, rBR0, rBL0);
+            var rTL = tmp.tl;
+            var rTR = tmp.tr;
+            var rBR = tmp.br;
+            var rBL = tmp.bl;
 
             // top border
             drawEdge(top.color,
@@ -9105,7 +9146,7 @@
 
           case "canvas":
             try {
-                renderImage(element, element.toDataURL("image/jpeg"), group);
+                renderImage(element, element.toDataURL("image/png"), group);
             } catch(ex) {
                 // tainted; can't draw it, ignore.
             }
@@ -9407,7 +9448,19 @@
     }
 
     function groupInStackingContext(element, group, zIndex) {
-        var main = nodeInfo._stackingContext.group;
+        var main;
+        if (zIndex != "auto") {
+            // use the current stacking context
+            main = nodeInfo._stackingContext.group;
+            zIndex = parseFloat(zIndex);
+        } else {
+            // normal flow — use given container.  we still have to
+            // figure out where should we insert this element with the
+            // assumption that its z-index is zero, as the group might
+            // already contain elements with higher z-index.
+            main = group;
+            zIndex = 0;
+        }
         var a = main.children;
         for (var i = 0; i < a.length; ++i) {
             if (a[i]._dom_zIndex != null && a[i]._dom_zIndex > zIndex) {
@@ -9419,16 +9472,21 @@
         main.insertAt(tmp, i);
         tmp._dom_zIndex = zIndex;
 
-        // if (nodeInfo._matrix) {
-        //     tmp.transform(nodeInfo._matrix);
-        // }
-        if (nodeInfo._clipbox) {
-            var m = nodeInfo._matrix.invert();
-            var r = nodeInfo._clipbox.transformCopy(m);
-            setClipping(tmp, drawing.Path.fromRect(r));
-            // console.log(r);
-            // tmp.append(drawing.Path.fromRect(r));
-            // tmp.append(new drawing.Text(element.className || element.id, r.topLeft()));
+        if (main !== group) {
+            // console.log("Placing", element, "in", nodeInfo._stackingContext.element, "at position", i, " / ", a.length);
+            // console.log(a.slice(i+1));
+
+            // if (nodeInfo._matrix) {
+            //     tmp.transform(nodeInfo._matrix);
+            // }
+            if (nodeInfo._clipbox) {
+                var m = nodeInfo._matrix.invert();
+                var r = nodeInfo._clipbox.transformCopy(m);
+                setClipping(tmp, drawing.Path.fromRect(r));
+                // console.log(r);
+                // tmp.append(drawing.Path.fromRect(r));
+                // tmp.append(new drawing.Text(element.className || element.id, r.topLeft()));
+            }
         }
 
         return tmp;
@@ -9470,14 +9528,10 @@
         if ((tr || opacity < 1) && zIndex == "auto") {
             zIndex = 0;
         }
-        if (zIndex != "auto") {
-            group = groupInStackingContext(element, container, parseFloat(zIndex));
-        } else {
-            group = new drawing.Group();
-            container.append(group);
-        }
+        group = groupInStackingContext(element, container, zIndex);
 
         // XXX: remove at some point
+        // group._pdfElement = element;
         // group.options._pdfDebug = "";
         // if (element.id) {
         //     group.options._pdfDebug = "#" + element.id;

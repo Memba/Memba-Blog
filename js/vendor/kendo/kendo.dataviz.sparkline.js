@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -21,6 +21,7 @@
 
         deepExtend = kendo.deepExtend,
         isArray = $.isArray,
+        proxy = $.proxy,
         inArray = dataviz.inArray,
         math = Math;
 
@@ -31,6 +32,7 @@
         BAR = "bar",
         BULLET = "bullet",
         PIE = "pie",
+        LEAVE = "leave",
         NO_CROSSHAIR = [BAR, BULLET];
 
     // Sparkline =============================================================
@@ -185,6 +187,8 @@
             } else {
                 tooltip = Chart.fn._createTooltip.call(chart);
             }
+
+            tooltip.bind(LEAVE, proxy(chart._tooltipleave, chart));
 
             return tooltip;
         },

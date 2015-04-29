@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -214,13 +214,13 @@ kendo.ExcelExporter = kendo.Class.extend({
         var rows = [];
         var footer = false;
 
-        var cells = $.map(this.columns, function(column) {
+        var cells = $.map(this.columns, $.proxy(function(column) {
             if (column.groupFooterTemplate) {
                 footer = true;
                 return {
                     background: "#dfdfdf",
                     color: "#333",
-                    value: column.groupFooterTemplate(dataItem.aggregates[column.field])
+                    value: column.groupFooterTemplate($.extend({}, this.dataSource.aggregates(), dataItem.aggregates, dataItem.aggregates[column.field]))
                 };
             } else {
                 return {
@@ -228,7 +228,7 @@ kendo.ExcelExporter = kendo.Class.extend({
                     color: "#333"
                 };
             }
-        });
+        }, this));
 
         if (footer) {
             rows.push({

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -52,6 +52,7 @@
         CROSS = "cross",
         DEFAULT_FONT = "12px sans-serif",
         DEFAULT_HEIGHT = 400,
+        DEFAULT_ICON_SIZE = 7,
         DEFAULT_PRECISION = 6,
         DEFAULT_WIDTH = 600,
         DEG_TO_RAD = math.PI / 180,
@@ -1334,42 +1335,32 @@
         },
 
         reflow: function(targetBox) {
-            var textbox = this;
-            var options = textbox.options;
+            var options = this.options;
             var visual = options.visual;
             var align = options.align;
             var rotation = options.rotation;
-            textbox.container.options.align = align;
+            this.container.options.align = align;
 
-            if (visual && !textbox._boxReflow && targetBox.hasSize()) {
-                textbox.visual = visual({
-                    text: textbox.content,
-                    rect: targetBox.toRect(),
-                    options: textbox.visualOptions(),
-                    createVisual: function() {
-                        textbox._boxReflow = true;
-                        textbox.reflow(targetBox);
-                        textbox._boxReflow = false;
-                        return textbox.getDefaultVisual();
-                    }
-                });
+            if (visual && !this._boxReflow) {
+                this.visual = visual(this.visualContext(targetBox));
+
                 var visualBox = targetBox;
-                if (textbox.visual) {
-                    visualBox = rectToBox(textbox.visual.clippedBBox() || new geom.Rect());
+                if (this.visual) {
+                    visualBox = rectToBox(this.visual.clippedBBox() || new geom.Rect());
                 }
-                textbox.box = textbox.contentBox = textbox.paddingBox = visualBox;
+                this.box = this.contentBox = this.paddingBox = visualBox;
             } else {
-                BoxElement.fn.reflow.call(textbox, targetBox);
+                BoxElement.fn.reflow.call(this, targetBox);
 
                 if (rotation) {
                     var margin = getSpacing(options.margin);
-                    var box = textbox.box.unpad(margin);
-                    textbox.normalBox = box.clone();
+                    var box = this.box.unpad(margin);
+                    this.normalBox = box.clone();
                     box.rotate(rotation);
-                    textbox.align(targetBox, X, align);
-                    textbox.align(targetBox, Y, options.vAlign);
+                    this.align(targetBox, X, align);
+                    this.align(targetBox, Y, options.vAlign);
                     box.translate(margin.left - margin.right, margin.top - margin.bottom);
-                    textbox.rotatedBox = box.clone();
+                    this.rotatedBox = box.clone();
                     box.pad(margin);
                 }
             }
@@ -1412,6 +1403,22 @@
                 margin: options.margin,
                 padding: options.padding,
                 visible: options.visible
+            };
+        },
+
+        visualContext: function(targetBox) {
+            var textbox = this;
+
+            return {
+                text: textbox.content,
+                rect: targetBox.toRect(),
+                options: textbox.visualOptions(),
+                createVisual: function() {
+                    textbox._boxReflow = true;
+                    textbox.reflow(targetBox);
+                    textbox._boxReflow = false;
+                    return textbox.getDefaultVisual();
+                }
             };
         },
 
@@ -1496,6 +1503,16 @@
             label.dataItem = dataItem;
 
             TextBox.fn.init.call(label, text, options);
+        },
+
+        visualContext: function(targetBox) {
+            var context = TextBox.fn.visualContext.call(this, targetBox);
+            context.value = this.value;
+            context.dataItem = this.dataItem;
+            context.format = this.options.format;
+            context.culture = this.options.culture;
+
+            return context;
         },
 
         click: function(widget, e) {
@@ -2020,7 +2037,8 @@
                 titleSize = title ? title.box[sizeFn]() : 0,
                 space = axis.getActualTickSize() + options.margin + titleSize,
                 maxLabelSize = 0,
-                boxSize = box[sizeFn](),
+                rootBox = (this.getRoot() || {}).box || box,
+                boxSize = rootBox[sizeFn](),
                 labelSize, i;
 
             for (i = 0; i < count; i++) {
@@ -2261,7 +2279,7 @@
 
                     note.label = new TextBox(text, deepExtend({}, label));
 
-                    if (label.position === INSIDE) {
+                    if (label.position === INSIDE && !defined(size)) {
                         if (icon.type === CIRCLE) {
                             size = math.max(note.label.box.width(), note.label.box.height());
                         } else {
@@ -2272,8 +2290,8 @@
                     }
                 }
 
-                icon.width = width || size;
-                icon.height = height || size;
+                icon.width = width || size || DEFAULT_ICON_SIZE;
+                icon.height = height || size || DEFAULT_ICON_SIZE;
 
                 marker = new ShapeElement(deepExtend({}, icon));
 
@@ -2427,6 +2445,7 @@
                     }
                 });
 
+                alignPathToPixel(path);
                 this.visual.append(path);
             }
         },

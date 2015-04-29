@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -116,6 +116,77 @@
             });
         },
 
+        _listOptions: function(options) {
+            var currentOptions = this.options;
+
+            options = options || {};
+            options = {
+                height: options.height || currentOptions.height,
+                dataValueField: options.dataValueField || currentOptions.dataValueField,
+                dataTextField: options.dataTextField || currentOptions.dataTextField,
+                groupTemplate: options.groupTemplate || currentOptions.groupTemplate,
+                fixedGroupTemplate: options.fixedGroupTemplate || currentOptions.fixedGroupTemplate,
+                template: options.template || currentOptions.template
+            };
+
+            if (!options.template) {
+                options.template = "#:" + kendo.expr(options.dataTextField, "data") + "#";
+            }
+
+            return options;
+        },
+
+        _initList: function() {
+            var that = this;
+            var options = that.options;
+            var virtual = options.virtual;
+            var hasVirtual = !!virtual;
+            var value = options.value;
+
+            var listBoundHandler = proxy(that._listBound, that);
+
+            var listOptions = {
+                autoBind: false,
+                selectable: true,
+                dataSource: that.dataSource,
+                click: proxy(that._click, that),
+                change: proxy(that._listChange, that),
+                activate: proxy(that._activateItem, that),
+                deactivate: proxy(that._deactivateItem, that),
+                dataBinding: function() {
+                    that.trigger("dataBinding");
+                    that._angularItems("cleanup");
+                },
+                dataBound: listBoundHandler,
+                listBound: listBoundHandler,
+                selectedItemChange: proxy(that._listChange, that)
+            };
+
+            listOptions = $.extend(that._listOptions(), listOptions, typeof virtual === "object" ? virtual : {});
+
+            if (!hasVirtual) {
+                that.listView = new kendo.ui.StaticList(that.ul, listOptions);
+                that.listView.setTouchScroller(that._touchScroller);
+            } else {
+                that.listView = new kendo.ui.VirtualList(that.ul, listOptions);
+            }
+
+            if (value !== undefined) {
+                that.listView.value(value).done(function() {
+                    var text = options.text;
+
+                    if (that.input && that.selectedIndex === -1) {
+                        if (text === undefined || text === null) {
+                            text = value;
+                        }
+
+                        that._accessor(value);
+                        that.input.val(text);
+                    }
+                });
+            }
+        },
+
         _listMousedown: function(e) {
             if (!this.filterInput || this.filterInput[0] !== e.target) {
                 e.preventDefault();
@@ -146,6 +217,7 @@
             }
         },
 
+        //TODO: refactor
         _header: function() {
             var that = this;
             var template = that.options.headerTemplate;
@@ -243,6 +315,17 @@
             }
 
             return that.dataSource.flatView()[index];
+        },
+
+        _activateItem: function() {
+            var current = this.listView.focus();
+            if (current) {
+                this._focused.add(this.filterInput).attr("aria-activedescendant", current.attr("id"));
+            }
+        },
+
+        _deactivateItem: function() {
+            this._focused.add(this.filterInput).removeAttr("aria-activedescendant");
         },
 
         _accessors: function() {
@@ -781,8 +864,8 @@
                     if (!that.listView.isBound()) {
                         if (!that._fetch) {
                             that.dataSource.one(CHANGE, function() {
-                                that._move(e);
                                 that._fetch = false;
+                                that._move(e);
                             });
 
                             that._fetch = true;
@@ -846,7 +929,7 @@
                     }
 
                     that._select(current);
-                } else {
+                } else if (that.input) {
                     that._accessor(that.input.val());
                     that.listView.value(that.input.val());
                 }
@@ -1081,10 +1164,10 @@
                 this._values = $.isArray(value) ? value.slice(0) : [value];
             }
 
-            this.setDataSource(this.options.dataSource);
-
             this._getter();
             this._templates();
+
+            this.setDataSource(this.options.dataSource);
 
             this._onScroll = proxy(function() {
                 var that = this;
@@ -1113,7 +1196,8 @@
            "activate",
            "deactivate",
            "dataBinding",
-           "dataBound"
+           "dataBound",
+           "selectedItemChange"
         ],
 
         setDataSource: function(source) {
@@ -1138,6 +1222,7 @@
             }
 
             that.dataSource = dataSource.bind(CHANGE, that._refreshHandler);
+            that._fixedHeader();
         },
 
         setOptions: function(options) {
@@ -1146,6 +1231,7 @@
             this._fixedHeader();
             this._getter();
             this._templates();
+            this._render();
         },
 
         destroy: function() {
@@ -1184,6 +1270,10 @@
             return offsetHeight;
         },
 
+        setTouchScroller: function (touchScroller) {
+            this._touchScroller = touchScroller;
+        },
+
         scroll: function (item) {
             if (!item) {
                 return;
@@ -1204,6 +1294,7 @@
 
             if (touchScroller) {
                 yDimension = touchScroller.dimensions.y;
+                yDimension.update(true);
 
                 if (yDimension.enabled && itemOffsetTop > yDimension.size) {
                     itemOffsetTop = itemOffsetTop - yDimension.size + itemOffsetHeight + 4;
@@ -1303,12 +1394,16 @@
             that.trigger("activate");
         },
 
-        filter: function(filter) {
+        filter: function(filter, skipValueUpdate) {
             if (filter === undefined) {
                 return this._filtered;
             }
 
             this._filtered = filter;
+        },
+
+        skipUpdate: function(skipUpdate) {
+            this._skipUpdate = skipUpdate;
         },
 
         select: function(indices) {
@@ -1368,6 +1463,16 @@
             };
         },
 
+        setValue: function(value) {
+            if (value === "" || value === null) {
+                value = [];
+            }
+
+            value = $.isArray(value) || value instanceof ObservableArray ? value.slice(0) : [value];
+
+            this._values = value;
+        },
+
         value: function(value) {
             var that = this;
             var deferred = that._valueDeferred;
@@ -1377,20 +1482,14 @@
                 return that._values.slice();
             }
 
-            if (value === "" || value === null) {
-                value = [];
-            }
-
-            value = $.isArray(value) || value instanceof ObservableArray ? value.slice(0) : [value];
-
-            that._values = value;
+            that.setValue(value);
 
             if (!deferred || deferred.state() === "resolved") {
                 that._valueDeferred = deferred = $.Deferred();
             }
 
             if (that.isBound()) {
-                indices = that._valueIndices(value);
+                indices = that._valueIndices(that._values);
 
                 if (that.options.selectable === "multiple") {
                     that.select(-1);
@@ -1400,6 +1499,8 @@
 
                 deferred.resolve();
             }
+
+            that._skipUpdate = false;
 
             return deferred;
         },
@@ -1424,9 +1525,8 @@
             return index;
         },
 
-        _valueIndices: function(values) {
+        _updateIndices: function(indices, values) {
             var data = this._view;
-            var indices = [];
             var idx = 0;
             var index;
 
@@ -1443,6 +1543,11 @@
             }
 
             return this._normalizeIndices(indices);
+        },
+
+        _valueIndices: function(values) {
+            var indices = [];
+            return this._updateIndices(indices, values);
         },
 
         _getter: function() {
@@ -1585,7 +1690,7 @@
             if (typeof candidate === "number") {
                 candidate = [candidate];
             } else if (!isArray(candidate)) {
-                candidate = $(candidate).data("index");
+                candidate = $(candidate).data("offset-index");
 
                 if (candidate === undefined) {
                     candidate = -1;
@@ -1670,7 +1775,7 @@
                 }
             }
 
-            return this._view[$(item).data("index")];
+            return this._view[$(item).data("offset-index")];
         },
 
         _fixedHeader: function() {
@@ -1696,22 +1801,22 @@
             }
         },
 
-        _renderItem: function(context, values) {
+        _renderItem: function(context) {
             var item = '<li tabindex="-1" role="option" unselectable="on" class="k-item';
 
             var dataItem = context.item;
             var notFirstItem = context.index !== 0;
-            var found = this._filtered && this._dataItemPosition(dataItem, values) !== -1;
+            var selected = context.selected;
 
             if (notFirstItem && context.newGroup) {
                 item += ' k-first';
             }
 
-            if (found) {
+            if (selected) {
                 item += ' k-state-selected';
             }
 
-            item += '"' + (found ? ' aria-selected="true"' : "") + ' data-index="' + context.index + '">';
+            item += '"' + (selected ? ' aria-selected="true"' : "") + ' data-offset-index="' + context.index + '">';
 
             item += this.templates.template(dataItem);
 
@@ -1741,21 +1846,26 @@
                     newGroup = true;
 
                     for (j = 0; j < group.items.length; j++) {
-                        context = { item: group.items[j], group: group.value, newGroup: newGroup, index: idx };
+                        context = {
+                            selected: this._selected(group.items[j], values),
+                            item: group.items[j],
+                            group: group.value,
+                            newGroup: newGroup,
+                            index: idx };
                         dataContext[idx] = context;
                         idx += 1;
 
-                        html += this._renderItem(context, values);
+                        html += this._renderItem(context);
                         newGroup = false;
                     }
                 }
             } else {
                 for (i = 0; i < view.length; i++) {
-                    context = { item: view[i], index: i };
+                    context = { selected: this._selected(view[i], values), item: view[i], index: i };
 
                     dataContext[i] = context;
 
-                    html += this._renderItem(context, values);
+                    html += this._renderItem(context);
                 }
             }
 
@@ -1768,8 +1878,15 @@
             }
         },
 
+        _selected: function(dataItem, values) {
+            var select = !this._filtered || this.options.selectable === "multiple";
+            return select && this._dataItemPosition(dataItem, values) !== -1;
+        },
+
         refresh: function(e) {
             var that = this;
+            var changedItems;
+            var action = e && e.action;
 
             that.trigger("dataBinding");
 
@@ -1777,9 +1894,20 @@
 
             that._bound = true;
 
-            if (that._filtered) {
+            if (action === "itemchange") {
+                changedItems = findChangedItems(that._dataItems, e.items);
+                if (changedItems.length) {
+                    that.trigger("selectedItemChange", {
+                        items: changedItems
+                    });
+                }
+            } else if (that._filtered || that._skipUpdate) {
                 that.focus(0);
-            } else if (!e || !e.action) {
+                if (that._skipUpdate) {
+                    that._skipUpdate = false;
+                    that._updateIndices(that._selectedIndices, that._values);
+                }
+            } else if (!action) {
                 that.value(that._values);
             }
 
@@ -1797,20 +1925,26 @@
 
     ui.plugin(StaticList);
 
-    function inArray(node, parentNode) {
-        var idx, length, siblings = parentNode.children;
+    function findChangedItems(selected, changed) {
+        var changedLength = changed.length;
+        var result = [];
+        var dataItem;
+        var i, j;
 
-        if (!node || node.parentNode !== parentNode) {
-            return -1;
-        }
+        for (i = 0; i < selected.length; i++) {
+            dataItem = selected[i];
 
-        for (idx = 0, length = siblings.length; idx < length; idx++) {
-            if (node === siblings[idx]) {
-                return idx;
+            for (j = 0; j < changedLength; j++) {
+                if (dataItem === changed[j]) {
+                    result.push({
+                        index: i,
+                        item: dataItem
+                    });
+                }
             }
         }
 
-        return -1;
+        return result;
     }
 
     function removeFiltersForField(expression, field) {

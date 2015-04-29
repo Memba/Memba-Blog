@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -189,6 +189,28 @@
         });
     }
 
+    function findChangedItems(selected, changed) {
+        var changedLength = changed.length;
+        var result = [];
+        var dataItem;
+        var i, j;
+
+        for (i = 0; i < selected.length; i++) {
+            dataItem = selected[i];
+
+            for (j = 0; j < changedLength; j++) {
+                if (dataItem === changed[j]) {
+                    result.push({
+                        index: i,
+                        item: dataItem
+                    });
+                }
+            }
+        }
+
+        return result;
+    }
+
     var VirtualList = DataBoundWidget.extend({
         init: function(element, options) {
             var that = this;
@@ -311,12 +333,18 @@
 
         refresh: function(e) {
             var that = this;
+            var action = e && e.action;
+            var changedItems;
 
             if (that._mute) { return; }
 
             if (!that._fetching) {
+                if (that._filter) {
+                    that.focus(0);
+                }
+
                 that._createList();
-                if ((!e || !e.action) && that._values.length && !that._filter) {
+                if (!action && that._values.length && !that._filter) {
                     that.value(that._values, true).done(function() {
                         that._listCreated = true;
                         that.trigger(LISTBOUND);
@@ -331,6 +359,15 @@
                 }
             }
 
+            if (action === "itemchange") {
+                changedItems = findChangedItems(that._selectedDataItems, e.items);
+                if (changedItems.length) {
+                    that.trigger("selectedItemChange", {
+                        items: changedItems
+                    });
+                }
+            }
+
             that._fetching = false;
         },
 
@@ -342,6 +379,14 @@
                 position: position,
                 dataItem: this._selectedDataItems.splice(position, 1)[0]
             };
+        },
+
+        setValue: function(value) {
+            if (value === "" || value === null) {
+                value = [];
+            }
+
+            this._values = toArray(value);
         },
 
         value: function(value, _forcePrefetch) {
@@ -721,12 +766,11 @@
             if (filter === undefined) {
                 return this._filter;
             }
+
             this._filter = filter;
         },
 
-        clearIndices: function() {
-            this._selectedIndexes = [];
-        },
+        skipUpdate: $.noop,
 
         _getElementByIndex: function(index) {
             return this.items().filter(function(idx, element) {
@@ -921,6 +965,7 @@
                         this._fetching = true;
                         dataSource.range(rangeStart, pageSize);
                         lastRangeStart = rangeStart;
+                        this._fetching = false;
                         this._mute = false;
                     }
 
@@ -1110,7 +1155,7 @@
                 itemHeight = this.options.itemHeight,
                 total = this.dataSource.total();
 
-            return Math.min(total - itemCount, Math.max(0, Math.floor(position / itemHeight )));
+            return Math.min(Math.max(total - itemCount, 0), Math.max(0, Math.floor(position / itemHeight )));
         },
 
         _listIndex: function(scrollTop, lastScrollTop) {
@@ -1174,6 +1219,8 @@
             if (indexes[position] === -1) { //deselect everything
                 for (var idx = 0; idx < selectedIndexes.length; idx++) {
                     selectedIndex = selectedIndexes[idx];
+
+                    this._getElementByIndex(selectedIndex).removeClass(SELECTED);
 
                     removed.push({
                         index: selectedIndex,

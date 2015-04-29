@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -13053,7 +13053,7 @@
                 }
 
                 this._syncHandler = proxy(that._syncChanges, that);
-                that._resizeHandler = proxy(that.resize, that);
+                that._resizeHandler = proxy(that.resize, that, false);
                 kendo.onResize(that._resizeHandler);
                 this.bind(ZOOM_START, proxy(that._destroyToolBar, that));
                 this.bind(PAN, proxy(that._destroyToolBar, that));
@@ -13369,6 +13369,11 @@
                 connection.refresh();
                 this.mainLayer.append(connection.visual);
                 this.connections.push(connection);
+
+                this.trigger(CHANGE, {
+                    added: [connection],
+                    removed: []
+                });
 
                 return connection;
             },

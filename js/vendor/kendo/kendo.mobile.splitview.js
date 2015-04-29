@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -60,6 +60,10 @@
                 that.element.children(kendo.directiveSelector("pane")).each(function() {
                     pane = kendo.compileMobileDirective($(this), options.$angular[0]);
                     that.panes.push(pane);
+                });
+
+                that.element.children(kendo.directiveSelector("header footer")).each(function() {
+                    kendo.compileMobileDirective($(this), options.$angular[0]);
                 });
             }
 

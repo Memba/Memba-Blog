@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -164,6 +164,18 @@
             return Model.fn.shouldSerialize.call(this, field) && field !== "_loaded" && field != "_error" && field != "_edit";
         }
     });
+
+    function is(field) {
+        return function(object) {
+            return object[field];
+        };
+    }
+
+    function not(func) {
+        return function(object) {
+            return !func(object);
+        };
+    }
 
     var TreeListDataSource = DataSource.extend({
         init: function(options) {
@@ -753,6 +765,13 @@
 
                 if (touchScroller && touchScroller.movable) {
                     this._touchScroller = touchScroller;
+
+                    touchScroller.movable.bind("change", function(e) {
+                        scrollables.scrollLeft(-e.sender.x);
+                        if (lockedContent) {
+                            lockedContent.scrollTop(-e.sender.y);
+                        }
+                    });
                 }
             }
         },
@@ -982,6 +1001,8 @@
                 this._touchScroller.destroy();
             }
 
+            this._autoExpandable = null;
+
             this._refreshHandler = this._errorHandler = this._progressHandler = null;
 
             this.thead =
@@ -1122,7 +1143,8 @@
 
         _commandByName: function(name) {
             var columns = this.columns;
-            var i, j, commands;
+            var toolbar = $.isArray(this.options.toolbar) ? this.options.toolbar : [];
+            var i, j, commands, currentName;
 
             name = name.toLowerCase();
 
@@ -1135,10 +1157,29 @@
                 commands = columns[i].command;
                 if (commands) {
                     for (j = 0; j < commands.length; j++) {
-                        if (commands[j].name.toLowerCase() == name) {
+                        currentName = commands[j].name;
+
+                        if (!currentName) {
+                            continue;
+                        }
+
+                        if (currentName.toLowerCase() == name) {
                             return commands[j];
                         }
                     }
+                }
+            }
+
+            // custom command in toolbar
+            for (i = 0; i < toolbar.length; i++) {
+                currentName = toolbar[i].name;
+
+                if (!currentName) {
+                    continue;
+                }
+
+                if (currentName.toLowerCase() == name) {
+                    return toolbar[i];
                 }
             }
         },
@@ -1157,6 +1198,22 @@
                 } else if (command.click) {
                     command.click.call(this, e);
                 }
+
+                e.preventDefault();
+            }
+        },
+
+        _ensureExpandableColumn: function() {
+            if (this._autoExpandable) {
+                delete this._autoExpandable.expandable;
+            }
+
+            var visibleColumns = grep(this.columns, not(is("hidden")));
+            var expandableColumns = grep(visibleColumns, is("expandable"));
+
+            if (this.columns.length && !expandableColumns.length) {
+                this._autoExpandable = visibleColumns[0];
+                visibleColumns[0].expandable = true;
             }
         },
 
@@ -1169,19 +1226,13 @@
                 return extend({ encoded: true }, column);
             });
 
-            var expandableColumns = grep(this.columns, function(c) {
-                return c.expandable;
-            });
-
             var lockedColumns = this._lockedColumns();
             if (lockedColumns.length > 0) {
                 this._hasLockedColumns = true;
                 this.columns = lockedColumns.concat(this._nonLockedColumns());
             }
 
-            if (this.columns.length && !expandableColumns.length) {
-                this.columns[0].expandable = true;
-            }
+            this._ensureExpandableColumn();
 
             this._columnTemplates();
             this._columnAttributes();
@@ -1367,15 +1418,11 @@
         },
 
         _lockedColumns: function() {
-            return grep(this.columns, function(column) {
-                return column.locked;
-            });
+            return grep(this.columns, is("locked"));
         },
 
         _nonLockedColumns: function() {
-            return grep(this.columns, function(column) {
-                return !column.locked;
-            });
+            return grep(this.columns, not(is("locked")));
         },
 
         _render: function(options) {
@@ -1384,6 +1431,9 @@
             var messages = this.options.messages;
             var data = this.dataSource.rootNodes();
             var aggregates = this.dataSource.aggregates();
+            var selected = this.select().map(function(_, row) {
+                return $(row).attr("data-uid");
+            });
 
             this._absoluteIndex = 0;
 
@@ -1408,6 +1458,7 @@
                 this._contentTree.render(this._trs({
                     columns: this._nonLockedColumns(),
                     aggregates: options.aggregates,
+                    selected: selected,
                     data: data,
                     visible: true,
                     level: 0
@@ -1418,6 +1469,7 @@
                     this._lockedContentTree.render(this._trs({
                         columns: this._lockedColumns(),
                         aggregates: options.aggregates,
+                        selected: selected,
                         data: data,
                         visible: true,
                         level: 0
@@ -1533,7 +1585,7 @@
                     "role": "columnheader"
                 };
 
-                attr = extend({}, attr, column.headerAttributes);
+                attr = extend(true, {}, attr, column.headerAttributes);
 
                 ths.push(kendoDomElement("th", attr, children));
             }
@@ -1655,6 +1707,10 @@
                     attr.style = { display: "none" };
                 }
 
+                if ($.inArray(model.uid, options.selected) >= 0) {
+                    className.push(classNames.selected);
+                }
+
                 if (hasChildren) {
                     className.push(classNames.group);
                 }
@@ -1676,6 +1732,7 @@
                         columns: columns,
                         parentId: model.id,
                         aggregates: aggregates,
+                        selected: options.selected,
                         visible: options.visible && !!model.expanded,
                         data: childNodes,
                         level: level + 1
@@ -1789,7 +1846,7 @@
                 }
 
                 if (column.attributes) {
-                    extend(attr, column.attributes);
+                    extend(true, attr, column.attributes);
                 }
 
                 if (column.command) {
@@ -1818,7 +1875,7 @@
                 }
             }
 
-            if (typeof value == "undefined") {
+            if (value === null || typeof value == "undefined") {
                 value = "";
             }
 
@@ -2129,6 +2186,10 @@
         select: function(value) {
             var selectable = this.selectable;
 
+            if (!selectable) {
+                return $();
+            }
+
             if (typeof value !== "undefined") {
                 if (!selectable.options.multiple) {
                     selectable.clear();
@@ -2395,6 +2456,9 @@
             }
 
             column.hidden = hidden;
+
+            this._ensureExpandableColumn();
+
             this._renderCols();
             this._renderHeader();
             this._render();

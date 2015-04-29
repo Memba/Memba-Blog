@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -713,6 +713,7 @@
             roundToBaseUnit: !justifyAxis,
             justified: justifyAxis,
             _collapse: false,
+            majorTicks: { visible: true },
             tooltip: { visible: false },
             labels: { step: 1 },
             autoBind: !naviOptions.dataSource,
@@ -741,17 +742,17 @@
                 name: NAVIGATOR_AXIS + "_labels",
                 maxDateGroups: 20,
                 baseUnitStep: "auto",
+                plotBands: [],
                 autoBaseUnitSteps: {
                     minutes: []
-                },
-                majorTicks: { visible: true }
+                }
             }), deepExtend({}, base, user, {
                 name: NAVIGATOR_AXIS + "_ticks",
                 maxDateGroups: 200,
                 majorTicks: {
-                    visible: true,
                     width: 0.5
                 },
+                plotBands: [],
                 labels: { visible: false, mirror: true }
             })
         );

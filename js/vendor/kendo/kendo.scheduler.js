@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -86,8 +86,8 @@
                 '<ul class="k-reset k-header k-scheduler-navigation">' +
                    '<li class="k-state-default k-nav-prev"><a role="button" href="\\#" class="k-link"><span class="k-icon k-i-arrow-w"></span></a></li>' +
                    '<li class="k-state-default k-nav-current">' +
-                        '<span data-#=ns#bind="text: formattedShortDate"></span>' +
-                        '<span data-#=ns#bind="text: formattedDate"></span>' +
+                        '<span class="k-sm-date-format" data-#=ns#bind="text: formattedShortDate"></span>' +
+                        '<span class="k-lg-date-format" data-#=ns#bind="text: formattedDate"></span>' +
                     '</li>' +
                    '<li class="k-state-default k-nav-next"><a role="button" href="\\#" class="k-link"><span class="k-icon k-i-arrow-e"></span></a></li>' +
                 '</ul>' +
@@ -808,26 +808,6 @@
                  optionLabel: "None",
                  template: kendo.format('<span class="k-scheduler-mark" style="background-color:#= data.{0}?{0}:"none" #"></span>#={1}#', resource.dataColorField, resource.dataTextField)
              });
-       };
-    }
-
-    function dropDownResourceEditorMobile(resource, model) {
-        var attr = createValidationAttributes(model, resource.field);
-
-        return function(container) {
-            var options = '';
-            var view = resource.dataSource.view();
-
-            for (var idx = 0, length = view.length; idx < length; idx++) {
-                options += kendo.format('<option value="{0}">{1}</option>',
-                    kendo.getter(resource.dataValueField)(view[idx]),
-                    kendo.getter(resource.dataTextField)(view[idx])
-                );
-            }
-
-           $(kendo.format('<select data-{0}bind="value:{1}">{2}</select>', kendo.ns, resource.field, options))
-             .appendTo(container)
-             .attr(attr);
        };
     }
 
@@ -1791,6 +1771,8 @@
 
             if (options.events && options.events.length) {
                 that._selectEvents(options.events, selectedGroups);
+                that._select();
+                return;
             }
 
             if (groups && (options.start && options.end)) {
@@ -1821,7 +1803,6 @@
                         that._select();
                     }
                 }
-
             }
         },
 
@@ -1954,6 +1935,13 @@
             current = view.current();
 
             if (current && that._old !== current) {
+                var currentUid = $(current).data("uid");
+
+                if (that._old && currentUid &&
+                    currentUid === $(that._old).data("uid")) {
+                    return;
+                }
+
                 var labelFormat;
                 var data = selection;
                 var events = that._selectedEvents();

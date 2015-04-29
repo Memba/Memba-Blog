@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -86,7 +86,7 @@
 
             for (i = 0; i < areaLen; i ++) {
                 theFilter = areas[i];
-                if (support.matchesSelector.call(target, theFilter.options.filter)) {
+                if ($.contains(theFilter.element[0], target) && support.matchesSelector.call(target, theFilter.options.filter)) {
                     return { target: theFilter, targetElement: target };
                 }
             }

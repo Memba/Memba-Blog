@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,7 +10,7 @@
     define([ "./kendo.core" ], f);
 })(function(){
 
-(function(kendo){
+(function($, kendo){
 
 var RELS = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' +
            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
@@ -713,7 +713,7 @@ kendo.ooxml = {
     Worksheet: Worksheet
 };
 
-})(kendo);
+})(kendo.jQuery, kendo);
 
 return window.kendo;
 

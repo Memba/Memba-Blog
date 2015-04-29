@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,8 +10,7 @@
     define([], f);
 })(function(){
 
-
-
+(function ($, undefined) {
 /* Filter cell operator messages */
 
 if (kendo.ui.FilterCell) {
@@ -282,7 +281,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "dialogCancel": "Fermer",
   "dialogInsert": "Insérer",
   "imageAltText": "Le texte de remplacement",
-  "imageWebAddress": "Adresse Web",  
+  "imageWebAddress": "Adresse Web",
   "imageWidth": "Largeur (px)",
   "imageHeight": "Hauteur (px)",
   "linkOpenInNewWindow": "Ouvrir dans une nouvelle fenêtre",
@@ -405,6 +404,7 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "showWorkDay": "Montrer les heures ouvrables"
 });
 }
+})(window.kendo.jQuery);
 
 
 return window.kendo;

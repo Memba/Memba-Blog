@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -209,7 +209,7 @@
             colgroup = kendoDomElement("colgroup", null, this._cols());
             thead = kendoDomElement("thead", { "role": "rowgroup" }, [kendoDomElement("tr", { "role": "row" }, this._ths())]);
             table = kendoDomElement("table", {
-                "style": { "min-width": this.options.listWidth + "px" },
+                "style": { "minWidth": this.options.listWidth + "px" },
                 "role": "grid"
             }, [colgroup, thead]);
 
@@ -226,7 +226,7 @@
             colgroup = kendoDomElement("colgroup", null, this._cols());
             tbody = kendoDomElement("tbody", { "role": "rowgroup" }, this._trs(tasks));
             table = kendoDomElement("table", {
-                "style": { "min-width": this.options.listWidth + "px" },
+                "style": { "minWidth": this.options.listWidth + "px" },
                 "tabIndex": 0,
                 "role": "treegrid"
             }, [colgroup, tbody]);

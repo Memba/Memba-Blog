@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -2378,6 +2378,7 @@
                 this.element = $(doc.createElement("span"))
                     .addClass("k-marker k-marker-" + kendo.toHyphens(options.shape || "pin"))
                     .attr("title", options.title)
+                    .attr(options.attributes || {})
                     .data("kendoMarker", this)
                     .css("zIndex", options.zIndex);
 

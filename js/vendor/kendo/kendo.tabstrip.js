@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -1001,7 +1001,7 @@
             }
 
             if (contentAnimators.length === 0) {
-                oldTab.removeClass(TABONTOP);
+                that.tabGroup.find("." + TABONTOP).removeClass(TABONTOP);
                 item.addClass(TABONTOP) // change these directly to bring the tab on top.
                     .css("z-index");
 
@@ -1036,7 +1036,7 @@
 
             var isAjaxContent = (item.children("." + LINK).data(CONTENTURL) || false) && contentHolder.is(EMPTY),
                 showContentElement = function () {
-                    oldTab.removeClass(TABONTOP);
+                    that.tabGroup.find("." + TABONTOP).removeClass(TABONTOP);
                     item.addClass(TABONTOP) // change these directly to bring the tab on top.
                         .css("z-index");
 

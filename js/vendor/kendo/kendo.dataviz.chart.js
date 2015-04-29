@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -135,6 +135,7 @@
         INSIDE_BASE = "insideBase",
         INSIDE_END = "insideEnd",
         INTERPOLATE = "interpolate",
+        LEAVE = "leave",
         LEFT = "left",
         LEGEND_ITEM_CLICK = "legendItemClick",
         LEGEND_ITEM_HOVER = "legendItemHover",
@@ -589,7 +590,19 @@
                 tooltip = new Tooltip(element, options.tooltip);
             }
 
+            tooltip.bind(LEAVE, proxy(chart._tooltipleave, chart));
+
             return tooltip;
+        },
+
+        _tooltipleave: function() {
+            var chart = this,
+                plotArea = chart._plotArea,
+                highlight = chart._highlight;
+
+            plotArea.hideCrosshairs();
+
+            highlight.hide();
         },
 
         _applyDefaults: function(options, themeOptions) {
@@ -1101,18 +1114,14 @@
         _mouseleave: function(e) {
             var chart = this,
                 plotArea = chart._plotArea,
-                crosshairs = plotArea.crosshairs,
                 tooltip = chart._tooltip,
                 highlight = chart._highlight,
-                target = e.relatedTarget,
-                i;
+                target = e.relatedTarget;
 
             if (!(target && $(target).closest(tooltip.element).length)) {
                 chart._mousemove.cancel();
 
-                for (i = 0; i < crosshairs.length; i++) {
-                    crosshairs[i].hide();
-                }
+                plotArea.hideCrosshairs();
 
                 highlight.hide();
 
@@ -4266,7 +4275,13 @@
         _setAnimationOptions: function() {
             var options = this.options;
             var animation = options.animation || {};
-            var origin = this.categoryAxis.getSlot(0);
+            var origin;
+            if (this.options.isStacked) {
+                var valueAxis = this.seriesValueAxis(options.series[0]);
+                origin = valueAxis.getSlot(valueAxis.startValue());
+            } else {
+                origin = this.categoryAxis.getSlot(0);
+            }
 
             animation.origin = new geom.Point(origin.x1, origin.y1);
             animation.vertical = !options.invertAxes;
@@ -8541,6 +8556,13 @@
             }
         },
 
+        hideCrosshairs: function() {
+            var crosshairs = this.crosshairs;
+            for (var idx = 0; idx < crosshairs.length; idx++) {
+                crosshairs[idx].hide();
+            }
+        },
+
         findPane: function(name) {
             var plotArea = this,
                 panes = plotArea.panes,
@@ -9681,6 +9703,16 @@
                 seriesIx,
                 seriesAxis;
 
+            for (seriesIx = 0; seriesIx < plotArea.series.length; seriesIx++) {
+                var currentSeries = plotArea.series[seriesIx];
+                if (currentSeries.type === LINE || currentSeries.type === AREA) {
+                    var line = currentSeries.line;
+                    if (line && line.style === STEP) {
+                        centeredSeries.push(currentSeries);
+                    }
+                }
+            }
+
             for (seriesIx = 0; seriesIx < centeredSeries.length; seriesIx++) {
                 seriesAxis = centeredSeries[seriesIx].categoryAxis || "";
                 if (seriesAxis === categoryAxisName || (!seriesAxis && categoryAxisIndex === 0)) {
@@ -10351,9 +10383,11 @@
         }
     });
 
-    var BaseTooltip = Class.extend({
+    var BaseTooltip = Observable.extend({
         init: function(chartElement, options) {
             var tooltip = this;
+
+            Observable.fn.init.call(tooltip);
 
             tooltip.options = deepExtend({}, tooltip.options, options);
 
@@ -10370,7 +10404,12 @@
                 );
             }
 
-            tooltip.element = $(tooltip.template(tooltip.options));
+            var padding = getSpacing(tooltip.options.padding || {}, "auto");
+            tooltip.element = $(tooltip.template(tooltip.options)).css({
+                "padding-top": padding.top, "padding-right": padding.right,
+                "padding-bottom": padding.bottom, "padding-left": padding.left
+            });
+
             tooltip.move = proxy(tooltip.move, tooltip);
             tooltip._mouseleave = proxy(tooltip._mouseleave, tooltip);
 
@@ -10543,6 +10582,7 @@
             var target = e.relatedTarget;
             var chart = this.chartElement[0];
             if (target && target !== chart && !$.contains(chart, target)) {
+                this.trigger(LEAVE);
                 this.hide();
             }
         },

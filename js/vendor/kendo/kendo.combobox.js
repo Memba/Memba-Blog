@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.408 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -80,7 +80,7 @@
             that._cascade();
 
             if (options.autoBind) {
-                that._filterSource(); //TODO: diff when just bind and actually filter
+                that._filterSource();
             } else {
                 text = options.text;
 
@@ -122,10 +122,8 @@
             ignoreCase: true,
             animation: {},
             template: null,
-            valueTemplate: null,
-            optionLabelTemplate: null,
-            groupTemplate: null,
-            fixedGroupTemplate: null
+            groupTemplate: "#:data#",
+            fixedGroupTemplate: "#:data#"
         },
 
         events:[
@@ -237,7 +235,7 @@
                 return;
             }
 
-            if ((!this.dataSource.view().length && state !== STATE_FILTER) || state === STATE_ACCEPT) {
+            if ((!that.listView.isBound() && state !== STATE_FILTER) || state === STATE_ACCEPT) {
                 that._open = true;
                 that._state = STATE_REBIND;
                 that.listView.filter(false);
@@ -246,52 +244,6 @@
                 that.popup.open();
                 that._focusItem();
             }
-        },
-
-        _initList: function() {
-            var that = this;
-            var options = this.options;
-            var listOptions = {
-                autoBind: false,
-                selectable: true,
-                height: options.height,
-                dataValueField: options.dataValueField,
-                dataSource: this.dataSource,
-                groupTemplate: options.groupTemplate || "#:data#",
-                fixedGroupTemplate: options.fixedGroupTemplate || "#:data#",
-                template: options.template || "#:" + kendo.expr(options.dataTextField, "data") + "#",
-                activate: function() {
-                    var current = this.focus();
-                    if (current) {
-                        that._focused.add(that.filterInput).attr("aria-activedescendant", current.attr("id"));
-                    }
-                },
-                click: $.proxy(this._click, this),
-                change: $.proxy(this._listChange, this),
-                deactivate: function() {
-                    that._focused.add(that.filterInput).removeAttr("aria-activedescendant");
-                },
-                dataBinding: function() {
-                    that.trigger("dataBinding"); //TODO: make preventable
-                    that._angularItems("cleanup");
-                },
-                listBound: $.proxy(this._listBound, this),
-                dataBound: $.proxy(this._listBound, this)
-            };
-
-            if (options.virtual) {
-                if (typeof options.virtual === "object") {
-                    $.extend(listOptions, {
-                        listBound: $.proxy(this._listBound, this)
-                    }, options.virtual);
-                }
-
-                this.listView = new kendo.ui.VirtualList(this.ul, listOptions);
-            } else {
-                this.listView = new kendo.ui.StaticList(this.ul, listOptions);
-            }
-
-            this.listView.value(this.options.value);
         },
 
         _listBound: function() {
@@ -308,6 +260,8 @@
             var value;
 
             that._angularItems("compile");
+
+            that._presetValue = false;
 
             if (!options.virtual) {
                 that._calculateGroupPadding(that._height(length));
@@ -328,7 +282,7 @@
                 var custom = that._customOption;
 
                 that._customOption = undefined;
-                that._options(data);
+                that._options(data, "", that.value());
 
                 if (custom && custom[0].selected) {
                     that._custom(custom.val(), keepState);
@@ -391,6 +345,10 @@
 
         _listChange: function() {
             this._selectValue(this.listView.selectedDataItems()[0]);
+
+            if (this._presetValue) {
+                this._oldIndex = this.selectedIndex;
+            }
         },
 
         _get: function(candidate) {
@@ -522,48 +480,52 @@
             var dataItem;
             var value;
 
-            if (text !== undefined) {
-                dataItem = that.dataItem();
-
-                if (dataItem && that._text(dataItem) === text) {
-                    value = that._value(dataItem);
-                    if (value === null) {
-                        value = "";
-                    } else {
-                        value += "";
-                    }
-
-                    if (value === that._old) {
-                        that._triggerCascade();
-                        return;
-                    }
-                }
-
-                if (ignoreCase) {
-                    loweredText = loweredText.toLowerCase();
-                }
-
-                that._select(function(data) {
-                    data = that._text(data);
-
-                    if (ignoreCase) {
-                        data = (data + "").toLowerCase();
-                    }
-
-                    return data === loweredText;
-                });
-
-                if (that.selectedIndex < 0) {
-                    that._accessor(text);
-                    input.value = text;
-
-                    that._triggerCascade();
-                }
-
-                that._prev = input.value;
-            } else {
+            if (text === undefined) {
                 return input.value;
             }
+
+            dataItem = that.dataItem();
+
+            if (that.options.autoBind === false && !that.listView.isBound()) {
+                return;
+            }
+
+            if (dataItem && that._text(dataItem) === text) {
+                value = that._value(dataItem);
+                if (value === null) {
+                    value = "";
+                } else {
+                    value += "";
+                }
+
+                if (value === that._old) {
+                    that._triggerCascade();
+                    return;
+                }
+            }
+
+            if (ignoreCase) {
+                loweredText = loweredText.toLowerCase();
+            }
+
+            that._select(function(data) {
+                data = that._text(data);
+
+                if (ignoreCase) {
+                    data = (data + "").toLowerCase();
+                }
+
+                return data === loweredText;
+            });
+
+            if (that.selectedIndex < 0) {
+                that._accessor(text);
+                input.value = text;
+
+                that._triggerCascade();
+            }
+
+            that._prev = input.value;
         },
 
         toggle: function(toggle) {
@@ -590,19 +552,25 @@
             }
 
             that._accessor(value);
-            that.input.val(value);
 
-            that.listView.value(value).done(function() {
-                that._triggerCascade();
+            that.listView
+                .value(value)
+                .done(function() {
+                    that._triggerCascade();
 
-                that._selectValue(that.listView.selectedDataItems()[0]);
+                    that._selectValue(that.listView.selectedDataItems()[0]);
 
-                that._old = that._accessor();
-                that._oldIndex = that.selectedIndex;
+                    if (that.selectedIndex === -1) {
+                        that._accessor(value);
+                        that.input.val(value);
+                    }
 
-                that._prev = that.input.val();
-                that._state = STATE_ACCEPT;
-            });
+                    that._old = that._accessor();
+                    that._oldIndex = that.selectedIndex;
+
+                    that._prev = that.input.val();
+                    that._state = STATE_ACCEPT;
+                });
 
             that._fetchData();
         },
@@ -825,6 +793,19 @@
                 that.options.value = "";
                 that.value("");
             }
+        },
+
+        _preselect: function(value, text) {
+            this.input.val(text);
+            this._accessor(value);
+
+            this._old = this._accessor();
+            this._oldIndex = this.selectedIndex;
+
+            this.listView.setValue(value);
+
+            this._initialIndex = null;
+            this._presetValue = true;
         }
     });
 
