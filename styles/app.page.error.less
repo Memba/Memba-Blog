@@ -3,8 +3,24 @@
 /*********************************************
  * Error page
  ********************************************/
-
+#error-wrapper {
+    .wrapper();
+}
 
 /*********************************************
  * Printing
  ********************************************/
+
+// See http://getbootstrap.com/css/#responsive-utilities-print
+@media print {
+    //Make sure we fit page width
+    .container {
+        width: auto;
+    }
+    //Reposition content for hiding header, footer and toolbar
+    #error-wrapper {
+        position: relative;
+        top: 0px;
+        overflow: visible;
+    }
+}
