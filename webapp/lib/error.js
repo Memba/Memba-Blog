@@ -3,62 +3,53 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
-'use strict';
+//'use strict';
 
-function isObject(obj) {
-    return '[object Object]' === Object.prototype.toString.call(obj); //((obj instanceof Object) && (typeof obj === 'object'));
-}
+var utils = require('./utils'),
+    i18n = require('i18n'),
+    RX_I18N_ERROR = /^errors.[^\s.]+./,
+    GENERIC_ERROR = 'errors.generic.';
 
 /**
  * Application error
- * See: https://github.com/LearnBoost/mongoose/blob/3.8.x/lib/error.js
+ * @see http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript
+ * @see hhttps://github.com/Automattic/mongoose/blob/master/lib/error.js
+ * @see https://github.com/jaredhanson/passport/blob/master/lib/errors/authenticationerror.js
  * @param error
  * @constructor
  */
 function ApplicationError(error) {
     Error.call(this);
-    //http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript
-    Error.captureStackTrace(this, this.constructor); //arguments.callee); not allowed in strict mode
+    Error.captureStackTrace && Error.captureStackTrace(this, arguments.callee);
     this.name = 'ApplicationError';
+    this.i18n = GENERIC_ERROR + 500;
+    utils.deepExtend(this, i18n.__(this.i18n));
     if (error instanceof Error) {
-        //this.code = error.code || MSG.ERROR_UNKNOWN_WITH_MESSAGE.code;
-        //this.status = error.status || MSG.ERROR_UNKNOWN_WITH_MESSAGE.status;
-        this.message = error.message;
+        //Important: this is an unexpected error, so we display a generic 500 error and we hide the originalError for logging
         this.originalError = error;
-    } else if (isObject(error) && error.code && error.status && error.message) {
-        //this.code = error.code;
-        //this.status = error.status;
-        this.message = error.message;
-        //} else if ((typeof error === 'string') && (!isNaN(parseInt(error)))) {
+    } else if (utils.isObject(error)) {
+        utils.deepExtend(this, error);
     } else if (typeof error === 'string') {
-        //this.code = MSG.ERROR_UNKNOWN_WITH_MESSAGE.code;
-        //this.status =  MSG.ERROR_UNKNOWN_WITH_MESSAGE.status;
-        this.message = error;
-    } else {
-        //this.code = MSG.ERROR_UNKNOWN.code;
-        //this.status = MSG.ERROR_UNKNOWN.status;
-        //this.message = MSG.ERROR_UNKNOWN.message;
+        if (RX_I18N_ERROR.test(error)) {
+            this.i18n = error;
+            utils.deepExtend(this, i18n.__(error));
+        } else {
+            this.message = error;
+        }
+    } else if (typeof error === 'number') {
+        this.i18n = GENERIC_ERROR + error;
+        utils.deepExtend(this, i18n.__(this.i18n));
     }
 }
 
 /**
  * Inherit from `Error`.
- * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/prototype
  */
-/* jshint ignore:start */
-/* jshint -W103 */
-//-W103 does not work, thus ignore: start
-//Object.setPrototypeOf(ServiceError.prototype, Error.prototype); <-- does not work in nodejs
-//ApplicationError.prototype = Object.create(Error.prototype); <-- works but we do not get the trace
-//See: http://nodejs.org/api/util.html#util_util_inherits_constructor_superconstructor
-ApplicationError.prototype.__proto__ = Error.prototype; //<-- works but we do not get the trace either
-/* jshint +W103 */
-/* jshint ignore:end */
+// MongooseError.prototype = Object.create(Error.prototype);
+// MongooseError.prototype.constructor = Error;
+ApplicationError.prototype.__proto__ = Error.prototype;
 
-/**
- * Expose `ApplicationError`.
- */
+
 module.exports = ApplicationError;
