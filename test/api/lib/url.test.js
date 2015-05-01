@@ -40,4 +40,9 @@ describe('lib/url', function() {
             .to.equal('en/pages/foo/bar.md');
     });
 
+    it('it should work with formatting %s', function() {
+        expect(url.join('blog/%s', 'posts', '2013/%s'))
+            .to.equal('blog/%s/posts/2013/%s');
+    });
+
 });
