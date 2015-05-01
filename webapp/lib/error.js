@@ -15,6 +15,7 @@ var util = require('util'),
 
 /**
  * Application error
+ * @see http://stackoverflow.com/questions/7310521/node-js-best-practice-exception-handling
  * @see http://stackoverflow.com/questions/1382107/whats-a-good-way-to-extend-error-in-javascript
  * @see hhttps://github.com/Automattic/mongoose/blob/master/lib/error.js
  * @see https://github.com/jaredhanson/passport/blob/master/lib/errors/authenticationerror.js
