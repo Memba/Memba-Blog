@@ -65,11 +65,11 @@ describe('lib/error', function() {
     });
 
     it('ApplicationError with message parameter', function() {
-        var message = 'custom message',
-            error = new ApplicationError(message);
+        var message = 'a message with value %s and value %s',
+            error = new ApplicationError(message, [1, 2]);
         expect(error).to.be.instanceof(ApplicationError);
         expect(error).to.have.property('i18n', 'errors.generic.500');
-        expect(error).to.have.property('message', message);
+        expect(error).to.have.property('message', 'a message with value 1 and value 2');
         expect(error).to.have.property('name', 'ApplicationError');
         expect(error).to.have.property('stack').that.is.a('string');
         expect(error).to.have.property('status', 500);

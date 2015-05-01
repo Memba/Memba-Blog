@@ -7,7 +7,8 @@
 
 //'use strict';
 
-var utils = require('./utils'),
+var util = require('util'),
+    utils = require('./utils'),
     i18n = require('i18n'),
     RX_I18N_ERROR = /^errors.[^\s.]+./,
     GENERIC_ERROR = 'errors.generic.';
@@ -18,9 +19,10 @@ var utils = require('./utils'),
  * @see hhttps://github.com/Automattic/mongoose/blob/master/lib/error.js
  * @see https://github.com/jaredhanson/passport/blob/master/lib/errors/authenticationerror.js
  * @param error
+ * @param values in the order in which they fill %s in message
  * @constructor
  */
-function ApplicationError(error) {
+function ApplicationError(error, values) {
     Error.call(this);
     Error.captureStackTrace && Error.captureStackTrace(this, arguments.callee);
     this.name = 'ApplicationError';
@@ -43,6 +45,10 @@ function ApplicationError(error) {
         this.i18n = GENERIC_ERROR + error;
         utils.deepExtend(this, i18n.__(this.i18n));
         //}
+    }
+    if(values) {
+        this.values = Array.isArray(values) ? values : [values];
+        this.message = util.format.apply(util, [this.message].concat(this.values));
     }
 }
 
