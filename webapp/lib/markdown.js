@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
@@ -13,7 +12,7 @@ var marked = require('marked'),
     renderer = new marked.Renderer();
 
 var RX_YML = /^---\n([\s\S]*)\n---/,
-    RX_KEYVAL = /([^:\n]+):([^:\n]+)/g,
+    RX_KEYVAL = /([^:\n]+):([^\n]+)/g,
     KEY_BLACKLIST = /[-\s]/g;
 
 //hack: we need a renderer to add proper pre code classes until markedjs catches up with highlighjs v0.8x
@@ -53,11 +52,12 @@ module.exports = {
 
     /**
      * Render markdown as HTML after removing yml
+     * Note: clean first
      * @param markdown
      * @returns {*}
      */
     render: function(markdown) {
-        return marked(module.exports.clean(markdown));
+        return marked(markdown);
     },
 
     /**
@@ -72,10 +72,11 @@ module.exports = {
             var keyvalMatches = ymlMatches[1].match(RX_KEYVAL);
             if (Array.isArray(keyvalMatches) && keyvalMatches.length) {
                 for (var i = 0; i < keyvalMatches.length; i++) {
-                    var keyval = keyvalMatches[i].split(':');
-                    if(Array.isArray(keyval) && keyval.length === 2) {
-                        yml[keyval[0].trim().replace(KEY_BLACKLIST, '_')] = keyval[1].trim();
-                    }
+                    var keyval = keyvalMatches[i],
+                        pos = keyval.indexOf(':'),
+                        key = keyval.substr(0, pos).trim().replace(KEY_BLACKLIST, '_'),
+                        val = keyval.substr(pos + 1).trim();
+                    yml[key] = val;
                 }
             }
         }
