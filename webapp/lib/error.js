@@ -39,8 +39,10 @@ function ApplicationError(error) {
             this.message = error;
         }
     } else if (typeof error === 'number') {
+        //if (i18n.__('errors.generic')[error.toString()]) { //we have a generic error for this number
         this.i18n = GENERIC_ERROR + error;
         utils.deepExtend(this, i18n.__(this.i18n));
+        //}
     }
 }
 
