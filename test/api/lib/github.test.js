@@ -11,7 +11,7 @@
 var expect = require('chai').expect,
     github = require('../../../webapp/lib/github');
 
-xdescribe('lib/github', function() {
+describe('lib/github', function() {
 
     var content = {
         path: 'temp/dummy.md',
