@@ -7,7 +7,7 @@
 
 'use strict';
 
-var LRU = require("lru-cache"),
+var LRU = require('lru-cache'),
     options = {
         max: 500,
         maxAge: 1000 * 60 * 60 * 24
