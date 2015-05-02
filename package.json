@@ -34,6 +34,7 @@
   "devDependencies": {
     "async": "^0.9.0",
     "bundle-loader": "^0.5.4",
+    "chai": "^2.3.0",
     "css-loader": "^0.12.0",
     "file-loader": "^0.8.1",
     "grunt": "^0.4.5",
@@ -45,24 +46,29 @@
     "less": "^2.5.0",
     "less-loader": "^2.2.0",
     "loader-utils": "^0.2.7",
+    "mocha": "^2.2.4",
+    "request": "^2.55.0",
     "style-loader": "^0.12.1",
     "url-loader": "^0.5.5",
-    "webpack": "^1.8.10",
-    "webpack-dev-server": "^1.8.2"
+    "webpack": "^1.8.11",
+    "webpack-dev-server": "^1.8.2",
+    "zombie": "^3.1.1"
   },
   "dependencies": {
     "async": "^0.9.0",
+    "body-parser": "^1.12.3",
     "deep-extend": "^0.3.3",
     "ejs": "^2.3.1",
     "express": "^4.12.3",
+    "helmet": "^0.9.0",
     "highlight": "^0.2.3",
     "i18n": "^0.5.0",
     "le_node": "^0.2.1",
-    "lru-cache": "^2.6.2",
     "marked": "^0.3.3",
     "nconf": "^0.7.1",
     "node-uuid": "^1.4.3",
-    "octonode": "^0.6.17"
+    "request": "^2.55.0",
+    "slug": "^0.9.1"
   },
   "engines": {
     "node": ">=0.10.0"
