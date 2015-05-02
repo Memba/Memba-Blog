@@ -193,6 +193,11 @@
         }
     },
 	"errors": {
+        "400": {
+            "status": 400,
+            "title": "404 - Mauvaise Requête",
+            "message": "Désolé, mais votre requête comporte une erreur. L'URL est peut-être mal ortographiée."
+        },
         "404": {
             "status": 404,
             "title": "404 - Introuvable",

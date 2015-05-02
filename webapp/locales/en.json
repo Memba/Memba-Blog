@@ -194,6 +194,11 @@
     },
     "errors": {
         "generic": {
+            "400": {
+                "status": 400,
+                "title": "404 - Bad Request",
+                "message": "We are sorry, but there is something wrong in your request. The URL may be misspelled."
+            },
             "404": {
                 "status": 404,
                 "title": "404 - Not Found",
