@@ -196,7 +196,7 @@
         "generic": {
             "400": {
                 "status": 400,
-                "title": "404 - Bad Request",
+                "title": "400 - Bad Request",
                 "message": "We are sorry, but there is something wrong in your request. The URL may be misspelled."
             },
             "404": {
