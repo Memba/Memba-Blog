@@ -153,7 +153,9 @@
 		"author": "Kidoju Labs",
 		"title": "Kidoju - Une nouvelle façon d'enseigner et d'apprendre",
 		"description": "Kidoju - Une nouvelle façon d'enseigner et d'apprendre",
-		"keywords": "Kidoju - Une nouvelle façon d'enseigner et d'apprendre"
+		"keywords": "Kidoju - Une nouvelle façon d'enseigner et d'apprendre",
+        "category": "Default",
+        "icon": "typewriter"
 	},
 	"header": {
 		"navbar": {
