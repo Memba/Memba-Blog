@@ -3,12 +3,13 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
 
-var error = require('./error');
+var http = require('http'),
+    Url = require('url'),
+    ApplicationError = require('../lib/error');
 
 module.exports = {
 
@@ -21,13 +22,17 @@ module.exports = {
      * @param id
      */
     validate: function(req, res, next, language){
-        //If language is not available, redirect to page not found
-        if (language === null || !req.getCatalog(language)) {
-            return next(new Error(error.codes.NotFound));
+        if ((/\/[^\/\.]+\.[\w]{1,5}$/i).test(Url.parse(req.originalUrl).pathname)) {
+            //If pathname ends with a file extension (images, stylesheets, scripts, ...), spare bandwidth by returning an empty error for missing assets
+            res.status(404).send(http.STATUS_CODES['404']);
+        } else if (res.locals.config.locales.indexOf(language) === -1) {
+            //If language is not a supported locale, redirect to page not found
+            next(new ApplicationError(404));
+        } else {
+            //Otherwise, just set the locale and proceed
+            res.setLocale(language);
+            next();
         }
-        //Otherwise, just set the locale
-        res.setLocale(language);
-        next();
     }
 
 };

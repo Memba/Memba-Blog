@@ -3,39 +3,40 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
 
 var util = require('util'),
-    config = require('../config');
+    config = require('../config'),
+    url = require('../lib/url');
 
-module.exports = function(req, res, next) {
+    module.exports = function(req, res, next) {
 
     //Set res.locals values that we want available in our EJS templates, including for app.config.jsx
     res.locals.config = {
         debug                   : config.get('debug'),
+        locales                 : config.get('locales'),
         logentries: {
             browser: {
-                token: config.get('logentries:browser:debug')
+                token           : config.get('logentries:browser:token')
             }
         },
         uris: {
             cdn: {
-                images          : config.get('uris:cdn:root') + config.get('uris:cdn:default'),
+                images          : url.join(config.get('uris:cdn:root'), config.get('uris:cdn:default')),
                 svg: {
-                    office      : config.get('uris:cdn:root') + config.get('uris:cdn:svg:office'),
-                    white       : config.get('uris:cdn:root') + config.get('uris:cdn:svg:white'),
-                    dark_grey   : config.get('uris:cdn:root') + config.get('uris:cdn:svg:dark_grey')
+                    office      : url.join(config.get('uris:cdn:root'), config.get('uris:cdn:svg:office')),
+                    white       : url.join(config.get('uris:cdn:root'), config.get('uris:cdn:svg:white')),
+                    dark_grey   : url.join(config.get('uris:cdn:root'), config.get('uris:cdn:svg:dark_grey'))
                 }
             },
             webapp: {
-                home            : config.get('uris:webapp:root') + config.get('uris:webapp:home'),
-                page            : config.get('uris:webapp:root') + config.get('uris:webapp:page'),
-                blog            : config.get('uris:webapp:root') + config.get('uris:webapp:blog')
-                //rss           : config.get('uris:webapp:root') + config.get('uris:webapp:rss'),
-                //sitemap       : config.get('uris:webapp:root') + config.get('uris:webapp:sitemap')
+                home            : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
+                pages           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:pages')),
+                posts           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:posts'))
+                //rss           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:rss')),
+                //sitemap       : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:sitemap'))
             }
         }
     };

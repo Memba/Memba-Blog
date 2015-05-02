@@ -3,10 +3,13 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
+
+var http = require('http'),
+    Url = require('url'),
+    ApplicationError = require('../lib/error');
 
 module.exports = {
 
@@ -18,18 +21,14 @@ module.exports = {
      */
     handler: function(req, res, next) {
 
-        //Spare bandwidth by returning an empty error for missing assets (images, stylesheets, ...)
-        if ((/(\.svg|\.png|\.jpg|\.gif|\.css|\.js)$/i).test(req.url)) {
-
-            //TODO: do we want to log errors 404?
-            res.status(404).end();
-
-        //Otherwise pass control to the error middleware to display a nice error page
+        if ((/\/[^\/\.]+\.[\w]{1,5}$/i).test(Url.parse(req.originalUrl).pathname)) {
+            //If pathname ends with a file extension (images, stylesheets, scripts, ...), spare bandwidth by returning an empty error for missing assets
+            res.status(404).send(http.STATUS_CODES['404']);
         } else {
-
-            next(404);
-
+            //If pathname does not end with a file extension, pass control to the error middleware to display a nice error page
+            next(new ApplicationError(404));
         }
+
     }
 
 };
