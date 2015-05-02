@@ -10,7 +10,7 @@
 
     'use strict';
 
-    require('../styles/app.page.blog.less');
+    require('../styles/app.page.post.less');
     require('./app.common.js');
 
     var app = window.app = window.app || {},
