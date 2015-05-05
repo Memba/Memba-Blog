@@ -59,9 +59,11 @@
                 }
             },
             webapp: {
-                home: format('<%- uris.webapp.home %>'),
-                page: format('<%- uris.webapp.page %>'),
-                blog: format('<%- uris.webapp.blog %>')
+                home: '<%- uris.webapp.root %>' + format('<%- uris.webapp.home %>'),
+                feed:  '<%- uris.webapp.root %>' + format('<%- uris.webapp.feed %>'),
+                sitemap:  '<%- uris.webapp.root %>' + format('<%- uris.webapp.sitemap %>'),
+                pages:  '<%- uris.webapp.root %>' + format('<%- uris.webapp.pages %>'),
+                posts:  '<%- uris.webapp.root %>' + format('<%- uris.webapp.posts %>')
             }
         };
 
