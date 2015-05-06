@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
@@ -26,18 +25,24 @@ function process(entry) {
     if(entry.request) {
         var request = entry.request;
         entry = utils.deepExtend(entry, {
+            agent: request.headers['user-agent'],
             ip: request.ip,
-            url: request.url,
             query: request.query,
-            agent: request.headers['user-agent']
+            sessionId: request.sessionId,
+            url: request.url
         });
         delete entry.request;
     }
     return entry;
 }
 
-
 module.exports = {
+
+    console: function(entry) {
+        //TODO consider more sophisticated presentation with colors
+        //TODO we are missing the stack trace!!!!!!!!!!!!!!
+        console.dir(entry, { showHidden: false, depth: 4, colors: true });
+    },
 
     info: function(entry) {
         logger.log('info', process(entry));
@@ -48,15 +53,18 @@ module.exports = {
     },
 
     error: function(entry) {
-        logger.log('err', process(entry));
+        entry = process(entry);
+        module.exports.console(entry);
+        logger.log('err', entry);
     },
 
     critical: function(entry) {
-        logger.log('crit', process(entry));
+        entry = process(entry);
+        module.exports.console(entry);
+        logger.log('crit', entry);
     },
 
-    close: function() {
-        //TODO: should we call it when server goes down????????????????????
+    flush: function() {
         logger.end();
     }
 
