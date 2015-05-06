@@ -16,7 +16,9 @@ var util = require('util'),
         language: config.get('github:language'),    // "%s/"
         pages: config.get('github:' + PAGES),       // "pages"
         posts: config.get('github:' + POSTS),       // "posts"
-        markdown: config.get('github:markdown')     // "%s.md"
+        markdown: config.get('github:markdown'),    // "%s.md"
+        menu: config.get('github:menu'),
+        index: config.get('github:index')
     },
     webapp = {
         root: config.get('uris:webapp:root'),       // "http://localhost:3000",
@@ -25,7 +27,14 @@ var util = require('util'),
     },
     SEPARATOR = '\\/',
     ANY_BETWEEN_SEPARATORS = util.format('[^%s]+', SEPARATOR),
-    MATCH_BETWEEN_SEPARATORS = util.format('(%s)', ANY_BETWEEN_SEPARATORS);
+    MATCH_BETWEEN_SEPARATORS = util.format('(%s)', ANY_BETWEEN_SEPARATORS),
+    URL_LANGUAGE = url.join(webapp.root, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
+    RX_URL_2_LANGUAGE = new RegExp('^' + util.format(URL_LANGUAGE, MATCH_BETWEEN_SEPARATORS)),
+    RX_MARKDOWN = new RegExp(util.format(config.get('github:markdown'), '') + '$'),
+    RX_PATH_2_LANGUAGE = new RegExp('^' + util.format(github.language, MATCH_BETWEEN_SEPARATORS)),
+    PATH_SECTION = url.join(github.language, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
+    RX_PATH_2_SECTION = new RegExp('^' + util.format(PATH_SECTION, ANY_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS)),
+    RX_PATH_2_SLUG = new RegExp(util.format(github.markdown, MATCH_BETWEEN_SEPARATORS) + '$');
 
 /**
  * A github path comprises 3 portions:
@@ -37,20 +46,66 @@ var util = require('util'),
 module.exports = {
 
     /**
-     * Returns a github path from a site url
-     * @param url
+     * Check that path is a markdown file
+     * @param path
+     * @returns {boolean}
      */
-    //webapp2github: function(url) {
+    isMarkdown: function(path) {
+        return RX_MARKDOWN.test(path);
+    },
+
+    /**
+     * Check that path is a menu.json file
+     * @param path
+     * @returns {boolean}
+     */
+    //isMenu: function(path) {
+    //    return RX_MENU.test(path);
     //},
 
     /**
-     * Extracts language from github path
+     * Returns the menu path for a designated language
+     * @param language
+     * @returns {*}
+     */
+    getMenuPath: function(language) {
+        return url.join(util.format(github.language, language), github.menu);
+    },
+
+    /**
+     * Returns the index path for a designated language
+     * @param language
+     * @returns {*}
+     */
+    getIndexPath: function(language) {
+        return url.join(util.format(github.language, language), github.index);
+    },
+
+    /**
+     * Returns a language root directory on Github
+     * @param language
+     * @returns {*}
+     */
+    getLanguageDir: function(language) {
+        return util.format(github.language, language);
+    },
+
+    /**
+     * Returns a page path
+     * @param language
+     * @param slug
+     */
+    getPagePath: function(language, slug) {
+        return url.join(util.format(github.language, language), github.pages, (slug || 'index') + '.md');
+    },
+
+    /**
+     * Extracts language from a site url
      * @param path
      * @returns {*}
      */
-    github2language: function(path) {
-        var RX_LANG = new RegExp('^' + util.format(github.language, MATCH_BETWEEN_SEPARATORS)),
-            matches = path.match(RX_LANG);
+    site_url2language: function(path) {
+        var matches = path.match(RX_URL_2_LANGUAGE);
         if (Array.isArray(matches) && matches.length == 2) {
             return matches[1];
         } else {
@@ -59,14 +114,26 @@ module.exports = {
     },
 
     /**
-     * Extracts section from github path
+     * Extracts language from a github path
      * @param path
      * @returns {*}
      */
-    github2section: function(path) {
-        var template = url.join(github.language, '%s').replace(new RegExp(SEPARATOR), SEPARATOR);
-        var RX_SECTION = new RegExp('^' + util.format(template, ANY_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS)),
-            matches = path.match(RX_SECTION);
+    path2language: function(path) {
+        var matches = path.match(RX_PATH_2_LANGUAGE);
+        if (Array.isArray(matches) && matches.length == 2) {
+            return matches[1];
+        } else {
+            return undefined;
+        }
+    },
+
+    /**
+     * Extracts section from a github path
+     * @param path
+     * @returns {*}
+     */
+    path2section: function(path) {
+        var matches = path.match(RX_PATH_2_SECTION);
         if (Array.isArray(matches) && matches.length == 2) {
             var section = matches[1];
             if (section === github.pages) {
@@ -78,14 +145,13 @@ module.exports = {
     },
 
     /**
-     * Extracts slug from github path
+     * Extracts slug from a github path
      * @param path
      * @returns {*}
      */
-    github2slug: function(path) {
+    path2slug: function(path) {
         //TODO: Consider using https://github.com/dodo/node-slug
-        var RX_SLUG = new RegExp(util.format(github.markdown, MATCH_BETWEEN_SEPARATORS) + '$'),
-            matches = path.match(RX_SLUG);
+        var matches = path.match(RX_PATH_2_SLUG);
         if (Array.isArray(matches) && matches.length == 2) {
             return matches[1];
         }
@@ -96,18 +162,21 @@ module.exports = {
      * @param path
      * @param date
      */
-    github2webapp: function(path, date) {
-        var language  =module.exports.github2language(path),
-            section = module.exports.github2section(path),
-            slug = module.exports.github2slug(path);
-        if( section === PAGES && typeof date === 'undefined') {
+    path2site_url: function(path, date) {
+        var language = module.exports.path2language(path),
+            section = module.exports.path2section(path),
+            slug = module.exports.path2slug(path);
+        if (section === PAGES) {
+            if (slug === 'index') {
+                slug = '';
+            }
             return url.join(webapp.root, util.format(webapp.pages, language, slug));
         } else if (section === POSTS && typeof date !== 'undefined') {
             if (typeof date === 'string') {
                 date = new Date(date);
             }
             var year = date.getUTCFullYear().toString(),
-                month = ('0' + (date.getUTCMonth() + 1)).slice(-2);;
+                month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
             return url.join(webapp.root, util.format(webapp.posts, language, year, month, slug));
         }
     }
