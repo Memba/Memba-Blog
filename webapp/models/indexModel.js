@@ -14,6 +14,7 @@ var async = require('async'),
     github = require('../lib/github'),
     markdown = require('../lib/markdown'),
     utils = require('../lib/utils'),
+    ApplicationError = require('../lib/error'),
     RX_NOTFOUND = /404: Not Found$/;
 
 
@@ -35,6 +36,40 @@ function formatResponse(response, callback) {
         github.updateContent(path, out, sha, update_cb);
     }
 
+    /* This function's cyclomatic complexity is too high. */
+    /* jshint -W074 */
+    function coreFormat() {
+        if (!head.category) {
+            head.category = i18n.__('meta.category');
+            dirty = true;
+        }
+        if (!head.description) {
+            head.description = i18n.__('meta.description');
+            dirty = true;
+        }
+        if(!head.icon) {
+            head.icon = i18n.__('meta.icon');
+            dirty = true;
+        }
+        if (!head.keywords) {
+            head.keywords = i18n.__('meta.keywords');
+            dirty = true;
+        }
+        if (!head.language) {
+            head.language = i18n.__('locale');
+            dirty = true;
+        }
+        if (!head.title) {
+            head.title = i18n.__('meta.title');
+            dirty = true;
+        }
+        if (!head.uuid) {
+            head.uuid = utils.uuid();
+            dirty = true;
+        }
+    }
+    /* jshint +W074 */
+
     var buf = new Buffer(response.content, 'base64'),
         content = buf.toString(),
         path = response.path,
@@ -44,34 +79,7 @@ function formatResponse(response, callback) {
         body = markdown.body(content),
         dirty = false,
         formatted;
-    if (!head.category) {
-        head.category = i18n.__('meta.category');
-        dirty = true;
-    }
-    if (!head.description) {
-        head.description = i18n.__('meta.description');
-        dirty = true;
-    }
-    if(!head.icon) {
-        head.icon = i18n.__('meta.icon');
-        dirty = true;
-    }
-    if (!head.keywords) {
-        head.keywords = i18n.__('meta.keywords');
-        dirty = true;
-    }
-    if (!head.language) {
-        head.language = i18n.__('locale');
-        dirty = true;
-    }
-    if (!head.title) {
-        head.title = i18n.__('meta.title');
-        dirty = true;
-    }
-    if (!head.uuid) {
-        head.uuid = utils.uuid();
-        dirty = true;
-    }
+    coreFormat();
     if(head.author && head.author_url && head.avatar_url && head.creation_date && head.edit_url && head.site_url /*&& yml.update_date*/) {
         formatted = utils.deepExtend({text: body}, head);
         if (dirty) {

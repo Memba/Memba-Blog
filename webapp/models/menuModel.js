@@ -9,7 +9,8 @@
 
 var cache = require('../lib/cache'),
     convert = require('../lib/convert'),
-    github = require('../lib/github');
+    github = require('../lib/github'),
+    ApplicationError = require('../lib/error');
 
 module.exports = {
 
@@ -37,9 +38,9 @@ module.exports = {
                     } catch (exception) {
                         callback(exception);
                     }
-                } else (
-                    callback(error) //TODO: || not found
-                )
+                } else {
+                    callback(error); //TODO: || not found
+                }
             });
         }
     }
