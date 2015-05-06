@@ -7,10 +7,10 @@
 
 'use strict';
 
-var cache = require('../lib/cache'),
-    convert = require('../lib/convert'),
+var convert = require('../lib/convert'),
     github = require('../lib/github'),
-    ApplicationError = require('../lib/error');
+    ApplicationError = require('../lib/error'),
+    cache = {};
 
 module.exports = {
 
@@ -21,7 +21,7 @@ module.exports = {
      */
     getMenu : function(language, callback) {
         //TODO: check available locales
-        var menu = cache.getMenu(language);
+        var menu = cache[language];
         if(menu) {
             callback(null, menu);
         } else {
@@ -31,9 +31,7 @@ module.exports = {
                         var buf = new Buffer(response.content, 'base64'),
                             content = buf.toString(),
                         menu = JSON.parse(content);
-                        if (cache.isEnabled()) {
-                            cache.setMenu(language, menu);
-                        }
+                        cache[language] = menu;
                         callback(null, menu);
                     } catch (exception) {
                         callback(exception);
