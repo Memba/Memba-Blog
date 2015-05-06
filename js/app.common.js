@@ -60,14 +60,16 @@
         var languageDropDownList = $('#footer-settings-language').data('kendoDropDownList');
         if (languageDropDownList instanceof kendo.ui.DropDownList) {
             languageDropDownList.bind(CHANGE, function(e) {
-                app.locale.value(e.sender.value());
+                var locale = e.sender.value();
+                app.locale.value(locale);
             });
         }
         //theme
         var themeDropDownList = $('#footer-settings-theme').data('kendoDropDownList');
         if (themeDropDownList instanceof kendo.ui.DropDownList) {
             themeDropDownList.bind(CHANGE, function(e) {
-                app.theme.value(e.sender.value());
+                var theme = e.sender.value();
+                app.theme.value(theme);
             });
         }
     }

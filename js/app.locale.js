@@ -49,11 +49,11 @@
                 }
             }
 
-            //If already loaded
             if(app.cultures[locale]) {
+                //If already loaded
                 setLocale();
-                //Otherwise
             } else {
+                //Otherwise
                 //https://github.com/webpack/webpack/issues/923
                 var loader = require('bundle?name=[name]!./cultures/app.culture.' + locale + '.js');
                 loader(setLocale);
@@ -68,7 +68,7 @@
         value: function (locale) {
             if (typeof locale === STRING) {
                 //TODO Reject locales not in config
-                window.location.href = app.uris.webapp.page.replace('{0}', locale).replace('{1}', '');
+                window.location.href = app.uris.webapp.pages.replace('{0}', locale).replace('{1}', '');
             } else if (typeof locale === UNDEFINED) {
                 return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
             } else {
