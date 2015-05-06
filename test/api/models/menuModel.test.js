@@ -9,12 +9,12 @@
 'use strict';
 
 var expect = require('chai').expect,
-    model = require('../../../webapp/models/menuModel');
+    menu = require('../../../webapp/models/menuModel');
 
 describe('models/menuModel', function() {
 
-    it('it should read english menu', function(done) {
-        model.get('en', function(error, menu) {
+    it('getMenu: english', function(done) {
+        menu.getMenu('en', function(error, menu) {
             expect(menu).to.be.instanceof(Array);
             for(var i = 0; i < menu.length; i++) {
                 expect(menu[i]).to.have.property('text').that.is.a('string');
@@ -28,8 +28,8 @@ describe('models/menuModel', function() {
         });
     });
 
-    it('it should read french menu', function(done) {
-        model.get('fr', function(error, menu) {
+    it('getMenu: french', function(done) {
+        menu.getMenu('fr', function(error, menu) {
             expect(menu).to.be.instanceof(Array);
             for(var i = 0; i < menu.length; i++) {
                 expect(menu[i]).to.have.property('text').that.is.a('string');
@@ -39,6 +39,14 @@ describe('models/menuModel', function() {
                     expect(menu[i]).to.have.property('href').that.is.a('string');
                 }
             }
+            done();
+        });
+    });
+
+    it('getMenu: unknown language', function(done) {
+        menu.getMenu('zz', function(error, menu) {
+            expect(error).to.be.instanceof(Error);
+            expect(menu).to.be.undefined;
             done();
         });
     });
