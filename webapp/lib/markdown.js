@@ -22,11 +22,11 @@ renderer.code = function(code, lang) {
     var highlight = this.options.highlight,
         html = highlight(code, lang);
 
-    return '<pre><code'
-        + (lang ? ' class="hljs ' + this.options.langPrefix + lang + '"' : ' class="hljs"')
-        + '>'
-        + html
-        + '\n</code></pre>\n';
+    return '<pre><code' +
+        (lang ? ' class="hljs ' + this.options.langPrefix + lang + '"' : ' class="hljs"') +
+        '>' +
+        html +
+        '\n</code></pre>\n';
 
 };
 

@@ -2,7 +2,7 @@
 
 module.exports = function (grunt) {
 
-    "use strict";
+    'use strict';
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -15,21 +15,14 @@ module.exports = function (grunt) {
             }
         },
         jshint: {
-            files: ['gruntfile.js', 'src/js/app*.js'],
+            all: ['gruntfile.js', 'js/**/*.js', 'webapp/**/*.js', 'test/**/*.js'],
             options: {
-                // options here to override JSHint defaults
-                globals: {
-                    jQuery: true,
-                    console: true,
-                    module: true,
-                    document: true
-                }
+                jshintrc: true
             }
-        },
+        }/*,
         kendo_lint: {
             files: ['src/js/app*.js']
         }
-        /*
         yuidoc: {
             compile: {
                 name: '<%= pkg.name %>',
@@ -48,7 +41,7 @@ module.exports = function (grunt) {
 
     //Javascript
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-kendo-lint');
+    //grunt.loadNpmTasks('grunt-kendo-lint');
 
     //Styles
     grunt.loadNpmTasks('grunt-contrib-csslint');
@@ -56,7 +49,7 @@ module.exports = function (grunt) {
     //Documentation
     //grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('lint', ['jshint', 'kendo_lint', 'csslint']);
+    grunt.registerTask('lint', ['jshint', 'csslint']);
     grunt.registerTask('default', ['lint']);
 
 };

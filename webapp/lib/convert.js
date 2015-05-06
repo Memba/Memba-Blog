@@ -106,7 +106,7 @@ module.exports = {
      */
     site_url2language: function(path) {
         var matches = path.match(RX_URL_2_LANGUAGE);
-        if (Array.isArray(matches) && matches.length == 2) {
+        if (Array.isArray(matches) && matches.length === 2) {
             return matches[1];
         } else {
             return undefined;
@@ -120,7 +120,7 @@ module.exports = {
      */
     path2language: function(path) {
         var matches = path.match(RX_PATH_2_LANGUAGE);
-        if (Array.isArray(matches) && matches.length == 2) {
+        if (Array.isArray(matches) && matches.length === 2) {
             return matches[1];
         } else {
             return undefined;
@@ -134,7 +134,7 @@ module.exports = {
      */
     path2section: function(path) {
         var matches = path.match(RX_PATH_2_SECTION);
-        if (Array.isArray(matches) && matches.length == 2) {
+        if (Array.isArray(matches) && matches.length === 2) {
             var section = matches[1];
             if (section === github.pages) {
                 return PAGES; //name (not value) of webapp pages config key in json file
@@ -152,7 +152,7 @@ module.exports = {
     path2slug: function(path) {
         //TODO: Consider using https://github.com/dodo/node-slug
         var matches = path.match(RX_PATH_2_SLUG);
-        if (Array.isArray(matches) && matches.length == 2) {
+        if (Array.isArray(matches) && matches.length === 2) {
             return matches[1];
         }
     },

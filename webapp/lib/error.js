@@ -3,15 +3,18 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true */
+/* jshint node: true, strict: false */
 
-//'use strict';
+//'use strict';     //because arguments.callee is a strict violation
 
 var util = require('util'),
     utils = require('./utils'),
     i18n = require('i18n'),
     RX_I18N_ERROR = /^errors.[^\s.]+./,
     GENERIC_ERROR = 'errors.generic.';
+
+/* This function's cyclomatic complexity is too high. */
+/* jshint -W074 */
 
 /**
  * Application error
@@ -53,12 +56,17 @@ function ApplicationError(error, values) {
     }
 }
 
+/* jshint +W074 */
+
 /**
  * Inherit from `Error`.
  */
-// MongooseError.prototype = Object.create(Error.prototype);
-// MongooseError.prototype.constructor = Error;
-ApplicationError.prototype.__proto__ = Error.prototype;
+//ApplicationError.prototype.__proto__ = Error.prototype;
+ApplicationError.prototype = Object.create(Error.prototype);
+ApplicationError.prototype.constructor = Error;
 
-
+/**
+ * Export ApplicationError
+ * @type {ApplicationError}
+ */
 module.exports = ApplicationError;

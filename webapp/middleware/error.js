@@ -45,7 +45,7 @@ module.exports = {
             error: error
         };
         if (critical) {
-            logger.critical(logentry)
+            logger.critical(logentry);
         } else {
             logger.error(logentry);
         }

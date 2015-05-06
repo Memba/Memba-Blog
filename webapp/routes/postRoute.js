@@ -72,7 +72,7 @@ module.exports = {
                                 results: responses[0],
                                 sessionId: req.sessionId,
                                 title: ''
-                            }
+                            };
                         }
                         res
                             .set({
