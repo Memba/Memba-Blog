@@ -39,27 +39,27 @@ var html = '<h2 id="question-1">Question 1</h2>\n' +
 
 describe('lib/markdown', function() {
 
-    it('It should clean markdown from yml', function() {
-        var clean = markdown.clean(keyval + text);
-        expect(clean).to.equal(text);
+    it('body', function() {
+        var body = markdown.body(keyval + text);
+        expect(body).to.equal(text);
     });
 
-    it('It should convert yml key/values to hashed object', function() {
-        var yml = markdown.yml(keyval + text);
-        expect(yml).to.have.property('uuid', '6037fe20-eb54-11e4-9cc1-795dae8caad4');
-        expect(yml).to.have.property('description', 'Kidoju - A new way to teach and learn');
-        expect(yml).to.have.property('icon', 'speech_balloon_question');
-        expect(yml).to.have.property('keywords', 'teach, learn');
-        expect(yml).to.have.property('title', 'Questions fréquentes');
-        expect(yml).to.have.property('author', 'Jacques L. Chereau');
-        expect(yml).to.have.property('language', 'en');
-        expect(yml).to.have.property('author_url', 'https://github.com/jlchereau');
-        expect(yml).to.have.property('avatar_url', 'https://avatars.githubusercontent.com/u/2556751?v=3');
-        expect(yml).to.have.property('creation_date', '2015-04-24T18:31:38Z');
-        expect(yml).to.have.property('edit_url', 'https://github.com/Memba/test/blob/master/fr/pages/faqs.md');
+    it('head', function() {
+        var head = markdown.head(keyval + text);
+        expect(head).to.have.property('uuid', '6037fe20-eb54-11e4-9cc1-795dae8caad4');
+        expect(head).to.have.property('description', 'Kidoju - A new way to teach and learn');
+        expect(head).to.have.property('icon', 'speech_balloon_question');
+        expect(head).to.have.property('keywords', 'teach, learn');
+        expect(head).to.have.property('title', 'Questions fréquentes');
+        expect(head).to.have.property('author', 'Jacques L. Chereau');
+        expect(head).to.have.property('language', 'en');
+        expect(head).to.have.property('author_url', 'https://github.com/jlchereau');
+        expect(head).to.have.property('avatar_url', 'https://avatars.githubusercontent.com/u/2556751?v=3');
+        expect(head).to.have.property('creation_date', '2015-04-24T18:31:38Z');
+        expect(head).to.have.property('edit_url', 'https://github.com/Memba/test/blob/master/fr/pages/faqs.md');
     });
 
-    it('It should convert markdown text to html', function() {
+    it('html rendering', function() {
         var rendered = markdown.render(text);
         expect(rendered).to.equal(html);
     });

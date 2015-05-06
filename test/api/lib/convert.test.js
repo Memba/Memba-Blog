@@ -25,32 +25,42 @@ var expect = require('chai').expect,
 
 describe('lib/convert', function() {
 
-    /*
-    it('webapp2github', function() {
-    });
-    */
-
-    it('github2language', function() {
-        expect(convert.github2language('en/pages/faqs.md')).to.equal('en');
-        expect(convert.github2language('fr/posts/2013/introduction.md')).to.equal('fr');
+    it('isMarkdown', function() {
+        expect(convert.isMarkdown('en/pages/faqs.md')).to.be.true;
+        expect(convert.isMarkdown('images/logo.png')).to.be.false;
     });
 
-    it('github2section', function() {
-        expect(convert.github2section('en/pages/faqs.md')).to.equal('pages');
-        expect(convert.github2section('fr/posts/2013/introduction.md')).to.equal('posts');
+    it('getMenuPath', function() {
+        expect(convert.getMenuPath('fr')).to.match(/^fr/);
+        expect(convert.getMenuPath('en')).to.match(/^en/);
     });
 
-    it('github2slug', function() {
-        expect(convert.github2slug('en/pages/faqs.md')).to.equal('faqs');
-        expect(convert.github2slug('fr/posts/2013/introduction.md')).to.equal('introduction');
+    it('getIndexPath', function() {
+        expect(convert.getIndexPath('fr')).to.match(/^fr/);
+        expect(convert.getIndexPath('en')).to.match(/^en/);
     });
 
-    it('github2webapp', function() {
+    it('path2language', function() {
+        expect(convert.path2language('en/pages/faqs.md')).to.equal('en');
+        expect(convert.path2language('fr/posts/2013/introduction.md')).to.equal('fr');
+    });
+
+    it('path2section', function() {
+        expect(convert.path2section('en/pages/faqs.md')).to.equal('pages');
+        expect(convert.path2section('fr/posts/2013/introduction.md')).to.equal('posts');
+    });
+
+    it('path2slug', function() {
+        expect(convert.path2slug('en/pages/faqs.md')).to.equal('faqs');
+        expect(convert.path2slug('fr/posts/2013/introduction.md')).to.equal('introduction');
+    });
+
+    it('path2site_url', function() {
         var date = new Date(),
             year = date.getUTCFullYear().toString(),
             month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
-        expect(convert.github2webapp('en/pages/faqs.md')).to.equal(webapp.root + '/en/faqs');
-        expect(convert.github2webapp('fr/posts/2013/introduction.md', date)).to.equal(webapp.root + '/fr/posts/' + year + '/' + month + '/introduction');
+        expect(convert.path2site_url('en/pages/faqs.md')).to.equal(webapp.root + '/en/faqs');
+        expect(convert.path2site_url('fr/posts/2013/introduction.md', date)).to.equal(webapp.root + '/fr/posts/' + year + '/' + month + '/introduction');
     });
 
 });

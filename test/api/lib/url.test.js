@@ -13,34 +13,34 @@ var expect = require('chai').expect,
 
 describe('lib/url', function() {
 
-    it('should work for simple case', function () {
+    it('join: simple case', function () {
         expect(url.join('http://www.google.com/', 'foo/bar', '?test=123'))
             .to.equal('http://www.google.com/foo/bar?test=123');
     });
 
-    it('should be able to join protocol', function () {
+    it('join: protocol', function () {
         expect(url.join('http:', 'www.google.com/', 'foo/bar', '?test=123'))
             .to.equal('http://www.google.com/foo/bar?test=123');
     });
 
-    it('should remove extra slashes', function () {
+    it('join: extra slashes', function () {
         expect(url.join('http:', 'www.google.com///', 'foo/bar', '?test=123'))
             .to.equal('http://www.google.com/foo/bar?test=123');
     });
 
-    it('should support anchors in urls', function () {
+    it('join: anchors in urls', function () {
         expect(url.join('http:', 'www.google.com///', 'foo/bar', '?test=123', '#faaaaa'))
             .to.equal('http://www.google.com/foo/bar?test=123#faaaaa');
     });
 
-    it('should work with our github page paths', function () {
+    it('join: github page paths', function () {
         expect(url.join('en', '/pages', 'foo/bar.md'))
             .to.equal('en/pages/foo/bar.md');
         expect(url.join('en/', '/pages/', '/foo/bar.md'))
             .to.equal('en/pages/foo/bar.md');
     });
 
-    it('it should work with formatting %s', function() {
+    it('join: formatting %s', function() {
         expect(url.join('blog/%s', 'posts', '2013/%s'))
             .to.equal('blog/%s/posts/2013/%s');
     });
