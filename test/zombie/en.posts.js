@@ -3,16 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
-/* jshint node: true */
+/* jshint node: true, expr: true */
+/* globals describe: false, before: false, it: false */
 
 'use strict';
-
-var cache = require('lru-cache');
-
-module.exports = {
-
-
-
-
-};
