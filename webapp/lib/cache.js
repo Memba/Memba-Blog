@@ -7,46 +7,72 @@
 
 'use strict';
 
-var LRU = require('lru-cache'),
-    options = {
-        max: 500,
-        maxAge: 1000 * 60 * 60 * 24
-    },
-    cache = LRU(options);
-
-/**
- * preprocessing of keys for compatibility with lru-cache
- * @param key
- */
-function process(key) {
-    return key.replace(/\/|\\/g, '$');
-}
+var convert = require('./convert'),
+    config = require('../config'),
+    enabled = config.get('cache$'), //Note: `cache` breaks webpack build
+    cache = {
+        menu: {},
+        index: {}
+    };
 
 module.exports = {
 
     /**
-     * Get the value from a key
-     * @param key
+     * Checks that cache is enabled
+     * @returns {*}
      */
-    get: function(key) {
-        return cache.get(process(key));
+    isEnabled: function() {
+        return enabled || false;
     },
 
     /**
-     *  Set the value of a key
-     *  @param key
-     *  @param value
+     * Get menu for designated locale
+     * @param locale
+     * @returns {*}
      */
-    set: function(key, value) {
-        cache.set(process(key), value);
+    getMenu: function(locale) {
+        return cache.menu[locale];
     },
 
     /**
-     * Reset (empty) the cache
+     * Set menu for designated locale
+     * @param locale
+     * @param menu
      */
-    reset: function() {
-        //reset: cache.reset does not work
-        cache.reset();
+    setMenu: function(locale, menu) {
+        cache.menu[locale] = menu;
+    },
+
+    /**
+     * Get index for designated locale
+     * @param locale
+     * @returns {*}
+     */
+    getIndex: function(locale) {
+        return cache.index[locale];
+    },
+
+    /**
+     * Set index for designated locale
+     * @param locale
+     * @param index
+     */
+    setIndex: function(locale, index) {
+        cache.index[locale] = index;
+    },
+
+    /**
+     * Reset cache
+     * @param locale
+     */
+    reset: function(locale) {
+        if(locale) {
+            cache.menu[locale] = undefined;
+            cache.index[locale] = undefined;
+        } else {
+            cache.menu = {};
+            cache.index = {};
+        }
     }
 
 };
