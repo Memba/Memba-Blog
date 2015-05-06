@@ -23,10 +23,7 @@ module.exports = {
      */
     validate: function(req, res, next, month){
         var parsed = parseInt(month, 10);
-        if ((/\/[^\/\.]+\.[\w]{1,5}$/i).test(Url.parse(req.originalUrl).pathname)) {
-            //If pathname ends with a file extension (images, stylesheets, scripts, ...), spare bandwidth by returning an empty error for missing assets
-            res.status(404).send(http.STATUS_CODES['404']);
-        } else if (!/^[0-1][0-9]$/.test(month) || parsed <= 0 || parsed >= 13) {
+        if (!/^[0-1][0-9]$/.test(month) || parsed <= 0 || parsed >= 13) {
             //If month is not between 1 and 12, raise an error
             next(new ApplicationError(404));
         } else {

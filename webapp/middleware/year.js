@@ -21,10 +21,7 @@ module.exports = {
      */
     validate: function(req, res, next, year){
         var parsed = parseInt(year, 10);
-        if ((/\/[^\/\.]+\.[\w]{1,5}$/i).test(Url.parse(req.originalUrl).pathname)) {
-            //If pathname ends with a file extension (images, stylesheets, scripts, ...), spare bandwidth by returning an empty error for missing assets
-            res.status(404).send(http.STATUS_CODES['404']);
-        } else if (!/^20[1-2][0-9]$/.test(year) || parsed < 2014 || parsed > (new Date()).getUTCFullYear()) {
+        if (!/^20[1-2][0-9]$/.test(year) || parsed < 2014 || parsed > (new Date()).getUTCFullYear()) {
             //If year does not make sense, raise an error
             next(new ApplicationError(404));
         } else {
