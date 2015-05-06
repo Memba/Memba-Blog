@@ -67,5 +67,5 @@ app.use(router);
 app.listen(app.get('port'));
 console.log('Express server listening on port ' + app.get('port'));
 
-//Export app for further needs, including zombie testing
+//Export app for further needs, especially qa/testing
 module.exports = app;
