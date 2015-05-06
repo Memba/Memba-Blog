@@ -7,9 +7,7 @@
 
 'use strict';
 
-var http = require('http'),
-    Url = require('url'),
-    ApplicationError = require('../lib/error');
+var ApplicationError = require('../lib/error');
 
 module.exports = {
 
@@ -19,13 +17,10 @@ module.exports = {
      * @param req
      * @param res
      * @param next
-     * @param id
+     * @param language
      */
     validate: function(req, res, next, language){
-        if ((/\/[^\/\.]+\.[\w]{1,5}$/i).test(Url.parse(req.originalUrl).pathname)) {
-            //If pathname ends with a file extension (images, stylesheets, scripts, ...), spare bandwidth by returning an empty error for missing assets
-            res.status(404).send(http.STATUS_CODES['404']);
-        } else if (res.locals.config.locales.indexOf(language) === -1) {
+        if (res.locals.config.locales.indexOf(language) === -1) {
             //If language is not a supported locale, redirect to page not found
             next(new ApplicationError(404));
         } else {
