@@ -15,21 +15,15 @@ coverage/
 # Ignore Node files
 node_modules/
 
-# Ignore Cache
-webapp/cache
+# Ignore webpack generated files
 webapp/public/assets
 
 # Ignore Grunt Files
 validation-status.json
 validation-report.json
 
-# Ignore Kendo UI
-
-# Ignore Incors images
-m_collection/
-o_collection/
-v_collection/
-x_collection/
+# Ignore data
+data/
 
 # Ignore Dummy Files
 temp/
