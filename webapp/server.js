@@ -8,21 +8,36 @@
 
 'use strict';
 
-//TODO:
-// Add error handling
-// Add logging
-// Add helmet https://www.npmjs.org/package/helmet
-// Add sitemap.sml (per category?)
+//Catch-all error handler
+//See http://stackoverflow.com/questions/7310521/node-js-best-practice-exception-handling
+process.on('uncaughtException', function(err) {
+    require('./lib/logger').critical({
+        message: 'uncaught exception',
+        module: 'server',
+        method: 'undefined',
+        error: err
+    });
+    process.exit(1);
+});
+
+process.on('exit', function(/*code*/) {
+    require('./lib/logger').flush();
+    console.log('Process exited');
+});
 
 var path = require('path'),
     express = require('express'),
+    helmet = require('helmet'),
     i18n = require('i18n'),
     app = express(),
     config = require('./config'),
     router = require('./routes');
 
+//Secure expressJS with helmet from https://github.com/helmetjs/helmet
+app.use(helmet());
+//app.disable('x-powered-by');
+
 // Configure expressJS
-app.disable('x-powered-by');
 //TODO app.enable('trust proxy');
 app.set('port', process.env.PORT || config.get('express:port'));
 
@@ -48,15 +63,9 @@ app.use(express.static(path.join(__dirname, '/public')));
 // Routing
 app.use(router);
 
-//if (config.get('NODE:ENV') === 'test') {
-//In test mode, mock the api server
-//    app.use(require('./apimock'));
-//}
-
 // Start application
 app.listen(app.get('port'));
 console.log('Express server listening on port ' + app.get('port'));
 
-// Export app for further needs
-//TODO: is this a good idea?
+//Export app for further needs, including zombie testing
 module.exports = app;
