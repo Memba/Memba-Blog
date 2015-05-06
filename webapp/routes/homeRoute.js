@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
@@ -36,21 +35,21 @@ module.exports = {
             });
 
             //Get menu with english as default language
-            menu.get('en', function(error, data) {
+            menu.getMenu('en', function(error, data) {
                 if(!error && data) {
                     res
                         .set({
-                            //Cache-Control
                             'Content-Type': 'text/html; charset=utf-8',
                             'Content-Language': res.getLocale()
-                            //Content-Security-Policy
                         })
                         .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                         .render('home', {
-                            description: 'TODO',
+                            author: res.__('meta:author'),
+                            description: res.__('meta:description'),
+                            keywords: res.__('meta:keywords'),
                             menu: data,
                             sessionId: sessionId,
-                            title: 'TODO'
+                            title: res.__('meta:title')
                         });
                 } else {
                     next(error);
