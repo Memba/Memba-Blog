@@ -4,7 +4,7 @@
  */
 
 /* jshint browser: true, jquery: true */
-/* globals define: false */
+/* globals require: false */
 
 (function () {
 
