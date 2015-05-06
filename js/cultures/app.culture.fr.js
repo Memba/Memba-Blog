@@ -4,9 +4,10 @@
  */
 
 /* jshint browser:true */
-/* globals define: false */
+/* globals define: false, require: false */
 
 (function(f, define){
+    'use strict';
     define(['../vendor/kendo/cultures/kendo.culture.fr-FR.js', '../vendor/kendo/messages/kendo.messages.fr-FR.js'], f);
 })(function() {
 
@@ -15,7 +16,7 @@
     (function () {
         var app = window.app || {};
         app.cultures = app.cultures || {};
-        app.cultures['fr'] = require('../../webapp/locales/fr.json');
+        app.cultures.fr = require('../../webapp/locales/fr.json');
     }());
 
     return window.app;
