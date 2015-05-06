@@ -7,34 +7,31 @@
 
 'use strict';
 
-var util = require('util'),
-    config = require('../config'),
-    cache = require('../lib/cache'),
+var cache = require('../lib/cache'),
+    convert = require('../lib/convert'),
     github = require('../lib/github');
 
 module.exports = {
 
     /**
-     * Get menu in current language
+     * Get menu for designated language
      * @param language
      * @param callback
      */
-    get : function(language, callback) {
-
-        var uri = util.format(config.get('github:menu'), language),
-            menu = cache.get(uri);
-
+    getMenu : function(language, callback) {
+        //TODO: check available locales
+        var menu = cache.getMenu(language);
         if(menu) {
             callback(null, menu);
         } else {
-            github.getContent(uri, function (error, response) {
+            github.getContent(convert.getMenuPath(language), function (error, response) {
                 if (!error && response) {
                     try {
                         var buf = new Buffer(response.content, 'base64'),
                             content = buf.toString(),
                         menu = JSON.parse(content);
-                        if (config.get('cache$')) { //Note: `cache` breaks webpack build
-                            cache.set(uri, menu);
+                        if (cache.isEnabled()) {
+                            cache.setMenu(language, menu);
                         }
                         callback(null, menu);
                     } catch (exception) {
@@ -46,5 +43,4 @@ module.exports = {
             });
         }
     }
-
 };
