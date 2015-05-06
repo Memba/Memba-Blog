@@ -12,11 +12,11 @@ var express = require('express'),
     util = require('util'),
     router = express.Router(),
     config = require('../config'),
+    extension = require('../middleware/extension'),
     locals = require('../middleware/locals'),
     language = require('../middleware/language'),
     year = require('../middleware/year'),
     month = require('../middleware/month'),
-    slug = require('../middleware/slug'),
     notFound = require('../middleware/notFound'),
     error = require('../middleware/error'),
     homeRoute = require('./homeRoute'),
@@ -32,6 +32,9 @@ router.param('year', year.validate);
 router.param('month', month.validate);
 //router.param('slug', slug.validate);
 
+// Return simplified 404 for support files with extensions
+router.use(extension);
+
 // Make config values, including paths to images, available to our templates
 router.use(locals);
 
@@ -45,11 +48,11 @@ router.route(config.get('uris:webapp:hook'))
 
 // Rss feed
 router.route(util.format(config.get('uris:webapp:feed'), ':language'))
-    .post(feedRoute.getRSS);
+    .get(feedRoute.getRSS);
 
 // Sitemap
 router.route(util.format(config.get('uris:webapp:sitemap'), ':language'))
-    .post(sitemapRoute.getMap);
+    .get(sitemapRoute.getMap);
 
 // Blog posts
 router.route(util.format(config.get('uris:webapp:posts'),':language', ':year?', ':month?', ':slug?'))
