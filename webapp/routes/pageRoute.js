@@ -3,15 +3,17 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
 
 var async = require('async'),
+    ApplicationError = require('../lib/error'),
+    convert = require('../lib/convert'),
     logger = require('../lib/logger'),
+    markdown = require('../lib/markdown'),
     utils = require('../lib/utils'),
-    model = require('../models/pageModel'),
+    index = require('../models/indexModel'),
     menu = require('../models/menuModel');
 
 module.exports = {
@@ -26,45 +28,40 @@ module.exports = {
         try {
 
             //Create a sessionId that we can track in the browser
-            var sessionId = utils.uuid();
+            req.sessionId = utils.uuid();
 
             //Log the request
             logger.info({
                 message: 'requesting a page',
                 module: 'routes/pageRoute',
                 method: 'getHtmlPage',
-                sessionId: sessionId,
                 request: req
             });
 
             async.parallel(
                 [
-                    //get blog data
+                    //get page data
                     function(callback) {
-                        var query = {
-                            language: req.params.language,
-                            slug: req.params.slug
-                        };
-                        model.getPageData(query, callback);
+                        var path = convert.getPagePath(req.params.language, req.params.slug);
+                        index.findContentByPath(path, callback);
                     },
                     //get menu
                     function(callback) {
-                        menu.get(req.params.language, callback);
+                        menu.getMenu(req.params.language, callback);
                     }
                 ],
-                function(error, data) {
-                    if(!error && Array.isArray(data)) {
+                function(error, responses) {
+                    if(!error && Array.isArray(responses) && responses.length && Array.isArray(responses[0]) && responses[0].length) {
+                        var data = utils.deepExtend({}, responses[0][0], { content: markdown.render(responses[0][0].text), menu: responses[1], sessionId: req.sessionId });
                         res
                             .set({
-                                //Cache-Control
                                 'Content-Type': 'text/html; charset=utf-8',
                                 'Content-Language': res.getLocale()
-                                //Content-Security-Policy
                             })
                             .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                            .render('page', utils.deepExtend({}, data[0], { menu: data[1], sessionId: sessionId }));
+                            .render('page', data);
                     } else {
-                        next(error); //TODO  || not found
+                        next(error || new ApplicationError(404));
                     }
                 }
             );
