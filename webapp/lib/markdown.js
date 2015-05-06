@@ -65,7 +65,7 @@ module.exports = {
      * @param markdown
      * @returns {{title: string, description: string}}
      */
-    yml: function(markdown) {
+    head: function(markdown) {
         var yml = {},
             ymlMatches = markdown.match(RX_YML);
         if (Array.isArray(ymlMatches) && ymlMatches.length > 1) {
@@ -88,7 +88,7 @@ module.exports = {
      * @param markdown
      * @returns {*}
      */
-    clean: function(markdown) {
+    body: function(markdown) {
         return markdown.replace(RX_YML, '').trim();
     }
 
