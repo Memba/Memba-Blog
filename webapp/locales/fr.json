@@ -207,6 +207,13 @@
             "status": 500,
             "title": "500 - Erreur Inconnue",
             "description": "Il y a eu une erreur inconnue. Si nous arrivons à la reproduire, nous la corrigerons avec amour et attention."
+        },
+        "routes": {
+            "hookRoute": {
+                "badAgent": {
+                    "message": "Agent utilisateur inconnu: `%s`."
+                }
+            }
         }
 	}
 }

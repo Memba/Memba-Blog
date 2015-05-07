@@ -1,6 +1,5 @@
 {
     "debug": true,
-    "cache$": true,
     "express": {
         "port"  : 3000
     },
@@ -13,12 +12,14 @@
             "token": "ce2588e6-d4fe-45ae-89e4-c3a5c57dbc3c"
         }
     },
+    "db": {
+        "index": "../cache/%s.json"
+    },
     "github": {
         "repository": "memba/test",
         "branch": "master",
         "language": "%s/",
         "menu": "menu.json",
-        "index": "index.json",
         "pages": "pages",
         "posts": "posts",
         "markdown": "%s.md"

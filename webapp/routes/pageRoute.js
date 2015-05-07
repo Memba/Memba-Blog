@@ -43,7 +43,7 @@ module.exports = {
                     //get page data
                     function(callback) {
                         var path = convert.getPagePath(req.params.language, req.params.slug);
-                        index.findContentByPath(path, callback);
+                        index.findOneByPath(path, callback);
                     },
                     //get menu
                     function(callback) {
@@ -51,8 +51,8 @@ module.exports = {
                     }
                 ],
                 function(error, responses) {
-                    if(!error && Array.isArray(responses) && responses.length && Array.isArray(responses[0]) && responses[0].length) {
-                        var data = utils.deepExtend({}, responses[0][0], { content: markdown.render(responses[0][0].text), menu: responses[1], sessionId: req.sessionId });
+                    if(!error && Array.isArray(responses) && responses.length > 1 && responses[0] && responses[1]) {
+                        var data = utils.deepExtend({}, responses[0], { content: markdown.render(responses[0].text), menu: responses[1], sessionId: req.sessionId });
                         res
                             .set({
                                 'Content-Type': 'text/html; charset=utf-8',

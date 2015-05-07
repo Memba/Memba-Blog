@@ -7,13 +7,12 @@
 
 'use strict';
 
-var async = require('async'),
-    config = require('../config'),
+var config = require('../config'),
+    locales = config.get('locales'),
     ApplicationError = require('../lib/error'),
+    db = require('../lib/db'),
     logger = require('../lib/logger'),
     utils = require('../lib/utils'),
-    cache = require('../lib/cache'),
-    index = require('../models/indexModel'),
     menu = require('../models/menuModel');
 
 module.exports = {
@@ -39,42 +38,35 @@ module.exports = {
                 request: req
             });
 
-            //TODO Consider a child process - https://docs.nodejitsu.com/articles/child-processes/how-to-spawn-a-child-process
             //TODO Check x-hub-signature, x-github-event
             //TODO Check Github Ip Addresses - https://help.github.com/articles/what-ip-addresses-does-github-use-that-i-should-whitelist/
 
             //Check user agent
             if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
-                throw new ApplicationError('errors.routes.hookRoute.bad_agent', req.headers['user-agent']);
+                throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
             }
 
-            //Check payload
+            //TODO Check the payload
 
+            console.log('---------------> menu');
 
-            var tasks = [];
-            (config.get('locales') || []).forEach(function (locale) {
-                /*
-                tasks.push(function (done) {
-                    index.getPageTree(locale, done);
-                });
-                tasks.push(function (done) {
-                    index.getBlogTree(locale, done);
-                });
-                */
+            //Reset the menu
+            menu.resetCache();
+
+            console.log('---------------> content!');
+
+            //Reindex contents
+            locales.forEach(function (locale) {
+                db[locale].reindex();
             });
 
-            async.parallel(
-                tasks,
-                function (error, results) {
-
-                    //Reset the cache
-                    cache.reset();
-                });
+            console.log('---------------> done!');
 
             //Close and send the response
             res.end();
 
         } catch(exception) {
+            console.error(exception);
 
             //Log the exception
             logger.crit({
@@ -85,7 +77,6 @@ module.exports = {
                 error: exception
             });
             return res.status(500).end();
-
         }
     }
 };

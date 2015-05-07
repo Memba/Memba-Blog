@@ -27,19 +27,23 @@ module.exports = {
         } else {
             github.getContent(convert.getMenuPath(language), function (error, response) {
                 if (!error && response) {
-                    try {
-                        var buf = new Buffer(response.content, 'base64'),
-                            content = buf.toString(),
-                        menu = JSON.parse(content);
-                        cache[language] = menu;
-                        callback(null, menu);
-                    } catch (exception) {
-                        callback(exception);
-                    }
+                    var buf = new Buffer(response.content, 'base64'),
+                        content = buf.toString(),
+                    menu = JSON.parse(content);
+                    cache[language] = menu;
+                    callback(null, menu);
                 } else {
                     callback(error); //TODO: || not found
                 }
             });
         }
+    },
+
+    /**
+     * Reset cache
+     */
+    resetCache: function() {
+        cache = {};
     }
+
 };

@@ -224,7 +224,7 @@
         },
         "routes": {
             "hookRoute": {
-                "bad_agent": {
+                "badAgent": {
                     "message": "Unexpected user agent: `%s`."
                 }
             }

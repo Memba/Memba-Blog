@@ -8,10 +8,15 @@
 'use strict';
 
 var util = require('util'),
+    paths = require('path'),
     url = require('./url'),
     config = require('../config'),
     PAGES = 'pages',
     POSTS = 'posts',
+    locales = config.get('locales'),
+    db = {
+        index: config.get('db:index')
+    },
     github = {
         language: config.get('github:language'),    // "%s/"
         pages: config.get('github:' + PAGES),       // "pages"
@@ -28,12 +33,12 @@ var util = require('util'),
     SEPARATOR = '\\/',
     ANY_BETWEEN_SEPARATORS = util.format('[^%s]+', SEPARATOR),
     MATCH_BETWEEN_SEPARATORS = util.format('(%s)', ANY_BETWEEN_SEPARATORS),
-    URL_LANGUAGE = url.join(webapp.root, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
-    RX_URL_2_LANGUAGE = new RegExp('^' + util.format(URL_LANGUAGE, MATCH_BETWEEN_SEPARATORS)),
+    URL_2_LANGUAGE = url.join(webapp.root, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
+    RX_URL_2_LANGUAGE = new RegExp('^' + util.format(URL_2_LANGUAGE, MATCH_BETWEEN_SEPARATORS)),
     RX_MARKDOWN = new RegExp(util.format(config.get('github:markdown'), '') + '$'),
     RX_PATH_2_LANGUAGE = new RegExp('^' + util.format(github.language, MATCH_BETWEEN_SEPARATORS)),
-    PATH_SECTION = url.join(github.language, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
-    RX_PATH_2_SECTION = new RegExp('^' + util.format(PATH_SECTION, ANY_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS)),
+    PATH_2_SECTION = url.join(github.language, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
+    RX_PATH_2_SECTION = new RegExp('^' + util.format(PATH_2_SECTION, ANY_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS)),
     RX_PATH_2_SLUG = new RegExp(util.format(github.markdown, MATCH_BETWEEN_SEPARATORS) + '$');
 
 /**
@@ -78,7 +83,16 @@ module.exports = {
      * @returns {*}
      */
     getIndexPath: function(language) {
-        return url.join(util.format(github.language, language), github.index);
+        return paths.join(__dirname, util.format(db.index, language));
+    },
+
+    /**
+     * Returns the index directory
+     * @param language
+     * @returns {*}
+     */
+    getIndexDir: function() {
+        return paths.join(__dirname, path.dirname(db.index));
     },
 
     /**
@@ -97,6 +111,18 @@ module.exports = {
      */
     getPagePath: function(language, slug) {
         return url.join(util.format(github.language, language), github.pages, (slug || 'index') + '.md');
+    },
+
+    /**
+     * Extracts language from index file name
+     * @param fileName
+     */
+    index2language: function(fileName) {
+        for (var i = 0; i <locales.length; i++) {
+            if (fileName === module.exports.getIndexPath(locales[i])) {
+                return locales[i];
+            }
+        }
     },
 
     /**

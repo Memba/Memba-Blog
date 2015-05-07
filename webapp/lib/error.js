@@ -10,7 +10,7 @@
 var util = require('util'),
     utils = require('./utils'),
     i18n = require('i18n'),
-    RX_I18N_ERROR = /^errors.[^\s.]+./,
+    RX_I18N_ERROR = /^errors\.[\w]+\./,
     GENERIC_ERROR = 'errors.generic.';
 
 /* This function's cyclomatic complexity is too high. */
