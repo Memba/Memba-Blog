@@ -11,11 +11,10 @@ var fs = require('fs'),
     util = require('util'),
     path = require('path'),
     chokidar = require('chokidar'),
-    convert = require('./convert'),
     config = require('../config'),
     locales = config.get('locales'),
-    indexPath = path.join(__dirname, config.get('db:index')),
-    indexDir = path.dirname(indexPath);
+    convert = require('./convert'),
+    utils = require('./utils');
 
 // IMPORTANT: fork the indexer as a child process
 // Issue with mocha tests
@@ -30,10 +29,10 @@ if (Array.isArray(execArgv) && execArgv.length > 0 && typeof execArgv[0] === 'st
     }
 }
 console.log('Forking child indexing process');
-var indexer = require('child_process').fork('./lib/db_child.js', undefined, { execArgv: execArgv });
+var indexer = require('child_process').fork(path.join(__dirname, 'db_child.js'), undefined, { execArgv: execArgv });
 
 // IMPORTANT: file watcher to load index file when ready
-chokidar.watch(indexDir).on('all', function(event, path) {
+chokidar.watch(convert.getIndexDir()).on('all', function(event, path) {
     console.log(event, path);
     if(/^add$|^change$/i.test(event)) {
         var language = convert.index2language(path);
@@ -57,7 +56,7 @@ var Collection = function(locale) {
  */
 Collection.prototype.load = function() {
     try {
-        var indexFile = util.format(indexPath, this.locale);
+        var indexFile = convert.getIndexPath(this.locale);
         console.log('load ' + indexFile);
         var buf = fs.readFileSync(indexFile),
             data = JSON.parse(buf.toString());
@@ -97,6 +96,64 @@ Collection.prototype.find = function(query, callback) {
         var ret = true;
         for (var prop in query) {
             if (query.hasOwnProperty(prop)) {
+                var criterion = query[prop];
+                if (criterion instanceof RegExp) {
+                    ret = ret && query[prop].test(indexEntry.prop);
+                } else if (utils.isObject(criterion)) {
+                    for (var operator in criterion) {
+                        if (criterion.hasOwnProperty(operator)) {
+                            // @see http://docs.mongodb.org/manual/reference/operator/query/
+                            switch(operator) {
+                                case '$eq':
+                                    ret = ret && (indexEntry[prop] === criterion[operator]);
+                                    break;
+                                case '$gt':
+                                    ret = ret && (indexEntry[prop] > criterion[operator]);
+                                    break;
+                                case '$gte':
+                                    ret = ret && (indexEntry[prop] >= criterion[operator]);
+                                    break;
+                                case '$lt':
+                                    ret = ret && (indexEntry[prop] < criterion[operator]);
+                                    break;
+                                case '$lte':
+                                    ret = ret && (indexEntry[prop] <= criterion[operator]);
+                                    break;
+                                case '$ne':
+                                    ret = ret && (indexEntry[prop] !== criterion[operator]);
+                                    break;
+                            }
+                        }
+                    }
+                } else {
+                    ret = ret && (indexEntry[prop] === query[prop]);
+                }
+            }
+        }
+        return ret;
+    });
+    callback(null, results);
+};
+
+/**
+ * Group data in the index
+ * @param group in the form { _id:..., count }
+ * @param callback
+ */
+/*
+Collection.prototype.count = function(group, callback) {
+    var results = [];
+    group = group || {};
+    this.data.forEach(function(indexEntry) {
+        var groupValue = {};
+        for (var prop in group) {
+
+        }
+    });
+    var results = this.data.filter(function(indexEntry) {
+        var ret = true;
+        for (var prop in query) {
+            if (query.hasOwnProperty(prop)) {
                 var value = query[prop];
                 if (value instanceof RegExp) {
                     ret = ret && query[prop].test(indexEntry.prop);
@@ -109,6 +166,9 @@ Collection.prototype.find = function(query, callback) {
     });
     callback(null, results);
 };
+*/
+
+
 
 /**
  * Database
