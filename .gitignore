@@ -15,9 +15,6 @@ coverage/
 # Ignore Node files
 node_modules/
 
-# Ignore webpack generated files
-webapp/public/assets
-
 # Ignore Grunt Files
 validation-status.json
 validation-report.json
