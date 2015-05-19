@@ -53,3 +53,5 @@ to
 
 for cleaner CSS
 
+http://tools.dynamicdrive.com/favicon/
+http://www.adobe.com/inspire/2013/09/exporting-svg-illustrator.html
