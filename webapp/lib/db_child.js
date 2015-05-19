@@ -68,7 +68,7 @@ function formatIndexEntry(response, callback) {
             dirty = true;
         }
         if (!head.language) {
-            head.language = i18n.__('locale');
+            head.language = convert.path2language(path); //i18n.__('locale');
             dirty = true;
         }
         if (!head.title) {
