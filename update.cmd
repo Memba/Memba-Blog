@@ -1,14 +1,23 @@
 cd /d %~dp0
 
-REM copy js files
-xcopy ..\..\Kidoju\Kidoju.Webapp\js\cultures\*.*  \js\cultures\ /S /C /Y
-REM copy ..\..\Kidoju\Kidoju.Webapp\web_modules\jsx-loader\README.md \web_modules\jsx-loader\README.md /Y
+REM Copy js files
+XCOPY ..\..\Kidoju\Kidoju.Webapp\js\cultures\*.*  .\js\cultures\ /C /E /I /R /Y
+ATTRIB +R .\js\cultures\*.* /S
 
-REM Copy Kidoju webfonts
-xcopy ..\..\Kidoju\Kidoju.WebFonts\dist\fonts\*.* \styles\fonts\ /S /C /Y
+REM Copy Kidoju fonts
+XCOPY ..\..\Kidoju\Kidoju.WebFonts\dist\fonts\*.* .\styles\fonts\ /C /E /I /R /Y
+ATTRIB +R .\styles\fonts\*.* /S
 
-REM copy themes
-xcopy ..\..\Kidoju\Kidoju.Webapp\styles\app.theme.*.less  \styles\ /S /C /Y
+REM Copy theme files
+REM XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\app.theme.*.less  .\styles\ /C /E /I /R /Y
+REM ATTRIB +R .\styles\fonts\*.* /S
+COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.mixins.less .\styles\ /Y
+ATTRIB +R .\styles\app.mixins.less
+COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.template.less .\styles\ /Y
+ATTRIB +R .\styles\app.template.less
+COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.theme.*.less .\styles\ /Y
+ATTRIB +R .\styles\app.theme.*.less
 
-REM update jsx loader in web_modules
-xcopy ..\..\Kidoju\Kidoju.Webapp\web_modules\jsx-loader\*.*  \web_modules\jsx-loader\ /S /C /Y
+REM Copy web_modules
+XCOPY ..\..\Kidoju\Kidoju.Webapp\web_modules\*.*  .\web_modules\ /C /E /I /R /Y
+ATTRIB +R .\web_modules\*.* /S
