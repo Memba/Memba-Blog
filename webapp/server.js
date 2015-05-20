@@ -44,7 +44,7 @@ app.set('port', process.env.PORT || config.get('express:port'));
 // i18n
 i18n.configure({
     locales: config.get('locales'), //['en', 'fr'],
-    directory: __dirname + '/locales',
+    directory: path.join(__dirname, 'locales'),
     objectNotation: true //Use hierarchies in locales.json files
 });
 // Use __() in templates
@@ -53,12 +53,12 @@ app.use(i18n.init);
 // Template engine
 app.engine('.ejs', require('ejs').__express);
 // Optional since express defaults to CWD/views
-app.set('views', __dirname + '/views');
+app.set('views', path.join(__dirname, 'views'));
 // Without this you would need to supply the extension to res.render(), ex: res.render('users.html').
 app.set('view engine', 'ejs');
 
 // Static files (before routing)
-app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routing
 app.use(router);
