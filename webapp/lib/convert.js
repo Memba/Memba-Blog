@@ -92,7 +92,7 @@ module.exports = {
      * @returns {*}
      */
     getIndexDir: function() {
-        return paths.join(__dirname, path.dirname(db.index));
+        return paths.join(__dirname, paths.dirname(db.index));
     },
 
     /**
