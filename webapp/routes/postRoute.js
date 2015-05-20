@@ -42,45 +42,72 @@ module.exports = {
 
             async.parallel(
                 [
-                    //get blog data
-                    function(callback) {
-                        var site_url = req.protocol + '://' + req.get('host') + Url.parse(req.originalUrl).pathname;
-                        index.findContentBySiteUrl(site_url, callback);
-                    },
                     //get menu
                     function(callback) {
                         menu.getMenu(req.params.language, callback);
+                    },
+                    //get blog post
+                    function(callback) {
+                        var site_url = req.protocol + '://' + req.get('host') + Url.parse(req.originalUrl).pathname;
+                        index.findBySiteUrl(site_url, callback);
+                    },
+                    //Get grouped categories
+                    function(callback) {
+                        index.groupByCategory(req.params.language, callback);
+                    },
+                    //Get grouped authors
+                    function(callback) {
+                        index.groupByAuthor(req.params.language, callback);
+                    },
+                    //Get grouped years/months
+                    function(callback) {
+                        index.groupByYearMonth(req.params.language, callback);
                     }
                 ],
                 function(error, responses) {
-                    if(!error && Array.isArray(responses) && responses.length && Array.isArray(responses[0]) && responses[0].length) {
+                    if(!error && Array.isArray(responses) && responses.length > 1 && Array.isArray(responses[0]) && Array.isArray(responses[1]) && responses[1].length > 0) {
                         var data;
+
                         if (req.params.slug) { //single post
-                            data = utils.deepExtend({}, responses[0][0], {
-                                content: markdown.render(responses[0][0].text),
-                                menu: responses[1],
-                                results: false,
+                            data = utils.deepExtend({}, responses[1][0], {
+                                content: markdown.render(responses[1][0].text),
+                                menu: responses[0],
+                                categories: responses[2],
+                                authors: responses[3],
+                                months: responses[4],
                                 sessionId: req.sessionId
                             });
+                            res
+                                .set({
+                                    'Content-Type': 'text/html; charset=utf-8',
+                                    'Content-Language': res.getLocale()
+                                })
+                                .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                                .render('post', data);
+
                         } else { //list of posts
                             data = {
                                 author: '',
                                 description: '',
                                 icon: 'magnifying_glass',
                                 keywords: '',
-                                menu: responses[1],
-                                results: responses[0],
+                                menu: responses[0],
+                                categories: responses[2],
+                                authors: responses[3],
+                                months: responses[4],
+                                results: responses[1],
                                 sessionId: req.sessionId,
                                 title: ''
                             };
+                            res
+                                .set({
+                                    'Content-Type': 'text/html; charset=utf-8',
+                                    'Content-Language': res.getLocale()
+                                })
+                                .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                                .render('search', data);
                         }
-                        res
-                            .set({
-                                'Content-Type': 'text/html; charset=utf-8',
-                                'Content-Language': res.getLocale()
-                            })
-                            .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                            .render('post', data);
+
                     } else {
                         next(error || new ApplicationError(404));
                     }

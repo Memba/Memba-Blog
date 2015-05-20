@@ -40,19 +40,19 @@ module.exports = {
 
             async.parallel(
                 [
-                    //get page data
-                    function(callback) {
-                        var path = convert.getPagePath(req.params.language, req.params.slug);
-                        index.findOneByPath(path, callback);
-                    },
                     //get menu
                     function(callback) {
                         menu.getMenu(req.params.language, callback);
+                    },
+                    //get page data
+                    function(callback) {
+                        var path = convert.getPagePath(req.params.language, req.params.slug);
+                        index.findByPath(path, callback);
                     }
                 ],
                 function(error, responses) {
-                    if(!error && Array.isArray(responses) && responses.length > 1 && responses[0] && responses[1]) {
-                        var data = utils.deepExtend({}, responses[0], { content: markdown.render(responses[0].text), menu: responses[1], sessionId: req.sessionId });
+                    if(!error && Array.isArray(responses) && responses.length > 1 && Array.isArray(responses[0]) && Array.isArray(responses[1]) && responses[1].length > 0) {
+                        var data = utils.deepExtend({}, responses[1][0], { content: markdown.render(responses[1][0].text), menu: responses[0], sessionId: req.sessionId });
                         res
                             .set({
                                 'Content-Type': 'text/html; charset=utf-8',

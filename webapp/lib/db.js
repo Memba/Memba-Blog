@@ -19,7 +19,8 @@ var fs = require('fs'),
 // IMPORTANT: fork the indexer as a child process
 // Issue with mocha tests
 // See https://github.com/mochajs/mocha/issues/769
-// See http://stackoverflow.com/questions/16840623/how-to-debug-node-js-child-forked-process#comment24317454_16843277
+// https://youtrack.jetbrains.com/issue/WEB-1919
+// See http://stackoverflow.com/questions/16840623/how-to-debug-node-js-child-forked-process
 // See http://stackoverflow.com/questions/19252310/how-to-fork-a-child-process-that-listens-on-a-different-debug-port-than-the-pare
 var execArgv = process.execArgv.slice();
 if (Array.isArray(execArgv) && execArgv.length > 0 && typeof execArgv[0] === 'string') {
@@ -29,17 +30,21 @@ if (Array.isArray(execArgv) && execArgv.length > 0 && typeof execArgv[0] === 'st
     }
 }
 console.log('Forking child indexing process');
+console.dir(execArgv);
 var indexer = require('child_process').fork(path.join(__dirname, 'db_child.js'), undefined, { execArgv: execArgv });
 
-// IMPORTANT: file watcher to load index file when ready
+/**
+ * The chokidar file watcher loads the index when it is ready
+ */
 chokidar.watch(convert.getIndexDir()).on('all', function(event, path) {
     console.log(event, path);
     if(/^add$|^change$/i.test(event)) {
         var language = convert.index2language(path);
-        db[language].load();
+        if (locales.indexOf(language) > -1) {
+            db[language].load();
+        }
     }
 });
-
 
 /**
  * Collection class
@@ -98,7 +103,7 @@ Collection.prototype.find = function(query, callback) {
             if (query.hasOwnProperty(prop)) {
                 var criterion = query[prop];
                 if (criterion instanceof RegExp) {
-                    ret = ret && query[prop].test(indexEntry.prop);
+                    ret = ret && criterion.test(indexEntry[prop]);
                 } else if (utils.isObject(criterion)) {
                     for (var operator in criterion) {
                         if (criterion.hasOwnProperty(operator)) {
@@ -122,52 +127,79 @@ Collection.prototype.find = function(query, callback) {
                                 case '$ne':
                                     ret = ret && (indexEntry[prop] !== criterion[operator]);
                                     break;
+                                case '$regex':
+                                    ret = ret && criterion[operator].test(indexEntry[prop]);
+                                    break;
                             }
                         }
                     }
                 } else {
-                    ret = ret && (indexEntry[prop] === query[prop]);
+                    ret = ret && (indexEntry[prop] === criterion);
                 }
             }
         }
         return ret;
     });
+    //TODO: always sort by creation date (reversed)
     callback(null, results);
 };
+
 
 /**
- * Group data in the index
- * @param group in the form { _id:..., count }
+ * Group
+ * @see http://docs.mongodb.org/manual/reference/method/db.collection.group/
+ * @param query
  * @param callback
  */
-/*
-Collection.prototype.count = function(group, callback) {
-    var results = [];
-    group = group || {};
-    this.data.forEach(function(indexEntry) {
-        var groupValue = {};
-        for (var prop in group) {
+Collection.prototype.group = function(query, callback) {
 
-        }
-    });
-    var results = this.data.filter(function(indexEntry) {
-        var ret = true;
-        for (var prop in query) {
-            if (query.hasOwnProperty(prop)) {
-                var value = query[prop];
-                if (value instanceof RegExp) {
-                    ret = ret && query[prop].test(indexEntry.prop);
-                } else {
-                    ret = ret && (indexEntry[prop] === query[prop]);
+    /**
+     * Return a group from key or keyf
+     * @param doc
+     * @returns {{}}
+     */
+    function getGroup(doc) {
+        var grp = {};
+        if (query.keyf) {
+            grp = query.keyf(doc);
+        } else if (query.key) {
+            for (var prop in query.key) {
+                if (query.key.hasOwnProperty(prop) && query.key[prop]) {
+                    grp[prop] = doc[prop];
                 }
             }
         }
-        return ret;
-    });
-    callback(null, results);
-};
-*/
+        return grp;
+    }
 
+    var groups = [];
+
+    //Note: we iterate on this.data
+    //but if we were to implement query.cond we would iterate on the result of the find method using query.cond
+    this.data.forEach(function(indexEntry) {
+        var group, groupToFind = getGroup(indexEntry);
+        for (var i = 0; i < groups.length; i++) {
+            var found = true;
+            for (var prop in groupToFind) {
+                if (groupToFind.hasOwnProperty(prop)) {
+                    found = found && groups[i][prop] === groupToFind[prop];
+                }
+            }
+            if (found) {
+                group = groups[i];
+                break;
+            }
+        }
+        if(!group) {
+            group = utils.deepExtend({}, query.initial, groupToFind);
+            groups.push(group);
+        }
+        if (typeof query.reduce === 'function') {
+            query.reduce(indexEntry, group);
+        }
+    });
+    callback(null, groups);
+};
 
 
 /**

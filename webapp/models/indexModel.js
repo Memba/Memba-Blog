@@ -7,56 +7,151 @@
 
 'use strict';
 
-var convert = require('../lib/convert'),
-    db = require('../lib/db');
+var util = require('util'),
+    convert = require('../lib/convert'),
+    db = require('../lib/db'),
+    cache = {
+        authors: {},
+        categories: {},
+        months: {}
+    };
 
 module.exports = {
 
     /**
-     * Search index for content by site_url
-     * @param site_url
+     * Return all index entries
+     * @param language
      * @param callback
      */
-    findContentBySiteUrl: function(site_url, callback) {
-        //var language = convert.site_url2language(site_url),
-        //    collection = module.exports.getCollection(language);
-        //collection.find({site_yrl: site_url}, function(err, contents) {
-        //    callback(err, contents);
-        //});
-
-        /*
-         var language = convert.site_url2language(site_url);
-         module.exports.getIndex(language, function(error, index) {
-            if (!error && Array.isArray(index)) {
-                var results = index.filter(function(content) {
-                    return (content.site_url.indexOf(site_url) === 0);
-                });
-                if(Array.isArray(results)) {
-                    callback(null, results);
-                } else {
-                    callback(null, []);
-                }
-            } else {
-                callback(error || new ApplicationError('Index is not the expected array of content data'));
-            }
-        });
-        */
+    getIndex: function(language, callback) {
+        db[language].find({}, callback);
     },
 
     /**
-     * Search index for one entry by path
+     * Search index by site_url
+     * @param site_url
+     * @param callback
+     */
+    findBySiteUrl: function(site_url, callback) {
+        var language = convert.site_url2language(site_url);
+        db[language].find({site_url: new RegExp('^' + site_url, 'i')}, callback);
+    },
+
+    /**
+     * Search index by path
      * @param path
      * @param callback
      */
-    findOneByPath: function(path, callback) {
+    findByPath: function(path, callback) {
         var language = convert.path2language(path);
-        db[language].find({path: path}, function(error, indexEntries) {
-            if(!error && Array.isArray(indexEntries) && indexEntries.length) {
-                callback(error, indexEntries[0]);
-            } else {
-                callback(error);
-            }
-        });
+        db[language].find({path: path}, callback);
+    },
+
+    /**
+     * Get grouped categories
+     * @param language
+     * @param callback
+     */
+    groupByCategory: function(language, callback) {
+        if (cache.categories[language]) {
+            callback(null, cache.categories[language]);
+        } else {
+            db[language].group(
+                {
+                    key: { category: 1 },
+                    reduce: function (curr, result) {
+                        result.count++;
+                    },
+                    //TODO consider adding cond to limit to posts
+                    initial: { count: 0 }
+                },
+                function(error, categories) {
+                    if (!error && categories) {
+                        cache.categories[language] = categories;
+                        callback(null, categories);
+                    } else {
+                        callback(error);
+                    }
+                }
+            );
+        }
+    },
+
+    /**
+     * Get grouped authors
+     * @param language
+     * @param callback
+     */
+    groupByAuthor: function(language, callback) {
+        if (cache.authors[language]) {
+            callback(null, cache.authors[language]);
+        } else {
+            db[language].group(
+                {
+                    key: { author: 1, avatar_url: 1 },
+                    reduce: function (curr, result) {
+                        result.count++;
+                    },
+                    //TODO consider adding cond to limit to posts
+                    initial: { count: 0 }
+                },
+                function(error, authors) {
+                    if (!error && authors) {
+                        cache.authors[language] = authors;
+                        callback(null, authors);
+                    } else {
+                        callback(error);
+                    }
+                }
+            );
+        }
+    },
+
+    /**
+     * Get grouped year/months
+     * @param path
+     * @param callback
+     */
+    groupByYearMonth: function(language, callback) {
+        if (cache.months[language]) {
+            callback(null, cache.months[language]);
+        } else {
+            db[language].group(
+                {
+                    keyf: function (doc) {
+                        var date = new Date(doc.creation_date);
+                        return {
+                            year: date.getUTCFullYear(),
+                            month: date.getUTCMonth()
+                        };
+                    },
+                    reduce: function (curr, result) {
+                        result.count++;
+                    },
+                    //TODO consider adding cond to limit to posts
+                    initial: { count: 0 }
+                },
+                function(error, months) {
+                    if (!error && months) {
+                        cache.months[language] = months;
+                        callback(null, months);
+                    } else {
+                        callback(error);
+                    }
+                }
+            );
+        }
+    },
+
+    /**
+     * Reset cache
+     */
+    resetCache: function() {
+        cache = {
+            authors: {},
+            categories: {},
+            months: {}
+        };
     }
 
 };
