@@ -12,20 +12,6 @@
 			"icon": ""
 		}
 	],
-	"months": [
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December"
-	],
 	"themes": [
 		{
 			"value": "black",
@@ -191,7 +177,7 @@
 			"tooltip": "Change your page theme."
 		}
 	},
-	"post": {
+	"groups": {
 		"authors": {
 			"icon": "users3",
 			"heading": "Authors"
@@ -205,12 +191,12 @@
 			"heading": "Categories"
 		}
 	},
-    "search": {
-        "title": {
-            "icon": "magnifying_glass",
-            "heading": "Search results"
-        }
-    },
+	"search": {
+		"title": {
+			"icon": "magnifying_glass",
+			"heading": "Search results"
+		}
+	},
 	"errors": {
 		"generic": {
 			"400": {

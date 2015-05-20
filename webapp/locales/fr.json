@@ -12,7 +12,6 @@
 			"icon": ""
 		}
 	],
-    "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
     "themes": [
         {
             "value": "black",
@@ -178,7 +177,7 @@
             "tooltip": "Changez le thème de votre page."
         }
     },
-    "post": {
+    "groups": {
         "authors": {
             "icon": "users3",
             "heading": "Auteurs"
