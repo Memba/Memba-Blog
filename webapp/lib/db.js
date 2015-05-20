@@ -90,57 +90,64 @@ Collection.prototype.reindex = function() {
     }
 };
 
-/**
- * Find data in the index
- * @param query
- * @param callback
- */
-Collection.prototype.find = function(query, callback) {
+
+function mongoQuery(data, query) {
     query = query || {};
-    var results = this.data.filter(function(indexEntry) {
-        var ret = true;
+    var results = data.filter(function(indexEntry) {
+        var include = true;
         for (var prop in query) {
             if (query.hasOwnProperty(prop)) {
                 var criterion = query[prop];
                 if (criterion instanceof RegExp) {
-                    ret = ret && criterion.test(indexEntry[prop]);
+                    include = include && criterion.test(indexEntry[prop]);
                 } else if (utils.isObject(criterion)) {
                     for (var operator in criterion) {
                         if (criterion.hasOwnProperty(operator)) {
                             // @see http://docs.mongodb.org/manual/reference/operator/query/
                             switch(operator) {
                                 case '$eq':
-                                    ret = ret && (indexEntry[prop] === criterion[operator]);
+                                    include = include && (indexEntry[prop] === criterion[operator]);
                                     break;
                                 case '$gt':
-                                    ret = ret && (indexEntry[prop] > criterion[operator]);
+                                    include = include && (indexEntry[prop] > criterion[operator]);
                                     break;
                                 case '$gte':
-                                    ret = ret && (indexEntry[prop] >= criterion[operator]);
+                                    include = include && (indexEntry[prop] >= criterion[operator]);
                                     break;
                                 case '$lt':
-                                    ret = ret && (indexEntry[prop] < criterion[operator]);
+                                    include = include && (indexEntry[prop] < criterion[operator]);
                                     break;
                                 case '$lte':
-                                    ret = ret && (indexEntry[prop] <= criterion[operator]);
+                                    include = include && (indexEntry[prop] <= criterion[operator]);
                                     break;
                                 case '$ne':
-                                    ret = ret && (indexEntry[prop] !== criterion[operator]);
+                                    include = include && (indexEntry[prop] !== criterion[operator]);
                                     break;
                                 case '$regex':
-                                    ret = ret && criterion[operator].test(indexEntry[prop]);
+                                    include = include && criterion[operator].test(indexEntry[prop]);
                                     break;
                             }
                         }
                     }
                 } else {
-                    ret = ret && (indexEntry[prop] === criterion);
+                    include = include && (indexEntry[prop] === criterion);
                 }
             }
         }
-        return ret;
+        return include;
     });
-    //TODO: always sort by creation date (reversed)
+    return results;
+}
+
+
+/**
+ * Find data in the index
+ * @param query
+ * @param callback
+ */
+Collection.prototype.find = function(query, callback) {
+    var results = mongoQuery(this.data, query);
+    //Note: Results are not sorted
     callback(null, results);
 };
 
@@ -172,11 +179,18 @@ Collection.prototype.group = function(query, callback) {
         return grp;
     }
 
-    var groups = [];
+    var data = [],
+        groups = [];
 
-    //Note: we iterate on this.data
-    //but if we were to implement query.cond we would iterate on the result of the find method using query.cond
-    this.data.forEach(function(indexEntry) {
+    //Filter data with query.cond
+    if (utils.isObject(query.cond)) {
+        data = mongoQuery(this.data, query.cond);
+    } else {
+        data = this.data;
+    }
+
+    //Now iterate over data to aggregate groups
+    data.forEach(function(indexEntry) {
         var group, groupToFind = getGroup(indexEntry);
         for (var i = 0; i < groups.length; i++) {
             var found = true;
