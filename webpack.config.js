@@ -33,7 +33,7 @@ var dedupePlugin = new webpack.optimize.DedupePlugin();
  * commonsChunkPlugin builds a common denominator of the designated chunks
  */
 var commonsChunkPlugin =
-    new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['home', 'post', 'page', 'error'] });
+    new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['home', 'post', 'page', 'search', 'error'] });
 
 
 //TODO read copyright from package.json
@@ -61,6 +61,7 @@ module.exports = {
         home:   '../js/app.home.js',
         page:   '../js/app.page.js',
         post:   '../js/app.post.js',
+        search: '../js/app.search.js',
         error:  '../js/app.error.js'
     },
     externals: { //CDN modules

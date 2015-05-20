@@ -1,0 +1,44 @@
+@import "./app.mixins.less";
+
+/*********************************************
+ * Site page
+ ********************************************/
+#search-wrapper {
+    .wrapper();
+}
+
+/*********************************************
+ * post groups by categories. authors, months
+ ********************************************/
+div.group {
+    margin-bottom: 40px;
+    img {
+        height: 28px;
+        width: 28px;
+        vertical-align: top;
+    }
+    div.list-group {
+        img {
+            height: 24px;
+            width: 24px;
+        }
+    }
+}
+
+/*********************************************
+ * Printing
+ ********************************************/
+
+// See http://getbootstrap.com/css/#responsive-utilities-print
+@media print {
+    //Make sure we fit page width
+    .container {
+        width: auto;
+    }
+    //Reposition content for hiding header, footer and toolbar
+    #search-wrapper {
+        position: relative;
+        top: 0px;
+        overflow: visible;
+    }
+}
