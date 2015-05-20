@@ -12,6 +12,20 @@
 			"icon": ""
 		}
 	],
+	"months": [
+		"January",
+		"February",
+		"March",
+		"April",
+		"May",
+		"June",
+		"July",
+		"August",
+		"September",
+		"October",
+		"November",
+		"December"
+	],
 	"themes": [
 		{
 			"value": "black",
@@ -49,15 +63,15 @@
 				"#5a4b43"
 			]
 		},
-        {
-            "value": "fiori",
-            "name": "Fiori",
-            "colors": [
-                "#007cc0",
-                "#e6f2f9",
-                "#f0f0f0"
-            ]
-        },
+		{
+			"value": "fiori",
+			"name": "Fiori",
+			"colors": [
+				"#007cc0",
+				"#e6f2f9",
+				"#f0f0f0"
+			]
+		},
 		{
 			"value": "flat",
 			"name": "Flat",
@@ -121,15 +135,15 @@
 				"#212a33"
 			]
 		},
-        {
-            "value": "office365",
-            "name": "Office 365",
-            "colors": [
-                "#0072c6",
-                "#cde6f7",
-                "#fff"
-            ]
-        },
+		{
+			"value": "office365",
+			"name": "Office 365",
+			"colors": [
+				"#0072c6",
+				"#cde6f7",
+				"#fff"
+			]
+		},
 		{
 			"value": "silver",
 			"name": "Silver",
@@ -154,80 +168,84 @@
 		"title": "Kidoju Blog",
 		"description": "Kidoju Blog is where you can find support about the Kidoju platform, including links to articles, documentation, ebooks, videos, webinars, slide decks, partner organizations",
 		"keywords": "Kidoju, teach, learn, knowledge, test, blog, article, documentation, ebook, video, webinar, slide",
-        "category": "Default",
-        "icon": "typewriter"
+		"category": "Default",
+		"icon": "typewriter"
 	},
-    "header": {
-        "navbar": {
-            "toggle": "Toggle navigation",
-            "menu": [
-                { "text": "Support", "href": "/en/", "content": "support.md" },
-                { "text": "Blog", "href": "/en/posts" },
-                { "text": "More",
-                    "items": [
-                        { "text": "FAQs", "href": "/en/faqs", "content": "faqs.md" },
-                        { "text": "Privacy Policy", "href": "/en/privacy", "content": "privacy.md" },
-                        { "text": "Terms of Use", "href": "/en/terms", "content": "terms.md" }
-                    ]
-                }
-            ],
-            "search": {
-                "text": "Search",
-                "placeholder": "Search..."
-            }
-        },
-        "logo": {
-            "src": "kidoju.logo.svg",
-            "alt": "Kidoju Logo"
+	"header": {
+		"navbar": {
+			"toggle": "Toggle navigation",
+			"search": {
+				"text": "Search",
+				"placeholder": "Search..."
+			}
+		}
+	},
+	"footer": {
+		"copyright": "Copyright &copy; 2013-2015 Memba Sarl",
+		"language": {
+			"label": "Language:",
+			"tooltip": "Change your language."
+		},
+		"theme": {
+			"label": "Theme:",
+			"tooltip": "Change your page theme."
+		}
+	},
+	"post": {
+		"authors": {
+			"icon": "users3",
+			"heading": "Authors"
+		},
+		"calendar": {
+			"icon": "calendar",
+			"heading": "Calendar"
+		},
+		"categories": {
+			"icon": "tags",
+			"heading": "Categories"
+		}
+	},
+    "search": {
+        "title": {
+            "icon": "magnifying_glass",
+            "heading": "Search results"
         }
     },
-    "footer": {
-        "copyright": "Copyright &copy; 2013-2015 Memba Sarl",
-        "language": {
-            "label": "Language:",
-            "tooltip": "Change your language."
-        },
-        "theme": {
-            "label": "Theme:",
-            "tooltip": "Change your page theme."
-        }
-    },
-    "errors": {
-        "generic": {
-            "400": {
-                "status": 400,
-                "title": "400 - Bad Request",
-                "message": "We are sorry, but there is something wrong in your request. The URL may be misspelled."
-            },
-            "404": {
-                "status": 404,
-                "title": "404 - Not Found",
-                "message": "We are sorry, the page you requested cannot be found. The URL may be misspelled or the page you're looking for is no longer available."
-            },
-            "500": {
-                "status": 500,
-                "title": "500 - Generic Error",
-                "message": "We are sorry, there has been an unknown error."
-            }
-        },
-        "middleware": {
-        },
-        "models": {
-            "contentModel": {
-                "md_extension": {
-                    "message": "We are sorry, there has been an unknown error."
-                },
-                "unexpected_commits": {
-                    "message": "We are sorry, there has been an unknown error."
-                }
-            }
-        },
-        "routes": {
-            "hookRoute": {
-                "badAgent": {
-                    "message": "Unexpected user agent: `%s`."
-                }
-            }
-        }
-    }
+	"errors": {
+		"generic": {
+			"400": {
+				"status": 400,
+				"title": "400 - Bad Request",
+				"message": "We are sorry, but there is something wrong in your request. The URL may be misspelled."
+			},
+			"404": {
+				"status": 404,
+				"title": "404 - Not Found",
+				"message": "We are sorry, the page you requested cannot be found. The URL may be misspelled or the page you're looking for is no longer available."
+			},
+			"500": {
+				"status": 500,
+				"title": "500 - Generic Error",
+				"message": "We are sorry, there has been an unknown error."
+			}
+		},
+		"middleware": {},
+		"models": {
+			"contentModel": {
+				"md_extension": {
+					"message": "We are sorry, there has been an unknown error."
+				},
+				"unexpected_commits": {
+					"message": "We are sorry, there has been an unknown error."
+				}
+			}
+		},
+		"routes": {
+			"hookRoute": {
+				"badAgent": {
+					"message": "Unexpected user agent: `%s`."
+				}
+			}
+		}
+	}
 }

@@ -12,6 +12,7 @@
 			"icon": ""
 		}
 	],
+    "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
     "themes": [
         {
             "value": "black",
@@ -160,25 +161,10 @@
 	"header": {
 		"navbar": {
             "toggle": "Changer la navigation",
-            "menu": [
-                { "text": "Support", "href": "./fr/", "content": "support.md" },
-                { "text": "Blog", "href": "./fr/posts" },
-                { "text": "Plus",
-                    "items": [
-                        { "text": "FAQs", "href": "./fr/faqs", "content": "faqs.md" },
-                        { "text": "Confidentialité des Données", "href": "./fr/privacy", "content": "privacy.md" },
-                        { "text": "Conditions d'Utilisation", "href": "./fr/terms", "content": "terms.md" }
-                    ]
-                }
-            ],
 			"search": {
                 "text": "Rechercher",
                 "placeholder": "Recherche..."
 			}
-		},
-		"logo": {
-            "src": "kidoju.logo.svg",
-            "alt": "Memba Logo"
 		}
 	},
     "footer": {
@@ -190,6 +176,26 @@
         "theme": {
             "label": "Thème:",
             "tooltip": "Changez le thème de votre page."
+        }
+    },
+    "post": {
+        "authors": {
+            "icon": "users3",
+            "heading": "Auteurs"
+        },
+        "calendar": {
+            "icon": "calendar",
+            "heading": "Calendrier"
+        },
+        "categories": {
+            "icon": "tags",
+            "heading": "Catégories"
+        }
+    },
+    "search": {
+        "title": {
+            "icon": "magnifying_glass",
+            "heading": "Résultats de recherche"
         }
     },
 	"errors": {
