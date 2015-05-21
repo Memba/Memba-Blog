@@ -28,22 +28,22 @@
 .kf-blog:before {
   content: "\f103";
 }
-.kf-signout:before {
+.kf-datetime:before {
   content: "\f104";
 }
-.kf-view:before {
+.kf-signout:before {
   content: "\f105";
 }
-.kf-facebook:before {
+.kf-view:before {
   content: "\f106";
 }
-.kf-feed:before {
+.kf-facebook:before {
   content: "\f107";
 }
-.kf-search-adv:before {
+.kf-feed:before {
   content: "\f108";
 }
-.kf-flashcard:before {
+.kf-search-adv:before {
   content: "\f109";
 }
 .kf-google:before {
@@ -52,38 +52,32 @@
 .kf-home:before {
   content: "\f10b";
 }
-.kf-kidoju:before {
+.kf-linkedin:before {
   content: "\f10c";
 }
-.kf-linkedin:before {
+.kf-live:before {
   content: "\f10d";
 }
-.kf-live:before {
+.kf-signin:before {
   content: "\f10e";
 }
-.kf-signin:before {
+.kf-comment:before {
   content: "\f10f";
 }
-.kf-comment:before {
+.kf-pinterest:before {
   content: "\f110";
 }
-.kf-pinterest:before {
+.kf-create:before {
   content: "\f111";
 }
-.kf-create:before {
+.kf-publish:before {
   content: "\f112";
 }
-.kf-publish:before {
+.kf-help:before {
   content: "\f113";
 }
-.kf-help:before {
-  content: "\f114";
-}
-.kf-quiz:before {
-  content: "\f115";
-}
 .kf-report:before {
-  content: "\f116";
+  content: "\f114";
 }
 .kf-star:before {
   content: "\2605";
@@ -92,20 +86,20 @@
   content: "\2606";
 }
 .kf-stumbleupon:before {
-  content: "\f117";
+  content: "\f115";
 }
 .kf-tags:before {
-  content: "\f118";
+  content: "\f116";
 }
 .kf-score:before {
-  content: "\f119";
+  content: "\f117";
 }
 .kf-twitter:before {
-  content: "\f11a";
+  content: "\f118";
 }
 .kf-user:before {
-  content: "\f11b";
+  content: "\f119";
 }
 .kf-youtube:before {
-  content: "\f11c";
+  content: "\f11a";
 }
