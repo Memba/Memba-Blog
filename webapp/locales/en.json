@@ -150,11 +150,11 @@
 		}
 	],
 	"meta": {
-		"author": "Kidoju",
-		"title": "Kidoju Blog",
-		"description": "Kidoju Blog is where you can find support about the Kidoju platform, including links to articles, documentation, ebooks, videos, webinars, slide decks, partner organizations",
-		"keywords": "Kidoju, teach, learn, knowledge, test, blog, article, documentation, ebook, video, webinar, slide",
-		"category": "Default",
+		"author": "Memba Sarl",
+		"title": "Memba",
+		"description": "Memba are the proud makers of Kidoju",
+		"keywords": "Memba, Kidoju, teach, learn, knowledge, test, blog, article, documentation, ebook, video, webinar, slide",
+		"category": "Miscellaneous",
 		"icon": "typewriter"
 	},
 	"header": {
@@ -167,7 +167,7 @@
 		}
 	},
 	"footer": {
-		"copyright": "Copyright &copy; 2013-2015 Memba Sarl",
+		"copyright": "Copyright &copy; 2014-2015 Memba Sarl",
 		"language": {
 			"label": "Language:",
 			"tooltip": "Change your language."
@@ -177,7 +177,10 @@
 			"tooltip": "Change your page theme."
 		}
 	},
-	"groups": {
+	"error": {
+        "back": "Back"
+    },
+    "groups": {
 		"authors": {
 			"icon": "users3",
 			"heading": "Authors"

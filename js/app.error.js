@@ -23,6 +23,9 @@
      * Wait until document is ready to initialize UI
      */
     $(document).on('locale.loaded', function() {
+        $('#back-button').click(function(e) {
+            window.history.back();
+        });
         app.logger.info($.extend(logEntry, { message: 'error page initialized in ' + app.locale.value() }));
     });
 
