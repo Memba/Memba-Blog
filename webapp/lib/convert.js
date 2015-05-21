@@ -78,6 +78,33 @@ module.exports = {
     },
 
     /**
+     * Returns a language root directory on Github
+     * @param language
+     * @returns {*}
+     */
+    getLanguageDir: function(language) {
+        return util.format(github.language, language);
+    },
+
+    /**
+     * Returns a page path on Github
+     * @param language
+     * @param slug
+     */
+    getPagePath: function(language, slug) {
+        return url.join(util.format(github.language, language), github.pages, (slug || 'index') + '.md');
+    },
+
+    /**
+     * Returns post root dir on Github
+     * @param language
+     */
+    getPostDir: function(language) {
+        return url.join(util.format(github.language, language), github.posts);
+    },
+
+
+    /**
      * Returns the index path for a designated language
      * @param language
      * @returns {*}
@@ -93,24 +120,6 @@ module.exports = {
      */
     getIndexDir: function() {
         return paths.join(__dirname, paths.dirname(db.index));
-    },
-
-    /**
-     * Returns a language root directory on Github
-     * @param language
-     * @returns {*}
-     */
-    getLanguageDir: function(language) {
-        return util.format(github.language, language);
-    },
-
-    /**
-     * Returns a page path
-     * @param language
-     * @param slug
-     */
-    getPagePath: function(language, slug) {
-        return url.join(util.format(github.language, language), github.pages, (slug || 'index') + '.md');
     },
 
     /**
