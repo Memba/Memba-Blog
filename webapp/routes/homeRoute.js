@@ -44,12 +44,12 @@ module.exports = {
                         })
                         .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                         .render('home', {
-                            author: res.__('meta:author'),
-                            description: res.__('meta:description'),
-                            keywords: res.__('meta:keywords'),
+                            author: res.__('meta.author'),
+                            description: res.__('meta.description'),
+                            keywords: res.__('meta.keywords'),
                             menu: data,
                             sessionId: sessionId,
-                            title: res.__('meta:title')
+                            title: res.__('meta.title')
                         });
                 } else {
                     next(error);
