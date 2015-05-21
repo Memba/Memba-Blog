@@ -67,27 +67,27 @@
             </div>
             <% // Section of the navigation bar which collapses on small devices %>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <% for (var i = 0; i < menu.length; i++) { if (menu[i].items) { %>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%- menu[i].text %>&nbsp;<span class="caret"></span></a>
-                            <ul class="dropdown-menu" role="menu">
-                                <% for (var j = 0; j < menu[i].items.length; j++) { %>
-                                    <li><a href="<%- menu[i].items[j].href %>"><%- menu[i].items[j].text %></a></li>
-                                <% } %>
-                            </ul>
-                        </li>
-                    <% } else { %>
-                        <li><a href="<%- menu[i].href %>"><%- menu[i].text %></a></li>
-                    <% } } %>
-                </ul>
                 <form class="navbar-form navbar-right" role="form">
                     <div class="form-group has-feedback">
-                        <input id="navbar-search-input" type="search" class="k-textbox" data-bind="value:search.navbar" placeholder="<%- __('header.navbar.search.placeholder') %>">
+                        <input id="navbar-search-input" type="search" class="k-textbox" placeholder="<%- __('header.navbar.search.placeholder') %>">
                         <span class="glyphicon glyphicon-search form-control-feedback"></span>
                         <!--span class="k-textbox k-space-right"><input type="search" value="Input with icon right" /><a href="#" class="k-icon k-i-search">&nbsp;</a></span-->
                     </div>
                 </form>
+                <ul class="nav navbar-nav navbar-right">
+                    <% for (var i = 0; i < menu.length; i++) { if (menu[i].items) { %>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%- menu[i].text %>&nbsp;<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <% for (var j = 0; j < menu[i].items.length; j++) { %>
+                            <li><a href="<%- menu[i].items[j].href %>"><%- menu[i].items[j].text %></a></li>
+                            <% } %>
+                        </ul>
+                    </li>
+                    <% } else { %>
+                    <li><a href="<%- menu[i].href %>"><%- menu[i].text %></a></li>
+                    <% } } %>
+                </ul>
             </div>
         </div>
     </nav>
