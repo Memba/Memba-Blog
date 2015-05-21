@@ -8,6 +8,7 @@
 'use strict';
 
 var util = require('util'),
+    moment = require('moment'),
     config = require('../config'),
     url = require('../lib/url');
 
@@ -45,6 +46,9 @@ var util = require('util'),
     res.locals.format = function () {
         return util.format.apply(this, arguments);
     };
+
+    //moment
+    res.locals.moment = moment;
 
     //Pass the req to the next middleware
     next();
