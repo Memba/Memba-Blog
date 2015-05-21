@@ -52,10 +52,12 @@ module.exports = {
 
         //Display error
         res.status(error.status).render('error', {
-            sessionId: req.sessionId,
+            author: res.__('meta.author'),
             description: error.message,
-            title: error.title,
-            menu: [] //Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
+            keywords: res.__('meta.keywords'),
+            menu: [], //Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
+            sessionId: req.sessionId,
+            title: error.title
         });
 
     }
