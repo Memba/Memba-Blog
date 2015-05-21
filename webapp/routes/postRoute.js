@@ -49,7 +49,7 @@ module.exports = {
                     //get blog post
                     function(callback) {
                         var site_url = req.protocol + '://' + req.get('host') + Url.parse(req.originalUrl).pathname;
-                        index.findBySiteUrl(site_url, callback);
+                        index.findBySiteUrl(site_url, req.query, callback);
                     },
                     //Get grouped categories
                     function(callback) {
@@ -87,17 +87,17 @@ module.exports = {
 
                         } else { //list of posts
                             data = {
-                                author: '',
-                                description: '',
-                                icon: 'magnifying_glass',
-                                keywords: '',
+                                author: res.__('meta.author'),
+                                description: res.__('meta.description'),
+                                icon: res.__('search.title.icon'),
+                                keywords: res.__('meta.keywords'),
                                 menu: responses[0],
                                 categories: responses[2],
                                 authors: responses[3],
                                 months: responses[4],
                                 results: responses[1],
                                 sessionId: req.sessionId,
-                                title: ''
+                                title: res.__('search.title.heading')
                             };
                             res
                                 .set({

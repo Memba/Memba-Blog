@@ -10,6 +10,7 @@
 var util = require('util'),
     convert = require('../lib/convert'),
     db = require('../lib/db'),
+    utils = require('../lib/utils'),
     cache = {
         authors: {},
         categories: {},
@@ -30,21 +31,34 @@ module.exports = {
     /**
      * Search index by site_url
      * @param site_url
+     * @param query
      * @param callback
      */
-    findBySiteUrl: function(site_url, callback) {
-        var language = convert.site_url2language(site_url);
-        db[language].find({site_url: new RegExp('^' + site_url, 'i')}, callback);
+    findBySiteUrl: function(site_url, query, callback) {
+        var language = convert.site_url2language(site_url),
+            query = utils.deepExtend(query, {site_url: new RegExp('^' + site_url, 'i')});
+        db[language].find(query, callback);
     },
 
     /**
      * Search index by path
      * @param path
+     * @param query
      * @param callback
      */
-    findByPath: function(path, callback) {
-        var language = convert.path2language(path);
-        db[language].find({path: path}, callback);
+    findByPath: function(path, query, callback) {
+        var language = convert.path2language(path), q;
+        if (utils.isObject(query) && Object.keys(query).length) {
+            if (query.q) {
+                //escape any non word/space character
+                var search = query.q.replace(/([^\w\s])/ig, '\\$&');
+                query.text = new RegExp(search, 'ig');
+                delete query.q;
+            }
+        } else {
+            query = { path: path };
+        }
+        db[language].find(query, callback);
     },
 
     /**
@@ -59,10 +73,10 @@ module.exports = {
             db[language].group(
                 {
                     key: { category: 1 },
+                    cond: { path: new RegExp('^' + convert.getPostDir(language), 'i') }, //we only want posts
                     reduce: function (curr, result) {
                         result.count++;
                     },
-                    //TODO consider adding cond to limit to posts
                     initial: { count: 0 }
                 },
                 function(error, categories) {
@@ -89,10 +103,10 @@ module.exports = {
             db[language].group(
                 {
                     key: { author: 1, avatar_url: 1 },
+                    cond: { path: new RegExp('^' + convert.getPostDir(language), 'i') }, //we only ant posts
                     reduce: function (curr, result) {
                         result.count++;
                     },
-                    //TODO consider adding cond to limit to posts
                     initial: { count: 0 }
                 },
                 function(error, authors) {
@@ -125,10 +139,10 @@ module.exports = {
                             month: date.getUTCMonth()
                         };
                     },
+                    cond: { path: new RegExp('^' + convert.getPostDir(language), 'i') }, //we only ant posts
                     reduce: function (curr, result) {
                         result.count++;
                     },
-                    //TODO consider adding cond to limit to posts
                     initial: { count: 0 }
                 },
                 function(error, months) {

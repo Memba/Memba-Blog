@@ -1,7 +1,7 @@
 <% include header.ejs %>
 
 <main>
-    <div id="blog-wrapper" class="k-content">
+    <div id="search-wrapper" class="k-content">
         <div class="container">
             <div class="page-header">
                 <h1>
@@ -10,8 +10,8 @@
                 </h1>
             </div>
             <div class="row">
-                <div class="col-sm-12">
-                    <ul class="media-list">
+                <div class="col-md-9">
+                    <ul class="k-listview media-list">
                         <% for (var i = 0; i < results.length; i++) { %>
                         <li class="media">
                             <div class="media-left">
@@ -20,16 +20,22 @@
                                 </a>
                             </div>
                             <div class="media-body">
-                                <a href="<%= results[i].site_url %>">
-                                    <h4 class="media-heading"><%= results[i].title %></h4>
-                                </a>
-                                <p><%= results[i].category %></p>
-                                <p><%= results[i].author %><%= results[i].creation_date %></p>
+                                <h4 class="media-heading">
+                                    <a href="<%= results[i].site_url %>"><%= results[i].title %></a>
+                                </h4>
+                                <div class="author">
+                                    <i class="kf kf-tags"></i><span>&nbsp;<%= results[i].category %></span>
+                                    <i class="kf kf-user"></i><span>&nbsp;<%= results[i].author %></span>
+                                    <i class="kf kf-datetime"></i><span>&nbsp;<%= moment(results[i].creation_date).locale(getLocale()).format('LLL') %></span>
+                                </div>
                                 <p><%= results[i].description %></p>
                             </div>
                         </li>
                         <% } %>
                     </ul>
+                </div>
+                <div class="col-md-3">
+                    <% include groups.ejs %>
                 </div>
             </div>
         </div>
@@ -38,6 +44,6 @@
 
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="/assets/common.bundle.js"></script>
-<script src="/assets/post.bundle.js"></script>
+<script src="/assets/search.bundle.js"></script>
 
 <% include footer.ejs %>
