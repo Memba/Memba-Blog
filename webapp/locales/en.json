@@ -178,6 +178,7 @@
 		}
 	},
 	"error": {
+        "icon": "error",
         "back": "Back"
     },
     "groups": {
