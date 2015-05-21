@@ -3,8 +3,27 @@
 /*********************************************
  * Site page
  ********************************************/
-#blog-wrapper {
+#post-wrapper {
     .wrapper();
+    //article content
+    article {
+        margin-top: 3em;
+    }
+    //side groups of months, categories, authors
+    div.group {
+        margin-bottom: 40px;
+        img {
+            height: 28px;
+            width: 28px;
+            vertical-align: top;
+        }
+        div.list-group {
+            img {
+                height: 24px;
+                width: 24px;
+            }
+        }
+    }
 }
 
 /*********************************************
@@ -18,7 +37,7 @@
         width: auto;
     }
     //Reposition content for hiding header, footer and toolbar
-    #blog-wrapper {
+    #post-wrapper {
         position: relative;
         top: 0px;
         overflow: visible;
