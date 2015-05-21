@@ -20,6 +20,14 @@ var fs = require('fs'),
     indexPath = paths.join(__dirname, config.get('db:index')),
     indexDir = paths.dirname(indexPath);
 
+// i18n: it is a child process so it needs to be configured too
+i18n.configure({
+    locales: config.get('locales'), //['en', 'fr'],
+    directory: paths.join(__dirname,  '../locales'),
+    objectNotation: true //Use hierarchies in locales.json files
+});
+console.log(__dirname);
+
 /**
  * format an index entry (and update Github contents accordingly)
  * @param response
