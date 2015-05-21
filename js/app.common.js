@@ -13,6 +13,7 @@
     //Theming
     require('./app.theme.js');
     require('../styles/app.page.common.less');
+    require('../styles/app.page.common.fix.less');
 
     //Kendo UI files
     require('./vendor/kendo/kendo.binder.js');
@@ -29,9 +30,11 @@
 
     var kendo = window.kendo,
         app = window.app = window.app || {},
+        BLUR = 'blur',
         CHANGE = 'change',
+        FOCUS = 'focus',
         KEYPRESS = 'keypress',
-        REGEX_FIND = /^\/[a-z]{2}\/?$/;
+        searchInputWidth;
 
     /**
      * Logs a message
@@ -47,7 +50,12 @@
      * Initialize the header
      */
     function initHeader() {
+        searchInputWidth = $('#navbar-search-input').width();
         //Search input
+        $('#navbar-search-input')
+            .on(BLUR, onSearchInputBlur);
+        $('#navbar-search-input')
+            .on(FOCUS, onSearchInputFocus);
         $('#navbar-search-input')
             .on(KEYPRESS, onSearchInputKeyPress);
     }
@@ -111,19 +119,28 @@
     }
 
     /**
+     * Event handler triggered when the search input loses focus
+     * @param e
+     */
+    function onSearchInputBlur(e) {
+        $(e.currentTarget).width(searchInputWidth);
+    }
+
+    /**
+     * Event handler triggered when the search input gets focus
+     * @param e
+     */
+    function onSearchInputFocus(e) {
+        $(e.currentTarget).width(400);
+    }
+
+    /**
      * Event handler triggered when pressing any key when the search input has focus
      * @param e
      */
     function onSearchInputKeyPress(e) {
         if (e.which === kendo.keys.ENTER || e.keyCode === kendo.keys.ENTER) {
-            $(e.currentTarget).blur(); //to trigger the input change event otherwise the viewModel is not updated
-            var hash = viewModel.search.getHash(false);
-            if (REGEX_FIND.test(window.location.pathname)) { //on the find page?
-                window.location.hash = hash;
-            } else { //anywhere else
-                var locale = viewModel.get('locale');
-                window.location.assign(kendo.format(app.uris.webapp.finder, locale) + hash);
-            }
+            window.location.href = kendo.format(app.uris.webapp.pages, app.locale.value()) + '?q=' + encodeURIComponent($(e.currentTarget).val());
             return false; // Prevent a form submission
         } else {
             return true; //accept any other character
