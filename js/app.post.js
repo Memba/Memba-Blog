@@ -15,7 +15,7 @@
 
     var app = window.app = window.app || {},
         logEntry = {
-            module: 'app.blog',
+            module: 'app.post',
             sessionId: $('#session').val()
         };
 
@@ -23,7 +23,7 @@
      * Wait until document is ready to initialize UI
      */
     $(document).on('locale.loaded', function() {
-        app.logger.info($.extend(logEntry, { message: 'blog page initialized in ' + app.locale.value() }));
+        app.logger.info($.extend(logEntry, { message: 'post page initialized in ' + app.locale.value() }));
     });
 
 }(window.jQuery));
