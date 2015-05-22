@@ -33,11 +33,12 @@ var util = require('util'),
                 }
             },
             webapp: {
+                root            : config.get('uris:webapp:root'),
                 home            : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
                 pages           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:pages')),
-                posts           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:posts'))
-                //rss           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:rss')),
-                //sitemap       : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:sitemap'))
+                posts           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:posts')),
+                feed            : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:feed')),
+                sitemap         : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:sitemap'))
             }
         }
     };
