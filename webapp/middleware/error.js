@@ -7,7 +7,8 @@
 
 'use strict';
 
-var ApplicationError = require('../lib/error'),
+var util = require('util'),
+    ApplicationError = require('../lib/error'),
     logger = require('../lib/logger'),
     utils = require('../lib/utils');
 
@@ -54,9 +55,12 @@ module.exports = {
         res.status(error.status).render('error', {
             author: res.__('meta.author'),
             description: error.message,
+            icon: util.format(res.locals.config.uris.cdn.svg.office, res.__('error.icon')),
             keywords: res.__('meta.keywords'),
             menu: [], //Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
+            results: [], //trick header to display noindex robots directive
             sessionId: req.sessionId,
+            site_url: false, //trick header to not display canonical link
             title: error.title
         });
 
