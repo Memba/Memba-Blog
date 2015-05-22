@@ -7,7 +7,8 @@
 
 'use strict';
 
-var logger = require('../lib/logger'),
+var util = require('util'),
+    logger = require('../lib/logger'),
     utils = require('../lib/utils'),
     menu = require('../models/menuModel');
 
@@ -46,9 +47,12 @@ module.exports = {
                         .render('home', {
                             author: res.__('meta.author'),
                             description: res.__('meta.description'),
+                            icon: util.format(res.locals.config.uris.cdn.svg.office, res.__('home.icon')), //TODO: Review
                             keywords: res.__('meta.keywords'),
                             menu: data,
+                            results: false, //trick header into not displaying robots noindex directive
                             sessionId: sessionId,
+                            site_url: res.locals.config.uris.webapp.home, //canonical link
                             title: res.__('meta.title')
                         });
                 } else {
