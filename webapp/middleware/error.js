@@ -58,7 +58,7 @@ module.exports = {
             icon: util.format(res.locals.config.uris.cdn.svg.office, res.__('error.icon')),
             keywords: res.__('meta.keywords'),
             menu: [], //Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
-            results: [], //trick header to display noindex robots directive
+            results: [], //trick header into displaying robots noindex directive
             sessionId: req.sessionId,
             site_url: false, //trick header to not display canonical link
             title: error.title
