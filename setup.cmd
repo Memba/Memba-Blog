@@ -4,6 +4,9 @@ REM update npm, which is a requirement for some modules
 npm install -g npm
 REM grunt command in terminal mode
 npm install -g grunt-cli
+REM build with webpack
+npm install -g webpack
+npm install -g webpack-dev-server
 REM code coverage with istanbul
 npm install -g istanbul
 REM karma command in terminal mode
