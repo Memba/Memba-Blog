@@ -15,9 +15,11 @@
                         <div class="pull-left"><i class="kf kf-user"></i>&nbsp;<%= author %></div>
                         <div class="pull-right"><i class="kf kf-datetime"></i>&nbsp;<%= moment(creation_date).locale(getLocale()).format('LLL') %></div>
                     </div>
-                    <article><%- content %></article>
+                    <div class="clearfix">
+                        <article><%- content %></article>
+                    </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 hidden-print">
                     <% include groups.ejs %>
                 </div>
             </div>
@@ -26,7 +28,7 @@
 </main>
 
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="/assets/common.bundle.js"></script>
-<script src="/assets/post.bundle.js"></script>
+<script src="<%= urljoin(config.uris.webapp.public, 'assets/common.bundle.js') %>"></script>
+<script src="<%= urljoin(config.uris.webapp.public, 'assets/post.bundle.js') %>"></script>
 
 <% include footer.ejs %>

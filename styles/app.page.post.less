@@ -5,22 +5,24 @@
  ********************************************/
 #post-wrapper {
     .wrapper();
-    //article content
-    article {
-        margin-top: 3em;
-    }
-    //side groups of months, categories, authors
-    div.group {
-        margin-bottom: 40px;
-        img {
-            height: 28px;
-            width: 28px;
-            vertical-align: top;
+    .container {
+        //article content
+        article {
+            margin-top: 3em;
         }
-        div.list-group {
+        //side groups of months, categories, authors
+        div.group {
+            margin-bottom: 40px;
             img {
-                height: 24px;
-                width: 24px;
+                height: 28px;
+                width: 28px;
+                vertical-align: top;
+            }
+            div.list-group {
+                img {
+                    height: 24px;
+                    width: 24px;
+                }
             }
         }
     }
@@ -32,14 +34,14 @@
 
 // See http://getbootstrap.com/css/#responsive-utilities-print
 @media print {
-    //Make sure we fit page width
-    .container {
-        width: auto;
-    }
     //Reposition content for hiding header, footer and toolbar
     #post-wrapper {
         position: relative;
         top: 0px;
         overflow: visible;
+        //Make sure we fit page width
+        .container {
+            width: auto;
+        }
     }
 }

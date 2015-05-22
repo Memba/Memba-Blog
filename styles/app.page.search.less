@@ -28,14 +28,20 @@
 
 // See http://getbootstrap.com/css/#responsive-utilities-print
 @media print {
-    //Make sure we fit page width
-    .container {
-        width: auto;
-    }
     //Reposition content for hiding header, footer and toolbar
     #search-wrapper {
         position: relative;
         top: 0px;
         overflow: visible;
+        //Make sure we fit page width
+        .container {
+            width: auto;
+            //Do not display links
+            .media-left {
+                a[href]::after {
+                    content: none;
+                }
+            }
+        }
     }
 }
