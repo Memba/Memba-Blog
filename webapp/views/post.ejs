@@ -1,22 +1,36 @@
 <% include header.ejs %>
 
 <main>
-    <div id="post-wrapper" class="k-content">
+    <div id="post-wrapper" class="k-content" itemscope itemtype="http://schema.org/BlogPosting">
         <div class="container">
             <div class="page-header">
                 <h1>
-                    <% if (icon) { %><img src="<%= format(config.uris.cdn.svg.office, icon) %>" alt="<%= title %>"><% } %>
-                    <span><%= title %></span>
+                    <% if (icon) { %><img src="<%= format(config.uris.cdn.svg.office, icon) %>" alt="<%= title %>" itemprop="image"><% } %>
+                    <span itemprop="name"><%= title %></span>
                 </h1>
             </div>
             <div class="row">
                 <div class="col-md-9">
                     <div>
-                        <div class="pull-left"><i class="kf kf-user"></i>&nbsp;<%= author %></div>
-                        <div class="pull-right"><i class="kf kf-datetime"></i>&nbsp;<%= moment(creation_date).locale(getLocale()).format('LLL') %></div>
+                        <div class="pull-left">
+                            <i class="kf kf-user"></i>&nbsp;
+                            <span itemprop="author"><%= author %></span>
+                        </div>
+                        <div class="pull-right">
+                            <i class="kf kf-datetime"></i>&nbsp;
+                            <time datetime="<%= creation_date %>" itemprop="datePublished"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
+                        </div>
+                        <div hidden>
+                            <span itemprop="articleSection"><%= category %></span>
+                            <span itemprop="inLanguage"><%= getLocale() %></span>
+                            <span itemprop="description"><%= description %></span>
+                            <span itemprop="url"><%= site_url %></span>
+                        </div>
                     </div>
                     <div class="clearfix">
-                        <article><%- content %></article>
+                        <article itemprop="articleBody">
+                            <%- content %>
+                        </article>
                     </div>
                 </div>
                 <div class="col-md-3 hidden-print">

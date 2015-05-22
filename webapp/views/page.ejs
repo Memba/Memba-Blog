@@ -1,17 +1,29 @@
 <% include header.ejs %>
 
 <main>
-    <div id="page-wrapper" class="k-content">
+    <div id="page-wrapper" class="k-content" itemscope itemtype="http://schema.org/Article">
         <div class="container">
             <div class="page-header">
                 <h1>
-                    <% if (icon) { %><img src="<%= format(config.uris.cdn.svg.office, icon) %>" alt="<%= title %>"><% } %>
-                    <span><%= title %></span>
+                    <% if (icon) { %><img src="<%= format(config.uris.cdn.svg.office, icon) %>" alt="<%= title %>" itemprop="image"><% } %>
+                    <span itemprop="name"><%= title %></span>
                 </h1>
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <%- content %>
+                    <div hidden>
+                        <span itemprop="author"><%= author %></span>
+                        <time datetime="<%= creation_date %>" itemprop="datePublished"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
+                        <span itemprop="articleSection"><%= category %></span>
+                        <span itemprop="inLanguage"><%= getLocale() %></span>
+                        <span itemprop="description"><%= description %></span>
+                        <span itemprop="url"><%= site_url %></span>
+                    </div>
+                    <div class="clearfix">
+                        <article itemprop="articleBody">
+                            <%- content %>
+                        </article>
+                    </div>
                 </div>
             </div>
         </div>
@@ -19,7 +31,7 @@
 </main>
 
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="/assets/common.bundle.js"></script>
-<script src="/assets/page.bundle.js"></script>
+<script src="<%= urljoin(config.uris.webapp.public, 'assets/common.bundle.js') %>"></script>
+<script src="<%= urljoin(config.uris.webapp.public, 'assets/page.bundle.js') %>"></script>
 
 <% include footer.ejs %>
