@@ -195,6 +195,9 @@
 			"heading": "Categories"
 		}
 	},
+    "home": {
+        "icon": "typewriter"
+    },
 	"search": {
 		"title": {
 			"icon": "magnifying_glass",

@@ -177,6 +177,9 @@
 			"tooltip": "Changez le thème de votre page."
 		}
 	},
+    "home": {
+        "icon": "typewriter"
+    },
     "error": {
         "icon": "error",
         "back": "Retour"
