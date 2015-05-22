@@ -26,6 +26,10 @@
     <% if (typeof site_url === 'string' ) { %>
     <link rel="canonical" href="<%= site_url %>" />
     <% } %>
+    <% // Robots: do not index/archive search pages %>
+    <% if (Array.isArray(results)) { %>
+    <meta name="robots" content="noindex, noarchive">
+    <% } %>
     <% // IE10 viewport hack for Surface/desktop Windows 8 bug %>
     <!--script src="//getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script-->
     <% // HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries %>
