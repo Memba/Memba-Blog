@@ -7,12 +7,15 @@
 
 'use strict';
 
+var url = require('url');
+
 function normalize (str) {
     return str
         .replace(/[\/]+/g, '/')
         .replace(/\/\?/g, '?')
         .replace(/\/\#/g, '#')
-        .replace(/\:\//g, '://');
+        .replace(/\:\//g, '://')
+        .replace(/[\/\#\?]*$/, '');
 }
 
 module.exports = {
@@ -25,6 +28,11 @@ module.exports = {
     join: function() {
         var joined = [].slice.call(arguments, 0).join('/');
         return normalize(joined);
-    }
+    },
+
+    /**
+     * delegate to url.parse function
+     */
+    parse: url.parse
 
 };
