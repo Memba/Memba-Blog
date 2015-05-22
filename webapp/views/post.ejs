@@ -1,7 +1,7 @@
 <% include header.ejs %>
 
 <main>
-    <div id="blog-wrapper" class="k-content">
+    <div id="post-wrapper" class="k-content">
         <div class="container">
             <div class="page-header">
                 <h1>
@@ -10,32 +10,15 @@
                 </h1>
             </div>
             <div class="row">
-                <div class="col-md-8">
-                    <% if (Array.isArray(results)) { %>
-                        <ul class="media-list">
-                        <% for (var i = 0; i < results.length; i++) { %>
-                        <li class="media">
-                            <div class="media-left">
-                                <a href="#">
-                                    <img class="media-object" src="<%= format(config.uris.cdn.svg.office, results[i].icon) %>" alt="<%= results[i].title %>">
-                                </a>
-                            </div>
-                            <div class="media-body">
-                                <h4 class="media-heading"><%= results[i].title %></h4>
-                                //TODO date, author, ....
-                                <p><%= results[i].description %></p>
-                            </div>
-                        </li>
-                        <% } %>
-                    </ul>
-                    <% } else { %>
-                        <%- content %>
-                    <% } %>
+                <div class="col-md-9">
+                    <div>
+                        <div class="pull-left"><i class="kf kf-user"></i>&nbsp;<%= author %></div>
+                        <div class="pull-right"><i class="kf kf-datetime"></i>&nbsp;<%= moment(creation_date).locale(getLocale()).format('LLL') %></div>
+                    </div>
+                    <article><%- content %></article>
                 </div>
-                <div class="col-md-4">
-                    Calendar
-                    Categories
-                    Authors
+                <div class="col-md-3">
+                    <% include groups.ejs %>
                 </div>
             </div>
         </div>
