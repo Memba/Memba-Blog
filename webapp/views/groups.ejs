@@ -7,7 +7,7 @@
         <% for (var i = 0; i < months.length; i++) { %>
         <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), months[i].year, ('0' + (months[i].month + 1)).slice(-2), '') %>">
             <span class="badge"><%= months[i].count %></span>
-            <%= __('months')[months[i].month] %>&nbsp;<%= months[i].year %>
+            <%= moment({ year: months[i].year, month: months[i].month }).locale(getLocale()).format('MMMM YYYY') %>
         </a>
         <% } %>
     </div>
@@ -19,7 +19,7 @@
     </h3>
     <div class="list-group">
         <% for (var i = 0; i < categories.length; i++) { %>
-        <a class="list-group-item" href="#">
+        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?category=' + encodeURIComponent(categories[i].category)) %>">
             <span class="badge"><%= categories[i].count %></span>
             <%= categories[i].category %>
         </a>
@@ -33,7 +33,7 @@
     </h3>
     <div class="list-group">
         <% for (var i = 0; i < authors.length; i++) { %>
-        <a class="list-group-item" href="#">
+        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?author=' + encodeURIComponent(authors[i].author)) %>">
             <span class="badge"><%= authors[i].count %></span>
             <img class="img-circle" src="<%= authors[i].avatar_url %>" alt="<%= authors[i].author %>">
             <%= authors[i].author %>
