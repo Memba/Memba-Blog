@@ -1,14 +1,14 @@
-<footer class="hidden-print" role="banner">
+<footer class="hidden-print">
     <div class="container-fluid">
         <div class="row">
-            <div id="footer-links" class="col-sm-4 hidden-xs">
+            <div id="footer-links" class="pull-left hidden-xs hidden-sm">
                 <div class="form-inline" role="form">
                     <span id="copyright"><%- __('footer.copyright') %></span>
                 </div>
             </div>
-            <div id="footer-settings" class="col-sm-8">
+            <div id="footer-settings" class="pull-right">
                 <div class="form-inline pull-right" role="form">
-                    <div class="form-group help" title="<%- __('footer.language.tooltip') %>">
+                    <div class="form-group" title="<%- __('footer.language.tooltip') %>">
                         <label for="footer-settings-language"><%- __('footer.language.label') %>&nbsp;
                             <select id="footer-settings-language" data-role="dropdownlist" data-bind="value:locale">
                                 <% __('languages').forEach(function(language){ %>
@@ -17,8 +17,7 @@
                             </select>
                         </label>
                     </div>
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <div class="form-group help" title="<%- __('footer.theme.tooltip') %>">
+                    <div class="form-group hidden-xs" title="<%- __('footer.theme.tooltip') %>">&nbsp;&nbsp;&nbsp;
                         <label for="footer-settings-theme"><%- __('footer.theme.label') %>&nbsp;
                             <select id="footer-settings-theme" data-role="dropdownlist" data-bind="value:theme">
                                 <% __('themes').forEach(function(theme){ %>
