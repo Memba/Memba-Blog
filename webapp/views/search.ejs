@@ -34,7 +34,7 @@
                         <% } %>
                     </ul>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 hidden-print">
                     <% include groups.ejs %>
                 </div>
             </div>
@@ -43,7 +43,7 @@
 </main>
 
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="/assets/common.bundle.js"></script>
-<script src="/assets/search.bundle.js"></script>
+<script src="<%= urljoin(config.uris.webapp.public, 'assets/common.bundle.js') %>"></script>
+<script src="<%= urljoin(config.uris.webapp.public, 'assets/search.bundle.js') %>"></script>
 
 <% include footer.ejs %>
