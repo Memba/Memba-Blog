@@ -8,7 +8,8 @@
 
 'use strict';
 
-var expect = require('chai').expect,
+var path = require('path'),
+    expect = require('chai').expect,
     convert = require('../../../webapp/lib/convert'),
     config = require('../../../webapp/config'),
     github = {
@@ -36,8 +37,30 @@ describe('lib/convert', function() {
     });
 
     it('getIndexPath', function() {
-        expect(convert.getIndexPath('fr')).to.match(/^fr/);
-        expect(convert.getIndexPath('en')).to.match(/^en/);
+        expect(convert.getIndexPath('fr')).to.match(/fr/);
+        expect(convert.getIndexPath('en')).to.match(/en/);
+    });
+
+    it('getIndexDir', function() {
+        expect(convert.getIndexDir()).to.equal(path.dirname(convert.getIndexPath('fr')));
+        expect(convert.getIndexDir()).to.equal(path.dirname(convert.getIndexPath('en')));
+    });
+
+    it('getLanguageDir', function() {
+        var dir = convert.getLanguageDir('en');
+        console.log(dir);
+    });
+
+    it('getPagePath', function() {
+
+    });
+
+    it('index2language', function() {
+
+    });
+
+    it('site_url2language', function() {
+
     });
 
     it('path2language', function() {
