@@ -44,7 +44,8 @@
          * @param theme
          * @param callback
          */
-        load: function (theme, callback) {
+        _load: function (theme, callback) {
+            //TODO Reject unlisted theme
             var oldTheme = localStorage.getItem(THEME), loader;
             if(typeof oldTheme === STRING && oldTheme !== theme) {
                 try {
@@ -59,8 +60,8 @@
                 } catch(e) {
                     log(e.message);
                 }
-                localStorage.setItem(THEME, theme);
             }
+            localStorage.setItem(THEME, theme);
             try {
                 //loader = require('bundle?name=[name]!style/useable!css!less!../styles/app.theme.' + theme + '.less');
                 loader = require('../styles/app.theme.' + theme + '.less');
@@ -81,8 +82,7 @@
          */
         value: function (theme) {
             if (typeof theme === STRING) {
-                //TODO Reject unlisted theme
-                app.theme.load(theme);
+                app.theme._load(theme);
             } else if (typeof theme === UNDEFINED) {
                 return localStorage.getItem(THEME);
             } else {
@@ -95,9 +95,9 @@
     //load theme
     var theme = app.theme.value();
     if(theme) {
-        app.theme.load(theme);
+        app.theme.value(theme);
     } else {
-        app.theme.load(DEFAULT);
+        app.theme.value(DEFAULT);
     }
 
 }());
