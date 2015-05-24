@@ -6,6 +6,16 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        jshint: {
+            all: ['gruntfile.js', 'js/**/*.js', 'webapp/**/*.js', 'test/**/*.js'],
+            options: {
+                jshintrc: true
+            }
+        },
+        kendo_lint: {
+            files: ['src/js/app*.js']
+        },
+        /*
         csslint: {
             strict: {
                 options: {
@@ -14,15 +24,22 @@ module.exports = function (grunt) {
                 src: ['src/styles/app.*.css']
             }
         },
-        jshint: {
-            all: ['gruntfile.js', 'js/**/*.js', 'webapp/**/*.js', 'test/**/*.js'],
-            options: {
-                jshintrc: true
+        */
+        webpack: {
+            build: require(__dirname + '/webpack.config.js')
+        },
+        mochaTest: {
+            ui: {
+                options: {
+                    quiet: false,
+                    reporter: 'spec',
+                    timeout: 10000,
+                    ui: 'bdd'
+                },
+                src: ['test/**/*.js']
             }
-        }/*,
-        kendo_lint: {
-            files: ['src/js/app*.js']
         }
+        /*
         yuidoc: {
             compile: {
                 name: '<%= pkg.name %>',
@@ -38,18 +55,24 @@ module.exports = function (grunt) {
         */
     });
 
-
-    //Javascript
+    //Lint
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    //grunt.loadNpmTasks('grunt-kendo-lint');
+    grunt.loadNpmTasks('grunt-kendo-lint');
+    //grunt.loadNpmTasks('grunt-contrib-csslint');
 
-    //Styles
-    grunt.loadNpmTasks('grunt-contrib-csslint');
+    //Build
+    grunt.loadNpmTasks('grunt-webpack');
+
+    //Tests
+    //grunt.loadNpmTasks('grunt-mocha');
+    grunt.loadNpmTasks('grunt-mocha-test');
 
     //Documentation
     //grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
-    grunt.registerTask('lint', ['jshint', 'csslint']);
-    grunt.registerTask('default', ['lint']);
+    grunt.registerTask('lint', ['jshint', 'kendo_lint']);
+    grunt.registerTask('build', ['webpack']);
+    grunt.registerTask('test', ['mochaTest']);
+    grunt.registerTask('default', ['lint', 'build', 'test']);
 
 };
