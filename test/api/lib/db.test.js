@@ -16,7 +16,7 @@ describe('lib/db', function() {
     describe('find method', function() {
 
         it('Retrieve all english index entries', function(done) {
-            db['en'].find({}, function(error, indexEntries) {
+            db.en.find({}, function(error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -42,7 +42,7 @@ describe('lib/db', function() {
         });
 
         it('Retrieve all french index entries', function(done) {
-            db['fr'].find({}, function(error, indexEntries) {
+            db.fr.find({}, function(error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -69,7 +69,7 @@ describe('lib/db', function() {
 
         it('Retrieve by language and path', function(done) {
             var PATH = 'en/pages/faqs.md';
-            db['en'].find({ language: 'en', path: PATH }, function(error, indexEntries) {
+            db.en.find({ language: 'en', path: PATH }, function(error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -96,7 +96,7 @@ describe('lib/db', function() {
 
         it('Retrieve by language and path with $eq', function(done) {
             var PATH = 'en/pages/faqs.md';
-            db['en'].find({ language: { $eq: 'en' }, path: { $eq: PATH } }, function(error, indexEntries) {
+            db.en.find({ language: { $eq: 'en' }, path: { $eq: PATH } }, function(error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -123,7 +123,7 @@ describe('lib/db', function() {
 
         it('Retrieve by category', function(done) {
             var CATEGORY = 'Default';
-            db['en'].find({ language: 'en', category: CATEGORY }, function(error, indexEntries) {
+            db.en.find({ language: 'en', category: CATEGORY }, function(error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -150,7 +150,7 @@ describe('lib/db', function() {
 
         it('Retrieve by author', function(done) {
             var AUTHOR = 'Jacques L. Chereau';
-            db['en'].find({ language: 'en', author: AUTHOR }, function(error, indexEntries) {
+            db.en.find({ language: 'en', author: AUTHOR }, function(error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -177,7 +177,7 @@ describe('lib/db', function() {
 
         it('Retrieve by root site_url', function(done) {
             var SITE_URL = new RegExp('^http://localhost:3000/en/posts/2015/');
-            db['en'].find({ language: 'en', site_url: SITE_URL }, function(error, indexEntries) {
+            db.en.find({ language: 'en', site_url: SITE_URL }, function(error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -204,7 +204,7 @@ describe('lib/db', function() {
 
         it('Retrieve by full text search', function(done) {
             var TEXT = new RegExp('support');
-            db['en'].find({ language: 'en', text: TEXT }, function(error, indexEntries) {
+            db.en.find({ language: 'en', text: TEXT }, function(error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -234,7 +234,7 @@ describe('lib/db', function() {
     describe('group method', function() {
 
         it('Retrieve a count by category', function (done) {
-            db['en'].group(
+            db.en.group(
                 {
                     key: { category: 1 },
                     reduce: function(curr, result) {
@@ -255,7 +255,7 @@ describe('lib/db', function() {
         });
 
         it('Retrieve a count by author', function (done) {
-            db['en'].group(
+            db.en.group(
                 {
                     key: { author: 1 },
                     reduce: function(curr, result) {
@@ -276,7 +276,7 @@ describe('lib/db', function() {
         });
 
         it('Retrieve a count by year and month', function (done) {
-            db['en'].group(
+            db.en.group(
                 {
                     keyf: function(doc) {
                         var date = new Date(doc.creation_date);

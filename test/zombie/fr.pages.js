@@ -4,7 +4,7 @@
  */
 
 /* jshint node: true, expr: true */
-/* globals describe: false, before: false, it: false */
+/* globals describe: false, before: false, it: false, after: false  */
 
 'use strict';
 
