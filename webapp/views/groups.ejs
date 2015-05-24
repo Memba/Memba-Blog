@@ -1,43 +1,43 @@
-<div class="group">
+<section class="group">
     <h3>
         <img src="<%= format(config.uris.cdn.svg.office, __('groups.calendar.icon')) %>" alt="<%- __('groups.calendar.heading') %>">
         <span><%- __('groups.calendar.heading') %></span>
     </h3>
-    <div class="list-group">
+    <div class="list-group" role="menu">
         <% for (var i = 0; i < months.length; i++) { %>
-        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), months[i].year, ('0' + (months[i].month + 1)).slice(-2), '') %>">
+        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), months[i].year, ('0' + (months[i].month + 1)).slice(-2), '') %>" role="menuitem">
             <span class="badge"><%= months[i].count %></span>
             <%= moment({ year: months[i].year, month: months[i].month }).locale(getLocale()).format('MMMM YYYY') %>
         </a>
         <% } %>
     </div>
-</div>
-<div class="group">
+</section>
+<section class="group">
     <h3>
         <img src="<%= format(config.uris.cdn.svg.office, __('groups.categories.icon')) %>" alt="<%- __('groups.categories.heading') %>">
         <span><%- __('groups.categories.heading') %></span>
     </h3>
-    <div class="list-group">
+    <div class="list-group" role="menu">
         <% for (var i = 0; i < categories.length; i++) { %>
-        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?category=' + encodeURIComponent(categories[i].category)) %>">
+        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?category=' + encodeURIComponent(categories[i].category)) %>" role="menuitem">
             <span class="badge"><%= categories[i].count %></span>
             <%= categories[i].category %>
         </a>
         <% } %>
     </div>
-</div>
-<div class="group">
+</section>
+<section class="group">
     <h3>
         <img src="<%= format(config.uris.cdn.svg.office, __('groups.authors.icon')) %>" alt="<%- __('groups.authors.heading') %>">
         <span><%- __('groups.authors.heading') %></span>
     </h3>
-    <div class="list-group">
+    <div class="list-group" role="menu">
         <% for (var i = 0; i < authors.length; i++) { %>
-        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?author=' + encodeURIComponent(authors[i].author)) %>">
+        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?author=' + encodeURIComponent(authors[i].author)) %>" role="menuitem">
             <span class="badge"><%= authors[i].count %></span>
             <img class="img-circle" src="<%= authors[i].avatar_url %>" alt="<%= authors[i].author %>">
             <%= authors[i].author %>
         </a>
         <% } %>
     </div>
-</div>
+</section>
