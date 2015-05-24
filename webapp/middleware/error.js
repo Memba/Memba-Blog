@@ -55,12 +55,12 @@ module.exports = {
         res.status(error.status).render('error', {
             author: res.__('meta.author'),
             description: error.message,
-            icon: util.format(res.locals.config.uris.cdn.svg.office, res.__('error.icon')),
+            icon: res.__('error.icon'),
             keywords: res.__('meta.keywords'),
             menu: [], //Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
             results: [], //trick header into displaying robots noindex directive
             sessionId: req.sessionId,
-            site_url: false, //trick header to not display canonical link
+            site_url: false, //trick header into not displaying a canonical link since we have a robots noindex directive
             title: error.title
         });
 
