@@ -30,3 +30,10 @@ ATTRIB +R .\styles\app.theme.*.less
 REM Copy web_modules
 XCOPY ..\..\Kidoju\Kidoju.Webapp\web_modules\*.*  .\web_modules\ /C /E /I /R /Y
 ATTRIB +R .\web_modules\*.* /S
+
+
+
+REM Copy views
+ATTRIB -R .\webapp\views\footer.ejs
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\views\footer.ejs .\webapp\views /Y
+ATTRIB +R .\webapp\views\footer.ejs
