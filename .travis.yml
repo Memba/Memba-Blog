@@ -8,4 +8,3 @@ env:
 before_install:
   - "npm install -g npm"
   - "npm install -g grunt-cli"
-  - "npm install -g webpack"
