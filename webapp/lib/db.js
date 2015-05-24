@@ -69,11 +69,11 @@ Collection.prototype.load = function() {
             this.data = data;
         }
     } catch(exception) {
-        //TODO logger
-        console.log(exception);
         if(exception.code === 'ENOENT') {
             //if index file not found, reindex
             this.reindex();
+        } else {
+            throw exception;
         }
     }
 };
@@ -83,11 +83,7 @@ Collection.prototype.load = function() {
  * Once built, the file watcher will be triggered to reload the index
  */
 Collection.prototype.reindex = function() {
-    try {
-        indexer.send(this.locale);
-    } catch (exception) {
-        //TODO logger
-    }
+    indexer.send(this.locale);
 };
 
 
