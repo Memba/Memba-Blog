@@ -13,7 +13,8 @@ var config = require('../config'),
     db = require('../lib/db'),
     logger = require('../lib/logger'),
     utils = require('../lib/utils'),
-    menu = require('../models/menuModel');
+    menu = require('../models/menuModel'),
+    index = require('../models/indexModel');
 
 module.exports = {
 
@@ -28,7 +29,7 @@ module.exports = {
 
         try {
 
-            console.log('---------------> hooked!');
+            console.log('--------------> hooked!');
 
             //Log the request
             logger.info({
@@ -38,29 +39,30 @@ module.exports = {
                 request: req
             });
 
-            //TODO Check x-hub-signature, x-github-event
-            //TODO Check Github Ip Addresses - https://help.github.com/articles/what-ip-addresses-does-github-use-that-i-should-whitelist/
+            if(process.env.NODE_ENV === 'production') {
 
-            //Check user agent
-            if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
-                throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
+                //TODO Check x-hub-signature, x-github-event
+                //TODO Check Github Ip Addresses - https://help.github.com/articles/what-ip-addresses-does-github-use-that-i-should-whitelist/
+
+                //Check user agent
+                if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
+                    throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
+                }
+
+                //TODO Check the payload
+
             }
-
-            //TODO Check the payload
-
-            console.log('---------------> menu');
-
-            //Reset the menu
-            menu.resetCache();
-
-            console.log('---------------> content!');
 
             //Reindex contents
             locales.forEach(function (locale) {
                 db[locale].reindex();
             });
 
-            console.log('---------------> done!');
+            //Reset cache
+            setTimeout(function() {
+                menu.resetCache();
+                index.resetCache();
+            }, 10000);
 
             //Close and send the response
             res.end();
