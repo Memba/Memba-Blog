@@ -1,8 +1,8 @@
 <% include header.ejs %>
 
-<main>
-    <div id="post-wrapper" class="k-content" itemscope itemtype="http://schema.org/BlogPosting">
-        <div class="container">
+<main itemscope itemtype="http://schema.org/BlogPosting">
+    <div id="post-wrapper" class="k-content">
+        <div class="container" role="document">
             <div class="page-header">
                 <h1>
                     <% if (icon) { %><img src="<%= format(config.uris.cdn.svg.office, icon) %>" alt="<%= title %>" itemprop="image"><% } %>

@@ -8,10 +8,13 @@
 'use strict';
 
 var async = require('async'),
+    qs = require('qs'),
+    util = require('util'),
     ApplicationError = require('../lib/error'),
     convert = require('../lib/convert'),
     logger = require('../lib/logger'),
     markdown = require('../lib/markdown'),
+    url = require('../lib/url'),
     utils = require('../lib/utils'),
     index = require('../models/indexModel'),
     menu = require('../models/menuModel');
@@ -96,12 +99,14 @@ module.exports = {
                         var data;
 
                         if (req.params.slug || utils.isEmptyObject(req.query)) { //single page
+
                             data = utils.deepExtend({}, responses[1][0], {
+                                authors: responses[3],
+                                categories: responses[2],
                                 content: markdown.render(responses[1][0].text),
                                 menu: responses[0],
-                                categories: responses[2],
-                                authors: responses[3],
                                 months: responses[4],
+                                results: false, //trick header into not displaying robots noindex directive
                                 sessionId: req.sessionId
                             });
                             res
@@ -112,18 +117,19 @@ module.exports = {
                                 .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                                 .render('page', data);
 
-                        } else { //list of posts
+                        } else { //list of pages and posts
                             data = {
                                 author: res.__('meta.author'),
+                                authors: responses[3],
+                                categories: responses[2],
                                 description: res.__('meta.description'),
                                 icon: res.__('search.title.icon'),
                                 keywords: res.__('meta.keywords'),
                                 menu: responses[0],
-                                categories: responses[2],
-                                authors: responses[3],
                                 months: responses[4],
                                 results: responses[1],
                                 sessionId: req.sessionId,
+                                site_url: url.join(util.format(res.locals.config.uris.webapp.pages, req.params.language, ''), '?' + qs.stringify(req.query)),
                                 title: res.__('search.title.heading')
                             };
                             res
