@@ -34,6 +34,7 @@ var util = require('util'),
             },
             webapp: {
                 root            : config.get('uris:webapp:root'),
+                public          : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:public')),
                 home            : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
                 pages           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:pages')),
                 posts           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:posts')),
@@ -46,6 +47,11 @@ var util = require('util'),
     // format function
     res.locals.format = function () {
         return util.format.apply(this, arguments);
+    };
+
+    // urljoin function
+    res.locals.urljoin = function () {
+        return url.join.apply(this, arguments);
     };
 
     //moment
