@@ -6,7 +6,8 @@
 'use strict';
 
 var webpack = require('webpack'),
-    path = require('path');
+    path = require('path'),
+    config = require('./webapp/config');
 
 /**
  * definePlugin defines a global variable which is only available when running webpack
@@ -71,7 +72,7 @@ module.exports = {
         //Unfortunately it is not possible to specialize output directories
         //See https://github.com/webpack/webpack/issues/882
         path: path.join(__dirname, '/webapp/public/assets'),
-        publicPath: '/assets/',
+        publicPath: config.get('uris:webapp:public') + 'assets/',
         filename:   '[name].bundle.js',
         chunkFilename: '[name].chunk.js'
     },

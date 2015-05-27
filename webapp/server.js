@@ -59,7 +59,7 @@ app.set('view engine', 'ejs');
 
 // Static files (before routing)
 // String in MS format https://www.npmjs.com/package/ms
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+app.use(config.get('uris:webapp:public'), express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
 
 // Routing
 app.use(router);
