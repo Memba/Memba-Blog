@@ -9,6 +9,7 @@
 'use strict';
 
 var request = require('supertest'),
+    util = require('util'),
 
     //We cannot define app like this because the server is already running
     //app = request('../../../webapp/server');
@@ -21,7 +22,7 @@ describe('routes/feedRoute', function() {
 
     it('it should return an english feed', function(done) {
         request(app)
-            .get('/en/index.rss')
+            .get(util.format(config.get('uris:webapp:feed'), 'en'))
             .expect(200)
             .expect('Content-Type', /rss/)
             .end(done);
@@ -29,7 +30,7 @@ describe('routes/feedRoute', function() {
 
     it('it should return a french feed', function(done) {
         request(app)
-            .get('/fr/index.rss')
+            .get(util.format(config.get('uris:webapp:feed'), 'fr'))
             .expect(200)
             .expect('Content-Type', /rss/)
             .end(done);
