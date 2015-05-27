@@ -21,7 +21,7 @@ describe('routes/homeRoute', function() {
 
     it('it should return the home page', function(done) {
         request(app)
-            .get('/')
+            .get(config.get('uris:webapp:home'))
             .expect(200)
             .expect('Content-Type', /html/)
             .end(done);
