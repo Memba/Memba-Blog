@@ -14,7 +14,7 @@ var expect = require('chai').expect,
 describe('lib/github', function() {
 
     var content = {
-        path: 'temp/dummy.md',
+        path: 'temp/' + ((1 + Math.random()) * 1e10).toString(36).slice(-5) + '.md',
         markdown: '# This is a dummy sample\n\nwith dummy content',
         update: '# This is a dummy sample\n\nwith an update'
     };
@@ -22,7 +22,7 @@ describe('lib/github', function() {
     it('it should create content', function(done) {
         github.createContent(content.path, content.markdown, function(error, response) {
             expect(error).to.be.null;
-            expect(response).to.have.deep.property('commit.committer.name', 'membabot');
+            expect(response).to.have.deep.property('commit.committer.name', process.env.USERNAME);
             expect(response).to.have.deep.property('commit.message', 'System creation');
             expect(response).to.have.deep.property('content.path', content.path);
             expect(response).to.have.deep.property('content.html_url');
@@ -54,7 +54,7 @@ describe('lib/github', function() {
         expect(content.sha).not.to.be.undefined;
         github.updateContent(content.path, content.update, content.sha, function(error, response) {
             expect(error).to.be.null;
-            expect(response).to.have.deep.property('commit.committer.name', 'membabot');
+            expect(response).to.have.deep.property('commit.committer.name', process.env.USERNAME);
             expect(response).to.have.deep.property('commit.message', 'System update');
             expect(response).to.have.deep.property('content.path', content.path);
             expect(response).to.have.deep.property('content.html_url');
@@ -77,7 +77,7 @@ describe('lib/github', function() {
         expect(content.sha).not.to.be.undefined;
         github.deleteContent(content.path, content.sha, function(error, response) {
             expect(error).to.be.null;
-            expect(response).to.have.deep.property('commit.committer.name', 'membabot');
+            expect(response).to.have.deep.property('commit.committer.name', process.env.USERNAME);
             expect(response).to.have.deep.property('commit.message', 'System deletion');
             expect(response).to.have.property('content', null);
             done();
