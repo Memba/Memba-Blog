@@ -23,6 +23,5 @@ RUN npm install
 EXPOSE 3000
 
 # Start node application
-# Should we use forever??????????????????
-# CMD [ "node", "/webapp/server.js" ]
+# CMD [ "node", "webapp/server.js" ]
 CMD [ "npm", "start" ]
