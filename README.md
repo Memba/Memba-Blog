@@ -9,16 +9,18 @@
 
 ## Demo
 
-See a demo running at http://www.memba.com and http://kidoju.com/support.
+See a demo running at http://www.memba.com and https://kidoju.com/support.
 
 ## Why a new blog engine?
 
 We needed a blog engine with:
+
 1. pages and blog posts,
 2. same look and feel as Kidoju, that is based on Twitter bootstrap (not easy to achieve with Wordpress, Ghost or Blogger),
 3. multi-user with live edit (which discards the likes of Jekyll and Octopress).
 
 and possibly the following nice-to-have:
+
 1. nodeJS tooling,
 2. markdown sources,
 3. editing in Github.
@@ -37,16 +39,20 @@ This is a nodeJS + expressJS application which pulls markdown content from a Git
 //TODO
 
 ## Disclaimer
+
 Before you get too excited please consider that this is 'work in progress' which has not even reached an 'alpha' stage.
 
 ## Contributing
+
 You can help by testing and reporting defects, making suggestions or even better contributing code fixes and improvements. In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/). We have provided setup.cmd and make.cmd to this effect.
 
 ## Release History
-_v0.0.1_ - SPA sevrer-less architecture
-_v0.0.1_ - SPA architecture
+
+_v0.0.1_ - Server-less SPA architecture
+_v0.0.2_ - Server-side ExpressJS + EJS templates
 
 ## Licensing
+
 This code is bound to the GPL license considering the use of [Telerik's Kendo UI framework] (http://www.kendoui.com).
 As far as Memba is concerned, this code is free to use for all types of applications.
 
