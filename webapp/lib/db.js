@@ -38,7 +38,7 @@ var indexer = require('child_process').fork(path.join(__dirname, 'db_child.js'),
  */
 chokidar.watch(convert.getIndexDir()).on('all', function(event, path) {
     console.log(event, path);
-    if(/^add$|^change$/i.test(event)) {
+    if(/^(add|change)$/i.test(event)) {
         var language = convert.index2language(path);
         if (locales.indexOf(language) > -1) {
             db[language].load();
@@ -219,6 +219,11 @@ Collection.prototype.group = function(query, callback) {
 var db = {};
 locales.forEach(function(locale){
     db[locale] = new Collection(locale);
-    //db[locale].load();
+    //Note: on Windows, chokidar triggers watch events that load our json databases when the webapp starts
+    //on Linux (at least on Tavis-CI), our json databases need to be loaded explicitely
+    if (process.env.OS !== 'Windows_NT') {
+        console.log('################## ' + process.env.OS);
+        db[locale].load();
+    }
 });
 module.exports = db;
