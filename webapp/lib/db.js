@@ -67,17 +67,18 @@ var Collection = function(locale) {
 Collection.prototype.load = function() {
     try {
         var indexFile = convert.getIndexPath(this.locale);
-        console.log('Load ' + indexFile);
+        console.log('Loading ' + indexFile);
         var buf = fs.readFileSync(indexFile),
             data = JSON.parse(buf.toString());
-        console.dir(data); //TODO <--------------------------------------------------------------------------
         if (Array.isArray(data)) {
             this.data = data;
+            console.log('Index ' + this.locale + ' loaded with ' + data.length + ' entries');
         }
     } catch(exception) {
         console.dir(exception);
         if(exception.code === 'ENOENT') {
             //if index file not found, reindex
+            console.log('Index file not found');
             this.reindex();
         } else {
             throw exception;
@@ -90,7 +91,7 @@ Collection.prototype.load = function() {
  * Once built, the file watcher will be triggered to reload the index
  */
 Collection.prototype.reindex = function() {
-    console.log('Reindexation triggered');
+    console.log('Reindexation triggered for ' + this.locale);
     if (indexer) {
         indexer.send(this.locale);
     } else {
@@ -234,7 +235,7 @@ Collection.prototype.group = function(query, callback) {
  * @type {{reindex: Function}}
  */
 var db = {};
-console.log('loading databases');
+console.log('Loading indexes');
 locales.forEach(function(locale){
     db[locale] = new Collection(locale);
     //Note: on Windows, chokidar triggers watch events that load our json databases when the webapp starts

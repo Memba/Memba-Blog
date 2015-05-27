@@ -151,6 +151,7 @@ module.exports = {
      * @param callback
      */
     getIndexEntry: function(path, callback) {
+        console.log('Indexing ' + path);
         if(!convert.isMarkdown(path)) {
             return callback(new Error('The path to an index entry should designate a markdown file'));
         }
@@ -232,7 +233,7 @@ module.exports = {
         var dir = convert.getLanguageDir(language),
             indexFile = util.format(indexPath, language);
         //TODO logger
-        console.log('Create index ' + indexFile);
+        console.log('Creating index ' + indexFile);
         module.exports.buildIndex(dir, function (error, index) {
             if (!error && Array.isArray(index)) {
                 //Check that directory exists or create
@@ -259,7 +260,7 @@ process.on('message', function(language){
             //TODO logger
             console.log(error);
         } else {
-            console.log('Done creating index!');
+            console.log('Done creating ' + language + ' index');
         }
     });
 });
