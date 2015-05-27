@@ -9,6 +9,7 @@
 'use strict';
 
 var request = require('supertest'),
+    util= require('util'),
 
     //We cannot define app like this because the server is already running
     //app = request('../../../webapp/server');
@@ -21,7 +22,7 @@ describe('routes/sitemapRoute', function() {
 
     it('it should return an english sitemap', function(done) {
         request(app)
-            .get('/en/sitemap.xml')
+            .get(util.format(config.get('uris:webapp:sitemap'), 'en'))
             .expect(200)
             .expect('Content-Type', /xml/)
             .end(done);
@@ -29,7 +30,7 @@ describe('routes/sitemapRoute', function() {
 
     it('it should return a french sitemap', function(done) {
         request(app)
-            .get('/fr/sitemap.xml')
+            .get(util.format(config.get('uris:webapp:sitemap'), 'fr'))
             .expect(200)
             .expect('Content-Type', /xml/)
             .end(done);
