@@ -13,7 +13,6 @@
     //Theming
     require('./app.theme.js');
     require('../styles/app.page.common.less');
-    require('../styles/app.page.common.fix.less');
 
     //Kendo UI files
     require('./vendor/kendo/kendo.binder.js');
