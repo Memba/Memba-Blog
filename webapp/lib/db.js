@@ -14,24 +14,29 @@ var fs = require('fs'),
     config = require('../config'),
     locales = config.get('locales'),
     convert = require('./convert'),
-    utils = require('./utils');
+    utils = require('./utils'),
+    indexer;
 
-// IMPORTANT: fork the indexer as a child process
-// Issue with mocha tests
-// See https://github.com/mochajs/mocha/issues/769
-// https://youtrack.jetbrains.com/issue/WEB-1919
-// See http://stackoverflow.com/questions/16840623/how-to-debug-node-js-child-forked-process
-// See http://stackoverflow.com/questions/19252310/how-to-fork-a-child-process-that-listens-on-a-different-debug-port-than-the-pare
-var execArgv = process.execArgv.slice();
-if (Array.isArray(execArgv) && execArgv.length > 0 && typeof execArgv[0] === 'string') {
-    var matches = execArgv[0].match(/^--debug-brk=([0-9]+)$/);
-    if(Array.isArray(matches) && matches.length > 1) {
-        execArgv[0] = '--debug-brk=' + (parseInt(matches[1], 10) + 1);
+/**
+ * Fork the indexer as a child process
+ */
+if(typeof indexer === 'undefined') {
+    // Issue with mocha tests
+    // See https://github.com/mochajs/mocha/issues/769
+    // https://youtrack.jetbrains.com/issue/WEB-1919
+    // See http://stackoverflow.com/questions/16840623/how-to-debug-node-js-child-forked-process
+    // See http://stackoverflow.com/questions/19252310/how-to-fork-a-child-process-that-listens-on-a-different-debug-port-than-the-pare
+    var execArgv = process.execArgv.slice();
+    if (Array.isArray(execArgv) && execArgv.length > 0 && typeof execArgv[0] === 'string') {
+        var matches = execArgv[0].match(/^--debug-brk=([0-9]+)$/);
+        if (Array.isArray(matches) && matches.length > 1) {
+            execArgv[0] = '--debug-brk=' + (parseInt(matches[1], 10) + 1);
+        }
     }
+    console.log('Forking db_child indexing process with execArgv:');
+    console.dir(execArgv);
+    indexer = require('child_process').fork(path.join(__dirname, 'db_child.js'), undefined, {execArgv: execArgv});
 }
-console.log('Forking child indexing process with execArgv:');
-console.dir(execArgv);
-var indexer = require('child_process').fork(path.join(__dirname, 'db_child.js'), undefined, { execArgv: execArgv });
 
 /**
  * The chokidar file watcher loads the index when it is ready
@@ -70,6 +75,7 @@ Collection.prototype.load = function() {
             this.data = data;
         }
     } catch(exception) {
+        console.dir(exception);
         if(exception.code === 'ENOENT') {
             //if index file not found, reindex
             this.reindex();
@@ -84,6 +90,7 @@ Collection.prototype.load = function() {
  * Once built, the file watcher will be triggered to reload the index
  */
 Collection.prototype.reindex = function() {
+    console.log('rebuilding databases');
     indexer.send(this.locale);
 };
 
@@ -223,6 +230,7 @@ Collection.prototype.group = function(query, callback) {
  * @type {{reindex: Function}}
  */
 var db = {};
+console.log('loading databases');
 locales.forEach(function(locale){
     db[locale] = new Collection(locale);
     //Note: on Windows, chokidar triggers watch events that load our json databases when the webapp starts

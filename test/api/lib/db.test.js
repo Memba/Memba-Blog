@@ -8,6 +8,7 @@
 
 'use strict';
 
+console.log('db.test.js: require ../../../webapp/lib/db');
 var expect = require('chai').expect,
     db = require('../../../webapp/lib/db');
 
