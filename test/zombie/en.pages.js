@@ -17,7 +17,7 @@ var Zombie = require('zombie'),
     browser = new Zombie(/*{waitDuration: '10s'}*/);
 
 
-xdescribe('English pages', function() {
+describe('English pages', function() {
 
     before(function(done) {
         //browser.debug();
