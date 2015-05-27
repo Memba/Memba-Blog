@@ -9,7 +9,7 @@ language: en
 author_url: https://github.com/jlchereau
 avatar_url: https://avatars.githubusercontent.com/u/2556751?v=3
 creation_date: 2015-04-25T07:00:25Z
-site_url: http://localhost:3000/en/
 category: Default
 ---
-We offer support through these pages
+## How to
+We offer support through these pages.

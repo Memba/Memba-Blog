@@ -9,8 +9,7 @@ language: en
 author_url: https://github.com/jlchereau
 avatar_url: https://avatars.githubusercontent.com/u/2556751?v=3
 creation_date: 2015-04-24T18:28:56Z
-site_url: http://localhost:3000/en/faqs
-category: Default
+category: Miscellaenous
 ---
 ## Question 1
 Response

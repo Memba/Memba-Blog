@@ -9,7 +9,7 @@ language: en
 author_url: https://github.com/jlchereau
 avatar_url: https://avatars.githubusercontent.com/u/2556751?v=3
 creation_date: 2015-04-21T16:44:16Z
-site_url: http://localhost:3000/en/privacy
-category: Default
+category: Legal
 ---
-About our privacy policy
+## About
+We take privacy very seriously.

@@ -9,7 +9,6 @@ language: fr
 author_url: https://github.com/jlchereau
 avatar_url: https://avatars.githubusercontent.com/u/2556751?v=3
 creation_date: 2015-04-21T16:41:25Z
-site_url: http://localhost:3000/fr/privacy
 category: Default
 ---
 Sur la confidentialitées des données
