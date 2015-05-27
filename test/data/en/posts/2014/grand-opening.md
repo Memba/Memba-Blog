@@ -6,10 +6,11 @@ keywords: Kidoju, teach, learn, knowledge, test, blog, article, documentation, e
 language: en
 title: Grand opening
 uuid: 67c57470-feef-11e4-bf80-355b7c649924
-author: Vincenzo Torreci
-author_url: https://github.com/vtorreci
-avatar_url: https://avatars1.githubusercontent.com/u/7385770?v=3
-creation_date: 2014-12-20T12:54:45Z
+author: jlchereau
+author_url: https://github.com/jlchereau
+avatar_url: https://avatars.githubusercontent.com/u/2556751?v=3
+creation_date: 2015-05-27T16:23:51Z
+edit_url: https://github.com/Memba/Memba-Blog/blob/master/test/data/en/posts/2014/grand-opening.md
 ---
 ## This is our new website
 Hoora!
