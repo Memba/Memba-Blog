@@ -27,7 +27,10 @@ module.exports = function(req, res, next){
     var pathname = Url.parse(req.originalUrl).pathname;
     if (/\/[^\/\.]+\.[\w]{1,5}$/i.test(pathname) && !/\.html?$/i.test(pathname) && !(new RegExp(webapp.feed)).test(pathname) && !(new RegExp(webapp.sitemap)).test(pathname)) {
         //If pathname ends with a file extension (images, stylesheets, scripts, ...), spare bandwidth by returning an empty error for missing assets
-        res.status(404).send(http.STATUS_CODES['404']);
+        res
+            .set({'Content-Type': 'text/plain; charset=utf-8'})
+            .status(404)
+            .send(http.STATUS_CODES['404']);
     } else {
         next();
     }
