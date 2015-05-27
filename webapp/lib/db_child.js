@@ -233,16 +233,16 @@ module.exports = {
         var dir = convert.getLanguageDir(language),
             indexFile = util.format(indexPath, language);
         //TODO logger
-        console.log('Creating index ' + indexFile);
+        console.log('Building index ' + indexFile);
         module.exports.buildIndex(dir, function (error, index) {
             if (!error && Array.isArray(index)) {
                 //Check that directory exists or create
                 if(!fs.existsSync(indexDir)) {
-                    console.log('Create directory ' + indexDir);
+                    console.log('Creating directory ' + indexDir);
                     fs.mkdirSync(indexDir);
                 }
                 //Save index to disk in directory
-                console.log('Write file ' + indexFile);
+                console.log('Writing file ' + indexFile);
                 fs.writeFile(indexFile, JSON.stringify(index), callback);
             } else {
                 callback(error);
