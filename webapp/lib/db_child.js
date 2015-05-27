@@ -18,7 +18,8 @@ var fs = require('fs'),
     markdown = require('./markdown'),
     utils = require('./utils'),
     indexPath = paths.join(__dirname, config.get('db:index')),
-    indexDir = paths.dirname(indexPath);
+    indexDir = paths.dirname(indexPath),
+    inProgress = false;
 
 // i18n: it is a child process so it needs to be configured too
 i18n.configure({
@@ -255,14 +256,18 @@ module.exports = {
  * Handler triggered when the worker receives a request to rebuild an index
  */
 process.on('message', function(language){
-    module.exports.createIndex(language, function (error) {
-        if (error) {
-            //TODO logger
-            console.log(error);
-        } else {
-            console.log('Done creating ' + language + ' index');
-        }
-    });
+    if (!inProgress) {
+        inProgress = true;
+        module.exports.createIndex(language, function (error) {
+            inProgress = false;
+            if (error) {
+                //TODO logger
+                console.log(error);
+            } else {
+                console.log('Done creating ' + language + ' index');
+            }
+        });
+    }
 });
 
 /**
@@ -270,5 +275,6 @@ process.on('message', function(language){
  */
 process.on('uncaughtException', function(error){
     //TODO .logger
+    inProgress = false;
     console.log(error);
 });
