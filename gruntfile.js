@@ -29,7 +29,7 @@ module.exports = function (grunt) {
             build: require(__dirname + '/webpack.config.js')
         },
         mochaTest: {
-            ui: {
+            all: {
                 options: {
                     quiet: false,
                     reporter: 'spec',

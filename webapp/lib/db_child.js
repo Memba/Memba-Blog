@@ -26,7 +26,6 @@ i18n.configure({
     directory: paths.join(__dirname,  '../locales'),
     objectNotation: true //Use hierarchies in locales.json files
 });
-console.log(__dirname);
 
 /**
  * format an index entry (and update Github contents accordingly)

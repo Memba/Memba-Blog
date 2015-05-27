@@ -15,6 +15,13 @@ describe('lib/db', function() {
 
     describe('find method', function() {
 
+        before(function() {
+            console.log('-------------------------------- test');
+            console.dir(db.en.data);
+            console.log('-------------------------------- test');
+
+        });
+
         it('Retrieve all english index entries', function(done) {
             db.en.find({}, function(error, indexEntries) {
                 expect(error).to.be.null;

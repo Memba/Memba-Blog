@@ -29,7 +29,7 @@ if (Array.isArray(execArgv) && execArgv.length > 0 && typeof execArgv[0] === 'st
         execArgv[0] = '--debug-brk=' + (parseInt(matches[1], 10) + 1);
     }
 }
-console.log('Forking child indexing process');
+console.log('Forking child indexing process with execArgv:');
 console.dir(execArgv);
 var indexer = require('child_process').fork(path.join(__dirname, 'db_child.js'), undefined, { execArgv: execArgv });
 
@@ -65,6 +65,7 @@ Collection.prototype.load = function() {
         console.log('load ' + indexFile);
         var buf = fs.readFileSync(indexFile),
             data = JSON.parse(buf.toString());
+        console.dir(data); //TODO <--------------------------------------------------------------------------
         if (Array.isArray(data)) {
             this.data = data;
         }
@@ -86,7 +87,12 @@ Collection.prototype.reindex = function() {
     indexer.send(this.locale);
 };
 
-
+/**
+ * Function to translate a mongo-like Query into an array filter
+ * @param data
+ * @param query
+ * @returns {*}
+ */
 function mongoQuery(data, query) {
     query = query || {};
     var results = data.filter(function(indexEntry) {
@@ -220,9 +226,8 @@ var db = {};
 locales.forEach(function(locale){
     db[locale] = new Collection(locale);
     //Note: on Windows, chokidar triggers watch events that load our json databases when the webapp starts
-    //on Linux (at least on Tavis-CI), our json databases need to be loaded explicitely
+    //on Linux (at least on Tavis-CI), our json databases need to be loaded explicitly
     if (process.env.OS !== 'Windows_NT') {
-        console.log('################## ' + process.env.OS);
         db[locale].load();
     }
 });
