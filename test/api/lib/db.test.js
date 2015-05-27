@@ -8,7 +8,6 @@
 
 'use strict';
 
-console.log('db.test.js: require ../../../webapp/lib/db');
 var expect = require('chai').expect,
     db = require('../../../webapp/lib/db');
 
@@ -17,10 +16,10 @@ describe('lib/db', function() {
     describe('find method', function() {
 
         before(function() {
-            console.log('-------------------------------- test');
+            console.log('################################################ db.test.js');
+            db.en.load();
             console.dir(db.en.data);
-            console.log('-------------------------------- test');
-
+            db.fr.load();
         });
 
         it('Retrieve all english index entries', function(done) {

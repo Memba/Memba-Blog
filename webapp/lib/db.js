@@ -67,7 +67,7 @@ var Collection = function(locale) {
 Collection.prototype.load = function() {
     try {
         var indexFile = convert.getIndexPath(this.locale);
-        console.log('load ' + indexFile);
+        console.log('Load ' + indexFile);
         var buf = fs.readFileSync(indexFile),
             data = JSON.parse(buf.toString());
         console.dir(data); //TODO <--------------------------------------------------------------------------
@@ -90,8 +90,12 @@ Collection.prototype.load = function() {
  * Once built, the file watcher will be triggered to reload the index
  */
 Collection.prototype.reindex = function() {
-    console.log('rebuilding databases');
-    indexer.send(this.locale);
+    console.log('Reindexation triggered');
+    if (indexer) {
+        indexer.send(this.locale);
+    } else {
+        console.log('The db_child process has not been forked for reindexation.');
+    }
 };
 
 /**
