@@ -36,6 +36,7 @@
         },
         "webapp": {
             "root": "http://localhost:3000",
+            "ping": "/ping",
             "public": "/",
             "home": "/",
             "hook": "/hook",

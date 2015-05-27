@@ -19,6 +19,7 @@ var express = require('express'),
     month = require('../middleware/month'),
     notFound = require('../middleware/notFound'),
     error = require('../middleware/error'),
+    pingRoute = require('./pingRoute'),
     homeRoute = require('./homeRoute'),
     hookRoute = require('./hookRoute'),
     feedRoute = require('./feedRoute'),
@@ -37,6 +38,10 @@ router.use(extension);
 
 // Make config values, including paths to images, available to our templates
 router.use(locals);
+
+// Ping
+router.route(config.get('uris:webapp:ping'))
+    .get(pingRoute.getOK);
 
 // Home
 router.route(config.get('uris:webapp:home'))
