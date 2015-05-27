@@ -4,11 +4,12 @@ description: Kidoju - A new way to teach and learn
 icon: lifebelt
 keywords: Kidoju - A new way to teach and learn
 title: Support
-author: Jacques L. Chereau
+author: jlchereau
 language: fr
 author_url: https://github.com/jlchereau
 avatar_url: https://avatars.githubusercontent.com/u/2556751?v=3
-creation_date: 2015-04-25T07:01:26Z
+creation_date: 2015-05-06T16:53:57Z
 category: Default
+edit_url: https://github.com/Memba/Memba-Blog/blob/master/test/data/fr/pages/index.md
 ---
 Ce site offre les options suivantes pour le support.
