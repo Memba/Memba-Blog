@@ -16,16 +16,10 @@
   "bugs": {
     "url": "https://github.com/Memba/Memba-Blog/issues"
   },
-  "licenses": [
-    {
-      "type": "GPL",
-      "url": "http://www.gnu.org/licenses/gpl.txt"
-    },
-    {
-      "type": "MIT",
-      "url": "http://opensource.org/licenses/MIT"
-    }
-  ],
+  "license": {
+    "type": "GPL",
+    "url": "https://raw.githubusercontent.com/Memba/Memba-Blog/master/LICENSE-GPLv3"
+  },
   "main": "webapp/server.js",
   "scripts": {
     "test": "grunt test",
@@ -65,7 +59,6 @@
     "loader-utils": "^0.2.9",
     "mocha": "^2.2.5",
     "node-libs-browser": "^0.5.2",
-    "request": "^2.55.0",
     "style-loader": "^0.12.3",
     "supertest": "^1.0.1",
     "url-loader": "^0.5.6",

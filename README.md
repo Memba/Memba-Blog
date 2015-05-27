@@ -53,7 +53,7 @@ _v0.0.2_ - Server-side ExpressJS + EJS templates
 
 ## Licensing
 
-This code is bound to the GPL license considering the use of [Telerik's Kendo UI framework] (http://www.kendoui.com).
+This code is bound to the GPL license considering the use of [Telerik's Kendo UI framework](http://www.kendoui.com).
 As far as Memba is concerned, this code is free to use for all types of applications.
 
 Copyright (c) 2013-2015 Memba. All rights reserved.
