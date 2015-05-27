@@ -1,0 +1,7 @@
+files:
+    included:
+        - js/**/*.js
+        - webapp/**/*.js
+    excluded:
+        - js/vendor/**/*.js
+        - webapp/public/**/*.js
