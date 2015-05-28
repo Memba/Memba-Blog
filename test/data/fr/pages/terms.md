@@ -11,6 +11,7 @@ creation_date: 2015-05-06T16:53:57Z
 language: fr
 category: Default
 edit_url: https://github.com/Memba/Memba-Blog/blob/master/test/data/fr/pages/terms.md
+site_url: http://localhost:3000/fr/terms
 ---
 Voici nos conditions d'utilisation.
 <script>
