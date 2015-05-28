@@ -18,7 +18,7 @@
     "github": {
         "repository": "Memba/Memba-Blog",
         "branch": "master",
-        "language": "/test/data/%s/",
+        "language": "test/data/%s/",
         "menu": "menu.json",
         "pages": "pages",
         "posts": "posts",

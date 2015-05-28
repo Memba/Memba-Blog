@@ -238,10 +238,6 @@ var db = {};
 console.log('Loading indexes');
 locales.forEach(function(locale){
     db[locale] = new Collection(locale);
-    //Note: on Windows, chokidar triggers watch events that load our json databases when the webapp starts
-    //on Linux (at least on Tavis-CI), our json databases need to be loaded explicitly
-    if (process.env.OS !== 'Windows_NT') {
-        db[locale].load();
-    }
+    db[locale].load();
 });
 module.exports = db;
