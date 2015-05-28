@@ -4,6 +4,7 @@
   "description": "A blog engine powered by nodeJS and pulling markdown from GitHub",
   "version": "0.0.1",
   "copyright": "Copyright (c) 2013-2015 Memba. All rights reserved.",
+  "license": "GPL-3.0",
   "keywords": [
     "blog"
   ],
@@ -15,10 +16,6 @@
   },
   "bugs": {
     "url": "https://github.com/Memba/Memba-Blog/issues"
-  },
-  "license": {
-    "type": "GPL",
-    "url": "https://raw.githubusercontent.com/Memba/Memba-Blog/master/LICENSE-GPLv3"
   },
   "main": "webapp/server.js",
   "scripts": {
@@ -40,13 +37,13 @@
     "moment": "^2.10.3",
     "nconf": "^0.7.1",
     "node-uuid": "^1.4.3",
-    "qs": "^3.0.0",
+    "qs": "^3.1.0",
     "request": "^2.55.0"
   },
   "devDependencies": {
     "bundle-loader": "^0.5.4",
     "chai": "^2.3.0",
-    "css-loader": "^0.14.3",
+    "css-loader": "^0.14.4",
     "file-loader": "^0.8.4",
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^0.11.2",
