@@ -113,7 +113,6 @@ describe('lib/convert', function() {
 
     it('path2site_url', function() {
         var date = new Date(), year = date.getUTCFullYear().toString(), month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
-        var test = convert.path2site_url('test/data/fr/pages/faqs.md', date);
         //pages
         expect(convert.path2site_url(util.format(github.language, 'en') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal(webapp.root + util.format(webapp.pages, 'en', 'dummy-slug'));
         expect(convert.path2site_url(util.format(github.language, 'fr') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal(webapp.root + util.format(webapp.pages, 'fr', 'dummy-slug'));
