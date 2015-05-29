@@ -8,9 +8,17 @@
 
 'use strict';
 
-//Start the web application
-var webapp = require('../../webapp/server');
-    //expect = require('chai').expect;
+var util = require('util'),
+    server = require('../../webapp/server'), //Start the web application
+    config = require('../../webapp/config'),
+    url = require('../../webapp/lib/url'),
+    webapp = {
+        home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
+        index: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', '')) + '/',
+        faqs: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'faqs')),
+        privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'privacy')),
+        terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'terms'))
+    };
 
 //Create a browser
 var Zombie = require('zombie'),
@@ -23,7 +31,7 @@ describe('English pages', function() {
         //browser.debug();
         //Increase max listeners in case of timeout
         browser.setMaxListeners(30);
-        browser.visit('http://localhost:3000', done);
+        browser.visit(webapp.home, done);
     });
 
     describe('When navigating pages', function() {
@@ -50,7 +58,7 @@ describe('English pages', function() {
         it('it should find support', function(done) {
             browser.clickLink('Support', function() {
                 browser.assert.success();
-                browser.assert.url('http://localhost:3000/en/');
+                browser.assert.url(webapp.index);
                 browser.assert.attribute('html', 'lang', 'en');
                 browser.assert.text('div.page-header span', 'Support');
                 done();
@@ -60,7 +68,7 @@ describe('English pages', function() {
         it('it should find faqs', function(done) {
             browser.clickLink('FAQs', function() {
                 browser.assert.success();
-                browser.assert.url('http://localhost:3000/en/faqs');
+                browser.assert.url(webapp.faqs);
                 browser.assert.attribute('html', 'lang', 'en');
                 browser.assert.text('div.page-header span', 'Frequently Asked Questions');
                 done();
@@ -70,7 +78,7 @@ describe('English pages', function() {
         it('it should find privacy', function(done) {
             browser.clickLink('Privacy Policy', function() {
                 browser.assert.success();
-                browser.assert.url('http://localhost:3000/en/privacy');
+                browser.assert.url(webapp.privacy);
                 browser.assert.attribute('html', 'lang', 'en');
                 browser.assert.text('div.page-header span', 'Privacy Policy');
                 done();
@@ -80,7 +88,7 @@ describe('English pages', function() {
         it('it should find terms', function(done) {
             browser.clickLink('Terms of Use', function() {
                 browser.assert.success();
-                browser.assert.url('http://localhost:3000/en/terms');
+                browser.assert.url(webapp.terms);
                 browser.assert.attribute('html', 'lang', 'en');
                 browser.assert.text('div.page-header span', 'Terms of Use');
                 done();

@@ -33,8 +33,8 @@ var util = require('util'),
     SEPARATOR = '\\/',
     ANY_BETWEEN_SEPARATORS = util.format('[^%s]+', SEPARATOR),
     MATCH_BETWEEN_SEPARATORS = util.format('(%s)', ANY_BETWEEN_SEPARATORS),
-    URL_2_LANGUAGE = url.join(webapp.root, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
-    RX_URL_2_LANGUAGE = new RegExp('^' + util.format(URL_2_LANGUAGE, MATCH_BETWEEN_SEPARATORS)),
+    SITE_URL_2_LANGUAGE = url.join(webapp.root, webapp.pages).replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
+    RX_SITE_URL_2_LANGUAGE = new RegExp('^' + util.format(SITE_URL_2_LANGUAGE, MATCH_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS)),
     RX_MARKDOWN = new RegExp(util.format(config.get('github:markdown'), '') + '$'),
     RX_PATH_2_LANGUAGE = new RegExp('^' + util.format(github.language, MATCH_BETWEEN_SEPARATORS)),
     PATH_2_SECTION = url.join(github.language, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
@@ -140,8 +140,8 @@ module.exports = {
      * @returns {*}
      */
     site_url2language: function(path) {
-        var matches = path.match(RX_URL_2_LANGUAGE);
-        if (Array.isArray(matches) && matches.length === 2) {
+        var matches = path.match(RX_SITE_URL_2_LANGUAGE);
+        if (Array.isArray(matches) && matches.length > 1) {
             return matches[1];
         } else {
             return undefined;
