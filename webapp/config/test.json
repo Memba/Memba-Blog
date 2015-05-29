@@ -36,14 +36,14 @@
         },
         "webapp": {
             "root": "http://localhost:3000",
-            "ping": "/ping",
             "public": "/",
             "home": "/",
+            "ping": "/ping",
             "hook": "/hook",
-            "feed": "/%s/index.rss",
-            "sitemap": "/%s/sitemap.xml",
             "pages": "/%s/%s",
-            "posts": "/%s/posts/%s/%s/%s"
+            "posts": "/%s/posts/%s/%s/%s",
+            "feed": "/%s/index.rss",
+            "sitemap": "/%s/sitemap.xml"
         }
     }
 }
