@@ -6,10 +6,10 @@
     "locales": [ "en", "fr" ],
     "logentries": {
         "browser": {
-            "token": "63501fec-6ece-40be-bd0a-a34e2ccd6f54"
+            "token": "7b849c1f-01b1-4c11-885c-70d5a11a3618"
         },
         "server" : {
-            "token": "ce2588e6-d4fe-45ae-89e4-c3a5c57dbc3c"
+            "token": "723757ac-1d9d-40cd-9d63-b292cc5c325c"
         }
     },
     "db": {
