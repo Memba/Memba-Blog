@@ -16,9 +16,9 @@
         "index": "../cache/%s.json"
     },
     "github": {
-        "repository": "Memba/Memba-Blog",
+        "repository": "Memba/Memba-Blog-TestData",
         "branch": "master",
-        "language": "test/data/%s/",
+        "language": "memba/%s/",
         "menu": "menu.json",
         "pages": "pages",
         "posts": "posts",

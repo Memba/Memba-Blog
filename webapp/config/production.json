@@ -16,7 +16,7 @@
         "index": "../cache/%s.json"
     },
     "github": {
-        "repository": "Memba/Memba-Blog",
+        "repository": "Memba/www.memba.com",
         "branch": "master",
         "language": "%s/",
         "menu": "menu.json",
@@ -35,7 +35,7 @@
             }
         },
         "webapp": {
-            "root": "http://localhost:3000",
+            "root": "http://www.memba.com",
             "public": "/",
             "home": "/",
             "ping": "/ping",
