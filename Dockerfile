@@ -1,8 +1,8 @@
 # nodeJS official image
-# built on debian 7 "wheezy" (current stable release)
+# built on debian 8 "jessie" (current stable release)
 # see https://registry.hub.docker.com/_/node/
-# see also https://github.com/joyent/docker-node/blob/master/0.12/wheezy/Dockerfile
-FROM node:jessie
+# see also https://github.com/joyent/docker-node/blob/master/0.12/Dockerfile
+FROM node:0.12
 
 # Maintained by Jacques L. Chereau
 MAINTAINER jlchereau
