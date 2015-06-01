@@ -23,9 +23,9 @@
     "start": "node webapp/server.js"
   },
   "dependencies": {
-    "async": "^1.0.0",
+    "async": "^1.1.0",
     "body-parser": "^1.12.4",
-    "chokidar": "^1.0.1",
+    "chokidar": "^1.0.2",
     "deep-extend": "^0.4.0",
     "ejs": "^2.3.1",
     "express": "^4.12.4",
@@ -38,7 +38,7 @@
     "nconf": "^0.7.1",
     "node-uuid": "^1.4.3",
     "qs": "^3.1.0",
-    "request": "^2.55.0"
+    "request": "^2.57.0"
   },
   "devDependencies": {
     "bundle-loader": "^0.5.4",
