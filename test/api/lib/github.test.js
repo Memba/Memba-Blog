@@ -9,7 +9,8 @@
 'use strict';
 
 var expect = require('chai').expect,
-    github = require('../../../webapp/lib/github');
+    github = require('../../../webapp/lib/github'),
+    NAME = 'Memba Robot';
 
 describe('lib/github', function() {
 
@@ -22,7 +23,8 @@ describe('lib/github', function() {
     it('it should create content', function(done) {
         github.createContent(content.path, content.markdown, function(error, response) {
             expect(error).to.be.null;
-            expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+            expect(response).to.have.deep.property('commit.committer.name', NAME);
+            //expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
             expect(response).to.have.deep.property('commit.message', 'System creation');
             expect(response).to.have.deep.property('content.path', content.path);
             expect(response).to.have.deep.property('content.html_url');
@@ -54,7 +56,8 @@ describe('lib/github', function() {
         expect(content.sha).not.to.be.undefined;
         github.updateContent(content.path, content.update, content.sha, function(error, response) {
             expect(error).to.be.null;
-            expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+            expect(response).to.have.deep.property('commit.committer.name', NAME);
+            //expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
             expect(response).to.have.deep.property('commit.message', 'System update');
             expect(response).to.have.deep.property('content.path', content.path);
             expect(response).to.have.deep.property('content.html_url');
@@ -77,7 +80,8 @@ describe('lib/github', function() {
         expect(content.sha).not.to.be.undefined;
         github.deleteContent(content.path, content.sha, function(error, response) {
             expect(error).to.be.null;
-            expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+            expect(response).to.have.deep.property('commit.committer.name', NAME);
+            //expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
             expect(response).to.have.deep.property('commit.message', 'System deletion');
             expect(response).to.have.property('content', null);
             done();
