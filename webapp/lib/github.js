@@ -12,19 +12,21 @@ var request = require('request'),
     version = require('../../package.json').version,
 
     github = 'https://api.github.com',
+    /*
     authentication = {
         user: process.env.USERNAME,
         pass: process.env.PASSWORD
     },
+    */
+    //Set a personal access token at https://github.com/settings/tokens
     headers = {
+        'Authorization': 'token ' + process.env.TOKEN,
         'user-agent': 'Memba.Blog/' + version
     },
     repo = config.get('github:repository'),
     branch = config.get('github:branch');
 
 module.exports = {
-
-    //TODO: Consider creating the webhook via API
 
     /**
      * Get content from github
@@ -35,7 +37,7 @@ module.exports = {
     getContent: function(path, callback) {
         var uri = github + '/repos/' + repo + '/contents/' + path,
             qs = { ref: branch };
-        request({ method: 'GET', uri: uri, headers: headers, auth: authentication, json: true, qs: qs }, function(error, response, body) {
+        request({ method: 'GET', uri: uri, headers: headers, /*auth: authentication,*/ json: true, qs: qs }, function(error, response, body) {
             if(!error && response.statusCode === 200) {
                 callback(null, body); //json: true in request options ensures that body is parsed to return an object
             } else {
@@ -59,7 +61,7 @@ module.exports = {
                 message: 'System creation'
             };
         //Note content creation requires PUT instead of POST
-        request({ method: 'PUT', uri: uri, headers: headers, auth: authentication, json: true, body: data }, function(error, response, body) {
+        request({ method: 'PUT', uri: uri, headers: headers, /*auth: authentication,*/ json: true, body: data }, function(error, response, body) {
             if(!error && response.statusCode === 201) {
                 callback(null, body);
             } else {
@@ -84,7 +86,7 @@ module.exports = {
                 message: 'System update',
                 sha: sha
             };
-        request({ method: 'PUT', uri: uri, headers: headers, auth: authentication, json: true, body: data }, function(error, response, body) {
+        request({ method: 'PUT', uri: uri, headers: headers, /*auth: authentication,*/ json: true, body: data }, function(error, response, body) {
             if(!error && (response.statusCode === 200 || response.statusCode === 201)) {
                 //updating content returns 200, except when updating deleted content which return 201 (like creation)
                 callback(null, body);
@@ -108,7 +110,7 @@ module.exports = {
                 message: 'System deletion',
                 sha: sha
             };
-        request({ method: 'DELETE', uri: uri, headers: headers, auth: authentication, json: true, body: data }, function(error, response, body) {
+        request({ method: 'DELETE', uri: uri, headers: headers, /*auth: authentication,*/ json: true, body: data }, function(error, response, body) {
             if(!error && response.statusCode === 200) {
                 callback(null, body);
             } else {
@@ -126,7 +128,7 @@ module.exports = {
     getCommits: function(path, callback) {
         var uri = github + '/repos/' + repo + '/commits',
             qs = { path: path, sha: branch };
-        request({ method: 'GET', uri: uri, headers: headers, auth: authentication, json: true, qs: qs }, function(error, response, body) {
+        request({ method: 'GET', uri: uri, headers: headers, /*auth: authentication,*/ json: true, qs: qs }, function(error, response, body) {
             if(!error && response.statusCode === 200) {
                 callback(null, body);
             } else {
