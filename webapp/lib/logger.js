@@ -13,8 +13,8 @@
 
 var config = require('../config'),
     utils = require('./utils'),
-    logentries = require('le_node'),
-    logger = logentries.logger({ token: config.get('logentries:server:token')});
+    LogEntries = require('le_node'),
+    logger = new LogEntries({ token: config.get('logentries:server:token')});
 
 /**
  * Process entry.request if existing
@@ -65,7 +65,7 @@ module.exports = {
     },
 
     flush: function() {
-        logger.end();
+        logger.closeConnection();
     }
 
 };
