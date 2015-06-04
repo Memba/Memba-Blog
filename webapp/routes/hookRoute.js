@@ -73,7 +73,7 @@ module.exports = {
 
             //Log the exception
             logger.critical({
-                message: 'Exception caught',
+                message: 'Uncaught exception',
                 module: 'routes/hookRoute',
                 method: 'handler',
                 request: req,

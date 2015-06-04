@@ -15,6 +15,7 @@ var fs = require('fs'),
     config = require('../config'),
     convert = require('./convert'),
     github = require('./github'),
+    logger = require('./logger'),
     markdown = require('./markdown'),
     utils = require('./utils'),
     indexPath = paths.join(__dirname, config.get('db:index')),
@@ -234,7 +235,11 @@ module.exports = {
     createIndex: function(language, callback) {
         var dir = convert.getLanguageDir(language),
             indexFile = util.format(indexPath, language);
-        //TODO logger
+        logger.info({
+            message: 'Building index ' + indexFile,
+            module: 'lib/db_child',
+            method: 'process.onmessage'
+        });
         console.log('Building index ' + indexFile);
         module.exports.buildIndex(dir, function (error, index) {
             if (!error && Array.isArray(index)) {
@@ -262,9 +267,18 @@ process.on('message', function(language){
         module.exports.createIndex(language, function (error) {
             inProgress[language] = false;
             if (error) {
-                //TODO logger
-                console.log(error);
+                logger.error({
+                    message: 'Error creating index in ' + language,
+                    module: 'lib/db_child',
+                    method: 'process.onmessage',
+                    error: error
+                });
             } else {
+                logger.info({
+                    message: 'Done creating index in ' + language,
+                    module: 'lib/db_child',
+                    method: 'process.onmessage'
+                });
                 console.log('Done creating ' + language + ' index');
             }
         });
@@ -278,6 +292,14 @@ process.on('uncaughtException', function(error){
     for (var language in inProgress) {
         inProgress[language] = false;
     }
-    //TODO logger
-    console.log(error);
+    try {
+        logger.critical({
+            message: 'Uncaught exception',
+            module: 'lib/db_child',
+            method: 'process.onuncaughtException',
+            error: error
+        });
+    } catch (exception) {
+        console.error(exception);
+    }
 });

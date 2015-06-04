@@ -39,7 +39,7 @@ module.exports = {
 
         //Log the error
         var logentry = {
-            message: 'displaying an error',
+            message: 'Display of an error page',
             module: 'middleware/error',
             method: 'handler',
             request: req,
