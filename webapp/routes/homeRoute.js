@@ -41,7 +41,8 @@ module.exports = {
                     res
                         .set({
                             'Content-Type': 'text/html; charset=utf-8',
-                            'Content-Language': res.getLocale()
+                            'Content-Language': res.getLocale(),
+                            'Cache-Control': 'max-age=86400, public'
                         })
                         .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                         .render('home', {

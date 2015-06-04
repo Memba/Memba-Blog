@@ -47,34 +47,6 @@ module.exports = {
                     function(callback) {
                         menu.getMenu(req.params.language, callback);
                     },
-                    //get page data
-                    function(callback) {
-
-                    }
-                ],
-                function(error, responses) {
-                    if(!error && Array.isArray(responses) && responses.length > 1 && Array.isArray(responses[0]) && Array.isArray(responses[1]) && responses[1].length > 0) {
-                        var data = utils.deepExtend({}, responses[1][0], { content: markdown.render(responses[1][0].text), menu: responses[0], sessionId: req.sessionId });
-                        res
-                            .set({
-                                'Content-Type': 'text/html; charset=utf-8',
-                                'Content-Language': res.getLocale()
-                            })
-                            .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                            .render('page', data);
-                    } else {
-                        next(error || new ApplicationError(404));
-                    }
-                }
-            );
-
-
-            async.parallel(
-                [
-                    //get menu
-                    function(callback) {
-                        menu.getMenu(req.params.language, callback);
-                    },
                     //get page
                     function(callback) {
                         var path = convert.getPagePath(req.params.language, req.params.slug);
@@ -112,7 +84,8 @@ module.exports = {
                             res
                                 .set({
                                     'Content-Type': 'text/html; charset=utf-8',
-                                    'Content-Language': res.getLocale()
+                                    'Content-Language': res.getLocale(),
+                                    'Cache-Control': 'max-age=3600, public'
                                 })
                                 .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                                 .render('page', data);
@@ -135,7 +108,8 @@ module.exports = {
                             res
                                 .set({
                                     'Content-Type': 'text/html; charset=utf-8',
-                                    'Content-Language': res.getLocale()
+                                    'Content-Language': res.getLocale(),
+                                    'Cache-Control': 'max-age=0, public'
                                 })
                                 .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                                 .render('search', data);

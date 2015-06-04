@@ -83,7 +83,8 @@ module.exports = {
                             res
                                 .set({
                                     'Content-Type': 'text/html; charset=utf-8',
-                                    'Content-Language': res.getLocale()
+                                    'Content-Language': res.getLocale(),
+                                    'Cache-Control': 'max-age=3600, public'
                                 })
                                 .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                                 .render('post', data);
@@ -106,7 +107,8 @@ module.exports = {
                             res
                                 .set({
                                     'Content-Type': 'text/html; charset=utf-8',
-                                    'Content-Language': res.getLocale()
+                                    'Content-Language': res.getLocale(),
+                                    'Cache-Control': 'max-age=0, public'
                                 })
                                 .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                                 .render('search', data);
