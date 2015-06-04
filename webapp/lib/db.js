@@ -12,9 +12,10 @@ var fs = require('fs'),
     path = require('path'),
     chokidar = require('chokidar'),
     config = require('../config'),
-    locales = config.get('locales'),
     convert = require('./convert'),
+    logger = require('./logger'),
     utils = require('./utils'),
+    locales = config.get('locales'),
     indexer;
 
 /**
@@ -43,6 +44,11 @@ if(typeof indexer === 'undefined') {
  */
 chokidar.watch(convert.getIndexDir()).on('all', function(event, path) {
     console.log(event, path);
+    logger.info({
+        message: event + ' ' + path,
+        module: 'lib/db',
+        method: 'chokidar.watch'
+    });
     if(/^(add|change)$/i.test(event)) {
         var language = convert.index2language(path);
         if (locales.indexOf(language) > -1) {
@@ -92,6 +98,11 @@ Collection.prototype.load = function() {
  */
 Collection.prototype.reindex = function() {
     console.log('Reindexation triggered for ' + this.locale);
+    logger.info({
+        message: 'Reindexation triggered for ' + this.locale,
+        module: 'lib/db',
+        method: 'chokidar.watch'
+    });
     if (indexer) {
         indexer.send(this.locale);
     } else {

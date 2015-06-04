@@ -63,6 +63,12 @@ module.exports = {
             setTimeout(function() {
                 menu.resetCache();
                 index.resetCache();
+                logger.info({
+                    message: 'Index and menu cache reset',
+                    module: 'routes/hookRoute',
+                    method: 'handler',
+                    request: req
+                });
             }, 10000);
 
             //Close and send the response
