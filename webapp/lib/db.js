@@ -78,6 +78,12 @@ Collection.prototype.load = function() {
             data = JSON.parse(buf.toString());
         if (Array.isArray(data)) {
             this.data = data;
+            logger.info({
+                message: 'Index loaded from ' + indexFile,
+                module: 'lib/db',
+                method: 'chokidar.watch',
+                data: data
+            });
             console.log('Index ' + this.locale + ' loaded with ' + data.length + ' entries');
         }
     } catch(exception) {
