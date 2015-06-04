@@ -9,4 +9,4 @@ before_install:
   - "npm install -g npm"
   - "npm install -g grunt-cli"
 before_script:
-  - "webpack"
+  - "grunt build"

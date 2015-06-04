@@ -9,8 +9,23 @@
 
 module.exports = function (grunt) {
 
-    var webpack = require('webpack');
-    var webpackConfig = require(__dirname + '/webpack.config.js');
+    /**
+     * Unfortunately, we cannot use grunt-env to set the environment
+     * - webpack uses a DefinePlugin which reads process.env.NODE_ENV
+     * - nconf reads process.env.NODE_ENV
+     * Both read the environment variable before grunt-env can set it in the grunt process.
+     * So we have not other way than to actually set NODE_ENV in the OS to produce a build
+     * especially set NODE_ENV=production for a production build
+     */
+
+    if (process.env.NODE_ENV) {
+        console.log('grunt environment is ' + process.env.NODE_ENV);
+    } else {
+        console.log('IMPORTANT: grunt environment is undefined. Launch your webstorm terminal session with cmd.exe /K "set NODE_ENV=development"');
+    }
+
+    var webpack = require('webpack'),
+        webpackConfig = require(__dirname + '/webpack.config.js');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -24,21 +39,12 @@ module.exports = function (grunt) {
         kendo_lint: {
             files: ['src/js/app*.js']
         },
-        env : {
-            build : {
-                NODE_ENV: 'production'
-            }
-        },
         webpack: {
+            //See https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
             options: webpackConfig,
             build: {
-                //See https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.jsgrunt webpack
                 plugins: webpackConfig.plugins.concat(
-                    new webpack.DefinePlugin({
-                        'process.env': {
-                            'NODE_ENV': JSON.stringify('production')
-                        }
-                    }),
+                    new webpack.optimize.DedupePlugin(),
                     new webpack.optimize.UglifyJsPlugin()
                 )
             }
@@ -61,14 +67,13 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-kendo-lint');
 
     //Build
-    grunt.loadNpmTasks('grunt-env');
     grunt.loadNpmTasks('grunt-webpack');
 
     //Tests
     grunt.loadNpmTasks('grunt-mocha-test');
 
     grunt.registerTask('lint', ['jshint', 'kendo_lint']);
-    grunt.registerTask('build', ['env:build', 'webpack:build']);
+    grunt.registerTask('build', ['webpack:build']);
     grunt.registerTask('test', ['mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 
