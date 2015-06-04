@@ -1,13 +1,30 @@
-// For an introduction to WebPack see
-// https://github.com/petehunt/webpack-howto
-// http://slidedeck.io/unindented/webpack-presentation
-// http://christianalfoni.github.io/javascript/2014/12/13/did-you-know-webpack-and-react-is-awesome.html
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/* jshint node: true */
 
 'use strict';
 
+/**
+ * For an introduction to WebPack see
+ * https://github.com/petehunt/webpack-howto
+ * http://slidedeck.io/unindented/webpack-presentation
+ * http://christianalfoni.github.io/javascript/2014/12/13/did-you-know-webpack-and-react-is-awesome.html
+ */
+
 var webpack = require('webpack'),
     path = require('path'),
-    config = require('./webapp/config');
+    config = require('./webapp/config'),
+    url = require('./webapp/lib/url');
+
+if (process.env.NODE_ENV) {
+    console.log('webpack environment is ' + process.env.NODE_ENV);
+} else {
+    console.log('webpack environment is ' + process.env.NODE_ENV);
+    console.log('Initialize your terminal (Settings -> Tools -> Terminal in Webstorm) with cmd /K "set NODE_ENV=development"');
+}
 
 /**
  * definePlugin defines a global variable which is only available when running webpack
@@ -15,12 +32,18 @@ var webpack = require('webpack'),
  * @type {webpack.DefinePlugin}
  * @see http://webpack.github.io/docs/list-of-plugins.html#defineplugin
  * @see https://github.com/petehunt/webpack-howto#6-feature-flags
+ *
+ * var definePlugin = new webpack.DefinePlugin({
+ *   'process.env': {
+ *       'NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+ *   }
+ * });
+ *
+ * We are not using the DefinePlugin here. This allows us to use the same webpack.config.js to
+ * 1) call webpack -d (debug with sourcemaps) or webpack -p (minify for production without sourcemaps) on the command line
+ *    but for this to work terminal needs to be called with cmd /K \"set NODE_ENV=development" (subject to NODE_END value)
+ * 2) call grunt build to build our application for production
  */
-var definePlugin = new webpack.DefinePlugin({
-    'process.env': {
-        'NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
-    }
-});
 
 /**
  * dedupePlugin deduplicates chunks
@@ -28,7 +51,8 @@ var definePlugin = new webpack.DefinePlugin({
  * @see http://webpack.github.io/docs/optimization.html#deduplication
  * @see http://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
  */
-var dedupePlugin = new webpack.optimize.DedupePlugin();
+var dedupePlugin =
+    new webpack.optimize.DedupePlugin();
 
 /**
  * commonsChunkPlugin builds a common denominator of the designated chunks
@@ -43,10 +67,15 @@ var commonsChunkPlugin =
 /**
  * SourceMapDevToolPlugin builds source maps
  * For debugging in WebStorm see https://github.com/webpack/webpack/issues/238
+ *
+ * var sourceMapDevToolPlugin = new webpack.SourceMapDevToolPlugin(
+ *     '[file].map', null,
+ *     "[absolute-resource-path]", "[absolute-resource-path]"
+ * );
+ *
+ * We are not using the source map plugin since webpack -d on the command line produces sourcemaps in our development environment
+ * and we do not want sourcemaps in production.
  */
-var sourceMapDevToolPlugin = new webpack.SourceMapDevToolPlugin(
-    '[file].map', null,
-    "[absolute-resource-path]", "[absolute-resource-path]");
 
 /**
  * Webpack configuration
@@ -72,7 +101,7 @@ module.exports = {
         //Unfortunately it is not possible to specialize output directories
         //See https://github.com/webpack/webpack/issues/882
         path: path.join(__dirname, '/webapp/public/assets'),
-        publicPath: config.get('uris:webapp:public') + 'assets/',
+        publicPath: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:public'), 'assets'),
         filename:   '[name].bundle.js',
         chunkFilename: '[name].chunk.js'
     },
@@ -112,9 +141,9 @@ module.exports = {
         ]
     },
     plugins: [
-        definePlugin,
+        //definePlugin,
         dedupePlugin,
-        commonsChunkPlugin,
-        sourceMapDevToolPlugin
+        commonsChunkPlugin
+        //sourceMapDevToolPlugin
     ]
 };

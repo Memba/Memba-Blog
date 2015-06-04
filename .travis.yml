@@ -7,4 +7,5 @@ env:
   - "NODE_ENV=test"
 before_install:
   - "npm install -g npm"
-  - "npm install -g grunt-cli"
+after_install:
+  - "webpack"

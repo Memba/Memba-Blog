@@ -1,13 +1,22 @@
-//http://gruntjs.com/sample-gruntfile
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/* jshint node: true */
+
+'use strict';
 
 module.exports = function (grunt) {
 
-    'use strict';
+    var webpack = require('webpack');
+    var webpackConfig = require(__dirname + '/webpack.config.js');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
-            all: ['gruntfile.js', 'js/**/*.js', 'webapp/**/*.js', 'test/**/*.js'],
+            all: ['gruntfile.js', 'webpack.config.js', 'js/**/*.js', 'webapp/**/*.js', 'test/**/*.js'],
+            ignores: ['js/vendor/**/*.js', 'webapp/public/**/*.js', 'test/vendor/**/*.js'],
             options: {
                 jshintrc: true
             }
@@ -15,18 +24,24 @@ module.exports = function (grunt) {
         kendo_lint: {
             files: ['src/js/app*.js']
         },
-        /*
-        csslint: {
-            strict: {
-                options: {
-                    import: 2
-                },
-                src: ['src/styles/app.*.css']
+        env : {
+            build : {
+                NODE_ENV: 'production'
             }
         },
-        */
         webpack: {
-            build: require(__dirname + '/webpack.config.js')
+            options: webpackConfig,
+            build: {
+                //See https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.jsgrunt webpack
+                plugins: webpackConfig.plugins.concat(
+                    new webpack.DefinePlugin({
+                        'process.env': {
+                            'NODE_ENV': JSON.stringify('production')
+                        }
+                    }),
+                    new webpack.optimize.UglifyJsPlugin()
+                )
+            }
         },
         mochaTest: {
             all: {
@@ -39,39 +54,21 @@ module.exports = function (grunt) {
                 src: ['test/**/*.js']
             }
         }
-        /*
-        yuidoc: {
-            compile: {
-                name: '<%= pkg.name %>',
-                description: '<%= pkg.description %>',
-                version: '<%= pkg.version %>',
-                url: '<%= pkg.homepage %>',
-                options: {
-                    paths: 'src/js/',
-                    outdir: 'docs/yui/'
-                }
-            }
-        }
-        */
     });
 
     //Lint
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-kendo-lint');
-    //grunt.loadNpmTasks('grunt-contrib-csslint');
 
     //Build
+    grunt.loadNpmTasks('grunt-env');
     grunt.loadNpmTasks('grunt-webpack');
 
     //Tests
-    //grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
 
-    //Documentation
-    //grunt.loadNpmTasks('grunt-contrib-yuidoc');
-
     grunt.registerTask('lint', ['jshint', 'kendo_lint']);
-    grunt.registerTask('build', ['webpack']);
+    grunt.registerTask('build', ['env:build', 'webpack:build']);
     grunt.registerTask('test', ['mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 
