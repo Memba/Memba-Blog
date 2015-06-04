@@ -1,3 +1,12 @@
+/**
+ * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/* jshint node: true, expr: true */
+
+'use strict';
+
 var webpack = require('webpack'),
     loaderUtils = require('loader-utils'),
     ejs = require('ejs'),
