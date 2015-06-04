@@ -52,17 +52,25 @@ module.exports = {
         }
 
         //Display error
-        res.status(error.status).render('error', {
-            author: res.__('meta.author'),
-            description: error.message,
-            icon: res.__('error.icon'),
-            keywords: res.__('meta.keywords'),
-            menu: [], //Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
-            results: [], //trick header into displaying robots noindex directive
-            sessionId: req.sessionId,
-            site_url: false, //trick header into not displaying a canonical link since we have a robots noindex directive
-            title: error.title
-        });
+        res
+            .status(error.status)
+            .set({
+                'Content-Type': 'text/html; charset=utf-8',
+                'Content-Language': res.getLocale(),
+                'Cache-Control': 'no-cache'
+            })
+            .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+            .render('error', {
+                author: res.__('meta.author'),
+                description: error.message,
+                icon: res.__('error.icon'),
+                keywords: res.__('meta.keywords'),
+                menu: [], //Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
+                results: [], //trick header into displaying robots noindex directive
+                sessionId: req.sessionId,
+                site_url: false, //trick header into not displaying a canonical link since we have a robots noindex directive
+                title: error.title
+            });
 
     }
 
