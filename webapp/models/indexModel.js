@@ -35,8 +35,8 @@ module.exports = {
      * @param callback
      */
     findBySiteUrl: function(site_url, query, callback) {
-        var language = convert.site_url2language(site_url),
-            query = utils.deepExtend(query, {site_url: new RegExp('^' + site_url, 'i')});
+        var language = convert.site_url2language(site_url);
+        query = utils.deepExtend(query, {site_url: new RegExp('^' + site_url, 'i')});
         db[language].find(query, callback);
     },
 
