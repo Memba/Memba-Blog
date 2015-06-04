@@ -29,7 +29,7 @@ module.exports = {
 
         try {
 
-            console.log('--------------> hooked!');
+            console.log('routes/hookRoute: hooked!');
 
             //Log the request
             logger.info({
@@ -39,7 +39,8 @@ module.exports = {
                 request: req
             });
 
-            if(process.env.NODE_ENV === 'production') {
+            //In production only, validate the request
+            if(process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test') {
 
                 //TODO Check x-hub-signature, x-github-event
                 //TODO Check Github Ip Addresses - https://help.github.com/articles/what-ip-addresses-does-github-use-that-i-should-whitelist/
@@ -71,13 +72,14 @@ module.exports = {
             console.error(exception);
 
             //Log the exception
-            logger.crit({
+            logger.critical({
                 message: 'Exception caught',
                 module: 'routes/hookRoute',
                 method: 'handler',
                 request: req,
                 error: exception
             });
+
             return res.status(500).end();
         }
     }
