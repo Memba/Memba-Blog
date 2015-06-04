@@ -14,7 +14,7 @@ var nconf = require('nconf'),
 function Config(){
     nconf.argv().env('_');
     var environment = nconf.get('NODE:ENV') || 'production';
-    console.log('Memba.Blog: environment is ' + environment);
+    console.log('nconf environment is ' + environment);
     nconf.file(environment, path.join(__dirname, environment + '.json'));
     nconf.file('default', path.join(__dirname, 'default.json'));
 }
