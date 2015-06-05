@@ -19,11 +19,6 @@ COPY . /usr/src/
 WORKDIR /usr/src/
 RUN npm install
 
-# Set permissions on cache files
-# RUN chmod -R 666 /usr/src/webapp/cache/
-# RUN chmod 666 /usr/src/webapp/cache/en.json
-# RUN chmod 666 /usr/src/webapp/cache/fr.json
-
 # Delete cache
 RUN rm -f /usr/src/webapp/cache/*
 
