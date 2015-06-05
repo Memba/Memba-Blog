@@ -44,6 +44,7 @@ module.exports = {
                 callback(error || new Error('Getting Github content returned status ' + response.statusCode + (body && body.message ? ': ' + body.message : '')));
             }
         });
+
     },
 
     /**

@@ -175,7 +175,7 @@ module.exports = {
     },
 
     /**
-     * Build an index array
+     * Build an index array (This is the recursive function)
      * @param dir
      * @param callback
      */
@@ -228,28 +228,36 @@ module.exports = {
     },
 
     /**
-     * Create an index on disk
+     * Create an index on disk (this is the root function)
      * @param language
      * @param callback
      */
     createIndex: function(language, callback) {
         var dir = convert.getLanguageDir(language),
             indexFile = util.format(indexPath, language);
-        logger.info({
+        logger.debug({
             message: 'Building index ' + indexFile,
             module: 'lib/db_child',
-            method: 'process.onmessage'
+            method: 'createIndex'
         });
-        console.log('Building index ' + indexFile);
         module.exports.buildIndex(dir, function (error, index) {
             if (!error && Array.isArray(index)) {
                 //Check that directory exists or create
                 if(!fs.existsSync(indexDir)) {
-                    console.log('Creating directory ' + indexDir);
+                    logger.debug({
+                        message: 'Creating directory ' + indexDir,
+                        module: 'lib/db_child',
+                        method: 'createIndex'
+                    });
                     fs.mkdirSync(indexDir);
                 }
                 //Save index to disk in directory
-                console.log('Writing file ' + indexFile);
+                logger.debug({
+                    message: 'Writing file ' + indexFile,
+                    module: 'lib/db_child',
+                    method: 'createIndex',
+                    data: index
+                });
                 fs.writeFile(indexFile, JSON.stringify(index), callback);
             } else {
                 callback(error);
@@ -279,7 +287,6 @@ process.on('message', function(language){
                     module: 'lib/db_child',
                     method: 'process.onmessage'
                 });
-                console.log('Done creating ' + language + ' index');
             }
         });
     }

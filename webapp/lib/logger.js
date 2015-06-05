@@ -14,7 +14,8 @@
 var config = require('../config'),
     utils = require('./utils'),
     LogEntries = require('le_node'),
-    logger = new LogEntries({ token: config.get('logentries:server:token')});
+    logger = new LogEntries({ token: config.get('logentries:server:token')}),
+    debug = config.get('debug');
 
 /**
  * Process entry.request if existing
@@ -38,32 +39,75 @@ function process(entry) {
 
 module.exports = {
 
-    console: function(entry) {
-        //TODO consider more sophisticated presentation with colors
-        //TODO we are missing the stack trace!!!!!!!!!!!!!!
+    /**
+     * Display message in the console
+     * @param entry
+     * @private
+     */
+    _console: function(entry) {
         console.dir(entry, { showHidden: false, depth: 4, colors: true });
     },
 
+    /**
+     * Log to logentries
+     * @param level
+     * @param entry
+     * @private
+     */
+    _log: function(level, entry) {
+        entry = process(entry);
+        module.exports._console(entry);
+        logger.log(level, entry);
+    },
+
+    /**
+     * Log a debug entry
+     * Only reach logentries if debug===true
+     * @param entry
+     */
+    debug: function(entry) {
+        entry = process(entry);
+        module.exports._console(entry);
+        if (debug) {
+            module.exports._log('debug', process(entry));
+        }
+    },
+
+    /**
+     * Log an info entry
+     * @param entry
+     */
     info: function(entry) {
-        logger.log('info', process(entry));
+        module.exports._log('info', process(entry));
     },
 
+    /**
+     * Log a warning entry
+     * @param entry
+     */
     warning: function(entry) {
-        logger.log('warning', process(entry));
+        module.exports._log('warning', entry);
     },
 
+    /**
+     * Log an error entry
+     * @param entry
+     */
     error: function(entry) {
-        entry = process(entry);
-        module.exports.console(entry);
-        logger.log('err', entry);
+        module.exports._log('err', entry);
     },
 
+    /**
+     * Log a critical entry
+     * @param entry
+     */
     critical: function(entry) {
-        entry = process(entry);
-        module.exports.console(entry);
-        logger.log('crit', entry);
+        module.exports._log('crit', entry);
     },
 
+    /**
+     * Flush pending logs
+     */
     flush: function() {
         logger.closeConnection();
     }

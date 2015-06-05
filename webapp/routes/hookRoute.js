@@ -29,28 +29,21 @@ module.exports = {
 
         try {
 
-            console.log('routes/hookRoute: hooked!');
-
             //Log the request
             logger.info({
-                message: 'Github hook triggered',
+                message: 'Github webhook triggered',
                 module: 'routes/hookRoute',
                 method: 'handler',
                 request: req
             });
 
             //In production only, validate the request
-            if(process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test') {
-
-                //TODO Check x-hub-signature, x-github-event
-                //TODO Check Github Ip Addresses - https://help.github.com/articles/what-ip-addresses-does-github-use-that-i-should-whitelist/
+            if(process.env.NODE_ENV === 'production') {
 
                 //Check user agent
                 if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
                     throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
                 }
-
-                //TODO Check the payload
 
             }
 

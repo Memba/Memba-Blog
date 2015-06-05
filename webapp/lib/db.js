@@ -73,26 +73,35 @@ var Collection = function(locale) {
 Collection.prototype.load = function() {
     try {
         var indexFile = convert.getIndexPath(this.locale);
-        console.log('Loading ' + indexFile);
+        logger.info({
+            message: 'Loading index from ' + indexFile,
+            module: 'lib/db',
+            method: 'Collection.prototype.load',
+            data: data
+        });
         var buf = fs.readFileSync(indexFile),
             data = JSON.parse(buf.toString());
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length) {
             this.data = data;
-            logger.info({
-                message: 'Index loaded from ' + indexFile,
-                module: 'lib/db',
-                method: 'chokidar.watch',
-                data: data
-            });
-            console.log('Index ' + this.locale + ' loaded with ' + data.length + ' entries');
         }
+        logger.info({
+            message: 'Index ' + this.locale + ' loaded with ' + this.data.length + ' entries',
+            module: 'lib/db',
+            method: 'Collection.prototype.load',
+            data: this.data.slice(0, 1)
+        });
     } catch(exception) {
-        console.dir(exception);
+        logger.error({
+            message: 'Error loading index from ' + indexFile,
+            module: 'lib/db',
+            method: 'Collection.prototype.load',
+            data: this.data.slice(0, 1)
+        });
         if(exception.code === 'ENOENT') {
             //if index file not found, reindex
-            console.log('Index file not found');
             this.reindex();
-        } else {
+        } else if (!(exception instanceof SyntaxError)) {
+            //e.g. JSON.parse('') throws SyntaxError
             throw exception;
         }
     }
@@ -103,13 +112,12 @@ Collection.prototype.load = function() {
  * Once built, the file watcher will be triggered to reload the index
  */
 Collection.prototype.reindex = function() {
-    console.log('Reindexation triggered for ' + this.locale);
-    logger.info({
-        message: 'Reindexation triggered for ' + this.locale,
-        module: 'lib/db',
-        method: 'chokidar.watch'
-    });
     if (indexer) {
+        logger.info({
+            message: 'Reindexation triggered for ' + this.locale,
+            module: 'lib/db',
+            method: 'Collection.prototype.reindex'
+        });
         indexer.send(this.locale);
     } else {
         console.log('The db_child process has not been forked for reindexation.');
