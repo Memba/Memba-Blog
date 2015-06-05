@@ -34,11 +34,10 @@ var path = require('path'),
     router = require('./routes');
 
 //Secure expressJS with helmet from https://github.com/helmetjs/helmet
-app.use(helmet());
-//app.disable('x-powered-by');
+app.use(helmet()); //app.disable('x-powered-by');
 
 // Configure expressJS
-//TODO app.enable('trust proxy');
+app.set('trust proxy', 'uniquelocal');
 app.set('port', process.env.PORT || config.get('express:port'));
 
 // i18n
@@ -67,6 +66,8 @@ app.use(router);
 // Start application
 app.listen(app.get('port'));
 console.log('Express server listening on port ' + app.get('port'));
+
+
 
 //Export app for further needs, especially qa/testing
 module.exports = app;
