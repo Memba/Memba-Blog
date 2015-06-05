@@ -34,18 +34,21 @@ if(typeof indexer === 'undefined') {
             execArgv[0] = '--debug-brk=' + (parseInt(matches[1], 10) + 1);
         }
     }
-    console.log('Forking db_child indexing process with execArgv:');
-    console.dir(execArgv);
     indexer = require('child_process').fork(path.join(__dirname, 'db_child.js'), undefined, {execArgv: execArgv});
+    logger.info({
+        message: 'Forked db_child indexing process with execArgv:',
+        module: 'lib/db',
+        method: 'none',
+        execArgv: execArgv
+    });
 }
 
 /**
  * The chokidar file watcher loads the index when it is ready
  */
 chokidar.watch(convert.getIndexDir()).on('all', function(event, path) {
-    console.log(event, path);
     logger.info({
-        message: event + ' ' + path,
+        message: event + ' event on ' + path,
         module: 'lib/db',
         method: 'chokidar.watch'
     });
@@ -72,14 +75,8 @@ var Collection = function(locale) {
  */
 Collection.prototype.load = function() {
     try {
-        var indexFile = convert.getIndexPath(this.locale);
-        logger.info({
-            message: 'Loading index from ' + indexFile,
-            module: 'lib/db',
-            method: 'Collection.prototype.load',
-            data: data
-        });
-        var buf = fs.readFileSync(indexFile),
+        var indexFile = convert.getIndexPath(this.locale),
+            buf = fs.readFileSync(indexFile),
             data = JSON.parse(buf.toString());
         if (Array.isArray(data) && data.length) {
             this.data = data;
@@ -120,7 +117,11 @@ Collection.prototype.reindex = function() {
         });
         indexer.send(this.locale);
     } else {
-        console.log('The db_child process has not been forked for reindexation.');
+        logger.critical({
+            message: 'The db_child process has not been forked to allow reindexation.',
+            module: 'lib/db',
+            method: 'Collection.prototype.reindex'
+        });
     }
 };
 
@@ -259,8 +260,13 @@ Collection.prototype.group = function(query, callback) {
  * Database
  * @type {{reindex: Function}}
  */
+logger.info({
+    message: 'Loading indexes',
+    module: 'lib/db',
+    method: 'none',
+    execArgv: execArgv
+});
 var db = {};
-console.log('Loading indexes');
 locales.forEach(function(locale){
     db[locale] = new Collection(locale);
     db[locale].load();
