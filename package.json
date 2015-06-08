@@ -23,16 +23,15 @@
     "start": "node webapp/server.js"
   },
   "dependencies": {
-    "async": "^1.2.0",
+    "async": "^1.2.1",
     "body-parser": "^1.12.4",
-    "chokidar": "^1.0.2",
+    "chokidar": "^1.0.3",
     "deep-extend": "^0.4.0",
     "ejs": "^2.3.1",
     "express": "^4.12.4",
     "helmet": "^0.9.1",
     "highlight.js": "^8.6.0",
     "i18n": "^0.5.0",
-    "le_node": "^1.0.4",
     "marked": "^0.3.3",
     "moment": "^2.10.3",
     "nconf": "^0.7.1",
