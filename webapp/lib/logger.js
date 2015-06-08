@@ -7,14 +7,8 @@
 
 'use strict';
 
-// More info at:
-// https://github.com/logentries/le_node
-// https://logentries.com/doc/nodejs/
-
 var config = require('../config'),
     utils = require('./utils'),
-    LogEntries = require('le_node'),
-    logger = new LogEntries({ token: config.get('logentries:server:token')}),
     debug = config.get('debug');
 
 /**
@@ -34,42 +28,45 @@ function process(entry) {
         });
         delete entry.request;
     }
+    if(entry.error && entry.error.originalError) {
+        entry.originalError = entry.error.originalError;
+        delete entry.error.originalError;
+    }
+    entry.date = (new Date()).toISOString();
     return entry;
+}
+
+/**
+ * Log to console
+ * @param entry
+ * @private
+ */
+function log(entry) {
+    // consider using process.stdout.writeln + add colors
+    console.log(JSON.stringify(process(entry)));
+}
+
+/**
+ * Error to console
+ * @param entry
+ * @private
+ */
+function error(entry) {
+    // consider using process.stderr.writeln
+    console.error(JSON.stringify(process(entry)));
 }
 
 module.exports = {
 
     /**
-     * Display message in the console
-     * @param entry
-     * @private
-     */
-    _console: function(entry) {
-        console.dir(entry, { showHidden: false, depth: 4, colors: true });
-    },
-
-    /**
-     * Log to logentries
-     * @param level
-     * @param entry
-     * @private
-     */
-    _log: function(level, entry) {
-        entry = process(entry);
-        module.exports._console(entry);
-        logger.log(level, entry);
-    },
-
-    /**
      * Log a debug entry
-     * Only reach logentries if debug===true
+     * Only output if debug===true
      * @param entry
      */
     debug: function(entry) {
-        entry = process(entry);
-        module.exports._console(entry);
         if (debug) {
-            module.exports._log('debug', process(entry));
+            entry.level='DEBUG';
+            log(entry);
         }
     },
 
@@ -78,7 +75,8 @@ module.exports = {
      * @param entry
      */
     info: function(entry) {
-        module.exports._log('info', process(entry));
+        entry.level='INFO';
+        log(entry);
     },
 
     /**
@@ -86,7 +84,8 @@ module.exports = {
      * @param entry
      */
     warning: function(entry) {
-        module.exports._log('warning', entry);
+        entry.level='WARN';
+        log(entry);
     },
 
     /**
@@ -94,7 +93,8 @@ module.exports = {
      * @param entry
      */
     error: function(entry) {
-        module.exports._log('err', entry);
+        entry.level='ERROR';
+        error(entry);
     },
 
     /**
@@ -102,14 +102,8 @@ module.exports = {
      * @param entry
      */
     critical: function(entry) {
-        module.exports._log('crit', entry);
-    },
-
-    /**
-     * Flush pending logs
-     */
-    flush: function() {
-        logger.closeConnection();
+        entry.level='CRIT';
+        error(entry);
     }
 
 };

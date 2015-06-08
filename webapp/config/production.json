@@ -7,9 +7,6 @@
     "logentries": {
         "browser": {
             "token": "7b849c1f-01b1-4c11-885c-70d5a11a3618"
-        },
-        "server" : {
-            "token": "723757ac-1d9d-40cd-9d63-b292cc5c325c"
         }
     },
     "db": {

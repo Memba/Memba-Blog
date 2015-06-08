@@ -154,7 +154,11 @@ module.exports = {
      * @param callback
      */
     getIndexEntry: function(path, callback) {
-        console.log('Indexing ' + path);
+        logger.info({
+            message: 'Indexing ' + path,
+            module: 'lib/db_child',
+            method: 'getIndexEntry'
+        });
         if(!convert.isMarkdown(path)) {
             return callback(new Error('The path to an index entry should designate a markdown file'));
         }

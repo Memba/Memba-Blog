@@ -30,8 +30,17 @@ process.on('uncaughtException', function(err) {
 });
 
 process.on('exit', function(/*code*/) {
-    logger.flush();
-    console.log('Process exited');
+    logger.info({
+        message: 'exit',
+        module: 'server',
+        method: 'process.onexit'
+    });
+});
+
+logger.info({
+    message: 'nconf environment is ' + config.get('NODE:ENV'),
+    module: 'config/index',
+    method: 'Config'
 });
 
 //Secure expressJS with helmet from https://github.com/helmetjs/helmet
@@ -68,12 +77,11 @@ app.use(router);
 app.listen(app.get('port'));
 
 //Log
-console.log('Express server in ' + config.get('NODE:ENV') + ' mode listening on port ' + app.get('port'));
 logger.info({
-    message: 'Express server in ' + config.get('NODE:ENV') + ' mode listening on port ' + app.get('port'),
+    message: 'Express server listening on port ' + app.get('port'),
     method: 'none',
     module: 'server'
-}, true);
+});
 
 //Export app for further needs, especially qa/testing
 module.exports = app;
