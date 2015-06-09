@@ -15,13 +15,13 @@ module.exports = function (grunt) {
      * - nconf reads process.env.NODE_ENV
      * Both read the environment variable before grunt-env can set it in the grunt process.
      * So we have not other way than to actually set NODE_ENV in the OS to produce a build
-     * especially set NODE_ENV=production for a production build
+     * especially set NODE_ENV=production for a production build.
      */
 
     if (process.env.NODE_ENV) {
         console.log('grunt environment is ' + process.env.NODE_ENV);
     } else {
-        console.log('IMPORTANT: grunt environment is undefined. Launch your webstorm terminal session with cmd.exe /K "set NODE_ENV=development"');
+        console.log('IMPORTANT: grunt environment is undefined. Use the `build.cmd` script');
     }
 
     var webpack = require('webpack'),
@@ -70,11 +70,12 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-webpack');
 
     //Tests
+    grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
 
     grunt.registerTask('lint', ['jshint', 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build']);
-    grunt.registerTask('test', ['mochaTest']);
+    grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 
 };
