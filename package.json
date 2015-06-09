@@ -1,15 +1,15 @@
 {
   "name": "Memba.Blog",
   "filename": "memba.blog",
-  "description": "A blog engine powered by nodeJS and pulling markdown from GitHub",
   "version": "0.0.1",
-  "copyright": "Copyright (c) 2013-2015 Memba. All rights reserved.",
+  "description": "A blog engine powered by nodeJS and pulling markdown from GitHub",
+  "author": "Memba Sarl",
+  "copyright": "Copyright ©2013-2015 Memba® Sarl. All rights reserved.",
   "license": "GPL-3.0",
+  "homepage": "http://www.memba.com",
   "keywords": [
     "blog"
   ],
-  "homepage": "http://miniblog.memba.com",
-  "author": "Memba Sarl",
   "repository": {
     "type": "git",
     "url": "http://github.com/Memba/Memba-Blog.git"
