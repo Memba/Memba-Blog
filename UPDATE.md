@@ -1,6 +1,19 @@
-# Update
+# Update Procedure
 
-> These are instructions about updating various components which are not developed as part of the Kidoju.WebApp project
+> These are instructions about updating various components
+
+## General principle
+
+We copy files from/to in the following order:
+
+1. Kidoju Webfonts
+2. Kidoju Widgets
+3. Kidoju Webapp
+4. Memba Blog
+5. Kidoju Support
+
+Each project has an ```update.cmd``` or ```update.sh``` script to copy files from previous projects in the chain above.
+Each copied file is marked as **read-only** and should only be modified in its original project.
 
 ## nodeJS modules
 
