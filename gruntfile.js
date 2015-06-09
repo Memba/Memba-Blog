@@ -1,8 +1,9 @@
 /**
  * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
+ * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
+/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
@@ -30,13 +31,13 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
-            all: ['gruntfile.js', 'webpack.config.js', 'js/**/*.js', 'webapp/**/*.js', 'test/**/*.js'],
+            all: ['gruntfile.js', 'webpack.config.js', 'js/**/*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
             ignores: ['js/vendor/**/*.js', 'webapp/public/**/*.js', 'test/vendor/**/*.js'],
             options: {
                 jshintrc: true
             }
         },
-        kendo_lint: {
+        kendo_lint: { // TODO: html too
             files: ['src/js/app*.js']
         },
         webpack: {
@@ -49,15 +50,27 @@ module.exports = function (grunt) {
                 )
             }
         },
-        mochaTest: {
-            all: {
+        mocha: {
+            browser: { //In browser unit tests
+                options: {
+                    log: true,
+                    logErrors: true,
+                    reporter: 'Spec',
+                    run: true,
+                    timeout: 5000
+                },
+                src: ['test/browser/**/*.html']
+            }
+        },
+        mochaTest: { //In node unit tests
+            node: {
                 options: {
                     quiet: false,
                     reporter: 'spec',
                     timeout: 10000,
                     ui: 'bdd'
                 },
-                src: ['test/**/*.js']
+                src: ['test/node/**/*.js']
             }
         }
     });
@@ -73,6 +86,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
 
+    //Commands
     grunt.registerTask('lint', ['jshint', 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);

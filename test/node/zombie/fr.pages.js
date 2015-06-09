@@ -9,9 +9,9 @@
 'use strict';
 
 var util = require('util'),
-    server = require('../../webapp/server'), //Start the web application
-    config = require('../../webapp/config'),
-    url = require('../../webapp/lib/url'),
+    server = require('../../../webapp/server'), //Start the web application
+    config = require('../../../webapp/config'),
+    url = require('../../../webapp/lib/url'),
     webapp = {
         //home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
         index: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', '')) + '/',

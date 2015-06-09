@@ -26,5 +26,5 @@ RUN if [ -d /usr/src/webapp/cache ]; then rm -f /usr/src/webapp/cache/*; fi
 EXPOSE 3000
 
 # Start node application
-# CMD [ "node", "webapp/server.js" ]
+# CMD [ "node", "/webapp/server.js" ]
 CMD [ "npm", "start" ]

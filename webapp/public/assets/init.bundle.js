@@ -1,5 +1,720 @@
-!function(e){function t(r){if(n[r])return n[r].exports;var o=n[r]={exports:{},id:r,loaded:!1};return e[r].call(o.exports,o,o.exports,t),o.loaded=!0,o.exports}var n={};return t.m=e,t.c=n,t.p="http://www.memba.com/assets/",t(0)}({0:function(e,t,n){n(131),n(133),n(135)},131:function(e,t,n){var r,o,i;!function(n,s){"use strict";o=[],r=n,i="function"==typeof r?r.apply(t,o):r,!(void 0!==i&&(e.exports=i))}(function(){"use strict";return function(){function e(e){if((e.match(/%s/g)||[]).length>5)throw new Error("app.config value has too many %s to format");return e.replace(/%s/,"{0}").replace(/%s/,"{1}").replace(/%s/,"{2}").replace(/%s/,"{3}").replace(/%s/,"{4}")}var t=window.app=window.app||{};t.DEBUG="true"==="false".toLowerCase(),t.logger={token:"4d577ed8-29a8-4844-8efb-9c1ce2ae45ac"},t.uris={cdn:{"default":"https://d2rvsmwqptocm.cloudfront.net"+e("/images/%s"),svg:{office:"https://d2rvsmwqptocm.cloudfront.net"+e("/images/o_collection/svg/office/%s.svg"),white:"https://d2rvsmwqptocm.cloudfront.net"+e("/images/o_collection/svg/white/%s.svg"),dark_grey:"https://d2rvsmwqptocm.cloudfront.net"+e("/images/o_collection/svg/dark_grey/%s.svg")}},webapp:{home:"http://www.memba.com"+e("/"),feed:"http://www.memba.com"+e("/%s/index.rss"),sitemap:"http://www.memba.com"+e("/%s/sitemap.xml"),pages:"http://www.memba.com"+e("/%s/%s"),posts:"http://www.memba.com"+e("/%s/posts/%s/%s/%s")}}}(),window.app.uris},n(132))},132:function(e,t,n){e.exports=function(){throw new Error("define cannot be used indirect")}},133:function(e,t,n){var r,o,i;!function(s,a){"use strict";o=[n(134)],r=s,i="function"==typeof r?r.apply(t,o):r,!(void 0!==i&&(e.exports=i))}(function(e){"use strict";return function(){var t=window.app=window.app||{},n=t.logger=t.logger||{};e.init({token:t.logger.token,ssl:!0,catchall:!0,trace:!1,page_info:"per-entry",print:"undefined"==typeof t.DEBUG?!1:t.DEBUG}),n.info=e.info,n.warning=e.warn,n.error=e.error}(),window.app.logger},n(132))},134:function(e,t,n){var r;/**
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "http://localhost:3000/assets/";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 0:
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+	 * Sources at https://github.com/Memba
+	 */
+
+	/* jshint browser: true */
+	/* globals require: false, process: false */
+
+	__webpack_require__(131);
+	__webpack_require__(133);
+	__webpack_require__(135);
+
+
+/***/ },
+
+/***/ 131:
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+	 * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+	 * Sources at https://github.com/Memba
+	 */
+
+	/* jshint browser: true */
+	/* globals define: false */
+
+	(function(f, define){
+	    'use strict';
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (f), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	})(function(){
+
+	    'use strict';
+
+	    /**
+	     * Note: This file is built with webpack using ./web_modules/jsx-loader.
+	     * Values are read from any of the JSON config files in ./webapp/config
+	     * depending on NODE_ENV: development, test or production (by default).
+	     */
+
+	    (function () {
+
+	        var app = window.app = window.app || {};
+
+	        /**
+	         * application DEBUG mode
+	         * @type {boolean}
+	         */
+	        app.DEBUG = 'true'.toLowerCase() === 'true';
+
+	        /**
+	         * Logger token
+	         */
+	        app.logger = { token: 'e78bac0b-377a-49e2-ad91-20bb4ec7cedc' };
+
+	        /**
+	         * Get formatting strings for Kendo UI from nodejs
+	         * where %s placeholders are replaced with {i} placeholders
+	         */
+	        function format(value) {
+	            if ((value.match(/%s/g) || []).length > 5) {
+	                throw new Error('app.config value has too many %s to format');
+	            }
+	            return value.replace(/%s/, '{0}').replace(/%s/, '{1}').replace(/%s/, '{2}').replace(/%s/, '{3}').replace(/%s/, '{4}');
+	        }
+
+	        /**
+	         * Application URIs
+	         * See /wepapp/middleware/locals.js
+	         */
+	        app.uris = {
+	            cdn: {
+	                default: 'https://d2rvsmwqptocm.cloudfront.net' + format('/images/%s'),
+	                svg: {
+	                    office: 'https://d2rvsmwqptocm.cloudfront.net' + format('/images/o_collection/svg/office/%s.svg'),
+	                    white: 'https://d2rvsmwqptocm.cloudfront.net' + format('/images/o_collection/svg/white/%s.svg'),
+	                    dark_grey: 'https://d2rvsmwqptocm.cloudfront.net' + format('/images/o_collection/svg/dark_grey/%s.svg')
+	                }
+	            },
+	            webapp: {
+	                home: 'http://localhost:3000' + format('/'),
+	                feed:  'http://localhost:3000' + format('/%s/index.rss'),
+	                sitemap:  'http://localhost:3000' + format('/%s/sitemap.xml'),
+	                pages:  'http://localhost:3000' + format('/%s/%s'),
+	                posts:  'http://localhost:3000' + format('/%s/posts/%s/%s/%s')
+	            }
+	        };
+
+	    }());
+
+	    return window.app.uris;
+
+	}, __webpack_require__(132));
+
+
+/***/ },
+
+/***/ 132:
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = function() { throw new Error("define cannot be used indirect"); };
+
+
+/***/ },
+
+/***/ 133:
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+	 * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+	 * Sources at https://github.com/Memba
+	 */
+
+	/* jshint browser: true */
+	/* globals define: false */
+
+	(function(f, define){
+	    'use strict';
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(134)], __WEBPACK_AMD_DEFINE_FACTORY__ = (f), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	})(function(LE) {
+
+	    'use strict';
+
+	    (function () {
+
+	        var app = window.app = window.app || {},
+	            logger = app.logger = app.logger || {};
+
+	        // Intialize LogEntries
+	        // see https://logentries.com/doc/javascript/
+	        // see https://github.com/logentries/le_js
+	        LE.init({
+	            token: app.logger.token,
+	            ssl: true,
+	            catchall: true,
+	            trace: false, //not as good as our sessionId
+	            page_info: 'per-entry',
+	            print: typeof app.DEBUG === 'undefined' ? false : app.DEBUG
+	        });
+
+	        logger.info = LE.info;
+	        logger.warning = LE.warn;
+	        logger.error = LE.error;
+	        //critical?
+
+	    }());
+
+	    return window.app.logger;
+
+	}, __webpack_require__(132));
+
+
+/***/ },
+
+/***/ 134:
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/**
 	 * @license Copyright 2013 Logentries.
 	 * Please view license at https://raw.github.com/logentries/le_js/master/LICENSE
 	 */
-!function(o,i){r=function(){return i(o)}.call(t,n,t,e),!(void 0!==r&&(e.exports=r))}(this,function(e){"use strict";function t(t){var n,r=(Math.random()+Math.PI).toString(36).substring(2,10),o=t.trace,i=t.page_info,s=t.token,a=t.print;n=e.LEENDPOINT?e.LEENDPOINT:"js.logentries.com/v1";var u=!0,c=function(){return"undefined"==typeof XDomainRequest?t.ssl:"https:"===e.location.protocol?!0:!1}(),p=[],f=!1,l=!1;if(t.catchall){var d=e.onerror,w=function(e,t,n){return h({error:e,line:n,location:t}).level("ERROR").send(),d?d(e,t,n):!1};e.onerror=w}var g=function(){var t=e.navigator||{doNotTrack:void 0},n=e.screen||{},r=e.location||{};return{url:r.pathname,referrer:document.referrer,screen:{width:n.width,height:n.height},window:{width:e.innerWidth,height:e.innerHeight},browser:{name:t.appName,version:t.appVersion,cookie_enabled:t.cookieEnabled,do_not_track:t.doNotTrack},platform:t.platform}},m=function(){var e=null,t=Array.prototype.slice.call(arguments);if(0===t.length)throw new Error("No arguments!");return e=1===t.length?t[0]:t},h=function(e){var t=m.apply(this,arguments),n={event:t};return"never"!==i&&(l&&"per-entry"!==i||(l=!0,"undefined"==typeof t.screen&&"undefined"==typeof t.browser&&h(g()).level("PAGE").send())),o&&(n.trace=r),{level:function(e){if(a&&"undefined"!=typeof console&&"PAGE"!==e)try{console[e.toLowerCase()].call(console,n)}catch(t){console.log(n)}return n.level=e,{send:function(){var e=[],t=JSON.stringify(n,function(t,n){var r=function(e,t){for(var n=0;n<e.length;n++)if(t===e[n])return n;return-1};if("undefined"==typeof n)return"undefined";if("object"==typeof n&&null!==n){if(-1!==r(e,n))return"<?>";e.push(n)}return n});f?p.push(t):v(s,t)}}}}};this.log=h;var v=function(e,t){f=!0;var r=function(){return"undefined"!=typeof XDomainRequest?new XDomainRequest:new XMLHttpRequest},o=r();if(u){o.constructor===XMLHttpRequest?o.onreadystatechange=function(){4===o.readyState&&(o.status>=400?(console.error("Couldn't submit events."),410===o.status&&console.warn("This version of le_js is no longer supported!")):(301===o.status&&console.warn("This version of le_js is deprecated! Consider upgrading."),p.length>0?v(e,p.shift()):f=!1))}:o.onload=function(){p.length>0?v(e,p.shift()):f=!1};var i=(c?"https://":"http://")+n+"/logs/"+s;o.open("POST",i,!0),o.constructor===XMLHttpRequest&&(o.setRequestHeader("X-Requested-With","XMLHttpRequest"),o.setRequestHeader("Content-type","text/json")),o.send(t)}}}function n(e){var n,r={ssl:!0,catchall:!1,trace:!0,page_info:"never",print:!1,endpoint:null,token:null};if("object"!=typeof e)throw new Error("Invalid parameters for createLogStream()");for(var o in e)r[o]=e[o];if(null===r.token)throw new Error("Token not present.");n=new t(r);var i=function(e){if(n)return n.log.apply(this,arguments);throw new Error("You must call LE.init(...) first.")};return{log:function(){i.apply(this,arguments).level("LOG").send()},warn:function(){i.apply(this,arguments).level("WARN").send()},error:function(){i.apply(this,arguments).level("ERROR").send()},info:function(){i.apply(this,arguments).level("INFO").send()}}}var r={},o=function(e){if(!r.hasOwnProperty(e))throw new Error("Invalid name for logStream");return r[e]},i=function(e){if("string"!=typeof e.name)throw new Error("Name not present.");if(r.hasOwnProperty(e.name))throw new Error("A logger with that name already exists!");return r[e.name]=new n(e),!0},s=function(e){var t={name:"default"};if("object"==typeof e)for(var n in e)t[n]=e[n];else{if("string"!=typeof e)throw new Error("Invalid parameters for init()");t.token=e}return i(t)},a=function(e){"undefined"==typeof e&&(e="default"),delete r[e]};return{init:s,createLogStream:i,to:o,destroy:a,log:function(){for(var e in r)r[e].log.apply(this,arguments)},warn:function(){for(var e in r)r[e].warn.apply(this,arguments)},error:function(){for(var e in r)r[e].error.apply(this,arguments)},info:function(){for(var e in r)r[e].info.apply(this,arguments)}}})},135:function(e,t,n){var r,o,i;!function(n,s){"use strict";o=[],r=n,i="function"==typeof r?r.apply(t,o):r,!(void 0!==i&&(e.exports=i))}(function(){"use strict";return function(){function e(e){t.DEBUG&&window.console&&"function"==typeof window.console.log&&window.console.log("app.support: "+e)}var t=window.app=window.app||{};t.support={_test:function(){t.support.cssTransforms=function(){return!1}(),t.support.dragAndDrop=function(){var e=document.createElement("div");return"draggable"in e||"ondragstart"in e&&"ondrop"in e}(),t.support.hashChange=function(){return"onhashchange"in window}(),t.support.localStorage=function(){var e="__test__";try{return localStorage.setItem(e,e),localStorage.removeItem(e),!0}catch(t){return!1}}(),t.support.canvas=function(){var e=document.createElement("canvas");return!(!e.getContext||!e.getContext("2d"))}(),t.support.svg=function(){return!!document.createElementNS&&!!document.createElementNS("http://www.w3.org/2000/svg","svg").createSVGRect}()}},t.support._test(),e("browser tested")}(),window.app.support},n(132))}});
+
+	/*jslint browser:true*/
+	/*global define, module, exports, console, global */
+
+	/** @param {Object} window */
+	(function (root, factory) {
+	    if (true) {
+	        // AMD. Register as an anonymous module.
+	        !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
+	            return factory(root);
+	        }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    } else if (typeof exports === 'object') {
+	        // Node. Does not work with strict CommonJS, but
+	        // only CommonJS-like environments that support module.exports,
+	        // like Node.
+	        if (typeof global === 'object') {
+	            // Browserify. The calling object `this` does not reference window.
+	            // `global` and `this` are equivalent in Node, preferring global
+	            // adds support for Browserify.
+	            root = global;
+	        }
+	        module.exports = factory(root);
+	    } else {
+	        // Browser globals (root is window)
+	        root.LE = factory(root);
+	    }
+	}(this, function(window) {
+	    "use strict";
+
+	    /**
+	     * A single log event stream.
+	     * @constructor
+	     * @param {Object} options
+	     */
+	    function LogStream(options) {
+	        /**
+	         * @const
+	         * @type {string} */
+	        var _traceCode = (Math.random() + Math.PI).toString(36).substring(2, 10);
+	        /** @type {boolean} */
+	        var _doTrace = options.trace;
+	        /** @type {string} */
+	        var _pageInfo = options.page_info;
+	        /** @type {string} */
+	        var _token = options.token;
+	        /** @type {boolean} */
+	        var _print = options.print;
+	        /**
+	         * @type {string} */
+	        var _endpoint;
+	        if (window.LEENDPOINT) {
+	            _endpoint = window.LEENDPOINT;
+	        } else {
+	            _endpoint = "js.logentries.com/v1";
+	        }
+
+	        /**
+	         * Flag to prevent further invocations on network err
+	         ** @type {boolean} */
+	        var _shouldCall = true;
+	        /** @type {boolean} */
+	        var _SSL = function() {
+	            if (typeof XDomainRequest === "undefined") {
+	                return options.ssl;
+	            }
+	            // If we're relying on XDomainRequest, we
+	            // must adhere to the page's encryption scheme.
+	            return window.location.protocol === "https:" ? true : false;
+	        }();
+	        /** @type {Array.<string>} */
+	        var _backlog = [];
+	        /** @type {boolean} */
+	        var _active = false;
+	        /** @type {boolean} */
+	        var _sentPageInfo = false;
+
+	        if (options.catchall) {
+	            var oldHandler = window.onerror;
+	            var newHandler = function(msg, url, line) {
+	                _rawLog({error: msg, line: line, location: url}).level('ERROR').send();
+	                if (oldHandler) {
+	                    return oldHandler(msg, url, line);
+	                } else {
+	                    return false;
+	                }
+	            };
+	            window.onerror = newHandler;
+	        }
+
+	        var _agentInfo = function() {
+	            var nav = window.navigator || {doNotTrack: undefined};
+	            var screen = window.screen || {};
+	            var location = window.location || {};
+
+	            return {
+	              url: location.pathname,
+	              referrer: document.referrer,
+	              screen: {
+	                width: screen.width,
+	                height: screen.height
+	              },
+	              window: {
+	                width: window.innerWidth,
+	                height: window.innerHeight
+	              },
+	              browser: {
+	                name: nav.appName,
+	                version: nav.appVersion,
+	                cookie_enabled: nav.cookieEnabled,
+	                do_not_track: nav.doNotTrack
+	              },
+	              platform: nav.platform
+	            };
+	        };
+
+	        var _getEvent = function() {
+	            var raw = null;
+	            var args = Array.prototype.slice.call(arguments);
+	            if (args.length === 0) {
+	                throw new Error("No arguments!");
+	            } else if (args.length === 1) {
+	                raw = args[0];
+	            } else {
+	                // Handle a variadic overload,
+	                // e.g. _rawLog("some text ", x, " ...", 1);
+	              raw = args;
+	            }
+	            return raw;
+	        };
+
+	        // Single arg stops the compiler arity warning
+	        var _rawLog = function(msg) {
+	            var event = _getEvent.apply(this, arguments);
+
+	            var data = {event: event};
+
+	            // Add agent info if required
+	            if (_pageInfo !== 'never') {
+	                if (!_sentPageInfo || _pageInfo === 'per-entry') {
+	                    _sentPageInfo = true;
+	                    if (typeof event.screen === "undefined" &&
+	                        typeof event.browser === "undefined")
+	                      _rawLog(_agentInfo()).level('PAGE').send();
+	                }
+	            }
+
+	            // Add trace code if required
+	            if (_doTrace) {
+	                data.trace = _traceCode;
+	            }
+
+	            return {level: function(l) {
+	                // Don't log PAGE events to console
+	                // PAGE events are generated for the agentInfo function
+	                    if (_print && typeof console !== "undefined" && l !== 'PAGE') {
+	                      var serialized = null;
+	                      if (typeof XDomainRequest !== "undefined") {
+	                        // We're using IE8/9
+	                        serialized = data.trace + ' ' + data.event;
+	                      }
+	                      try {
+	                        console[l.toLowerCase()].call(console, (serialized || data));
+	                      } catch (ex) {
+	                        // IE compat fix
+	                        console.log((serialized || data));
+	                      }
+	                    }
+	                    data.level = l;
+
+	                    return {send: function() {
+	                        var cache = [];
+	                        var serialized = JSON.stringify(data, function(key, value) {
+
+	                          // cross-browser indexOf fix
+	                          var _indexOf = function(array, obj) {
+	                            for (var i = 0; i < array.length; i++) {
+	                              if (obj === array[i]) {
+	                                return i;
+	                              }
+	                            }
+	                            return -1;
+	                          };
+	                              if (typeof value === "undefined") {
+	                                return "undefined";
+	                              } else if (typeof value === "object" && value !== null) {
+	                                if (_indexOf(cache, value) !== -1) {
+	                                  // We've seen this object before;
+	                                  // return a placeholder instead to prevent
+	                                  // cycles
+	                                  return "<?>";
+	                                }
+	                                cache.push(value);
+	                              }
+	                          return value;
+	                        });
+
+	                            if (_active) {
+	                                _backlog.push(serialized);
+	                            } else {
+	                                _apiCall(_token, serialized);
+	                            }
+	                        }};
+	                }};
+	        };
+
+	        /** @expose */
+	        this.log = _rawLog;
+
+	        var _apiCall = function(token, data) {
+	            _active = true;
+
+	            // Obtain a browser-specific XHR object
+	            var _getAjaxObject = function() {
+	              if (typeof XDomainRequest !== "undefined") {
+	                // We're using IE8/9
+	                return new XDomainRequest();
+	              }
+	              return new XMLHttpRequest();
+	            };
+
+	            var request = _getAjaxObject();
+
+	            if (_shouldCall) {
+	                if (request.constructor === XMLHttpRequest) {
+	                    // Currently we don't support fine-grained error
+	                    // handling in older versions of IE
+	                    request.onreadystatechange = function() {
+	                    if (request.readyState === 4) {
+	                        // Handle any errors
+	                        if (request.status >= 400) {
+	                            console.error("Couldn't submit events.");
+	                            if (request.status === 410) {
+	                                // This API version has been phased out
+	                                console.warn("This version of le_js is no longer supported!");
+	                            }
+	                        } else {
+	                            if (request.status === 301) {
+	                                // Server issued a deprecation warning
+	                                console.warn("This version of le_js is deprecated! Consider upgrading.");
+	                            }
+	                            if (_backlog.length > 0) {
+	                                // Submit the next event in the backlog
+	                                _apiCall(token, _backlog.shift());
+	                            } else {
+	                                _active = false;
+	                            }
+	                        }
+	                    }
+
+	                    };
+	                } else {
+	                  request.onload = function() {
+	                    if (_backlog.length > 0) {
+	                      // Submit the next event in the backlog
+	                      _apiCall(token, _backlog.shift());
+	                    } else {
+	                      _active = false;
+	                    }
+	                  };
+	                }
+
+	                var uri = (_SSL ? "https://" : "http://") + _endpoint + "/logs/" + _token;
+	                request.open("POST", uri, true);
+	                if (request.constructor === XMLHttpRequest) {
+	                    request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+	                    request.setRequestHeader('Content-type', 'text/json');
+	                }
+	                request.send(data);
+	            }
+	        };
+	    }
+
+	    /**
+	     * A single log object
+	     * @constructor
+	     * @param {Object} options
+	     */
+	    function Logger(options) {
+	        var logger;
+
+	        // Default values
+	        var dict = {
+	            ssl: true,
+	            catchall: false,
+	            trace: true,
+	            page_info: 'never',
+	            print: false,
+	            endpoint: null,
+	            token: null
+	        };
+
+	        if (typeof options === "object")
+	            for (var k in options)
+	                dict[k] = options[k];
+	        else
+	            throw new Error("Invalid parameters for createLogStream()");
+
+	        if (dict.token === null) {
+	            throw new Error("Token not present.");
+	        } else {
+	            logger = new LogStream(dict);
+	        }
+
+	        var _log = function(msg) {
+	            if (logger) {
+	                return logger.log.apply(this, arguments);
+	            } else
+	                throw new Error("You must call LE.init(...) first.");
+	        };
+
+	         // The public interface
+	        return {
+	            log: function() {
+	                _log.apply(this, arguments).level('LOG').send();
+	            },
+	            warn: function() {
+	                _log.apply(this, arguments).level('WARN').send();
+	            },
+	            error: function() {
+	                _log.apply(this, arguments).level('ERROR').send();
+	            },
+	            info: function() {
+	                _log.apply(this, arguments).level('INFO').send();
+	            }
+	        };
+	    }
+
+	    // Array of Logger elements
+	    var loggers = {};
+
+	    var _getLogger = function(name) {
+	        if (!loggers.hasOwnProperty(name))
+	           throw new Error("Invalid name for logStream");
+
+	        return loggers[name];
+	    };
+
+	    var  _createLogStream = function(options) {
+	        if (typeof options.name !== "string")
+	            throw new Error("Name not present.");
+	        else if (loggers.hasOwnProperty(options.name))
+	            throw new Error("A logger with that name already exists!");
+	        loggers[options.name] = new Logger(options);
+
+	        return true;
+	    };
+
+	    var _deprecatedInit = function(options) {
+	        var dict = {
+	            name : "default"
+	        };
+
+	        if (typeof options === "object")
+	            for (var k in options)
+	                dict[k] = options[k];
+	        else if (typeof options === "string")
+	            dict.token = options;
+	        else
+	            throw new Error("Invalid parameters for init()");
+
+	        return _createLogStream(dict);
+	    };
+
+	    var _destroyLogStream = function(name) {
+	        if (typeof name === 'undefined'){
+	            name = 'default';
+	        }
+
+	        delete loggers[name];
+	    };
+
+	    // The public interface
+	    return {
+	        init: _deprecatedInit,
+	        createLogStream: _createLogStream,
+	        to: _getLogger,
+	        destroy: _destroyLogStream,
+	        log: function() {
+	            for (var k in loggers)
+	                loggers[k].log.apply(this, arguments);
+	        },
+	        warn: function() {
+	            for (var k in loggers)
+	                loggers[k].warn.apply(this, arguments);
+	        },
+	        error: function() {
+	            for (var k in loggers)
+	                loggers[k].error.apply(this, arguments);
+	        },
+	        info: function() {
+	            for (var k in loggers)
+	                loggers[k].info.apply(this, arguments);
+	        }
+	    };
+	}));
+
+
+/***/ },
+
+/***/ 135:
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+	 * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+	 * Sources at https://github.com/Memba
+	 */
+
+	/* jshint browser: true, jquery: true */
+	/* globals define: false */
+
+	(function(f, define){
+	    'use strict';
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (f), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	})(function(){
+
+	    'use strict';
+
+	    (function () {
+
+	        var app = window.app = window.app || {};
+
+	        /**
+	         * Log a message
+	         * @param message
+	         */
+	        function log(message) {
+	            if (app.DEBUG && window.console && (typeof window.console.log === 'function')) {
+	                window.console.log('app.support: ' + message);
+	            }
+	        }
+
+	        /**
+	         * Test features/application requirements
+	         */
+	        app.support = {
+	            _test: function () {
+
+	                /**
+	                 * CSS transforms support
+	                 */
+	                app.support.cssTransforms = (function () {
+	                    return false; //TODO
+	                }());
+
+	                //TODO web workers
+
+	                /**
+	                 * drag and drop support (see Modernizr)
+	                 */
+	                app.support.dragAndDrop = (function () {
+	                    var element = document.createElement('div');
+	                    return ('draggable' in element) || ('ondragstart' in element && 'ondrop' in element);
+	                }());
+
+	                /**
+	                 * hashchange support
+	                 */
+	                app.support.hashChange = (function () {
+	                    return ('onhashchange' in window);
+	                }());
+	                //
+
+	                /**
+	                 * localStorage support (from Modernizr)
+	                 */
+	                app.support.localStorage = (function () {
+	                    var TEST = '__test__';
+	                    try {
+	                        localStorage.setItem(TEST, TEST);
+	                        localStorage.removeItem(TEST);
+	                        return true;
+	                    } catch (e) {
+	                        return false;
+	                    }
+	                }());
+
+	                /**
+	                 * Canvas support (frm Modernizr)
+	                 */
+	                app.support.canvas = (function () {
+	                    var elem = document.createElement('canvas');
+	                    return !!(elem.getContext && elem.getContext('2d'));
+	                }());
+
+	                /**
+	                 * SVG support (from Modernizr)
+	                 */
+	                app.support.svg = (function () {
+	                    return !!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect;
+	                }());
+
+	                //TODO: audio and video
+	            }
+	        };
+
+	        /**
+	         * Launch browser test
+	         */
+	        app.support._test();
+	        log('browser tested');
+
+	        //TODO: Test Minimum requirements and display error message if requirements are not met
+
+	    }());
+
+	    return window.app.support;
+
+	}, __webpack_require__(132));
+
+
+/***/ }
+
+/******/ });

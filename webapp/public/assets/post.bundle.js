@@ -1,1 +1,74 @@
-webpackJsonp([18],{0:function(e,o,r){!function(e,o){"use strict";r(424),r(140);var t=window.app=window.app||{},k={module:"app.post",sessionId:e("#session").val()};e(document).on("locale.loaded",function(){t.logger.info(e.extend(k,{message:"post page initialized in "+t.locale.value()}))})}(window.jQuery)},424:function(e,o,r){var t=r(425);"string"==typeof t&&(t=[[e.id,t,""]]);r(139)(t,{});t.locals&&(e.exports=t.locals)},425:function(e,o,r){o=e.exports=r(138)(),o.push([e.id,"#post-wrapper,.splitter,.wrapper{left:0;right:0;height:auto;border:none;bottom:44px}#post-wrapper,.splitter,.toolbar,.wrapper{position:absolute;top:50px}.toolbar{width:100%;border-left:none;border-right:none}.toolbar label{font-weight:400}#post-wrapper,.wrapper{overflow-y:scroll}#post-wrapper .container article{margin-top:3em}#post-wrapper .container section.group{margin-bottom:40px}#post-wrapper .container section.group img{height:28px;width:28px;vertical-align:top}#post-wrapper .container section.group div.list-group img{height:24px;width:24px}@media print{#post-wrapper{position:relative;top:0;overflow:visible}#post-wrapper .container{width:auto}}",""])}});
+webpackJsonp([18],{
+
+/***/ 0:
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+	 * Sources at https://github.com/Memba
+	 */
+
+	/* jshint browser: true, jquery: true */
+	/* globals require: false */
+
+	(function ($, undefined) {
+
+	    'use strict';
+
+	    __webpack_require__(424);
+	    __webpack_require__(140);
+
+	    var app = window.app = window.app || {},
+	        logEntry = {
+	            module: 'app.post',
+	            sessionId: $('#session').val()
+	        };
+
+	    /**
+	     * Wait until document is ready to initialize UI
+	     */
+	    $(document).on('locale.loaded', function() {
+	        app.logger.info($.extend(logEntry, { message: 'post page initialized in ' + app.locale.value() }));
+	    });
+
+	}(window.jQuery));
+
+
+/***/ },
+
+/***/ 424:
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(425);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(139)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./app.page.post.less", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js!./../node_modules/less-loader/index.js!./app.page.post.less");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+
+/***/ 425:
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(138)();
+	exports.push([module.id, "/**\n * Variables\n */\n/**\n * Bootstrap mixins\n * TODO: will be deprecated in v4 - See https://github.com/passy/autoprefixer-loader\n */\n/**\n * Custom mixins\n */\n.toolbar {\n  position: absolute;\n  top: 50px;\n  width: 100%;\n  border-left: none;\n  border-right: none;\n}\n.toolbar label {\n  font-weight: normal;\n}\n.splitter {\n  position: absolute;\n  left: 0;\n  right: 0;\n  height: auto;\n  border: none;\n  top: 50px;\n  bottom: 44px;\n}\n.wrapper {\n  position: absolute;\n  left: 0;\n  right: 0;\n  height: auto;\n  border: none;\n  top: 50px;\n  bottom: 44px;\n  overflow-y: scroll;\n}\n/*********************************************\n * Site page\n ********************************************/\n#post-wrapper {\n  position: absolute;\n  left: 0;\n  right: 0;\n  height: auto;\n  border: none;\n  top: 50px;\n  bottom: 44px;\n  overflow-y: scroll;\n}\n#post-wrapper .container article {\n  margin-top: 3em;\n}\n#post-wrapper .container section.group {\n  margin-bottom: 40px;\n}\n#post-wrapper .container section.group img {\n  height: 28px;\n  width: 28px;\n  vertical-align: top;\n}\n#post-wrapper .container section.group div.list-group img {\n  height: 24px;\n  width: 24px;\n}\n/*********************************************\n * Printing\n ********************************************/\n@media print {\n  #post-wrapper {\n    position: relative;\n    top: 0px;\n    overflow: visible;\n  }\n  #post-wrapper .container {\n    width: auto;\n  }\n}\n", ""]);
+
+/***/ }
+
+});

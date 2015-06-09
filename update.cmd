@@ -23,17 +23,17 @@ REM TODO Coverage
 
 REM Dockerfile
 ATTRIB -R .\Dockerfile
-COPY ..\..\Kioju\Kidoju.Webapp\Dockerfile .\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\Dockerfile .\ /Y
 ATTRIB +R .\Dockerfile
 
 REM gruntfile.js
 ATTRIB -R .\gruntfile.js
-COPY ..\..\Kioju\Kidoju.Webapp\gruntfile.js .\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\gruntfile.js .\ /Y
 ATTRIB +R .\gruntfile.js
 
 REM LICENSE
 ATTRIB -R .\LICENSE-GPLv3
-COPY ..\..\Kioju\Kidoju.Webapp\LICENSE-GPLv3 .\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\LICENSE-GPLv3 .\ /Y
 ATTRIB +R .\LICENSE-GPLv3
 
 REM setup.cmd
@@ -52,19 +52,19 @@ REM COPY ..\..\Kidoju\Kidoju.Webapp\webpack.config.js .\ /Y
 REM ATTRIB +R .\webpack.config.js
 
 REM ------------------------------------------------------------
-REM Support files
+REM Javascript files
 REM ------------------------------------------------------------
 
-REM Copy ./js files
+REM Copy ./js/cultures files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\cultures\*.*  .\js\cultures\ /C /E /I /R /Y
 ATTRIB +R .\js\cultures\*.* /S
+
+REM Copy ./js/vendor files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\vendor\bootstrap\*.* .\js\vendor\bootstrap\ /C /E /I /R /Y
 ATTRIB +R .\js\vendor\bootstrap\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\vendor\kendo\*.* .\js\vendor\kendo\ /C /E /I /R /Y
 ATTRIB +R .\js\vendor\kendo\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\vendor\logentries\*.* .\js\vendor\logentries\ /C /E /I /R /Y
-ATTRIB +R .\js\vendor\logentries\*.* /S
-XCOPY ..\..\Kidoju\Kidoju.Webapp\js\logentries\*.* .\js\vendor\logentries\ /C /E /I /R /Y
 ATTRIB +R .\js\vendor\logentries\*.* /S
 
 REM ./js/app.error.js
@@ -97,48 +97,74 @@ ATTRIB -R .\js\app.theme.js
 COPY ..\..\Kidoju\Kidoju.Webapp\js\app.theme.js .\js\ /Y
 ATTRIB +R .\js\app.theme.js
 
-REM Copy \styles
-REM XCOPY ..\..\Memba\Memba.Blog\styles .\styles /C /E /I /R /Y
-REM COPY .\graphics\memba.home.jpg .\styles\images\jumbotron.jpg
-REM ATTRIB +R .\styles\*.* /S
+REM ------------------------------------------------------------
+REM Styles
+REM ------------------------------------------------------------
 
-REM Copy Kidoju fonts
+REM Copy fonts
 XCOPY ..\..\Kidoju\Kidoju.WebFonts\dist\fonts\*.* .\styles\fonts\ /C /E /I /R /Y
 ATTRIB +R .\styles\fonts\*.* /S
 
+REM Copy images
+COPY .\graphics\memba.home.jpg .\styles\images\jumbotron.jpg
+ATTRIB +R .\styles\images\*.* /S
+
+REM Copy ./js/vendor files
+XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\vendor\bootstrap\*.* .\styles\vendor\bootstrap\ /C /E /I /R /Y
+ATTRIB +R .\styles\vendor\bootstrap\*.* /S
+XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\vendor\fonts\*.* .\styles\vendor\fonts\ /C /E /I /R /Y
+ATTRIB +R .\styles\vendor\fonts\*.* /S
+XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\vendor\kendo\*.* .\styles\vendor\kendo\ /C /E /I /R /Y
+ATTRIB +R .\styles\vendor\kendo\*.* /S
+
 REM Copy theme files
-REM XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\app.theme.*.less  .\styles\ /C /E /I /R /Y
-REM ATTRIB +R .\styles\fonts\*.* /S
-ATTRIB -R .\styles\app.mixins.less
+ATTRIB -R .\styles\app.*.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.mixins.less .\styles\ /Y
 ATTRIB +R .\styles\app.mixins.less
-
-ATTRIB -R .\styles\app.page.common.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.page.common.less .\styles\ /Y
 ATTRIB +R .\styles\app.page.common.less
-
-ATTRIB -R .\styles\app.template.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.template.less .\styles\ /Y
 ATTRIB +R .\styles\app.template.less
-
-ATTRIB -R .\styles\app.theme.*.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.theme.*.less .\styles\ /Y
 ATTRIB +R .\styles\app.theme.*.less
 
+REM ------------------------------------------------------------
+REM Tests
+REM ------------------------------------------------------------
+
+REM Copy ./test/node/lib files
+ATTRIB -R .\test\node\lib\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\error.test.js .\test\node\lib /Y
+ATTRIB +R .\test\node\lib\error.test.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\logger.test.js .\test\node\lib /Y
+ATTRIB +R .\test\node\lib\logger.test.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\url.test.js .\test\node\lib /Y
+ATTRIB +R .\test\node\lib\url.test.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\utils.test.js .\test\node\lib /Y
+ATTRIB +R .\test\node\lib\utils.test.js
+
+REM Copy ./test/vendor files
+XCOPY ..\..\Kidoju\Kidoju.Webapp\test\vendor  .\test\vendor /C /E /I /R /Y
+ATTRIB +R .\test\vendor\*.* /S
+
+REM ------------------------------------------------------------
+REM Web modules (webpack)
+REM ------------------------------------------------------------
+
 REM Copy web_modules
-XCOPY ..\..\Kidoju\Kidoju.Webapp\web_modules\*.*  .\web_modules\ /C /E /I /R /Y
+XCOPY ..\..\Kidoju\Kidoju.Webapp\web_modules\*.*  .\web_modules /C /E /I /R /Y
 ATTRIB +R .\web_modules\*.* /S
 
 REM ------------------------------------------------------------
 REM Web Application
 REM ------------------------------------------------------------
 
-REM Copy ./config/*.*
-ATTRIB -R .\webapp\config\*.*
+REM Copy ./webapp/config files
+ATTRIB -R .\webapp\config\index.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\config\index.js .\webapp\config /Y
 ATTRIB +R .\webapp\config\index.js
 
-REM Copy ./lib/*.*
+REM Copy ./webapp/lib files
 ATTRIB -R .\webapp\lib\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\error.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\error.js
@@ -149,7 +175,7 @@ ATTRIB +R .\webapp\lib\url.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\utils.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\utils.js
 
-REM Copy ./middleware/*.*
+REM Copy ./webapp/middleware files
 ATTRIB -R .\webapp\middleware\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\error.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\error.js
@@ -158,14 +184,14 @@ ATTRIB +R .\webapp\middleware\language.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\notFound.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\notFound.js
 
-REM Copy ./views/*.*
+REM Copy ./webapp/views files
 ATTRIB -R .\webapp\views\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\views\error.ejs .\webapp\views /Y
 ATTRIB +R .\webapp\views\error.ejs
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\views\footer.ejs .\webapp\views /Y
 ATTRIB +R .\webapp\views\footer.ejs
 
-REM Copy ./server.js
+REM Copy ./webapp/server.js
 ATTRIB -R .\webapp\server.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\server.js .\webapp\ /Y
 ATTRIB +R .\webapp\server.js
