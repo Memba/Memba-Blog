@@ -37,7 +37,7 @@ console.log('webpack environment is ' + environment);
  * commonsChunkPlugin builds a common denominator of the designated chunks
  */
 var commonsChunkPlugin =
-    new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['home', 'post', 'page', 'search', 'error'] });
+    new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['error', 'home', 'post', 'page', 'search'] });
 
 
 //TODO read copyright from package.json
@@ -67,11 +67,11 @@ module.exports = {
         //We need init especially because of FOUJI
         init:   '../js/app.init.js',
         //one entry per view
+        error:  '../js/app.error.js',
         home:   '../js/app.home.js',
         page:   '../js/app.page.js',
         post:   '../js/app.post.js',
-        search: '../js/app.search.js',
-        error:  '../js/app.error.js'
+        search: '../js/app.search.js'
     },
     externals: { //CDN modules
         jquery: 'jQuery'
