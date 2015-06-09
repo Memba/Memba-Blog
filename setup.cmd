@@ -12,7 +12,7 @@ npm install -g istanbul
 REM karma command in terminal mode
 npm install -g karma-cli
 REM less module for Jetbrains plugin
-npm install -g less
+REM npm install -g less
 REM mocha command in terminal mode
 npm install -g mocha
 REM nodemon to run webapp while debugging browser code
