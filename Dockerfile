@@ -19,8 +19,8 @@ COPY . /usr/src/
 WORKDIR /usr/src/
 RUN npm install
 
-# Delete cache
-RUN rm -f /usr/src/webapp/cache/*
+# Delete cache (memba-blog and kidoju-blog)
+RUN if [ -d /usr/src/webapp/cache ]; then rm -f /usr/src/webapp/cache/*; fi
 
 # Expose nodeJS port
 EXPOSE 3000
