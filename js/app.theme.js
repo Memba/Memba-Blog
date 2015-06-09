@@ -68,7 +68,7 @@
                 loader(function(style) {
                     style.use();
                     if (typeof callback === FUNCTION) {
-                       callback();
+                        callback();
                     }
                 });
             } catch (e) {
