@@ -205,21 +205,34 @@
 		}
 	},
 	"errors": {
-		"400": {
-			"status": 400,
-			"title": "400 - Mauvaise Requête",
-			"message": "Désolé, mais votre requête comporte une erreur. L'URL est peut-être mal ortographiée."
-		},
-		"404": {
-			"status": 404,
-			"title": "404 - Introuvable",
-			"description": "Désolé, la page demandée est introuvable. L'URL est peut-être mal ortographiée ou la page que vous recherchez n'est peut-être plus disponible."
-		},
-		"500": {
-			"status": 500,
-			"title": "500 - Erreur Inconnue",
-			"description": "Il y a eu une erreur inconnue. Si nous arrivons à la reproduire, nous la corrigerons avec amour et attention."
-		},
+        "generic": {
+            "400": {
+                "status": 400,
+                "title": "400 - Mauvaise Requête",
+                "message": "Désolé, mais votre requête comporte une erreur. L'URL est peut-être mal ortographiée."
+            },
+            "404": {
+                "status": 404,
+                "title": "404 - Introuvable",
+                "description": "Désolé, la page demandée est introuvable. L'URL est peut-être mal ortographiée ou la page que vous recherchez n'est peut-être plus disponible."
+            },
+            "500": {
+                "status": 500,
+                "title": "500 - Erreur Inconnue",
+                "description": "Il y a eu une erreur inconnue. Si nous arrivons à la reproduire, nous la corrigerons avec amour et attention."
+            }
+        },
+
+        "models": {
+            "contentModel": {
+                "md_extension": {
+                    "message": "We are sorry, there has been an unknown error."
+                },
+                "unexpected_commits": {
+                    "message": "We are sorry, there has been an unknown error."
+                }
+            }
+        },
 		"routes": {
 			"hookRoute": {
 				"badAgent": {
