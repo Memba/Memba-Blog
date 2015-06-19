@@ -30,11 +30,11 @@ var text = '## Question 1\n' +
     'Response 2\n\n' +
     '## Question 3\n' +
     'Response 3';
-var html = '<h2 id="question-1">Question 1</h2>\n' +
+var html = '<h2>Question 1</h2>\n' +
     '<p>Response 1</p>\n' +
-    '<h2 id="question-2">Question 2</h2>\n' +
+    '<h2>Question 2</h2>\n' +
     '<p>Response 2</p>\n' +
-    '<h2 id="question-3">Question 3</h2>\n' +
+    '<h2>Question 3</h2>\n' +
     '<p>Response 3</p>\n'; //Note: for whatever reason a \n is added
 
 describe('lib/markdown', function() {
