@@ -9,3 +9,6 @@
 require('./app.config.jsx?env=' + process.env.NODE_ENV);
 require('./app.logger.js');
 require('./app.support.js');
+
+//TODO Consider javascript disabled
+//TODO use app.support to display a message for older browsers

@@ -8,7 +8,9 @@
 
 (function(f, define){
     'use strict';
-    define([], f);
+    define([
+        './app.logger'
+    ], f);
 })(function(){
 
     'use strict';
@@ -21,7 +23,8 @@
 
     (function () {
 
-        var app = window.app = window.app || {};
+        var app = window.app = window.app || {},
+            logger = app.logger = app.logger || {};
 
         /**
          * application DEBUG mode
@@ -32,7 +35,7 @@
         /**
          * Logger token
          */
-        app.logger = { token: '<%- logentries.browser.token %>' };
+        app.logger.token = '<%- logentries.browser.token %>';
 
         /**
          * Get formatting strings for Kendo UI from nodejs
@@ -69,6 +72,6 @@
 
     }());
 
-    return window.app.uris;
+    return window.app;
 
 }, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });

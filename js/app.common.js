@@ -4,177 +4,122 @@
  */
 
 /* jshint browser: true, jquery: true */
-/* globals require: false */
+/* globals define: false, require: false */
 
-(function ($, undefined) {
+//Load styles
+require('../styles/bootstrap.custom.less');
+require('../styles/vendor/kendo/web/kendo.common.less');
+require('../styles/fonts/kidoju.less');
+require('../styles/app.page.common.less');
+
+//Bootstrap files (toggled navbar)
+require('./vendor/bootstrap/collapse.js');
+require('./vendor/bootstrap/dropdown.js');
+
+(function(f, define){
+    'use strict';
+    define([
+        './vendor/kendo/kendo.binder.js',
+        //'./vendor/kendo/kendo.button.js',
+        './vendor/kendo/kendo.dropdownlist.js',
+        './vendor/kendo/kendo.notification.js',
+        './app.logger',
+        './app.i18n',
+        './app.theme',
+        './app.common',
+        './app.menu'
+    ], f);
+})(function() {
 
     'use strict';
 
-    //Theming
-    require('./app.theme.js');
-    require('../styles/app.page.common.less');
+    (function ($, undefined) {
 
-    //Kendo UI files
-    require('./vendor/kendo/kendo.binder.js');
-    require('./vendor/kendo/kendo.button.js');
-    require('./vendor/kendo/kendo.dropdownlist.js');
-    require('./vendor/kendo/kendo.notification.js');
+        'use strict';
 
-    //Bootstrap files (toggled navbar)
-    require('./vendor/bootstrap/collapse.js');
-    require('./vendor/bootstrap/dropdown.js');
+        var kendo = window.kendo,
+            app = window.app,
+            logger = app.logger,
+            i18n = app.i18n,
+            theme = app.theme,
+            CHANGE = 'change';
 
-    //Localization
-    require('./app.locale.js');
-
-    var kendo = window.kendo,
-        app = window.app = window.app || {},
-        BLUR = 'blur',
-        CHANGE = 'change',
-        FOCUS = 'focus',
-        KEYPRESS = 'keypress',
-        searchInputWidth;
-
-    /**
-     * Logs a message
-     * @param message
-     */
-    function log(message) {
-        if (app.DEBUG && window.console && ($.isFunction(window.console.log))) {
-            window.console.log('app.common: ' + message);
-        }
-    }
-
-    /**
-     * Initialize the header
-     */
-    function initHeader() {
-        searchInputWidth = $('#navbar-search-input').width();
-        //Search input
-        $('#navbar-search-input')
-            .on(BLUR, onSearchInputBlur);
-        $('#navbar-search-input')
-            .on(FOCUS, onSearchInputFocus);
-        $('#navbar-search-input')
-            .on(KEYPRESS, onSearchInputKeyPress);
-    }
-
-    /**
-     * Initialize the footer
-     */
-    function initFooter() {
-        //language
-        var languageDropDownList = $('#footer-settings-language').data('kendoDropDownList');
-        if (languageDropDownList instanceof kendo.ui.DropDownList) {
-            languageDropDownList.bind(CHANGE, function(e) {
-                var locale = e.sender.value();
-                app.locale.value(locale);
-            });
-        }
-        //theme
-        var themeDropDownList = $('#footer-settings-theme').data('kendoDropDownList');
-        if (themeDropDownList instanceof kendo.ui.DropDownList) {
-            themeDropDownList.bind(CHANGE, function(e) {
-                var theme = e.sender.value();
-                app.theme.value(theme);
-            });
-        }
-    }
-
-    /**
-     * Hide preload icon
-     */
-    function hidePreload() {
-        //See http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui
-        $('body>div.k-loading-image').fadeOut();
-        //$("#preLoad").css("opacity","0").css("visibility","hidden");
-    }
-
-
-    /**
-     * Initialize notifications
-     */
-    function initNotifications() {
-
-        var element = $('#notification');
-        element.kendoNotification({
-            position: {
-                top: 70,
-                right: 30
-            },
-            stacking: 'down',
-            // hide automatically after 7 seconds
-            autoHideAfter: 7000,
-            // prevent accidental hiding for 1 second
-            allowHideAfter: 1000,
-            // show a hide button
-            button: true,
-            // prevent hiding by clicking on the notification content
-            hideOnClick: false
+        /**
+         * Footer viewModel
+         */
+        var viewModel = kendo.observable({
+            locale: i18n.locale(),
+            theme: theme.value()
         });
-        app.notification = element.data('kendoNotification');
 
-        //Thereafter, making notifications consists in calling app.notification.show
-    }
+        /**
+         * Change event handler on viewModel
+         */
+        viewModel.bind(CHANGE, function(e) {
+            if (e.field === 'locale') {
+                i18n.locale(e.sender.get('locale'));
+            } else if (e.field === 'theme') {
+                theme.value(e.sender.get('theme'));
+            }
+        });
 
-    /**
-     * Event handler triggered when the search input loses focus
-     * @param e
-     */
-    function onSearchInputBlur(e) {
-        $(e.currentTarget).width(searchInputWidth);
-    }
-
-    /**
-     * Event handler triggered when the search input gets focus
-     * @param e
-     */
-    function onSearchInputFocus(e) {
-        $(e.currentTarget).width(400);
-    }
-
-    /**
-     * Event handler triggered when pressing any key when the search input has focus
-     * @param e
-     */
-    function onSearchInputKeyPress(e) {
-        if (e.which === kendo.keys.ENTER || e.keyCode === kendo.keys.ENTER) {
-            window.location.href = kendo.format(app.uris.webapp.pages, app.locale.value()) + '?q=' + encodeURIComponent($(e.currentTarget).val());
-            return false; // Prevent a form submission
-        } else {
-            return true; //accept any other character
+        /**
+         * Make global for debugging
+         */
+        if (app.DEBUG) {
+            //Make the viewModel global to watch in debugger
+            window.viewModel1 = viewModel;
         }
-    }
 
-    /**
-     * Common viewModel (header and footer)
-     */
-    var viewModel = kendo.observable({
+        /**
+         * Initialize notifications
+         * Then display notifications using app.notification.show
+         */
+        function initNotifications() {
 
-        //UI locale (footer.ejs)
-        locale: app.locale.value(),
+            var element = $('#notification');
+            if (element.length) {
+                element.kendoNotification({
+                    position: {
+                        top: 70,
+                        right: 30
+                    },
+                    stacking: 'down',
+                    // hide automatically after 7 seconds
+                    autoHideAfter: 7000,
+                    // prevent accidental hiding for 1 second
+                    allowHideAfter: 1000,
+                    // show a hide button
+                    button: true,
+                    // prevent hiding by clicking on the notification content
+                    hideOnClick: false
+                });
+                app.notification = element.data('kendoNotification');
+            } else {
+                app.notification = { show: $.noop };
+            }
+        }
 
-        //UI theme (footer.ejs)
-        theme: app.theme.value()
+        /**
+         * Wait until document is ready to initialize UI
+         */
+        $(document).ready(function() {
 
-    });
+            kendo.init('body'); //, kendo.mobile.ui);
+            initNotifications();
+            kendo.bind('footer', viewModel);
 
-    if (app.DEBUG) {
-        //Make the viewModel global to watch in debugger
-        window.viewModel$ = viewModel;
-    }
+            //Log page readiness
+            logger.debug({
+                message: 'Common elements initialized in ' + i18n.locale() ,
+                module: 'app.common',
+                method: '$(document).ready'
+            });
+        });
 
-    /**
-     * Wait until document is ready to initialize UI
-     */
-    $(document).on('locale.loaded', function() {
-        kendo.init('body'); //, kendo.mobile.ui);
-        initHeader();
-        initNotifications();
-        initFooter();
-        kendo.bind('footer', viewModel);
-        hidePreload();
-        log('header and footer initialized in ' + viewModel.get('locale'));
-    });
 
-}(window.jQuery));
+    }(window.jQuery));
+
+    return window.app;
+
+}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });

@@ -13,30 +13,197 @@
 
     'use strict';
 
-    (function () {
+    (function (undefined) {
 
-        var app = window.app = window.app || {},
-            logger = app.logger = app.logger || {};
+        var //LE = window.LE,
+            app = window.app = window.app || {},
+            logger = app.logger = app.logger || {
+                token: 'e78bac0b-377a-49e2-ad91-20bb4ec7cedc', //Our localhost value (basically junk)
+                level: 0 //log evenrything
+            },
+            FUNCTION = 'function',
+            LEVEL = {
+                //See https://github.com/logentries/le_node#log-levels
+                DEBUG: 1,
+                INFO: 2,
+                WARN: 4,
+                ERROR: 5,
+                CRIT: 6
+            },
+            LABEL = {
+                DEBUG: 'DEBUG',
+                INFO: 'INFO',
+                WARN: 'WARN',
+                ERROR: 'ERROR',
+                CRIT: 'CRIT'
+            };
 
         // Intialize LogEntries
         // see https://logentries.com/doc/javascript/
         // see https://github.com/logentries/le_js
         LE.init({
-            token: app.logger.token,
+            token: logger.token,
             ssl: true,
+            /**
+             * Important: catchall: true is equivalent to setting window.onerror
+             * See https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
+             */
             catchall: true,
             trace: false, //not as good as our sessionId
-            page_info: 'per-entry',
-            print: typeof app.DEBUG === 'undefined' ? false : app.DEBUG
+            page_info: 'never',
+            print: false //let's print to the console ourselves
         });
 
-        logger.info = LE.info;
-        logger.warning = LE.warn;
-        logger.error = LE.error;
-        //critical?
+        /**
+         * Process a log entry with additional information
+         * @param entry
+         */
+        function process(entry) {
+            if (typeof entry === 'string') {
+                entry = { message: entry };
+            } else if (entry instanceof Error) {
+                //We need to do that because JSON.stringify(new Error('Oops)) === {} and is not sent to logentries
+                entry = {
+                    message: entry.message,
+                    stack: entry.stack,
+                    error: entry
+                };
+            } else if (Object.prototype.toString.call(entry) !== '[object Object]') {
+                entry = { data: entry };
+            }
+            //If there is a hidden input field named `session` on the page, read it
+            var input = document.getElementById('session');
+            if (input instanceof HTMLInputElement) {
+                entry.session = input.value;
+            }
+            return entry;
+        }
+
+        /**
+         * Print a log entry to the console
+         * Note: we have discarded pretty solutions because they do not print well in Webstorm console
+         * @param entry
+         * @param label
+         */
+        function print(entry, label) {
+            if (app.DEBUG && window.console && typeof window.console.log === FUNCTION) {
+                var message = '[' + label + ']' + (label === LABEL.INFO || label === LABEL.WARN || label === LABEL.CRIT ? ' ' : ''),
+                    first = true;
+                if (entry.message) {
+                    message += (first ? '  ' : '  |  ') + 'message = ' + entry.message;
+                    first = false;
+                }
+                if (entry.module) {
+                    message += (first ? '  ' : '  |  ') + 'module = ' + entry.module;
+                    first = false;
+                }
+                if (entry.method) {
+                    message += (first ? '  ' : '  |  ') + 'method = ' + entry.method;
+                    first = false;
+                }
+                if (entry.data) {
+                    try {
+                        message += (first ? '  ' : '  |  ') + 'data = ' + JSON.stringify(entry.data);
+                    } catch(exception) {
+                        if(typeof entry.data.toString === FUNCTION) {
+                            message += (first ? '  ' : '  |  ') + 'data = ' + entry.data.toString();
+                        }
+                    }
+                }
+                window.console.log(message);
+                if (entry.error instanceof Error && typeof window.console.dir === FUNCTION) {
+                    window.console.dir(entry.error);
+                }
+            }
+        }
+
+        /**
+         * Log a debug entry
+         * @param entry
+         * @param send to logEntries (by default, debug information is not sent to logEntries)
+         */
+        logger.debug = function(entry, send) {
+            if (logger.level > LEVEL.DEBUG) {
+                return false;
+            }
+            entry = process(entry);
+            print(entry, LABEL.DEBUG);
+            if (send) {
+                setTimeout(function() {
+                    //Note: LE has no debug logging as of June 2015
+                    LE.log(entry);
+                }, 0);
+            }
+            return true;
+        };
+
+        /**
+         * Log an info entry
+         * @param entry
+         */
+        logger.info = function(entry) {
+            if (logger.level > LEVEL.INFO) {
+                return false;
+            }
+            entry = process(entry);
+            print(entry, LABEL.INFO);
+            setTimeout(function() {
+                LE.info(entry);
+            }, 0);
+            return true;
+        };
+
+        /**
+         * Log a warn entry
+         * @param entry
+         */
+        logger.warn = function(entry) {
+            if (logger.level > LEVEL.WARN) {
+                return false;
+            }
+            entry = process(entry);
+            print(entry, LABEL.WARN);
+            setTimeout(function() {
+                LE.warn(entry);
+            }, 0);
+            return true;
+        };
+
+        /**
+         * Log an error entry (the application can survive an error entry)
+         * @param entry
+         */
+        logger.error = function(entry) {
+            if (logger.level > LEVEL.ERROR) {
+                return false;
+            }
+            entry = process(entry);
+            print(entry, LABEL.ERROR);
+            setTimeout(function() {
+                LE.error(entry);
+            }, 0);
+            return true;
+        };
+
+        /**
+         * Log a critical entry (the application cannot survive a critical entry)
+         * @param entry
+         */
+        logger.critical = function(entry) {
+            if (logger.level > LEVEL.CRIT) {
+                return false;
+            }
+            entry = process(entry);
+            print(entry, LABEL.CRIT);
+            setTimeout(function() {
+                //Note: LE has no critical logging as of June 2015
+                LE.error(entry);
+            }, 0);
+            return true;
+        };
 
     }());
 
-    return window.app.logger;
+    return window.app;
 
 }, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });

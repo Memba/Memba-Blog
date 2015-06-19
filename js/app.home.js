@@ -4,26 +4,41 @@
  */
 
 /* jshint browser: true, jquery: true */
-/* globals require: false */
+/* globals define: false, require: false */
 
-(function ($, undefined) {
+require('../styles/app.page.home.less');
+
+(function(f, define){
+    'use strict';
+    define([
+        './app.logger',
+        './app.i18n',
+        './app.common',
+        './app.menu'
+    ], f);
+})(function() {
 
     'use strict';
 
-    require('../styles/app.page.home.less');
-    require('./app.common.js');
+    (function ($, undefined) {
 
-    var app = window.app = window.app || {},
-        logEntry = {
-            module: 'app.home',
-            sessionId: $('#session').val()
-        };
+        var app = window.app,
+            logger = app.logger,
+            i18n = app.i18n;
 
-    /**
-     * Wait until document is ready to initialize UI
-     */
-    $(document).on('locale.loaded', function() {
-        app.logger.info($.extend(logEntry, { message: 'home page initialized in ' + app.locale.value() }));
-    });
+        $(document).ready(function() {
 
-}(window.jQuery));
+            //Log page readiness
+            logger.info({
+                message: 'home page initialized in ' + i18n.locale(),
+                module: 'app.home',
+                method: '$(document).ready'
+            });
+
+        });
+
+    }(window.jQuery));
+
+    return window.app;
+
+}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
