@@ -8,9 +8,10 @@ We copy files from/to in the following order:
 
 1. Kidoju Webfonts
 2. Kidoju Widgets
-3. Kidoju Webapp
-4. Memba Blog
-5. Kidoju Support
+3. Kidoju Server
+4. Kidoju Webapp
+5. Memba Blog
+6. Kidoju Support
 
 Each project has an ```update.cmd``` or ```update.sh``` script to copy files from previous projects in the chain above.
 Each copied file is marked as **read-only** and should only be modified in its original project.
@@ -19,7 +20,7 @@ Each copied file is marked as **read-only** and should only be modified in its o
 
 ### Global modules
 
-```setup.cmd``` installs the latest version of required global modules.
+```setup.cmd```  or ```setup.sh``` installs the latest version of required global modules.
 They can be updated in Webstorm in the dialog after calling menu File > Settings > Languages & Frameworks > Node JS and NPM
 
 ### Local modules
