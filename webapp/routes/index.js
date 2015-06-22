@@ -57,7 +57,7 @@ router.route(util.format(config.get('uris:webapp:feed'), ':language'))
 
 // Sitemap
 router.route(util.format(config.get('uris:webapp:sitemap'), ':language'))
-    .get(sitemapRoute.getMap);
+    .get(sitemapRoute.getXmlSitemap);
 
 // Blog posts
 router.route(util.format(config.get('uris:webapp:posts'),':language', ':year?', ':month?', ':slug?'))

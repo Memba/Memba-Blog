@@ -22,7 +22,7 @@ module.exports = {
      * @param res
      * @param next
      */
-    getMap: function(req, res, next) {
+    getXmlSitemap: function(req, res, next) {
         try {
 
             //Create a sessionId that we can track in the browser
@@ -32,7 +32,7 @@ module.exports = {
             logger.info({
                 message: 'requesting a sitemap',
                 module: 'routes/sitemapRoute',
-                method: 'getMap',
+                method: 'getXmlSitemap',
                 request: req
             });
 
