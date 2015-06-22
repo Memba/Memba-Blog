@@ -24,14 +24,13 @@ module.exports = {
         try {
 
             //Create a sessionId that we can track in the browser
-            var sessionId = utils.uuid();
+            req.sessionId = utils.uuid();
 
             //Log the request
             logger.info({
                 message: 'requesting the home page',
                 method: 'getHtmlPage',
                 module: 'routes/homeRoute',
-                sessionId: sessionId,
                 request: req
             });
 
@@ -52,7 +51,7 @@ module.exports = {
                             keywords: res.__('meta.keywords'),
                             menu: data,
                             results: false, //trick header into not displaying robots noindex directive
-                            sessionId: sessionId,
+                            sessionId: req.sessionId,
                             site_url: res.locals.config.uris.webapp.home, //canonical link
                             title: res.__('meta.title')
                         });

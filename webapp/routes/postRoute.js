@@ -31,14 +31,13 @@ module.exports = {
         try {
 
             //Create a sessionId that we can track in the browser
-            var sessionId = utils.uuid();
+            req.sessionId = utils.uuid();
 
             //Log the request
             logger.info({
                 message: 'requesting a blog post',
                 module: 'routes/blogRoute',
                 method: 'getHtmlPage',
-                sessionId: sessionId,
                 request: req
             });
 
