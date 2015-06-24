@@ -128,6 +128,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.mixins.less .\styles\ /Y
 ATTRIB +R .\styles\app.mixins.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.page.common.less .\styles\ /Y
 ATTRIB +R .\styles\app.page.common.less
+COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.page.error.less .\styles\ /Y
+ATTRIB +R .\styles\app.page.error.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.template.less .\styles\ /Y
 ATTRIB +R .\styles\app.template.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.theme.*.less .\styles\ /Y
