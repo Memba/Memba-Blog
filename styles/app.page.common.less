@@ -33,20 +33,28 @@ label {
     a {
         cursor: pointer;
     }
-    a[role="button"] {
-        i.kf {
-            font-size: 30px;
+    ul.navbar-nav>li {
+        a {
+            padding: 9px 9px; /* 9 + 32 + 9 = 50 */
+            i.kf {
+                font-size: 30px;
+                height: 32px;
+            }
+            img {
+                height: 32px;
+                width: 32px;
+            }
+            span {
+                padding-left: 0.2em;
+                vertical-align: middle;
+                font-size: 16px
+            }
         }
-        span {
-            margin: 0 1em 0 0;
-            vertical-align: middle;
-            font-size: 16px
-        }
-    }
-    a[role="button"]:hover {
-        text-decoration:none;
-        i.kf {
-            .scale(1.1); //from vendor/bootstrap/mixins/vendor-prefixes.less
+        a:hover {
+            text-decoration: none;
+            i.kf {
+                .scale(1.1); //from vendor/bootstrap/mixins/vendor-prefixes.less
+            }
         }
     }
 }
@@ -240,7 +248,8 @@ form {
         }
     }
 }
-form:not(.form-horizontal) .k-invalid-msg {
+form:not(
+.form-horizontal) .k-invalid-msg {
     width: initial; //align validation messages with labels in forms where labels sit above inputs
     position: relative;
     margin-left: 10px;
