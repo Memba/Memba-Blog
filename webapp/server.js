@@ -78,7 +78,7 @@ app.listen(app.get('port'));
 
 //Log
 logger.info({
-    message: 'Express server listening on port ' + app.get('port'),
+    message: 'express server listening on port ' + app.get('port'),
     method: 'none',
     module: 'server'
 });
