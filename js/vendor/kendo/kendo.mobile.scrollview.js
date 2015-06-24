@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -218,6 +218,7 @@
             this.pageSize = options.pageSize || 1;
             this.contentHeight = options.contentHeight;
             this.enablePager = options.enablePager;
+            this.pagerOverlay = options.pagerOverlay;
         },
 
         scrollTo: function(page, instant) {
@@ -280,7 +281,7 @@
 
                 if (this.enablePager === true) {
                     var pager = this.element.parent().find("ol.km-pages");
-                    if (pager.length) {
+                    if (!this.pagerOverlay && pager.length) {
                         containerHeight -= pager.outerHeight(true);
                     }
                 }
@@ -421,7 +422,7 @@
 
                 if (this.options.enablePager === true) {
                     var pager = this.element.parent().find("ol.km-pages");
-                    if (pager.length) {
+                    if (!this.options.pagerOverlay && pager.length) {
                         containerHeight -= pager.outerHeight(true);
                     }
                 }
@@ -665,6 +666,10 @@
 
             if (this.options.enablePager) {
                 this.pager = new Pager(this);
+
+                if (this.options.pagerOverlay) {
+                    element.addClass("km-scrollview-overlay");
+                }
             }
 
             that.inner = element.children().first();
@@ -737,6 +742,7 @@
             itemsPerPage: 1,
             bounceVelocityThreshold: 1.6,
             enablePager: true,
+            pagerOverlay: false,
             autoBind: true,
             template: "",
             emptyTemplate: ""

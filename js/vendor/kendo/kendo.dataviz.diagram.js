@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -4039,7 +4039,13 @@
             });
             var fill = options.fill;
 
-            this.drawingElement.fill(fill.color, fill.opacity);
+            if (fill.gradient) {
+                var gradient = fill.gradient;
+                var GradientClass = (gradient.type === "radial" ? d.RadialGradient : d.LinearGradient);
+                this.drawingElement.fill(new GradientClass(gradient));
+            } else {
+                this.drawingElement.fill(fill.color, fill.opacity);
+            }
         }
     });
 
@@ -4070,10 +4076,10 @@
             var options = this.options;
 
             this.drawingElement = new d.Text(defined(options.text) ? options.text : "", new g.Point(), {
-                fill: options.fill,
                 font: options.font
             });
 
+            this._fill();
             this._stroke();
         },
 
@@ -4164,10 +4170,11 @@
         _initPath: function() {
             var options = this.options;
             var drawingElement = this.drawingElement = new d.Path({
-                fill: options.fill,
                 stroke: options.stroke,
                 closed: true
             });
+
+            this._fill();
             this._drawPath();
         },
 
@@ -4510,9 +4517,10 @@
             var options = this.options;
 
             this.drawingElement = d.Path.parse(options.data || "", {
-                fill: options.fill,
                 stroke: options.stroke
             });
+
+            this._fill();
             this.container.append(this.drawingElement);
             this._createMarkers();
         },
@@ -4568,9 +4576,10 @@
         _initPath: function() {
             var options = this.options;
             var drawingElement = this.drawingElement = new d.Path({
-                fill: options.fill,
                 stroke: options.stroke
             });
+
+            this._fill();
             this._drawPath();
             this.container.append(drawingElement);
         },
@@ -4629,10 +4638,10 @@
         _initPath: function() {
             var options = this.options;
             this.drawingElement = new d.Path({
-                fill: options.fill,
                 stroke: options.stroke
             });
 
+            this._fill();
             this.container.append(this.drawingElement);
 
             if (options.points) {
@@ -4883,9 +4892,10 @@
             this._center = new g.Point(center.x, center.y);
             this._circle = new g.Circle(this._center, radius);
             this.drawingElement = new d.Circle(this._circle, {
-                fill: options.fill,
                 stroke: options.stroke
             });
+
+            this._fill();
         }
     });
     deepExtend(Circle.fn, AutoSizeableMixin);
@@ -5076,6 +5086,7 @@
             Movable = kendo.ui.Movable,
             browser = kendo.support.browser,
             defined = kendo.util.defined,
+            inArray = $.inArray,
             proxy = $.proxy;
 
         // Constants ==============================================================
@@ -5093,7 +5104,7 @@
                 rowresize: "row-resize",
                 colresize: "col-resize"
             },
-            HITTESTDISTANCE = 10,
+            HIT_TEST_DISTANCE = 10,
             AUTO = "Auto",
             TOP = "Top",
             RIGHT = "Right",
@@ -5102,6 +5113,9 @@
             DEFAULTCONNECTORNAMES = [TOP, RIGHT, BOTTOM, LEFT, AUTO],
             DEFAULT_SNAP_SIZE = 10,
             DEFAULT_SNAP_ANGLE = 10,
+            DRAG_START = "dragStart",
+            DRAG = "drag",
+            DRAG_END = "dragEnd",
             ITEMROTATE = "itemRotate",
             ITEMBOUNDSCHANGE = "itemBoundsChange",
             MIN_SNAP_SIZE = 5,
@@ -5575,6 +5589,14 @@
              * Returns the number of undoable unit in the stack.
              * @returns {Number}
              */
+
+            pop: function() {
+                if (this.index > 0) {
+                    this.stack.pop();
+                    this.index--;
+                }
+            },
+
             count: function () {
                 return this.stack.length;
             },
@@ -5770,26 +5792,41 @@
                 }
 
                 if (this.adorner) {
-                    this.adorner.start(p);
+                    if (!this.adorner.isDragHandle(this.handle) || !diagram.trigger(DRAG_START, { shapes: this.adorner.shapes, connections: [] })) {
+                        this.adorner.start(p);
+                    } else {
+                        toolService.startPoint = p;
+                        toolService.end(p);
+                    }
                 }
             },
+
             move: function (p) {
-                var that = this;
                 if (this.adorner) {
-                    this.adorner.move(that.handle, p);
+                    this.adorner.move(this.handle, p);
+                    if (this.adorner.isDragHandle(this.handle)) {
+                        this.toolService.diagram.trigger(DRAG, { shapes: this.adorner.shapes, connections: [] });
+                    }
                 }
             },
+
             end: function (p, meta) {
                 var diagram = this.toolService.diagram,
                     service = this.toolService,
+                    adorner = this.adorner,
                     unit;
 
-                if (this.adorner) {
-                    unit = this.adorner.stop();
-                    if (unit) {
-                        diagram.undoRedoService.add(unit, false);
+                if (adorner) {
+                    if (!adorner.isDragHandle(this.handle) || !diagram.trigger(DRAG_END, { shapes: adorner.shapes, connections: [] })) {
+                        unit = adorner.stop();
+                        if (unit) {
+                            diagram.undoRedoService.add(unit, false);
+                        }
+                    } else {
+                        adorner.cancel();
                     }
                 }
+
                 if(service.hoveredItem) {
                     this.toolService.triggerClick({item: service.hoveredItem, point: p, meta: meta});
                 }
@@ -5849,23 +5886,31 @@
                     connector = this.toolService._hoveredConnector,
                     connection = diagram._createConnection({}, connector._c, p);
 
-                if (diagram._addConnection(connection)) {
+                if (canDrag(connection) && !diagram.trigger(DRAG_START, { shapes: [], connections: [connection]}) && diagram._addConnection(connection)) {
                     this.toolService._connectionManipulation(connection, connector._c.shape, true);
                     this.toolService._removeHover();
                     selectSingle(this.toolService.activeConnection, meta);
                 } else {
                     connection.source(null);
-                    this.toolService.end();
+                    this.toolService.end(p);
                 }
             },
+
             move: function (p) {
-                this.toolService.activeConnection.target(p);
+                var toolService = this.toolService;
+                var connection = toolService.activeConnection;
+
+                connection.target(p);
+                toolService.diagram.trigger(DRAG, { shapes: [], connections: [connection] });
                 return true;
             },
+
             end: function (p) {
-                var connection = this.toolService.activeConnection,
-                    hoveredItem = this.toolService.hoveredItem,
-                    connector = this.toolService._hoveredConnector,
+                var toolService = this.toolService,
+                    d = toolService.diagram,
+                    connection = toolService.activeConnection,
+                    hoveredItem = toolService.hoveredItem,
+                    connector = toolService._hoveredConnector,
                     target;
 
                 if (!connection) {
@@ -5881,10 +5926,17 @@
                 }
 
                 connection.target(target);
-                connection.updateModel(true);
 
-                this.toolService._connectionManipulation();
+                if (!d.trigger(DRAG_END, { shapes: [], connections: [connection] })) {
+                    connection.updateModel();
+                    d._syncConnectionChanges();
+                } else {
+                    d.remove(connection, false);
+                    d.undoRedoService.pop();
+                }
+                toolService._connectionManipulation();
             },
+
             getCursor: function () {
                 return Cursors.arrow;
             }
@@ -5910,29 +5962,54 @@
 
                 return isActive;
             },
+
             start: function (p, meta) {
-                selectSingle(this._c, meta);
-                var adorner = this._c.adorner;
-                if (adorner) {
+                var connection = this._c;
+
+                selectSingle(connection, meta);
+
+                var adorner = connection.adorner;
+
+                if (canDrag(connection) && adorner && !this.toolService.diagram.trigger(DRAG_START, { shapes: [], connections: [connection] })) {
                     this.handle = adorner._hitTest(p);
                     adorner.start(p);
+                } else {
+                    this.toolService.startPoint = p;
+                    this.toolService.end(p);
                 }
             },
+
             move: function (p) {
                 var adorner = this._c.adorner;
-                if (adorner) {
+                if (canDrag(this._c) && adorner) {
                     adorner.move(this.handle, p);
+                    this.toolService.diagram.trigger(DRAG, { shapes: [], connections: [this._c] });
+
                     return true;
                 }
             },
+
             end: function (p, meta) {
-                var adorner = this._c.adorner;
+                var connection = this._c;
+                var adorner = connection.adorner;
+                var toolService = this.toolService;
+                var diagram = toolService.diagram;
+
                 if (adorner) {
-                    this.toolService.triggerClick({item: this._c, point: p, meta: meta});
-                    var unit = adorner.stop(p);
-                    this.toolService.diagram.undoRedoService.add(unit, false);
+                    toolService.triggerClick({item: connection, point: p, meta: meta});
+                    if (canDrag(connection)) {
+                        var unit = adorner.stop(p);
+                        if (!diagram.trigger(DRAG_END, { shapes: [], connections: [connection] })) {
+                            diagram.undoRedoService.add(unit, false);
+                            connection.updateModel();
+                            diagram._syncConnectionChanges();
+                        } else {
+                            unit.undo();
+                        }
+                    }
                 }
             },
+
             getCursor: function () {
                 return Cursors.move;
             }
@@ -6180,9 +6257,25 @@
                     }
                     hit = this._hitTestItems(selectedConnections, point);
                 }
-                // Shapes | Connectors
-                return hit || this._hitTestItems(d.shapes, point) || this._hitTestItems(d.connections, point);
+
+                return hit || this._hitTestElements(point);
             },
+
+            _hitTestElements: function(point) {
+                var diagram = this.diagram;
+                var shapeHit = this._hitTestItems(diagram.shapes, point);
+                var connectionHit = this._hitTestItems(diagram.connections, point);
+                var hit;
+
+                if ((!this.activeTool || this.activeTool.type != "ConnectionTool") && shapeHit && connectionHit && !hitTestShapeConnectors(shapeHit, point)) {
+                    var mainLayer = diagram.mainLayer;
+                    var shapeIdx = inArray(shapeHit.visual, mainLayer.children);
+                    var connectionIdx = inArray(connectionHit.visual, mainLayer.children);
+                    hit = shapeIdx > connectionIdx ? shapeHit : connectionHit;
+                }
+                return hit || shapeHit || connectionHit;
+            },
+
             _hitTestItems: function (array, point) {
                 var i, item, hit;
                 for (i = array.length - 1; i >= 0; i--) {
@@ -6226,11 +6319,11 @@
              * Hit testing for polyline paths.
              */
             hitTest: function (p) {
-                var rec = this.getBounds().inflate(10);
+                var rec = this.getBounds().inflate(HIT_TEST_DISTANCE);
                 if (!rec.contains(p)) {
                     return false;
                 }
-                return diagram.Geometry.distanceToPolyline(p, this.connection.allPoints()) < HITTESTDISTANCE;
+                return diagram.Geometry.distanceToPolyline(p, this.connection.allPoints()) < HIT_TEST_DISTANCE;
             },
 
             /**
@@ -6552,8 +6645,6 @@
                 } else if (this.handle === 1) {
                     this.connection.target(target);
                 }
-
-                this.connection.updateModel(true);
 
                 this.handle = undefined;
                 this._ts._connectionManipulation();
@@ -6978,7 +7069,7 @@
                     }
                     this.refresh();
                 } else {
-                    if (this.diagram.options.snap) {
+                    if (this.shouldSnap()) {
                         var thr = this._truncateDistance(p.minus(this._lp));
                         // threshold
                         if (thr.x === 0 && thr.y === 0) {
@@ -6991,7 +7082,7 @@
                         delta = p.minus(this._cp);
                     }
 
-                    if (handle.x === 0 && handle.y === 0) {
+                    if (this.isDragHandle(handle)) {
                         dbr = dtl = delta; // dragging
                         dragging = true;
                     } else {
@@ -7020,6 +7111,9 @@
                         shape = this.shapes[i];
                         bounds = shape.bounds();
                         if (dragging) {
+                            if (!canDrag(shape)) {
+                                continue;
+                            }
                             newBounds = this._displaceBounds(bounds, dtl, dbr, dragging);
                         } else {
                             newBounds = bounds.clone();
@@ -7041,9 +7135,13 @@
                         }
                     }
 
-                    if (changed == i) {
-                        newBounds = this._displaceBounds(this._innerBounds, dtl, dbr, dragging);
-                        this.bounds(newBounds);
+                    if (changed) {
+                        if (changed == i) {
+                            newBounds = this._displaceBounds(this._innerBounds, dtl, dbr, dragging);
+                            this.bounds(newBounds);
+                        } else {
+                            this.refreshBounds();
+                        }
                         this.refresh();
                     }
 
@@ -7051,6 +7149,23 @@
                 }
 
                 this._cp = p;
+            },
+
+            isDragHandle: function(handle) {
+                return handle.x === 0 && handle.y === 0;
+            },
+
+            cancel: function() {
+                var shapes = this.shapes;
+                var states = this.shapeStates;
+                for (var idx = 0; idx < shapes.length; idx++) {
+                    shapes[idx].bounds(states[idx]);
+                }
+                this.refreshBounds();
+                this.refresh();
+                this._manipulating = undefined;
+                this._internalChange = undefined;
+                this._rotating = undefined;
             },
 
             _truncatePositionToGuides: function (bounds) {
@@ -7068,7 +7183,7 @@
             },
 
             _truncateAngle: function (a) {
-                var snap = this.diagram.options.snap;
+                var snap = this.snapOptions();
                 var snapAngle = Math.max(snap.angle || DEFAULT_SNAP_ANGLE, MIN_SNAP_ANGLE);
                 return snap ? Math.floor((a % 360) / snapAngle) * snapAngle : (a % 360);
             },
@@ -7077,10 +7192,23 @@
                 if (d instanceof diagram.Point) {
                     return new diagram.Point(this._truncateDistance(d.x), this._truncateDistance(d.y));
                 } else {
-                    var snap = this.diagram.options.snap;
+                    var snap = this.snapOptions() || {};
                     var snapSize = Math.max(snap.size || DEFAULT_SNAP_SIZE, MIN_SNAP_SIZE);
                     return snap ? Math.floor(d / snapSize) * snapSize : d;
                 }
+            },
+
+            snapOptions: function() {
+                var editable = this.diagram.options.editable;
+                var snap = ((editable || {}).drag || {}).snap || {};
+                return snap;
+            },
+
+            shouldSnap: function() {
+                var editable = this.diagram.options.editable;
+                var drag = (editable || {}).drag;
+                var snap = (drag || {}).snap;
+                return editable !== false && drag !== false && snap !== false;
             },
 
             _displaceBounds: function (bounds, dtl, dbr, dragging) {
@@ -7260,6 +7388,24 @@
                 return this._visualBounds.contains(tp);
             }
         });
+
+        function canDrag(element) {
+            var editable = element.options.editable;
+            return editable && editable.drag !== false;
+        }
+
+        function hitTestShapeConnectors(shape, point) {
+            var connector, position, rect;
+            for (var idx = 0; idx < shape.connectors.length; idx++) {
+                connector = shape.connectors[idx];
+                position = connector.position();
+                rect = new Rect(position.x, position.y);
+                rect.inflate(HIT_TEST_DISTANCE, HIT_TEST_DISTANCE);
+                if (rect.contains(point)) {
+                    return connector;
+                }
+            }
+        }
 
         deepExtend(diagram, {
             CompositeUnit: CompositeUnit,
@@ -11115,6 +11261,9 @@
             ITEMBOUNDSCHANGE = "itemBoundsChange",
             CHANGE = "change",
             CLICK = "click",
+            DRAG = "drag",
+            DRAG_END = "dragEnd",
+            DRAG_START = "dragStart",
             MOUSE_ENTER = "mouseEnter",
             MOUSE_LEAVE = "mouseLeave",
             ERROR = "error",
@@ -11953,6 +12102,7 @@
                     }
                 }
             },
+
             toJSON: function() {
                 return {
                     shapeId: this.options.id
@@ -12051,6 +12201,11 @@
                             this.target(new Point(options.toX, options.toY));
                         }
 
+                        if (defined(options.type) && this.type() !== options.type) {
+                            this.points([]);
+                            this.type(options.type);
+                        }
+
                         this.dataItem = model;
 
                         this._template();
@@ -12085,6 +12240,10 @@
                                 model.set("to", this.options.to);
                                 model.set("toX", null);
                                 model.set("toY", null);
+                            }
+
+                            if (defined(this.options.type) && defined(model.type)) {
+                                model.set("type", this.options.type);
                             }
 
                             this.dataItem = model;
@@ -12127,6 +12286,9 @@
                     if (source !== undefined) {
                         this.from = source;
                     }
+
+                    this._removeFromSourceConnector();
+
                     if (source === null) { // detach
                         if (this.sourceConnector) {
                             this._sourcePoint = this._resolvedSourceConnector.position();
@@ -12224,6 +12386,8 @@
                     if (target !== undefined) {
                         this.to = target;
                     }
+
+                    this._removeFromTargetConnector();
 
                     if (target === null) { // detach
                         if (this.targetConnector) {
@@ -12324,7 +12488,22 @@
             },
 
             content: function(content) {
-                return this._content(content);
+                var result = this._content(content);
+                if (defined(content)) {
+                    this._alignContent();
+                }
+                return result;
+            },
+
+            _alignContent: function() {
+                if (this._contentVisual) {
+                    var boundsTopLeft = this._bounds.topLeft();
+                    var localSourcePoint = this.sourcePoint().minus(boundsTopLeft);
+                    var localSinkPoint = this.targetPoint().minus(boundsTopLeft);
+                    var middle = Point.fn.middleOf(localSourcePoint, localSinkPoint);
+
+                    this._contentVisual.position(new Point(middle.x + boundsTopLeft.x, middle.y + boundsTopLeft.y));
+                }
             },
 
             /**
@@ -12351,7 +12530,11 @@
                                 deselected.push(this);
                             }
                         }
-                        this.refresh();
+
+                        if (this.adorner) {
+                            this.adorner.refresh();
+                        }
+
                         if (!diagram._internalSelection) {
                             diagram._selectionChanged(selected, deselected);
                         }
@@ -12446,18 +12629,8 @@
 
             refresh: function () {
                 this._resolveConnectors();
-                var globalSourcePoint = this.sourcePoint(), globalSinkPoint = this.targetPoint(),
-                    boundsTopLeft, localSourcePoint, localSinkPoint, middle;
-
                 this._refreshPath();
-
-                boundsTopLeft = this._bounds.topLeft();
-                localSourcePoint = globalSourcePoint.minus(boundsTopLeft);
-                localSinkPoint = globalSinkPoint.minus(boundsTopLeft);
-                if (this._contentVisual) {
-                    middle = Point.fn.middleOf(localSourcePoint, localSinkPoint);
-                    this._contentVisual.position(new Point(middle.x + boundsTopLeft.x, middle.y + boundsTopLeft.y));
-                }
+                this._alignContent();
 
                 if (this.adorner) {
                     this.adorner.refresh();
@@ -12587,14 +12760,15 @@
 
                     var points = this.options.points;
 
-                    if ((options && options.content) || options.text) {
-                        this.content(options.content);
-                    }
-
                     if (defined(points) && points.length > 0) {
                         this.points(points);
                         this._refreshPath();
                     }
+
+                    if ((options && options.content) || options.text) {
+                        this.content(options.content);
+                    }
+
                     this.path.redraw({
                         fill: options.fill,
                         stroke: options.stroke,
@@ -12700,6 +12874,18 @@
                 Utils.remove(this.targetConnector.connections, this);
                 this.targetConnector = undefined;
                 this._resolvedTargetConnector = undefined;
+            },
+
+            _removeFromSourceConnector: function() {
+                if (this.sourceConnector) {
+                    Utils.remove(this.sourceConnector.connections, this);
+                }
+            },
+
+            _removeFromTargetConnector: function() {
+                if (this.targetConnector) {
+                    Utils.remove(this.targetConnector.connections, this);
+                }
             }
         });
 
@@ -12711,6 +12897,7 @@
                 Widget.fn.init.call(that, element, userOptions);
 
                 that._initTheme();
+
                 that._initElements();
                 that._extendLayoutOptions(that.options);
                 that._initDefaults(userOptions);
@@ -12736,6 +12923,7 @@
                 that._initialize();
                 that._fetchFreshData();
                 that._createGlobalToolBar();
+
                 that._resizingAdorner = new ResizingAdorner(that, { editable: that.options.editable });
                 that._connectorsAdorner = new ConnectorsAdorner(that);
 
@@ -12776,7 +12964,14 @@
                     rotate: {},
                     resize: {},
                     text: true,
-                    tools: []
+                    tools: [],
+                    drag: {
+                        snap: {
+                            size: 10,
+                            angle: 10
+                        }
+                    },
+                    remove: true
                 },
                 pannable: {
                     key: "ctrl"
@@ -12790,15 +12985,12 @@
                     offsetX: 20,
                     offsetY: 20
                 },
-                snap: {
-                    size: 10,
-                    angle: 10
-                },
                 shapeDefaults: diagram.shapeDefaults({ undoable: true }),
                 connectionDefaults: {
                     editable: {
                         tools: []
-                    }
+                    },
+                    type: CASCADING
                 },
                 shapes: [],
                 connections: []
@@ -12820,7 +13012,10 @@
                 "edit",
                 "remove",
                 "add",
-                "dataBound"
+                "dataBound",
+                DRAG_START,
+                DRAG,
+                DRAG_END
             ],
 
             _createGlobalToolBar: function() {
@@ -12839,14 +13034,11 @@
                         });
 
                         this.toolBar.element.css({
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: this.element.width(),
                             textAlign: "left"
                         });
 
-                        this.element.append(this.toolBar.element);
+                        this.element.prepend(this.toolBar.element);
+                        this._resize();
                     }
                 }
             },
@@ -12994,16 +13186,21 @@
                     .attr("tabindex", 0)
                     .addClass("k-widget k-diagram");
 
-
                 this.scrollable = $("<div />").appendTo(this.element);
             },
 
             _initDefaults: function(userOptions) {
                 var options = this.options;
+                var editable = options.editable;
+                var shapeDefaults = options.shapeDefaults;
+                var connectionDefaults = options.connectionDefaults;
                 var userShapeDefaults = (userOptions || {}).shapeDefaults;
-                if (options.editable === false) {
-                    options.shapeDefaults.editable = false;
-                    options.connectionDefaults.editable = false;
+                if (editable === false) {
+                    shapeDefaults.editable = false;
+                    connectionDefaults.editable = false;
+                } else {
+                    copyDefaultOptions(editable, shapeDefaults.editable, ["drag", "remove", "connect"]);
+                    copyDefaultOptions(editable, connectionDefaults.editable, ["drag", "remove"]);
                 }
 
                 if (userShapeDefaults && userShapeDefaults.connectors) {
@@ -13139,13 +13336,14 @@
                 });
             },
 
-            _resize: function(size) {
+            _resize: function() {
+                var viewport = this.viewport();
                 if (this.canvas) {
-                    this.canvas.size(size);
+                    this.canvas.size(viewport);
                 }
 
-                if (this.toolBar) {
-                    this.toolBar._toolBar.element.width(this.element.width());
+                if (this.scrollable && this.toolBar) {
+                    this.scrollable.height(viewport.height);
                 }
             },
 
@@ -13365,7 +13563,7 @@
                 }
 
                 connection.diagram = this;
-                connection.updateOptionsFromModel();
+                connection._setOptionsFromModel();
                 connection.refresh();
                 this.mainLayer.append(connection.visual);
                 this.connections.push(connection);
@@ -13523,16 +13721,17 @@
 
             _triggerRemove: function(items){
                 var toRemove = [];
-                var item, args;
+                var item, args, editable;
 
                 for (var idx = 0; idx < items.length; idx++) {
                     item = items[idx];
+                    editable = item.options.editable;
                     if (item instanceof Shape) {
                         args = { shape: item };
                     } else {
                         args = { connection: item };
                     }
-                    if (!this.trigger("remove", args)) {
+                    if (editable && editable.remove !== false && !this.trigger("remove", args)) {
                         toRemove.push(item);
                     }
                 }
@@ -13848,8 +14047,14 @@
 
             viewport: function () {
                 var element = this.element;
+                var width = element.width();
+                var height = element.height();
 
-                return new Rect(0, 0, element.width(), element.height());
+                if (this.toolBar) {
+                    height -= this.toolBar.element.outerHeight();
+                }
+
+                return new Rect(0, 0, width, height);
             },
             copy: function () {
                 if (this.options.copy.enabled) {
@@ -13963,13 +14168,22 @@
                 }
                 return rect;
             },
-            documentToView: function(point) {
+
+            _containerOffset: function() {
                 var containerOffset = this.element.offset();
+                if (this.toolBar) {
+                    containerOffset.top += this.toolBar.element.outerHeight();
+                }
+                return containerOffset;
+            },
+
+            documentToView: function(point) {
+                var containerOffset = this._containerOffset();
 
                 return new Point(point.x - containerOffset.left, point.y - containerOffset.top);
             },
             viewToDocument: function(point) {
-                var containerOffset = this.element.offset();
+                var containerOffset = this._containerOffset();
 
                 return new Point(point.x + containerOffset.left, point.y + containerOffset.top);
             },
@@ -14338,7 +14552,6 @@
                     parentShape = this._addDataItemByUid(parent);
                     if (parentShape && !this.connected(parentShape, shape)) { // check if connected to not duplicate connections.
                         connection = this.connect(parentShape, shape);
-                        connection.type(CASCADING);
                     }
                 }
             },
@@ -14404,12 +14617,17 @@
                 if (!this.singleToolBar && diagram.select().length === 1) {
                     var element = diagram.select()[0];
                     if (element && element.options.editable !== false) {
-                        var tools = element.options.editable.tools;
+                        var editable = element.options.editable;
+                        var tools = editable.tools;
                         if (this._isEditable && tools.length === 0) {
                             if (element instanceof Shape) {
-                                tools = ["edit", "rotateClockwise", "rotateAnticlockwise", "delete"];
+                                tools = ["edit", "rotateClockwise", "rotateAnticlockwise"];
                             } else if (element instanceof Connection) {
-                                tools = ["edit", "delete"];
+                                tools = ["edit"];
+                            }
+
+                            if (editable && editable.remove !== false) {
+                                tools.push("delete");
                             }
                         }
 
@@ -14772,7 +14990,7 @@
                         var options = deepExtend({}, this.options.connectionDefaults);
                         options.dataItem = dataItem;
                         var connection = new Connection(from, to, options);
-                        connection.type(options.type || CASCADING);
+
                         this._connectionsDataMap[dataItem.uid] = connection;
                         this.addConnection(connection, undoable);
                     }
@@ -15860,6 +16078,16 @@
             }
 
             return new kendo.data.ObservableObject(model);
+        }
+
+        function copyDefaultOptions(mainOptions, elementOptions, fields) {
+            var field;
+            for (var idx = 0; idx < fields.length; idx++) {
+                field = fields[idx];
+                if (elementOptions && !defined(elementOptions[field])) {
+                    elementOptions[field] = mainOptions[field];
+                }
+            }
         }
 
         dataviz.ui.plugin(Diagram);

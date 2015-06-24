@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -313,6 +313,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Добави",
     "destroy": "Изтриване",
     "edit": "Редактиране",
+    "excel": "Експорт към Excel",
+    "pdf": "Експорт към PDF",
     "save": "Запази промените",
     "select": "Избери",
     "update": "Запази"
@@ -321,7 +323,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "cancelDelete": "Откажи",
     "confirmation": "Сигурни ли сте, че искате да изтриете записа?",
     "confirmDelete": "Изтрий"
-  }
+  },
+  "noRecords": "Няма налични записи."
 });
 }
 
@@ -373,6 +376,17 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.messages,{
   "isFalse": "не е вярно",
   "isTrue": "е вярно",
   "operator": "Оператор"
+});
+}
+
+/* FilterMultiCheck messages */
+
+if (kendo.ui.FilterMultiCheck) {
+kendo.ui.FilterMultiCheck.prototype.options.messages =
+$.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
+  "checkAll": "Избери всички",
+  "clear": "Премахни филтър",
+  "filter": "Филтрирай"
 });
 }
 

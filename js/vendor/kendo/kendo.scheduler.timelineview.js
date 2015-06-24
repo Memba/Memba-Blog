@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -190,24 +190,35 @@
                 var currentGroup = this.groups[groupIndex];
                 var utcCurrentTime = kendo.date.toUtcTime(currentTime);
                 var ranges = currentGroup.timeSlotRanges(utcCurrentTime, utcCurrentTime + 1);
+
                 if(ranges.length === 0) {
                     return;
                 }
+
                 var collection = ranges[0].collection;
                 var slotElement = collection.slotByStartDate(currentTime);
 
                 if(slotElement) {
                     var element = $("<div class='k-current-time'></div>");
                     var datesHeader = this.datesHeader;
+                    var left = Math.round(ranges[0].innerRect(currentTime, new Date(currentTime.getTime() + 1), false).left);
 
                     element.appendTo(datesHeader.find(".k-scheduler-header-wrap")).css({
-                        left: Math.round(ranges[0].innerRect(currentTime, new Date(currentTime.getTime() + 1), false).left),
+                        left: this._adjustLeftPosition(left),
                         width: "1px",
                         bottom: "1px",
                         top: 0
                     });
                 }
             }
+        },
+
+        _adjustLeftPosition: function (left) {
+            if (this._isRtl) {
+                left -= (this.content[0].scrollWidth - this.content[0].offsetWidth);
+            }
+
+            return left;
         },
 
         _currentTime: function() {
@@ -295,49 +306,49 @@
             }
         },
 
-       _slotByPosition: function(x, y) {
-           var slot;
-           var content = this.content;
-           var offset = content.offset();
-           var group;
-           var groupIndex;
+        _slotByPosition: function(x, y) {
+            var slot;
+            var content = this.content;
+            var offset = content.offset();
+            var group;
+            var groupIndex;
 
-           x -= offset.left;
-           y -= offset.top;
+            x -= offset.left;
+            y -= offset.top;
 
-           if (this._isRtl) {
-               var browser = kendo.support.browser;
+            if (this._isRtl) {
+                var browser = kendo.support.browser;
 
-               if (browser.mozilla) {
-                    x += (content[0].scrollWidth - content[0].offsetWidth);
-                    x += content[0].scrollLeft;
-               } else if (browser.msie) {
-                    x -= content.scrollLeft();
-                    x += content[0].scrollWidth - this.content[0].offsetWidth;
-               } else if (browser.webkit) {
-                    x += content[0].scrollLeft;
-               }
-           } else {
-               x += content[0].scrollLeft;
-           }
-
-           y += content[0].scrollTop;
-
-           x = Math.ceil(x);
-           y = Math.ceil(y);
-
-           for (groupIndex = 0; groupIndex < this.groups.length; groupIndex++) {
-                group = this.groups[groupIndex];
-
-                slot = group.timeSlotByPosition(x, y);
-
-                if (slot) {
-                    return slot;
+                if (browser.mozilla) {
+                     x += (content[0].scrollWidth - content[0].offsetWidth);
+                     x += content[0].scrollLeft;
+                } else if (browser.msie) {
+                     x -= content.scrollLeft();
+                     x += content[0].scrollWidth - content[0].offsetWidth;
+                } else if (browser.webkit) {
+                     x += content[0].scrollLeft;
                 }
-           }
+            } else {
+                x += content[0].scrollLeft;
+            }
 
-           return null;
-       },
+            y += content[0].scrollTop;
+
+            x = Math.ceil(x);
+            y = Math.ceil(y);
+
+            for (groupIndex = 0; groupIndex < this.groups.length; groupIndex++) {
+                 group = this.groups[groupIndex];
+
+                 slot = group.timeSlotByPosition(x, y);
+
+                 if (slot) {
+                     return slot;
+                 }
+            }
+
+            return null;
+        },
 
         options: {
             name: "TimelineView",
@@ -932,10 +943,7 @@
 
             var rect = eventObject.slotRange.innerRect(eventObject.start, eventObject.end, false);
 
-            var left = rect.left;
-            if (this._isRtl) {
-                left -= (this.content[0].scrollWidth - this.content[0].offsetWidth);
-            }
+            var left = this._adjustLeftPosition(rect.left);
 
             var width = rect.right - rect.left - 2;
 
@@ -1255,10 +1263,12 @@
             return adjustedEvent.occurrence;
         },
 
-        _updateEventForMove: function(event) {
+        _eventOptionsForMove: function(event) {
            if (event.isAllDay) {
-               event.set("isAllDay", false);
+               return { isAllDay: false };
            }
+
+            return {};
         },
 
         _updateEventForResize: function(event) {
@@ -1297,11 +1307,7 @@
                    width = 0;
                 }
 
-                var left = rect.left;
-
-                if (this._isRtl) {
-                   left -= (this.content[0].scrollWidth - this.content[0].offsetWidth);
-                }
+                var left = this._adjustLeftPosition(rect.left);
 
                 var css = {
                     left: left,
@@ -1336,12 +1342,7 @@
                 var width = startRect.right - startRect.left;
                 var height = start.offsetHeight;
 
-                var left = startRect.left;
-
-                var content = this.content;
-                if (this._isRtl) {
-                    left -= (content[0].scrollWidth - content[0].offsetWidth);
-                }
+                var left = this._adjustLeftPosition(startRect.left);
 
                 var hint = SchedulerView.fn._createResizeHint.call(this,
                     left,

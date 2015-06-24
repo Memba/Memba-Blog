@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -165,6 +165,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "canceledit": "Annuler",
     "update": "Mettre à jour",
     "edit": "Éditer",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "select": "Sélectionner",
     "cancel": "Annuler les modifications",
     "save": "Enregistrer les modifications"
@@ -173,7 +175,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "confirmation": "Êtes-vous sûr de vouloir supprimer cet enregistrement?",
     "cancelDelete": "Annuler",
     "confirmDelete": "Effacer"
-  }
+  },
+  "noRecords": "Aucun enregistrement disponible."
 });
 }
 
@@ -225,6 +228,17 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
   "cancel": "Annuler",
   "operator": "Opérateur",
   "value": "Valeur"
+});
+}
+
+/* FilterMultiCheck messages */
+
+if (kendo.ui.FilterMultiCheck) {
+kendo.ui.FilterMultiCheck.prototype.options.messages =
+$.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
+  "checkAll": "Choisir toutes",
+  "clear": "Effacer filtre",
+  "filter": "Filtrer"
 });
 }
 

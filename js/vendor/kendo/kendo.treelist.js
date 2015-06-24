@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -7,7 +7,7 @@
 * If you do not own a commercial license, this file shall be governed by the trial license terms.
 */
 (function(f, define){
-    define([ "./kendo.dom", "./kendo.data", "./kendo.columnsorter", "./kendo.editable", "./kendo.window", "./kendo.filtermenu", "./kendo.selectable", "./kendo.resizable" ], f);
+    define([ "./kendo.dom", "./kendo.data", "./kendo.columnsorter", "./kendo.editable", "./kendo.window", "./kendo.filtermenu", "./kendo.selectable", "./kendo.resizable", "./kendo.treeview.draganddrop" ], f);
 })(function(){
 
 (function($, undefined) {
@@ -204,16 +204,31 @@
             return model;
         },
 
-        _readData: function(newData) {
-            var result = [];
-            var data = this.data();
-            var i, length;
+        _shouldWrap: function(data) {
+            return true;
+        },
 
-            for (i = 0, length = data.length; i < length; i++) {
-                result.push(data[i]);
+        _readData: function(newData) {
+            var data = this.data();
+            newData = DataSource.fn._readData.call(this, newData);
+
+            this._concat(newData, data);
+
+            if (newData instanceof ObservableArray) {
+                return newData;
             }
 
-            return result.concat(DataSource.fn._readData.call(this, newData));
+            return data;
+        },
+
+        _concat: function(source, target) {
+            var targetLength = target.length;
+
+            for (var i = 0; i < source.length; i++) {
+                target[targetLength++] = source[i];
+            }
+
+            target.length = targetLength;
         },
 
         _readAggregates: function(data) {
@@ -235,16 +250,19 @@
         },
 
         _filterCallback: function(query) {
+            var i, item;
+            var map = {};
             var result = [];
             var data = query.toArray();
-            var map = {};
-            var i, parent, item;
 
             for (i = 0; i < data.length; i++) {
                 item = data[i];
 
                 while (item) {
-                    map[item.id] = true;
+                    if (!map[item.id]) {
+                        map[item.id] = true;
+                        result.push(item);
+                    }
 
                     if (!map[item.parentId]) {
                         map[item.parentId] = true;
@@ -259,7 +277,7 @@
                 }
             }
 
-            return new Query(data.concat(result));
+            return new Query(result);
         },
 
         _subtree: function(map, id) {
@@ -355,7 +373,8 @@
                 }
 
                 if (hasLoadedChildren) {
-                    data.splice.apply(data, [i+1, 0].concat(children));
+                    //cannot use splice due to IE8 bug
+                    data = data.slice(0, i + 1).concat(children, data.slice(i + 1));
                 }
             }
 
@@ -379,12 +398,12 @@
             this.get(id)._error = e;
         },
 
-        read: function(data) {
-            if (!data || !data.id) {
+        success: function(data, requestParams) {
+            if (!requestParams || !requestParams.id) {
                 this._data = this._observe([]);
             }
 
-            return DataSource.fn.read.call(this, data);
+            return DataSource.fn.success.call(this, data, requestParams);
         },
 
         load: function(model) {
@@ -404,6 +423,20 @@
                 proxy(this._modelLoaded, this, model.id),
                 proxy(this._modelError, this, model.id)
             );
+        },
+
+        contains: function(root, child) {
+            var rootId = root.id;
+
+            while (child) {
+                if (child.parentId === rootId) {
+                    return true;
+                }
+
+                child = this.parentNode(child);
+            }
+
+            return false;
         },
 
         _byParentId: function(id, defaultId) {
@@ -478,6 +511,50 @@
         return options instanceof TreeListDataSource ? options : new TreeListDataSource(options);
     };
 
+    function isCellVisible() {
+        return this.style.display !== "none";
+    }
+
+    function leafDataCells(container) {
+        var rows = container.find(">tr:not(.k-filter-row)");
+
+        var filter = function() {
+            var el = $(this);
+            return !el.hasClass("k-group-cell") && !el.hasClass("k-hierarchy-cell");
+        };
+
+        var cells = $();
+        if (rows.length > 1) {
+            cells = rows.find("th")
+                .filter(filter)
+                .filter(function() { return this.rowSpan > 1; });
+        }
+
+        cells = cells.add(rows.last().find("th").filter(filter));
+
+        var indexAttr = kendo.attr("index");
+        cells.sort(function(a, b) {
+            a = $(a);
+            b = $(b);
+
+            var indexA = a.attr(indexAttr);
+            var indexB = b.attr(indexAttr);
+
+            if (indexA === undefined) {
+                indexA = $(a).index();
+            }
+            if (indexB === undefined) {
+                indexB = $(b).index();
+            }
+
+            indexA = parseInt(indexA, 10);
+            indexB = parseInt(indexB, 10);
+            return indexA > indexB ? 1 : (indexA < indexB ? -1 : 0);
+        });
+
+        return cells;
+    }
+
     function createPlaceholders(options) {
         var spans = [];
         var className = options.className;
@@ -501,6 +578,30 @@
 
         return width;
     }
+
+   function syncTableHeight(table1, table2) {
+       table1 = table1[0];
+       table2 = table2[0];
+
+       if (table1.rows.length !== table2.rows.length) {
+           var lockedHeigth = table1.offsetHeight;
+           var tableHeigth = table2.offsetHeight;
+
+           var row;
+           var diff;
+           if (lockedHeigth > tableHeigth) {
+               row = table2.rows[table2.rows.length - 1];
+
+               diff = lockedHeigth - tableHeigth;
+           } else {
+               row = table1.rows[table1.rows.length - 1];
+
+               diff = tableHeigth - lockedHeigth;
+           }
+           row.style.height = row.offsetHeight + diff + "px";
+       }
+   }
+
 
     var Editor = kendo.Observable.extend({
         init: function(element, options) {
@@ -586,6 +687,7 @@
             Editor.fn.init.call(this, element, options);
 
             this._attachHandlers();
+            kendo.cycleForm(this.wrapper);
 
             this.open();
         },
@@ -734,6 +836,8 @@
             this._scrollable();
             this._reorderable();
             this._columnMenu();
+            this._minScreenSupport();
+            this._draggable();
 
             if (this.options.autoBind) {
                 this.dataSource.fetch();
@@ -747,6 +851,56 @@
             }
 
             kendo.notify(this);
+        },
+
+        _draggable: function() {
+            var editable = this.options.editable;
+
+            if (!editable || !editable.move) {
+                return;
+            }
+
+            this._dragging = new kendo.ui.HierarchicalDragAndDrop(this.wrapper, {
+                $angular: this.$angular,
+                autoScroll: true,
+                filter: "tbody>tr",
+                itemSelector: "tr",
+                allowedContainers: "#" + this.wrapper.attr("id"),
+                hintText: function(row) {
+                    var text = function() { return $(this).text(); };
+                    var separator = "<span class='k-header k-drag-separator' />";
+                    return row.children("td").map(text).toArray().join(separator);
+                },
+                contains: proxy(function(source, destination) {
+                    var dest = this.dataItem(destination);
+                    var src = this.dataItem(source);
+
+                    return src == dest || this.dataSource.contains(src, dest);
+                }, this),
+                itemFromTarget: function(target) {
+                    var tr = target.closest("tr");
+                    return { item: tr, content: tr };
+                },
+                dragstart: proxy(function() {
+                    this.wrapper.addClass("k-treelist-dragging");
+                }, this),
+                drop: proxy(function() {
+                    this.wrapper.removeClass("k-treelist-dragging");
+                }, this),
+                dragend: proxy(function(e) {
+                    var dest = this.dataItem(e.destination);
+                    var src = this.dataItem(e.source);
+
+                    src.set("parentId", dest ? dest.id : null);
+                }, this),
+                reorderable: false,
+                dropHintContainer: function(item) {
+                    return item.children("td:eq(1)"); // expandable column
+                },
+                dropPositionFrom: function(dropHint) {
+                    return dropHint.prevAll(".k-i-none").length > 0 ? "after" : "before";
+                }
+            });
         },
 
         _scrollable: function() {
@@ -965,6 +1119,34 @@
             this._adjustHeight();
         },
 
+        _minScreenSupport: function() {
+            var any = this.hideMinScreenCols();
+
+            if (any) {
+                this.minScreenResizeHandler = proxy(this.hideMinScreenCols, this);
+                $(window).on("resize", this.minScreenResizeHandler);
+            }
+        },
+        hideMinScreenCols: function() {
+            var cols = this.columns,
+                any = false,
+                screenWidth = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+
+            for (var i = 0; i < cols.length; i++) {
+                var col = cols[i];
+                var minWidth = col.minScreenWidth;
+                if (minWidth !== undefined && minWidth !== null) {
+                    any = true;
+                    if (minWidth > screenWidth) {
+                        this.hideColumn(col);
+                    } else {
+                        this.showColumn(col);
+                    }
+                }
+            }
+            return any;
+        },
+
         destroy: function() {
             DataBoundWidget.fn.destroy.call(this);
 
@@ -976,6 +1158,11 @@
 
             if (this._resizeHandler) {
                 $(window).off("resize" + NS, this._resizeHandler);
+            }
+
+            if (this._dragging) {
+                this._dragging.destroy();
+                this._dragging = null;
             }
 
             if (this.resizable) {
@@ -991,6 +1178,10 @@
             if (this._draggableInstance && this._draggableInstance.element) {
                 this._draggableInstance.destroy();
                 this._draggableInstance = null;
+            }
+
+            if (this.minScreenResizeHandler) {
+                $(window).off("resize", this.minScreenResizeHandler);
             }
 
             this._destroyEditor();
@@ -1102,10 +1293,12 @@
                 this.dataSource.load(model)
                     .always(proxy(function() {
                         this._render();
+                        this._syncLockedContentHeight();
                     }, this));
             }
 
             this._render();
+            this._syncLockedContentHeight();
         },
 
         expand: function(row) {
@@ -1955,6 +2148,178 @@
                     width: indicatorWidth * 3
                 })
                 .data("th", th);
+
+            var that = this;
+            resizeHandle.off("dblclick" + NS).on("dblclick" + NS, function () {
+                //TODO handle frozen columns index
+                var index= th.index();
+                if ($.contains(that.thead[0], th[0])) {
+                    index += grep(that.columns, function (val,idx) { return val.locked && !val.hidden; }).length;
+                }
+                that.autoFitColumn(index);
+            });
+        },
+
+        autoFitColumn: function (column) {
+            var that = this,
+                options = that.options,
+                columns = that.columns,
+                index,
+                browser = kendo.support.browser,
+                th,
+                header,
+                headerTable,
+                isLocked,
+                visibleLocked = that.lockedHeader ? leafDataCells(that.lockedHeader.find(">table>thead")).filter(isCellVisible).length : 0,
+                col;
+
+            //  retrieve the column object, depending on the method argument
+            if (typeof column == "number") {
+                column = columns[column];
+            } else if (isPlainObject(column)) {
+                column = grep(columns, function (item) {
+                    return item === column;
+                })[0];
+            } else {
+                column = grep(columns, function (item) {
+                    return item.field === column;
+                })[0];
+            }
+
+            if (!column || column.hidden) {
+                return;
+            }
+
+            index = inArray(column, columns);
+            isLocked = column.locked;
+
+            if (isLocked) {
+                headerTable = that.lockedHeader.children("table");
+            } else {
+                headerTable = that.thead.parent();
+            }
+
+            th = headerTable.find("[data-index='" + index + "']");
+
+            var contentTable = isLocked ? that.lockedTable : that.table,
+                footer = that.footer || $();
+
+            if (that.footer && that.lockedContent) {
+                footer = isLocked ? that.footer.children(".k-grid-footer-locked") : that.footer.children(".k-grid-footer-wrap");
+            }
+
+            var footerTable = footer.find("table").first();
+
+            if (that.lockedHeader && visibleLocked >= index && !isLocked) {
+                index -= visibleLocked;
+            }
+
+            // adjust column index, depending on previous hidden columns
+            for (var j = 0; j < columns.length; j++) {
+                if (columns[j] === column) {
+                    break;
+                } else {
+                    if (columns[j].hidden) {
+                        index--;
+                    }
+                }
+            }
+
+            // get col elements
+            if (options.scrollable) {
+                col = headerTable.find("col:not(.k-group-col):not(.k-hierarchy-col):eq(" + index + ")")
+                    .add(contentTable.children("colgroup").find("col:not(.k-group-col):not(.k-hierarchy-col):eq(" + index + ")"))
+                    .add(footerTable.find("colgroup").find("col:not(.k-group-col):not(.k-hierarchy-col):eq(" + index + ")"));
+            } else {
+                col = contentTable.children("colgroup").find("col:not(.k-group-col):not(.k-hierarchy-col):eq(" + index + ")");
+            }
+
+            var tables = headerTable.add(contentTable).add(footerTable);
+
+            var oldColumnWidth = th.outerWidth();
+
+            // reset the table and autofitted column widths
+            // if scrolling is disabled, we need some additional repainting of the table
+            col.width("");
+            tables.css("table-layout", "fixed");
+            col.width("auto");
+            tables.addClass("k-autofitting");
+            tables.css("table-layout", "");
+
+            var newTableWidth = Math.max(headerTable.width(), contentTable.width(), footerTable.width());
+            var newColumnWidth = Math.ceil(Math.max(th.outerWidth(), contentTable.find("tr").eq(0).children("td:visible").eq(index).outerWidth(), footerTable.find("tr").eq(0).children("td:visible").eq(index).outerWidth()));
+
+            col.width(newColumnWidth);
+            column.width = newColumnWidth;
+
+            // if all visible columns have widths, the table needs a pixel width as well
+            if (options.scrollable) {
+                var cols = headerTable.find("col"),
+                    colWidth,
+                    totalWidth = 0;
+                for (var idx = 0, length = cols.length; idx < length; idx += 1) {
+                    colWidth = cols[idx].style.width;
+                    if (colWidth && colWidth.indexOf("%") == -1) {
+                        totalWidth += parseInt(colWidth, 10);
+                    } else {
+                        totalWidth = 0;
+                        break;
+                    }
+                }
+
+                if (totalWidth) {
+                    tables.each(function () {
+                        this.style.width = totalWidth + "px";
+                    });
+                }
+            }
+
+            if (browser.msie && browser.version == 8) {
+                tables.css("display", "inline-table");
+                setTimeout(function () {
+                    tables.css("display", "table");
+                }, 1);
+            }
+
+            tables.removeClass("k-autofitting");
+
+            that.trigger(COLUMNRESIZE, {
+                column: column,
+                oldWidth: oldColumnWidth,
+                newWidth: newColumnWidth
+            });
+
+            that._applyLockedContainersWidth();
+            that._syncLockedContentHeight();
+            that._syncLockedHeaderHeight();
+        },
+
+        _adjustLockedHorizontalScrollBar: function() {
+            var table = this.table,
+                content = table.parent();
+
+            var scrollbar = table[0].offsetWidth > content[0].clientWidth ? kendo.support.scrollbar() : 0;
+            this.lockedContent.height(content.height() - scrollbar);
+        },
+
+        _syncLockedContentHeight: function() {
+            if (this.lockedTable) {
+                if (!this._touchScroller) {
+                    this._adjustLockedHorizontalScrollBar();
+                }
+                this._adjustRowsHeight(this.table, this.lockedTable);
+            }
+        },
+
+        _syncLockedHeaderHeight: function() {
+            if (this.lockedHeader) {
+                var lockedTable = this.lockedHeader.children("table");
+                var table = this.thead.parent();
+
+                this._adjustRowsHeight(lockedTable, table);
+
+                syncTableHeight(lockedTable, table);
+            }
         },
 
         _resizable: function() {

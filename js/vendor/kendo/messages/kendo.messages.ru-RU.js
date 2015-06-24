@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -166,6 +166,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "canceledit": "Отмена",
     "update": "Обновить",
     "edit": "Изменить",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "select": "Выбрать",
     "cancel": "Отменить изменения",
     "save": "Сохранить изменения"
@@ -174,7 +176,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "confirmation": "Вы уверены, что хотите удалить эту запись?",
     "cancelDelete": "Отмена",
     "confirmDelete": "Удалить"
-  }
+  },
+  "noRecords": "Нет записей доступны."
 });
 }
 

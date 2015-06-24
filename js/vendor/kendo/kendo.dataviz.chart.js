@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -988,6 +988,7 @@
                 tooltipOptions = chart.options.tooltip,
                 point;
 
+
             if (chart._suppressHover || !highlight || highlight.isHighlighted(element) || chart._sharedTooltip()) {
                 return;
             }
@@ -1761,8 +1762,8 @@
                     text.options.align = CENTER;
                     if (aboveAxis) {
                         targetBox = new Box2D(
-                            targetBox.x2 + box.width(), targetBox.y1,
-                            targetBox.x2, targetBox.y2
+                            targetBox.x2, targetBox.y1,
+                            targetBox.x2 + box.width(), targetBox.y2
                         );
                     } else {
                         targetBox = new Box2D(
@@ -7373,7 +7374,7 @@
         },
 
         highlightVisual: function() {
-            return this.visual;
+            return this.visual.children[0];
         },
 
         highlightVisualArgs: function() {
@@ -8881,6 +8882,7 @@
 
                 if (i !== 0 && yAnchor.pane === axis.pane) {
                     axis.alignTo(yAnchor);
+                    axis.reflow(axis.box);
                 }
             }
 
@@ -8924,6 +8926,7 @@
 
                 if (i !== 0) {
                     axis.alignTo(xAnchor);
+                    axis.reflow(axis.box);
                 }
             }
         },
@@ -8946,18 +8949,21 @@
                 }
             }
 
-            for (i = 0; i < axes.length; i++) {
-                currentAxis = axes[i];
+            if (overflowX !== 0) {
+                for (i = 0; i < axes.length; i++) {
+                    currentAxis = axes[i];
 
-                if (!currentAxis.options.vertical) {
-                    currentAxis.reflow(currentAxis.box.shrink(overflowX, 0));
+                    if (!currentAxis.options.vertical) {
+                        currentAxis.reflow(currentAxis.box.shrink(overflowX, 0));
+                    }
                 }
             }
         },
 
         shrinkAxisHeight: function(panes) {
             var i, currentPane, axes,
-                overflowY, j, currentAxis;
+                overflowY, j, currentAxis,
+                shrinked;
 
             for (i = 0; i < panes.length; i++) {
                 currentPane = panes[i];
@@ -8967,16 +8973,21 @@
                     axisGroupBox(axes).height() - currentPane.contentBox.height()
                 );
 
-                for (j = 0; j < axes.length; j++) {
-                    currentAxis = axes[j];
+                if (overflowY !== 0) {
+                    for (j = 0; j < axes.length; j++) {
+                        currentAxis = axes[j];
 
-                    if (currentAxis.options.vertical) {
-                        currentAxis.reflow(
-                            currentAxis.box.shrink(0, overflowY)
-                        );
+                        if (currentAxis.options.vertical) {
+                            currentAxis.reflow(
+                                currentAxis.box.shrink(0, overflowY)
+                            );
+                        }
                     }
+                    shrinked = true;
                 }
             }
+
+            return shrinked;
         },
 
         fitAxes: function(panes) {
@@ -9031,10 +9042,46 @@
             if (axes.x.length > 0 && axes.y.length > 0) {
                 plotArea.alignAxes(axes.x, axes.y);
                 plotArea.shrinkAxisWidth(panes);
+
+                plotArea.autoRotateAxisLabels(axes);
+
                 plotArea.alignAxes(axes.x, axes.y);
+                if (plotArea.shrinkAxisWidth(panes)) {
+                    plotArea.alignAxes(axes.x, axes.y);
+                }
+
                 plotArea.shrinkAxisHeight(panes);
                 plotArea.alignAxes(axes.x, axes.y);
+
+                if (plotArea.shrinkAxisHeight(panes)) {
+                    plotArea.alignAxes(axes.x, axes.y);
+                }
+
                 plotArea.fitAxes(panes);
+            }
+        },
+
+        autoRotateAxisLabels: function(groupedAxes) {
+            var axes = this.axes;
+            var panes = this.panes;
+            var axis, idx, rotated;
+
+            for (idx = 0; idx < axes.length; idx++) {
+                axis = axes[idx];
+                if (axis.autoRotateLabels()) {
+                    rotated = true;
+                }
+            }
+
+            if (rotated) {
+                for (idx = 0; idx < panes.length; idx++) {
+                    this.reflowPaneAxes(panes[idx]);
+                }
+
+                if (groupedAxes.x.length > 0 && groupedAxes.y.length > 0) {
+                    this.alignAxes(groupedAxes.x, groupedAxes.y);
+                    this.shrinkAxisWidth(panes);
+                }
             }
         },
 
@@ -10442,7 +10489,7 @@
                 element = tooltip.element,
                 offset;
 
-            if (!tooltip.anchor) {
+            if (!tooltip.anchor || !tooltip.element) {
                 return;
             }
 
@@ -10451,6 +10498,7 @@
                 element.css({ top: offset.top, left: offset.left });
             }
 
+            tooltip.visible = true;
             tooltip._ensureElement(document.body);
             element
                 .stop(true, true)
@@ -10459,8 +10507,6 @@
                     left: offset.left,
                     top: offset.top
                 }, options.animation.duration);
-
-            tooltip.visible = true;
         },
 
         _clearShowTimeout: function() {
@@ -10588,10 +10634,14 @@
         },
 
         _hideElement: function() {
-            if (this.element) {
-                this.element.fadeOut({
+            var tooltip = this;
+            var element = this.element;
+            if (element) {
+                element.fadeOut({
                     always: function(){
-                        $(this).off(MOUSELEAVE_NS).remove();
+                        if (!tooltip.visible) {
+                            element.off(MOUSELEAVE_NS).remove();
+                        }
                     }
                 });
             }
@@ -12102,7 +12152,7 @@
 
         if (length > 0) {
             for (i = 0; i < length; i++) {
-                axisBox = axes[i].box;
+                axisBox = axes[i].contentBox();
 
                 if (!box) {
                     box = axisBox.clone();

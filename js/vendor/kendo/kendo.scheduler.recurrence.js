@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -1391,6 +1391,7 @@
 
         if (until) {
             until = timezone.convert(until, zone || until.getTimezoneOffset(), "Etc/UTC");
+
             ruleString += ";UNTIL=" + kendo.toString(until, "yyyyMMddTHHmmssZ");
         }
 
@@ -1892,9 +1893,11 @@
 
             that._until = input.kendoDatePicker({
                 min: until && until < start ? until : start,
-                value: until || start,
+                value: until || new Date(start.getFullYear(), start.getMonth(), start.getDate(), 23, 59, 59),
                 change: function() {
-                    rule.until = this.value();
+                    var date  = this.value();
+
+                    rule.until =  new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
                     that._trigger();
                 }
             }).data("kendoDatePicker");

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -33,6 +33,7 @@
         map = $.map,
         noop = $.noop,
         indexOf = $.inArray,
+        isPlainObject = $.isPlainObject,
         trim = $.trim,
         math = Math,
         deepExtend = kendo.deepExtend;
@@ -1336,29 +1337,36 @@
 
         reflow: function(targetBox) {
             var options = this.options;
-            var visual = options.visual;
-            var align = options.align;
-            var rotation = options.rotation;
-            this.container.options.align = align;
+            var visualFn = options.visual;
+            this.container.options.align = options.align;
 
-            if (visual && !this._boxReflow) {
-                this.visual = visual(this.visualContext(targetBox));
+            if (visualFn && !this._boxReflow) {
+                if (!targetBox.hasSize()) {
+                    this._boxReflow = true;
+                    this.reflow(targetBox);
+                    this._boxReflow = false;
+                    targetBox = this.box;
+                }
+                this.visual = visualFn(this.visualContext(targetBox));
 
                 var visualBox = targetBox;
                 if (this.visual) {
                     visualBox = rectToBox(this.visual.clippedBBox() || new geom.Rect());
+
+                    this.visual.options.zIndex = options.zIndex;
+                    this.visual.options.noclip = options.noclip;
                 }
+
                 this.box = this.contentBox = this.paddingBox = visualBox;
             } else {
                 BoxElement.fn.reflow.call(this, targetBox);
 
-                if (rotation) {
+                if (options.rotation) {
                     var margin = getSpacing(options.margin);
                     var box = this.box.unpad(margin);
+                    this.targetBox = targetBox;
                     this.normalBox = box.clone();
-                    box.rotate(rotation);
-                    this.align(targetBox, X, align);
-                    this.align(targetBox, Y, options.vAlign);
+                    box = this.rotate();
                     box.translate(margin.left - margin.right, margin.top - margin.bottom);
                     this.rotatedBox = box.clone();
                     box.pad(margin);
@@ -1388,6 +1396,7 @@
         renderVisual: function() {
             if (this.options.visual) {
                 this.addVisual();
+                this.createAnimation();
             } else {
                 BoxElement.fn.renderVisual.call(this);
             }
@@ -1428,6 +1437,14 @@
             var visual = this.visual;
             delete this.visual;
             return visual;
+        },
+
+        rotate: function() {
+            var options = this.options;
+            this.box.rotate(options.rotation);
+            this.align(this.targetBox, X, options.align);
+            this.align(this.targetBox, Y, options.vAlign);
+            return this.box;
         },
 
         rotationTransform: function() {
@@ -1526,6 +1543,70 @@
                 dataItem: label.dataItem,
                 axis: label.parent.options
             });
+        },
+
+        rotate: function() {
+            if (this.options.alignRotation != CENTER) {
+                var box = this.normalBox.toRect();
+                var transform = this.rotationTransform();
+                this.box = rectToBox(box.bbox(transform.matrix()));
+            } else {
+                TextBox.fn.rotate.call(this);
+            }
+            return this.box;
+        },
+
+        rotationTransform: function() {
+            var options = this.options;
+            var rotation = options.rotation;
+            if (!rotation) {
+                return null;
+            }
+
+            if (options.alignRotation == CENTER) {
+                return TextBox.fn.rotationTransform.call(this);
+            }
+
+            var rotationMatrix = geom.transform().rotate(rotation).matrix();
+            var box = this.normalBox.toRect();
+            var rect = this.targetBox.toRect();
+
+            var rotationOrigin = options.rotationOrigin || TOP;
+            var alignAxis = rotationOrigin == TOP || rotationOrigin == BOTTOM ? X : Y;
+            var distanceAxis = rotationOrigin == TOP || rotationOrigin == BOTTOM ? Y : X;
+            var axisAnchor = rotationOrigin == TOP || rotationOrigin == LEFT ? rect.origin : rect.bottomRight();
+
+            var topLeft = box.topLeft().transformCopy(rotationMatrix);
+            var topRight = box.topRight().transformCopy(rotationMatrix);
+            var bottomRight = box.bottomRight().transformCopy(rotationMatrix);
+            var bottomLeft = box.bottomLeft().transformCopy(rotationMatrix);
+            var rotatedBox = geom.Rect.fromPoints(topLeft, topRight, bottomRight, bottomLeft);
+
+            var translate = {};
+            translate[distanceAxis] = rect.origin[distanceAxis] - rotatedBox.origin[distanceAxis];
+
+            var distanceLeft = math.abs(topLeft[distanceAxis] + translate[distanceAxis] - axisAnchor[distanceAxis]);
+            var distanceRight = math.abs(topRight[distanceAxis] + translate[distanceAxis] - axisAnchor[distanceAxis]);
+            var alignStart;
+            var alignEnd;
+
+            if (round(distanceLeft, DEFAULT_PRECISION) === round(distanceRight, DEFAULT_PRECISION)) {
+                alignStart = topLeft;
+                alignEnd = topRight;
+            } else if (distanceRight < distanceLeft) {
+                alignStart = topRight;
+                alignEnd = bottomRight;
+            } else {
+                alignStart = topLeft;
+                alignEnd = bottomLeft;
+            }
+
+            var alignCenter = alignStart[alignAxis] + (alignEnd[alignAxis] - alignStart[alignAxis]) / 2;
+            translate[alignAxis] = rect.center()[alignAxis] - alignCenter;
+
+            return geom.transform()
+                .translate(translate.x, translate.y)
+                .rotate(rotation);
         }
     });
 
@@ -1706,8 +1787,19 @@
 
             if (labelOptions.visible) {
                 var labelsCount = axis.labelsCount(),
+                    rotation = labelOptions.rotation,
                     label,
                     i;
+
+                if (isPlainObject(rotation)) {
+                    labelOptions.alignRotation = rotation.align;
+                    labelOptions.rotation = rotation.angle;
+                }
+
+                if (labelOptions.rotation == "auto") {
+                    labelOptions.rotation = 0;
+                    options.autoRotateLabels = true;
+                }
 
                 for (i = labelOptions.skip; i < labelsCount; i += step) {
                     label = axis.createAxisLabel(i, labelOptions);
@@ -1730,17 +1822,11 @@
                 mirror = options.labels.mirror,
                 axisX = mirror ? box.x1 : box.x2,
                 axisY = mirror ? box.y2 : box.y1,
-                startMargin = 0,
-                endMargin = options.line.width;
-
-            if (justified && labels.length > 1) {
-                startMargin = labels[0].box[labelSize]() / 2;
-                endMargin = last(labels).box[labelSize]() / 2;
-            }
+                lineWidth = options.line.width || 0;
 
             return vertical ?
-                Box2D(axisX, box.y1 + startMargin, axisX, box.y2 - endMargin) :
-                Box2D(box.x1 + startMargin, axisY, box.x2 - endMargin, axisY);
+                Box2D(axisX, box.y1, axisX, box.y2 - lineWidth) :
+                Box2D(box.x1, axisY, box.x2 - lineWidth, axisY);
         },
 
         createTitle: function() {
@@ -2097,8 +2183,10 @@
 
                     if (mirror) {
                         labelX += labelOffset;
+                        label.options.rotationOrigin = LEFT;
                     } else {
                         labelX -= labelOffset + label.box.width();
+                        label.options.rotationOrigin = RIGHT;
                     }
 
                     labelBox = label.box.move(labelX, labelPos);
@@ -2115,8 +2203,10 @@
 
                     if (mirror) {
                         labelY -= labelOffset + label.box.height();
+                        label.options.rotationOrigin = BOTTOM;
                     } else {
                         labelY += labelOffset;
+                        label.options.rotationOrigin = TOP;
                     }
 
                     labelBox = Box2D(firstTickPosition, labelY,
@@ -2124,6 +2214,34 @@
                 }
 
                 label.reflow(labelBox);
+            }
+        },
+
+        autoRotateLabels: function() {
+            if (this.options.autoRotateLabels && !this.options.vertical) {
+                var tickPositions = this.getMajorTickPositions();
+                var labels = this.labels;
+                var labelBox, angle, width, idx;
+                for (idx = 0; idx < labels.length; idx++) {
+                    width = tickPositions[idx + 1] - tickPositions[idx];
+                    labelBox = labels[idx].box;
+                    if (labelBox.height() > width) {
+                        angle = -90;
+                        break;
+                    }
+
+                    if (labelBox.width() > width) {
+                        angle = -45;
+                    }
+                }
+
+                if (angle) {
+                    for (idx = 0; idx < labels.length; idx++) {
+                        labels[idx].options.rotation = angle;
+                        labels[idx].reflow(Box2D());
+                    }
+                    return true;
+                }
             }
         },
 
@@ -2208,6 +2326,14 @@
             if (slot) {
                 return slot.toRect();
             }
+        },
+
+        contentBox: function() {
+            var box = this.box.clone();
+            if (this.labels.length) {
+                box.wrap(this.labels[0].box).wrap(last(this.labels).box);
+            }
+            return box;
         }
     });
 
@@ -2611,6 +2737,9 @@
                 visible: true,
                 width: 1,
                 color: BLACK
+            },
+            labels: {
+                format: "#.####################"
             },
             zIndex: 1
         },

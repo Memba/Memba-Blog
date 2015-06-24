@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -83,6 +83,7 @@
             cursorOffset: null,
             axis: null,
             ignore: null,
+            autoScroll: false,
             cursor: "auto"
         },
 
@@ -104,6 +105,7 @@
                 cursorOffset: options.cursorOffset,
                 axis: options.axis,
                 ignore: options.ignore,
+                autoScroll: options.autoScroll,
                 dragstart: $.proxy(that._dragstart, that),
                 dragcancel: $.proxy(that._dragcancel, that),
                 drag: $.proxy(that._drag, that),

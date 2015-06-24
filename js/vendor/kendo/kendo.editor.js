@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -46,7 +46,7 @@
         buttonTemplate:
             '<a href="" role="button" class="k-tool"' +
             '#= data.popup ? " data-popup" : "" #' +
-            ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= data.cssClass #">#= data.title #</span></a>',
+            ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= data.cssClass #"></span><span class="k-tool-text">#= data.title #</span></a>',
 
         colorPickerTemplate:
             '<div class="k-colorpicker #= data.cssClass #" />',
@@ -59,6 +59,10 @@
 
         separatorTemplate:
             '<span class="k-separator" />',
+
+        overflowAnchorTemplate:
+            '<a href="" role="button" class="k-tool k-overflow-anchor" data-popup' +
+            ' unselectable="on"><span unselectable="on" class="k-icon k-i-more"></span></a>',
 
         formatByName: function(name, format) {
             for (var i = 0; i < format.length; i++) {
@@ -260,6 +264,8 @@
                 .on("mousedown", proxy(that._endTyping, that))
                 .on("mouseup", proxy(that._mouseup, that));
 
+            that.toolbar.resize();
+
             kendo.notify(that);
         },
 
@@ -286,7 +292,9 @@
         },
 
         _resizable: function() {
-            if (this.options.resizable && this.textarea) {
+            var resizable = this.options.resizable;
+            var isResizable = $.isPlainObject(resizable) ? (resizable.content === undefined || resizable.content === true) : resizable;
+            if (isResizable && this.textarea) {
                 $("<div class='k-resize-handle'><span class='k-icon k-resize-se' /></div>")
                     .insertAfter(this.textarea);
 
@@ -492,6 +500,10 @@
                 .on("keydown" + NS, function (e) {
                     var range;
 
+                    if ((e.keyCode === keys.BACKSPACE || e.keyCode === keys.DELETE) && editor.body.getAttribute("contenteditable") !== "true") {
+                        return false;
+                    }
+
                     if (e.keyCode === keys.F10) {
                         // Handling with timeout to avoid the default IE menu
                         setTimeout(proxy(editor.toolbar.focus, editor.toolbar), 100);
@@ -627,6 +639,7 @@
             formats: {},
             encoded: true,
             domain: null,
+            resizable: false,
             serialization: {
                 entities: true,
                 semantic: true,
@@ -851,9 +864,9 @@
         },
 
         exec: function (name, params) {
-            var that = this,
-                range,
-                tool, command = null;
+            var that = this;
+            var command = null;
+            var range, tool, prevented;
 
             if (!name) {
                 throw new Error("kendoEditor.exec(): `name` parameter cannot be empty");
@@ -889,7 +902,11 @@
                     command = tool.command(extend({ range: range }, params));
                 }
 
-                that.trigger("execute", { name: name, command: command });
+                prevented = that.trigger("execute", { name: name, command: command });
+
+                if (prevented) {
+                    return;
+                }
 
                 if (/^(undo|redo)$/i.test(name)) {
                     that.undoRedoStack[name]();
@@ -1408,14 +1425,10 @@ var Dom = {
             elementTop, elementHeight,
             scrollContainer = Dom.scrollContainer(node.ownerDocument);
 
-        if (Dom.name(element[0]) == "br") {
-            element = element.parent();
-        }
-
         elementTop = element.offset().top;
         elementHeight = element[0].offsetHeight;
 
-        if (Dom.is(element[0], "p")) {
+        if (!elementHeight) {
             elementHeight = parseInt(element.css("line-height"), 10) ||
                             Math.ceil(1.2 * parseInt(element.css("font-size"), 10)) ||
                             15;
@@ -3738,8 +3751,7 @@ var InsertHtmlTool = Tool.extend({
 
 var UndoRedoStack = Class.extend({
     init: function() {
-        this.stack = [];
-        this.currentCommandIndex = -1;
+        this.clear();
     },
 
     push: function (command) {
@@ -3757,6 +3769,11 @@ var UndoRedoStack = Class.extend({
         if (this.canRedo()) {
             this.stack[++this.currentCommandIndex].redo();
         }
+    },
+
+    clear: function() {
+        this.stack = [];
+        this.currentCommandIndex = -1;
     },
 
     canUndo: function () {
@@ -3875,6 +3892,7 @@ var BackspaceHandler = Class.extend({
         var ancestor = range.commonAncestorContainer;
         var table = dom.closest(ancestor, "table");
         var emptyParagraphContent = editorNS.emptyElementContent;
+        var result = false;
 
         if (/t(able|body)/i.test(dom.name(ancestor))) {
             range.selectNode(table);
@@ -3885,6 +3903,7 @@ var BackspaceHandler = Class.extend({
         if (table && $(table).text() === "") {
             range.selectNode(table);
             range.deleteContents();
+            result = true;
         }
 
         ancestor = range.commonAncestorContainer;
@@ -3894,9 +3913,11 @@ var BackspaceHandler = Class.extend({
             range.setStart(ancestor, 0);
             range.collapse(true);
             this.editor.selectRange(range);
+
+            result = true;
         }
 
-        return true;
+        return result;
     },
     keydown: function(e) {
         var method, startRestorePoint;
@@ -4086,6 +4107,7 @@ var Clipboard = Class.extend({
         this.editor = editor;
         this.cleaners = [
             new ScriptCleaner(),
+            new TabCleaner(),
             new MSWordFormatCleaner(),
             new WebkitFormatCleaner()
         ];
@@ -4402,6 +4424,21 @@ var ScriptCleaner = Cleaner.extend({
     }
 });
 
+var TabCleaner = Cleaner.extend({
+    init: function() {
+        var replacement = ' ';
+        this.replacements = [
+            /<span\s+class="Apple-tab-span"[^>]*>\s*<\/span>/gi, replacement,
+            /\t/gi, replacement,
+            /&nbsp;&nbsp; &nbsp;/gi, replacement
+        ];
+    },
+
+    applicable: function(html) {
+        return (/&nbsp;&nbsp; &nbsp;|class="?Apple-tab-span/i).test(html);
+    }
+});
+
 var MSWordFormatCleaner = Cleaner.extend({
     init: function() {
         this.replacements = [
@@ -4420,6 +4457,7 @@ var MSWordFormatCleaner = Cleaner.extend({
             /(&nbsp;|<br[^>]*>)+\s*$/gi, '',
             /mso-[^;"]*;?/ig, '', /* office-related CSS attributes */
             /<(\/?)b(\s[^>]*)?>/ig, '<$1strong$2>',
+            /<(\/?)font(\s[^>]*)?>/ig, this.convertFontMatch,
             /<(\/?)i(\s[^>]*)?>/ig, '<$1em$2>',
             /<o:p>&nbsp;<\/o:p>/ig, '&nbsp;',
             /<\/?(meta|link|style|o:|v:|x:)[^>]*>((?:.|\n)*?<\/(meta|link|style|o:|v:|x:)[^>]*>)?/ig, '', /* external references and namespaced tags */
@@ -4429,8 +4467,24 @@ var MSWordFormatCleaner = Cleaner.extend({
         ];
     },
 
+    convertFontMatch: function(match, closing, args) {
+        var faceRe = /face=['"]([^'"]+)['"]/i;
+        var face = faceRe.exec(args);
+        var family = args && face && face[1];
+
+        if (closing) {
+            return '</span>';
+        } else if (family) {
+            return '<span style="font-family:' + family + '">';
+        } else {
+            return '<span>';
+        }
+    },
+
     applicable: function(html) {
-        return (/class="?Mso|style="[^"]*mso-/i).test(html) || (/urn:schemas-microsoft-com:office/).test(html);
+        return (/class="?Mso/i).test(html) ||
+               (/style="[^"]*mso-/i).test(html) ||
+               (/urn:schemas-microsoft-com:office/).test(html);
     },
 
     stripEmptyAnchors: function(html) {
@@ -4755,6 +4809,7 @@ extend(editorNS, {
     Keyboard: Keyboard,
     Clipboard: Clipboard,
     Cleaner: Cleaner,
+    TabCleaner: TabCleaner,
     MSWordFormatCleaner: MSWordFormatCleaner,
     WebkitFormatCleaner: WebkitFormatCleaner,
     PrintCommand: PrintCommand,
@@ -7630,7 +7685,7 @@ var FormattingTool = DelayedExecutionTool.extend({
             i, context,
             ancestor = dom.commonAncestor.apply(null, nodes);
 
-        if (this._ancestor == ancestor) {
+        if (ancestor != dom.closestEditable(ancestor) && this._ancestor == ancestor) {
             return;
         } else {
             this._ancestor = ancestor;
@@ -7722,9 +7777,42 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
     var proxy = $.proxy;
     var keys = kendo.keys;
     var NS = ".kendoEditor";
+    var EditorUtils = kendo.ui.editor.EditorUtils;
+    var ToolTemplate = kendo.ui.editor.ToolTemplate;
+    var Tool = kendo.ui.editor.Tool;
 
-    var focusable = "a.k-tool:not(.k-state-disabled)," +
-                    ".k-widget.k-colorpicker,.k-selectbox,.k-dropdown,.k-combobox .k-input";
+    var focusable = ".k-tool-group:visible a.k-tool:not(.k-state-disabled)," +
+                    ".k-tool.k-overflow-anchor," +
+                    ".k-tool-group:visible .k-widget.k-colorpicker," +
+                    ".k-tool-group:visible .k-selectbox," +
+                    ".k-tool-group:visible .k-dropdown," +
+                    ".k-tool-group:visible .k-combobox .k-input";
+
+    var OverflowAnchorTool = Tool.extend({
+        initialize: function(ui, options) {
+            ui.attr({ unselectable: "on" });
+
+            var toolbar = options.editor.toolbar;
+            ui.on("click", $.proxy(function() {
+                this.overflowPopup.toggle();
+            }, toolbar));
+        },
+
+        options: {
+            name: "overflowAnchor"
+        },
+
+        command: $.noop,
+        update: $.noop,
+        destroy: $.noop
+
+    });
+
+    EditorUtils.registerTool("overflowAnchor", new OverflowAnchorTool({
+        key: "",
+        ctrl: true,
+        template: new ToolTemplate({ template: EditorUtils.overflowAnchorTemplate })
+    }));
 
     var Toolbar = Widget.extend({
         init: function(element, options) {
@@ -7736,6 +7824,14 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
             if (options.popup) {
                 that._initPopup();
+            }
+
+            if (options.resizable && options.resizable.toolbar) {
+                that._resizeHandler = kendo.onResize(function() {
+                    that.resize();
+                });
+
+                that.element.addClass("k-toolbar-resizable");
             }
         },
 
@@ -7750,8 +7846,12 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
             links: ["insertImage", "insertFile", "createLink", "unlink"],
             lists: ["insertUnorderedList", "insertOrderedList", "indent", "outdent"],
             tables: [ "createTable", "addColumnLeft", "addColumnRight", "addRowAbove", "addRowBelow", "deleteRow", "deleteColumn" ],
-            advanced: [ "viewHtml", "cleanFormatting", "print", "pdf" ]
+            advanced: [ "viewHtml", "cleanFormatting", "print", "pdf" ],
+            fonts: [ "fontName", "fontSize" ],
+            colors: [ "foreColor", "backColor" ]
         },
+
+        overflowFlaseTools: [ "formatting", "fontName", "fontSize", "foreColor", "backColor" ],
 
         _initPopup: function() {
             this.window = $(this.element)
@@ -7784,8 +7884,44 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
                 .data("kendoWindow");
         },
 
+        _toggleOverflowStyles: function(element, show) {
+            element
+                .find("li").toggleClass("k-item k-state-default", show)
+                .find(".k-tool:not(.k-state-disabled),.k-overflow-button").toggleClass("k-overflow-button k-button", show);
+        },
+
+        _initOverflowPopup: function(ui) {
+            var that = this;
+            var popupTemplate = "<ul class='k-editor-overflow-popup k-overflow-container k-list-container'></ul>";
+
+            that.overflowPopup = $(popupTemplate).appendTo("body").kendoPopup({
+                anchor: ui,
+                origin: "bottom right",
+                position: "top right",
+                copyAnchorStyles: false,
+                open: function(e) {
+                    if (this.element.is(":empty")) {
+                        e.preventDefault();
+                    }
+
+                    that._toggleOverflowStyles(this.element, true);
+                },
+                activate: proxy(that.focusOverflowPopup, that)
+            }).data("kendoPopup");
+        },
+
         items: function() {
-            return this.element.children().find("> *, select");
+            var isResizable = this.options.resizable && this.options.resizable.toolbar,
+                popup, result;
+
+            result = this.element.children().find("> *, select");
+
+            if (isResizable) {
+                popup = this.overflowPopup;
+                result = result.add(popup.element.children().find("> *"));
+            }
+
+            return result;
         },
 
         focused: function() {
@@ -7822,10 +7958,14 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
             // detach from editor that was previously listened to
             if (that._editor) {
-                that._editor.unbind("select", proxy(that.refreshTools, that));
+                that._editor.unbind("select", proxy(that.resize, that));
             }
 
             that._editor = editor;
+
+            if (that.options.resizable && that.options.resizable.toolbar) {
+                editor.options.tools.push("overflowAnchor");
+            }
 
             // re-initialize the tools
             that.tools = that.expandTools(editor.options.tools);
@@ -7847,9 +7987,9 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
             that._attachEvents();
 
-            that.items().each(function initializeTool() {
+            that.items().each(function initializeTool(x, y) {
                 var toolName = that._toolName(this),
-                    tool = that.tools[toolName],
+                    tool = toolName !== "more" ? that.tools[toolName] : that.tools.overflowAnchor,
                     options = tool && tool.options,
                     messages = editor.options.messages,
                     description = options && options.tooltip || messages[toolName],
@@ -7876,7 +8016,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
                 ui.closest(".k-colorpicker", that.element).next(".k-colorpicker").addClass("k-editor-widget");
             });
 
-            editor.bind("select", proxy(that.refreshTools, that));
+            editor.bind("select", proxy(that.resize, that));
 
             that.update();
 
@@ -7927,6 +8067,21 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
             var tabIndex = this._editor.element.attr(TABINDEX);
 
             // Chrome can't focus something which has already been focused
+            element.attr(TABINDEX, tabIndex || 0).focus()
+                .find(focusable).first().focus();
+
+            if (!tabIndex && tabIndex !== 0) {
+                element.removeAttr(TABINDEX);
+            }
+        },
+
+        focusOverflowPopup: function() {
+            var TABINDEX = "tabIndex";
+            var element = this.overflowPopup.element;
+            var tabIndex = this._editor.element.attr(TABINDEX);
+
+            element.closest(".k-animation-container").addClass("k-overflow-wrapper");
+
             element.attr(TABINDEX, tabIndex || 0).focus()
                 .find(focusable).first().focus();
 
@@ -8034,7 +8189,10 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
                 groupName, newGroupName,
                 toolConfig = that._editor.options.tools,
                 browser = kendo.support.browser,
-                group, i;
+                group, i, groupPosition = 0,
+                resizable = that.options.resizable && that.options.resizable.toolbar,
+                overflowFlaseTools = this.overflowFlaseTools,
+                overflow;
 
             function stringify(template) {
                 var result;
@@ -8054,17 +8212,30 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
             function endGroup() {
                 if (group.children().length) {
+                    if (resizable) {
+                        group.data("position", groupPosition);
+                        groupPosition++;
+                    }
+
                     group.appendTo(element);
                 }
             }
 
-            function startGroup() {
-                group = $("<li class='k-tool-group' role='presentation' />");
+            function startGroup(toolName) {
+                if (toolName !== "overflowAnchor") {
+                    group = $("<li class='k-tool-group' role='presentation' />");
+                    group.data("overflow", $.inArray(toolName, overflowFlaseTools) === -1 ? true : false);
+                } else {
+                    group = $("<li class='k-overflow-tools' />");
+                }
             }
 
             element.empty();
 
-            startGroup();
+            if (toolConfig.length) {
+                toolName = toolConfig[0].name || toolConfig[0];
+            }
+            startGroup(toolName, overflowFlaseTools);
 
             for (i = 0; i < toolConfig.length; i++) {
                 toolName = toolConfig[i].name || toolConfig[i];
@@ -8079,7 +8250,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
                 if (toolName == "break") {
                     endGroup();
                     $("<li class='k-row-break' />").appendTo(that.element);
-                    startGroup();
+                    startGroup(toolName, overflowFlaseTools);
                 }
 
                 if (!template) {
@@ -8090,7 +8261,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
                 if (groupName != newGroupName) {
                     endGroup();
-                    startGroup();
+                    startGroup(toolName, overflowFlaseTools);
                     groupName = newGroupName;
                 }
 
@@ -8100,7 +8271,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
                 if (newGroupName == "custom") {
                     endGroup();
-                    startGroup();
+                    startGroup(toolName, overflowFlaseTools);
                 }
 
                 if (options.exec && toolElement.hasClass("k-tool")) {
@@ -8118,6 +8289,10 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
             that.updateGroups();
 
+            if (resizable) {
+                that._initOverflowPopup(that.element.find(".k-overflow-anchor"));
+            }
+
             that.angular("compile", function(){
                 return { elements: that.element };
             });
@@ -8126,7 +8301,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
         updateGroups: function() {
             $(this.element).children().each(function() {
                 $(this).children().filter(function(){
-                    return this.style.display !== "none";
+                    return !$(this).hasClass("k-state-disabled");
                 })
                     .removeClass("k-group-end")
                     .first().addClass("k-group-start").end()
@@ -8159,15 +8334,25 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
             if (this.window) {
                 this.window.destroy();
             }
+
+            if (this._resizeHandler) {
+                kendo.unbindResize(this._resizeHandler);
+            }
+
+            if (this.overflowPopup) {
+                this.overflowPopup.destroy();
+            }
         },
 
         _attachEvents: function() {
             var that = this,
                 buttons = "[role=button].k-tool",
                 enabledButtons = buttons + ":not(.k-state-disabled)",
-                disabledButtons = buttons + ".k-state-disabled";
+                disabledButtons = buttons + ".k-state-disabled",
+                popupElement = that.overflowPopup ? that.overflowPopup.element : $([]);
 
             that.element
+                .add(popupElement)
                 .off(NS)
                 .on("mouseenter" + NS, enabledButtons, function() { $(this).addClass("k-state-hover"); })
                 .on("mouseleave" + NS, enabledButtons, function() { $(this).removeClass("k-state-hover"); })
@@ -8176,11 +8361,13 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
                 })
                 .on("keydown" + NS, focusable, function(e) {
                     var current = this;
+                    var resizable = that.options.resizable && that.options.resizable.toolbar;
                     var focusElement,
+                        currentContainer,
                         keyCode = e.keyCode;
 
-                    function move(direction, constrain) {
-                        var tools = that.element.find(focusable);
+                    function move(direction, container, constrain) {
+                        var tools = container.find(focusable);
                         var index = tools.index(current) + direction;
 
                         if (constrain) {
@@ -8192,16 +8379,28 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
                     if (keyCode == keys.RIGHT || keyCode == keys.LEFT) {
                         if (!$(current).hasClass(".k-dropdown")) {
-                            focusElement = move(keyCode == keys.RIGHT ? 1 : -1, true);
+                            focusElement = move(keyCode == keys.RIGHT ? 1 : -1, that.element, true);
                         }
+                    } else if (resizable && (keyCode == keys.UP || keyCode == keys.DOWN)) {
+                        focusElement = move(keyCode == keys.DOWN ? 1 : -1, that.overflowPopup.element, true);
                     } else if (keyCode == keys.ESC) {
+                        if (that.overflowPopup.visible()) {
+                            that.overflowPopup.close();
+                        }
+
                         focusElement = that._editor;
                     } else if (keyCode == keys.TAB && !(e.ctrlKey || e.altKey)) {
+                        if (resizable) {
+                            currentContainer = $(current.parentElement).hasClass("k-overflow-tool-group") ? that.overflowPopup.element : that.element;
+                        } else {
+                            currentContainer = that.element;
+                        }
+
                         // skip tabbing to disabled tools, and focus the editing area when running out of tools
                         if (e.shiftKey) {
-                            focusElement = move(-1);
+                            focusElement = move(-1, currentContainer);
                         } else {
-                            focusElement = move(1);
+                            focusElement = move(1, currentContainer);
 
                             if (!focusElement) {
                                 focusElement = that._editor;
@@ -8240,7 +8439,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
             }
 
             var tool = $.grep(className.split(" "), function (x) {
-                return !/^k-(widget|tool|tool-icon|state-hover|header|combobox|dropdown|selectbox|colorpicker)$/i.test(x);
+                return !/^k-(widget|tool|tool-icon|icon|state-hover|header|combobox|dropdown|selectbox|colorpicker)$/i.test(x);
             });
 
             return tool[0] ? tool[0].substring(tool[0].lastIndexOf("-") + 1) : "custom";
@@ -8267,12 +8466,142 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
         },
 
         update: function() {
-            this.element.children().children().each(function() {
-                var tool = $(this);
-                tool.css("display", tool.hasClass("k-state-disabled") ? "none" : "");
-            });
             this.updateGroups();
+        },
+
+        _resize: function(e) {
+            var containerWidth = e.width;
+            var resizable = this.options.resizable && this.options.resizable.toolbar;
+            var popup = this.overflowPopup;
+
+            this.refreshTools();
+
+            if (!resizable) {
+                return;
+            }
+
+            if (popup.visible()) {
+                popup.close(true);
+            }
+
+            this._refreshWidths();
+
+            this._shrink(containerWidth);
+            this._stretch(containerWidth);
+
+            this._toggleOverflowStyles(this.element, false);
+            this._toggleOverflowStyles(this.overflowPopup.element, true);
+
+            this.element
+                .children("li.k-overflow-tools")
+                .css("visibility", popup.element.is(":empty") ? "hidden" : "visible");
+        },
+
+        _refreshWidths: function() {
+            this.element.children("li").each(function(idx, element) {
+                var group = $(element);
+                group.data("outerWidth", group.outerWidth(true));
+            });
+        },
+
+        _shrink: function(width) {
+            var group, visibleGroups;
+
+            if (width < this._groupsWidth()) {
+                visibleGroups = this._visibleGroups().filter(":not(.k-overflow-tools)");
+
+                for (var i = visibleGroups.length - 1; i >= 0; i--) {
+                    group = visibleGroups.eq(i);
+                    if (width > this._groupsWidth()) {
+                        break;
+                    } else {
+                        this._hideGroup(group);
+                    }
+                }
+            }
+        },
+
+        _stretch: function(width) {
+            var group, hiddenGroups;
+
+            if (width > this._groupsWidth()) {
+                hiddenGroups = this._hiddenGroups();
+
+                for (var i = 0; i < hiddenGroups.length ; i++) {
+                    group = hiddenGroups.eq(i);
+                    if (width < this._groupsWidth() || !this._showGroup(group, width)) {
+                        break;
+                    }
+                }
+            }
+        },
+
+        _hiddenGroups: function() {
+            var popup = this.overflowPopup;
+
+            var hiddenGroups = this.element.children("li.k-tool-group").filter(":hidden");
+
+            hiddenGroups = hiddenGroups.add(popup.element.children("li"));
+
+            hiddenGroups.sort(function(a, b) {
+                return ($(a).data("position") > $(b).data("position")) ? 1 : -1;
+            });
+
+            return hiddenGroups;
+        },
+
+        _visibleGroups: function() {
+            return this.element.children("li.k-tool-group, li.k-overflow-tools").filter(":visible");
+        },
+
+        _groupsWidth: function() {
+            var width = 0;
+
+            this._visibleGroups().each(function() {
+                width += $(this).data("outerWidth");
+            });
+
+            return Math.ceil(width);
+        },
+
+        _hideGroup: function(group) {
+            if (group.data("overflow")) {
+                var popup = this.overflowPopup;
+                group.detach().prependTo(popup.element).addClass("k-overflow-tool-group");
+            } else {
+                group.hide();
+            }
+        },
+
+        _showGroup: function(group, width) {
+            var position, previous;
+
+            if (group.length && width > this._groupsWidth() + group.data("outerWidth")) {
+                if (group.hasClass("k-overflow-tool-group")) {
+                    position = group.data("position");
+
+                    if (position === 0) {
+                        group.detach().prependTo(this.element);
+                    } else {
+                        previous = this.element.children().filter(function(idx, element) {
+                            return $(element).data("position") === position - 1;
+                        });
+
+                        group.detach().insertAfter(previous);
+                    }
+
+                    group.removeClass("k-overflow-tool-group");
+
+                } else {
+                    group.show();
+                }
+
+                return true;
+            }
+
+            return false;
         }
+
     });
 
 $.extend(editorNS, {
@@ -8493,6 +8822,10 @@ var InsertTableTool = PopupTool.extend({
 
     _keydown: function(e) {
         PopupTool.fn._keydown.call(this, e);
+
+        if (!this._popup.visible()) {
+            return;
+        }
 
         var keys = kendo.keys;
         var key = e.keyCode;

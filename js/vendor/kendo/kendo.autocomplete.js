@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -55,7 +55,7 @@
 
     var AutoComplete = List.extend({
         init: function (element, options) {
-            var that = this, wrapper;
+            var that = this, wrapper, disabled;
 
             that.ns = ns;
             options = $.isArray(options) ? { dataSource: options} : options;
@@ -114,6 +114,12 @@
             that._placeholder();
 
             that._initList();
+
+            disabled = $(that.element).parents("fieldset").is(':disabled');
+
+            if (disabled) {
+                that.enable(false);
+            }
 
             kendo.notify(that);
         },
@@ -246,7 +252,7 @@
 
             word = word || that._accessor();
 
-            clearTimeout(that._typing);
+            clearTimeout(that._typingTimeout);
 
             if (separator) {
                 word = wordAtCaret(caret(that.element)[0], word, separator);
@@ -303,6 +309,7 @@
             value = words[wordIndex].substring(0, idx);
 
             if (word) {
+                word = word.toString();
                 idx = word.toLowerCase().indexOf(value.toLowerCase());
                 if (idx > -1) {
                     word = word.substring(idx + value.length);
@@ -408,9 +415,7 @@
 
             that._calculateGroupPadding(that._height(length));
 
-            if (popup.visible()) {
-                popup._position();
-            }
+            popup.position();
 
             if (length) {
                 var current = this.listView.focus();
@@ -428,12 +433,12 @@
                 that._open = false;
                 action = length ? "open" : "close";
 
-                if (that._typing && !isActive) {
+                if (that._typingTimeout && !isActive) {
                     action = "close";
                 }
 
                 popup[action]();
-                that._typing = undefined;
+                that._typingTimeout = undefined;
             }
 
             if (that._touchScroller) {
@@ -442,7 +447,6 @@
 
             that._hideBusy();
             that._makeUnselectable();
-            that._hideBusy();
 
             that.trigger("dataBound");
         },
@@ -536,6 +540,7 @@
                 that.close();
             } else {
                 that._search();
+                that._typing = true;
             }
         },
 
@@ -608,9 +613,9 @@
 
         _search: function () {
             var that = this;
-            clearTimeout(that._typing);
+            clearTimeout(that._typingTimeout);
 
-            that._typing = setTimeout(function () {
+            that._typingTimeout = setTimeout(function () {
                 if (that._prev !== that._accessor()) {
                     that._prev = that._accessor();
                     that.search();

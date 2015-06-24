@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -940,11 +940,17 @@
             var step = math.abs(that.getDiff(plotAreaBox, bbox));
             var min = round(step, COORD_PRECISION);
             var max = round(-step, COORD_PRECISION);
-            var minDiff, midDiff, maxDiff, mid;
+            var minDiff, midDiff, maxDiff, mid, oldDiff;
+            var staleFlag = 0;
             var i = 0;
 
-            while (i < 100) {
-                i++;
+            while (i++ < 100) {
+                staleFlag = (oldDiff === maxDiff) ? (staleFlag + 1) : 0;
+
+                if (staleFlag > 5) {
+                    break;
+                }
+
                 if (min != mid) {
                     minDiff = that.getPlotBox(min, bbox, arc);
                     if (0 <= minDiff && minDiff <= 2) {
@@ -971,6 +977,8 @@
                 if (0 <= midDiff && midDiff <= 2) {
                     break;
                 }
+
+                oldDiff = maxDiff;
 
                 if (midDiff > 0) {
                     max = mid;

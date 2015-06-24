@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,6 +10,7 @@
     define([ "./kendo.core" ], f);
 })(function(){
 
+/* jshint eqnull: true */
 (function($) {
     var kendo = window.kendo,
         ui = kendo.ui,
@@ -218,14 +219,23 @@
         },
 
         _slotByPosition: function(x, y, collections) {
+           var browser = kendo.support.browser;
+
            for (var collectionIndex = 0; collectionIndex < collections.length; collectionIndex++) {
                var collection = collections[collectionIndex];
 
                for (var slotIndex = 0; slotIndex < collection.count(); slotIndex++) {
                    var slot = collection.at(slotIndex);
+                   var width = slot.offsetWidth;
+                   var height = slot.clientHeight;
 
-                   if (x >= slot.offsetLeft && x < slot.offsetLeft + slot.offsetWidth &&
-                       y >= slot.offsetTop && y <= slot.offsetTop + slot.clientHeight) {
+                   if (browser.msie) {
+                       height = slot.clientHeight - 1; //border
+                       width = slot.clientWidth;
+                   }
+
+                   if (x >= slot.offsetLeft && x < slot.offsetLeft + width &&
+                       y >= slot.offsetTop && y <= slot.offsetTop + height) {
                        return slot;
                    }
                }
@@ -1333,7 +1343,9 @@
         current: function(candidate) {
             if (candidate !== undefined) {
                 this._current = candidate;
-                this._scrollTo(candidate, this.content[0]);
+                if (this.content.has(candidate)) {
+                    this._scrollTo(candidate, this.content[0]);
+                }
             } else {
                 return this._current;
             }
@@ -1545,7 +1557,7 @@
                 var field = resource.field;
                 var eventResources = kendo.getter(field)(event);
 
-                if (!eventResources) {
+                if (eventResources == null) {
                     continue;
                 }
 
@@ -1888,8 +1900,8 @@
             }
         },
 
-        _updateEventForMove: function (event) {
-            return;
+        _eventOptionsForMove: function (event) {
+            return {};
         },
 
         _updateEventForResize: function (event) {

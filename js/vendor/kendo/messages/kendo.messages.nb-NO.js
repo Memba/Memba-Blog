@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -197,6 +197,8 @@ if (kendo.ui.Grid) {
             "create": "Legg til post",
             "destroy": "Slett",
             "edit": "Endre",
+            "excel": "Export to Excel",
+            "pdf": "Export to PDF",
             "save": "Lagre",
             "select": "Velg",
             "update": "Oppdater"

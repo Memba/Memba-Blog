@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -36,7 +36,7 @@
         COLLAPSEMEMBER = "collapseMember",
         STATE_EXPANDED = "k-i-arrow-s",
         STATE_COLLAPSED = "k-i-arrow-e",
-        HEADER_TEMPLATE = "#: data.member.caption || data.member.name #",
+        HEADER_TEMPLATE = "<span>#: data.member.caption || data.member.name #</span>",
         KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-#=data.dataItem.value > 0 ? \"open\" : data.dataItem.value < 0 ? \"denied\" : \"hold\"#">#:data.dataItem.value#</span>',
         KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-#=data.dataItem.value > 0 ? \"increase\" : data.dataItem.value < 0 ? \"decrease\" : \"equal\"#">#:data.dataItem.value#</span>',
         DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #',
@@ -617,7 +617,7 @@
                     name = getName(descriptor);
 
                     value = getters[name](dataItem);
-                    value = value !== undefined ? value.toString() : value;
+                    value = (value !== undefined && value !== null) ? value.toString() : value;
 
                     name = name + "&" + value;
 
@@ -693,6 +693,14 @@
             return aggregators;
         },
 
+        _normalizeName: function(name) {
+            if (name.indexOf(" ") !== -1) {
+                name = '["' + name + '"]';
+            }
+
+            return name;
+        },
+
         _buildGetters: function(descriptors) {
             var result = {};
             var descriptor;
@@ -709,7 +717,7 @@
                 if (parts.length > 1) {
                     result[parts[0]] = kendo.getter(parts[0], true);
                 } else {
-                    result[name] = kendo.getter(name, true);
+                    result[name] = kendo.getter(this._normalizeName(name), true);
                 }
             }
 
@@ -968,6 +976,7 @@
             this._measures = normalizeMeasures(measures);
             this._measuresAxis = measuresAxis;
 
+            this._skipNormalize = 0;
             this._axes = {};
         },
 
@@ -1058,7 +1067,9 @@
                 return this._columns;
             }
 
+            this._skipNormalize += 1;
             this._clearAxesData = true;
+
             this._columns = normalizeMembers(val);
             this.query({
                 columns: val,
@@ -1072,7 +1083,9 @@
                 return this._rows;
             }
 
+            this._skipNormalize += 1;
             this._clearAxesData = true;
+
             this._rows = normalizeMembers(val);
 
             this.query({
@@ -1087,7 +1100,9 @@
                 return this._measures;
             }
 
+            this._skipNormalize += 1;
             this._clearAxesData = true;
+
             this.query({
                 columns: this.columnsAxisDescriptors(),
                 rows: this.rowsAxisDescriptors(),
@@ -1161,6 +1176,7 @@
             var that = this;
 
             if (!options) {
+                this._skipNormalize += 1;
                 this._clearAxesData = true;
             }
 
@@ -1216,6 +1232,7 @@
                 return this._filter;
             }
 
+            this._skipNormalize += 1;
             this._clearAxesData = true;
             this._query({ filter: val, page: 1 });
         },
@@ -1280,6 +1297,8 @@
             columnIndexes = this._normalizeTuples(axes.columns.tuples, this._axes.columns.tuples, columnDescriptors, this._columnMeasures());
             rowIndexes = this._normalizeTuples(axes.rows.tuples, this._axes.rows.tuples, rowDescriptors, this._rowMeasures());
 
+            this._skipNormalize -= 1;
+
             if (!this.cubeBuilder) {
                 data = this._normalizeData({
                     columnsLength: axes.columns.tuples.length,
@@ -1339,14 +1358,15 @@
         },
 
         _createTuple: function(tuple, measure, buildRoot) {
-            var name;
-            var member;
-            var parentName;
             var members = tuple.members;
             var length = members.length;
             var root = { members: [] };
-            var levelNum;
+            var levelName, levelNum;
+            var name, parentName;
+            var hasChildren;
+            var hierarchy;
             var caption;
+            var member;
             var idx = 0;
 
             if (measure) {
@@ -1360,6 +1380,9 @@
                 name = member.name;
                 parentName = member.parentName;
                 caption = member.caption || name;
+                hasChildren = member.hasChildren;
+                hierarchy = member.hierarchy;
+                levelName = member.levelName;
 
                 if (buildRoot) {
                     caption = "All";
@@ -1369,17 +1392,18 @@
                         levelNum -= 1;
                     }
 
-                    name = parentName;
+                    hasChildren = true;
+                    name = hierarchy = levelName = parentName;
                 }
 
                 root.members.push({
                     name: name,
                     children: [],
                     caption: caption,
-                    levelName: parentName,
+                    levelName: levelName,
                     levelNum: levelNum.toString(),
-                    hasChildren: buildRoot,
-                    hierarchy: parentName,
+                    hasChildren: hasChildren,
+                    hierarchy: hierarchy,
                     parentName: !buildRoot ? parentName: ""
                 });
             }
@@ -1588,7 +1612,8 @@
                 return;
             }
 
-            if (!this._hasRoot(tuples[0], source, descriptors)) {
+            if (this._skipNormalize <= 0 && !this._hasRoot(tuples[0], source, descriptors)) {
+                this._skipNormalize = 0;
                 for (; idx < length; idx++) {
                     roots.push(this._createTuple(tuples[0], measures[idx], true));
                     indexes[idx] = idx;
@@ -1658,7 +1683,7 @@
                     }
                 }
 
-                if (columnIndexes[idx % columnsLength] !== undefined) {
+                while (columnIndexes[idx % columnsLength] !== undefined) {
                     result[idx] = { value: "", fmtValue: "", ordinal: idx };
                     idx += 1;
                 }
@@ -2114,10 +2139,9 @@
                     continue;
                 } else if (map[path + member.parentName]) {
                     return map[path + member.parentName];
+                } else if (map[parentPath + member.parentName]) {
+                    return map[parentPath + member.parentName];
                 } else {
-                    if (member.parentName) {
-                        parentPath += member.parentName;
-                    }
                     return map[parentPath];
                 }
             }
@@ -2896,17 +2920,26 @@
             root = kendo.getter("ExecuteResponse[\"return\"].root", true)(root);
 
             var axes = asArray(kendo.getter("Axes.Axis", true)(root));
-            var columns = translateAxis(axes[0]);
-            var rows = {};
+            var axis;
 
-            if (axes.length > 2) {
-                rows = translateAxis(axes[1]);
+            var result = {
+                columns: {},
+                rows: {}
+            };
+
+            for (var idx = 0; idx < axes.length; idx++) {
+                axis = axes[idx];
+
+                if (axis["@name"].toLowerCase() !== "sliceraxis") {
+                    if (!result.columns.tuples) {
+                        result.columns = translateAxis(axis);
+                    } else {
+                        result.rows = translateAxis(axis);
+                    }
+                }
             }
 
-            return {
-                columns: columns,
-                rows: rows
-            };
+            return result;
         },
         data: function(root) {
             root = kendo.getter("ExecuteResponse[\"return\"].root", true)(root);
@@ -3613,15 +3646,6 @@
                 this._setSectionsHeight();
                 this._setContentWidth();
                 this._setContentHeight();
-
-                columnTable.css("table-layout", AUTO);
-                contentTable.css("table-layout", AUTO);
-
-                clearTimeout(this._layoutTimeout);
-                this._layoutTimeout = setTimeout(function() {
-                    columnTable.css("table-layout", "fixed");
-                    contentTable.css("table-layout", "fixed");
-                });
             }
         },
 
@@ -3655,57 +3679,78 @@
 
         _setContentWidth: function() {
             var contentTable = this.content.find("table");
-            var contentWidth = this.content.width();
+            var columnTable = this.columnsHeader.children("table");
 
             var rowLength = contentTable.children("colgroup").children().length;
 
-            var minWidth = 100;
             var calculatedWidth = rowLength * this.options.columnWidth;
+            var minWidth = Math.ceil((calculatedWidth / this.content.width()) * 100);
 
-            if (contentWidth < calculatedWidth) {
-                minWidth = Math.ceil((calculatedWidth / contentWidth) * 100);
+            if (minWidth < 100) {
+                minWidth = 100;
             }
 
-            contentTable.add(this.columnsHeader.children("table"))
-                        .css("width", minWidth + "%");
+            contentTable.add(columnTable).css("width", minWidth + "%");
+
+            this._resetColspan(columnTable);
         },
 
         _setContentHeight: function() {
             var that = this;
             var content = that.content;
             var rowsHeader = that.rowsHeader;
-            var height = that.wrapper.innerHeight();
+            var innerHeight = that.wrapper.innerHeight();
             var scrollbar = kendo.support.scrollbar();
             var skipScrollbar = content[0].offsetHeight === content[0].clientHeight;
+            var height = that.options.height;
 
             if (that.wrapper.is(":visible")) {
-                if (!height) {
+                if (!innerHeight || !height) {
                     if (skipScrollbar) {
                         scrollbar = 0;
                     }
 
+                    content.height("auto");
                     rowsHeader.height(content.height() - scrollbar);
                     return;
                 }
 
-                height -= that.columnFields.outerHeight();
-                height -= that.columnsHeader.outerHeight();
+                innerHeight -= that.columnFields.outerHeight();
+                innerHeight -= that.columnsHeader.outerHeight();
 
-                if (height <= scrollbar * 2) { // do not set height if proper scrollbar cannot be displayed
-                    height = scrollbar * 2 + 1;
+                if (innerHeight <= scrollbar * 2) { // do not set height if proper scrollbar cannot be displayed
+                    innerHeight = scrollbar * 2 + 1;
                     if (!skipScrollbar) {
-                        height += scrollbar;
+                        innerHeight += scrollbar;
                     }
                 }
 
-                content.height(height);
+                content.height(innerHeight);
 
                 if (skipScrollbar) {
                     scrollbar = 0;
                 }
 
-                rowsHeader.height(height - scrollbar);
+                rowsHeader.height(innerHeight - scrollbar);
             }
+        },
+
+        _resetColspan: function(columnTable) {
+            var that = this;
+            var cell = columnTable.children("tbody").children(":first").children(":first");
+
+            if (that._colspan === undefined) {
+                that._colspan = cell.attr("colspan");
+            }
+
+            cell.attr("colspan", 1);
+
+            clearTimeout(that._layoutTimeout);
+
+            that._layoutTimeout = setTimeout(function() {
+                cell.attr("colspan", that._colspan);
+                that._colspan = undefined;
+            });
         },
 
         _axisMeasures: function(axis) {
@@ -3721,6 +3766,10 @@
             }
 
             return result;
+        },
+
+        items: function() {
+            return [];
         },
 
         refresh: function() {
@@ -3741,7 +3790,7 @@
                 return;
             }
 
-            columnBuilder.measures = this._axisMeasures("columns");
+            columnBuilder.measures = that._axisMeasures("columns");
 
             that.columnsHeaderTree.render(columnBuilder.build(columns));
             that.rowsHeaderTree.render(rowBuilder.build(rows));
@@ -3982,6 +4031,7 @@
                 row = element("tr", null, []);
 
                 row.parentMember = parentMember;
+                row.collapsed = 0;
                 row.colSpan = 0;
                 row.rowSpan = 1;
 
@@ -4004,6 +4054,7 @@
 
                 if (!row.parentMember || row.parentMember !== parentMember) {
                     row.parentMember = parentMember;
+                    row.collapsed = 0;
                     row.colSpan = 0;
                 }
             }
@@ -4054,8 +4105,11 @@
             var path;
 
             var idx = 0;
-            var colSpan;
             var metadata;
+
+            var colSpan;
+            var collapsed = 0;
+            var memberCollapsed = 0;
 
             if (member.measure) {
                 this._measures(member.children, tuple);
@@ -4080,8 +4134,11 @@
 
             if (member.hasChildren) {
                 if (metadata.expanded === false) {
-                    childrenLength = 0;
+                    collapsed = metadata.maxChildren;
+                    row.collapsed += collapsed;
+
                     metadata.children = 0;
+                    childrenLength = 0;
                 }
 
                 cellAttr = { className: "k-icon " + (childrenLength ? STATE_EXPANDED : STATE_COLLAPSED) };
@@ -4105,19 +4162,26 @@
                 }
 
                 colSpan = childRow.colSpan;
+                collapsed = childRow.collapsed;
+
                 cell.attr.colSpan = colSpan;
 
                 metadata.children = colSpan;
                 metadata.members = 1;
 
                 row.colSpan += colSpan;
+                row.collapsed += collapsed;
                 row.rowSpan = childRow.rowSpan + 1;
 
                 if (nextMember) {
                     if (nextMember.measure) {
                         colSpan = this._measures(nextMember.children, tuple, " k-alt");
                     } else {
-                        colSpan = this._buildRows(tuple, memberIdx + 1).colSpan;
+                        childRow = this._buildRows(tuple, memberIdx + 1);
+                        colSpan = childRow.colSpan;
+
+                        row.collapsed += childRow.collapsed;
+                        memberCollapsed = childRow.collapsed;
                     }
 
                     allCell.attr.colSpan = colSpan;
@@ -4130,7 +4194,11 @@
                 if (nextMember.measure) {
                     colSpan = this._measures(nextMember.children, tuple);
                 } else {
-                    colSpan = this._buildRows(tuple, memberIdx + 1).colSpan;
+                    childRow = this._buildRows(tuple, memberIdx + 1);
+                    colSpan = childRow.colSpan;
+
+                    row.collapsed += childRow.collapsed;
+                    memberCollapsed = childRow.collapsed;
                 }
 
                 metadata.members = colSpan;
@@ -4141,12 +4209,14 @@
                 }
             }
 
-            if (metadata.maxChildren < metadata.children) {
-                metadata.maxChildren = metadata.children;
+            if (metadata.maxMembers < (metadata.members + memberCollapsed)) {
+                metadata.maxMembers = metadata.members + memberCollapsed;
             }
 
-            if (metadata.maxMembers < metadata.members) {
-                metadata.maxMembers = metadata.members;
+            children = metadata.children + collapsed;
+
+            if (metadata.maxChildren < children) {
+                metadata.maxChildren = children;
             }
 
             (allCell || cell).tupleAll = true;
@@ -4475,8 +4545,8 @@
             this.rows = [];
 
             if (this.data[0]) {
-                this.columnIndexes = this._indexes(this.columnAxis);
-                this.rowIndexes = this._indexes(this.rowAxis);
+                this.columnIndexes = this._indexes(this.columnAxis, this.rowLength);
+                this.rowIndexes = this._indexes(this.rowAxis, Math.ceil(this.data.length / this.rowLength));
 
                 this._buildRows();
             } else {
@@ -4486,7 +4556,7 @@
             return element("tbody", null, this.rows);
         },
 
-        _indexes: function(axisInfo) {
+        _indexes: function(axisInfo, total) {
             var result = [];
             var axisInfoMember;
             var indexes = axisInfo.indexes;
@@ -4549,6 +4619,10 @@
                     while(result[firstEmpty] !== undefined) {
                         firstEmpty += 1;
                     }
+                }
+
+                if (firstEmpty === total) {
+                    break;
                 }
 
                 dataIdx += skipChildren;
@@ -4833,7 +4907,9 @@
         kendo.PDFMixin.extend(PivotGrid.prototype);
 
         PivotGrid.fn._drawPDF = function() {
-            return this._drawPDFShadow();
+            return this._drawPDFShadow({
+                width: this.wrapper.width()
+            });
         };
     }
 

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -58,7 +58,7 @@
 
     var MultiSelect = List.extend({
         init: function(element, options) {
-            var that = this, id;
+            var that = this, id, disabled;
 
             that.ns = ns;
             List.fn.init.call(that, element, options);
@@ -108,13 +108,19 @@
                 that._preselect(options.value);
             }
 
+            disabled = $(that.element).parents("fieldset").is(':disabled');
+
+            if (disabled) {
+                that.enable(false);
+            }
+
             kendo.notify(that);
         },
 
         _preselect: function(data, value) {
             var that = this;
 
-            if (!isArray(data)) {
+            if (!isArray(data) && !(data instanceof kendo.data.ObservableArray)) {
                 data = [data];
             }
 
@@ -127,6 +133,7 @@
 
         options: {
             name: "MultiSelect",
+            tagMode: "multiple",
             enabled: true,
             autoBind: true,
             autoClose: true,
@@ -218,7 +225,7 @@
                 ns = that.ns;
 
             clearTimeout(that._busy);
-            clearTimeout(that._typing);
+            clearTimeout(that._typingTimeout);
 
             that.wrapper.off(ns);
             that.tagList.off(ns);
@@ -303,7 +310,12 @@
         _wrapperMousedown: function(e) {
             var that = this;
             var notInput = e.target.nodeName.toLowerCase() !== "input";
-            var closeButton = $(e.target).hasClass("k-select") || $(e.target).parent().hasClass("k-select");
+            var target = $(e.target);
+            var closeButton = target.hasClass("k-select") || target.hasClass("k-icon");
+
+            if (closeButton) {
+                closeButton = !target.closest(".k-select").children(".k-i-arrow-s").length;
+            }
 
             if (notInput && !(closeButton && kendo.support.mobileOS)) {
                 e.preventDefault();
@@ -329,7 +341,7 @@
         _inputFocusout: function() {
             var that = this;
 
-            clearTimeout(that._typing);
+            clearTimeout(that._typingTimeout);
 
             that.wrapper.removeClass(FOCUSEDCLASS);
 
@@ -375,7 +387,11 @@
         },
 
         _tagListClick: function(e) {
-            this._removeTag($(e.target).closest(LI));
+            var target = $(e.currentTarget);
+
+            if (!target.children(".k-i-arrow-s").length) {
+                this._removeTag(target.closest(LI));
+            }
         },
 
         _editable: function(options) {
@@ -425,7 +441,7 @@
             if (that.options.autoClose) {
                 that.close();
             } else {
-                that.popup._position();
+                that.popup.position();
             }
         },
 
@@ -465,9 +481,10 @@
             this.listView.refresh();
         },
 
-        _listBound: function() {
+        _listBound: function(e) {
             var that = this;
-            var data = this.dataSource.flatView();
+            var data = that.dataSource.flatView();
+            var page = that.dataSource.page();
             var length = data.length;
 
             that._angularItems("compile");
@@ -481,11 +498,9 @@
                 that.toggle(length);
             }
 
-            if (that.popup.visible()) {
-                that.popup._position();
-            }
+            that.popup.position();
 
-            if (that.options.highlightFirst) {
+            if (that.options.highlightFirst && (page === undefined || page === 1)) {
                 that.listView.first();
             }
 
@@ -496,7 +511,6 @@
             that._hideBusy();
             that._makeUnselectable();
 
-            that._hideBusy();
             that.trigger("dataBound");
         },
 
@@ -514,7 +528,7 @@
                 inputValue = "";
             }
 
-            clearTimeout(that._typing);
+            clearTimeout(that._typingTimeout);
 
             word = typeof word === "string" ? word : inputValue;
 
@@ -579,7 +593,7 @@
             var hasItems = !!that.dataSource.view().length;
             var isEmptyArray = that.listView.value().length === 0;
 
-            if (isEmptyArray) {
+            if (isEmptyArray || that._request) {
                 return;
             }
 
@@ -782,7 +796,7 @@
                     that._removeTag(tag);
                 }
             } else {
-                clearTimeout(that._typing);
+                clearTimeout(that._typingTimeout);
                 setTimeout(function() { that._scale(); });
                 that._search();
             }
@@ -855,10 +869,8 @@
             that.input.width(textWidth > wrapperWidth ? wrapperWidth : textWidth);
         },
 
-        _option: function(dataItem, selected) {
-            var option = "<option",
-                dataText = this._text(dataItem),
-                dataValue = this._value(dataItem);
+        _option: function(dataValue, dataText, selected) {
+            var option = "<option";
 
             if (dataValue !== undefined) {
                 dataValue += "";
@@ -885,6 +897,7 @@
 
         _render: function(data) {
             var selectedItems = this.listView.selectedDataItems();
+            var values = this.listView.value();
             var length = data.length;
             var selectedIndex;
             var options = "";
@@ -892,19 +905,24 @@
             var value;
             var idx;
 
+            if (values.length !== selectedItems.length) {
+                selectedItems = this._buildSelectedItems(values);
+            }
+
             var custom = {};
             var optionsMap = {};
 
             for (idx = 0; idx < length; idx++) {
                 dataItem = data[idx];
-                selectedIndex = this._selectedIndex(dataItem, selectedItems);
+                value = this._value(dataItem);
 
+                selectedIndex = this._selectedItemIndex(value, selectedItems);
                 if (selectedIndex !== -1) {
                     selectedItems.splice(selectedIndex, 1);
                 }
 
-                optionsMap[this._value(dataItem)] = idx;
-                options += this._option(dataItem, selectedIndex !== -1);
+                optionsMap[value] = idx;
+                options += this._option(value, this._text(dataItem), selectedIndex !== -1);
             }
 
             if (selectedItems.length) {
@@ -912,10 +930,11 @@
                     dataItem = selectedItems[idx];
 
                     value = this._value(dataItem);
-                    custom[value] = idx + length;
-                    optionsMap[value] = idx + length;
+                    custom[value] = length;
+                    optionsMap[value] = length;
 
-                    options += '<option selected="selected" value="' + value + '">' + this._text(dataItem) + '</option>';
+                    length += 1;
+                    options += this._option(value, this._text(dataItem), true);
                 }
             }
 
@@ -925,9 +944,25 @@
             this.element.html(options);
         },
 
-        _selectedIndex: function(dataItem, selectedItems) {
+        _buildSelectedItems: function(values) {
+            var valueField = this.options.dataValueField;
+            var textField = this.options.dataTextField;
+            var result = [];
+            var item;
+
+            for (var idx = 0; idx < values.length; idx++) {
+                item = {};
+                item[valueField] = values[idx];
+                item[textField] = values[idx];
+
+                result.push(item);
+            }
+
+            return result;
+        },
+
+        _selectedItemIndex: function(value, selectedItems) {
             var valueGetter = this._value;
-            var value = valueGetter(dataItem);
             var idx = 0;
 
             for (; idx < selectedItems.length; idx++) {
@@ -942,7 +977,7 @@
         _search: function() {
             var that = this;
 
-            that._typing = setTimeout(function() {
+            that._typingTimeout = setTimeout(function() {
                 var value = that.input.val();
                 if (that._prev !== value) {
                     that._prev = value;
@@ -956,30 +991,66 @@
             return max === null || max > this.listView.value().length;
         },
 
+        _angularTagItems: function(cmd) {
+            var that = this;
+
+            that.angular(cmd, function() {
+                return {
+                    elements: that.tagList[0].children,
+                    data: $.map(that.dataItems(), function(dataItem) {
+                        return { dataItem: dataItem };
+                    })
+                };
+            });
+        },
+
         _selectValue: function(added, removed) {
-            var tagList = this.tagList;
-            var getter = this._value;
+            var that = this;
+            var values = that.value();
+            var total = that.dataSource.total();
+            var tagList = that.tagList;
+            var getter = that._value;
             var removedItem;
             var addedItem;
             var idx;
 
-            for (idx = removed.length - 1; idx > -1; idx--) {
-                removedItem = removed[idx];
+            that._angularTagItems("cleanup");
 
-                tagList[0].removeChild(tagList[0].children[removedItem.position]);
+            if (that.options.tagMode === "multiple") {
+                for (idx = removed.length - 1; idx > -1; idx--) {
+                    removedItem = removed[idx];
 
-                this._setOption(getter(removedItem.dataItem), false);
+                    tagList[0].removeChild(tagList[0].children[removedItem.position]);
+
+                    that._setOption(getter(removedItem.dataItem), false);
+                }
+
+                for (idx = 0; idx < added.length; idx++) {
+                    addedItem = added[idx];
+
+                    tagList.append(that.tagTemplate(addedItem.dataItem));
+
+                    that._setOption(getter(addedItem.dataItem), true);
+                }
+            } else {
+                if (!that._maxTotal || that._maxTotal < total) {
+                    that._maxTotal = total;
+                }
+
+                tagList.html("");
+
+                if (values.length) {
+                    tagList.append(that.tagTemplate({
+                        values: values,
+                        dataItems: that.dataItems(),
+                        maxTotal: that._maxTotal,
+                        currentTotal: total
+                    }));
+                }
             }
 
-            for (idx = 0; idx < added.length; idx++) {
-                addedItem = added[idx];
-
-                tagList.append(this.tagTemplate(addedItem.dataItem));
-
-                this._setOption(getter(addedItem.dataItem), true);
-            }
-
-            this._placeholder();
+            that._angularTagItems("compile");
+            that._placeholder();
         },
 
         _select: function(candidate) {
@@ -1039,17 +1110,25 @@
             var options = that.options;
             var tagTemplate = options.tagTemplate;
             var hasDataSource = options.dataSource;
+            var isMultiple = options.tagMode === "multiple";
+            var defaultTemplate;
 
             if (that.element[0].length && !hasDataSource) {
                 options.dataTextField = options.dataTextField || "text";
                 options.dataValueField = options.dataValueField || "value";
             }
 
-            tagTemplate = tagTemplate ? kendo.template(tagTemplate) : kendo.template("#:" + kendo.expr(options.dataTextField, "data") + "#", { useWithBlock: false });
+            defaultTemplate = isMultiple ? kendo.template("#:" + kendo.expr(options.dataTextField, "data") + "#", { useWithBlock: false }) : kendo.template("#:values.length# item(s) selected");
 
-            that.tagTextTemplate = tagTemplate;
+            that.tagTextTemplate = tagTemplate = tagTemplate ? kendo.template(tagTemplate) : defaultTemplate;
+
             that.tagTemplate = function(data) {
-                return '<li class="k-button" unselectable="on"><span unselectable="on">' + tagTemplate(data) + '</span><span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-close">delete</span></span></li>';
+                return '<li class="k-button" unselectable="on"><span unselectable="on">' +
+                        tagTemplate(data) +
+                        '</span><span unselectable="on" class="k-select"><span unselectable="on" class="k-icon ' +
+                        (isMultiple ? "k-i-close" : "k-i-arrow-s") + '">' +
+                        (isMultiple ? "delete" : "open") +
+                        '</span></span></li>';
             };
         },
 

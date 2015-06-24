@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -1547,6 +1547,7 @@
         Layer = dataviz.map.layers.Layer,
 
         util = kendo.util,
+        objectKey = util.objectKey,
         round = util.round,
         renderSize = util.renderSize,
         limit = util.limitValue;
@@ -1730,7 +1731,7 @@
                         y: firstTileIndex.y + y
                     });
 
-                    if (!tile.options.visible) {
+                    if (!tile.visible) {
                         tile.show();
                     }
                 }
@@ -1786,7 +1787,10 @@
     });
 
     var ImageTile = Class.extend({
-        init: function(options) {
+        init: function(id, options) {
+            this.id = id;
+            this.visible = true;
+
             this._initOptions(options);
             this.createElement();
             this.show();
@@ -1794,8 +1798,7 @@
 
         options: {
             urlTemplate: "",
-            errorUrlTemplate: "",
-            visible: false
+            errorUrlTemplate: ""
         },
 
         createElement: function() {
@@ -1809,26 +1812,23 @@
                             }, this));
         },
 
-        show: function(options) {
-            this.options = options = deepExtend({}, this.options, options);
-            var id = tileId(this.options.currentIndex, this.options.zoom);
+        show: function() {
             var element = this.element[0];
-
             element.style.top = renderSize(this.options.offset.y);
             element.style.left = renderSize(this.options.offset.x);
 
-            if (this.options.id !== id || !element.getAttribute("url")) {
-                element.setAttribute("src", this.url());
+            var url = this.url();
+            if (url) {
+                element.setAttribute("src", url);
             }
-            element.style.visibility = "visible";
 
-            this.options.id = id;
-            this.options.visible = true;
+            element.style.visibility = "visible";
+            this.visible = true;
         },
 
         hide: function() {
             this.element[0].style.visibility = "hidden";
-            this.options.visible = false;
+            this.visible = false;
         },
 
         url: function() {
@@ -1877,20 +1877,16 @@
         },
 
         get: function(center, options) {
-            var pool = this;
-
-            if (pool._items.length >= pool.options.maxSize) {
-                pool._remove(center);
+            if (this._items.length >= this.options.maxSize) {
+                this._remove(center);
             }
 
-            return pool._create(options);
+            return this._create(options);
         },
 
         empty: function() {
-            var items = this._items,
-                i;
-
-            for (i = 0; i < items.length; i++) {
+            var items = this._items;
+            for (var i = 0; i < items.length; i++) {
                 items[i].destroy();
             }
 
@@ -1898,32 +1894,27 @@
         },
 
         reset: function() {
-            var items = this._items,
-                i;
-
-            for (i = 0; i < items.length; i++) {
+            var items = this._items;
+            for (var i = 0; i < items.length; i++) {
                 items[i].hide();
             }
         },
 
         _create: function(options) {
-            var pool = this,
-                items = pool._items,
-                id = tileId(options.currentIndex, options.zoom),
-                oldTile, i, item, tile;
+            var items = this._items;
+            var tile;
 
-            for (i = 0; i < items.length; i++) {
-                item = items[i];
-                if (item.options.id === id) {
-                    oldTile = item;
-                    tile = oldTile;
+            var id = util.hashKey(objectKey(options) + objectKey(options.currentIndex));
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].id === id) {
+                    tile = items[i];
                 }
             }
 
-            if (oldTile) {
-                oldTile.show(options);
+            if (tile) {
+                tile.show();
             } else {
-                tile = new ImageTile(options);
+                tile = new ImageTile(id, options);
                 this._items.push(tile);
             }
 
@@ -1953,10 +1944,6 @@
     // Methods ================================================================
     function roundPoint(point) {
         return new Point(round(point.x), round(point.y));
-    }
-
-    function tileId(index, zoom) {
-            return "x:" + index.x + "y:" + index.y + "zoom:" + zoom;
     }
 
     // Exports ================================================================
@@ -2905,6 +2892,8 @@
             origin.x += offset.x;
             origin.y += offset.y;
 
+            this._scrollOffset = offset;
+
             this._setOrigin(this.layerToLocation(origin));
             this.trigger("pan", {
                 originalEvent: e,
@@ -2914,11 +2903,22 @@
         },
 
         _scrollEnd: function(e) {
+            if (!this._scrollOffset || !this._panComplete()) {
+                return;
+            }
+
+            this._scrollOffset = null;
+            this._panEndTS = new Date();
+
             this.trigger("panEnd", {
                 originalEvent: e,
                 origin: this._getOrigin(),
                 center: this.center()
             });
+        },
+
+        _panComplete: function() {
+            return new Date() - (this._panEndTS || 0) > 50;
         },
 
         _scaleStart: function(e) {
@@ -3023,6 +3023,10 @@
         },
 
         _click: function(e) {
+            if (!this._panComplete()) {
+                return;
+            }
+
             var cursor = this.eventOffset(e);
             this.trigger("click", {
                 originalEvent: e,

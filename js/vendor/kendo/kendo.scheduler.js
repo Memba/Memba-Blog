@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -46,6 +46,8 @@
         DELETECONFIRM = "Are you sure you want to delete this event?",
         DELETERECURRING = "Do you want to delete only this event occurrence or the whole series?",
         EDITRECURRING = "Do you want to edit only this event occurrence or the whole series?",
+        DELETERECURRINGCONFIRM = "Are you sure you want to delete this event occurrence?",
+        DELETESERIESCONFIRM = "Are you sure you want to delete the whole series?",
         COMMANDBUTTONTMPL = '<a class="k-button #=className#" #=attr# href="\\#">#=text#</a>',
         VIEWBUTTONTEMPLATE = kendo.template('<li class="k-current-view" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>'),
         TOOLBARTEMPLATE = kendo.template('<div class="k-floatwrap k-header k-scheduler-toolbar">' +
@@ -66,21 +68,33 @@
                     '</a>' +
                 '</li>' +
             '</ul>' +
-            '<ul class="k-reset k-header k-scheduler-views">' +
-                '#for(var view in views){#' +
-                    '<li class="k-state-default k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>' +
-                '#}#'  +
-            '</ul>' +
+            '#if(viewsCount === 1){#' +
+                '<a role="button" data-#=ns#name="#=view#" href="\\#" class="k-link k-scheduler-refresh">' +
+                    '<span class="k-icon k-i-refresh"></span>' +
+                '</a>' +
+            '#}else{#' +
+                '<ul class="k-reset k-header k-scheduler-views">' +
+                    '#for(var view in views){#' +
+                        '<li class="k-state-default k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>' +
+                    '#}#'  +
+                '</ul>' +
+            '#}#' +
             '</div>'),
         MOBILETOOLBARTEMPLATE = kendo.template('<div class="k-floatwrap k-header k-scheduler-toolbar">' +
             '<ul class="k-reset k-header k-scheduler-navigation">' +
                '<li class="k-state-default k-nav-today"><a role="button" href="\\#" class="k-link">${messages.today}</a></li>' +
             '</ul>' +
-            '<ul class="k-reset k-header k-scheduler-views">' +
-                '#for(var view in views){#' +
-                    '<li class="k-state-default k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>' +
-                '#}#'  +
-            '</ul>' +
+            '#if(viewsCount === 1){#' +
+                '<a role="button" data-#=ns#name="#=view#" href="\\#" class="k-link k-scheduler-refresh">' +
+                    '<span class="k-icon k-i-refresh"></span>' +
+                '</a>' +
+            '#}else{#' +
+                '<ul class="k-reset k-header k-scheduler-views">' +
+                    '#for(var view in views){#' +
+                        '<li class="k-state-default k-view-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a role="button" href="\\#" class="k-link">${views[view].title}</a></li>' +
+                    '#}#'  +
+                '</ul>' +
+            '#}#' +
             '</div>'+
             '<div class="k-floatwrap k-header k-scheduler-toolbar">' +
                 '<ul class="k-reset k-header k-scheduler-navigation">' +
@@ -1396,6 +1410,8 @@
                     that.trigger(REMOVE, { container: container, model: model });
                 });
 
+                kendo.cycleForm(container);
+
                 model.bind("change", that.toggleDateValidationHandler);
             } else {
                 that.trigger(CANCEL, { container: container, model: model });
@@ -2196,6 +2212,9 @@
                     editWindowOccurrence: "Edit current occurrence",
                     editWindowSeries: "Edit the series"
                 },
+                editable: {
+                    confirmation: DELETECONFIRM
+                },
                 editor: {
                     title: "Title",
                     start: "Start",
@@ -2316,6 +2335,7 @@
             var event;
             var clonedEvent;
             var that = this;
+            var originSlot;
 
             var isMobile = that._isMobile();
             var movable = that.options.editable && that.options.editable.move !== false;
@@ -2350,7 +2370,7 @@
 
                         clonedEvent = event.clone();
 
-                        view._updateEventForMove(clonedEvent);
+                        clonedEvent.update(view._eventOptionsForMove(clonedEvent));
 
                         startSlot = view._slotByPosition(e.x.startLocation, e.y.startLocation);
 
@@ -2358,14 +2378,17 @@
 
                         endSlot = startSlot;
 
+                        originSlot = startSlot;
+
                         if (!startSlot || that.trigger("moveStart", { event: event })) {
                             e.preventDefault();
                         }
                     })
                     .bind("drag", function(e) {
                         var view = that.view();
-
                         var slot = view._slotByPosition(e.x.location, e.y.location);
+                        var distance;
+                        var range;
 
                         if (!slot) {
                             return;
@@ -2373,15 +2396,30 @@
 
                         endTime = slot.startOffset(e.x.location, e.y.location, that.options.snap);
 
-                        var distance = endTime - startTime;
+                        if (slot.isDaySlot !== startSlot.isDaySlot) {
+                            startSlot = view._slotByPosition(e.x.location, e.y.location);
+                            startTime = startSlot.startOffset(e.x.location, e.y.location, that.options.snap);
 
-                        view._updateMoveHint(clonedEvent, slot.groupIndex, distance);
+                            distance = endTime - startTime;
 
-                        var range = moveEventRange(clonedEvent, distance);
+                            clonedEvent.isAllDay = slot.isDaySlot;
+                            clonedEvent.start = kendo.timezone.toLocalDate(startTime);
+                            clonedEvent.end = kendo.timezone.toLocalDate(endTime);
+
+                            view._updateMoveHint(clonedEvent, slot.groupIndex, distance);
+
+                            range = { start: clonedEvent.start, end: clonedEvent.end };
+                        } else {
+                            distance = endTime - startTime;
+
+                            view._updateMoveHint(clonedEvent, slot.groupIndex, distance);
+
+                            range = moveEventRange(clonedEvent, distance);
+                        }
 
                         if (!that.trigger("move", {
                             event: event,
-                            slot: { element: slot.element, start: slot.startDate(), end: slot.endDate() },
+                            slot: { element: slot.element, start: slot.startDate(), end: slot.endDate(), isDaySlot: slot.isDaySlot },
                             resources: view._resourceBySlot(slot),
                             start: range.start,
                             end: range.end
@@ -2395,10 +2433,8 @@
                     })
                     .bind("dragend", function(e) {
                         that.view()._removeMoveHint();
-
                         var distance = endTime - startTime;
                         var range = moveEventRange(clonedEvent, distance);
-
                         var start = range.start;
                         var end = range.end;
 
@@ -2413,10 +2449,24 @@
                             resources: endResources
                         });
 
-                        if (!prevented && (clonedEvent.start.getTime() != start.getTime() ||
-                        clonedEvent.end.getTime() != end.getTime() || kendo.stringify(endResources) != kendo.stringify(startResources)))  {
-                            that.view()._updateEventForMove(event);
-                            that._updateEvent(null, event, $.extend({ start: start, end: end}, endResources));
+                        if (!prevented && (event.start.getTime() !== start.getTime() ||
+                        event.end.getTime() !== end.getTime() ||
+                        originSlot.isDaySlot !== endSlot.isDaySlot ||
+                        kendo.stringify(endResources) !== kendo.stringify(startResources))) {
+                            var updatedEventOptions = that.view()._eventOptionsForMove(event);
+                            var eventOptions;
+
+                            if (originSlot.isDaySlot !== endSlot.isDaySlot) {
+                                if (endSlot.isDaySlot) {
+                                    eventOptions = $.extend({ start: endSlot.startDate(), end: endSlot.startDate(), isAllDay: endSlot.isDaySlot }, updatedEventOptions, endResources);
+                                } else {
+                                    eventOptions = $.extend({ isAllDay: endSlot.isDaySlot, start: start, end: end }, updatedEventOptions, endResources);
+                                }
+                            } else {
+                                eventOptions = $.extend({ isAllDay: event.isAllDay, start: start, end: end }, updatedEventOptions, endResources);
+                            }
+
+                            that._updateEvent(null, event, eventOptions);
                         }
 
                         e.currentTarget.removeClass("k-event-active");
@@ -2711,8 +2761,20 @@
 
             if (editable === true || editable.confirmation !== false) {
                 var messages = this.options.messages;
+                var title = messages.deleteWindowTitle;
+                var text = typeof editable.confirmation === STRING ? editable.confirmation : messages.editable.confirmation;
 
-                var text = typeof editable.confirmation === STRING ? editable.confirmation : DELETECONFIRM;
+                if (this._isEditorOpened() && model.isRecurring()) {
+                    var recurrenceMessages = this.options.messages.recurrenceMessages;
+                    title = recurrenceMessages.deleteWindowTitle;
+
+                    if (model.isException()) {
+                        text = recurrenceMessages.deleteRecurringConfirmation ? recurrenceMessages.deleteRecurringConfirmation : DELETERECURRINGCONFIRM;
+                    } else {
+                        text = recurrenceMessages.deleteSeriesConfirmation ? recurrenceMessages.deleteSeriesConfirmation : DELETESERIESCONFIRM;
+                    }
+                }
+
                 var buttons = [
                     { name: "destroy", text: messages.destroy, click: function() { callback(); } }
                 ];
@@ -2726,7 +2788,7 @@
                 this.showDialog({
                     model: model,
                     text: text,
-                    title: messages.deleteWindowTitle,
+                    title: title,
                     buttons: buttons
                 });
 
@@ -3064,10 +3126,15 @@
 
         _deleteRecurringDialog: function(model) {
             var that = this;
-
             var currentModel = model;
+            var editable = that.options.editable;
+            var deleteOccurrence;
+            var deleteSeries;
+            var deleteOccurrenceConfirmation;
+            var deleteSeriesConfirmation;
+            var editRecurringMode = isPlainObject(editable) ? editable.editRecurringMode : "dialog";
 
-            var deleteOccurrence = function() {
+            deleteOccurrence = function() {
                 var occurrence = currentModel.recurrenceId ? currentModel : currentModel.toOccurrence();
                 var head = that.dataSource.get(occurrence.recurrenceId);
 
@@ -3075,7 +3142,7 @@
                 that._removeEvent(occurrence);
             };
 
-            var deleteSeries = function() {
+            deleteSeries = function() {
                 if (currentModel.recurrenceId) {
                     currentModel = that.dataSource.get(currentModel.recurrenceId);
                 }
@@ -3083,13 +3150,46 @@
                 that._removeEvent(currentModel);
             };
 
-            var recurrenceMessages = that.options.messages.recurrenceMessages;
-            that._showRecurringDialog(model, deleteOccurrence, deleteSeries, {
-                title: recurrenceMessages.deleteWindowTitle,
-                text: recurrenceMessages.deleteRecurring ? recurrenceMessages.deleteRecurring : DELETERECURRING,
-                occurrenceText: recurrenceMessages.deleteWindowOccurrence,
-                seriesText: recurrenceMessages.deleteWindowSeries
-            });
+            if (editRecurringMode != "dialog" || that._isEditorOpened()) {
+                deleteOccurrenceConfirmation = function() {
+                    that._confirmation(function(cancel) {
+                        if (!cancel) {
+                            deleteOccurrence();
+                        }
+                    }, currentModel);
+                };
+
+                deleteSeriesConfirmation = function() {
+                    that._confirmation(function(cancel) {
+                        if (!cancel) {
+                            deleteSeries();
+                        }
+                    }, currentModel);
+                };
+            }
+
+            var seriesCallback = deleteSeriesConfirmation || deleteSeries;
+            var occurrenceCallback = deleteOccurrenceConfirmation || deleteOccurrence;
+
+            if (that._isEditorOpened()) {
+                if (model.isException()) {
+                    occurrenceCallback();
+                } else {
+                    seriesCallback();
+                }
+            } else {
+                var recurrenceMessages = that.options.messages.recurrenceMessages;
+                that._showRecurringDialog(model, occurrenceCallback, seriesCallback, {
+                    title: recurrenceMessages.deleteWindowTitle,
+                    text: recurrenceMessages.deleteRecurring ? recurrenceMessages.deleteRecurring : DELETERECURRING,
+                    occurrenceText: recurrenceMessages.deleteWindowOccurrence,
+                    seriesText: recurrenceMessages.deleteWindowSeries
+                });
+            }
+        },
+
+        _isEditorOpened: function() {
+            return !!this._editor.container;
         },
 
         _unbindView: function(view) {
@@ -3187,19 +3287,20 @@
                 that._selectedView = that._renderView(name);
                 that._selectedViewName = name;
 
-                var viewButton = VIEWBUTTONTEMPLATE({views: that.views, view: name, ns: kendo.ns});
-                var firstButton = that.toolbar.find(".k-scheduler-views li:first-child");
+                if (that._viewsCount > 1) {
+                    var viewButton = VIEWBUTTONTEMPLATE({views: that.views, view: name, ns: kendo.ns});
+                    var firstButton = that.toolbar.find(".k-scheduler-views li:first-child");
 
-                if (firstButton.is(".k-current-view")) {
-                    firstButton.replaceWith(viewButton);
-                } else {
-                    that.toolbar.find(".k-scheduler-views").prepend(viewButton);
-                }
+                    if (firstButton.is(".k-current-view")) {
+                        firstButton.replaceWith(viewButton);
+                    } else {
+                        that.toolbar.find(".k-scheduler-views").prepend(viewButton);
+                    }
 
-                var viewButtons =  that.toolbar.find(".k-scheduler-views li")
-                    .removeClass("k-state-selected");
+                    var viewButtons =  that.toolbar.find(".k-scheduler-views li")
+                        .removeClass("k-state-selected");
 
-                if (that.options.views.length > 1) {
+
                     viewButtons.end().find(".k-view-" + name.replace(/\./g, "\\.").toLowerCase())
                         .addClass("k-state-selected");
                 }
@@ -3219,6 +3320,10 @@
             }
 
             return that._selectedView;
+        },
+
+        viewName: function() {
+            return this.view().name;
         },
 
         _renderView: function(name) {
@@ -3290,6 +3395,7 @@
             var length;
 
             this.views = {};
+            this._viewsCount = 0;
 
             for (idx = 0, length = views.length; idx < length; idx++) {
                 var hasType = false;
@@ -3329,6 +3435,7 @@
 
                 if (name) {
                     this.views[name] = view;
+                    this._viewsCount++;
 
                     if (!selected || view.selected) {
                         selected = name;
@@ -3355,7 +3462,7 @@
             if (options.timezone && !(dataSource instanceof SchedulerDataSource)) {
                 dataSource = extend(true, dataSource, { schema: { timezone: options.timezone } });
             } else if(dataSource instanceof SchedulerDataSource) {
-                options.timezone = dataSource.schema ? dataSource.schema.timezone : "";
+                options.timezone = dataSource.options.schema ? dataSource.options.schema.timezone : "";
             }
 
             if (that.dataSource && that._refreshHandler) {
@@ -3497,7 +3604,8 @@
                             return item == "pdf" || item.name == "pdf";
                         }).length > 0,
                     ns: kendo.ns,
-                    views: that.views
+                    views: that.views,
+                    viewsCount: that._viewsCount
                 }));
 
             that.wrapper.append(toolbar);
@@ -3536,7 +3644,7 @@
                 }
             });
 
-            toolbar.on(CLICK + NS, ".k-scheduler-views li", function(e) {
+            toolbar.on(CLICK + NS, ".k-scheduler-views li, .k-scheduler-refresh", function(e) {
                 e.preventDefault();
 
                 var name = $(this).attr(kendo.attr("name"));

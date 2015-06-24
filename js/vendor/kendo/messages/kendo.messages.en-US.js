@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -237,6 +237,17 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
 });
 }
 
+/* FilterMultiCheck messages */
+
+if (kendo.ui.FilterMultiCheck) {
+kendo.ui.FilterMultiCheck.prototype.options.messages =
+$.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
+  "checkAll": "Select All",
+  "clear": "Clear",
+  "filter": "Filter"
+});
+}
+
 /* Gantt messages */
 
 if (kendo.ui.Gantt) {
@@ -288,6 +299,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Add new record",
     "destroy": "Delete",
     "edit": "Edit",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Save changes",
     "select": "Select",
     "update": "Update"
@@ -296,7 +309,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "cancelDelete": "Cancel",
     "confirmation": "Are you sure you want to delete this record?",
     "confirmDelete": "Delete"
-  }
+  },
+  "noRecords": "No records available."
 });
 }
 
@@ -499,6 +513,28 @@ kendo.ui.Slider.prototype.options =
 $.extend(true, kendo.ui.Slider.prototype.options,{
   "increaseButtonTitle": "Increase",
   "decreaseButtonTitle": "Decrease"
+});
+}
+
+/* TreeList messages */
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+  "noRows": "No records to display",
+  "loading": "Loading...",
+  "requestFailed": "Request failed.",
+  "retry": "Retry",
+  "commands": {
+      "edit": "Edit",
+      "update": "Update",
+      "canceledit": "Cancel",
+      "create": "Add new record",
+      "createchild": "Add child record",
+      "destroy": "Delete",
+      "excel": "Export to Excel",
+      "pdf": "Export to PDF"
+  }
 });
 }
 

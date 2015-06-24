@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -244,9 +244,9 @@
 
             that.setDataSource(options.dataSource);
 
-            that.content.on("scroll" + VIRTUAL_LIST_NS, function() {
+            that.content.on("scroll" + VIRTUAL_LIST_NS, kendo.throttle(function() {
                 that._renderItems();
-            });
+            }, options.delay));
 
             that._selectable();
         },
@@ -254,6 +254,7 @@
         options: {
             name: "VirtualList",
             autoBind: true,
+            delay: 100,
             height: null,
             listScreens: 4,
             threshold: 0.5,
@@ -311,6 +312,7 @@
 
             if (that.dataSource) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
+                that.dataSource.unbind(CHANGE, that._rangeChangeHandler);
 
                 value = that.value();
 
@@ -320,14 +322,26 @@
                 });
             } else {
                 that._refreshHandler = $.proxy(that.refresh, that);
+                that._rangeChangeHandler = $.proxy(that.rangeChange, that);
             }
 
-            that.dataSource = dataSource.bind(CHANGE, that._refreshHandler);
+            that.dataSource = dataSource.bind(CHANGE, that._refreshHandler)
+                                        .bind(CHANGE, that._rangeChangeHandler);
 
             if (that.dataSource.view().length !== 0) {
                 that.refresh();
             } else if (that.options.autoBind) {
                 that.dataSource.fetch();
+            }
+        },
+
+        rangeChange: function () {
+            var that = this;
+            var page = that.dataSource.page();
+
+            if (that.isBound() && that._rangeChange === true && that._lastPage !== page) {
+                that._lastPage = page;
+                that.trigger(LISTBOUND);
             }
         },
 
@@ -346,10 +360,12 @@
                 that._createList();
                 if (!action && that._values.length && !that._filter) {
                     that.value(that._values, true).done(function() {
+                        that._lastPage = that.dataSource.page();
                         that._listCreated = true;
                         that.trigger(LISTBOUND);
                     });
                 } else {
+                    that._lastPage = that.dataSource.page();
                     that._listCreated = true;
                     that.trigger(LISTBOUND);
                 }
@@ -382,10 +398,6 @@
         },
 
         setValue: function(value) {
-            if (value === "" || value === null) {
-                value = [];
-            }
-
             this._values = toArray(value);
         },
 
@@ -394,20 +406,20 @@
             var dataSource = that.dataSource;
 
             if (value === undefined) {
-                return that._values;
+                return that._values.slice();
+            }
+
+            value = toArray(value);
+
+            if (that.options.selectable === "multiple" && that.select().length && value.length) {
+                that.select(-1);
             }
 
             if (!that._valueDeferred || that._valueDeferred.state() === "resolved") {
                 that._valueDeferred = $.Deferred();
             }
 
-            if (value === "" || value === null) {
-                value = [];
-            }
-
-            value = toArray(value);
-
-            if (!value.length || that.options.selectable === "multiple") {
+            if (!value.length) {
                 that.select(-1);
             }
 
@@ -453,7 +465,16 @@
                     value: (this.options.selectable === "multiple") ? value : value[0],
                     success: function(indexes) {
                         that._values = [];
-                        that.select(toArray(indexes));
+                        that._selectedIndexes = [];
+                        that._selectedDataItems = [];
+
+                        indexes = toArray(indexes);
+
+                        if (!indexes.length) {
+                            indexes = [-1];
+                        }
+
+                        that.select(indexes);
                     }
                 });
             } else {
@@ -535,7 +556,7 @@
             if (this.options.type === "group") {
                 for (var i = 0; i < view.length; i++) {
                     group = view[i].items;
-                    if (group.length < index) {
+                    if (group.length <= index) {
                         index = index - group.length;
                     } else {
                         return group[index];
@@ -548,7 +569,7 @@
         },
 
         selectedDataItems: function() {
-            return this._selectedDataItems;
+            return this._selectedDataItems.slice();
         },
 
         scrollTo: function(y) {
@@ -643,6 +664,10 @@
             }
         },
 
+        focusIndex: function() {
+            return this._focusedIndex;
+        },
+
         first: function() {
             this.scrollTo(0);
             this.focus(0);
@@ -729,15 +754,15 @@
 
                 that.focus(indices);
 
-                if (that._valueDeferred) {
-                    that._valueDeferred.resolve();
-                }
-
                 if (added.length || removed.length) {
                     that.trigger(CHANGE, {
                         added: added,
                         removed: removed
                     });
+                }
+
+                if (that._valueDeferred) {
+                    that._valueDeferred.resolve();
                 }
             };
 
@@ -768,6 +793,7 @@
             }
 
             this._filter = filter;
+            this._rangeChange = true;
         },
 
         skipUpdate: $.noop,
@@ -781,13 +807,29 @@
         _clean: function() {
             this.result = undefined;
             this._lastScrollTop = undefined;
+            this._lastPage = undefined;
             $(this.heightContainer).remove();
             this.heightContainer = undefined;
             this.element.empty();
         },
 
+        _height: function() {
+            var hasData = !!this.dataSource.view().length,
+                height = this.options.height,
+                itemHeight = this.options.itemHeight,
+                total = this.dataSource.total();
+
+            if (!hasData) {
+                height = 0;
+            } else if (height/itemHeight > total) {
+                height = total * itemHeight;
+            }
+
+            return height;
+        },
+
         _screenHeight: function() {
-            var height = this.options.height,
+            var height = this._height(),
                 element = this.element,
                 content = this.content;
 
@@ -836,13 +878,16 @@
 
         _generateItems: function(element, count) {
             var items = [],
-                item;
+                item,
+                itemHeight = this.options.itemHeight + "px";
 
             while(count-- > 0) {
                 item = document.createElement("li");
                 item.tabIndex = -1;
                 item.className = VIRTUALITEM + " " + ITEM;
                 item.setAttribute("role", "option");
+                item.style.height = itemHeight;
+                item.style.minHeight = itemHeight;
                 element.appendChild(item);
 
                 items.push(item);
@@ -886,7 +931,7 @@
             that._items = that._generateItems(that.element[0], that.itemCount);
 
             that._setHeight(options.itemHeight * dataSource.total());
-            that.options.type = !!dataSource.group().length ? "group" : "flat";
+            that.options.type = (dataSource.group() || []).length ? "group" : "flat";
 
             if (that.options.type === "flat") {
                 that.header.hide();
@@ -947,13 +992,23 @@
                     if (lastRequestedRange !== rangeStart) {
                         lastRequestedRange = rangeStart;
                         lastRangeStart = rangeStart;
-                        this._fetching = true;
-                        this.deferredRange(rangeStart).then(function() {
+                        that._fetching = true;
+
+                        if (that._getterDeferred) {
+                            that._getterDeferred.reject();
+                        }
+
+                        that._getterDeferred = that.deferredRange(rangeStart);
+                        that._getterDeferred.then(function() {
                             var firstItemIndex = that._indexConstraint(that.content[0].scrollTop);
+
+                            that._getterDeferred = null;
 
                             if (rangeStart <= firstItemIndex && firstItemIndex <= (rangeStart + pageSize)) {
                                 that._fetching = true;
+                                that._rangeChange = true;
                                 dataSource.range(rangeStart, pageSize);
+                                that._rangeChange = false;
                             }
                         });
                     }
@@ -961,12 +1016,16 @@
                     return null;
                 } else {
                     if (lastRangeStart !== rangeStart) {
-                        this._mute = true;
-                        this._fetching = true;
+                        that._mute = true;
+                        that._fetching = true;
+                        that._rangeChange = true;
+
                         dataSource.range(rangeStart, pageSize);
                         lastRangeStart = rangeStart;
-                        this._fetching = false;
-                        this._mute = false;
+
+                        that._rangeChange = false;
+                        that._fetching = false;
+                        that._mute = false;
                     }
 
                     var result;
@@ -1010,10 +1069,9 @@
             return list;
         },
 
-        _itemMapper: function(item, index) {
+        _itemMapper: function(item, index, value) {
             var listType = this.options.type,
                 itemHeight = this.options.itemHeight,
-                value = this._values,
                 currentIndex = this._focusedIndex,
                 selected = false,
                 current = false,
@@ -1037,6 +1095,7 @@
                 for (var i = 0; i < value.length; i++) {
                     match = isPrimitive(item) ? value[i] === item : value[i] === valueGetter(item);
                     if (match) {
+                        value.splice(i , 1);
                         selected = true;
                         break;
                     }
@@ -1060,6 +1119,7 @@
 
         _range: function(index) {
             var itemCount = this.itemCount,
+                value = this._values.slice(),
                 items = [],
                 item;
 
@@ -1067,7 +1127,7 @@
             this._currentGroup = null;
 
             for (var i = index, length = index + itemCount; i < length; i++) {
-                item = this._itemMapper(this.getter(i, index), i);
+                item = this._itemMapper(this.getter(i, index), i, value);
                 items.push(item);
                 this._view[item.index] = item;
             }
@@ -1373,7 +1433,7 @@
         _clickHandler: function(e) {
             var item = $(e.currentTarget);
 
-            if (!e.isDefaultPrevented() && item.data("uid")) {
+            if (!e.isDefaultPrevented() && item.attr("data-uid")) {
                 this.trigger(CLICK, { item: item });
             }
         },

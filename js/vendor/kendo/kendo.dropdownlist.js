@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -38,7 +38,7 @@
         init: function(element, options) {
             var that = this;
             var index = options && options.index;
-            var optionLabel, text;
+            var optionLabel, text, disabled;
 
             that.ns = ns;
             options = $.isArray(options) ? { dataSource: options } : options;
@@ -69,6 +69,7 @@
             that._mobile();
 
             that._dataSource();
+
             that._ignoreCase();
 
             that._filterHeader();
@@ -104,6 +105,12 @@
                 }
 
                 that._textAccessor(text);
+            }
+
+            disabled = $(that.element).parents("fieldset").is(':disabled');
+
+            if (disabled) {
+                that.enable(false);
             }
 
             kendo.notify(that);
@@ -206,12 +213,12 @@
             this._focusElement(this.filterInput);
         },
 
-        toggle: function(toggle) {
-            this._toggle(toggle, true);
-        },
-
         _allowOpening: function(length) {
             return this.optionLabel[0] || this.filterInput || this.dataSource.view().length;
+        },
+
+        toggle: function(toggle) {
+            this._toggle(toggle, true);
         },
 
         current: function(candidate) {
@@ -299,23 +306,32 @@
 
         value: function(value) {
             var that = this;
+            var dataSource = that.dataSource;
 
             if (value === undefined) {
                 value = that._accessor() || that.listView.value()[0];
                 return value === undefined || value === null ? "" : value;
             }
 
-            if (value === null) {
-                value = "";
+            if (value) {
+                that._initialIndex = null;
             }
 
-            that._initialIndex = null;
+            if (that._request && that.options.cascadeFrom && that.listView.isBound()) {
+                if (that._valueSetter) {
+                    dataSource.unbind(CHANGE, that._valueSetter);
+                }
 
-            that.listView.value(value.toString()).done(function() {
-                that._triggerCascade();
+                that._valueSetter = proxy(function() { that.value(value); }, that);
 
+                dataSource.one(CHANGE, that._valueSetter);
+                return;
+            }
+
+            that.listView.value(value).done(function() {
                 if (that.selectedIndex === -1 && that.text()) {
                     that.text("");
+                    that._accessor("", -1);
                 }
 
                 that._old = that._accessor();
@@ -383,6 +399,7 @@
 
             var data = that.dataSource.flatView();
             var length = data.length;
+            var dataItem;
 
             var height;
             var value;
@@ -396,9 +413,7 @@
                 that._calculateGroupPadding(height);
             }
 
-            if (that.popup.visible()) {
-                that.popup._position();
-            }
+            that.popup.position();
 
             if (that._isSelect) {
                 value = that.value();
@@ -412,12 +427,8 @@
                 }
 
                 that._options(data, optionLabel, value);
-                if (element.selectedIndex === -1) {
-                    element.selectedIndex = 0;
-                }
             }
 
-            that._hideBusy();
             that._makeUnselectable();
 
             if (!filtered) {
@@ -434,9 +445,14 @@
                         }
 
                         that._initialIndex = null;
+                        dataItem = that.listView.selectedDataItems()[0];
+                        if (dataItem && that.text() !== that._text(dataItem)) {
+                            that._selectValue(dataItem);
+                        }
                     } else if (that._textAccessor() !== that._optionLabelText()) {
                         that.listView.value("");
                         that._selectValue(null);
+                        that._oldIndex = that.selectedIndex;
                     }
                 }
             }
@@ -469,7 +485,7 @@
             var focusedItem = that._focus();
 
             if (!that._prevent) {
-                clearTimeout(that._typing);
+                clearTimeout(that._typingTimeout);
 
                 if (filtered && focusedItem && !that.trigger("select", { item: focusedItem })) {
                     that._select(focusedItem, !that.dataSource.view().length);
@@ -564,6 +580,8 @@
             var isInputActive;
             var handled;
 
+            var isPopupVisible = that.popup.visible();
+
             if (that.filterInput) {
                 isInputActive = that.filterInput[0] === activeElement();
             }
@@ -586,13 +604,18 @@
                 that._focusElement(that.wrapper);
             }
 
+            if (key === keys.ENTER && that._typingTimeout && that.filterInput && isPopupVisible) {
+                e.preventDefault();
+                return;
+            }
+
             handled = that._move(e);
 
             if (handled) {
                 return;
             }
 
-            if (!that.popup.visible() || !that.filterInput) {
+            if (!isPopupVisible || !that.filterInput) {
                 if (key === keys.HOME) {
                     handled = true;
                     that._firstItem();
@@ -783,10 +806,10 @@
             var dataSource = that.dataSource;
             var index = that.selectedIndex;
 
-            clearTimeout(that._typing);
+            clearTimeout(that._typingTimeout);
 
             if (that.options.filter !== "none") {
-                that._typing = setTimeout(function() {
+                that._typingTimeout = setTimeout(function() {
                     var value = that.filterInput.val();
 
                     if (that._prev !== value) {
@@ -794,10 +817,10 @@
                         that.search(value);
                     }
 
-                    that._typing = null;
+                    that._typingTimeout = null;
                 }, that.options.delay);
             } else {
-                that._typing = setTimeout(function() {
+                that._typingTimeout = setTimeout(function() {
                     that._word = "";
                 }, that.options.delay);
 
@@ -820,13 +843,14 @@
 
         _get: function(candidate) {
             var data, found, idx;
+            var jQueryCandidate = $(candidate);
 
             if (this.optionLabel[0]) {
                 if (typeof candidate === "number") {
                     if (candidate > -1) {
                         candidate -= 1;
                     }
-                } else if (candidate instanceof jQuery && candidate.hasClass("k-list-optionlabel")) {
+                } else if (jQueryCandidate.hasClass("k-list-optionlabel")) {
                     candidate = -1;
                 }
             }
@@ -1137,6 +1161,10 @@
         },
 
         _preselect: function(value, text) {
+            if (!value && !text) {
+                text = this._optionLabelText();
+            }
+
             this._accessor(value);
             this._textAccessor(text);
 

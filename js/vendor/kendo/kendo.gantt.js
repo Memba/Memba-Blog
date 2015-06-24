@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -92,7 +92,7 @@
     };
 
     var RESOURCESEDITOR = function(container, options) {
-        $('<a href="#" class="' + options.styles.button + '">' + options.messages.assingButton + '</a>').click(options.click).appendTo(container);
+        $('<a href="#" class="' + options.styles.button + '">' + options.messages.assignButton + '</a>').click(options.click).appendTo(container);
     };
 
     var ganttStyles = {
@@ -1143,6 +1143,8 @@
                 })
                 .data("kendoEditable");
 
+            kendo.cycleForm(container);
+
             if (!this.trigger("edit", { container: container, model: task })) {
                 container.data("kendoWindow").center().open();
 
@@ -1489,7 +1491,7 @@
                     end: "End",
                     percentComplete: "Complete",
                     resources: "Resources",
-                    assingButton: "Assign",
+                    assignButton: "Assign",
                     resourcesHeader: "Resources",
                     unitsHeader: "Units"
                 }
@@ -3024,7 +3026,9 @@
             var content = this.wrapper.clone();
             content.find(listClass).css("width", listWidth);
 
-            return this._drawPDFShadow(content);
+            return this._drawPDFShadow({
+                content: content
+            });
         };
     }
 

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -237,6 +237,17 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
 });
 }
 
+/* FilterMultiCheck messages */
+
+if (kendo.ui.FilterMultiCheck) {
+kendo.ui.FilterMultiCheck.prototype.options.messages =
+$.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
+  "checkAll": "Všetky",
+  "clear": "Vyčistiť",
+  "filter": "Filtrovať"
+});
+}
+
 /* Gantt messages */
 
 if (kendo.ui.Gantt) {
@@ -288,6 +299,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Pridať nový záznam",
     "destroy": "Odstrániť",
     "edit": "Upraviť",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Uložiť zmeny",
     "select": "Vybrať",
     "update": "Uložiť"

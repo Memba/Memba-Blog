@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -3868,7 +3868,8 @@ kendo.PDFMixin = {
                 dataURI: dataURI,
                 fileName: options.fileName,
                 proxyURL: options.proxyURL,
-                forceProxy: options.forceProxy
+                forceProxy: options.forceProxy,
+                proxyTarget: options.proxyTarget
             });
 
             progress.resolve();
@@ -3884,13 +3885,21 @@ kendo.PDFMixin = {
         return kendo.drawing.drawDOM(this.wrapper);
     },
 
-    _drawPDFShadow: function(content) {
+    _drawPDFShadow: function(settings) {
+        settings = settings || {};
         var wrapper = this.wrapper;
-        var shadow = $("<div class='k-pdf-export-shadow'>")
-                     .css("width", wrapper.width());
+        var shadow = $("<div class='k-pdf-export-shadow'>");
+
+        // Content will be allowed to take up to 200" if no width is given.
+        if (settings.width) {
+            shadow.css({
+                width: settings.width,
+                overflow: "visible"
+            });
+        }
 
         wrapper.before(shadow);
-        shadow.append(content || wrapper.clone(true, true));
+        shadow.append(settings.content || wrapper.clone(true, true));
 
         var promise = kendo.drawing.drawDOM(shadow);
         promise.always(function() {

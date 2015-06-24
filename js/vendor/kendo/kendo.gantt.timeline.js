@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -2402,6 +2402,21 @@
                         } else {
                             that.trigger("clear");
                         }
+                    })
+                    .on(CLICK + NS, DOT + styles.taskWrap, function(e) {
+                        e.stopPropagation();
+
+                        // Decrease z-index of wrap so the we can get to the
+                        // dependency line underneath, if there is any
+                        $(this).css("z-index", "0");
+
+                        var target = $(document.elementFromPoint(e.clientX, e.clientY));
+
+                        if (target.hasClass(styles.line)) {
+                            target.click();
+                        }
+
+                        $(this).css("z-index", "");
                     })
                     .on(CLICK + NS, DOT + styles.tasksWrapper, function(e) {
                         if (that.selectDependency().length > 0) {

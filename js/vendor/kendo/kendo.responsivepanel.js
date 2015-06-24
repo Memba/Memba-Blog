@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -72,13 +72,13 @@
             var head = $("head,body")[0];
             var style = document.createElement('style');
 
+            head.appendChild(style);
+
             if (style.styleSheet){
                 style.styleSheet.cssText = cssText;
             } else {
                 style.appendChild(document.createTextNode(cssText));
             }
-
-            head.appendChild(style);
         },
         options: {
             name: "ResponsivePanel",

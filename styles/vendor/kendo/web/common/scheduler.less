@@ -966,12 +966,19 @@ div[name="recurrenceRule"] > .k-dropdown
     display: none;
 }
 
+.k-scheduler-refresh
+{
+    float: right;
+    padding: 0 .5em;
+}
+
 /* Responsive styles  */
 
 @media only screen and (max-width: 1024px) {
     .k-webkit,
     .k-ff,
-    .k-ie11 {    
+    .k-ie11,
+    .k-safari {    
         .k-scheduler-toolbar > ul.k-scheduler-views
         {
             position: absolute;
@@ -1059,7 +1066,8 @@ div[name="recurrenceRule"] > .k-dropdown
 @media only screen and (max-width: 480px) {
     .k-webkit,
     .k-ff,
-    .k-ie11 {
+    .k-ie11,
+    .k-safari {
         .k-scheduler-toolbar li.k-nav-current .k-sm-date-format
         {
             display: none;

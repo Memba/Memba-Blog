@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -155,11 +155,11 @@ $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
 });
 }
 
-/* FilterCenn messages */
+/* FilterCell messages */
 
-if (kendo.ui.FilterCenn) {
-kendo.ui.FilterCenn.prototype.options.messages =
-$.extend(true, kendo.ui.FilterCenn.prototype.options.messages,{
+if (kendo.ui.FilterCell) {
+kendo.ui.FilterCell.prototype.options.messages =
+$.extend(true, kendo.ui.FilterCell.prototype.options.messages,{
   "clear": "Rimuovi",
   "filter": "Filtro",
   "isFalse": "è falso",
@@ -198,6 +198,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Aggiungi nuovo elemento",
     "destroy": "Rimuovi",
     "edit": "Edit",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Salva le modifiche",
     "select": "Seleziona",
     "update": "Aggiorna"

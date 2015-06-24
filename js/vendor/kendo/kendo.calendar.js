@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -870,11 +870,14 @@
                 adjustDST(today, 0);
                 today = +today;
 
+                start = new DATE(start.getFullYear(), start.getMonth(), start.getDate());
+                adjustDST(start, 0);
+
                 return view({
                     cells: 42,
                     perRow: 7,
                     html: html += '</tr></thead><tbody><tr role="row">',
-                    start: new DATE(start.getFullYear(), start.getMonth(), start.getDate()),
+                    start: start,
                     min: new DATE(min.getFullYear(), min.getMonth(), min.getDate()),
                     max: new DATE(max.getFullYear(), max.getMonth(), max.getDate()),
                     content: options.content,

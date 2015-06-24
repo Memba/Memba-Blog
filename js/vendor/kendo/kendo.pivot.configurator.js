@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -100,14 +100,22 @@
         },
 
         _dataSource: function() {
-            if (this.dataSource && this._refreshHandler) {
-                this.dataSource.unbind("change", this._refreshHandler);
+            var that = this;
+
+            if (that.dataSource && that._refreshHandler) {
+                that.dataSource.unbind("change", that._refreshHandler)
+                               .unbind("error", that._errorHandler)
+                               .unbind("progress", that._progressHandler);
             } else {
-                this._refreshHandler = $.proxy(this.refresh, this);
+                that._errorHandler = $.proxy(that._error, that);
+                that._refreshHandler = $.proxy(that.refresh, that);
+                that._progressHandler = $.proxy(that._requestStart, that);
             }
 
-            this.dataSource = kendo.data.PivotDataSource.create(this.options.dataSource);
-            this.dataSource.bind("change", this._refreshHandler);
+            that.dataSource = kendo.data.PivotDataSource.create(that.options.dataSource);
+            that.dataSource.bind("change", that._refreshHandler)
+                           .bind("error", that._errorHandler)
+                           .bind("progress", that._progressHandler);
         },
 
         setDataSource: function(dataSource) {
@@ -190,6 +198,18 @@
                     }
                 }
             });
+        },
+
+        _progress: function(toggle) {
+            kendo.ui.progress(this.element, toggle);
+        },
+
+        _error: function() {
+            this._progress(false);
+        },
+
+        _requestStart: function() {
+            this._progress(true);
         },
 
         _layout: function() {
@@ -378,6 +398,8 @@
             this._cube = this.dataSource.cube();
 
             this._resize();
+
+            this._progress(false);
         },
 
         destroy: function() {

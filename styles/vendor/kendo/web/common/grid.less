@@ -206,6 +206,7 @@ div.k-grid-footer
     overflow-x: auto;
     overflow-y: scroll;
     zoom: 1;
+    min-height: 0%; /* IE9 bug workaround - expanding Grid on hover */
 }
 
 .k-mobile .k-grid tbody
@@ -223,6 +224,25 @@ div.k-grid-footer
     position: absolute;
     visibility: hidden;
     height: 1px;
+}
+
+.k-grid-norecords
+{
+    width:100%;
+    height: 100%;
+}
+
+.k-grid-norecords-template {
+    width: 20em;
+    height: 4em;
+    top: 50%;
+    left: 50%;
+    margin-left: -10em;
+    margin-top: -2em;
+    line-height: 4em;
+    vertical-align: middle;
+    text-align: center;
+    position: absolute;
 }
 
 @media print
@@ -982,11 +1002,17 @@ html .k-grid-edit-row .k-tooltip
 {
     white-space: nowrap !important;
 }
+
+.k-autofitting .k-detail-row
+{
+    display: none !important;
+}
  
 @media only screen and (max-width: 1024px) {
     .k-webkit,
     .k-ff,
-    .k-ie11 {
+    .k-ie11,
+    .k-safari {
         .k-pager-wrap
         {
             overflow: visible;
@@ -1014,6 +1040,12 @@ html .k-grid-edit-row .k-tooltip
             overflow: visible;
             height: auto;
         }
+
+        .km-pane-wrapper .k-pager-numbers,
+        .km-pane-wrapper .k-grid .k-pager-numbers
+        {
+            left: 5.8em;
+        }
         
         .km-pane-wrapper .k-pager-numbers .k-link,
         .km-pane-wrapper .k-pager-numbers .k-state-selected,
@@ -1026,8 +1058,15 @@ html .k-grid-edit-row .k-tooltip
         .k-rtl .k-pager-numbers,
         .k-rtl .k-grid .k-pager-numbers
         {
+            left: auto;
             right: 4.8em;
             width: 4.5em
+        }
+
+        .k-rtl .km-pane-wrapper .k-pager-numbers,
+        .k-rtl .km-pane-wrapper .k-grid .k-pager-numbers
+        {
+            right: 5.8em;
         }
         
         .k-pager-numbers .k-current-page,
@@ -1089,7 +1128,8 @@ html .k-grid-edit-row .k-tooltip
 @media only screen and (max-width: 640px) {
     .k-webkit,
     .k-ff,
-    .k-ie11 {
+    .k-ie11,
+    .k-safari {
         .k-pager-info {
             display: none;
         }
@@ -1099,7 +1139,8 @@ html .k-grid-edit-row .k-tooltip
 @media only screen and (max-width: 480px) {
     .k-webkit,
     .k-ff,
-    .k-ie11 {
+    .k-ie11,
+    .k-safari {
         .k-pager-sizes {
             display: none;
         }

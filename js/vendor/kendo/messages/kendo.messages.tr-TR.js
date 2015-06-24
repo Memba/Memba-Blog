@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -262,6 +262,8 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "create": "Yeni Kayıt Ekle",
     "destroy": "Sil",
     "edit": "Düzenle",
+    "excel": "Export to Excel",
+    "pdf": "Export to PDF",
     "save": "Değişiklikleri Kaydet",
     "select": "Seçiniz",
     "update": "Güncelle"

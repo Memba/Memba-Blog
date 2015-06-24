@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -41,7 +41,7 @@
 
     var ComboBox = Select.extend({
         init: function(element, options) {
-            var that = this, text;
+            var that = this, text, disabled;
 
             that.ns = ns;
 
@@ -96,6 +96,12 @@
 
             if (!text) {
                 that._placeholder();
+            }
+
+            disabled = $(that.element).parents("fieldset").is(':disabled');
+
+            if (disabled) {
+                that.enable(false);
             }
 
             kendo.notify(that);
@@ -173,8 +179,8 @@
             var that = this;
 
             that._inputWrapper.removeClass(FOCUSED);
-            clearTimeout(that._typing);
-            that._typing = null;
+            clearTimeout(that._typingTimeout);
+            that._typingTimeout = null;
 
             if (that.options.text !== that.input.val()) {
                 that.text(that.text());
@@ -256,7 +262,9 @@
             var listView = that.listView;
             var focusedItem = listView.focus();
             var data = this.dataSource.flatView();
+            var page = this.dataSource.page();
             var length = data.length;
+            var dataItem;
             var value;
 
             that._angularItems("compile");
@@ -267,9 +275,7 @@
                 that._calculateGroupPadding(that._height(length));
             }
 
-            if (that.popup.visible()) {
-                that.popup._position();
-            }
+            that.popup.position();
 
             if (that._isSelect) {
                 var hasChild = that.element[0].children[0];
@@ -291,7 +297,6 @@
                 }
             }
 
-            that._hideBusy();
             that._makeUnselectable();
 
             if (!filtered && !that._fetch) {
@@ -305,13 +310,18 @@
                 }
 
                 that._initialIndex = null;
+
+                dataItem = that.listView.selectedDataItems()[0];
+                if (dataItem && that.text() && that.text() !== that._text(dataItem)) {
+                    that._selectValue(dataItem);
+                }
             } else if (filtered && focusedItem) {
                 focusedItem.removeClass("k-state-selected");
             }
 
-            if (length) {
+            if (length && (page === undefined || page === 1)) {
                 if (options.highlightFirst) {
-                    if (!focusedItem) {
+                    if (!focusedItem && !listView.focusIndex()) {
                         listView.focus(0);
                     }
                 } else {
@@ -326,13 +336,13 @@
             if (that._open) {
                 that._open = false;
 
-                if (that._typing && !isActive) {
+                if (that._typingTimeout && !isActive) {
                     that.popup.close();
                 } else {
                     that.toggle(!!length);
                 }
 
-                that._typing = null;
+                that._typingTimeout = null;
             }
 
             if (that._touchScroller) {
@@ -454,6 +464,7 @@
             }
 
             if (word) {
+                word = word.toString();
                 idx = word.toLowerCase().indexOf(value.toLowerCase());
                 if (idx > -1) {
                     value += word.substring(idx + value.length);
@@ -541,12 +552,6 @@
                 return value === undefined || value === null ? "" : value;
             }
 
-            if (value === null) {
-                value = "";
-            }
-
-            value = value.toString();
-
             if (value === options.value && that.input.val() === options.text) {
                 return;
             }
@@ -556,20 +561,22 @@
             that.listView
                 .value(value)
                 .done(function() {
-                    that._triggerCascade();
-
                     that._selectValue(that.listView.selectedDataItems()[0]);
 
                     if (that.selectedIndex === -1) {
                         that._accessor(value);
                         that.input.val(value);
+                        that._placeholder(true);
                     }
 
                     that._old = that._accessor();
                     that._oldIndex = that.selectedIndex;
 
                     that._prev = that.input.val();
-                    that._state = STATE_ACCEPT;
+
+                    if (that._state === STATE_FILTER) {
+                        that._state = STATE_ACCEPT;
+                    }
                 });
 
             that._fetchData();
@@ -629,7 +636,7 @@
 
             if (current) {
                 if (options.suggest) {
-                    this.suggest(current);
+                    that.suggest(current);
                 }
 
                 this.open();
@@ -638,8 +645,6 @@
             if (this.options.highlightFirst && !word) {
                 this.listView.first();
             }
-
-            that._hideBusy();
         },
 
         _input: function() {
@@ -711,8 +716,8 @@
 
             that._last = key;
 
-            clearTimeout(that._typing);
-            that._typing = null;
+            clearTimeout(that._typingTimeout);
+            that._typingTimeout = null;
 
             if (key != keys.TAB && !that._move(e)) {
                that._search();
@@ -757,7 +762,7 @@
         _search: function() {
             var that = this;
 
-            that._typing = setTimeout(function() {
+            that._typingTimeout = setTimeout(function() {
                 var value = that.text();
 
                 if (that._prev !== value) {
@@ -765,7 +770,7 @@
                     that.search(value);
                 }
 
-                that._typing = null;
+                that._typingTimeout = null;
             }, that.options.delay);
         },
 

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -16,47 +16,6 @@
         proxy = $.proxy,
         abs = Math.abs,
         MAX_DOUBLE_TAP_DISTANCE = 20;
-
-    var Swipe = kendo.Class.extend({
-        init: function(element, callback, options) {
-            options = $.extend({
-                minXDelta: 30,
-                maxYDelta: 20,
-                maxDuration: 1000
-            }, options);
-
-            new kendo.UserEvents(element, {
-                surface: options.surface,
-                allowSelection: true,
-
-                start: function(e) {
-                    if (abs(e.x.velocity) * 2 >= abs(e.y.velocity)) {
-                        e.sender.capture();
-                    }
-                },
-
-                move: function(e) {
-                    var touch = e.touch,
-                    duration = e.event.timeStamp - touch.startTime,
-                    direction = touch.x.initialDelta > 0 ? "right" : "left";
-
-                    if (
-                        abs(touch.x.initialDelta) >= options.minXDelta &&
-                        abs(touch.y.initialDelta) < options.maxYDelta &&
-                    duration < options.maxDuration)
-                    {
-                        callback({
-                            direction: direction,
-                            touch: touch,
-                            target: touch.target
-                        });
-
-                        touch.cancel();
-                    }
-                }
-            });
-        }
-    });
 
     var Touch = Widget.extend({
         init: function(element, options) {
@@ -193,13 +152,6 @@
             }
         }
     });
-
-
-    window.jQuery.fn.kendoMobileSwipe = function(callback, options) {
-        this.each(function() {
-            new Swipe(this, callback, options);
-        });
-    };
 
     kendo.ui.plugin(Touch);
 })(window.kendo.jQuery);

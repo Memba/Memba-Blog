@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -7,7 +7,7 @@
 * If you do not own a commercial license, this file shall be governed by the trial license terms.
 */
 (function(f, define){
-    define([ "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.dropdownlist" ], f);
+    define([ "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.dropdownlist", "./kendo.binder" ], f);
 })(function(){
 
 /* jshint eqnull: true */
@@ -60,7 +60,7 @@
                     '#}#'+
                 '</select>'+
                 '#if(values){#' +
-                    '<select data-#=ns#bind="value:filters[0].value" data-#=ns#text-field="text" data-#=ns#value-field="value" data-#=ns#source=\'#=kendo.stringify(values).replace(/\'/g,"&\\#39;")#\' data-#=ns#role="dropdownlist" data-#=ns#option-label="#=messages.selectValue#">' +
+                    '<select data-#=ns#bind="value:filters[0].value" data-#=ns#text-field="text" data-#=ns#value-field="value" data-#=ns#source=\'#=kendo.stringify(values).replace(/\'/g,"&\\#39;")#\' data-#=ns#role="dropdownlist" data-#=ns#option-label="#=messages.selectValue#" data-#=ns#value-primitive="true">' +
                     '</select>' +
                 '#}else{#' +
                     '<input data-#=ns#bind="value:filters[0].value" class="k-textbox" type="text" #=role ? "data-" + ns + "role=\'" + role + "\'" : ""# />'+
@@ -76,7 +76,7 @@
                         '#}#'+
                     '</select>'+
                     '#if(values){#' +
-                        '<select data-#=ns#bind="value:filters[1].value" data-#=ns#text-field="text" data-#=ns#value-field="value" data-#=ns#source=\'#=kendo.stringify(values).replace(/\'/g,"&\\#39;")#\' data-#=ns#role="dropdownlist" data-#=ns#option-label="#=messages.selectValue#">' +
+                        '<select data-#=ns#bind="value:filters[1].value" data-#=ns#text-field="text" data-#=ns#value-field="value" data-#=ns#source=\'#=kendo.stringify(values).replace(/\'/g,"&\\#39;")#\' data-#=ns#role="dropdownlist" data-#=ns#option-label="#=messages.selectValue#" data-#=ns#value-primitive="true">' +
                         '</select>'+
                     '#}else{#' +
                         '<input data-#=ns#bind="value: filters[1].value" class="k-textbox" type="text" #=role ? "data-" + ns + "role=\'" + role + "\'" : ""#/>'+
@@ -352,6 +352,8 @@
             that.refresh();
 
             that.trigger(INIT, { field: that.field, container: that.form });
+
+            kendo.cycleForm(that.form);
         },
 
         _createForm: function(role) {
@@ -839,9 +841,9 @@
                 this.checkSource.data(distinct(this.dataSource.data(),this.field));
                 this.refresh();
             } else {
-                ui.progress(that.container, true);
+                this._attachProgress();
+
                 this.checkSource.fetch(function() {
-                    ui.progress(that.container, false);
                     that.refresh.call(that);
                 });
             }
@@ -860,6 +862,23 @@
 
             this.trigger(INIT, { field: this.field, container: this.form });
         },
+
+        _attachProgress: function() {
+            var that = this;
+
+            this._progressHandler = function() {
+                ui.progress(that.container, true);
+            };
+
+            this._progressHideHandler = function() {
+                ui.progress(that.container, false);
+            };
+
+            this.checkSource
+                .bind("progress", this._progressHandler)
+                .bind("change", this._progressHideHandler);
+        },
+
         _createForm: function() {
             var options = this.options;
             var html = "<ul class='k-reset k-multicheck-wrap'></ul><button type='submit' class='k-button k-primary'>" + options.messages.filter + "</button>";
@@ -942,20 +961,25 @@
         },
         createCheckBoxes: function() {
             var options = this.options;
+            var data;
             var templateOptions = {
                 field: this.field,
                 format: options.format,
                 mobile: this._isMobile,
                 type: this.type
             };
-            var template = kendo.template(options.itemTemplate(templateOptions));
-            var data = this.checkSource.data();
-            if (options.values) {
+
+            if (!this.options.forceUnique) {
+                data = this.checkSource.view();
+            } else if (options.values) {
                 data = options.values;
                 templateOptions.valueField = "value";
                 templateOptions.field = "text";
-                template = kendo.template(options.itemTemplate(templateOptions));
+            } else {
+                data = this.checkSource.data();
             }
+
+            var template = kendo.template(options.itemTemplate(templateOptions));
             var itemsHtml = kendo.render(template, data);
             if (options.checkAll) {
                 this.createCheckAllItem();
@@ -1049,6 +1073,14 @@
 
             if (that.checkChangeHandler) {
                 that.checkSource.unbind(CHANGE, that.checkChangeHandler);
+            }
+
+            if (that._progressHandler) {
+                that.checkSource.unbind("progress", that._progressHandler);
+            }
+
+            if (that._progressHideHandler) {
+                that.checkSource.unbind("change", that._progressHideHandler);
             }
 
             that.element = that.checkSource = that.container = that.checkBoxAll = that._link = that._refreshHandler = that.checkAllHandler = null;

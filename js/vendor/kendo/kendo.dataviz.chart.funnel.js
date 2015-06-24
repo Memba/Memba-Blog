@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.1.429 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -167,7 +167,7 @@
                 series: series,
                 dataItem: fields.dataItem,
                 index: fields.index
-            }, { defaults: series._defaults, excluded: ["data"] });
+            }, { defaults: series._defaults, excluded: ["data", "toggle", "visual"] });
         },
 
         createSegment: function(value, fields) {
@@ -400,6 +400,19 @@
             return draw.Path.fromPoints(this.points, style);
         },
 
+        highlightVisual: function() {
+            return this.visual.children[0];
+        },
+
+        highlightVisualArgs: function() {
+            var path = draw.Path.fromPoints(this.points).close();
+
+            return {
+                options: this.options,
+                path: path
+            };
+        },
+
         highlightOverlay: function(view, opt) {
             var options = this.options,
                 hlOptions = options.highlight || {};
@@ -441,7 +454,8 @@
     );
 
     deepExtend(dataviz, {
-        FunnelChart: FunnelChart
+        FunnelChart: FunnelChart,
+        FunnelSegment: FunnelSegment
     });
 
 })(window.kendo.jQuery);
