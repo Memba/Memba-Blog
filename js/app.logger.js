@@ -215,7 +215,7 @@
          * @see https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
          * @type {Function|*}
          */
-        var onError = window.onerror;
+        //var onError = window.onerror;
         window.onerror = function(msg, url, line) {
             // Format log entry
             var message = msg + ' at ' + url + ' (line ' + line + ')',
@@ -227,11 +227,11 @@
                 };
             // Print to console and log to logentries
             logger.critical(entry);
-            if (typeof onError === FUNCTION) {
+            //if (typeof onError === FUNCTION) {
                 // Call previous handler
                 // by initializing LE with catchall:false we disable logentries global error handler and avoid double logging
-                return onError(message, url, line);
-            }
+                //return onError(message, url, line);
+            //}
             // Otherwise just let default handler run
             return false;
         };
