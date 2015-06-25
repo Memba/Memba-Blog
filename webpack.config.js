@@ -97,12 +97,12 @@ module.exports = {
                 loader: 'json'
             },
             {
-                test: /app\.theme\.[a-z]+\.less$/,
+                test: /app\.theme\.[a-z0-9]+\.less$/,
                 loader: 'bundle?name=[name]!style/useable!css!less'
             },
             {
                 test: /\.less$/,
-                exclude: /app\.theme\.[a-z]+\.less$/,
+                exclude: /app\.theme\.[a-z0-9]+\.less$/,
                 loader: 'style!css!less'
             },
             {
