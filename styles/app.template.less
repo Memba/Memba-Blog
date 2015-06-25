@@ -203,50 +203,40 @@ a:active {
             }
         }
     }
-    ul.navbar-nav>li {
-        a {
-            color: @header-text-color;
-        }
-        a:hover {
-            color: @hover-text-color;
-            border-color: @hover-border-color;
-            background-color: @hover-background-color;
-        }
+    form.navbar-form {
+        border-color: @widget-border-color;
     }
-}
-
-//---------------------------------------------
-// bootstrap drop-downs
-ul.navbar-nav {
-    li {
-        a {
-            color: @header-text-color;
+    ul.navbar-nav {
+        li {
+            a {
+                color: @header-text-color;
+            }
+            a:hover {
+                color: @hover-text-color;
+                background-color: @hover-background-color;
+                background-position: 50% 50%;
+                border-color: @hover-border-color;
+                .composite-background(@hover-gradient);
+            }
         }
-        a:hover {
-            color: @hover-text-color;
-            background-color: @hover-background-color;
-            background-position: 50% 50%;
-            border-color: @hover-border-color;
-            .composite-background(@hover-gradient);
-        }
-    }
-    li.open {
-        a:focus {
-            //TODO we should not require !important here
-            //especially gradient cannot be enforced using mixin
-            color: @selected-text-color !important;
-            background-color: @selected-background-color !important;
-            background-position: 50% 50% !important;
-            border-color: @selected-border-color !important;
-            .composite-background(@selected-gradient);
-        }
-        ul.dropdown-menu {
-            color: @drop-down-text-color;
-            .composite-background(@widget-gradient);
-            background-position: 50% 50%;
-            background-color: @drop-down-background;
-            border-color: @drop-down-border-color;
-            .box-shadow(@focused-shadow);
+        li.open {
+            a:focus {
+                //TODO we should not require !important here
+                //especially gradient cannot be enforced using mixin
+                color: @selected-text-color !important;
+                background-color: @selected-background-color !important;
+                background-position: 50% 50% !important;
+                border-color: @selected-border-color !important;
+                .composite-background(@selected-gradient);
+            }
+            ul.dropdown-menu {
+                color: @drop-down-text-color;
+                .composite-background(@widget-gradient);
+                background-position: 50% 50%;
+                background-color: @drop-down-background;
+                border-color: @drop-down-border-color;
+                .box-shadow(@focused-shadow);
+            }
         }
     }
 }
