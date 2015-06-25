@@ -106,15 +106,19 @@ module.exports = {
                 loader: 'style!css!less'
             },
             {
+                test: /\.css$/,
+                loader: 'style!css'
+            },
+            {
                 test: /\.(gif|png|jpe?g)$/,
                 loader: 'url?limit=8192'
             },
             {
-                test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                loader: 'url?limit=10000&minetype=application/font-woff'
+                test: /\.woff(2)?(\?v=[0-9]\.[0-9](\.[0-9])?)?$/,
+                loader: 'url?limit=10000&mimetype=application/font-woff'
             },
             {
-                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9](\.[0-9])?)?$/,
                 loader: 'file'
             }
         ]
