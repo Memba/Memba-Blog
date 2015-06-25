@@ -20,10 +20,12 @@ WORKDIR /usr/src/
 RUN npm install
 
 # Delete cache (memba-blog and kidoju-blog)
+# Do not comment as blog Dockerfile is copied from here
+# and the if condition takes care of the specificity
 RUN if [ -d /usr/src/webapp/cache ]; then rm -f /usr/src/webapp/cache/*; fi
 
 # Expose nodeJS port
-EXPOSE 3000
+EXPOSE 3001
 
 # Start node application
 # CMD [ "node", "/webapp/server.js" ]
