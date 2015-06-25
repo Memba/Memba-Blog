@@ -142,10 +142,9 @@
 .header {
     color: @header-text-color;
     border-color: @widget-border-color;
-    //border-color: @secondary-border-color;
-    .composite-background(@widget-gradient);
     background-position: 50% 50%;
     background-color: @header-background-color;
+    .composite-background(@widget-gradient);
 }
 
 .secondary-text-color(@background-color) when (lightness(@background-color) < 50%) {
@@ -217,6 +216,66 @@ a:active {
 }
 
 //---------------------------------------------
+// bootstrap drop-downs
+ul.navbar-nav {
+    li {
+        a {
+            color: @header-text-color;
+        }
+        a:hover {
+            color: @hover-text-color;
+            background-color: @hover-background-color;
+            background-position: 50% 50%;
+            border-color: @hover-border-color;
+            .composite-background(@hover-gradient);
+        }
+    }
+    li.open {
+        a:focus {
+            //TODO we should not require !important here
+            //especially gradient cannot be enforced using mixin
+            color: @selected-text-color !important;
+            background-color: @selected-background-color !important;
+            background-position: 50% 50% !important;
+            border-color: @selected-border-color !important;
+            .composite-background(@selected-gradient);
+        }
+        ul.dropdown-menu {
+            color: @drop-down-text-color;
+            .composite-background(@widget-gradient);
+            background-position: 50% 50%;
+            background-color: @drop-down-background;
+            border-color: @drop-down-border-color;
+            .box-shadow(@focused-shadow);
+        }
+    }
+}
+
+//---------------------------------------------
+// List group items
+.list-group {
+    color: @widget-text-color;
+    background-color: @widget-background-color;
+    border-color: @widget-border-color;
+    .composite-background(@widget-gradient);
+    .box-shadow(@widget-shadow);
+    a.list-group-item {
+        color: @widget-text-color;
+        background-color: transparent;
+        border-color: @widget-border-color;
+        span.badge {
+            // TODO
+        }
+    }
+    a.list-group-item:hover {
+        color: @hover-text-color;
+        background-color: @hover-background-color;
+        border-color: @hover-border-color;
+        .composite-background(@hover-gradient);
+    }
+}
+
+//---------------------------------------------
 // Panels (user and summary details)
 .panel { //=== .panel-default
     .window-shadow(@shadow-color);
@@ -253,7 +312,7 @@ a:active {
                 }
             }
             .tags, .activity {
-               .secondary-text-color(@widget-background-color);
+                .secondary-text-color(@widget-background-color);
                 a {
                     .secondary-text-color(@widget-background-color);
                 }
@@ -299,3 +358,4 @@ footer {
     border-top: solid 1px @widget-border-color;
     .header();
 }
+

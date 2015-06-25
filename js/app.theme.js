@@ -15,12 +15,11 @@
 
     'use strict';
 
-    (function (undefined) {
+    (function ($, undefined) {
 
-        var app = window.app = window.app || {},
-            FUNCTION = 'function',
+        var app = window.app,
+            logger = app.logger,
             STRING = 'string',
-            UNDEFINED = 'undefined',
             THEME = 'theme',
             DEFAULT = 'default';
 
@@ -29,48 +28,42 @@
             /**
              * Load a theme
              * @param theme
-             * @param callback
              */
-            _load: function (theme, callback) {
+            load: function (theme) {
                 //TODO Reject unlisted theme
-                var oldTheme = localStorage.getItem(THEME), loader;
+                var dfd = $.Deferred(),
+                    oldTheme = localStorage.getItem(THEME), loader;
                 if(typeof oldTheme === STRING && oldTheme !== theme) {
-                    try {
-                        //See https://github.com/webpack/style-loader/issues/48
-                        //See https://github.com/webpack/webpack/issues/924
-                        //See //https://github.com/webpack/webpack/issues/993
-                        //loader = require('bundle?name=[name]!style/useable!css!less../styles/app.theme.' + oldTheme + '.less');
-                        loader = require('../styles/app.theme.' + oldTheme + '.less');
-                        loader(function(style) {
-                            style.unuse();
-                        });
-                    } catch(e) {
-                        log(e.message);
-                    }
+                    //See https://github.com/webpack/style-loader/issues/48
+                    //See https://github.com/webpack/webpack/issues/924
+                    //See //https://github.com/webpack/webpack/issues/993
+                    loader = require('../styles/app.theme.' + oldTheme + '.less');
+                    loader(function(style) {
+                        style.unuse();
+                    });
                 }
                 localStorage.setItem(THEME, theme);
-                try {
-                    //loader = require('bundle?name=[name]!style/useable!css!less!../styles/app.theme.' + theme + '.less');
-                    loader = require('../styles/app.theme.' + theme + '.less');
-                    loader(function(style) {
-                        style.use();
-                        if (typeof callback === FUNCTION) {
-                            callback();
-                        }
+                loader = require('../styles/app.theme.' + theme + '.less');
+                loader(function(style) {
+                    style.use();
+                    logger.debug({
+                        message: 'theme changed to ' + theme,
+                        module: 'app.theme',
+                        method: 'load'
                     });
-                } catch (e) {
-                    log(e.message);
-                }
+                    dfd.resolve();
+                });
+                return dfd.promise();
             },
 
             /**
-             *
+             * Get/set theme name
              * @param theme
              */
-            value: function (theme) {
+            name: function (theme) {
                 if (typeof theme === STRING) {
-                    app.theme._load(theme);
-                } else if (typeof theme === UNDEFINED) {
+                    app.theme.load(theme);
+                } else if (theme === undefined) {
                     return localStorage.getItem(THEME);
                 } else {
                     throw new TypeError('bad theme');
@@ -80,15 +73,15 @@
         };
 
         //load theme
-        var theme = app.theme.value();
+        var theme = app.theme.name();
         if(theme) {
-            app.theme.value(theme);
+            app.theme.name(theme);
         } else {
-            app.theme.value(DEFAULT);
+            app.theme.name(DEFAULT);
         }
 
-    }());
+    }(window.jQuery));
 
-    return app.theme;
+    return window.app;
 
 }, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });

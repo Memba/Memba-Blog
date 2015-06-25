@@ -30,9 +30,15 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        jscs: {
+            files: ['gruntfile.js', 'webpack.config.js', 'js/**/app.*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
+            options: {
+                config: '.jscsrc'
+            }
+        },
         jshint: {
-            all: ['gruntfile.js', 'webpack.config.js', 'js/**/*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
-            ignores: ['js/vendor/**/*.js', 'webapp/public/**/*.js', 'test/vendor/**/*.js'],
+            all: ['gruntfile.js', 'webpack.config.js', 'js/**/app.*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
+            ignores: ['js/kidoju.*.js', 'js/vendor/**/*.js', 'webapp/public/**/*.js', 'test/vendor/**/*.js'],
             options: {
                 jshintrc: true
             }
@@ -76,6 +82,7 @@ module.exports = function (grunt) {
     });
 
     //Lint
+    grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-kendo-lint');
 

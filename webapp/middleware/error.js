@@ -55,9 +55,9 @@ module.exports = {
         res
             .status(error.status)
             .set({
-                'Content-Type': 'text/html; charset=utf-8',
+                'Cache-Control': 'no-cache',
                 'Content-Language': res.getLocale(),
-                'Cache-Control': 'no-cache'
+                'Content-Type': 'text/html; charset=utf-8'
             })
             .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
             .render('error', {

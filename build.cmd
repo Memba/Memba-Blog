@@ -24,5 +24,6 @@ GOTO BUILD
 set NODE_ENV=test
 GOTO BUILD
 :BUILD
+DEL webapp\public\assets /S /Q
 grunt build
 :DONE

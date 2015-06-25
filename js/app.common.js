@@ -19,23 +19,19 @@ require('./vendor/bootstrap/dropdown.js');
 (function(f, define){
     'use strict';
     define([
-        './vendor/kendo/kendo.binder.js',
-        //'./vendor/kendo/kendo.button.js',
-        './vendor/kendo/kendo.dropdownlist.js',
-        './vendor/kendo/kendo.notification.js',
+        './vendor/kendo/kendo.binder',
+        //'./vendor/kendo/kendo.button',
+        './vendor/kendo/kendo.dropdownlist',
+        './vendor/kendo/kendo.notification',
         './app.logger',
         './app.i18n',
-        './app.theme',
-        './app.common',
-        './app.menu'
+        './app.theme'
     ], f);
 })(function() {
 
     'use strict';
 
     (function ($, undefined) {
-
-        'use strict';
 
         var kendo = window.kendo,
             app = window.app,
@@ -49,7 +45,7 @@ require('./vendor/bootstrap/dropdown.js');
          */
         var viewModel = kendo.observable({
             locale: i18n.locale(),
-            theme: theme.value()
+            theme: theme.name()
         });
 
         /**
@@ -59,7 +55,7 @@ require('./vendor/bootstrap/dropdown.js');
             if (e.field === 'locale') {
                 i18n.locale(e.sender.get('locale'));
             } else if (e.field === 'theme') {
-                theme.value(e.sender.get('theme'));
+                theme.name(e.sender.get('theme'));
             }
         });
 
@@ -110,8 +106,8 @@ require('./vendor/bootstrap/dropdown.js');
             kendo.bind('footer', viewModel);
 
             //Log page readiness
-            logger.debug({
-                message: 'Common elements initialized in ' + i18n.locale() ,
+            logger.info({
+                message: 'common elements initialized in ' + i18n.locale() ,
                 module: 'app.common',
                 method: '$(document).ready'
             });

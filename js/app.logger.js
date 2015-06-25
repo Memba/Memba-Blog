@@ -9,16 +9,16 @@
 (function(f, define){
     'use strict';
     define(['./vendor/logentries/le.js'], f);
-})(function(LE) {
+})(function(le) {
 
     'use strict';
 
     (function (undefined) {
 
-        var //LE = window.LE,
+        var LE = window.LE || le, // We need `le` for webpack and `window.LE` for grunt mocha
             app = window.app = window.app || {},
             logger = app.logger = app.logger || {
-                token: 'e78bac0b-377a-49e2-ad91-20bb4ec7cedc', //Our localhost value (basically junk)
+                token: 'e78bac0b-377a-49e2-ad91-20bb4ec7cedc', // Our localhost value (basically junk)
                 level: 0 //log evenrything
             },
             FUNCTION = 'function',
@@ -48,7 +48,7 @@
              * Important: catchall: true is equivalent to setting window.onerror
              * See https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
              */
-            catchall: true,
+            catchall: false, //we have our own global handler below
             trace: false, //not as good as our sessionId
             page_info: 'never',
             print: false //let's print to the console ourselves
@@ -111,8 +111,19 @@
                     }
                 }
                 window.console.log(message);
-                if (entry.error instanceof Error && typeof window.console.dir === FUNCTION) {
-                    window.console.dir(entry.error);
+                if (entry.error instanceof Error) {
+                    if (typeof window.console.error === FUNCTION) {
+                        window.console.error(entry.error);
+                    } else if (typeof window.console.dir === FUNCTION) {
+                        window.console.dir(entry.error);
+                    }
+                }
+                if (entry.originalError instanceof Error) {
+                    if (typeof window.console.error === FUNCTION) {
+                        window.console.error(entry.originalError);
+                    } else if (typeof window.console.dir === FUNCTION) {
+                        window.console.dir(entry.originalError);
+                    }
                 }
             }
         }
@@ -120,20 +131,17 @@
         /**
          * Log a debug entry
          * @param entry
-         * @param send to logEntries (by default, debug information is not sent to logEntries)
          */
-        logger.debug = function(entry, send) {
+        logger.debug = function(entry) {
             if (logger.level > LEVEL.DEBUG) {
                 return false;
             }
             entry = process(entry);
             print(entry, LABEL.DEBUG);
-            if (send) {
-                setTimeout(function() {
-                    //Note: LE has no debug logging as of June 2015
-                    LE.log(entry);
-                }, 0);
-            }
+            setTimeout(function() {
+                //Note: LE has no debug logging as of June 2015
+                LE.log(entry);
+            }, 0);
             return true;
         };
 
@@ -200,6 +208,32 @@
                 LE.error(entry);
             }, 0);
             return true;
+        };
+
+        /**
+         * Global error handler
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
+         * @type {Function|*}
+         */
+        var onError = window.onerror;
+        window.onerror = function(msg, url, line) {
+            // Format log entry
+            var message = msg + ' at ' + url + ' (line ' + line + ')',
+                entry = {
+                    message: message,
+                    module: 'app.logger',
+                    method: 'window.onerror',
+                    error: new Error(message)
+                };
+            // Print to console and log to logentries
+            logger.critical(entry);
+            if (typeof onError === FUNCTION) {
+                // Call previous handler
+                // by initializing LE with catchall:false we disable logentries global error handler and avoid double logging
+                return onError(message, url, line);
+            }
+            // Otherwise just let default handler run
+            return false;
         };
 
     }());

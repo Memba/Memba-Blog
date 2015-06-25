@@ -6,6 +6,7 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false, require: false */
 
+// Load CSS
 require('../styles/app.page.error.less');
 
 (function(f, define){
@@ -13,7 +14,7 @@ require('../styles/app.page.error.less');
     define([
         './app.logger',
         './app.i18n',
-        './app.common'
+        './app.common' //<----- errors have no menu in case the error comes from the menu
     ], f);
 })(function() {
 
@@ -25,6 +26,10 @@ require('../styles/app.page.error.less');
             logger = app.logger,
             i18n = app.i18n;
 
+        /**
+         * Wait for document to be ready to initialize UI
+         * Note: no need to use the i18n.loaded event here
+         */
         $(document).ready(function() {
 
             //Add click handler on back button
