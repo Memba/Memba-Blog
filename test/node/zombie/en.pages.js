@@ -28,7 +28,6 @@ var Zombie = require('zombie'),
 describe('English pages', function() {
 
     before(function(done) {
-        //browser.debug();
         //Increase max listeners in case of timeout
         browser.setMaxListeners(30);
         browser.visit(webapp.home, done);
