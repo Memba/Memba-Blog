@@ -27,59 +27,43 @@ module.exports = {
      */
     handler: function (req, res, next) {
 
-        try {
+        //Log the request
+        logger.info({
+            message: 'Github webhook triggered',
+            module: 'routes/hookRoute',
+            method: 'handler',
+            request: req
+        });
 
-            //Log the request
+        //In production only, validate the request
+        if(process.env.NODE_ENV === 'production') {
+
+            //Check user agent
+            if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
+                throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
+            }
+
+        }
+
+        //Reindex contents
+        locales.forEach(function (locale) {
+            db[locale].reindex();
+        });
+
+        //Reset cache
+        setTimeout(function() {
+            menu.resetCache();
+            index.resetCache();
             logger.info({
-                message: 'Github webhook triggered',
+                message: 'Index and menu cache reset',
                 module: 'routes/hookRoute',
                 method: 'handler',
                 request: req
             });
+        }, 10000);
 
-            //In production only, validate the request
-            if(process.env.NODE_ENV === 'production') {
+        //Close and send the response
+        res.end();
 
-                //Check user agent
-                if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
-                    throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
-                }
-
-            }
-
-            //Reindex contents
-            locales.forEach(function (locale) {
-                db[locale].reindex();
-            });
-
-            //Reset cache
-            setTimeout(function() {
-                menu.resetCache();
-                index.resetCache();
-                logger.info({
-                    message: 'Index and menu cache reset',
-                    module: 'routes/hookRoute',
-                    method: 'handler',
-                    request: req
-                });
-            }, 10000);
-
-            //Close and send the response
-            res.end();
-
-        } catch(exception) {
-            console.error(exception);
-
-            //Log the exception
-            logger.critical({
-                message: 'Uncaught exception',
-                module: 'routes/hookRoute',
-                method: 'handler',
-                request: req,
-                error: exception
-            });
-
-            return res.status(500).end();
-        }
     }
 };
