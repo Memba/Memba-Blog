@@ -3,52 +3,89 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
 
-var path = require('path'),
-    express = require('express'),
-    helmet = require('helmet'),
-    i18n = require('i18n'),
-    app = express(),
-    config = require('./config'),
-    router = require('./routes'),
-    logger = require('./lib/logger');
+var logger = require('./lib/logger');
 
-//Catch-all error handler
-//See http://stackoverflow.com/questions/7310521/node-js-best-practice-exception-handling
-process.on('uncaughtException', function(err) {
+/**
+ * Handle uncaught exceptions
+ * @see http://stackoverflow.com/questions/7310521/node-js-best-practice-exception-handling
+ */
+process.on('uncaughtException', function (exception) {
+
     logger.critical({
-        message: 'uncaught exception',
+        // message = exception.message
         module: 'server',
-        method: 'undefined',
-        error: err
+        method: 'process.onuncaughtException',
+        error: exception
     });
-    process.exit(1);
+
+    if (typeof server === 'undefined') {
+        process.exit(1);
+    } else {
+        // make sure we close down within 2 seconds
+        // which should give enough time for any pending request to complete
+        var killtimer = setTimeout(function () {
+            process.exit(1);
+        }, 2000);
+        // see https://nodejs.org/api/domain.html
+        killtimer.unref();
+        // stop taking new requests
+        server.close();
+    }
+
 });
 
-process.on('exit', function(/*code*/) {
-    logger.info({
-        message: 'exit',
-        module: 'server',
-        method: 'process.onexit'
-    });
+/**
+ * Ensure we exit properly when interrupting by Ctrl+C
+ */
+process.on('SIGINT', function() {
+    process.exit(0);
 });
+
+/**
+ * This event handler is called after process.exit
+ * Therefore it closes the mongoose connection before exiting
+ * either from an uncaughtException or from Ctrl+C
+ */
+process.on('exit', function(code) {
+    // We use a try/catch block here because we might have reached here from an uncaughtException
+    try {
+        logger.warn({
+            message: 'exiting with code ' + code,
+            module: 'server',
+            method: 'process.onexit'
+        });
+    } catch(exception) {
+        console.error(exception);
+    }
+});
+
+var config = require('./config');
 
 logger.info({
     message: 'nconf environment is ' + config.get('NODE:ENV'),
-    module: 'config/index',
-    method: 'Config'
+    module: 'config/index'
 });
 
+var path = require('path'),
+    express = require('express'),
+    helmet = require('helmet'),
+    http = require('http'),
+    i18n = require('i18n'),
+    router = require('./routes'),
+    app = express(),
+    port = process.env.PORT || config.get('express:port');
+
 //Secure expressJS with helmet from https://github.com/helmetjs/helmet
-app.use(helmet()); //app.disable('x-powered-by');
+//app.disable('x-powered-by');
+app.use(helmet());
 
 // Configure expressJS
 app.set('trust proxy', 'uniquelocal');
-app.set('port', process.env.PORT || config.get('express:port'));
+app.set('port', port);
 
 // i18n
 i18n.configure({
@@ -73,15 +110,12 @@ app.use(config.get('uris:webapp:public'), express.static(path.join(__dirname, 'p
 // Routing
 app.use(router);
 
-// Start application
-app.listen(app.get('port'));
-
-//Log
+//Launch server
+var server = http.createServer(app).listen(port);
 logger.info({
-    message: 'express server listening on port ' + app.get('port'),
-    method: 'none',
+    message: 'expressJS server listening on port ' + port,
     module: 'server'
 });
 
-//Export app for further needs, especially qa/testing
+//Export app for unit tests
 module.exports = app;

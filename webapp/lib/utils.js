@@ -10,10 +10,14 @@
 var uuid = require('node-uuid'),
     deepExtend = require('deep-extend');
 
+/**
+ * Miscellaneous utility functions
+ * @type {{isObject: Function, isEmptyObject: Function, deepExtend: (*|exports|module.exports), uuid: (*|v1)}}
+ */
 module.exports = {
 
     /**
-     * Checks if `obj` is an object.
+     * Checks whether `obj` is an object.
      * @param obj
      * @returns {boolean}
      */
@@ -22,7 +26,7 @@ module.exports = {
     },
 
     /**
-     * Checks if `obj` is an empty object
+     * Checks whether `obj` is an empty object
      * @param obj
      * @returns {boolean}
      */

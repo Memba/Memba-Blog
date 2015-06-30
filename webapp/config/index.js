@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
@@ -13,15 +12,15 @@ var nconf = require('nconf'),
 
 function Config(){
     nconf.argv().env('_');
-    var environment = nconf.get('NODE:ENV') || 'production';
-    nconf.file(environment, path.join(__dirname, environment + '.json'));
+    this.environment = nconf.get('NODE:ENV') || 'production';
+    nconf.file(this.environment, path.join(__dirname, this.environment + '.json'));
     nconf.file('default', path.join(__dirname, 'default.json'));
 }
 
 /**
  * Get a config key
  * @param key
- * @returns {*}
+ * @returns {String|*}
  */
 Config.prototype.get = function(key) {
     return nconf.get(key);

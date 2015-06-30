@@ -22,6 +22,13 @@
                 level: 0 //log evenrything
             },
             FUNCTION = 'function',
+            LABEL = {
+                DEBUG: '[DEBUG]',
+                INFO: '[INFO] ',
+                WARN: '[WARN] ',
+                ERROR: '[ERROR]',
+                CRIT: '[CRIT] '
+            },
             LEVEL = {
                 //See https://github.com/logentries/le_node#log-levels
                 DEBUG: 1,
@@ -30,13 +37,9 @@
                 ERROR: 5,
                 CRIT: 6
             },
-            LABEL = {
-                DEBUG: 'DEBUG',
-                INFO: 'INFO',
-                WARN: 'WARN',
-                ERROR: 'ERROR',
-                CRIT: 'CRIT'
-            };
+            EQUAL = ' = ',
+            FIRST = '  ',
+            SEPARATOR = '  |  ';
 
         // Intialize LogEntries
         // see https://logentries.com/doc/javascript/
@@ -49,7 +52,7 @@
              * See https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
              */
             catchall: false, //we have our own global handler below
-            trace: false, //not as good as our sessionId
+            trace: false, //not as good as our own trace
             page_info: 'never',
             print: false //let's print to the console ourselves
         });
@@ -62,19 +65,26 @@
             if (typeof entry === 'string') {
                 entry = { message: entry };
             } else if (entry instanceof Error) {
-                //We need to do that because JSON.stringify(new Error('Oops)) === {} and is not sent to logentries
-                entry = {
-                    message: entry.message,
-                    stack: entry.stack,
-                    error: entry
-                };
+                entry = { error: entry };
             } else if (Object.prototype.toString.call(entry) !== '[object Object]') {
                 entry = { data: entry };
+            }
+            if (entry.error instanceof Error) {
+                //We need to do that because JSON.stringify(new Error('Oops)) === {} and is not sent to logentries
+                entry.message = entry.error.message;
+                if (entry.error.originalError instanceof Error) {
+                    entry.originalError = entry.error.originalError;
+                    delete entry.error.originalError;
+                    entry.originalMessage = entry.originalError.message;
+                    entry.stack = entry.originalError.stack;
+                } else {
+                    entry.stack = entry.error.stack;
+                }
             }
             //If there is a hidden input field named `session` on the page, read it
             var input = document.getElementById('session');
             if (input instanceof HTMLInputElement) {
-                entry.session = input.value;
+                entry.trace = input.value;
             }
             return entry;
         }
@@ -87,28 +97,40 @@
          */
         function print(entry, label) {
             if (app.DEBUG && window.console && typeof window.console.log === FUNCTION) {
-                var message = '[' + label + ']' + (label === LABEL.INFO || label === LABEL.WARN || label === LABEL.CRIT ? ' ' : ''),
+                var message = label,
                     first = true;
                 if (entry.message) {
-                    message += (first ? '  ' : '  |  ') + 'message = ' + entry.message;
+                    message += (first ? FIRST : SEPARATOR) + 'message' + EQUAL + entry.message;
+                    first = false;
+                }
+                if (entry.originalMessage) {
+                    message += (first ? FIRST : SEPARATOR) + 'originalMessage' + EQUAL + entry.originalMessage;
                     first = false;
                 }
                 if (entry.module) {
-                    message += (first ? '  ' : '  |  ') + 'module = ' + entry.module;
+                    message += (first ? FIRST : SEPARATOR) + 'module' + EQUAL + entry.module;
                     first = false;
                 }
                 if (entry.method) {
-                    message += (first ? '  ' : '  |  ') + 'method = ' + entry.method;
+                    message += (first ? FIRST : SEPARATOR) + 'method' + EQUAL + entry.method;
+                    first = false;
+                }
+                if (entry.stack) {
+                    message += (first ? FIRST : SEPARATOR) + 'stack' + EQUAL + entry.stack;
                     first = false;
                 }
                 if (entry.data) {
                     try {
-                        message += (first ? '  ' : '  |  ') + 'data = ' + JSON.stringify(entry.data);
+                        message += (first ? FIRST : SEPARATOR) + 'data' + EQUAL + JSON.stringify(entry.data);
                     } catch(exception) {
                         if(typeof entry.data.toString === FUNCTION) {
-                            message += (first ? '  ' : '  |  ') + 'data = ' + entry.data.toString();
+                            message += (first ? FIRST : SEPARATOR) + 'data' + EQUAL + entry.data.toString();
                         }
                     }
+                }
+                if (entry.trace) {
+                    message += (first ? FIRST : SEPARATOR) + 'trace' + EQUAL + entry.trace;
+                    first = false;
                 }
                 window.console.log(message);
                 if (entry.error instanceof Error) {
