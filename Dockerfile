@@ -19,6 +19,10 @@ COPY . /usr/src/
 WORKDIR /usr/src/
 RUN npm install
 
+# Add forever
+# see https://github.com/foreverjs/forever
+RUN npm install forever -g
+
 # Delete cache (memba-blog and kidoju-blog)
 # Do not comment as blog Dockerfile is copied from here
 # and the if condition takes care of the specificity
@@ -28,5 +32,4 @@ RUN if [ -d /usr/src/webapp/cache ]; then rm -f /usr/src/webapp/cache/*; fi
 EXPOSE 3001
 
 # Start node application
-# CMD [ "node", "/webapp/server.js" ]
 CMD [ "npm", "start" ]
