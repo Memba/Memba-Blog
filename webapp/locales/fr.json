@@ -205,24 +205,61 @@
 		}
 	},
 	"errors": {
-        "generic": {
+        "http": {
             "400": {
                 "status": 400,
                 "title": "400 - Mauvaise Requête",
-                "message": "Désolé, mais votre requête comporte une erreur. L'URL est peut-être mal ortographiée."
+                "message": "Désolé, mais votre requête est mal formulée. L'URL est peut-être mal ortographiée."
+            },
+            "401": {
+                "status": 401,
+                "title": "401 - Non autorisé",
+                "message": "Désolé, mais votre requête n'est pas autorisée."
+            },
+            "403": {
+                "status": 403,
+                "title": "403 - Forbidden",
+                "message": "Désolé, mais votre requête est interdite."
             },
             "404": {
                 "status": 404,
                 "title": "404 - Introuvable",
-                "description": "Désolé, la page demandée est introuvable. L'URL est peut-être mal ortographiée ou la page que vous recherchez n'est peut-être plus disponible."
+                "message": "Désolé, mais la page demandée est introuvable. L'URL est peut-être mal ortographiée ou la page que vous recherchez n'est peut-être plus disponible."
             },
             "500": {
                 "status": 500,
                 "title": "500 - Erreur Inconnue",
-                "description": "Il y a eu une erreur inconnue. Si nous arrivons à la reproduire, nous la corrigerons avec amour et attention."
+                "message": "Il y a eu une erreur inconnue. Si nous arrivons à la reproduire, nous la corrigerons avec amour et attention."
             }
         },
-
+        "mongoose": {
+            "validation": {
+                "status": 400,
+                "message": "Database validation error"
+            }
+        },
+        "params": {
+            "invalidObjectId": {
+                "status": 400,
+                "message": "Invalid object identifier: an identifier is an hexadecimal string of 24 characters"
+            },
+            "invalidLanguage": {
+                "status": 400,
+                "message": "Invalid language: a language is a 2 character string"
+            },
+            "invalidProvider": {
+                "status": 400,
+                "message": "Invalid provider: use `facebook`, `google`, `live` or `twitter`"
+            },
+            "invalidMonth": {
+                "status": 404,
+                "message": "There has been no blog post during the selected month"
+            },
+            "invalidYear": {
+                "status": 404,
+                "message": "There has been no blog post during the selected year"
+            }
+        },
         "models": {
             "contentModel": {
                 "md_extension": {
