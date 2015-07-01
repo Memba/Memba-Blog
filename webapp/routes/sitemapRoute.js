@@ -24,8 +24,8 @@ module.exports = {
      */
     getXmlSitemap: function(req, res, next) {
 
-        //Create a sessionId that we can track in the browser
-        //req.sessionId = utils.uuid();
+        //Create a trace that we can track in the browser
+        //req.trace = utils.uuid();
 
         //Log the request
         logger.info({

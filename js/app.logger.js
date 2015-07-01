@@ -81,8 +81,8 @@
                     entry.stack = entry.error.stack;
                 }
             }
-            //If there is a hidden input field named `session` on the page, read it
-            var input = document.getElementById('session');
+            //If there is a hidden input field named `trace` on the page, read it
+            var input = document.getElementById('trace');
             if (input instanceof HTMLInputElement) {
                 entry.trace = input.value;
             }

@@ -21,7 +21,7 @@ RUN npm install
 
 # Add forever
 # see https://github.com/foreverjs/forever
-RUN npm install forever -g
+RUN npm install -g forever
 
 # Delete cache (memba-blog and kidoju-blog)
 # Do not comment as blog Dockerfile is copied from here

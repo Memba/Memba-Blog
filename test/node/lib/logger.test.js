@@ -7,14 +7,28 @@
 
 'use strict';
 
-var fs = require('fs'),
-    path = require('path'),
-    expect = require('chai').expect,
-    filePath = path.join(__dirname, '../../../api/lib/logger.js'),
-    loggerPath = fs.existsSync(filePath) ? '../../../api/lib/logger' : '../../../webapp/lib/logger',
-    logger = require(loggerPath);
+var expect = require('chai').expect;
+
+var logger;
+try {
+    logger = require('../../../webapp/lib/logger');
+} catch(exception) {
+    logger = require('../../../api/lib/logger');
+}
 
 describe('lib/logger', function() {
+
+    describe('Test throwing conditions', function() {
+
+        it('logging an undefined value should throw', function() {
+            expect(logger.debug).to.throw;
+            expect(logger.info).to.throw;
+            expect(logger.warn).to.throw;
+            expect(logger.error).to.throw;
+            expect(logger.critical).to.throw;
+        });
+
+    });
 
     describe('Test logging at level 0', function() {
 
@@ -27,7 +41,7 @@ describe('lib/logger', function() {
         });
 
         it('INFO should log', function() {
-            expect(logger.info()).to.be.true;
+            expect(logger.info( { message: 'simple message' } )).to.be.true;
         });
 
         it('WARN should log', function() {
@@ -57,7 +71,7 @@ describe('lib/logger', function() {
         });
 
         it('INFO should log', function() {
-            expect(logger.info(undefined)).to.be.true;
+            expect(logger.info({ message: 'simple message', data: undefined })).to.be.true;
         });
 
         it('WARN should log', function() {
@@ -87,7 +101,7 @@ describe('lib/logger', function() {
         });
 
         it('INFO should not log', function() {
-            expect(logger.info(undefined)).to.be.false;
+            expect(logger.info(100)).to.be.false;
         });
 
         it('WARN should log', function() {
@@ -117,7 +131,7 @@ describe('lib/logger', function() {
         });
 
         it('INFO should not log', function() {
-            expect(logger.info(undefined)).to.be.false;
+            expect(logger.info(false)).to.be.false;
         });
 
         it('WARN should not log', function() {

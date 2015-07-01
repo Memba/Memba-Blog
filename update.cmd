@@ -150,6 +150,15 @@ ATTRIB +R .\test\node\lib\url.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\utils.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\utils.test.js
 
+REM Copy ./test/node/middleware files
+ATTRIB -R .\test\node\middleware\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\error.test.js .\test\node\middleware /Y
+ATTRIB +R .\test\node\middleware\error.test.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\notFound.test.js .\test\node\middleware /Y
+ATTRIB +R .\test\node\middleware\notFound.test.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.js .\test\node\middleware /Y
+ATTRIB +R .\test\node\middleware\params.test.js
+
 REM Copy ./test/vendor files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\test\vendor  .\test\vendor /C /E /I /R /Y
 ATTRIB +R .\test\vendor\*.* /S
@@ -175,6 +184,8 @@ REM Copy ./webapp/lib files
 ATTRIB -R .\webapp\lib\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\error.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\error.js
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\httpStatus.js .\webapp\lib /Y
+ATTRIB +R .\webapp\lib\httpStatus.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\logger.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\logger.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\url.js .\webapp\lib /Y
@@ -186,10 +197,10 @@ REM Copy ./webapp/middleware files
 ATTRIB -R .\webapp\middleware\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\error.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\error.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\language.js .\webapp\middleware /Y
-ATTRIB +R .\webapp\middleware\language.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\notFound.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\notFound.js
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware /Y
+ATTRIB +R .\webapp\middleware\params.js
 
 REM Copy ./webapp/views files
 ATTRIB -R .\webapp\views\*.*

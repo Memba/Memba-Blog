@@ -29,8 +29,8 @@ module.exports = {
      */
     getHtmlPage: function(req, res, next) {
 
-        //Create a sessionId that we can track in the browser
-        req.sessionId = utils.uuid();
+        //Create a trace that we can track in the browser
+        req.trace = utils.uuid();
 
         //Log the request
         logger.info({
@@ -76,7 +76,7 @@ module.exports = {
                             menu: responses[0],
                             months: responses[4],
                             results: false, //trick header into not displaying robots noindex directive
-                            sessionId: req.sessionId
+                            trace: req.trace
                         });
                         res
                             .set({
@@ -98,7 +98,7 @@ module.exports = {
                             menu: responses[0],
                             months: responses[4],
                             results: responses[1],
-                            sessionId: req.sessionId,
+                            trace: req.trace,
                             site_url: url.join(util.format(res.locals.config.uris.webapp.posts, req.params.language, req.params.year || '', req.params.month || '', ''), '?' + qs.stringify(req.query)),
                             title: res.__('search.title.heading')
                         };

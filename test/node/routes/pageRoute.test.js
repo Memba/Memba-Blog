@@ -39,7 +39,7 @@ describe('routes/pageRoute', function() {
     it('it should return an error page on unknown language', function(done) {
         request(app)
             .get(util.format(config.get('uris:webapp:pages'), 'zz', ''))
-            .expect(404)
+            .expect(400)
             .expect('Content-Type', /html/)
             .end(done);
     });

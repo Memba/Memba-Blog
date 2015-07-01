@@ -12,13 +12,11 @@ var express = require('express'),
     util = require('util'),
     router = express.Router(),
     config = require('../config'),
+    error = require('../middleware/error'),
     extension = require('../middleware/extension'),
     locals = require('../middleware/locals'),
-    language = require('../middleware/language'),
-    year = require('../middleware/year'),
-    month = require('../middleware/month'),
     notFound = require('../middleware/notFound'),
-    error = require('../middleware/error'),
+    params = require('../middleware/params'),
     pingRoute = require('./pingRoute'),
     homeRoute = require('./homeRoute'),
     hookRoute = require('./hookRoute'),
@@ -28,10 +26,10 @@ var express = require('express'),
     postRoute = require('./postRoute');
 
 // Validate parameters
-router.param('language', language.validate);
-router.param('year', year.validate);
-router.param('month', month.validate);
-//router.param('slug', slug.validate);
+router.param('language', params.validateLanguage);
+router.param('year', params.validateYear);
+router.param('month', params.validateMonth);
+//router.param('slug', params.validateSlug);
 
 // Return simplified 404 for support files with extensions
 router.use(extension);

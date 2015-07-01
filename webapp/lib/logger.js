@@ -10,26 +10,25 @@
 var assert = require('assert'),
     config = require('../config'),
     utils = require('./utils'),
-    DEBUG = config.get('DEBUG') || false,
-    LABEL = {
-        DEBUG: '[DEBUG]',
-        INFO: '[INFO] ',
-        WARN: '[WARN] ',
-        ERROR: '[ERROR]',
-        CRIT: '[CRIT] '
+    labels = {
+        debug: '[DEBUG]',
+        info: '[INFO] ',
+        warn: '[WARN] ',
+        error: '[ERROR]',
+        critical: '[CRIT] '
     },
     level = config.get('level') || 0,
-    LEVEL = {
+    levels = {
         //See https://github.com/logentries/le_node#log-levels
-        DEBUG: 1,
-        INFO: 2,
-        WARN: 4,
-        ERROR: 5,
-        CRIT: 6
+        debug: 1,
+        info: 2,
+        warn: 4,
+        error: 5,
+        critical: 6
     },
-    EQUAL = ' = ',
-    FIRST = '  ',
-    SEPARATOR = '  |  ';
+    eq = ' = ',
+    prefix = '  ',
+    separator = '  |  ';
 
 /**
  * Process entry.request if existing
@@ -91,52 +90,52 @@ function print(entry, label) {
     var message = label,
         first = true;
     if (entry.message) {
-        message += (first ? FIRST : SEPARATOR) + 'message' + EQUAL + entry.message;
+        message += (first ? prefix : separator) + 'message' + eq + entry.message;
         first = false;
     }
     if (entry.originalMessage) {
-        message += (first ? FIRST : SEPARATOR) + 'originalMessage' + EQUAL + entry.originalMessage;
+        message += (first ? prefix : separator) + 'originalMessage' + eq + entry.originalMessage;
         first = false;
     }
     if (entry.module) {
-        message += (first ? FIRST : SEPARATOR) + 'module' + EQUAL + entry.module;
+        message += (first ? prefix : separator) + 'module' + eq + entry.module;
         first = false;
     }
     if (entry.method) {
-        message += (first ? FIRST : SEPARATOR) + 'method' + EQUAL + entry.method;
+        message += (first ? prefix : separator) + 'method' + eq + entry.method;
         first = false;
     }
     if (entry.stack) {
-        message += (first ? FIRST : SEPARATOR) + 'stack' + EQUAL + entry.stack;
+        message += (first ? prefix : separator) + 'stack' + eq + entry.stack;
         first = false;
     }
     if (entry.data) {
         try {
-            message += (first ? FIRST : SEPARATOR) + 'data' + EQUAL + JSON.stringify(entry.data);
+            message += (first ? prefix : separator) + 'data' + eq + JSON.stringify(entry.data);
         } catch(exception) {
             if(typeof entry.data.toString === 'function') {
-                message += (first ? FIRST : SEPARATOR) + 'data' + EQUAL + entry.data.toString();
+                message += (first ? prefix : separator) + 'data' + eq + entry.data.toString();
             }
         }
     }
     if (entry.url) {
-        message += (first ? FIRST : SEPARATOR) + 'url' + EQUAL + entry.url;
+        message += (first ? prefix : separator) + 'url' + eq + entry.url;
         first = false;
     }
     if (entry.query) {
-        message += (first ? FIRST : SEPARATOR) + 'query' + EQUAL + entry.query;
+        message += (first ? prefix : separator) + 'query' + eq + entry.query;
         first = false;
     }
     if (entry.trace) {
-        message += (first ? FIRST : SEPARATOR) + 'trace' + EQUAL + entry.trace;
+        message += (first ? prefix : separator) + 'trace' + eq + entry.trace;
         first = false;
     }
     if (entry.ip) {
-        message += (first ? FIRST : SEPARATOR) + 'ip' + EQUAL + entry.ip;
+        message += (first ? prefix : separator) + 'ip' + eq + entry.ip;
         first = false;
     }
     if (entry.agent) {
-        message += (first ? FIRST : SEPARATOR) + 'agent' + EQUAL + entry.agent;
+        message += (first ? prefix : separator) + 'agent' + eq + entry.agent;
         first = false;
     }
     console.log(message);
@@ -148,27 +147,7 @@ function print(entry, label) {
     }
 }
 
-/**
- * Extend a function
- * @param func
- * @param props
- * @returns {*}
- */
-function extend(func, props) {
-    for (var prop in props) {
-        if (props.hasOwnProperty(prop)) {
-            func[prop] = props[prop];
-        }
-    }
-    return func;
-}
-
-module.exports = {
-
-    /**
-     * Export DEBUG for tests
-     */
-    DEBUG: DEBUG,
+module.exports = exports = {
 
     /**
      * Export level for tests
@@ -176,41 +155,16 @@ module.exports = {
     level: level,
 
     /**
-     * Provide an assert that is transparent in production code
-     */
-    assert: (function() {
-        if(module.exports.DEBUG) {
-            return assert;
-        } else {
-            return extend(
-                function() {},
-                {
-                    fail: function() {},
-                    ok: function() {},
-                    equal: function() {},
-                    notEqual: function() {},
-                    deepEqual: function() {},
-                    notDeepEqual: function() {},
-                    strictEqual: function() {},
-                    notStrictEqual: function() {},
-                    throws: function() {},
-                    doesNotThrow: function() {},
-                    ifError: function() {}
-                }
-            );
-        }
-    }()),
-
-    /**
      * Log a debug entry
-     * Only output if DEBUG===true
+     * Only output if debug===true
      * @param entry
      */
     debug: function(entry) {
-        if (module.exports.level > LEVEL.DEBUG) {
+        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
+        if (exports.level > levels.debug) {
             return false;
         }
-        print(process(entry), LABEL.DEBUG);
+        print(process(entry), labels.debug);
         return true;
     },
 
@@ -219,10 +173,11 @@ module.exports = {
      * @param entry
      */
     info: function(entry) {
-        if (module.exports.level > LEVEL.INFO) {
+        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
+        if (exports.level > levels.info) {
             return false;
         }
-        print(process(entry), LABEL.INFO);
+        print(process(entry), labels.info);
         return true;
     },
 
@@ -231,10 +186,11 @@ module.exports = {
      * @param entry
      */
     warn: function(entry) {
-        if (module.exports.level > LEVEL.WARN) {
+        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
+        if (exports.level > levels.warn) {
             return false;
         }
-        print(process(entry), LABEL.WARN);
+        print(process(entry), labels.warn);
         return true;
     },
 
@@ -243,10 +199,11 @@ module.exports = {
      * @param entry
      */
     error: function(entry) {
-        if (module.exports.level > LEVEL.ERROR) {
+        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
+        if (exports.level > levels.error) {
             return false;
         }
-        print(process(entry), LABEL.ERROR);
+        print(process(entry), labels.error);
         return true;
     },
 
@@ -255,10 +212,11 @@ module.exports = {
      * @param entry
      */
     critical: function(entry) {
-        if (module.exports.level > LEVEL.CRIT) {
+        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
+        if (exports.level > levels.critical) {
             return false;
         }
-        print(process(entry), LABEL.CRIT);
+        print(process(entry), labels.critical);
         return true;
     }
 

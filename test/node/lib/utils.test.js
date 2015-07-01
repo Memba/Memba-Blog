@@ -7,12 +7,14 @@
 
 'use strict';
 
-var fs = require('fs'),
-    path = require('path'),
-    expect = require('chai').expect,
-    filePath = path.join(__dirname, '../../../api/lib/utils.js'),
-    utilsPath = fs.existsSync(filePath) ? '../../../api/lib/utils' : '../../../webapp/lib/utils',
-    utils = require(utilsPath);
+var expect = require('chai').expect;
+
+var utils;
+try {
+    utils = require('../../../webapp/lib/utils');
+} catch(exception) {
+    utils = require('../../../api/lib/utils');
+}
 
 describe('lib/utils', function() {
 
