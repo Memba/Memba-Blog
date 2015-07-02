@@ -245,19 +245,19 @@
             },
             "invalidLanguage": {
                 "status": 400,
-                "message": "Invalid language: a language is a 2 character string"
+                "message": "Invalid language: this language is not implemented"
             },
             "invalidProvider": {
                 "status": 400,
                 "message": "Invalid provider: use `facebook`, `google`, `live` or `twitter`"
             },
             "invalidMonth": {
-                "status": 404,
-                "message": "There has been no blog post during the selected month"
+                "status": 400,
+                "message": "Invalid month: use a two-digit number between 01 and 12"
             },
             "invalidYear": {
-                "status": 404,
-                "message": "There has been no blog post during the selected year"
+                "status": 400,
+                "message": "Invalid year: use a four-digit number between 2014 and the current year"
             }
         },
         "models": {
