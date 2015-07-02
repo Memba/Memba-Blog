@@ -10,6 +10,7 @@
 var assert = require('assert'),
     config = require('../config'),
     utils = require('./utils'),
+    environment = config.environment || 'production',
     labels = {
         debug: '[DEBUG]',
         info: '[INFO] ',
@@ -26,9 +27,19 @@ var assert = require('assert'),
         error: 5,
         critical: 6
     },
-    eq = ' = ',
-    prefix = '  ',
+    eq, qt, prefix, separator;
+
+if (config.production) {
+    eq = '=';
+    qt = '"';
+    prefix = '\t';
+    separator = '\t';
+} else {
+    eq = ' = ';
+    qt = '';
+    prefix = '  ';
     separator = '  |  ';
+}
 
 /**
  * Process entry.request if existing
@@ -90,61 +101,62 @@ function print(entry, label) {
     var message = label,
         first = true;
     if (entry.message) {
-        message += (first ? prefix : separator) + 'message' + eq + entry.message;
+        message += (first ? prefix : separator) + 'message' + eq + qt + entry.message + qt;
         first = false;
     }
     if (entry.originalMessage) {
-        message += (first ? prefix : separator) + 'originalMessage' + eq + entry.originalMessage;
+        message += (first ? prefix : separator) + 'originalMessage' + eq + qt + entry.originalMessage + qt;
         first = false;
     }
     if (entry.module) {
-        message += (first ? prefix : separator) + 'module' + eq + entry.module;
+        message += (first ? prefix : separator) + 'module' + eq + qt + entry.module + qt;
         first = false;
     }
     if (entry.method) {
-        message += (first ? prefix : separator) + 'method' + eq + entry.method;
-        first = false;
-    }
-    if (entry.stack) {
-        message += (first ? prefix : separator) + 'stack' + eq + entry.stack;
+        message += (first ? prefix : separator) + 'method' + eq + qt + entry.method + qt;
         first = false;
     }
     if (entry.data) {
         try {
-            message += (first ? prefix : separator) + 'data' + eq + JSON.stringify(entry.data);
+            message += (first ? prefix : separator) + 'data' + eq + qt + JSON.stringify(entry.data) + qt;
         } catch(exception) {
             if(typeof entry.data.toString === 'function') {
-                message += (first ? prefix : separator) + 'data' + eq + entry.data.toString();
+                message += (first ? prefix : separator) + 'data' + eq + qt + entry.data.toString() + qt;
             }
         }
     }
     if (entry.url) {
-        message += (first ? prefix : separator) + 'url' + eq + entry.url;
+        message += (first ? prefix : separator) + 'url' + eq + qt + entry.url + qt;
         first = false;
     }
     if (entry.query) {
-        message += (first ? prefix : separator) + 'query' + eq + entry.query;
+        message += (first ? prefix : separator) + 'query' + eq + qt + entry.query + qt;
         first = false;
     }
     if (entry.trace) {
-        message += (first ? prefix : separator) + 'trace' + eq + entry.trace;
+        message += (first ? prefix : separator) + 'trace' + eq + qt + entry.trace + qt;
         first = false;
     }
     if (entry.ip) {
-        message += (first ? prefix : separator) + 'ip' + eq + entry.ip;
+        message += (first ? prefix : separator) + 'ip' + eq + qt + entry.ip + qt;
         first = false;
     }
     if (entry.agent) {
-        message += (first ? prefix : separator) + 'agent' + eq + entry.agent;
+        message += (first ? prefix : separator) + 'agent' + eq + qt + entry.agent + qt;
         first = false;
     }
+    if (entry.stack) {
+        message += '\n' + entry.stack;
+    }
     console.log(message);
+    /*
     if (entry.error) {
         console.error(entry.error);
     }
     if (entry.originalError) {
         console.error(entry.originalError);
     }
+    */
 }
 
 module.exports = exports = {

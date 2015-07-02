@@ -79,7 +79,7 @@ module.exports = {
      * @returns {*}
      */
     validateMonth: function(req, res, next, month){
-        var parsed = parseInt(month, 10);
+        var parsed = parseInt(month, 10) || -1;
         if (!/^[0-1][0-9]$/.test(month) || parsed <= 0 || parsed >= 13) {
             //If month is not between 1 and 12, raise an error
             next(new ApplicationError('errors.params.invalidMonth'));
@@ -97,7 +97,7 @@ module.exports = {
      * @returns {*}
      */
     validateYear: function(req, res, next, year){
-        var parsed = parseInt(year, 10);
+        var parsed = parseInt(year, 10) || -1;
         if (!/^20[1-2][0-9]$/.test(year) || parsed < 2014 || parsed > (new Date()).getUTCFullYear()) {
             //If year does not make sense, raise an error
             next(new ApplicationError('errors.params.invalidYear'));
