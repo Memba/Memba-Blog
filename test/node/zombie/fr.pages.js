@@ -30,6 +30,7 @@ describe('French pages', function() {
     before(function(done) {
         //Increase max listeners in case of timeout
         browser.setMaxListeners(30);
+        // browser.runScripts = false;
         browser.visit(webapp.index, done);
     });
 

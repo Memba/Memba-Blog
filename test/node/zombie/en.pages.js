@@ -28,15 +28,16 @@ var Zombie = require('zombie'),
 describe('English pages', function() {
 
     before(function(done) {
-        //Increase max listeners in case of timeout
+        // Increase max listeners in case of timeout
         browser.setMaxListeners(30);
+        // browser.runScripts = false;
         browser.visit(webapp.home, done);
     });
 
     describe('When navigating pages', function() {
 
         xit('Check that jQuery event handlers are triggered', function(done) {
-            //See https://github.com/assaf/zombie/blob/master/test/jquery_compat_test.js#L149
+            // See https://github.com/assaf/zombie/blob/master/test/jquery_compat_test.js#L149
             console.log(browser.window.$.expando);
             browser.window.$(browser.document).on('click', '.flag', function(e) {
                 console.log('Triggered!');
