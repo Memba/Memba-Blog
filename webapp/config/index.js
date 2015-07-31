@@ -8,14 +8,33 @@
 'use strict';
 
 var nconf = require('nconf'),
-    path = require('path');
+    path = require('path'),
+    awss3;
+
+try { awss3 = require('./awss3'); } catch(exception) {}
 
 function Config(){
     nconf.argv().env('_');
     this.environment = nconf.get('NODE:ENV') || 'production';
-    nconf.file(this.environment, path.join(__dirname, this.environment + '.json'));
     nconf.file('default', path.join(__dirname, 'default.json'));
+    if(awss3 && this.environment === 'production') {
+        nconf.use('awss3', { bucket: nconf.get('awss3:config:bucket'), key: nconf.get('awss3:config:key') });
+    } else {
+        nconf.file(this.environment, path.join(__dirname, this.environment + '.json'));
+    }
 }
+
+/**
+ * Load config (especially from AWS S3)
+ * @param callback
+ */
+Config.prototype.load = function(callback) {
+    if(awss3 && this.environment === 'production') {
+        nconf.load(callback);
+    } else {
+        process.nextTick(callback);
+    }
+};
 
 /**
  * Get a config key

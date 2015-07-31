@@ -6,15 +6,17 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false, require: false */
 
-//Load styles
-require('../styles/bootstrap.custom.less');
-require('../styles/vendor/kendo/web/kendo.common.less');
-require('../styles/fonts/kidoju.less');
-require('../styles/app.page.common.less');
+if (typeof(require) === 'function') {
+    //Load styles
+    require('../styles/bootstrap.custom.less');
+    require('../styles/vendor/kendo/web/kendo.common.less');
+    require('../styles/fonts/kidoju.less');
+    require('../styles/app.page.common.less');
 
-//Bootstrap files (toggled navbar)
-require('./vendor/bootstrap/collapse.js');
-require('./vendor/bootstrap/dropdown.js');
+    //Bootstrap files (toggled navbar)
+    require('./vendor/bootstrap/collapse.js');
+    require('./vendor/bootstrap/dropdown.js');
+}
 
 (function(f, define){
     'use strict';

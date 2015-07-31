@@ -57,7 +57,7 @@ module.exports = {
 
         if(typeof res.getLocale === 'function' && typeof res.__ === 'function') {
 
-            //Display error for webapp
+            //Display error page for webapp
             res
                 .status(error.status)
                 .set({
@@ -80,7 +80,7 @@ module.exports = {
 
         } else {
 
-            // Return error for api server
+            // Return json error message for api server
             res
                 .status(error.status)
                 .json({ error: error });

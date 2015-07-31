@@ -124,13 +124,20 @@ function print(entry, label) {
                 message += (first ? prefix : separator) + 'data' + eq + qt + entry.data.toString() + qt;
             }
         }
+        first = false;
     }
     if (entry.url) {
         message += (first ? prefix : separator) + 'url' + eq + qt + entry.url + qt;
         first = false;
     }
     if (entry.query) {
-        message += (first ? prefix : separator) + 'query' + eq + qt + entry.query + qt;
+        try {
+            message += (first ? prefix : separator) + 'query' + eq + qt + JSON.stringify(entry.query) + qt;
+        } catch(exception) {
+            if(typeof entry.data.toString === 'function') {
+                message += (first ? prefix : separator) + 'query' + eq + qt + entry.query.toString() + qt;
+            }
+        }
         first = false;
     }
     if (entry.trace) {

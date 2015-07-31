@@ -9,14 +9,17 @@
 (function(f, define){
     'use strict';
     define(['./vendor/logentries/le.js'], f);
-})(function(le) {
+})(function(LE) {
 
     'use strict';
 
+    // Depending how le.js is loaded
+    // We need `LE` for webpack and `window.LE` for grunt mocha
+    LE = LE || window.LE;
+
     (function (undefined) {
 
-        var LE = window.LE || le, // We need `le` for webpack and `window.LE` for grunt mocha
-            app = window.app = window.app || {},
+        var app = window.app = window.app || {},
             logger = app.logger = app.logger || {
                 token: 'e78bac0b-377a-49e2-ad91-20bb4ec7cedc', // Our localhost value (basically junk)
                 level: 0 //log evenrything

@@ -6,8 +6,10 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false, require: false */
 
-// Load CSS
-require('../styles/app.page.error.less');
+if (typeof(require) === 'function') {
+    // Load styles
+    require('../styles/app.page.error.less');
+}
 
 (function(f, define){
     'use strict';
