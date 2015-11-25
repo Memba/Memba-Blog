@@ -16,7 +16,7 @@ if (typeof(require) === 'function') {
     define([
         './app.logger',
         './app.i18n',
-        './app.common' //<----- errors have no menu in case the error comes from the menu
+        './app.common' // <----- errors have no menu in case the error comes from the menu
     ], f);
 })(function() {
 
@@ -25,7 +25,7 @@ if (typeof(require) === 'function') {
     (function ($, undefined) {
 
         var app = window.app,
-            logger = app.logger,
+            logger = new window.Logger('app.error'),
             i18n = app.i18n;
 
         /**
@@ -34,15 +34,14 @@ if (typeof(require) === 'function') {
          */
         $(document).ready(function() {
 
-            //Add click handler on back button
+            // Add click handler on back button
             $('#back-button').click(function() {
                 window.history.back();
             });
 
-            //Log page readiness
+            // Log page readiness
             logger.info({
                 message: 'error page initialized in ' + i18n.locale(),
-                module: 'app.error',
                 method: '$(document).ready'
             });
 

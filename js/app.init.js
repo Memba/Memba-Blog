@@ -12,5 +12,5 @@ if (typeof(require) === 'function') {
     require('./app.support.js');
 }
 
-//TODO Consider javascript disabled
-//TODO use app.support to display a message for older browsers
+// TODO Consider javascript disabled
+// TODO use app.support to display a message for older browsers

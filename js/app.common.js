@@ -7,13 +7,13 @@
 /* globals define: false, require: false */
 
 if (typeof(require) === 'function') {
-    //Load styles
+    // Load styles
     require('../styles/bootstrap.custom.less');
     require('../styles/vendor/kendo/web/kendo.common.less');
     require('../styles/fonts/kidoju.less');
     require('../styles/app.page.common.less');
 
-    //Bootstrap files (toggled navbar)
+    // Bootstrap files (toggled navbar)
     require('./vendor/bootstrap/collapse.js');
     require('./vendor/bootstrap/dropdown.js');
 }
@@ -22,7 +22,7 @@ if (typeof(require) === 'function') {
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
-        //'./vendor/kendo/kendo.button',
+        // './vendor/kendo/kendo.button',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.notification',
         './app.logger',
@@ -37,7 +37,7 @@ if (typeof(require) === 'function') {
 
         var kendo = window.kendo,
             app = window.app,
-            logger = app.logger,
+            logger = new window.Logger('app.common'),
             i18n = app.i18n,
             theme = app.theme,
             CHANGE = 'change';
@@ -65,7 +65,7 @@ if (typeof(require) === 'function') {
          * Make global for debugging
          */
         if (app.DEBUG) {
-            //Make the viewModel global to watch in debugger
+            // Make the viewModel global to watch in debugger
             window.viewModel1 = viewModel;
         }
 
@@ -103,14 +103,13 @@ if (typeof(require) === 'function') {
          */
         $(document).ready(function() {
 
-            kendo.init('body'); //, kendo.mobile.ui);
+            kendo.init('body'); // , kendo.mobile.ui);
             initNotifications();
             kendo.bind('footer', viewModel);
 
-            //Log page readiness
+            // Log page readiness
             logger.info({
                 message: 'common elements initialized in ' + i18n.locale() ,
-                module: 'app.common',
                 method: '$(document).ready'
             });
         });

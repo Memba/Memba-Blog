@@ -16,7 +16,7 @@
     'use strict';
 
     var app = window.app,
-        logger = app.logger;
+        logger = new window.Logger('app.support');
 
     /**
      * IMPORTANT
@@ -608,9 +608,9 @@
             (!body.fake ? div : body).innerHTML += style;
             body.appendChild(div);
             if ( body.fake ) {
-                //avoid crashing IE8, if background image is used
+                // avoid crashing IE8, if background image is used
                 body.style.background = '';
-                //Safari 5.13/5.1.4 OSX stops loading if ::-webkit-scrollbar is used and scrollbars are visible
+                // Safari 5.13/5.1.4 OSX stops loading if ::-webkit-scrollbar is used and scrollbars are visible
                 body.style.overflow = 'hidden';
                 docOverflow = docElement.style.overflow;
                 docElement.style.overflow = 'hidden';
@@ -1029,17 +1029,13 @@
         // Leak Modernizr namespace
         window.Modernizr = Modernizr;
 
-
-        ;
-
     })(window, document);
 
     app.support = window.Modernizr;
 
     logger.info({
-        message: 'browser tested by Modernizr',
-        module: 'app.support'
-        //method: 'none'
+        message: 'browser tested by Modernizr'
+        // method: 'none'
     });
 
     return window.app;

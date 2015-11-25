@@ -18,7 +18,7 @@
     (function ($, undefined) {
 
         var app = window.app,
-            logger = app.logger,
+            logger = new window.Logger('app.theme'),
             STRING = 'string',
             THEME = 'theme',
             DEFAULT = 'default';
@@ -30,13 +30,13 @@
              * @param theme
              */
             load: function (theme) {
-                //TODO Reject unlisted theme
+                // TODO Reject unlisted theme
                 var dfd = $.Deferred(),
                     oldTheme = localStorage.getItem(THEME), loader;
                 if(typeof oldTheme === STRING && oldTheme !== theme) {
-                    //See https://github.com/webpack/style-loader/issues/48
-                    //See https://github.com/webpack/webpack/issues/924
-                    //See //https://github.com/webpack/webpack/issues/993
+                    // See https://github.com/webpack/style-loader/issues/48
+                    // See https://github.com/webpack/webpack/issues/924
+                    // See https://github.com/webpack/webpack/issues/993
                     loader = require('../styles/app.theme.' + oldTheme + '.less');
                     loader(function(style) {
                         style.unuse();
@@ -48,7 +48,6 @@
                     style.use();
                     logger.debug({
                         message: 'theme changed to ' + theme,
-                        module: 'app.theme',
                         method: 'load'
                     });
                     dfd.resolve();
@@ -72,7 +71,7 @@
 
         };
 
-        //load theme
+        // load theme
         var theme = app.theme.name();
         if(theme) {
             app.theme.name(theme);
