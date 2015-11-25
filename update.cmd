@@ -67,6 +67,11 @@ ATTRIB +R .\js\vendor\kendo\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\vendor\logentries\*.* .\js\vendor\logentries\ /C /E /I /R /Y
 ATTRIB +R .\js\vendor\logentries\*.* /S
 
+REM ./js/window.*.js
+ATTRIB -R .\js\window.*.js
+COPY ..\..\Kidoju\Kidoju.Webapp\js\window.*.js .\js\ /Y
+ATTRIB +R .\js\window.*.js
+
 REM ./js/app.common.js
 ATTRIB -R .\js\app.common.js
 COPY ..\..\Kidoju\Kidoju.Webapp\js\app.common.js .\js\ /Y
