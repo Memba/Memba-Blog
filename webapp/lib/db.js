@@ -22,19 +22,21 @@ var fs = require('fs'),
  * Fork the indexer as a child process
  */
 if(typeof indexer === 'undefined') {
-    // Issue with mocha tests
-    // See https://github.com/mochajs/mocha/issues/769
-    // https://youtrack.jetbrains.com/issue/WEB-1919
-    // See http://stackoverflow.com/questions/16840623/how-to-debug-node-js-child-forked-process
-    // See http://stackoverflow.com/questions/19252310/how-to-fork-a-child-process-that-listens-on-a-different-debug-port-than-the-pare
+    // @see https://youtrack.jetbrains.com/issue/WEB-1919
+    // @see http://stackoverflow.com/questions/16840623/how-to-debug-node-js-child-forked-process
+    // @see http://stackoverflow.com/questions/19252310/how-to-fork-a-child-process-that-listens-on-a-different-debug-port-than-the-pare
     var execArgv = process.execArgv.slice();
     if (Array.isArray(execArgv) && execArgv.length > 0 && typeof execArgv[0] === 'string') {
         var matches = execArgv[0].match(/^--debug-brk=([0-9]+)$/);
         if (Array.isArray(matches) && matches.length > 1) {
-            execArgv[0] = '--debug-brk=' + (parseInt(matches[1], 10) + 1);
+            // execArgv[0] = '--debug-brk=' + (parseInt(matches[1], 10) + 1); // option 1
+            process.execArgv[0] = '--debug-brk=' + (parseInt(matches[1], 10) + 1); // option 2
         }
     }
-    indexer = require('child_process').fork(path.join(__dirname, 'db_child.js'), undefined, {execArgv: execArgv});
+    // @see https://nodejs.org/api/child_process.html#child_process_child_process_fork_modulepath_args_options
+    // option 1 does not work (here above and here below) but undocumented option 2 works
+    // indexer = require('child_process').fork(path.join(__dirname, 'db_child.js'), undefined, { execArgv: execArgv }); // option 1
+    indexer = require('child_process').fork(path.join(__dirname, 'db_child.js')); // option 2
     logger.info({
         message: 'Forked db_child indexing process with execArgv:',
         module: 'lib/db',
