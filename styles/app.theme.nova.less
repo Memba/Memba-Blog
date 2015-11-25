@@ -1,0 +1,23 @@
+@import (optional, less) "./vendor/highlight/agate.css";
+
+@import "./vendor/kendo/web/kendo.nova.mobile.less";
+@import "./vendor/kendo/dataviz/kendo.dataviz.nova.less";
+@import "./vendor/kendo/web/kendo.nova.less";
+
+/* missing from nova theme */
+@widget-gradient: none;
+@content-background-color: @background;
+@active-text-color: @normal-text-color;
+@hover-background-color: @hover-background;
+@hover-border-color: @hover-background;
+@selected-border-color: @accent;
+@focused-shadow: none;
+@drop-down-text-color: @normal-text-color;
+@drop-down-background: @base;
+@drop-down-border-color: @accent;
+@shadow-color: rgba(0, 0, 0, .2);
+@window-shadow-style: 0 0 0 1px;
+@inner-border-radius: @main-border-radius - 1.2;
+@calendar-border-radius: @border-radius;
+
+@import "app.template.less";
