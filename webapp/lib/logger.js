@@ -7,27 +7,30 @@
 
 'use strict';
 
-var assert = require('assert'),
-    config = require('../config'),
-    utils = require('./utils'),
-    environment = config.environment || 'production',
-    labels = {
+var assert = require('assert');
+var config = require('../config');
+var utils = require('./utils');
+var environment = config.environment || 'production';
+var labels = {
         debug: '[DEBUG]',
         info: '[INFO] ',
         warn: '[WARN] ',
         error: '[ERROR]',
         critical: '[CRIT] '
-    },
-    level = config.get('level') || 0,
-    levels = {
-        //See https://github.com/logentries/le_node#log-levels
+    };
+var level = config.get('level') || 0;
+var levels = {
+        // See https://github.com/logentries/le_node#log-levels
         debug: 1,
         info: 2,
         warn: 4,
         error: 5,
         critical: 6
-    },
-    eq, qt, prefix, separator;
+    };
+var eq;
+var qt;
+var prefix;
+var separator;
 
 if (config.production) {
     eq = '=';
@@ -40,6 +43,12 @@ if (config.production) {
     prefix = '  ';
     separator = '  |  ';
 }
+
+/* This function has too many statements. */
+/* jshint -W071 */
+
+/* This function's cyclomatic complexity is too high. */
+/* jshint -W074 */
 
 /**
  * Process entry.request if existing
@@ -55,7 +64,7 @@ function process(entry) {
         entry = { data: entry };
     }
     if (entry.error instanceof Error) {
-        //We need to do that because JSON.stringify(new Error('Oops)) === {} and is not sent to logentries
+        // We need to do that because JSON.stringify(new Error('Oops)) === {} and is not sent to logentries
         entry.message = entry.error.message;
         if (entry.error.originalError instanceof Error) {
             entry.originalError = entry.error.originalError;
@@ -66,9 +75,9 @@ function process(entry) {
             entry.stack = entry.error.stack;
         }
     }
-    if(entry.request) {
+    if (entry.request) {
         var request = entry.request;
-        //utils.deepExtends adds undefined values and we do not want to clutter our logs with undefined
+        // utils.deepExtends adds undefined values and we do not want to clutter our logs with undefined
         if (request.header && request.headers['user-agent']) {
             entry.agent = request.headers['user-agent'];
         }
@@ -86,7 +95,7 @@ function process(entry) {
         }
         delete entry.request;
     }
-    //entry.date = (new Date()).toISOString();
+    // entry.date = (new Date()).toISOString();
     // Note: such an entry is not only ready to print to console but also to be sent as JSON
     return entry;
 }
@@ -98,8 +107,10 @@ function process(entry) {
 * @param label
 */
 function print(entry, label) {
-    var message = label,
-        first = true;
+    /* jshint maxstatements: 37 */
+    /* jshint maxcomplexity: 24 */
+    var message = label;
+    var first = true;
     if (entry.message) {
         message += (first ? prefix : separator) + 'message' + eq + qt + entry.message + qt;
         first = false;
@@ -119,8 +130,8 @@ function print(entry, label) {
     if (entry.data) {
         try {
             message += (first ? prefix : separator) + 'data' + eq + qt + JSON.stringify(entry.data) + qt;
-        } catch(exception) {
-            if(typeof entry.data.toString === 'function') {
+        } catch (ex) {
+            if (typeof entry.data.toString === 'function') {
                 message += (first ? prefix : separator) + 'data' + eq + qt + entry.data.toString() + qt;
             }
         }
@@ -133,8 +144,8 @@ function print(entry, label) {
     if (entry.query) {
         try {
             message += (first ? prefix : separator) + 'query' + eq + qt + JSON.stringify(entry.query) + qt;
-        } catch(exception) {
-            if(typeof entry.data.toString === 'function') {
+        } catch (ex) {
+            if (typeof entry.data.toString === 'function') {
                 message += (first ? prefix : separator) + 'query' + eq + qt + entry.query.toString() + qt;
             }
         }
@@ -166,6 +177,9 @@ function print(entry, label) {
     */
 }
 
+/* jshint +W074 */
+/* jshint +W071 */
+
 module.exports = exports = {
 
     /**
@@ -178,7 +192,7 @@ module.exports = exports = {
      * Only output if debug===true
      * @param entry
      */
-    debug: function(entry) {
+    debug: function (entry) {
         assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.debug) {
             return false;
@@ -191,7 +205,7 @@ module.exports = exports = {
      * Log an info entry
      * @param entry
      */
-    info: function(entry) {
+    info: function (entry) {
         assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.info) {
             return false;
@@ -204,7 +218,7 @@ module.exports = exports = {
      * Log a warning entry
      * @param entry
      */
-    warn: function(entry) {
+    warn: function (entry) {
         assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.warn) {
             return false;
@@ -217,7 +231,7 @@ module.exports = exports = {
      * Log an error entry
      * @param entry
      */
-    error: function(entry) {
+    error: function (entry) {
         assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.error) {
             return false;
@@ -230,7 +244,7 @@ module.exports = exports = {
      * Log a critical entry
      * @param entry
      */
-    critical: function(entry) {
+    critical: function (entry) {
         assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.critical) {
             return false;

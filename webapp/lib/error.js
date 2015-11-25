@@ -5,26 +5,29 @@
 
 /* jshint node: true, strict: false */
 
-//'use strict';     //because arguments.callee is a strict violation
+// 'use strict';     // because arguments.callee is a strict violation
 
-var assert = require('assert'),
-    util = require('util'),
-    utils = require('./utils'),
-    httpStatus = require('./httpStatus');
+var assert = require('assert');
+var util = require('util');
+var utils = require('./utils');
+var httpStatus = require('./httpStatus');
 
 var mongoose;
 try {
     mongoose = require('mongoose');
-} catch(exception) {
-    mongoose = { Error: { ValidationError: function() {} } };
+} catch (ex) {
+    mongoose = { Error: { ValidationError: function () {} } };
 }
 
 var i18n;
 try {
     i18n = require('i18n');
-} catch(exception) {
+} catch (ex) {
     i18n = require('./i18n');
 }
+
+/* This function's cyclomatic complexity is too high. */
+/* jshint -W074 */
 
 /**
  * Application error
@@ -32,6 +35,7 @@ try {
  * @constructor
  */
 function ApplicationError(error) {
+    /* jshint maxcomplexity: 7 */
     Error.call(this);
     /* jshint -W059 */
     /* jshint -W030 */
@@ -42,12 +46,12 @@ function ApplicationError(error) {
     if (error instanceof mongoose.Error.ValidationError) {
         // A validation error is a bad request
         this.i18n = 'errors.http.' + httpStatus.badRequest;
-        //Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
+        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
         utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
     } else if (error instanceof Error) {
         // Any other error is an internal server error
         this.i18n = 'errors.http.' + httpStatus.internalServerError;
-        //Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
+        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
         utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
     } else if (utils.isObject(error)) {
         this.i18n = 'errors.http.' + httpStatus.internalServerError;
@@ -71,6 +75,8 @@ function ApplicationError(error) {
         throw new Error('ApplicationError created without valid parameter');
     }
 }
+
+/* jshint +W074 */
 
 /**
  * Inherit from `Error`.

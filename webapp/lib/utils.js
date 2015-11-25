@@ -7,8 +7,8 @@
 
 'use strict';
 
-var uuid = require('node-uuid'),
-    deepExtend = require('deep-extend');
+var uuid = require('node-uuid');
+var deepExtend = require('deep-extend');
 
 /**
  * Miscellaneous utility functions
@@ -22,7 +22,7 @@ module.exports = {
      * @returns {boolean}
      */
     isObject: function (obj) {
-        return '[object Object]' === Object.prototype.toString.call(obj); //((obj instanceof Object) && (typeof obj === 'object'));
+        return '[object Object]' === Object.prototype.toString.call(obj); // ((obj instanceof Object) && (typeof obj === 'object'));
     },
 
     /**
@@ -30,7 +30,7 @@ module.exports = {
      * @param obj
      * @returns {boolean}
      */
-    isEmptyObject: function(obj) {
+    isEmptyObject: function (obj) {
         return '[object Object]' === Object.prototype.toString.call(obj) && 0 === Object.keys(obj).length;
     },
 
