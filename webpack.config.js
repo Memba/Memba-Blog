@@ -63,6 +63,7 @@ var commonsChunkPlugin =
 module.exports = {
     //All paths below are relative to the context
     context: path.join(__dirname, '/webapp'),
+    devtool: 'source-map',
     entry: {
         //We need init especially because of FOUJI
         init:   '../js/app.init.js',
@@ -114,11 +115,13 @@ module.exports = {
                 loader: 'url?limit=8192'
             },
             {
-                test: /\.woff(2)?(\?v=[0-9]\.[0-9](\.[0-9])?)?$/,
+                // test: /\.woff(2)?(\?v=[0-9]\.[0-9](\.[0-9])?)?$/,
+                test: /\.woff(2)?/,
                 loader: 'url?limit=10000&mimetype=application/font-woff'
             },
             {
-                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9](\.[0-9])?)?$/,
+                // test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9](\.[0-9])?)?$/,
+                test: /\.(ttf|eot|svg)/,
                 loader: 'file'
             }
         ]
