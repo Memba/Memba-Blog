@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.core" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -246,6 +250,8 @@
                 that.expand(content.parent(), false);
             }
 
+            that._angularCompile();
+
             kendo.notify(that);
         },
 
@@ -271,10 +277,30 @@
             expandMode: "multiple"
         },
 
+        _angularCompile: function() {
+            var that = this;
+            that.angular("compile", function(){
+                return {
+                    elements: that.element.children("li"),
+                    data: [{ dataItem: that.options.$angular}]
+                };
+            });
+        },
+
+        _angularCleanup: function() {
+            var that = this;
+
+            that.angular("cleanup", function(){
+                return { elements: that.element.children("li") };
+            });
+        },
+
         destroy: function() {
             Widget.fn.destroy.call(this);
 
             this.element.off(NS);
+
+            this._angularCleanup();
 
             kendo.destroy(this.element);
         },
@@ -305,7 +331,18 @@
         expand: function (element, useAnimation) {
             var that = this,
                 animBackup = {};
+            if (that._animating && element.find("ul").is(":visible")) {
+                 that.one("complete", function() {
+                    setTimeout(function() {
+                        that.expand(element);
+                    });
+                 });
+                 return;
+            }
+            that._animating = true;
+
             useAnimation = useAnimation !== false;
+
             element = this.element.find(element);
 
             element.each(function (index, item) {
@@ -342,6 +379,9 @@
         collapse: function (element, useAnimation) {
             var that = this,
                 animBackup = {};
+
+            that._animating = true;
+
             useAnimation = useAnimation !== false;
             element = that.element.find(element);
 
@@ -367,7 +407,6 @@
                 }
 
             });
-
             return that;
         },
 
@@ -898,6 +937,7 @@
                 hasCollapseAnimation = collapse && "effects" in collapse;
 
             if (element.is(VISIBLE) != visibility) {
+                that._animating = false;
                 return;
             }
 
@@ -914,16 +954,27 @@
 
             if (visibility) {
                 animation = extend( hasCollapseAnimation ? collapse
-                                    : extend({ reverse: true }, animation), { hide: true });
+                    : extend({ reverse: true }, animation), { hide: true });
+
+                animation.complete = function() {
+                    that._animationCallback();
+                };
             } else {
                 animation = extend( { complete: function (element) {
                     that._triggerEvent(ACTIVATE, element.closest(ITEM));
+                    that._animationCallback();
                 } }, animation );
             }
 
             element
                 .kendoStop(true, true)
                 .kendoAnimate( animation );
+        },
+
+        _animationCallback: function() {
+            var that = this;
+            that.trigger("complete");
+            that._animating = false;
         },
 
         _collapseAllExpanded: function (item) {
@@ -1087,6 +1138,10 @@
     kendo.ui.plugin(PanelBar);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

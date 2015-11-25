@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.calendar", "./kendo.popup" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -25,7 +29,6 @@
     OPEN = "open",
     CLOSE = "close",
     CHANGE = "change",
-    DATEVIEW = "dateView",
     DISABLED = "disabled",
     READONLY = "readonly",
     DEFAULT = "k-state-default",
@@ -33,7 +36,6 @@
     SELECTED = "k-state-selected",
     STATEDISABLED = "k-state-disabled",
     HOVER = "k-state-hover",
-    KEYDOWN = "keydown" + ns,
     HOVEREVENTS = "mouseenter" + ns + " mouseleave" + ns,
     MOUSEDOWN = "mousedown" + ns,
     ID = "id",
@@ -684,6 +686,10 @@
     ui.plugin(DatePicker);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,12 +10,15 @@
     define([ "./kendo.data", "./kendo.columnsorter", "./kendo.editable", "./kendo.window", "./kendo.filtermenu", "./kendo.columnmenu", "./kendo.groupable", "./kendo.pager", "./kendo.selectable", "./kendo.sortable", "./kendo.reorderable", "./kendo.resizable", "./kendo.mobile.actionsheet", "./kendo.mobile.pane", "./kendo.ooxml", "./kendo.excel", "./kendo.progressbar", "./kendo.pdf" ], f);
 })(function(){
 
+(function(){
+
+
+
 /* jshint eqnull: true */
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
         DataSource = kendo.data.DataSource,
-        Groupable = ui.Groupable,
         tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml,
         activeElement = kendo._activeElement,
         Widget = ui.Widget,
@@ -60,6 +63,7 @@
         COLUMNREORDER = "columnReorder",
         COLUMNLOCK = "columnLock",
         COLUMNUNLOCK = "columnUnlock",
+        NAVIGATE = "navigate",
         CLICK = "click",
         HEIGHT = "height",
         TABINDEX = "tabIndex",
@@ -163,10 +167,11 @@
                 return;
             }
 
-            var scrollTop = this.verticalScrollbar.scrollTop(),
+            var scrollbar = this.verticalScrollbar,
+                scrollTop = scrollbar.scrollTop(),
                 delta = kendo.wheelDeltaY(e);
 
-            if (delta) {
+            if (delta && !(delta > 0 && scrollTop === 0) && !(delta < 0 && scrollTop + scrollbar[0].clientHeight == scrollbar[0].scrollHeight)) {
                 e.preventDefault();
                 //In Firefox DOMMouseScroll event cannot be canceled
                 $(e.currentTarget).one("wheel" + NS, false);
@@ -440,14 +445,6 @@
             iconClass: "k-icon"
         }
     };
-
-    function heightAboveHeader(context) {
-        var top = 0;
-        $('> .k-grouping-header, > .k-grid-toolbar', context).each(function () {
-            top += this.offsetHeight;
-        });
-        return top;
-    }
 
     function cursor(context, value) {
         $('th, th .k-grid-filter, th .k-link', context)
@@ -995,14 +992,14 @@
                 return this.colSpan > 1;
             });
 
-            for (idx = 0; idx < prevCells.length; idx++) {
+            for (var idx = 0; idx < prevCells.length; idx++) {
                 offset += prevCells[idx].colSpan || 1;
             }
 
             index += Math.max(offset - 1, 0);
 
             offset = 0;
-            for (var idx = 0; idx < parentCellsWithChildren.length; idx++) {
+            for (idx = 0; idx < parentCellsWithChildren.length; idx++) {
                 var parentCell = parentCellsWithChildren.eq(idx);
                 if (parentCell.attr("colSpan")) {
                     offset += parentCell[0].colSpan;
@@ -1029,7 +1026,6 @@
 
         if (level <= headerRows.length - 1) {
             var child = row.next();
-            var index = row.find("th:not(.k-group-cell,.k-hierarchy-cell)").index(cell);
             var prevCells = cell.prevAll(":not(.k-group-cell,.k-hierarchy-cell)");
 
             var idx;
@@ -1145,13 +1141,15 @@
         }
     }
 
-    function normalizeHeaderCells(th, columns) {
+    function normalizeHeaderCells(container, columns) {
         var lastIndex = 0;
         var idx , len;
+        var th = container.find("th:not(.k-group-cell)");
 
         for (idx = 0, len = columns.length; idx < len; idx ++) {
             if (columns[idx].locked) {
                 th.eq(idx).insertBefore(th.eq(lastIndex));
+                th = container.find("th:not(.k-group-cell)");
                 lastIndex ++;
             }
         }
@@ -1235,6 +1233,26 @@
             if (item.hasSubgroups) {
                 result = result.concat(groupRows(item.items));
             }
+        }
+
+        return result;
+    }
+
+    function groupFooters(data) {
+        var result = [];
+        var item;
+
+        for (var idx = 0; idx < data.length; idx++) {
+            item = data[idx];
+            if (!("field" in item && "value" in item && "items" in item)) {
+                break;
+            }
+
+            if (item.hasSubgroups) {
+                result = result.concat(groupFooters(item.items));
+            }
+
+            result.push(item.aggregates);
         }
 
         return result;
@@ -1340,6 +1358,7 @@
             if (that.options.autoBind) {
                 that.dataSource.fetch();
             } else {
+                that._group = that._groups() > 0;
                 that._footer();
             }
 
@@ -1371,7 +1390,8 @@
            COLUMNSHOW,
            COLUMNHIDE,
            COLUMNLOCK,
-           COLUMNUNLOCK
+           COLUMNUNLOCK,
+           NAVIGATE
         ],
 
         setDataSource: function(dataSource) {
@@ -1625,6 +1645,10 @@
                 result.dataSource.transport.dataSource = null;
             }
 
+            if (result.pageable && result.pageable.pageSize) {
+                result.pageable.pageSize = dataSource.pageSize();
+            }
+
             result.$angular = undefined;
 
             return result;
@@ -1831,7 +1855,7 @@
             });
         },
 
-        _positionColumnResizeHandle: function(container) {
+        _positionColumnResizeHandle: function() {
             var that = this,
                 indicatorWidth = that.options.columnResizeHandleWidth,
                 lockedHead = that.lockedHeader ? that.lockedHeader.find("thead:first") : $();
@@ -1881,7 +1905,7 @@
             }
         },
 
-        _positionColumnResizeHandleTouch: function(container) {
+        _positionColumnResizeHandleTouch: function() {
             var that = this,
                 lockedHead = that.lockedHeader ? that.lockedHeader.find("thead:first") : $();
 
@@ -2077,6 +2101,7 @@
 
                 that._draggableInstance = that.wrapper.kendoDraggable({
                     group: kendo.guid(),
+                    autoScroll: true,
                     filter: that.content ? ".k-grid-header:first " + HEADERCELLS : "table:first>.k-grid-header " + HEADERCELLS,
                     drag: function() {
                         that._hideResizeHandle();
@@ -2258,7 +2283,6 @@
                 columns = that.columns,
                 index,
                 th,
-                header,
                 headerTable,
                 isLocked,
                 visibleLocked = that.lockedHeader ? leafDataCells(that.lockedHeader.find(">table>thead")).filter(isCellVisible).length : 0,
@@ -2339,12 +2363,12 @@
             tables.addClass("k-autofitting");
             tables.css("table-layout", "");
 
-            var newTableWidth = Math.max(headerTable.width(), contentTable.width(), footerTable.width());
+            // +1 is required by IE, regardless of the border widths, otherwise unexpected wrapping may occur with hyphenated text
             var newColumnWidth = Math.ceil(Math.max(
                 th.outerWidth(),
-                contentTable.find("tr").eq(0).children(notGroupOrHierarchyVisibleCell).eq(index).outerWidth(),
+                contentTable.find("tr:not(.k-grouping-row)").eq(0).children(notGroupOrHierarchyVisibleCell).eq(index).outerWidth(),
                 footerTable.find("tr").eq(0).children(notGroupOrHierarchyVisibleCell).eq(index).outerWidth()
-            ));
+            )) + 1;
 
             col.width(newColumnWidth);
             column.width = newColumnWidth;
@@ -2793,6 +2817,8 @@
                 $('<span class="k-dirty"/>').prependTo(cell);
             }
 
+            that.trigger("itemChange", { item: tr, data: model, ns: ui });
+
             if (that.lockedContent) {
                 adjustRowHeight(tr.css("height", "")[0], that._relatedRow(tr).css("height", "")[0]);
             }
@@ -2835,7 +2861,13 @@
                 that.cancelRow();
             }
 
-            row = $(row).hide();
+            row = $(row);
+
+            if (that.lockedContent) {
+                row = row.add(that._relatedRow(row));
+            }
+
+            row = row.hide();
             model = that._modelForContainer(row);
 
             if (model && !that.trigger(REMOVE, { row: row, model: model })) {
@@ -2882,7 +2914,7 @@
             that.cancelRow();
 
             if (model) {
-
+                row = that.tbody.children("[" + kendo.attr("uid") + "=" + model.uid + "]");
                 that._attachModelChange(model);
 
                 if (mode === "popup") {
@@ -2946,7 +2978,7 @@
             that.cancelRow();
 
             if (navigatable) {
-                that.current(that.items().eq(currentIndex).children().filter(NAVCELL).first());
+                that._setCurrent(that.items().eq(currentIndex).children().filter(NAVCELL).first());
                 focusTable(that.table, true);
             }
         },
@@ -3059,7 +3091,7 @@
 
                             that.cancelRow();
                             if (that.options.navigatable) {
-                                that.current(that.items().eq(currentIndex).children().filter(NAVCELL).first());
+                                that._setCurrent(that.items().eq(currentIndex).children().filter(NAVCELL).first());
                                 focusTable(that.table, true);
                             }
                         }
@@ -3068,7 +3100,7 @@
             } else {
                 html += "</div></div>";
                 that.editView = that.pane.append(
-                    '<div data-' + kendo.ns + 'role="view" data-' + kendo.ns + 'init-widgets="false" class="k-grid-edit-form">'+
+                    '<div data-' + kendo.ns + 'role="view" data-' + kendo.ns + 'use-native-scrolling="true" data-' + kendo.ns + 'init-widgets="false" class="k-grid-edit-form">'+
                         '<div data-' + kendo.ns + 'role="header" class="k-header">'+
                             that._createButton({ name: "update", text: updateText, attr: attr }) +
                             (options.title || "Edit") +
@@ -3177,14 +3209,18 @@
             that.trigger(EDIT, { container: row, model: model });
         },
 
-        cancelRow: function() {
+        cancelRow: function(notify) {
             var that = this,
                 container = that._editContainer,
-                model,
-                tr;
+                model;
 
             if (container) {
+
                 model = that._modelForContainer(container);
+
+                if (notify && that.trigger("cancel", { container: container, model: model })) {
+                    return;
+                }
 
                 that._destroyEditable();
 
@@ -3195,6 +3231,7 @@
                 } else {
                     that._displayRow(that.tbody.find("[" + kendo.attr("uid") + "=" + model.uid + "]"));
                 }
+
             }
         },
 
@@ -3232,10 +3269,18 @@
                 newRow = $((isAlt ? that.altRowTemplate : that.rowTemplate)(model));
                 row.replaceWith(newRow);
 
+                var angularElements = newRow;
+                var angularData = [{ dataItem: model }];
+
+                if (related && related.length) {
+                    angularElements = newRow.add(related);
+                    angularData.push({ dataItem: model });
+                }
+
                 that.angular("compile", function(){
                     return {
-                        elements: newRow.get(),
-                        data: [ { dataItem: model } ]
+                        elements: angularElements.get(),
+                        data: angularData
                     };
                 });
 
@@ -3466,6 +3511,8 @@
             }
 
             if (isPlainObject(command)) {
+                command = extend(true, {}, command);
+
                 if (command.className && inArray(options.className, command.className.split(" ")) < 0) {
                     command.className += " " + options.className;
                 } else if (command.className === undefined) {
@@ -3552,7 +3599,7 @@
                     that.groupable.destroy();
                 }
 
-                that.groupable = new Groupable(wrapper, extend({}, groupable, {
+                that.groupable = new ui.Groupable(wrapper, extend({}, groupable, {
                     draggable: that._draggableInstance,
                     groupContainer: ">div.k-grouping-header",
                     dataSource: that.dataSource,
@@ -3980,6 +4027,10 @@
         },
 
         current: function(next) {
+            return this._setCurrent(next, true);
+        },
+
+        _setCurrent: function(next, preventTrigger) {
             var current = this._current;
             next = $(next);
 
@@ -3988,6 +4039,12 @@
                     this._updateCurrentAttr(current, next);
 
                     this._scrollCurrent();
+
+                    if (!preventTrigger) {
+                        this.trigger(NAVIGATE, {
+                            element: next
+                        });
+                    }
                 }
             }
 
@@ -4115,13 +4172,13 @@
             if (current && current.is(":visible")) {
                 current.addClass(FOCUSED);
             } else {
-                this.current(table.find(FIRSTNAVITEM));
+                this._setCurrent(table.find(FIRSTNAVITEM));
             }
 
             this._setTabIndex(table);
         },
 
-        _tableBlur: function(e) {
+        _tableBlur: function() {
             var current = this.current();
 
             if (current) {
@@ -4216,7 +4273,7 @@
                     }
                 }
 
-                this.current(next);
+                this._setCurrent(next);
             }
 
             return true;
@@ -4244,7 +4301,7 @@
                     }
                 }
 
-                this.current(next);
+                this._setCurrent(next);
             }
 
             return true;
@@ -4265,7 +4322,7 @@
                 }
             }
 
-            this.current(next);
+            this._setCurrent(next);
 
             return true;
         },
@@ -4284,7 +4341,7 @@
                 }
             }
 
-            this.current(next);
+            this._setCurrent(next);
 
             return true;
         },
@@ -4355,9 +4412,9 @@
                 if (active) {
                     active.blur();
                 }
-                this.cancelRow();
+                this.cancelRow(true);
                 if (currentIndex >= 0) {
-                    this.current(this.items().eq(currentIndex).children(NAVCELL).first());
+                    this._setCurrent(this.items().eq(currentIndex).children(NAVCELL).first());
                 }
             }
 
@@ -4370,9 +4427,16 @@
             return true;
         },
 
-        _toggleCurrent: function(current) {
+        _toggleCurrent: function(current, editable) {
             var row = current.parent();
-            if (row.is(".k-master-row,.k-grouping-row")) {
+
+            if (row.is(".k-grouping-row")) {
+                row.find(".k-icon:first").click();
+
+                return true;
+            }
+
+            if (!editable && row.is(".k-master-row")) {
                 row.find(".k-icon:first").click();
 
                 return true;
@@ -4396,7 +4460,7 @@
                 return true;
             }
 
-            if (!editable && this._toggleCurrent(current)) {
+            if (this._toggleCurrent(current, editable)) {
                 return true;
             }
 
@@ -4652,7 +4716,7 @@
             if (that.editable) {
                 if ($.contains(editContainer[0], active[0])) {
                     if (browser.opera || oldIE) {
-                        active.change().triggerHandler("blur");
+                        active.blur().change().triggerHandler("blur");
                     } else {
                         active.blur();
                         if (isIE) {
@@ -4677,9 +4741,9 @@
                     }
                 } else {
                     if (mode == "incell") {
-                        that.current(editContainer);
+                        that._setCurrent(editContainer);
                     } else {
-                        that.current(editContainer.children().filter(DATA_CELL).first());
+                        that._setCurrent(editContainer.children().filter(DATA_CELL).first());
                     }
                     focusable = editContainer.find(":kendoFocusable:first")[0];
                     if (focusable) {
@@ -4690,7 +4754,7 @@
             }
 
             if (next) {
-                that.current(next);
+                that._setCurrent(next);
             }
 
             if (oldIE) {
@@ -4736,7 +4800,7 @@
 
             if (this._isMobile) {
                 var html = this.wrapper.addClass("k-grid-mobile").wrap(
-                        '<div data-' + kendo.ns + 'role="view" ' +
+                        '<div data-' + kendo.ns + 'stretch="true" data-' + kendo.ns + 'role="view" ' +
                         'data-' + kendo.ns + 'init-widgets="false"></div>'
                     )
                     .parent();
@@ -4807,7 +4871,7 @@
                 table.width(that.table[0].style.width);
 
                 table.append(that.thead);
-                header.empty().append($('<div class="k-grid-header-wrap" />').append(table));
+                header.empty().append($('<div class="k-grid-header-wrap k-auto-scrollable" />').append(table));
 
 
                 that.content = that.table.parent();
@@ -4817,7 +4881,7 @@
                 }
 
                 if (!that.content.is(".k-grid-content, .k-virtual-scrollable-wrap")) {
-                    that.content = that.table.wrap('<div class="k-grid-content" />').parent();
+                    that.content = that.table.wrap('<div class="k-grid-content k-auto-scrollable" />').parent();
                 }
                 if (hasVirtualScroll) {
                     that.virtualScrollable = new VirtualScrollable(that.content, {
@@ -4826,7 +4890,7 @@
                     });
                 }
 
-                that.scrollables = header.children(".k-grid-header-wrap");
+                that.scrollables = header.children(".k-grid-header-wrap").add(that.content);
 
                 // the footer may exists if rendered from the server
                 var footer = that.wrapper.find(".k-grid-footer");
@@ -4843,9 +4907,9 @@
                         }
                     });
                 } else {
-                    that.content.unbind("scroll" + NS).bind("scroll" + NS, function () {
-                        that.scrollables.scrollLeft(this.scrollLeft);
-                        if (that.lockedContent) {
+                    that.scrollables.unbind("scroll" + NS).bind("scroll" + NS, function (e) {
+                        that.scrollables.not(e.currentTarget).scrollLeft(this.scrollLeft);
+                        if (that.lockedContent && e.currentTarget == that.content[0]) {
                             that.lockedContent[0].scrollTop = this.scrollTop;
                         }
                     });
@@ -4876,7 +4940,7 @@
         _renderNoRecordsContent: function() {
             var that = this;
 
-            if (that.options.noRecords && that.wrapper.is(":visible")) {
+            if (that.options.noRecords) {
                 var noRecordsElement = that.table.parent().children('.' + NORECORDSCLASS);
 
                 if (noRecordsElement.length) {
@@ -4884,7 +4948,7 @@
                 }
 
                 if (!that.dataSource || !that.dataSource.view().length) {
-                    $(that.noRecordsTemplate({})).appendTo(that.table.parent());
+                    $(that.noRecordsTemplate({})).insertAfter(that.table);
                 }
             }
         },
@@ -5252,7 +5316,7 @@
                 that.angular("compile", function(){
                     return {
                         elements: footer.find("td:not(.k-group-cell, .k-hierarchy-cell)").get(),
-                        data: map(that.columns, function(col, i){
+                        data: map(that.columns, function(col){
                             return {
                                 column: col,
                                 aggregate: aggregates[col.field]
@@ -5473,6 +5537,8 @@
                return;
             }
 
+            var settings;
+            var $angular = that.options.$angular;
             var columns = leafColumns(that.columns),
                 filterable = that.options.filterable,
                 rowheader = that.thead.find(".k-filter-row");
@@ -5516,24 +5582,32 @@
                         operators =  col.filterable.operators;
                     }
 
+                    settings = {
+                        column: col,
+                        dataSource: that.dataSource,
+                        suggestDataSource: suggestDataSource,
+                        customDataSource: customDataSource,
+                        field: field,
+                        messages: messages,
+                        values: col.values,
+                        template: cellOptions.template,
+                        delay: cellOptions.delay,
+                        inputWidth: cellOptions.inputWidth,
+                        suggestionOperator: cellOptions.suggestionOperator,
+                        minLength: cellOptions.minLength,
+                        dataTextField: cellOptions.dataTextField,
+                        operator: cellOptions.operator,
+                        operators: operators,
+                        showOperators: cellOptions.showOperators
+                    };
+
+                    if ($angular) {
+                        settings.$angular = $angular;
+                    }
+
                     $("<span/>").attr(kendo.attr("field"), field)
-                        .kendoFilterCell({
-                            dataSource: that.dataSource,
-                            suggestDataSource: suggestDataSource,
-                            customDataSource: customDataSource,
-                            field: field,
-                            messages: messages,
-                            values: col.values,
-                            template: cellOptions.template,
-                            delay: cellOptions.delay,
-                            inputWidth: cellOptions.inputWidth,
-                            suggestionOperator: cellOptions.suggestionOperator,
-                            minLength: cellOptions.minLength,
-                            dataTextField: cellOptions.dataTextField,
-                            operator: cellOptions.operator,
-                            operators: operators,
-                            showOperators: cellOptions.showOperators
-                        }).appendTo(th);
+                        .appendTo(th)
+                        .kendoFilterCell(settings);
                 } else {
                     th.html("&nbsp;");
                 }
@@ -5624,7 +5698,7 @@
                     throw new Error("There should be at least one non locked column");
                 }
 
-                normalizeHeaderCells(that.element.find("tr:has(th):first").find("th:not(.k-group-cell)"), initialColumns);
+                normalizeHeaderCells(that.element.find("tr:has(th):first"), initialColumns);
                 columns = lockedCols.concat(columns);
             }
 
@@ -5831,7 +5905,8 @@
 
         _noRecordsTmpl: function () {
             var wrapper = '<div class="{0}">{1}</div>';
-            var defaultTemplate = '<div class="k-grid-norecords-template">{0}</div>';
+            var defaultTemplate = '<div class="k-grid-norecords-template"{1}>{0}</div>';
+            var scrollableNoGridHeightStyles = (this.options.scrollable && !this.wrapper[0].style.height) ? ' style="margin:0 auto;position:static;"' : '';
             var state = { storage: {}, count: 0 };
             var settings = $.extend({}, kendo.Template, this.options.templateSettings);
             var paramName = settings.paramName;
@@ -5843,7 +5918,7 @@
             if (this.options.noRecords.template) {
                 template = this.options.noRecords.template;
             } else {
-                template = kendo.format(defaultTemplate, this.options.messages.noRecords);
+                template = kendo.format(defaultTemplate, this.options.messages.noRecords, scrollableNoGridHeightStyles);
             }
 
             type = typeof template;
@@ -5971,7 +6046,7 @@
                     typeof filterable.mode == STRING &&
                     filterable.mode.indexOf("row") != -1;
             var columns = this.columns;
-            var columnsWithoutFiltering = $.grep(columns, function(col, idx) {
+            var columnsWithoutFiltering = $.grep(columns, function(col) {
                 return col.filterable === false;
             });
 
@@ -6096,7 +6171,7 @@
                     }
 
                     if (th.title) {
-                        html += kendo.attr("title") + '="' + th.title.replace(/'/g, "\'") + '" ';
+                        html += kendo.attr("title") + '="' + th.title.replace('"', '&quot;').replace(/'/g, "\'") + '" ';
                     }
 
                     if (th.groupable !== undefined) {
@@ -6191,7 +6266,7 @@
             }
 
             lockedCols = lockedCols.add(cols.filter(".k-group-col"));
-            for (idx = 0, length = leafColumns(visibleLockedColumns(that.columns)).length; idx < length; idx++) {
+            for (idx = 0, length = visibleColumns(leafColumns(visibleLockedColumns(that.columns))).length; idx < length; idx++) {
                 lockedCols = lockedCols.add(cols.eq(idx + groups));
             }
 
@@ -6313,13 +6388,10 @@
                 hasDetails = that._hasDetails() && columns.length,
                 hasFilterRow = that._hasFilterRow(),
                 idx,
-                length,
                 html = "",
                 thead = that.table.find(">thead"),
                 hasTHead = that.element.find("thead:first").length > 0,
-                tr,
-                text,
-                th;
+                tr;
 
             if (!thead.length) {
                 thead = $("<thead/>").insertBefore(that.tbody);
@@ -6445,6 +6517,8 @@
 
             that._reorderable();
 
+            that._updateHeader(that._groups());
+
             if (that.groupable) {
                 that._attachGroupable();
             }
@@ -6535,6 +6609,16 @@
             return this.lockedHeader != null;
         },
 
+        _updateHeaderCols: function() {
+            var table = this.thead.parent().add(this.table);
+
+            if (this._isLocked()) {
+                normalizeCols(table, visibleLeafColumns(visibleNonLockedColumns(this.columns)), this._hasDetails(), 0);
+            } else {
+                normalizeCols(table, visibleLeafColumns(visibleColumns(this.columns)), this._hasDetails(), 0);
+            }
+        },
+
         _updateCols: function(table) {
             table = table || this.thead.parent().add(this.table);
 
@@ -6560,12 +6644,15 @@
         _autoColumns: function(schema) {
             if (schema && schema.toJSON) {
                 var that = this,
-                    field;
+                    field,
+                    encoded;
 
                 schema = schema.toJSON();
 
+                encoded = !(that.table.find("tbody tr").length > 0 && (!that.dataSource || !that.dataSource.transport));
+
                 for (field in schema) {
-                    that.columns.push({ field: field, headerAttributes: {id: kendo.guid()} });
+                    that.columns.push({ field: field, encoded: encoded, headerAttributes: {id: kendo.guid()} });
                 }
 
                 that._thead();
@@ -6607,8 +6694,6 @@
                 footerDefaults = that._groupAggregatesDefaultObject || {},
                 aggregates = extend({}, footerDefaults, group.aggregates),
                 data = extend({}, { field: group.field, value: group.value, aggregates: aggregates }, group.aggregates[group.field]),
-                rowTemplate = templates.rowTemplate,
-                altRowTemplate = templates.altRowTemplate,
                 groupFooterTemplate = templates.groupFooterTemplate,
                 groupItems = group.items;
 
@@ -6816,9 +6901,7 @@
                 cols,
                 colWidth,
                 position,
-                row,
                 width = 0,
-                parents = [],
                 headerCellIndex,
                 length,
                 footer = that.footer || that.wrapper.find(".k-grid-footer"),
@@ -6974,7 +7057,6 @@
                 cell,
                 tables,
                 width,
-                row,
                 headerCellIndex,
                 position,
                 colWidth,
@@ -7126,9 +7208,6 @@
 
         refresh: function(e) {
             var that = this,
-                length,
-                idx,
-                html = "",
                 data = that.dataSource.view(),
                 navigatable = that.options.navigatable,
                 currentIndex,
@@ -7197,6 +7276,7 @@
                 } else if (that.touchScroller) {
                     that.touchScroller.movable.trigger("change");
                 } else {
+                    that.wrapper.one("scroll", function(e) { e.stopPropagation(); });
                     that.content.trigger("scroll");
                 }
             }
@@ -7211,7 +7291,9 @@
                 that.selectable.resetTouchEvents();
             }
 
-            that._angularItems("compile");
+            that._muteAngularRebind(function() {
+                that._angularItems("compile");
+            });
 
             that.trigger(DATABOUND);
        },
@@ -7224,7 +7306,7 @@
             this._removeCurrent();
 
             if (isCurrentInHeader) {
-                this.current(this.thead.find("th:not(.k-group-cell)").eq(currentIndex));
+                this._setCurrent(this.thead.find("th:not(.k-group-cell)").eq(currentIndex));
             } else {
                 var rowIndex = 0;
                 if (this._rowVirtualIndex) {
@@ -7243,7 +7325,7 @@
                 var td = row.find(">td:not(.k-group-cell):not(.k-hierarchy-cell)")
                     .eq(currentIndex);
 
-                this.current(td);
+                this._setCurrent(td);
             }
 
             if (this._current) {
@@ -7259,6 +7341,8 @@
            }
 
            this._angularGroupItems(cmd);
+
+           this._angularGroupFooterItems(cmd);
        },
 
        _cleanupDetailItems: function() {
@@ -7274,13 +7358,39 @@
        },
 
        _angularGroupItems: function(cmd) {
-           var that = this;
+           var that = this,
+               container = that.tbody;
+
+           if (that.lockedContent) {
+               container = that.lockedTable.find("tbody");
+           }
 
            if (that._group) {
               that.angular(cmd, function(){
                    return {
-                       elements: that.tbody.children(".k-grouping-row"),
+                       elements: container.children(".k-grouping-row"),
                        data: $.map(groupRows(that.dataSource.view()), function(dataItem){
+                           return { dataItem: dataItem };
+                       })
+                   };
+               });
+           }
+       },
+
+       _angularGroupFooterItems: function(cmd) {
+           var that = this,
+               container = that.tbody;
+
+           if (that.lockedContent) {
+                container = that.element;
+           }
+
+           if (that._group && that.groupFooterTemplate) {
+
+               that.angular(cmd, function() {
+                   return {
+                       elements: container.find(".k-group-footer"),
+                       data: $.map(groupFooters(that.dataSource.view()), function(dataItem){
                            return { dataItem: dataItem };
                        })
                    };
@@ -7436,6 +7546,8 @@
            function exportPage() {
                 grid._drawPDFShadow({
                     width: grid.wrapper.width()
+                }, {
+                    avoidLinks: grid.options.pdf.avoidLinks
                 })
                 .done(function(group) {
                     var pageNum = dataSource.page();
@@ -7608,7 +7720,7 @@
            isHeader = currentTarget.is("th"),
            table = this.table.add(this.lockedTable),
            headerTable = this.thead.parent().add($(">table", this.lockedHeader)),
-           isInput = $(e.target).is(":button,a,:input,a>.k-icon,textarea,span.k-icon,span.k-link,.k-input,.k-multiselect-wrap"),
+           isInput = $(e.target).is(":button,a,:input,a>.k-icon,textarea,span.k-select,span.k-icon,span.k-link,.k-input,.k-multiselect-wrap,.k-tool-icon"),
            currentTable = currentTarget.closest("table")[0];
 
        if (kendo.support.touch) {
@@ -7616,7 +7728,7 @@
        }
 
        if (isInput && currentTarget.find(kendo.roleSelector("filtercell")).length) {
-           this.current(currentTarget);
+           this._setCurrent(currentTarget);
            return;
        }
 
@@ -7629,7 +7741,7 @@
        }
 
        if (this.options.navigatable) {
-           this.current(currentTarget);
+           this._setCurrent(currentTarget);
        }
 
        if (isHeader || !isInput) {
@@ -7647,10 +7759,6 @@
        }
    }
 
-   function dataCellIndex(cell) {
-       return cell.parent().children(DATA_CELL).index(cell);
-   }
-
    function isInEdit(cell) {
        return cell &&
            (cell.hasClass("k-edit-cell") ||
@@ -7665,7 +7773,7 @@
        '</p></td></tr>';
    }
 
-   function groupRowLockedContentBuilder(colspan, level, text) {
+   function groupRowLockedContentBuilder(colspan) {
        return '<tr role="row" class="k-grouping-row">' +
            '<td colspan="' + colspan + '" aria-expanded="true">' +
            '<p class="k-reset">&nbsp;</p></td></tr>';
@@ -7675,6 +7783,10 @@
    ui.plugin(VirtualScrollable);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

@@ -19,6 +19,7 @@ table.k-editor
     border-width: 2px;
     padding: .3em .5em;
     word-wrap: break-word;
+    overflow: auto;
 }
 
 .k-editortoolbar-dragHandle
@@ -27,6 +28,11 @@ table.k-editor
     padding-left: 0;
     padding-right: 3px;
     box-shadow: none !important;
+}
+
+.k-editor-widget > .k-window-content
+{
+    overflow: hidden;
 }
 
 .k-editor .k-editor-toolbar-wrap
@@ -49,11 +55,6 @@ table.k-editor
 {
     display: inline-block;
     vertical-align: middle;
-}
-
-.k-ie7 .k-editor-toolbar li
-{
-    display: inline; /* mandatory for IE7. Floats and the inline-block hack break it */
 }
 
 .k-webkit .k-editor-toolbar,
@@ -133,7 +134,6 @@ table.k-editor
 {
     white-space: nowrap;
 }
-
 
 .k-button-group .k-tool {
     display: inline-block;

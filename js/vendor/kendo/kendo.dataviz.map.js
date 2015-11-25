@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,8 @@
 (function(f, define){
     define([ "./kendo.data", "./kendo.userevents", "./kendo.tooltip", "./kendo.mobile.scroller", "./kendo.draganddrop", "./kendo.drawing", "./kendo.core" ], f);
 })(function(){
+
+(function(){
 
 (function ($, undefined) {
     // Imports ================================================================
@@ -319,12 +321,15 @@
 
 })(window.kendo.jQuery);
 
-(function($) {
+})();
+
+(function(){
+
+(function() {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
         template = kendo.template,
 
-        dataviz = kendo.dataviz,
         valueOrDefault = kendo.util.valueOrDefault,
         defined = kendo.util.defined;
 
@@ -437,6 +442,10 @@
     kendo.dataviz.ui.plugin(Attribution);
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function ($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
@@ -444,6 +453,15 @@
     var proxy = $.proxy;
 
     var NS = ".kendoNavigator";
+
+    // Helper functions =======================================================
+    function button(dir) {
+       return kendo.format(
+           '<button class="k-button k-navigator-{0}">' +
+               '<span class="k-icon k-i-arrow-{0}"/>' +
+           '</button>', dir);
+    }
+
     var BUTTONS = button("n") + button("e") + button("s") + button("w");
 
     var Navigator = Widget.extend({
@@ -528,24 +546,27 @@
         }
     });
 
-    // Helper functions =======================================================
-    function button(dir) {
-       return kendo.format(
-           '<button class="k-button k-navigator-{0}">' +
-               '<span class="k-icon k-i-arrow-{0}"/>' +
-           '</button>', dir);
-    }
-
     // Exports ================================================================
     kendo.dataviz.ui.plugin(Navigator);
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function ($) {
     var kendo = window.kendo;
     var Widget = kendo.ui.Widget;
     var keys = kendo.keys;
     var proxy = $.proxy;
+
+    // Helper functions =======================================================
+    function button(dir, symbol) {
+       return kendo.format(
+           '<button class="k-button k-zoom-{0}" title="zoom-{0}">{1}</button>',
+           dir, symbol);
+    }
 
     var NS = ".kendoZoomControl";
     var BUTTONS = button("in", "+") + button("out", "-");
@@ -554,6 +575,7 @@
     var MINUS = 189;
     var FF_PLUS = 61;
     var FF_MINUS = 173;
+
 
     var ZoomControl = Widget.extend({
         init: function(element, options) {
@@ -618,17 +640,15 @@
         }
     });
 
-    // Helper functions =======================================================
-    function button(dir, symbol) {
-       return kendo.format(
-           '<button class="k-button k-zoom-{0}" title="zoom-{0}">{1}</button>',
-           dir, symbol);
-    }
 
     // Exports ================================================================
     kendo.dataviz.ui.plugin(ZoomControl);
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function ($, undefined) {
     // Imports ================================================================
@@ -873,10 +893,13 @@
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function ($, undefined) {
     // Imports ================================================================
     var proxy = $.proxy,
-        noop = $.noop,
 
         kendo = window.kendo,
         Class = kendo.Class,
@@ -886,11 +909,8 @@
 
         Extent = dataviz.map.Extent,
 
-        geom = kendo.geometry,
-        draw = kendo.drawing,
         util = kendo.util,
-        defined = util.defined,
-        valueOrDefault = util.valueOrDefault;
+        defined = util.defined;
 
     // Implementation =========================================================
     var Layer = Class.extend({
@@ -999,6 +1019,10 @@
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function ($, undefined) {
     // Imports ================================================================
     var proxy = $.proxy,
@@ -1064,7 +1088,7 @@
                 this.dataSource.unbind("change", this._dataChange);
             }
 
-            this.dataSource = dataSource;
+            this.dataSource = kendo.data.DataSource.create(dataSource);
             this.dataSource.bind("change", this._dataChange);
 
             if (this.options.autoBind) {
@@ -1363,11 +1387,13 @@
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function ($, undefined) {
     // Imports ================================================================
-    var proxy = $.proxy,
-
-        kendo = window.kendo,
+    var kendo = window.kendo,
         getter = kendo.getter,
 
         dataviz = kendo.dataviz,
@@ -1375,7 +1401,6 @@
 
         util = kendo.util,
         defined = util.defined,
-        isNumber = util.isNumber,
 
         g = kendo.geometry,
         d = kendo.drawing,
@@ -1383,8 +1408,6 @@
         map = dataviz.map,
         Location = map.Location,
         ShapeLayer = map.layers.ShapeLayer;
-
-    var PI = Math.PI;
 
     // Implementation =========================================================
     var BubbleLayer = ShapeLayer.extend({
@@ -1413,7 +1436,6 @@
                 return getValue(b) - getValue(a);
             });
 
-            var maxValue = getValue(data[0]);
             var scaleType = this._scaleType();
             var scale;
             for (var i = 0; i < data.length; i++) {
@@ -1528,6 +1550,10 @@
 
 })(window.kendo.jQuery);
 
+})();
+
+(function() {
+
 (function ($, undefined) {
     // Imports ================================================================
     var math = Math,
@@ -1551,8 +1577,6 @@
         round = util.round,
         renderSize = util.renderSize,
         limit = util.limitValue;
-
-    var PAN_DELAY = 100;
 
     // Image tile layer =============================================================
     var TileLayer = Layer.extend({
@@ -1760,6 +1784,7 @@
                 point: point,
                 offset: roundPoint(offset),
                 zoom: this._zoom,
+                size: this.options.tileSize,
                 subdomain: this.subdomainText(),
                 urlTemplate: this.options.urlTemplate,
                 errorUrlTemplate: this.options.errorUrlTemplate
@@ -1803,6 +1828,7 @@
 
         createElement: function() {
             this.element = $("<img style='position: absolute; display: block;' />")
+                            .css({ width: this.options.size, height: this.options.size })
                             .error(proxy(function(e) {
                                 if (this.errorUrl()) {
                                     e.target.setAttribute("src", this.errorUrl());
@@ -1962,15 +1988,13 @@
 
 })(window.kendo.jQuery);
 
+})();
+
+(function() {
+
 (function ($, undefined) {
     // Imports ================================================================
-    var math = Math,
-
-        proxy = $.proxy,
-
-        kendo = window.kendo,
-        Class = kendo.Class,
-        template = kendo.template,
+    var kendo = window.kendo,
 
         dataviz = kendo.dataviz,
         deepExtend = kendo.deepExtend,
@@ -1978,7 +2002,6 @@
 
         Extent = dataviz.map.Extent,
         Location = dataviz.map.Location,
-        Layer = dataviz.map.layers.Layer,
         TileLayer = dataviz.map.layers.TileLayer,
         TileView = dataviz.map.layers.TileView;
 
@@ -2140,6 +2163,10 @@
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function ($, undefined) {
     // Imports ================================================================
     var doc = document,
@@ -2250,7 +2277,7 @@
                 this.dataSource.unbind("change", this._dataChange);
             }
 
-            this.dataSource = dataSource;
+            this.dataSource = kendo.data.DataSource.create(dataSource);
             this.dataSource.bind("change", this._dataChange);
 
             if (this.options.autoBind) {
@@ -2422,6 +2449,10 @@
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function ($, undefined) {
     // Imports ================================================================
     var doc = document,
@@ -2589,7 +2620,7 @@
             var options = this.options;
 
             if (defined(level)) {
-                level = limit(level, options.minZoom, options.maxZoom);
+                level = math.round(limit(level, options.minZoom, options.maxZoom));
                 if (options.zoom !== level) {
                     options.zoom = level;
                     this._reset();
@@ -2966,7 +2997,6 @@
             var x = scroller.dimensions.x;
             var y = scroller.dimensions.y;
             var scale = this._layerSize();
-            var maxScale = 20 * scale;
             var nw = this.extent().nw;
             var topLeft = this.locationToLayer(nw).round();
 
@@ -2974,15 +3004,16 @@
             scroller.reset();
             scroller.userEvents.cancel();
 
-            var maxZoom = this.options.maxZoom - this.zoom();
-            scroller.dimensions.maxScale = pow(2, maxZoom);
+            var zoom = this.zoom();
+            scroller.dimensions.forcedMinScale = pow(2, this.options.minZoom - zoom);
+            scroller.dimensions.maxScale = pow(2, this.options.maxZoom - zoom);
 
             var xBounds = { min: -topLeft.x, max: scale - topLeft.x };
             var yBounds = { min: -topLeft.y, max: scale - topLeft.y };
 
             if (this.options.wraparound) {
-                xBounds.min = -maxScale;
-                xBounds.max = maxScale;
+                xBounds.max = 20 * scale;
+                xBounds.min = -xBounds.max;
             }
 
             if (this.options.pannable === false) {
@@ -3059,6 +3090,14 @@
     dataviz.ui.plugin(Map);
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
+
+    
+
+})();
 
 return window.kendo;
 

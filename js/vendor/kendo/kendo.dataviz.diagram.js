@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,10 +10,11 @@
     define([ "./kendo.data", "./kendo.draganddrop", "./kendo.userevents", "./kendo.mobile.scroller", "./kendo.drawing", "./kendo.core", "./kendo.dataviz.core", "./kendo.toolbar", "./kendo.editable", "./kendo.window", "./kendo.dropdownlist", "./kendo.dataviz.themes" ], f);
 })(function(){
 
+(function(){
+
 (function ($, undefined) {
     var kendo = window.kendo,
         diagram = kendo.dataviz.diagram = {},
-        Class = kendo.Class,
         deepExtend = kendo.deepExtend,
         isArray = $.isArray,
         EPSILON = 1e-06;
@@ -518,6 +519,10 @@
     });
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function ($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
@@ -794,6 +799,14 @@
             this.width *= zoom;
             this.height *= zoom;
             return this;
+        },
+
+        overlaps: function(rect) {
+            var bottomRight = this.bottomRight();
+            var rectBottomRight = rect.bottomRight();
+            var overlaps = !(bottomRight.x < rect.x || bottomRight.y < rect.y ||
+                rectBottomRight.x < this.x || rectBottomRight.y < this.y);
+            return overlaps;
         }
     });
 
@@ -2150,6 +2163,8 @@
              * @type {Array}
              */
             this.nodes = [];
+
+            this._nodeMap = new Dictionary();
             /**
              * The optional reference to the Diagram on which this Graph is based.
              * @type {null}
@@ -2354,7 +2369,7 @@
 
             var visited = [];
             var remaining = [];
-            tree.nodes.push(tree.root);
+            tree._addNode(tree.root);
             visited.push(root);
             remaining.push(root);
 
@@ -2596,21 +2611,9 @@
          * Gets the node with the specified Id or null if not part of this graph.
          */
         getNode: function (nodeOrId) {
-            if (Utils.isUndefined(nodeOrId)) {
-                throw "No identifier or Node specified.";
-            }
-            if (Utils.isString(nodeOrId)) {
-                return Utils.find(this.nodes, function (n) {
-                    return n.id == nodeOrId;
-                });
-            }
-            else {
-                if (this.hasNode(nodeOrId)) {
-                    return nodeOrId;
-                }
-                else {
-                    return null;
-                }
+            var id = nodeOrId.id || nodeOrId;
+            if (this._nodeMap.containsKey(id)) {
+                return this._nodeMap.get(id);
             }
         },
 
@@ -2618,17 +2621,18 @@
          * Returns whether the given node or node Id is part of this graph.
          */
         hasNode: function (nodeOrId) {
-            if (Utils.isString(nodeOrId)) {
-                return Utils.any(this.nodes, function (n) {
-                    return n.id === nodeOrId;
-                });
-            }
-            if (Utils.isObject(nodeOrId)) {
-                return Utils.any(this.nodes, function (n) {
-                    return n === nodeOrId;
-                });
-            }
-            throw "The identifier should be a Node or the Id (string) of a node.";
+            var id = nodeOrId.id || nodeOrId;
+            return this._nodeMap.containsKey(id);
+        },
+
+        _addNode: function(node) {
+            this.nodes.push(node);
+            this._nodeMap.add(node.id, node);
+        },
+
+        _removeNode: function(node) {
+            Utils.remove(this.nodes, node);
+            this._nodeMap.remove(node.id);
         },
 
         /**
@@ -2648,7 +2652,7 @@
                     var link = links[i];
                     this.removeLink(link);
                 }
-                Utils.remove(this.nodes, n);
+                this._removeNode(n);
             }
             else {
                 throw "The identifier should be a Node or the Id (string) of a node.";
@@ -2714,7 +2718,7 @@
             if (Utils.isDefined(owner)) {
                 newNode.owner = owner;
             }
-            this.nodes.push(newNode);
+            this._addNode(newNode);
             return newNode;
         },
 
@@ -2722,9 +2726,8 @@
          * Adds the given Node and its outgoing links.
          */
         addNodeAndOutgoings: function (node) {
-
-            if (!contains(this.nodes, node)) {
-                this.nodes.push(node);
+            if (!this.hasNode(node)) {
+                this._addNode(node);
             }
 
             var newLinks = node.outgoing;
@@ -2763,7 +2766,7 @@
             Utils.forEach(this.nodes, function (nOriginal) {
                 var nCopy = nOriginal.clone();
                 map.set(nOriginal, nCopy);
-                copy.nodes.push(nCopy);
+                copy._addNode(nCopy);
 
                 if (save) {
                     copy.nodeMap.set(nCopy, nOriginal);
@@ -3034,7 +3037,7 @@
                             source.removeLink(targetLink);
                             catalogEqualIntensity(source, intensityCatalog);
                         }
-                        Utils.remove(copy.nodes, target);
+                        copy._removeNode(target);
                         targetStack.unshift(target);
                     }
                 }
@@ -3053,7 +3056,7 @@
                             catalogEqualIntensity(target, intensityCatalog);
                         }
                         sourceStack.push(source);
-                        Utils.remove(copy.nodes, source);
+                        copy._removeNode(source);
                     }
                 }
 
@@ -3072,7 +3075,7 @@
                                 catalogEqualIntensity(u, intensityCatalog);
                             }
                             sourceStack.push(v);
-                            Utils.remove(copy.nodes, v);
+                            copy._removeNode(v);
                             break;
                         }
                     }
@@ -3614,20 +3617,20 @@
     });
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function ($, undefined) {
     // Imports ================================================================
     var kendo = window.kendo,
-        Observable = kendo.Observable,
         diagram = kendo.dataviz.diagram,
         Class = kendo.Class,
         deepExtend = kendo.deepExtend,
-        dataviz = kendo.dataviz,
         Point = diagram.Point,
         Rect = diagram.Rect,
-        RectAlign = diagram.RectAlign,
         Matrix = diagram.Matrix,
         Utils = diagram.Utils,
-        isUndefined = Utils.isUndefined,
         isNumber = Utils.isNumber,
         isString = Utils.isString,
         MatrixVector = diagram.MatrixVector,
@@ -3647,8 +3650,6 @@
             filledCircle: "FilledCircle",
             arrowEnd: "ArrowEnd"
         },
-        DEFAULTWIDTH = 100,
-        DEFAULTHEIGHT = 100,
         FULL_CIRCLE_ANGLE = 360,
         START = "start",
         END = "end",
@@ -3658,6 +3659,22 @@
         Y = "y";
 
     diagram.Markers = Markers;
+
+    function diffNumericOptions(options, fields) {
+        var elementOptions = this.options;
+        var hasChanges = false;
+        var value, field;
+        for (var i = 0; i < fields.length; i++) {
+            field = fields[i];
+            value = options[field];
+            if (isNumber(value) && elementOptions[field] !== value) {
+                elementOptions[field] = value;
+                hasChanges = true;
+            }
+        }
+
+        return hasChanges;
+    }
 
     var Scale = Class.extend({
         init: function (x, y) {
@@ -3734,6 +3751,8 @@
             return new Rotation(FULL_CIRCLE_ANGLE - this.angle, this.x, this.y);
         }
     });
+
+    Rotation.ZERO = new Rotation(0);
 
     Rotation.create = function (rotation) {
         return new Rotation(rotation.angle, rotation.x, rotation.y);
@@ -3914,7 +3933,7 @@
                 this._transform.rotate = new Rotation(angle, center.x, center.y);
                 this._renderTransform();
             }
-            return this._transform.rotate || new Rotation(0);
+            return this._transform.rotate || Rotation.ZERO;
         },
 
         drawingContainer: function() {
@@ -4035,7 +4054,7 @@
         _fill: function(fillOptions) {
             var options = this.options;
             deepExtend(options, {
-                fill: fillOptions
+                fill: fillOptions || {}
             });
             var fill = options.fill;
 
@@ -4169,7 +4188,7 @@
 
         _initPath: function() {
             var options = this.options;
-            var drawingElement = this.drawingElement = new d.Path({
+            this.drawingElement = new d.Path({
                 stroke: options.stroke,
                 closed: true
             });
@@ -4845,6 +4864,35 @@
 
     deepExtend(Group.fn, AutoSizeableMixin);
 
+    var Layout = Group.extend({
+        init: function (rect, options) {
+            this.children = [];
+            Element.fn.init.call(this, options);
+            this.drawingElement = new d.Layout(toDrawingRect(rect), options);
+            this._initSize();
+        },
+
+        rect: function(rect) {
+            if (rect) {
+                this.drawingElement.rect(toDrawingRect(rect));
+            } else {
+                var drawingRect = this.drawingElement.rect();
+                if (drawingRect) {
+                    return new Rect(drawingRect.origin.x, drawingRect.origin.y, drawingRect.size.width, drawingRect.size.height);
+                }
+            }
+        },
+
+        reflow: function() {
+            this.drawingElement.reflow();
+        },
+
+        redraw: function (options) {
+            kendo.deepExtend(this.drawingElement.options, options);
+            Group.fn.redraw.call(this, options);
+        }
+    });
+
     var Circle = VisualBase.extend({
         init: function (options) {
             VisualBase.fn.init.call(this, options);
@@ -4958,7 +5006,7 @@
             this.drawingElement.remove(visual.drawingContainer());
         },
 
-        insertBefore: function (visual, beforeVisual) {
+        insertBefore: function () {
 
         },
 
@@ -5019,24 +5067,14 @@
         return angle;
     }
 
-    function diffNumericOptions(options, fields) {
-        var elementOptions = this.options;
-        var hasChanges = false;
-        var value, field;
-        for (var i = 0; i < fields.length; i++) {
-            field = fields[i];
-            value = options[field];
-            if (isNumber(value) && elementOptions[field] !== value) {
-                elementOptions[field] = value;
-                hasChanges = true;
-            }
-        }
-
-        return hasChanges;
-    }
-
     function createSegment(x, y) {
         return new d.Segment(new g.Point(x, y));
+    }
+
+    function toDrawingRect(rect) {
+        if (rect) {
+            return new g.Rect([rect.x, rect.y], [rect.width, rect.height]);
+        }
     }
 
     // Exports ================================================================
@@ -5054,6 +5092,7 @@
         Rectangle: Rectangle,
         Canvas: Canvas,
         Path: Path,
+        Layout: Layout,
         Line: Line,
         MarkerBase: MarkerBase,
         ArrowMarker: ArrowMarker,
@@ -5066,21 +5105,23 @@
     });
 })(window.kendo.jQuery);
 
-(function ($, undefined) {
+})();
+
+(function () {
+
+    (function ($, undefined) {
         // Imports ================================================================
         var kendo = window.kendo,
             dataviz = kendo.dataviz,
             diagram = dataviz.diagram,
             Class = kendo.Class,
             Group = diagram.Group,
-            TextBlock = diagram.TextBlock,
             Rect = diagram.Rect,
             Rectangle = diagram.Rectangle,
             Utils = diagram.Utils,
             isUndefined = Utils.isUndefined,
             Point = diagram.Point,
             Circle = diagram.Circle,
-            Path = diagram.Path,
             Ticker = diagram.Ticker,
             deepExtend = kendo.deepExtend,
             Movable = kendo.ui.Movable,
@@ -5110,7 +5151,6 @@
             RIGHT = "Right",
             LEFT = "Left",
             BOTTOM = "Bottom",
-            DEFAULTCONNECTORNAMES = [TOP, RIGHT, BOTTOM, LEFT, AUTO],
             DEFAULT_SNAP_SIZE = 10,
             DEFAULT_SNAP_ANGLE = 10,
             DRAG_START = "dragStart",
@@ -5131,9 +5171,7 @@
             VELOCITY_MULTIPLIER = 5,
             TRANSPARENT = "transparent",
             PAN = "pan",
-            ROTATED = "rotated",
-            WIDTH = "width",
-            HEIGHT = "height";
+            ROTATED = "rotated";
 
         diagram.Cursors = Cursors;
 
@@ -5660,7 +5698,7 @@
             },
             end: function () {
             },
-            tryActivate: function (p, meta) {
+            tryActivate: function () {
                 return false;
             },
             getCursor: function () {
@@ -5765,7 +5803,7 @@
             init: function (toolService) {
                 this.toolService = toolService;
             },
-            tryActivate: function (p, meta) {
+            tryActivate: function () {
                 return true; // the pointer tool is last and handles all others requests.
             },
             start: function (p, meta) {
@@ -5878,7 +5916,7 @@
                 this.toolService = toolService;
                 this.type = "ConnectionTool";
             },
-            tryActivate: function (p, meta) {
+            tryActivate: function() {
                 return this.toolService._hoveredConnector;
             },
             start: function (p, meta) {
@@ -6787,7 +6825,23 @@
             },
 
             options: {
-                editable: {
+                handles: {
+                    fill: {
+                        color: "#fff"
+                    },
+                    stroke: {
+                        color: "#282828"
+                    },
+                    height: 7,
+                    width: 7,
+                    hover: {
+                        fill: {
+                            color: "#282828"
+                        },
+                        stroke: {
+                            color: "#282828"
+                        }
+                    }
                 },
                 selectable: {
                     stroke: {
@@ -6811,12 +6865,19 @@
                 that.visual.append(that.rect);
             },
 
-            _createHandles: function() {
-                var editable = this.options.editable,
-                    handles, item, i, y, x;
+            _resizable: function() {
+                return this.options.editable && this.options.editable.resize !== false;
+            },
 
-                if (editable && editable.resize) {
-                    handles = editable.resize.handles;
+            _handleOptions: function() {
+                return (this.options.editable.resize || {}).handles || this.options.handles;
+            },
+
+            _createHandles: function() {
+                var handles, item, y, x;
+
+                if (this._resizable()) {
+                    handles = this._handleOptions();
                     for (x = -1; x <= 1; x++) {
                         for (y = -1; y <= 1; y++) {
                             if ((x !== 0) || (y !== 0)) { // (0, 0) element, (-1, -1) top-left, (+1, +1) bottom-right
@@ -6841,20 +6902,13 @@
 
             _hitTest: function (p) {
                 var tp = this.diagram.modelToLayer(p),
-                    editable = this.options.editable,
                     i, hit, handleBounds, handlesCount = this.map.length, handle;
 
                 if (this._angle) {
                     tp = tp.clone().rotate(this._bounds.center(), this._angle);
                 }
 
-                if (editable && editable.rotate && this._rotationThumbBounds) {
-                    if (this._rotationThumbBounds.contains(tp)) {
-                        return new Point(-1, -2);
-                    }
-                }
-
-                if (editable && editable.resize) {
+                if (this._resizable()) {
                     for (i = 0; i < handlesCount; i++) {
                         handle = this.map[i];
                         hit = new Point(handle.x, handle.y);
@@ -6872,9 +6926,8 @@
             },
 
             _getHandleBounds: function (p) {
-                var editable = this.options.editable;
-                if (editable && editable.resize) {
-                    var handles = editable.resize.handles || {},
+                if (this._resizable()) {
+                    var handles = this._handleOptions(),
                         w = handles.width,
                         h = handles.height,
                         r = new Rect(0, 0, w, h);
@@ -6899,7 +6952,7 @@
 
             _getCursor: function (point) {
                 var hit = this._hitTest(point);
-                if (hit && (hit.x >= -1) && (hit.x <= 1) && (hit.y >= -1) && (hit.y <= 1) && this.options.editable && this.options.editable.resize) {
+                if (hit && (hit.x >= -1) && (hit.x <= 1) && (hit.y >= -1) && (hit.y <= 1) && this._resizable()) {
                     var angle = this._angle;
                     if (angle) {
                         angle = 360 - angle;
@@ -6976,9 +7029,8 @@
             },
 
             _hover: function(value, element) {
-                var editable = this.options.editable;
-                if (editable && editable.resize) {
-                    var handleOptions = editable.resize.handles,
+                if (this._resizable()) {
+                    var handleOptions = this._handleOptions(),
                         hover = handleOptions.hover,
                         stroke = handleOptions.stroke,
                         fill = handleOptions.fill;
@@ -7009,20 +7061,12 @@
             },
 
             redraw: function () {
-                var that = this, i, handle,
-                    editable = that.options.editable,
-                    resize = editable.resize,
-                    rotate = editable.rotate,
-                    visibleHandles = editable && resize ? true : false,
-                    visibleThumb = editable && rotate ? true : false;
+                var i, handle,
+                    visibleHandles = this._resizable();
 
                 for (i = 0; i < this.map.length; i++) {
                     handle = this.map[i];
                     handle.visual.visible(visibleHandles);
-                }
-
-                if (that.rotationThumb) {
-                    that.rotationThumb.visible(visibleThumb);
                 }
             },
 
@@ -7259,7 +7303,6 @@
             _diffStates: function() {
                 var shapes = this.shapes;
                 var states = this.shapeStates;
-                var bounds;
                 for (var idx = 0; idx < shapes.length; idx++) {
                     if (!shapes[idx].bounds().equals(states[idx])) {
                         return true;
@@ -7437,6 +7480,10 @@
             RotateUnit: RotateUnit
         });
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -7840,9 +7887,7 @@
          * @returns {*}
          */
         mapConnection: function (connection) {
-            return this.edgeMap.first(function (edge) {
-                return contains(this.edgeMap.get(edge), connection);
-            });
+            return this.edgeMap.get(connection.id);
         },
 
         /**
@@ -7851,13 +7896,7 @@
          * @returns {*}
          */
         mapShape: function (shape) {
-            var keys = this.nodeMap.keys();
-            for (var i = 0, len = keys.length; i < len; i++) {
-                var key = keys[i];
-                if (contains(this.nodeMap.get(key), shape)) {
-                    return key;
-                }
-            }
+            return this.nodeMap.get(shape.id);
         },
 
         /**
@@ -8065,7 +8104,7 @@
                     node.isVirtual = false;
 
                     // the mapping will always contain singletons and the hyperTree will be null
-                    this.nodeMap.add(node, [shape]);
+                    this.nodeMap.add(shape.id, node);
                     this.nodes.push(node);
                 }
             }
@@ -8134,7 +8173,7 @@
                     }
                     var newEdge = new Link(sourceNode, sinkNode, conn.id, conn);
 
-                    this.edgeMap.add(newEdge, [conn]);
+                    this.edgeMap.add(conn.id, newEdge);
                     this.edges.push(newEdge);
                 }
                 else {
@@ -9393,13 +9432,11 @@
         },
         _prepare: function (graph) {
             var current = [], i, l, link;
-            for (l = 0; l < graph.links.length; l++) {
-                // of many dummies have been inserted to make things work
-                graph.links[l].depthOfDumminess = 0;
-            }
 
             // defines a mapping of a node to the layer index
             var layerMap = new Dictionary();
+            var layerCount = 0;
+            var targetLayer, next, target;
 
             Utils.forEach(graph.nodes, function (node) {
                 if (node.incoming.length === 0) {
@@ -9409,15 +9446,19 @@
             });
 
             while (current.length > 0) {
-                var next = current.shift();
+                next = current.shift();
                 for (i = 0; i < next.outgoing.length; i++) {
                     link = next.outgoing[i];
-                    var target = link.target;
+                    target = link.target;
 
                     if (layerMap.containsKey(target)) {
-                        layerMap.set(target, Math.max(layerMap.get(next) + 1, layerMap.get(target)));
+                        targetLayer = Math.max(layerMap.get(next) + 1, layerMap.get(target));
                     } else {
-                        layerMap.set(target, layerMap.get(next) + 1);
+                        targetLayer = layerMap.get(next) + 1;
+                    }
+                    layerMap.set(target, targetLayer);
+                    if (targetLayer > layerCount) {
+                        layerCount = targetLayer;
                     }
 
                     if (!contains(current, target)) {
@@ -9426,14 +9467,8 @@
                 }
             }
 
-            // the node count in the map defines how many layers w'll need
-            var layerCount = 0;
-            layerMap.forEachValue(function (nodecount) {
-                layerCount = Math.max(layerCount, nodecount);
-            });
+            var sortedNodes = layerMap.keys();
 
-            var sortedNodes = [];
-            Utils.addRange(sortedNodes, layerMap.keys());
             sortedNodes.sort(function (o1, o2) {
                 var o1layer = layerMap.get(o1);
                 var o2layer = layerMap.get(o2);
@@ -9459,8 +9494,11 @@
             }
 
             this.layers = [];
+            var layer;
             for (i = 0; i < layerCount + 1; i++) {
-                this.layers.push([]);
+                layer = [];
+                layer.linksTo = {};
+                this.layers.push(layer);
             }
 
             layerMap.forEach(function (node, layer) {
@@ -9470,13 +9508,12 @@
 
             // set initial grid positions
             for (l = 0; l < this.layers.length; l++) {
-                var layer = this.layers[l];
+                layer = this.layers[l];
                 for (i = 0; i < layer.length; i++) {
                     layer[i].gridPosition = i;
                 }
             }
         },
-
         /**
          * Performs the layout of a single component.
          */
@@ -10424,6 +10461,13 @@
             this.nodeToLinkMap = new Dictionary();
 
             var layer, pos, newNode, node, r, newLink, i, l, links = this.graph.links.slice(0);
+            var layers = this.layers;
+
+            var addLinkBetweenLayers = function(upLayer, downLayer, link) {
+                layers[upLayer].linksTo[downLayer] = layers[upLayer].linksTo[downLayer] || [];
+                layers[upLayer].linksTo[downLayer].push(link);
+            };
+
             for (l = 0; l < links.length; l++) {
                 var link = links[l];
                 var o = link.source;
@@ -10445,15 +10489,15 @@
                         newNode.width = o.width / 100;
                         newNode.height = o.height / 100;
 
-                        layer = this.layers[i];
+                        layer = layers[i];
                         pos = (i - dLayer) * step + oPos;
                         if (pos > layer.length) {
                             pos = layer.length;
                         }
 
                         // check if origin and dest are both last
-                        if (oPos >= this.layers[oLayer].length - 1 &&
-                            dPos >= this.layers[dLayer].length - 1) {
+                        if (oPos >= layers[oLayer].length - 1 &&
+                            dPos >= layers[dLayer].length - 1) {
                             pos = layer.length;
                         }
 
@@ -10480,10 +10524,13 @@
 
                         newLink = new Link(p, newNode);
                         newLink.depthOfDumminess = 0;
+
+                        addLinkBetweenLayers(i - 1, i, newLink);
+
                         p = newNode;
 
                         // add the new node and the new link to the graph
-                        this.graph.nodes.push(newNode);
+                        this.graph._addNode(newNode);
                         this.graph.addLink(newLink);
 
                         newNode.index = this.graph.nodes.length - 1;
@@ -10491,11 +10538,10 @@
                     }
 
                     // set the origin of the real arrow to the last dummy
+                    addLinkBetweenLayers(dLayer - 1, dLayer, newLink);
                     link.changeSource(p);
                     link.depthOfDumminess = oLayer - dLayer - 1;
-                }
-
-                if (oLayer - dLayer < -1) {
+                } else if (oLayer - dLayer < -1) {
                     for (i = oLayer + 1; i < dLayer; i++) {
                         newNode = new Node();
                         newNode.x = o.x;
@@ -10503,15 +10549,15 @@
                         newNode.width = o.width / 100;
                         newNode.height = o.height / 100;
 
-                        layer = this.layers[i];
+                        layer = layers[i];
                         pos = (i - oLayer) * step + oPos;
                         if (pos > layer.length) {
                             pos = layer.length;
                         }
 
                         // check if origin and dest are both last
-                        if (oPos >= this.layers[oLayer].length - 1 &&
-                            dPos >= this.layers[dLayer].length - 1) {
+                        if (oPos >= layers[oLayer].length - 1 &&
+                            dPos >= layers[dLayer].length - 1) {
                             pos = layer.length;
                         }
 
@@ -10539,19 +10585,24 @@
 
                         newLink = new Link(p, newNode);
                         newLink.depthOfDumminess = 0;
+                        addLinkBetweenLayers(i - 1, i, newLink);
+
                         p = newNode;
 
                         // add the new node and the new link to the graph
-                        this.graph.nodes.push(newNode);
+                        this.graph._addNode(newNode);
                         this.graph.addLink(newLink);
 
                         newNode.index = this.graph.nodes.length - 1;
                         this.mapVirtualNode(newNode, link);
                     }
+                    addLinkBetweenLayers(dLayer - 1, dLayer, link);
 
                     // Set the origin of the real arrow to the last dummy
                     link.changeSource(p);
                     link.depthOfDumminess = dLayer - oLayer - 1;
+                } else {
+                    addLinkBetweenLayers(oLayer, dLayer, link);
                 }
             }
         },
@@ -10567,7 +10618,7 @@
 
                 for (var l = 0; l < this.graph.links.length; l++) {
                     var link = this.graph.links[l];
-                    if (link.depthOfDumminess === 0) {
+                    if (!link.depthOfDumminess) {
                         continue;
                     }
 
@@ -10941,58 +10992,18 @@
         /// <param name="layerIndex2">Another layer index.</param>
         /// <returns></returns>
         countLinksCrossingBetweenTwoLayers: function (ulayer, dlayer) {
-            var i, crossings = 0;
+            var links = this.layers[ulayer].linksTo[dlayer];
+            var link1, link2, n11, n12, n21, n22, l1, l2;
+            var crossings = 0;
+            var length = links.length;
 
-            var upperLayer = new Set();
-            var temp1 = this.layers[ulayer];
-            for (i = 0; i < temp1.length; i++) {
-                upperLayer.add(temp1[i]);
-            }
+            for (l1 = 0; l1 < length; l1++) {
+                link1 = links[l1];
+                for (l2 = l1 + 1; l2 < length; l2++) {
 
-            var lowerLayer = new Set();
-            var temp2 = this.layers[dlayer];
-            for (i = 0; i < temp2.length; i++) {
-                lowerLayer.add(temp2[i]);
-            }
+                    link2 = links[l2];
 
-            // collect the links located between the layers
-            var dlinks = new Set();
-            var links = [];
-            var temp = [];
-
-            upperLayer.forEach(function (node) {
-                //throw "";
-                Utils.addRange(temp, node.incoming);
-                Utils.addRange(temp, node.outgoing);
-            });
-
-            for (var ti = 0; ti < temp.length; ti++) {
-                var link = temp[ti];
-
-                if (upperLayer.contains(link.source) &&
-                    lowerLayer.contains(link.target)) {
-                    dlinks.add(link);
-                    links.push(link);
-                }
-                else if (lowerLayer.contains(link.source) &&
-                    upperLayer.contains(link.target)) {
-                    links.push(link);
-                }
-            }
-
-            for (var l1 = 0; l1 < links.length; l1++) {
-                var link1 = links[l1];
-                for (var l2 = 0; l2 < links.length; l2++) {
-                    if (l1 === l2) {
-                        continue;
-                    }
-
-                    var link2 = links[l2];
-
-                    var n11, n12;
-                    var n21, n22;
-
-                    if (dlinks.contains(link1)) {
+                    if (link1.target.layer === dlayer) {
                         n11 = link1.source;
                         n12 = link1.target;
                     }
@@ -11001,7 +11012,7 @@
                         n12 = link1.source;
                     }
 
-                    if (dlinks.contains(link2)) {
+                    if (link2.target.layer === dlayer) {
                         n21 = link2.source;
                         n22 = link2.target;
                     }
@@ -11021,7 +11032,7 @@
                 }
             }
 
-            return crossings / 2;
+            return crossings;
         },
 
         calcBaryCenter: function (node) {
@@ -11203,7 +11214,11 @@
     });
 })(window.kendo.jQuery);
 
-(function ($, undefined) {
+})();
+
+(function () {
+
+    (function ($, undefined) {
         // Imports ================================================================
         var dataviz = kendo.dataviz,
             draw = kendo.drawing,
@@ -11217,7 +11232,6 @@
             HierarchicalDataSource = kendo.data.HierarchicalDataSource,
             Canvas = diagram.Canvas,
             Group = diagram.Group,
-            Visual = diagram.Visual,
             Rectangle = diagram.Rectangle,
             Circle = diagram.Circle,
             CompositeTransform = diagram.CompositeTransform,
@@ -11238,10 +11252,8 @@
             Cursors = diagram.Cursors,
             Utils = diagram.Utils,
             Observable = kendo.Observable,
-            Ticker = diagram.Ticker,
             ToBackUnit = diagram.ToBackUnit,
             ToFrontUnit = diagram.ToFrontUnit,
-            Dictionary = diagram.Dictionary,
             PolylineRouter = diagram.PolylineRouter,
             CascadingRouter = diagram.CascadingRouter,
             isUndefined = Utils.isUndefined,
@@ -11257,7 +11269,6 @@
         // Constants ==============================================================
         var NS = ".kendoDiagram",
             CASCADING = "cascading",
-            POLYLINE = "polyline",
             ITEMBOUNDSCHANGE = "itemBoundsChange",
             CHANGE = "change",
             CLICK = "click",
@@ -11278,11 +11289,7 @@
             PAN = "pan",
             ZOOM_START = "zoomStart",
             ZOOM_END = "zoomEnd",
-            CONNECTION_CSS = "k-connection",
-            SHAPE_CSS = "k-shape",
-            SINGLE = "single",
             NONE = "none",
-            MULTIPLE = "multiple",
             DEFAULT_CANVAS_WIDTH = 600,
             DEFAULT_CANVAS_HEIGHT = 600,
             DEFAULT_SHAPE_TYPE = "rectangle",
@@ -11291,13 +11298,9 @@
             DEFAULT_SHAPE_MINWIDTH = 20,
             DEFAULT_SHAPE_MINHEIGHT = 20,
             DEFAULT_SHAPE_POSITION = 0,
-            DEFAULT_SHAPE_BACKGROUND = "SteelBlue",
             DEFAULT_CONNECTION_BACKGROUND = "Yellow",
-            DEFAULT_CONNECTOR_SIZE = 8,
-            DEFAULT_HOVER_COLOR = "#70CAFF",
             MAX_VALUE = Number.MAX_VALUE,
             MIN_VALUE = -Number.MAX_VALUE,
-            ALL = "all",
             ABSOLUTE = "absolute",
             TRANSFORMED = "transformed",
             ROTATED = "rotated",
@@ -11309,7 +11312,8 @@
             MOUSEWHEEL_NS = "DOMMouseScroll" + NS + " mousewheel" + NS,
             MOBILE_ZOOM_RATE = 0.05,
             MOBILE_PAN_DISTANCE = 5,
-            BUTTON_TEMPLATE = '<a class="k-button k-button-icontext #=className#" href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>';
+            BUTTON_TEMPLATE = '<a class="k-button k-button-icontext #=className#" href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>',
+            CONNECTION_CONTENT_OFFSET = 5;
 
         diagram.DefaultConnectors = [{
             name: TOP
@@ -11418,17 +11422,6 @@
             return indices;
         }
 
-        function deserializeConnector(diagram, value) {
-            var point = Point.parse(value), ctr;
-            if (point) {
-                return point;
-            }
-            ctr = Connector.parse(diagram, value);
-            if (ctr) {
-                return ctr;
-            }
-        }
-
         var DiagramElement = Observable.extend({
             init: function (options) {
                 var that = this;
@@ -11440,6 +11433,7 @@
                     id: that.options.id,
                     autoSize: that.options.autoSize
                 });
+                that.id = that.options.id;
                 that._template();
             },
 
@@ -11498,7 +11492,6 @@
             _content: function (content) {
                 if (content !== undefined) {
                     var options = this.options;
-                    var bounds = this.bounds();
 
                     if (diagram.Utils.isString(content)) {
                         options.content.text = content;
@@ -11509,16 +11502,26 @@
                     var contentOptions = options.content;
                     var contentVisual = this._contentVisual;
 
-                    if (!contentVisual && contentOptions.text) {
-                        this._contentVisual = new TextBlock(contentOptions);
-                        this._contentVisual._includeInBBox = false;
-                        this.visual.append(this._contentVisual);
-                    } else if (contentVisual) {
-                        contentVisual.redraw(contentOptions);
+                    if (!contentVisual) {
+                        this._createContentVisual(contentOptions);
+                    } else {
+                        this._updateContentVisual(contentOptions);
                     }
                 }
 
                 return this.options.content.text;
+            },
+
+            _createContentVisual: function(options) {
+                if (options.text) {
+                    this._contentVisual = new TextBlock(options);
+                    this._contentVisual._includeInBBox = false;
+                    this.visual.append(this._contentVisual);
+                }
+            },
+
+            _updateContentVisual: function(options) {
+                this._contentVisual.redraw(options);
             },
 
             _hitTest: function (point) {
@@ -11600,22 +11603,11 @@
                 options = that.options;
                 that.connectors = [];
                 that.type = options.type;
-                that.shapeVisual = Shape.createShapeVisual(that.options);
-                that.visual.append(this.shapeVisual);
+                that.createShapeVisual();
                 that.updateBounds();
                 that.content(that.content());
 
-                // TODO: Swa added for phase 2; included here already because the GraphAdapter takes it into account
                 that._createConnectors();
-                that.parentContainer = null;
-                that.isContainer = false;
-                that.isCollapsed = false;
-                that.id = that.visual.id;
-
-                if (options.hasOwnProperty("layout") && options.layout !== undefined) {
-                    // pass the defined shape layout, it overtakes the default resizing
-                    that.layout = options.layout.bind(options);
-                }
             },
 
             options: diagram.shapeDefaults(),
@@ -11663,8 +11655,7 @@
                 this.visual.clear();
                 this._contentVisual = null;
                 this.options.dataItem = this.dataItem;
-                this.shapeVisual = Shape.createShapeVisual(this.options);
-                this.visual.append(this.shapeVisual);
+                this.createShapeVisual();
                 this.updateBounds();
             },
 
@@ -11774,7 +11765,9 @@
                     } else {
                         this._setBounds(value);
                         this._triggerBoundsChange();
-                        this.refreshConnections();
+                        if (!(this.diagram && this.diagram._layouting)) {
+                            this.refreshConnections();
+                        }
                     }
                 } else {
                     bounds = this._bounds;
@@ -12013,9 +12006,7 @@
                     source: options.source,
                     hover: options.hover,
                     fill: options.fill,
-                    stroke: options.stroke,
-                    startCap: options.startCap,
-                    endCap: options.endCap
+                    stroke: options.stroke
                 };
             },
 
@@ -12107,44 +12098,39 @@
                 return {
                     shapeId: this.options.id
                 };
+            },
+
+            createShapeVisual: function() {
+                var options = this.options;
+                var visualOptions = this._visualOptions(options);
+                var visualTemplate = options.visual;
+                var type = (options.type + "").toLocaleLowerCase();
+                var shapeVisual;
+
+                visualOptions.width = options.width;
+                visualOptions.height = options.height;
+
+                if (isFunction(visualTemplate)) { // custom template
+                    shapeVisual = visualTemplate.call(this, options);
+                } else if (visualOptions.data) {
+                    shapeVisual = new Path(visualOptions);
+                    translateToOrigin(shapeVisual);
+                } else if (type == "rectangle"){
+                    shapeVisual = new Rectangle(visualOptions);
+                } else if (type == "circle") {
+                    shapeVisual = new Circle(visualOptions);
+                } else if (type == "text") {
+                    shapeVisual = new TextBlock(visualOptions);
+                } else if (type == "image") {
+                    shapeVisual = new Image(visualOptions);
+                } else {
+                    shapeVisual = new Path(visualOptions);
+                }
+
+                this.shapeVisual = shapeVisual;
+                this.visual.append(this.shapeVisual);
             }
         });
-
-        Shape.createShapeVisual = function(options) {
-            var diagram = options.diagram;
-            delete options.diagram; // avoid stackoverflow and reassign later on again
-            var shapeDefaults = deepExtend({}, options, { x: 0, y: 0 });
-            var visualTemplate = shapeDefaults.visual; // Shape visual should not have position in its parent group.
-            var type = (shapeDefaults.type + "").toLocaleLowerCase();
-            var shapeVisual;
-
-            if (isFunction(visualTemplate)) { // custom template
-                shapeVisual = visualTemplate.call(this, shapeDefaults);
-            } else if (shapeDefaults.path) {
-                shapeDefaults.data = shapeDefaults.path;
-                shapeVisual = new Path(shapeDefaults);
-                translateToOrigin(shapeVisual);
-            } else if (type == "rectangle"){
-                shapeVisual = new Rectangle(shapeDefaults);
-            } else if (type == "circle") {
-                shapeVisual = new Circle(shapeDefaults);
-            } else if (type == "text") {
-                shapeVisual = new TextBlock(shapeDefaults);
-            } else if (type == "image") {
-                shapeVisual = new Image(shapeDefaults);
-            } else {
-                shapeVisual = new Path(shapeDefaults);
-            }
-
-            return shapeVisual;
-        };
-
-        function translateToOrigin(visual) {
-            var bbox = visual.drawingContainer().clippedBBox(null);
-            if (bbox.origin.x !== 0 || bbox.origin.y !== 0) {
-                visual.position(-bbox.origin.x, -bbox.origin.y);
-            }
-        }
 
         /**
          * The visual link between two Shapes through the intermediate of Connectors.
@@ -12159,14 +12145,13 @@
                 that.path.fill(TRANSPARENT);
                 that.visual.append(that.path);
                 that._sourcePoint = that._targetPoint = new Point();
-                that.source(from);
-                that.target(to);
+                that._setSource(from);
+                that._setTarget(to);
                 that.content(that.options.content);
                 that.definers = [];
                 if (defined(options) && options.points) {
                     that.points(options.points);
                 }
-                that.refresh();
             },
 
             options: {
@@ -12176,7 +12161,9 @@
                 startCap: NONE,
                 endCap: NONE,
                 points: [],
-                selectable: true
+                selectable: true,
+                fromConnector: AUTO,
+                toConenctor: AUTO
             },
 
             _setOptionsFromModel: function(model) {
@@ -12190,13 +12177,21 @@
 
                     if (model) {
                         if (defined(options.from)) {
-                            this.source(dataMap[options.from]);
+                            var from = dataMap[options.from];
+                            if (from && defined(options.fromConnector)) {
+                               from = from.getConnector(options.fromConnector);
+                            }
+                            this.source(from);
                         } else if (defined(options.fromX) && defined(options.fromY)) {
                             this.source(new Point(options.fromX, options.fromY));
                         }
 
                         if (defined(options.to)) {
-                            this.target(dataMap[options.to]);
+                            var to = dataMap[options.to];
+                            if (to && defined(options.toConnector)) {
+                                to = to.getConnector(options.toConnector);
+                            }
+                            this.target(to);
                         } else if (defined(options.toX) && defined(options.toY)) {
                             this.target(new Point(options.toX, options.toY));
                         }
@@ -12220,26 +12215,35 @@
                 if (this.diagram && this.diagram._isEditable) {
                     if (this.diagram.connectionsDataSource) {
                         var model = this.diagram.connectionsDataSource.getByUid(this.dataItem.uid);
+
                         if (model) {
                             this.diagram._suspendModelRefresh();
                             if (defined(this.options.fromX) && this.options.fromX !== null) {
-                                model.set("from", null);
+                                clearField("from", model);
+                                clearField("fromConnector", model);
                                 model.set("fromX", this.options.fromX);
                                 model.set("fromY", this.options.fromY);
                             } else  {
                                 model.set("from", this.options.from);
-                                model.set("fromX", null);
-                                model.set("fromY", null);
+                                if (defined(model.fromConnector)) {
+                                    model.set("fromConnector", this.sourceConnector ? this.sourceConnector.options.name : null);
+                                }
+                                clearField("fromX", model);
+                                clearField("fromY", model);
                             }
 
                             if (defined(this.options.toX) && this.options.toX !== null) {
-                                model.set("to", null);
+                                clearField("to", model);
+                                clearField("toConnector", model);
                                 model.set("toX", this.options.toX);
                                 model.set("toY", this.options.toY);
                             } else {
                                 model.set("to", this.options.to);
-                                model.set("toX", null);
-                                model.set("toY", null);
+                                if (defined(model.toConnector)) {
+                                    model.set("toConnector", this.targetConnector ? this.targetConnector.options.name : null);
+                                }
+                                clearField("toX", model);
+                                clearField("toY", model);
                             }
 
                             if (defined(this.options.type) && defined(model.type)) {
@@ -12266,61 +12270,58 @@
                 return this._resolvedSourceConnector ? this._resolvedSourceConnector.position() : this._sourcePoint;
             },
 
-            /**
-             * Gets or sets the Point where the source of the connection resides.
-             * @param source The source of this connection. Can be a Point, Shape, Connector.
-             * @param undoable Whether the change or assignment should be undoable.
-             */
-            source: function (source, undoable) {
+            _setSource: function(source) {
+                var shapeSource = source instanceof Shape;
+                var defaultConnector = this.options.fromConnector || AUTO;
                 var dataItem;
-                if (isDefined(source)) {
-                    var shapeSource = source instanceof Shape;
+                if (shapeSource && !source.getConnector(defaultConnector)) {
+                    return;
+                }
 
-                    if (shapeSource && !source.getConnector(AUTO)) {
-                        return;
+                if (source !== undefined) {
+                    this.from = source;
+                }
+
+                this._removeFromSourceConnector();
+
+                if (source === null) { // detach
+                    if (this.sourceConnector) {
+                        this._sourcePoint = (this._resolvedSourceConnector || this.sourceConnector).position();
+                        this._clearSourceConnector();
+                        this._setFromOptions(null, this._sourcePoint);
+                    }
+                } else if (source instanceof Connector) {
+                    dataItem = source.shape.dataItem;
+                    if (dataItem) {
+                        this._setFromOptions(dataItem.id);
+                    }
+                    this.sourceConnector = source;
+                    this.sourceConnector.connections.push(this);
+                } else if (source instanceof Point) {
+                    this._setFromOptions(null, source);
+                    this._sourcePoint = source;
+                    if (this.sourceConnector) {
+                        this._clearSourceConnector();
                     }
 
+                } else if (shapeSource) {
+                    dataItem = source.dataItem;
+                    if (dataItem) {
+                        this._setFromOptions(dataItem.id);
+                    }
+
+                    this.sourceConnector = source.getConnector(defaultConnector);
+                    this.sourceConnector.connections.push(this);
+                }
+            },
+
+            source: function (source, undoable) {
+                if (isDefined(source)) {
                     if (undoable && this.diagram) {
                         this.diagram.undoRedoService.addCompositeItem(new diagram.ConnectionEditUnit(this, source));
                     }
-                    if (source !== undefined) {
-                        this.from = source;
-                    }
-
-                    this._removeFromSourceConnector();
-
-                    if (source === null) { // detach
-                        if (this.sourceConnector) {
-                            this._sourcePoint = this._resolvedSourceConnector.position();
-                            this._clearSourceConnector();
-                            this._setFromOptions(null, this._sourcePoint);
-                        }
-                    } else if (source instanceof Connector) {
-                        dataItem = source.shape.dataItem;
-                        if (dataItem) {
-                            this._setFromOptions(dataItem.id);
-                        }
-                        this.sourceConnector = source;
-                        this.sourceConnector.connections.push(this);
-                    } else if (source instanceof Point) {
-                        this._setFromOptions(null, source);
-                        this._sourcePoint = source;
-                        if (this.sourceConnector) {
-                            this._clearSourceConnector();
-                        }
-
-                    } else if (shapeSource) {
-                        dataItem = source.dataItem;
-                        if (dataItem) {
-                            this._setFromOptions(dataItem.id);
-                        }
-
-                        this.sourceConnector = source.getConnector(AUTO);// source.getConnector(this.targetPoint());
-                        this.sourceConnector.connections.push(this);
-                    }
-
+                    this._setSource(source);
                     this.refresh();
-
                 }
                 return this.sourceConnector ? this.sourceConnector : this._sourcePoint;
             },
@@ -12365,58 +12366,57 @@
             targetPoint: function () {
                 return this._resolvedTargetConnector ? this._resolvedTargetConnector.position() : this._targetPoint;
             },
-            /**
-             * Gets or sets the Point where the target of the connection resides.
-             * @param target The target of this connection. Can be a Point, Shape, Connector.
-             * @param undoable  Whether the change or assignment should be undoable.
-             */
-            target: function (target, undoable) {
+
+            _setTarget: function(target) {
+                var shapeTarget = target instanceof Shape;
+                var defaultConnector = this.options.toConnector || AUTO;
                 var dataItem;
-                if (isDefined(target)) {
-                    var shapeTarget = target instanceof Shape;
 
-                    if (shapeTarget && !target.getConnector(AUTO)) {
-                        return;
+                if (shapeTarget && !target.getConnector(defaultConnector)) {
+                    return;
+                }
+
+                if (target !== undefined) {
+                    this.to = target;
+                }
+
+                this._removeFromTargetConnector();
+
+                if (target === null) { // detach
+                    if (this.targetConnector) {
+                        this._targetPoint = (this._resolvedTargetConnector || this.targetConnector).position();
+                        this._clearTargetConnector();
+                        this._setToOptions(null, this._targetPoint);
                     }
+                } else if (target instanceof Connector) {
+                    dataItem = target.shape.dataItem;
+                    if (dataItem) {
+                        this._setToOptions(dataItem.id);
+                    }
+                    this.targetConnector = target;
+                    this.targetConnector.connections.push(this);
+                } else if (target instanceof Point) {
+                    this._setToOptions(null, target);
+                    this._targetPoint = target;
+                    if (this.targetConnector) {
+                        this._clearTargetConnector();
+                    }
+                } else if (shapeTarget) {
+                    dataItem = target.dataItem;
+                    if (dataItem) {
+                        this._setToOptions(dataItem.id);
+                    }
+                    this.targetConnector = target.getConnector(defaultConnector);
+                    this.targetConnector.connections.push(this);
+                }
+            },
 
+            target: function (target, undoable) {
+                if (isDefined(target)) {
                     if (undoable && this.diagram) {
                         this.diagram.undoRedoService.addCompositeItem(new diagram.ConnectionEditUnit(this, undefined, target));
                     }
-
-                    if (target !== undefined) {
-                        this.to = target;
-                    }
-
-                    this._removeFromTargetConnector();
-
-                    if (target === null) { // detach
-                        if (this.targetConnector) {
-                            this._targetPoint = this._resolvedTargetConnector.position();
-                            this._clearTargetConnector();
-                            this._setToOptions(null, this._targetPoint);
-                        }
-                    } else if (target instanceof Connector) {
-                        dataItem = target.shape.dataItem;
-                        if (dataItem) {
-                            this._setToOptions(dataItem.id);
-                        }
-                        this.targetConnector = target;
-                        this.targetConnector.connections.push(this);
-                    } else if (target instanceof Point) {
-                        this._setToOptions(null, target);
-                        this._targetPoint = target;
-                        if (this.targetConnector) {
-                            this._clearTargetConnector();
-                        }
-                    } else if (shapeTarget) {
-                        dataItem = target.dataItem;
-                        if (dataItem) {
-                            this._setToOptions(dataItem.id);
-                        }
-                        this.targetConnector = target.getConnector(AUTO);
-                        this.targetConnector.connections.push(this);
-                    }
-
+                    this._setTarget(target);
 
                     this.refresh();
                 }
@@ -12495,14 +12495,91 @@
                 return result;
             },
 
+            _createContentVisual: function(options) {
+                var visual;
+                if (isFunction(options.visual)) {
+                    visual = options.visual.call(this, options);
+                } else if (options.text) {
+                    visual = new TextBlock(options);
+                }
+
+                if (visual) {
+                    this._contentVisual = visual;
+                    visual._includeInBBox = false;
+                    this.visual.append(visual);
+                }
+
+                return visual;
+            },
+
+            _updateContentVisual: function(options) {
+                if (isFunction(options.visual)) {
+                    this.visual.remove(this._contentVisual);
+                    this._createContentVisual(options);
+                } else {
+                    this._contentVisual.redraw(options);
+                }
+            },
+
             _alignContent: function() {
                 if (this._contentVisual) {
-                    var boundsTopLeft = this._bounds.topLeft();
-                    var localSourcePoint = this.sourcePoint().minus(boundsTopLeft);
-                    var localSinkPoint = this.targetPoint().minus(boundsTopLeft);
-                    var middle = Point.fn.middleOf(localSourcePoint, localSinkPoint);
+                    var offset = CONNECTION_CONTENT_OFFSET;
+                    var points = this.allPoints();
+                    var endIdx = math.floor(points.length / 2);
+                    var startIdx = endIdx - 1;
 
-                    this._contentVisual.position(new Point(middle.x + boundsTopLeft.x, middle.y + boundsTopLeft.y));
+                    while(startIdx > 0 && points[startIdx].equals(points[endIdx])) {
+                        startIdx--;
+                        endIdx++;
+                    }
+
+                    var endPoint = points[endIdx];
+                    var startPoint = points[startIdx];
+
+                    var boundingBox = this._contentVisual._measure();
+                    var width = boundingBox.width;
+                    var height = boundingBox.height;
+                    var alignToPath = points.length % 2 === 0;
+                    var distance = startPoint.distanceTo(endPoint);
+
+                    if (alignToPath && points.length > 2 && distance > 0 &&
+                        ((startPoint.y === endPoint.y && distance < width) || (startPoint.x === endPoint.x && distance < height))) {
+                        alignToPath = false;
+                        offset = 0;
+                    }
+
+                    var point;
+
+                    if (alignToPath) {
+                        var angle  = kendo.util.deg(math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x));
+                        point = new Point((endPoint.x - startPoint.x) / 2 + startPoint.x, (endPoint.y - startPoint.y) / 2 + startPoint.y);
+
+                        if (math.abs(angle) === 90) {
+                            point.x += offset;
+                            point.y-= height / 2;
+                        } else if (angle % 180 === 0) {
+                            point.x -= width / 2;
+                            point.y -= height + offset;
+                        } else if (angle < -90 || (0 < angle && angle < 90)) {
+                            point.y-= height;
+                        } else if (angle < 0 || angle > 90) {
+                            point.x -= width;
+                            point.y -= height;
+                        }
+                    } else {
+                        var midIdx = math.floor(points.length / 2);
+                        point = points[midIdx].clone();
+                        startPoint = points[midIdx - 1];
+                        endPoint = points[midIdx + 1];
+
+                        var offsetX = startPoint.x <= point.x && endPoint.x <= point.x ? offset : -boundingBox.width - offset;
+                        var offsetY = startPoint.y <= point.y && endPoint.y <= point.y ? offset : -boundingBox.height - offset;
+
+                        point.x += offsetX;
+                        point.y += offsetY;
+                    }
+
+                    this._contentVisual.position(point);
                 }
             },
 
@@ -12735,17 +12812,26 @@
                 if (router instanceof CascadingRouter) {
                     var points = router.routePoints(sourcePoint, targetPoint, sourceConnector, targetConnector),
                         start, end,
-                        exclude, rect;
+                         rect;
                     points.unshift(sourcePoint);
                     points.push(targetPoint);
-                    exclude = [sourceConnector.shape, targetConnector.shape];
+
+
                     for (var idx = 1; idx < points.length; idx++) {
                         start = points[idx - 1];
                         end = points[idx];
                         rect = new Rect(math.min(start.x, end.x), math.min(start.y, end.y),
                                         math.abs(start.x - end.x), math.abs(start.y - end.y));
+                        if (rect.width > 0) {
+                            rect.x++;
+                            rect.width-=2;
+                        }
+                        if (rect.height > 0) {
+                            rect.y++;
+                            rect.height-=2;
+                        }
 
-                        if (this.diagram._shapesQuadTree.hitTestRect(rect, exclude)) {
+                        if (!rect.isEmpty() && this.diagram._shapesQuadTree.hitTestRect(rect)) {
                             passRoute = false;
                             break;
                         }
@@ -12866,12 +12952,11 @@
             },
 
             _clearSourceConnector: function () {
-                Utils.remove(this.sourceConnector.connections, this);
                 this.sourceConnector = undefined;
                 this._resolvedSourceConnector = undefined;
             },
+
             _clearTargetConnector: function () {
-                Utils.remove(this.targetConnector.connections, this);
                 this.targetConnector = undefined;
                 this._resolvedTargetConnector = undefined;
             },
@@ -12886,6 +12971,35 @@
                 if (this.targetConnector) {
                     Utils.remove(this.targetConnector.connections, this);
                 }
+            },
+
+            toJSON: function() {
+                var connection = this;
+                var from, to, point;
+                if (connection.from && connection.from.toJSON) {
+                    from = connection.from.toJSON();
+                } else {
+                    point = connection._sourcePoint;
+                    from = {
+                        x: point.x,
+                        y: point.y
+                    };
+                }
+
+                if (connection.to && connection.to.toJSON) {
+                    to = connection.to.toJSON();
+                } else {
+                    point = connection._targetPoint;
+                    to = {
+                        x: point.x,
+                        y: point.y
+                    };
+                }
+
+                return {
+                    from : from,
+                    to: to
+                };
             }
         });
 
@@ -12936,12 +13050,7 @@
 
                 that.pauseMouseHandlers = false;
 
-                that._createShapes();
-                that._createConnections();
-
-                if (that.options.layout) {
-                    that.layout(that.options.layout);
-                }
+                that._createOptionElements();
 
                 that.zoom(that.options.zoom);
 
@@ -13018,11 +13127,15 @@
                 DRAG_END
             ],
 
+            items: function() {
+                return $();
+            },
+
             _createGlobalToolBar: function() {
                 var editable = this.options.editable;
                 if (editable) {
                     var tools = editable.tools;
-                    if (this._isEditable && tools.length === 0) {
+                    if (this._isEditable && tools !== false && (!tools || tools.length === 0)) {
                         tools = ["createShape", "undo", "redo", "rotateClockwise", "rotateAnticlockwise"];
                     }
 
@@ -13168,7 +13281,7 @@
             },
 
             _editArgs: function() {
-                var result = { container: this.editor.element };
+                var result = { container: this.editor.wrapper };
                 result[this.editor.options.type] = this.editor.model;
                 return result;
             },
@@ -13368,6 +13481,28 @@
                     themeOptions = (themes[themeName] || {}).diagram;
 
                 that.options = deepExtend({}, themeOptions, that.options);
+                if (that.options.editable === true) {
+                    deepExtend(that.options, {
+                        editable: (themeOptions || {}).editable
+                    });
+                }
+            },
+
+            _createOptionElements: function() {
+                var options = this.options;
+                var shapesLength = options.shapes.length;
+
+                if (shapesLength) {
+                    this._createShapes();
+                }
+
+                if (options.connections.length) {
+                    this._createConnections();
+                }
+
+                if (shapesLength && options.layout) {
+                    this.layout(options.layout);
+                }
             },
 
             _createShapes: function() {
@@ -13391,20 +13526,27 @@
 
                 for(i = 0; i < connections.length; i++) {
                     conn = connections[i];
-                    source = diagram._findConnectionShape(conn.from);
-                    target = diagram._findConnectionShape(conn.to);
+                    source = diagram._findConnectionTarget(conn.from);
+                    target = diagram._findConnectionTarget(conn.to);
 
                     diagram.connect(source, target, deepExtend({}, defaults, conn));
                 }
             },
 
-            _findConnectionShape: function(options) {
-                var diagram = this,
-                    shapeId = isString(options) ? options : options.shapeId;
+            _findConnectionTarget: function(options) {
+                var diagram = this;
+                var shapeId = isString(options) ? options : options.shapeId || options.id;
+                var target;
+                if (shapeId) {
+                    target = diagram.getShapeById(shapeId);
+                    if (options.connector) {
+                        target = target.getConnector(options.connector);
+                    }
+                } else {
+                    target = new Point(options.x || 0, options.y || 0);
+                }
 
-                var shape = diagram.getShapeById(shapeId);
-
-                return shape.getConnector(options.connector || AUTO);
+                return target;
             },
 
             destroy: function () {
@@ -13442,22 +13584,23 @@
             },
 
             save: function () {
-                var json = {}, i;
-
-                json.shapes = [];
-                json.connections = [];
+                var json = {
+                    shapes: [],
+                    connections: []
+                };
+                var i, connection, shape;
 
                 for (i = 0; i < this.shapes.length; i++) {
-                    var shape = this.shapes[i];
+                    shape = this.shapes[i];
                     if (shape.options.serializable) {
                         json.shapes.push(shape.options);
                     }
                 }
 
                 for (i = 0; i < this.connections.length; i++) {
-                    var con = this.connections[i];
-                    var conOptions = deepExtend({}, con.options, { from: con.from.toJSON(), to: con.to.toJSON() });
-                    json.connections.push(conOptions);
+                    connection = this.connections[i];
+
+                    json.connections.push(deepExtend({}, connection.options, connection.toJSON()));
                 }
 
                 return json;
@@ -13606,39 +13749,34 @@
              * @param options. The options to be passed to the newly created Shape.
              * @returns The newly created shape.
              */
-            addShape: function(item, options) {
+            addShape: function(item, undoable) {
                 var shape,
                     shapeDefaults = this.options.shapeDefaults;
 
                 if (item instanceof Shape) {
-                    shapeDefaults = deepExtend({}, shapeDefaults, options);
-                    item.redraw(options);
                     shape = item;
                 } else if (!(item instanceof kendo.Class)) {
                     shapeDefaults = deepExtend({}, shapeDefaults, item || {});
-                    shape = new Shape(shapeDefaults);
+                    shape = new Shape(shapeDefaults, this);
                 } else {
                     return;
                 }
 
-                if (shapeDefaults.undoable) {
+                if (undoable !== false) {
                     this.undoRedoService.add(new diagram.AddShapeUnit(shape, this), false);
                 }
 
                 this.shapes.push(shape);
-                shape.diagram = this;
+                if (shape.diagram !== this) {
+                    this._shapesQuadTree.insert(shape);
+                    shape.diagram = this;
+                }
                 this.mainLayer.append(shape.visual);
-                this._shapesQuadTree.insert(shape);
 
                 this.trigger(CHANGE, {
                     added: [shape],
                     removed: []
                 });
-
-                // for shapes which have their own internal layout mechanism
-                if (shape.hasOwnProperty("layout")) {
-                    shape.layout(shape);
-                }
 
                 return shape;
             },
@@ -13660,7 +13798,7 @@
                         return shape;
                     }
                 } else if (!this.trigger("add", { shape: shape })) {
-                    return this.addShape(shape, { undoable: undoable });
+                    return this.addShape(shape, undoable);
                 }
             },
             /**
@@ -13911,7 +14049,6 @@
                 original = rect.clone();
 
                 rect.zoom(this._zoom);
-                this._storePan(new Point());
 
                 if (rect.width > viewport.width || rect.height > viewport.height) {
                     this._zoom = this._getValidZoom(math.min(viewport.width / original.width, viewport.height / original.height));
@@ -14247,7 +14384,7 @@
              * @param options Layout-specific options.
              */
             layout: function (options) {
-                this.isLayouting = true;
+                this._layouting = true;
                 // TODO: raise layout event?
                 var type;
                 if(isUndefined(options)) {
@@ -14284,7 +14421,8 @@
                     var unit = new diagram.LayoutUndoUnit(initialState, finalState, options ? options.animate : null);
                     this.undoRedoService.add(unit);
                 }
-                this.isLayouting = false;
+                this._layouting = false;
+                this._redrawConnections();
             },
             /**
              * Gets a shape on the basis of its identifier.
@@ -14521,7 +14659,7 @@
                 var options = deepExtend({}, this.options.shapeDefaults);
                 options.dataItem = dataItem;
                 shape = new Shape(options, this);
-                this.addShape(shape, { undoable: undoable !== false });
+                this.addShape(shape, undoable !== false);
                 this._dataMap[dataItem.id] = shape;
                 return shape;
             },
@@ -14562,7 +14700,8 @@
                     action = e.action,
                     items = e.items,
                     options = that.options,
-                    idx;
+                    idx,
+                    dataBound;
 
                 if (e.field) {
                     return;
@@ -14571,8 +14710,14 @@
                 if (action == "remove") {
                     this._removeDataItems(e.items, true);
                 } else {
+
+                    if ((!action || action === "itemloaded") && !this._bindingRoots) {
+                        this._bindingRoots = true;
+                        dataBound = true;
+                    }
+
                     if (!action && !node) {
-                         that.clear();
+                        that.clear();
                     }
 
                     this._addDataItems(items, node);
@@ -14582,8 +14727,13 @@
                     }
                 }
 
-                if (options.layout) {
+                if (options.layout && (dataBound || action == "remove" || action == "add")) {
                     that.layout(options.layout);
+                }
+
+                if (dataBound) {
+                    this.trigger("dataBound");
+                    this._bindingRoots = false;
                 }
             },
 
@@ -14639,7 +14789,6 @@
                                 click: proxy(this._toolBarClick, this),
                                 modal: true
                             });
-                            var toolBarElement = this.singleToolBar.element;
                             var popupWidth = this.singleToolBar._popup.element.outerWidth();
                             var popupHeight = this.singleToolBar._popup.element.outerHeight();
                             if (element instanceof Shape) {
@@ -14744,23 +14893,10 @@
 
                 if (that.options.autoBind) {
                     if (that._isEditable) {
-                        that._preventRefresh = true;
-                        that._preventConnectionsRefresh = true;
-
-                        var promises = $.map([
-                            that.dataSource,
-                            that.connectionsDataSource
-                        ],
-                        function(dataSource) {
-                            return dataSource.fetch();
-                        });
-
-                        $.when.apply(null, promises)
-                            .done(function() {
-                                that._preventRefresh = false;
-                                that._preventConnectionsRefresh = false;
-                                that.refresh();
-                            });
+                        this._loadingShapes = true;
+                        this._loadingConnections = true;
+                        that.dataSource.fetch();
+                        that.connectionsDataSource.fetch();
                     } else {
                         that.dataSource.fetch();
                     }
@@ -14776,14 +14912,17 @@
                     if (this.dataSource && this._shapesRefreshHandler) {
                         this.dataSource
                             .unbind("change", this._shapesRefreshHandler)
+                            .unbind("requestStart", this._shapesRequestStartHandler)
                             .unbind("error", this._shapesErrorHandler);
                     } else {
                         this._shapesRefreshHandler = proxy(this._refreshShapes, this);
+                        this._shapesRequestStartHandler = proxy(this._shapesRequestStart, this);
                         this._shapesErrorHandler = proxy(this._error, this);
                     }
 
                     this.dataSource = kendo.data.DataSource.create(ds)
                         .bind("change", this._shapesRefreshHandler)
+                        .bind("requestStart", this._shapesRequestStartHandler)
                         .bind("error", this._shapesErrorHandler);
                 } else {
                     this._treeDataSource();
@@ -14799,16 +14938,39 @@
                     if (this.connectionsDataSource && this._connectionsRefreshHandler) {
                         this.connectionsDataSource
                             .unbind("change", this._connectionsRefreshHandler)
+                            .unbind("requestStart", this._connectionsRequestStartHandler)
                             .unbind("error", this._connectionsErrorHandler);
                     } else {
                         this._connectionsRefreshHandler = proxy(this._refreshConnections, this);
-                        this._connectionsErrorHandler = proxy(this._error, this);
+                        this._connectionsRequestStartHandler = proxy(this._connectionsRequestStart, this);
+                        this._connectionsErrorHandler = proxy(this._connectionsError, this);
                     }
 
                     this.connectionsDataSource = kendo.data.DataSource.create(ds)
                         .bind("change", this._connectionsRefreshHandler)
+                        .bind("requestStart", this._connectionsRequestStartHandler)
                         .bind("error", this._connectionsErrorHandler);
                 }
+            },
+
+            _shapesRequestStart: function(e) {
+                if (e.type == "read") {
+                    this._loadingShapes = true;
+                }
+            },
+
+            _connectionsRequestStart: function(e) {
+                if (e.type == "read") {
+                    this._loadingConnections = true;
+                }
+            },
+
+            _error: function () {
+                this._loadingShapes = false;
+            },
+
+            _connectionsError: function() {
+                this._loadingConnections = false;
             },
 
             _refreshShapes: function(e) {
@@ -14842,11 +15004,13 @@
             },
 
             refresh: function() {
-                if (this._preventRefresh) {
-                    return;
+                this._loadingShapes = false;
+                if (!this._loadingConnections) {
+                    this._rebindShapesAndConnections();
                 }
+            },
 
-                this.trigger("dataBound");
+            _rebindShapesAndConnections: function() {
                 this.clear();
                 this._addShapes(this.dataSource.view());
                 if (this.connectionsDataSource) {
@@ -14855,20 +15019,23 @@
 
                 if (this.options.layout) {
                     this.layout(this.options.layout);
+                } else {
+                    this._redrawConnections();
                 }
+                this.trigger("dataBound");
             },
 
             refreshConnections: function() {
-                if (this._preventConnectionsRefresh) {
-                    return;
+                this._loadingConnections = false;
+                if (!this._loadingShapes) {
+                    this._rebindShapesAndConnections();
                 }
+            },
 
-                this.trigger("dataBound");
-
-                this._addConnections(this.connectionsDataSource.view(), false);
-
-                if (this.options.layout) {
-                    this.layout(this.options.layout);
+            _redrawConnections: function() {
+                var connections = this.connections;
+                for (var idx = 0; idx < connections.length; idx++) {
+                    connections[idx].refresh();
                 }
             },
 
@@ -14884,7 +15051,7 @@
                 }
             },
 
-            _syncShapes: function(items) {
+            _syncShapes: function() {
                 var diagram = this;
                 var inactiveItems = diagram._inactiveShapeItems;
                 inactiveItems.forEach(function(inactiveItem) {
@@ -14893,7 +15060,7 @@
                     if (!dataItem.isNew()) {
                         if (shape) {
                             shape._setOptionsFromModel();
-                            diagram.addShape(shape, { undoable: inactiveItem.undoable });
+                            diagram.addShape(shape, inactiveItem.undoable);
                             diagram._dataMap[dataItem.id] = shape;
                         } else {
                             diagram._addDataItem(dataItem);
@@ -14952,16 +15119,6 @@
 
                     var connection = this._connectionsDataMap[dataItem.uid];
                     connection.updateOptionsFromModel(dataItem);
-
-                    var from = this._validateConnector(dataItem.from);
-                    if (from) {
-                        connection.source(from);
-                    }
-
-                    var to = this._validateConnector(dataItem.to);
-                    if (to) {
-                        connection.target(to);
-                    }
                 }
             },
 
@@ -15039,8 +15196,7 @@
 
                 that.dataSource.unbind(CHANGE, that._refreshHandler).unbind(ERROR, that._errorHandler);
             },
-            _error: function () {
-            },
+
             _adorn: function (adorner, isActive) {
                 if (isActive !== undefined && adorner) {
                     if (isActive) {
@@ -15099,23 +15255,21 @@
 
             exportDOMVisual: function() {
                 var viewBox = this.canvas._viewBox;
-                var scrollOffset = geom.transform().translate(
-                    -viewBox.x, -viewBox.y
-                );
+                var scrollOffset = geom.transform()
+                                       .translate(-viewBox.x, -viewBox.y);
 
-                var viewRect = new geom.Rect(
-                    [0, 0], [viewBox.width, viewBox.height]
-                );
+                var viewRect = new geom.Rect([0, 0], [viewBox.width, viewBox.height]);
                 var clipPath = draw.Path.fromRect(viewRect);
-
-                var wrap = new draw.Group({
-                    transform: scrollOffset,
-                    clip: clipPath
-                });
-
+                var wrap = new draw.Group({ transform: scrollOffset });
+                var clipWrap = new draw.Group({ clip: clipPath });
                 var root = this.canvas.drawingElement.children[0];
+
+                clipWrap.append(wrap);
+
+                // Don't reparent the root
                 wrap.children.push(root);
-                return wrap;
+
+                return clipWrap;
             },
 
             exportVisual: function() {
@@ -15124,7 +15278,7 @@
                     transform: scale
                 });
 
-                var root = this.canvas.drawingElement.children[0];
+                var root = this.mainLayer.drawingElement;
                 wrap.children.push(root);
 
                 return wrap;
@@ -15207,6 +15361,10 @@
                 result.from = dataItem.from;
             }
 
+            if (defined(dataItem.fromConnector) && dataItem.fromConnector !== null) {
+                result.fromConnector = dataItem.fromConnector;
+            }
+
             if (defined(dataItem.fromX) && dataItem.fromX !== null) {
                 result.fromX = dataItem.fromX;
             }
@@ -15217,6 +15375,10 @@
 
             if (defined(dataItem.to) && dataItem.to !== null) {
                 result.to = dataItem.to;
+            }
+
+            if (defined(dataItem.toConnector) && dataItem.toConnector !== null) {
+                result.toConnector = dataItem.toConnector;
             }
 
             if (defined(dataItem.toX) && dataItem.toX !== null) {
@@ -15230,9 +15392,6 @@
             return result;
         }
 
-        function isNumber(val) {
-            return typeof val === "number" && !isNaN(val);
-        }
 
         var DiagramToolBar = kendo.Observable.extend({
             init: function(diagram, options) {
@@ -15478,13 +15637,11 @@
             },
 
             rotateClockwise: function(options) {
-                var elements = this.selectedElements();
                 var angle = parseFloat(options.step || 90);
                 this._rotate(angle);
             },
 
             rotateAnticlockwise: function(options) {
-                var elements = this.selectedElements();
                 var angle = parseFloat(options.step || 90);
                 this._rotate(-angle);
             },
@@ -15634,7 +15791,7 @@
                 this.wrapper.append(
                     $('<div class="k-edit-form-container"/>').append(formContent));
 
-                this.window = new kendo.ui.Window(this.wrapper, this.options.window);
+                this.window = new kendo.ui.Window(this.wrapper.appendTo(this.element), this.options.window);
                 this.window.bind("close", function(e) {
                     //The bellow line is required due to: draggable window in IE, change event will be triggered while the window is closing
                     if (e.userTriggered) {
@@ -15724,7 +15881,6 @@
         });
 
         function connectionSelector(container, options) {
-            var type = options.model.fields[options.field];
             var model = this.dataSource.reader.model;
             if (model) {
                 var textField = model.fn.fields.text ? "text": model.idField;
@@ -15821,26 +15977,27 @@
                 }
             },
 
-            hitTestRect: function(rect, exclude) {
+            hitTestRect: function(rect) {
                 var shapes = this.shapes;
                 var length = shapes.length;
-                var hit = false;
 
                 for (var i = 0; i < length; i++) {
-                    if (this._overlaps(shapes[i].bounds, rect) && !dataviz.inArray(shapes[i].shape, exclude)) {
-                        hit = true;
-                        break;
+                    if (this._testRect(shapes[i].shape, rect)) {
+                        return true;
                     }
                 }
-                return hit;
             },
 
-            _overlaps: function(rect1, rect2) {
-                    var rect1BottomRight = rect1.bottomRight();
-                    var rect2BottomRight = rect2.bottomRight();
-                    var overlaps = !(rect1BottomRight.x < rect2.x || rect1BottomRight.y < rect2.y ||
-                        rect2BottomRight.x < rect1.x || rect2BottomRight.y < rect1.y);
-                    return overlaps;
+            _testRect: function(shape, rect) {
+                var angle = shape.rotate().angle;
+                var bounds = shape.bounds();
+                var hit;
+                if (!angle) {
+                    hit = bounds.overlaps(rect);
+                } else {
+                    hit = Intersect.rects(rect, bounds, -angle);
+                }
+                return hit;
             }
         });
 
@@ -15861,7 +16018,7 @@
             },
 
             overlapsBounds: function(rect) {
-                return this._overlaps(this.rect, rect);
+                return this.rect.overlaps(rect);
             },
 
             insert: function (shape, bounds) {
@@ -15918,18 +16075,18 @@
                 }
             },
 
-            hitTestRect: function(rect, exclude) {
-                var idx, result = [];
+            hitTestRect: function(rect) {
+                var idx;
                 var children = this.children;
                 var length = children.length;
                 var hit = false;
 
                 if (this.overlapsBounds(rect)) {
-                    if (QuadRoot.fn.hitTestRect.call(this, rect, exclude)) {
+                    if (QuadRoot.fn.hitTestRect.call(this, rect)) {
                         hit = true;
                     } else {
                          for (idx = 0; idx < length; idx++) {
-                            if (children[idx].hitTestRect(rect, exclude)) {
+                            if (children[idx].hitTestRect(rect)) {
                                hit = true;
                                break;
                             }
@@ -15945,8 +16102,9 @@
             ROOT_SIZE: 1000,
 
             init: function(diagram) {
-                diagram.bind(ITEMBOUNDSCHANGE, proxy(this._boundsChange, this));
-                diagram.bind(ITEMROTATE, proxy(this._boundsChange, this));
+                var boundsChangeHandler = proxy(this._boundsChange, this);
+                diagram.bind(ITEMBOUNDSCHANGE, boundsChangeHandler);
+                diagram.bind(ITEMROTATE, boundsChangeHandler);
                 this.initRoots();
             },
 
@@ -15962,8 +16120,8 @@
             _boundsChange: function(e) {
                 if (e.item._quadNode) {
                     e.item._quadNode.remove(e.item);
-                    this.insert(e.item);
                 }
+                this.insert(e.item);
             },
 
             insert: function(shape) {
@@ -16003,30 +16161,24 @@
             getSectors: function(rect) {
                 var rootSize = this.ROOT_SIZE;
                 var bottomRight = rect.bottomRight();
-                var x = Math.floor(rect.x / rootSize);
-                var y = Math.floor(rect.y / rootSize);
-                var bottomX = Math.floor(bottomRight.x / rootSize);
-                var bottomY = Math.floor(bottomRight.y / rootSize);
-                var sectors = [
-                    [x],
-                    [y]
-                ];
-
-                if (x !== bottomX) {
-                    sectors[0].push(bottomX);
+                var bottomX = math.floor(bottomRight.x / rootSize);
+                var bottomY = math.floor(bottomRight.y / rootSize);
+                var sectors = [[],[]];
+                for (var x = math.floor(rect.x / rootSize); x <= bottomX; x++) {
+                    sectors[0].push(x);
                 }
-                if (y !== bottomY) {
-                    sectors[1].push(bottomY);
+                for (var y = math.floor(rect.y / rootSize); y <= bottomY; y++) {
+                    sectors[1].push(y);
                 }
                 return sectors;
             },
 
-            hitTestRect: function(rect, exclude) {
+            hitTestRect: function(rect) {
                 var sectors = this.getSectors(rect);
                 var xIdx, yIdx, x, y;
                 var root;
 
-                if (this.root.hitTestRect(rect, exclude)) {
+                if (this.root.hitTestRect(rect)) {
                     return true;
                 }
 
@@ -16035,7 +16187,7 @@
                     for (yIdx = 0; yIdx < sectors[1].length; yIdx++) {
                         y = sectors[1][yIdx];
                         root = (this.rootMap[x] || {})[y];
-                        if (root && root.hitTestRect(rect, exclude)) {
+                        if (root && root.hitTestRect(rect)) {
                             return true;
                         }
                     }
@@ -16080,6 +16232,12 @@
             return new kendo.data.ObservableObject(model);
         }
 
+        function clearField(field, model) {
+            if (defined(model[field])) {
+                model.set(field, null);
+            }
+        }
+
         function copyDefaultOptions(mainOptions, elementOptions, fields) {
             var field;
             for (var idx = 0; idx < fields.length; idx++) {
@@ -16087,6 +16245,13 @@
                 if (elementOptions && !defined(elementOptions[field])) {
                     elementOptions[field] = mainOptions[field];
                 }
+            }
+        }
+
+        function translateToOrigin(visual) {
+            var bbox = visual.drawingContainer().clippedBBox(null);
+            if (bbox.origin.x !== 0 || bbox.origin.y !== 0) {
+                visual.position(-bbox.origin.x, -bbox.origin.y);
             }
         }
 
@@ -16099,9 +16264,18 @@
             DiagramToolBar: DiagramToolBar,
             QuadNode: QuadNode,
             QuadRoot: QuadRoot,
-            ShapesQuadTree: ShapesQuadTree
+            ShapesQuadTree: ShapesQuadTree,
+            PopupEditor: PopupEditor
         });
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
+
+    
+
+})();
 
 return window.kendo;
 

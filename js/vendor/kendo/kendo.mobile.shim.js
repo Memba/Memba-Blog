@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,12 +10,15 @@
     define([ "./kendo.popup" ], f);
 })(function(){
 
+(function(){
+
+
+
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.mobile.ui,
         Popup = kendo.ui.Popup,
         SHIM = '<div class="km-shim"/>',
-        SHOW = "show",
         HIDE = "hide",
         Widget = ui.Widget;
 
@@ -43,7 +46,7 @@
             }
 
             if (!options.modal) {
-                that.shim.on("up", "_hide");
+                that.shim.on("down", "_hide");
             }
 
             (app ? app.element : $(document.body)).append(shim);
@@ -126,6 +129,10 @@
 
     ui.plugin(Shim);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

@@ -8,9 +8,13 @@
     position: relative;
 }
 
-.k-tabstrip-scrollable .k-tabstrip-items
+.k-tabstrip-items
 {
     padding: 0.3em 0.3em 0;
+}
+
+.k-tabstrip-scrollable .k-tabstrip-items
+{
     white-space: nowrap;
     overflow: hidden;
 }
@@ -20,10 +24,6 @@
     position: absolute;
     top: .4em;
     z-index: 2;
-    -moz-user-select: -moz-none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 }
 
@@ -93,13 +93,6 @@
     vertical-align: middle;
 }
 
-.k-ie7 .k-tabstrip-items .k-item .k-image,
-.k-ie7 .k-tabstrip-items .k-item .k-sprite
-{
-    margin-top: -1px;
-    vertical-align: top;
-}
-
 /* TabStrip Loading Progress */
 .k-tabstrip-items .k-loading
 {
@@ -151,18 +144,6 @@
 .k-tabstrip > .k-content > .km-scroll-container
 {
     padding: .3em .92em;
-}
-
-@-webkit-keyframes k-tab-loader {
-    0% { left: 0; }
-    50% { left: 80%; }
-    100% { left: 0; }
-}
-
-@-moz-keyframes k-tab-loader {
-    0% { left: 0; }
-    50% { left: 80%; }
-    100% { left: 0; }
 }
 
 @keyframes k-tab-loader {

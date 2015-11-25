@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.popup", "./kendo.filtermenu", "./kendo.menu" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -84,6 +88,10 @@
                 .on("click" + NS, proxy(that._click, that));
 
             that.wrapper = $('<div class="k-column-menu"/>');
+
+            that._refreshHandler = proxy(that.refresh, that);
+
+            that.dataSource.bind(CHANGE, that._refreshHandler);
         },
 
         _init: function() {
@@ -101,10 +109,6 @@
             }
 
             that._angularItems("compile");
-
-            that._refreshHandler = proxy(that.refresh, that);
-
-            that.dataSource.bind(CHANGE, that._refreshHandler);
 
             that._sort();
 
@@ -424,7 +428,6 @@
                 that.menu.bind(SELECT, function(e) {
                     var item = $(e.item),
                         input,
-                        index,
                         column,
                         columns = leafColumns(that.owner.columns),
                         field;
@@ -505,7 +508,7 @@
         },
 
         _updateColumnsLockedState: function() {
-            var idx, length, current, locked, column;
+            var idx, length, current, column;
             var fieldAttr = kendo.attr("field");
             var lockedAttr = kendo.attr("locked");
             var columns = toHash(this._ownerColumns(), "field");
@@ -746,6 +749,10 @@
 
     ui.plugin(ColumnMenu);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

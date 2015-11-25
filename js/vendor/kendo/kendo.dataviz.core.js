@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,27 +10,27 @@
     define([ "./kendo.core", "./kendo.drawing" ], f);
 })(function(){
 
+(function(){
+
+
+
 (function ($, undefined) {
 
     // Imports ================================================================
-    var doc = document,
-        kendo = window.kendo,
+    var kendo = window.kendo,
 
         util = kendo.util,
         append = util.append,
         defined = util.defined,
         last = util.last,
-        limitValue = util.limitValue,
         valueOrDefault = util.valueOrDefault,
 
         dataviz = kendo.dataviz,
         geom = dataviz.geometry,
         draw = dataviz.drawing,
         measureText = draw.util.measureText,
-        Matrix = geom.Matrix,
         Class = kendo.Class,
         template = kendo.template,
-        map = $.map,
         noop = $.noop,
         indexOf = $.inArray,
         isPlainObject = $.isPlainObject,
@@ -38,12 +38,9 @@
         math = Math,
         deepExtend = kendo.deepExtend;
 
-    var CSS_PREFIX = "k-";
 
     // Constants ==============================================================
-    var ANIMATION_STEP = 10,
-        AXIS_LABEL_CLICK = "axisLabelClick",
-        BASELINE_MARKER_SIZE = 1,
+    var AXIS_LABEL_CLICK = "axisLabelClick",
         BLACK = "#000",
         BOTTOM = "bottom",
         CENTER = "center",
@@ -55,14 +52,11 @@
         DEFAULT_HEIGHT = 400,
         DEFAULT_ICON_SIZE = 7,
         DEFAULT_PRECISION = 6,
+        DEFAULT_AUTO_MAJOR_UNIT_PRECISION = 10,
         DEFAULT_WIDTH = 600,
         DEG_TO_RAD = math.PI / 180,
-        FADEIN = "fadeIn",
         FORMAT_REGEX = /\{\d+:?/,
         HEIGHT = "height",
-        ID_PREFIX = "k",
-        ID_POOL_SIZE = 1000,
-        ID_START = 10000,
         COORDINATE_LIMIT = 100000,
         INITIAL_ANIMATION_DURATION = 600,
         INSIDE = "inside",
@@ -76,11 +70,8 @@
         OUTSIDE = "outside",
         RADIAL = "radial",
         RIGHT = "right",
-        SWING = "swing",
         TOP = "top",
         TRIANGLE = "triangle",
-        UNDEFINED = "undefined",
-        UPPERCASE_REGEX = /([A-Z])/g,
         WIDTH = "width",
         WHITE = "#fff",
         X = "x",
@@ -633,7 +624,6 @@
         destroy: function() {
             var element = this,
                 children = element.children,
-                root = element.getRoot(),
                 i;
 
             if (this.animation) {
@@ -649,6 +639,13 @@
             var parent = this.parent;
 
             return parent ? parent.getRoot() : null;
+        },
+
+        getChart: function() {
+            var root = this.getRoot();
+            if (root) {
+                return root.chart;
+            }
         },
 
         translateChildren: function(dx, dy) {
@@ -820,19 +817,24 @@
                         opacity: 0.2
                     }
                 };
+
                 if (customVisual) {
-                    highlight = that._highlight = customVisual(deepExtend(that.highlightVisualArgs(), {
-                        createVisual: function() {
-                            return that.createHighlight(highlightOptions);
-                        },
-                        series: that.series,
-                        dataItem: that.dataItem,
-                        category: that.category,
-                        value: that.value,
-                        percentage: that.percentage,
-                        runningTotal: that.runningTotal,
-                        total: that.total
-                    }));
+                    highlight = that._highlight = customVisual(
+                        $.extend(that.highlightVisualArgs(), {
+                            createVisual: function() {
+                                return that.createHighlight(highlightOptions);
+                            },
+                            sender: that.getChart(),
+                            series: that.series,
+                            dataItem: that.dataItem,
+                            category: that.category,
+                            value: that.value,
+                            percentage: that.percentage,
+                            runningTotal: that.runningTotal,
+                            total: that.total
+                        }
+                    ));
+
                     if (!highlight) {
                         return;
                     }
@@ -1095,8 +1097,7 @@
         reflow: function(targetBox) {
             var text = this,
                 options = text.options,
-                size,
-                margin;
+                size;
 
             size = options.size =
                 measureText(text.content, { font: options.font });
@@ -1158,9 +1159,6 @@
         reflowChildren: function() {
             var floatElement = this;
             var box = floatElement.box;
-            var options = floatElement.options;
-            var elementSpacing = floatElement.elementSpacing;
-            var groupSpacing = floatElement.groupSpacing;
 
             var elementAxis = floatElement.elementAxis;
             var groupAxis = floatElement.groupAxis;
@@ -1322,7 +1320,6 @@
             var rows = (textbox.content + "").split(textbox.ROWS_SPLIT_REGEX);
             var floatElement = new FloatElement({vertical: true, align: options.align, wrap: false});
             var textOptions = deepExtend({ }, options, { opacity: 1, animation: null });
-            var hasBox = textbox.hasBox();
             var text;
             var rowIdx;
 
@@ -1421,6 +1418,7 @@
             return {
                 text: textbox.content,
                 rect: targetBox.toRect(),
+                sender: this.getChart(),
                 options: textbox.visualOptions(),
                 createVisual: function() {
                     textbox._boxReflow = true;
@@ -1638,8 +1636,7 @@
     function createAxisGridLine(options, gridLine) {
         var lineStart = options.lineStart,
             lineEnd = options.lineEnd,
-            position = options.position,
-            start, end;
+            position = options.position;
 
         var line = new draw.Path({
             stroke: {
@@ -1700,7 +1697,7 @@
                 align: axis.options.majorTickType
             });
 
-            if (!this.options._deferLables) {
+            if (!this.options._deferLabels) {
                 axis.createLabels();
             }
 
@@ -1769,6 +1766,13 @@
         // abstract labelsCount(): Number
         // abstract createAxisLabel(index, options): AxisLabel
 
+        labelsRange: function() {
+            return {
+                min: this.options.labels.skip,
+                max: this.labelsCount()
+            };
+        },
+
         createLabels: function() {
             var axis = this,
                 options = axis.options,
@@ -1786,7 +1790,7 @@
             axis.labels = [];
 
             if (labelOptions.visible) {
-                var labelsCount = axis.labelsCount(),
+                var range = axis.labelsRange(),
                     rotation = labelOptions.rotation,
                     label,
                     i;
@@ -1801,7 +1805,7 @@
                     options.autoRotateLabels = true;
                 }
 
-                for (i = labelOptions.skip; i < labelsCount; i += step) {
+                for (i = range.min; i < range.max; i += step) {
                     label = axis.createAxisLabel(i, labelOptions);
                     if (label) {
                         axis.append(label);
@@ -1816,9 +1820,6 @@
                 options = axis.options,
                 box = axis.box,
                 vertical = options.vertical,
-                labels = axis.labels,
-                labelSize = vertical ? HEIGHT : WIDTH,
-                justified = options.justified,
                 mirror = options.labels.mirror,
                 axisX = mirror ? box.x1 : box.x2,
                 axisY = mirror ? box.y2 : box.y1,
@@ -1852,7 +1853,7 @@
                 options = axis.options,
                 notes = options.notes,
                 items = notes.data || [],
-                noteTemplate, i, text, item, note;
+                i, item, note;
 
             axis.notes = [];
 
@@ -1921,8 +1922,7 @@
                     // TODO
                     // _alignLines: options._alignLines,
                     vertical: options.vertical
-                },
-                start, end;
+                };
 
             function render(tickPositions, tickOptions, skipUnit) {
                 var i, count = tickPositions.length;
@@ -1950,8 +1950,7 @@
             var axis = this,
                 options = axis.options,
                 line = options.line,
-                lineBox = axis.lineBox(),
-                lineOptions;
+                lineBox = axis.lineBox();
 
             if (line.width > 0 && line.visible) {
                 var path = new draw.Path({
@@ -2035,11 +2034,9 @@
                 return a.options.vertical !== axis.options.vertical;
             })[0];
 
-            var range = this.range();
             $.each(plotBands, function(i, item) {
                 from = valueOrDefault(item.from, MIN_VALUE);
                 to = valueOrDefault(item.to, MAX_VALUE);
-                var element = [];
 
                 if (vertical) {
                     slotX = (altAxis || plotArea.axisX).lineBox();
@@ -2151,6 +2148,14 @@
             axis.arrangeNotes();
         },
 
+        getLabelsTickPositions: function() {
+            return this.getMajorTickPositions();
+        },
+
+        labelTickIndex: function(label) {
+            return label.index;
+        },
+
         arrangeLabels: function() {
             var axis = this,
                 options = axis.options,
@@ -2159,13 +2164,13 @@
                 vertical = options.vertical,
                 lineBox = axis.lineBox(),
                 mirror = options.labels.mirror,
-                tickPositions = axis.getMajorTickPositions(),
+                tickPositions = axis.getLabelsTickPositions(),
                 labelOffset = axis.getActualTickSize()  + options.margin,
                 labelBox, labelY, i;
 
             for (i = 0; i < labels.length; i++) {
                 var label = labels[i],
-                    tickIx = label.index,
+                    tickIx = axis.labelTickIndex(label),
                     labelSize = vertical ? label.box.height() : label.box.width(),
                     labelPos = tickPositions[tickIx] - (labelSize / 2),
                     firstTickPosition, nextTickPosition, middle, labelX;
@@ -2225,12 +2230,12 @@
                 for (idx = 0; idx < labels.length; idx++) {
                     width = tickPositions[idx + 1] - tickPositions[idx];
                     labelBox = labels[idx].box;
-                    if (labelBox.height() > width) {
-                        angle = -90;
-                        break;
-                    }
 
                     if (labelBox.width() > width) {
+                        if (labelBox.height() > width) {
+                            angle = -90;
+                            break;
+                        }
                         angle = -45;
                     }
                 }
@@ -2330,10 +2335,36 @@
 
         contentBox: function() {
             var box = this.box.clone();
-            if (this.labels.length) {
-                box.wrap(this.labels[0].box).wrap(last(this.labels).box);
+            var labels = this.labels;
+            if (labels.length) {
+                if (labels[0].options.visible) {
+                    box.wrap(labels[0].box);
+                }
+                if (last(labels).options.visible) {
+                    box.wrap(last(labels).box);
+                }
             }
             return box;
+        },
+
+        limitRange: function(from, to, min, max) {
+            var options = this.options;
+            var rangeSize = to - from;
+
+            if (from < min && (!defined(options.min) || min < options.min)) {
+                from = min;
+                to = from + rangeSize;
+            } else if (max < to && (!defined(options.max) || options.max < max)) {
+                to = max;
+                from = to - rangeSize;
+            }
+
+            if (from >= min && max >= to) {
+                return {
+                    min: from,
+                    max: to
+                };
+            }
         }
     });
 
@@ -2451,10 +2482,10 @@
                         contentBox = wrapperBox.alignTo(targetBox, position).translate(-length, targetBox.center().y - wrapperBox.center().y);
 
                         if (options.line.visible) {
-                            lineStart = [math.floor(targetBox.x1), center.y];
+                            lineStart = [targetBox.x1, center.y];
                             note.linePoints = [
                                 lineStart,
-                                [math.floor(contentBox.x2), center.y]
+                                [contentBox.x2, center.y]
                             ];
                             box = contentBox.clone().wrapPoint(lineStart);
                         }
@@ -2462,10 +2493,10 @@
                         contentBox = wrapperBox.alignTo(targetBox, position).translate(length, targetBox.center().y - wrapperBox.center().y);
 
                         if (options.line.visible) {
-                            lineStart = [math.floor(targetBox.x2), center.y];
+                            lineStart = [targetBox.x2, center.y];
                             note.linePoints = [
                                 lineStart,
-                                [math.floor(contentBox.x1), center.y]
+                                [contentBox.x1, center.y]
                             ];
                             box = contentBox.clone().wrapPoint(lineStart);
                         }
@@ -2475,10 +2506,10 @@
                         contentBox = wrapperBox.alignTo(targetBox, position).translate(targetBox.center().x - wrapperBox.center().x, length);
 
                         if (options.line.visible) {
-                            lineStart = [math.floor(center.x), math.floor(targetBox.y2)];
+                            lineStart = [center.x, targetBox.y2];
                             note.linePoints = [
                                 lineStart,
-                                [math.floor(center.x), math.floor(contentBox.y1)]
+                                [center.x, contentBox.y1]
                             ];
                             box = contentBox.clone().wrapPoint(lineStart);
                         }
@@ -2486,10 +2517,10 @@
                         contentBox = wrapperBox.alignTo(targetBox, position).translate(targetBox.center().x - wrapperBox.center().x, -length);
 
                         if (options.line.visible) {
-                            lineStart = [math.floor(center.x), math.floor(targetBox.y1)];
+                            lineStart = [center.x, targetBox.y1];
                             note.linePoints = [
                                 lineStart,
-                                [math.floor(center.x), math.floor(contentBox.y2)]
+                                [center.x, contentBox.y2]
                             ];
                             box = contentBox.clone().wrapPoint(lineStart);
                         }
@@ -2528,12 +2559,12 @@
             var options = that.options;
             var customVisual = options.visual;
             if (options.visible && customVisual) {
-                var targetPoint = that.targetPoint;
                 that.visual = customVisual({
                     dataItem: that.dataItem,
                     category: that.category,
                     value: that.value,
                     text: that.text,
+                    sender: that.getChart(),
                     series: that.series,
                     rect: that.targetBox.toRect(),
                     options: {
@@ -2606,7 +2637,8 @@
                 dataItem: note.dataItem,
                 series: note.series,
                 value: note.value,
-                category: note.category
+                category: note.category,
+                visual: note.visual
             };
         }
     });
@@ -2631,9 +2663,7 @@
                 box = marker.paddingBox,
                 element,
                 center = box.center(),
-                halfWidth = box.width() / 2,
-                points,
-                i;
+                halfWidth = box.width() / 2;
 
             if (!options.visible || !marker.hasBox())  {
                 return;
@@ -2683,6 +2713,7 @@
                 visual = customVisual({
                     value: pointData.value,
                     dataItem: pointData.dataItem,
+                    sender: that.getChart(),
                     series: pointData.series,
                     category: pointData.category,
                     rect: that.paddingBox.toRect(),
@@ -2767,6 +2798,10 @@
 
             autoOptions.min = floor(autoMin, majorUnit);
             autoOptions.max = ceil(autoMax, majorUnit);
+
+            this.totalMin = defined(options.min) ? math.min(autoOptions.min, options.min) : autoOptions.min;
+            this.totalMax = defined(options.max) ? math.max(autoOptions.max, options.max) : autoOptions.max;
+            this.totalMajorUnit = majorUnit;
 
             if (options) {
                 userSetLimits = defined(options.min) || defined(options.max);
@@ -3025,6 +3060,39 @@
         shouldRenderNote: function(value) {
             var range = this.range();
             return range.min <= value && value <= range.max;
+        },
+
+        pan: function(delta) {
+            var range = this.translateRange(delta);
+            return this.limitRange(range.min, range.max, this.totalMin, this.totalMax);
+        },
+
+        pointsRange: function(start, end) {
+            var startValue = this.getValue(start);
+            var endValue = this.getValue(end);
+            var min = math.min(startValue, endValue);
+            var max = math.max(startValue, endValue);
+
+            return {
+                min: min,
+                max: max
+            };
+        },
+
+        zoomRange: function(delta) {
+            var newRange = this.scaleRange(delta);
+            var totalMax = this.totalMax;
+            var totalMin = this.totalMin;
+            var min = util.limitValue(newRange.min, totalMin, totalMax);
+            var max = util.limitValue(newRange.max, totalMin, totalMax);
+            var optionsRange = this.options.max - this.options.min;
+
+            if (optionsRange < this.totalMajorUnit || max - min >= this.totalMajorUnit) {
+                return {
+                    min: min,
+                    max: max
+                };
+            }
         }
     });
 
@@ -3156,8 +3224,6 @@
                 vertical = options.vertical,
                 reverse = options.reverse,
                 size = vertical ? lineBox.height() : lineBox.width(),
-                logMin = axis.logMin,
-                logMax = axis.logMax,
                 scale = size / (axis.logMax - axis.logMin),
                 offset = round(delta / scale, DEFAULT_PRECISION);
 
@@ -3201,8 +3267,8 @@
                     // TODO
                     // _alignLines: options._alignLines,
                     vertical: options.vertical
-                },
-                start, end;
+                };
+
 
             function render(tickPosition, tickOptions) {
                 tickLineOptions.tickX = mirror ? lineBox.x2 : lineBox.x2 - tickOptions.size;
@@ -3226,7 +3292,6 @@
         createGridLines: function(altAxis) {
             var axis = this,
                 options = axis.options,
-                axisLineVisible = altAxis.options.line.visible,
                 majorGridLines = options.majorGridLines,
                 minorGridLines = options.minorGridLines,
                 vertical = options.vertical,
@@ -3236,7 +3301,7 @@
                     lineEnd: lineBox[vertical ? "x2" : "y2"],
                     vertical: vertical
                 },
-                pos, majorTicks = [];
+                majorTicks = [];
 
             var container = this.gridLinesVisual();
             function render(tickPosition, gridLine) {
@@ -3333,34 +3398,27 @@
                 min = axisOptions.min,
                 max = axisOptions.max,
                 base = axisOptions.majorUnit,
-                logMaxRemainder;
+                autoMax = this._autoMax(seriesMax, base),
+                autoMin = this._autoMin(seriesMin, seriesMax, axisOptions);
 
             if (axisOptions.axisCrossingValue <= 0) {
                 axis._throwNegativeValuesError();
             }
 
             if (!defined(options.max)) {
-               logMaxRemainder =  round(log(max, base), DEFAULT_PRECISION) % 1;
-               if (max <= 0) {
-                   max = base;
-               } else if (logMaxRemainder !== 0 && (logMaxRemainder < 0.3 || logMaxRemainder > 0.9)) {
-                   max = math.pow(base, log(max, base) + 0.2);
-               } else {
-                   max = math.pow(base, math.ceil(log(max, base)));
-               }
+                max = autoMax;
             } else if (options.max <= 0) {
                 axis._throwNegativeValuesError();
             }
 
             if (!defined(options.min)) {
-               if (min <= 0) {
-                   min = max <= 1 ? math.pow(base, -2) : 1;
-               } else if (!options.narrowRange) {
-                   min = math.pow(base, math.floor(log(min, base)));
-               }
+               min = autoMin;
             } else if (options.min <= 0) {
                 axis._throwNegativeValuesError();
             }
+
+            this.totalMin = defined(options.min) ? math.min(autoMin, options.min) : autoMin;
+            this.totalMax = defined(options.max) ? math.max(autoMax, options.max) : autoMax;
 
             axis.logMin = round(log(min, base), DEFAULT_PRECISION);
             axis.logMax = round(log(max, base), DEFAULT_PRECISION);
@@ -3369,6 +3427,67 @@
             axisOptions.minorUnit = options.minorUnit || round(base - 1, DEFAULT_PRECISION);
 
             return axisOptions;
+        },
+
+        _autoMin: function(min, max, options) {
+            var autoMin = min;
+            var base = options.majorUnit;
+            if (min <= 0) {
+               autoMin = max <= 1 ? math.pow(base, -2) : 1;
+            } else if (!options.narrowRange) {
+               autoMin = math.pow(base, math.floor(log(min, base)));
+            }
+            return autoMin;
+        },
+
+        _autoMax: function(max, base) {
+           var logMaxRemainder = round(log(max, base), DEFAULT_PRECISION) % 1;
+           var autoMax;
+           if (max <= 0) {
+               autoMax = base;
+           } else if (logMaxRemainder !== 0 && (logMaxRemainder < 0.3 || logMaxRemainder > 0.9)) {
+               autoMax = math.pow(base, log(max, base) + 0.2);
+           } else {
+               autoMax = math.pow(base, math.ceil(log(max, base)));
+           }
+
+           return autoMax;
+        },
+
+        pan: function(delta) {
+            var range = this.translateRange(delta);
+            return this.limitRange(range.min, range.max, this.totalMin, this.totalMax, -delta);
+        },
+
+        pointsRange: function(start, end) {
+            var startValue = this.getValue(start);
+            var endValue = this.getValue(end);
+            var min = math.min(startValue, endValue);
+            var max = math.max(startValue, endValue);
+
+            return {
+                min: min,
+                max: max
+            };
+        },
+
+        zoomRange: function(delta) {
+            var options = this.options;
+            var newRange = this.scaleRange(delta);
+            var totalMax = this.totalMax;
+            var totalMin = this.totalMin;
+            var min = util.limitValue(newRange.min, totalMin, totalMax);
+            var max = util.limitValue(newRange.max, totalMin, totalMax);
+            var base = options.majorUnit;
+            var acceptOptionsRange = max > min && options.min && options.max && (round(log(options.max, base) - log(options.min, base), DEFAULT_PRECISION) < 1);
+            var acceptNewRange = !(options.min === totalMin && options.max === totalMax) && round(log(max, base) - log(min, base), DEFAULT_PRECISION) >= 1;
+
+            if (acceptOptionsRange || acceptNewRange) {
+                return {
+                    min: min,
+                    max: max
+                };
+            }
         },
 
         _minorIntervalOptions: function(power) {
@@ -3524,7 +3643,7 @@
         },
 
         exportImage: function(options) {
-            return draw.exportImage(this.exportVisual(), options);
+            return draw.exportImage(this.exportVisual(options), options);
         },
 
         exportPDF: function(options) {
@@ -3566,7 +3685,7 @@
     };
 
     function autoMajorUnit(min, max) {
-        var diff = round(max - min, DEFAULT_PRECISION - 1);
+        var diff = round(max - min, DEFAULT_AUTO_MAJOR_UNIT_PRECISION - 1);
 
         if (diff === 0) {
             if (max === 0) {
@@ -3577,7 +3696,7 @@
         }
 
         var scale = math.pow(10, math.floor(math.log(diff) / math.log(10))),
-            relativeValue = round((diff / scale), DEFAULT_PRECISION),
+            relativeValue = round((diff / scale), DEFAULT_AUTO_MAJOR_UNIT_PRECISION),
             scaleMultiplier = 1;
 
         if (relativeValue < 1.904762) {
@@ -3590,16 +3709,7 @@
             scaleMultiplier = 2;
         }
 
-        return round(scale * scaleMultiplier, DEFAULT_PRECISION);
-    }
-
-    function getHash(object) {
-        var hash = [];
-        for (var key in object) {
-            hash.push(key + object[key]);
-        }
-
-        return hash.sort().join(" ");
+        return round(scale * scaleMultiplier, DEFAULT_AUTO_MAJOR_UNIT_PRECISION);
     }
 
     // TODO: Replace with Point2D.rotate
@@ -3696,15 +3806,6 @@
         return a - b;
     }
 
-    function updateArray(arr, prop, value) {
-        var i,
-            length = arr.length;
-
-        for(i = 0; i < length; i++) {
-            arr[i][prop] = value;
-        }
-    }
-
     function autoFormat(format, value) {
         if (format.match(FORMAT_REGEX)) {
             return kendo.format.apply(this, arguments);
@@ -3713,15 +3814,6 @@
         return kendo.toString(value, format);
     }
 
-    function detached(element) {
-        var parent = element.parentNode;
-
-        while(parent && parent.parentNode) {
-            parent = parent.parentNode;
-        }
-
-        return parent !== doc;
-    }
 
     function clockwise(v1, v2) {
         // True if v2 is clockwise of v1
@@ -4058,8 +4150,15 @@
 
     function alignPathToPixel(path) {
         if (!kendo.support.vml) {
+            var offset = 0.5;
+            if (path.options.stroke && defined(path.options.stroke.width)) {
+                if(path.options.stroke.width % 2 === 0) {
+                    offset = 0;
+                }
+            }
+
             for (var i = 0; i < path.segments.length; i++) {
-                path.segments[i].anchor().round(0).translate(0.5, 0.5);
+                path.segments[i].anchor().round(0).translate(offset, offset);
             }
         }
 
@@ -4067,8 +4166,7 @@
     }
 
     function innerRadialStops(options) {
-        var gradient = this,
-            stops = options.stops,
+        var stops = options.stops,
             usedSpace = ((options.innerRadius / options.radius) * 100),
             i,
             length = stops.length,
@@ -4144,6 +4242,10 @@
     });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

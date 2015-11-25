@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.pivotgrid", "./kendo.menu", "./kendo.window", "./kendo.treeview", "./kendo.dropdownlist" ], f);
 })(function(){
+
+(function(){
+
+
 
 /*jshint eqnull: true*/
 (function($, undefined) {
@@ -135,13 +139,28 @@
             return filter;
         },
 
+        _convert: function(value) {
+            var schema = this.dataSource.options.schema;
+            var field = ((schema.model || {}).fields || {})[this.currentMember];
+
+            if (field) {
+                if (field.type === "number") {
+                    value = parseFloat(value);
+                } else if (field.type === "boolean") {
+                    value = Boolean($.parseJSON(value));
+                }
+            }
+
+            return value;
+        },
+
         _filter: function(e) {
             var that = this;
-            var value = that._filterValue.val();
+            var value = that._convert(that._filterValue.val());
 
             e.preventDefault();
 
-            if (!value) {
+            if (value === "") {
                 that.menu.close();
                 return;
             }
@@ -327,7 +346,6 @@
             }
 
             var attr = kendo.attr("name");
-            var expression;
 
             this.currentMember = $(e.event.target).closest("[" + attr + "]").attr(attr);
 
@@ -518,6 +536,10 @@
     ui.plugin(PivotFieldMenu);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

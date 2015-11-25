@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,13 +10,15 @@
     define([ "./kendo.core", "./kendo.fx", "./kendo.mobile.scroller", "./kendo.view" ], f);
 })(function(){
 
+(function(){
+
+
+
 (function($, undefined) {
     var kendo = window.kendo,
-        angular = window.angular,
         mobile = kendo.mobile,
         ui = mobile.ui,
         attr = kendo.attr,
-        Class = kendo.Class,
         Widget = ui.Widget,
         ViewClone = kendo.ViewClone,
         INIT = "init",
@@ -29,7 +31,6 @@
         TRANSITION_START = "transitionStart",
         HIDE = "hide",
         DESTROY = "destroy",
-        Z_INDEX = "z-index",
         attrValue = kendo.attrValue,
         roleSelector = kendo.roleSelector,
         directiveSelector = kendo.directiveSelector,
@@ -219,7 +220,7 @@
             return that.options.stretch ? that.content : that.scrollerContent;
         },
 
-        clone: function(back) {
+        clone: function() {
             return new ViewClone(this);
         },
 
@@ -241,7 +242,7 @@
             // prevent accidental address bar display when pulling the header
             if (kendo.support.kineticScrollNeeded) {
                 $(that.element).on("touchmove", ".km-header", preventScrollIfNotInput);
-                if (!that.options.useNativeScrolling) {
+                if (!that.options.useNativeScrolling && !that.options.stretch) {
                     $(that.element).on("touchmove", ".km-content", preventScrollIfNotInput);
                 }
             }
@@ -319,7 +320,7 @@
 
             if (this.options.$angular) {
                 controller = this.element.controller();
-                scope = this.element.scope();
+                scope = this.options.$angular[0];
 
                 if (controller) {
                     var callback = $.proxy(this, '_callController', controller, scope);
@@ -468,7 +469,7 @@
                 that.trigger(VIEW_SHOW, { view: e.view });
             });
 
-            that.viewContainer.bind(AFTER, function(e) {
+            that.viewContainer.bind(AFTER, function() {
                 that.trigger(AFTER);
             });
 
@@ -660,7 +661,7 @@
                 .always($.proxy(this, "_xhrComplete", callback, url));
         },
 
-        _xhrComplete: function(callback, url, response, status, err) {
+        _xhrComplete: function(callback, url, response) {
             var success = true;
 
             if (typeof response === "object") {
@@ -713,6 +714,10 @@
     ui.plugin(View);
     ui.plugin(Layout);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

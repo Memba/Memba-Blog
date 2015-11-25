@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.draganddrop" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -43,7 +47,6 @@
         STATE_FOCUSED = "k-state-focused",
         STATE_DEFAULT = "k-state-default",
         STATE_DISABLED = "k-state-disabled",
-        PRECISION = 3,
         DISABLED = "disabled",
         UNDEFINED = "undefined",
         TABINDEX = "tabindex",
@@ -65,6 +68,10 @@
             that._outerSize = that._isHorizontal ? "outerWidth" : "outerHeight";
 
             options.tooltip.format = options.tooltip.enabled ? options.tooltip.format || "{0}" : "{0}";
+
+            if (options.smallStep <= 0) {
+                throw new Error('Kendo UI Slider smallStep must be a positive number.');
+            }
 
             that._createHtml();
             that.wrapper = that.element.closest(".k-slider");
@@ -120,6 +127,10 @@
             this._maxSelection = this._trackDiv[this._sizeFn]();
             this._sliderItemsInit();
             this._refresh();
+
+            if (this.options.enabled) {
+                this.enable(true);
+            }
         },
 
         _sliderItemsInit: function() {
@@ -606,9 +617,27 @@
         return (value + "").replace(".", kendo.cultures.current.numberFormat["."]);
     }
 
+    function calculatePrecision(value) {
+        var number = value.toString();
+        var precision = 0;
+
+        number = number.split(".");
+
+        if (number[1]) {
+            precision = number[1].length;
+        }
+
+        precision = precision > 10 ? 10 : precision;
+        return precision;
+    }
+
     function round(value) {
+        var precision, power;
+
         value = parseFloat(value, 10);
-        var power = math.pow(10, PRECISION || 0);
+        precision = calculatePrecision(value);
+        power = math.pow(10, precision || 0);
+
         return math.round(value * power) / power;
     }
 
@@ -657,7 +686,7 @@
 
             dragHandle = that.wrapper.find(DRAG_HANDLE);
 
-            new Slider.Selection(dragHandle, that, options);
+            this._selection = new Slider.Selection(dragHandle, that, options);
             that._drag = new Slider.Drag(dragHandle, "", that, options);
         },
 
@@ -727,6 +756,7 @@
                 .find(DRAG_HANDLE)
                 .attr(TABINDEX, 0)
                 .on(MOUSE_UP, function () {
+                    that._drag.draggable.userEvents.cancel();
                     that._setTooltipTimeout();
                 })
                 .on(CLICK, function (e) {
@@ -1102,7 +1132,6 @@
 
                 owner.trigger(SLIDE, slideParams);
             }
-
             that._updateTooltip(that.val);
         },
 
@@ -1111,6 +1140,10 @@
                 options = that.options,
                 tooltip = options.tooltip,
                 html = "";
+
+            if (that.val) {
+                val = that.val;
+            }
 
             if (!tooltip.enabled) {
                 return;
@@ -1337,7 +1370,7 @@
 
             var dragHandles = that.wrapper.find(DRAG_HANDLE);
 
-            new RangeSlider.Selection(dragHandles, that, options);
+            this._selection = new RangeSlider.Selection(dragHandles, that, options);
             that._firstHandleDrag = new Slider.Drag(dragHandles.eq(0), "firstHandle", that, options);
             that._lastHandleDrag = new Slider.Drag(dragHandles.eq(1), "lastHandle" , that, options);
         },
@@ -1429,6 +1462,7 @@
                 .attr(TABINDEX, 0)
                 .on(MOUSE_UP, function () {
                     that._setTooltipTimeout();
+                    that._drag.draggable.userEvents.cancel();
                 })
                 .on(CLICK, function (e) {
                     that._focusWithMouse(e.target);
@@ -1701,6 +1735,10 @@
     kendo.ui.plugin(RangeSlider);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

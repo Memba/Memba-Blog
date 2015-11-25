@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.validator", "./kendo.binder" ], f);
 })(function(){
+
+(function(){
+
+
 
 /* jshint eqnull: true */
 (function($, undefined) {
@@ -131,8 +135,9 @@
         },
         "values": function(container, options) {
             var attr = createAttributes(options);
+            var items = kendo.stringify(convertItems(options.values));
             $('<select ' + kendo.attr("text-field") + '="text"' + kendo.attr("value-field") + '="value"' +
-                kendo.attr("source") + "=\'" + kendo.stringify(convertItems(options.values)).replace(/\'/g,"&apos;") +
+                kendo.attr("source") + "=\'" + (items ? items.replace(/\'/g,"&apos;") : items) +
                 "\'" + kendo.attr("role") + '="dropdownlist"/>') .attr(attr).appendTo(container);
             $('<span ' + kendo.attr("for") + '="' + options.field + '" class="k-invalid-msg"/>').hide().appendTo(container);
         }
@@ -214,7 +219,7 @@
             values[e.field] = e.value;
 
             input = $(':input[' + bindAttribute + '*="' + fieldName + '"]', that.element)
-                .filter("[" + kendo.attr("validate") + "!='false']").filter(function(element) {
+                .filter("[" + kendo.attr("validate") + "!='false']").filter(function() {
                    return bindingRegex.test($(this).attr(bindAttribute));
                 });
             if (input.length > 1) {
@@ -259,6 +264,10 @@
             kendo.destroy(that.element);
 
             that.element.removeData("kendoValidator");
+
+            if (that.element.is("[" + kendo.attr("role") + "=editable]")) {
+                that.element.removeAttr(kendo.attr("role"));
+            }
         },
 
         refresh: function() {
@@ -294,7 +303,7 @@
                 that.angular("compile", function(){
                     return {
                         elements: container,
-                        data: [ { dataItem: model } ]
+                        data: container.map(function() { return { dataItem: model }; })
                     };
                 });
             }
@@ -331,6 +340,10 @@
 
    ui.plugin(Editable);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

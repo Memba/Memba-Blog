@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dataviz.chart" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
     // Imports ================================================================
@@ -458,7 +462,7 @@
                 chart = navi.chart,
                 coords = chart._eventCoordinates(e.originalEvent),
                 navigatorAxis = navi.mainAxis(),
-                naviRange = navigatorAxis.range(),
+                naviRange = navigatorAxis.datesRange(),
                 inNavigator = navigatorAxis.pane.box.containsPoint(coords),
                 axis = chart._plotArea.categoryAxis,
                 range = e.axisRanges[axis.options.name],
@@ -916,6 +920,10 @@
     });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

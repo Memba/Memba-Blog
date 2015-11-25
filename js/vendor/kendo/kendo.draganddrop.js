@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.core", "./kendo.userevents" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -332,10 +336,16 @@
                 movable: movable
             });
 
-            that.userEvents.bind(["move", "end", "gesturestart", "gesturechange"], {
+            that.userEvents.bind(["press", "move", "end", "gesturestart", "gesturechange"], {
                 gesturestart: function(e) {
                     that.gesture = e;
                     that.offset = that.dimensions.container.offset();
+                },
+
+                press: function(e) {
+                    if ($(e.event.target).closest("a").is("[data-navigate-on-press=true]")) {
+                        e.sender.cancel();
+                    }
                 },
 
                 gesturechange: function(e) {
@@ -769,14 +779,14 @@
                 that.boundaries = containerBoundaries(container, that.hint);
             }
 
+            $(document).on(KEYUP, that._captureEscape);
+
             if (that._trigger(DRAGSTART, e)) {
                 that.userEvents.cancel();
                 that._afterEnd();
             }
 
             that.userEvents.capture();
-
-            $(document).on(KEYUP, that._captureEscape);
         },
 
         _hold: function(e) {
@@ -829,6 +839,7 @@
                 if (this._scrollableParent[0]) {
                     var velocity = autoScrollVelocity(e.x.location, e.y.location, scrollableViewPort(this._scrollableParent));
 
+
                     this._scrollCompenstation = $.extend({}, this.hintOffset);
                     this._scrollVelocity = velocity;
 
@@ -856,11 +867,12 @@
             }
 
             var yIsScrollable, xIsScrollable;
-            var isBody = parent === document.body;
 
-            if (isBody) {
-                yIsScrollable = document.body.offsetHeight > $window.height();
-                xIsScrollable = document.body.offsetWidth > $window.width();
+            var isRootNode = parent === scrollableRoot()[0];
+
+            if (isRootNode) {
+                yIsScrollable = document.body.scrollHeight > $window.height();
+                xIsScrollable = document.body.scrollWidth > $window.width();
             } else {
                 yIsScrollable = parent.offsetHeight <= parent.scrollHeight;
                 xIsScrollable = parent.offsetWidth <= parent.scrollWidth;
@@ -880,7 +892,7 @@
                 parent.scrollLeft += velocity.x;
             }
 
-            if (isBody && (xInBounds || yInBounds)) {
+            if (isRootNode && (xInBounds || yInBounds)) {
                 if (yInBounds) {
                     compensation.top += velocity.y;
                 }
@@ -901,20 +913,26 @@
                 }
             });
 
-            this._trigger(DRAGEND, e);
-            this._cancel(e.event);
+            this._cancel(this._trigger(DRAGEND, e));
         },
 
-        _cancel: function() {
+        _cancel: function(isDefaultPrevented) {
             var that = this;
 
             that._scrollableParent = null;
+            this._cursorElement = null;
             clearInterval(this._scrollInterval);
             that._activated = false;
 
             if (that.hint && !that.dropped) {
                 setTimeout(function() {
-                    that.hint.stop(true, true).animate(that.currentTargetOffset, "fast", that._afterEndHandler);
+                    that.hint.stop(true, true);
+
+                    if (isDefaultPrevented) {
+                        that._afterEndHandler();
+                    } else {
+                        that.hint.animate(that.currentTargetOffset, "fast", that._afterEndHandler);
+                    }
                 }, 0);
 
             } else {
@@ -1018,14 +1036,14 @@
     });
 
     function scrollableViewPort(element) {
-        var body = document.body,
+        var root = scrollableRoot()[0],
             offset,
             top,
             left;
 
-        if (element[0] === body) {
-            top = body.scrollTop;
-            left = body.scrollLeft;
+        if (element[0] === root) {
+            top = root.scrollTop;
+            left = root.scrollLeft;
 
             return {
                 top: top,
@@ -1041,19 +1059,25 @@
         }
     }
 
-    function isRootNode(element) {
-        return element === document.body || element === document.documentElement || element === document;
+    function scrollableRoot() {
+        return $(kendo.support.browser.chrome ? document.body : document.documentElement);
     }
 
     function findScrollableParent(element) {
-        if (!element || isRootNode(element)) {
-            return $(document.body);
+        var root = scrollableRoot();
+
+        if (!element || element === document.body || element === document.documentElement) {
+            return root;
         }
 
         var parent = $(element)[0];
 
-        while (!kendo.isScrollable(parent) && !isRootNode(parent)) {
+        while (!kendo.isScrollable(parent) && parent !== document.body) {
             parent = parent.parentNode;
+        }
+
+        if (parent === document.body) {
+            return root;
         }
 
         return $(parent);
@@ -1087,6 +1111,10 @@
     };
 
  })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

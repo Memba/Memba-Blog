@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dom" ], f);
 })(function(){
+
+(function(){
+
+
 
 /*jshint eqnull: true*/
 (function($, undefined) {
@@ -221,7 +225,6 @@
         _fields: function() {
             var container = $('<div class="k-state-default"><p class="k-reset"><span class="k-icon k-i-group"></span>' + this.options.messages.fieldsLabel + '</p></div>').appendTo(this.form);
 
-            var that = this;
             var template = '# if (item.type == 2 || item.uniqueName == "[KPIs]") { #' +
                            '<span class="k-icon k-i-#= (item.type == 2 ? \"sum\" : \"kpi\") #"></span>' +
                            '# } else if (item.type && item.type !== "kpi") { #' +
@@ -374,13 +377,15 @@
                 return;
             }
 
-            if (element.is(":visible")) {
-                element.height(height);
+            element.height(height);
 
+            if (element.is(":visible")) {
                 fields = element.children(".k-columns")
                                 .children("div.k-state-default");
 
-                border = (element.outerHeight() - element.innerHeight()) / 2;
+                height = element.innerHeight();
+
+                border = (element.outerHeight() - height) / 2;
                 height = height - (fields.outerHeight(true) - fields.height()) - border;
 
                 fields.height(height);
@@ -444,6 +449,10 @@
     ui.plugin(PivotConfigurator);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

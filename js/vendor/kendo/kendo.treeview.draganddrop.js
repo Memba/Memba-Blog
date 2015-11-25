@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,18 +10,20 @@
     define([ "./kendo.data", "./kendo.draganddrop" ], f);
 })(function(){
 
+(function(){
+
+
+
 (function($, undefined){
     var kendo = window.kendo;
     var ui = kendo.ui;
     var proxy = $.proxy;
     var extend = $.extend;
-    var DRAGSTART = "dragstart";
-    var DRAG = "drag";
-    var DROP = "drop";
     var VISIBILITY = "visibility";
     var KSTATEHOVER = "k-state-hover";
+    var INPUTSELECTOR = "input,a,textarea,.k-multiselect-wrap,select,button,a.k-button>.k-icon,button.k-button>.k-icon,span.k-icon.k-i-expand,span.k-icon.k-i-collapse";
 
-    var HierarchicalDragAndDrop = ui.HierarchicalDragAndDrop = kendo.Class.extend({
+    ui.HierarchicalDragAndDrop = kendo.Class.extend({
         init: function (element, options) {
             this.element = element;
             this.hovered = element;
@@ -30,8 +32,9 @@
             }, options);
 
             this._draggable = new ui.Draggable(element, {
+                ignore: INPUTSELECTOR,
                 filter: options.filter,
-                autoScrolL: options.autoScroll,
+                autoScroll: options.autoScroll,
                 cursorOffset: {
                     left: 10,
                     top: kendo.support.mobileOS ? -40 / kendo.support.zoomLevel() : 10
@@ -98,7 +101,7 @@
                 // dragging outside of allowed elements
                 status = "k-denied";
                 this._removeTouchHover();
-            } else if (options.contains(source[0], target[0])) {
+            } else if (source[0] == target[0] || options.contains(source[0], target[0])) {
                 // dragging item within itself
                 status = "k-denied";
             } else {
@@ -257,6 +260,10 @@
     });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

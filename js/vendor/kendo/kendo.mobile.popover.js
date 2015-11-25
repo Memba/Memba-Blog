@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,11 +10,14 @@
     define([ "./kendo.popup", "./kendo.mobile.pane" ], f);
 })(function(){
 
+(function(){
+
+
+
 (function($, undefined) {
     var kendo = window.kendo,
         mobile = kendo.mobile,
         ui = mobile.ui,
-        SHOW = "show",
         HIDE = "hide",
         OPEN = "open",
         CLOSE = "close",
@@ -201,8 +204,7 @@
     var PopOver = Widget.extend({
         init: function(element, options) {
             var that = this,
-                popupOptions,
-                paneOptions;
+                popupOptions;
 
             that.initialOpen = false;
 
@@ -221,7 +223,6 @@
             });
 
             that.pane = new ui.Pane(that.element, $.extend(this.options.pane, { $angular: this.options.$angular }));
-            that.pane.navigateToInitial();
 
             kendo.notify(that, ui);
         },
@@ -241,7 +242,10 @@
             this.popup.show(target);
 
             if (!this.initialOpen) {
-                this.pane.navigate("");
+                if (!this.pane.navigateToInitial()) {
+                    this.pane.navigate("");
+                }
+
                 this.popup.popup._position();
                 this.initialOpen = true;
             } else {
@@ -270,6 +274,10 @@
     ui.plugin(Popup);
     ui.plugin(PopOver);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.list", "./kendo.mobile.scroller" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -86,6 +90,7 @@
                 .on("keydown" + ns, proxy(that._keydown, that))
                 .on("paste" + ns, proxy(that._search, that))
                 .on("focus" + ns, function () {
+                    that._active = true;
                     that._prev = that._accessor();
                     that._placeholder(false);
                     wrapper.addClass(FOCUSED);
@@ -93,6 +98,7 @@
                 .on("focusout" + ns, function () {
                     that._change();
                     that._placeholder();
+                    that._active = false;
                     wrapper.removeClass(FOCUSED);
                 })
                 .attr({
@@ -121,6 +127,10 @@
                 that.enable(false);
             }
 
+            that.listView.bind("click", function(e) { e.preventDefault(); });
+
+            that._resetFocusItemHandler = $.proxy(that._resetFocusItem, that);
+
             kendo.notify(that);
         },
 
@@ -141,6 +151,7 @@
             separator: null,
             placeholder: "",
             animation: {},
+            virtual: false,
             value: null
         },
 
@@ -264,6 +275,8 @@
                 that._open = true;
 
                 that.listView.filter(true);
+                that.listView.value([]);
+
                 that._filterSource({
                     value: ignoreCase ? word.toLowerCase() : word,
                     operator: options.filter,
@@ -349,6 +362,8 @@
             var item = e.item;
             var element = this.element;
 
+            this._active = true;
+
             if (this.trigger("select", { item: item })) {
                 this.close();
                 return;
@@ -380,7 +395,8 @@
                     that._angularItems("cleanup");
                 },
                 dataBound: listBoundHandler,
-                listBound: listBoundHandler
+                listBound: listBoundHandler,
+                skipUpdateOnBind: true
             };
 
             listOptions = $.extend(that._listOptions(), listOptions, typeof virtual === "object" ? virtual : {});
@@ -396,6 +412,16 @@
             that.listView.value(that.options.value);
         },
 
+        _resetFocusItem: function() {
+            var index = this.options.highlightFirst ? 0 : -1;
+
+            if (this.options.virtual) {
+                this.listView.scrollTo(0);
+            }
+
+            this.listView.focus(index);
+        },
+
         _listBound: function() {
             var that = this;
             var popup = that.popup;
@@ -407,23 +433,11 @@
 
             that._angularItems("compile");
 
-            //reset list value
-            that.listView.value([]);
-            that.listView.focus(-1);
-
-            that.listView.filter(false);
-
             that._calculateGroupPadding(that._height(length));
 
             popup.position();
 
             if (length) {
-                var current = this.listView.focus();
-
-                if (options.highlightFirst && !current) {
-                    that.listView.first();
-                }
-
                 if (options.suggest && isActive) {
                     that.suggest(data[0]);
                 }
@@ -437,9 +451,21 @@
                     action = "close";
                 }
 
+                if (length) {
+                    if (!options.virtual) {
+                        that._resetFocusItem();
+                    } else {
+                        that.popup
+                            .unbind("activate", that._resetFocusItemHandler)
+                            .one("activate", that._resetFocusItemHandler);
+                    }
+                }
+
                 popup[action]();
                 that._typingTimeout = undefined;
             }
+
+            that.listView.filter(false);
 
             if (that._touchScroller) {
                 that._touchScroller.reset();
@@ -452,7 +478,7 @@
         },
 
         _listChange: function() {
-            if (!this.listView.filter()) {
+            if (!this.listView.filter() && this._active) {
                 this._selectValue(this.listView.selectedDataItems()[0]);
             }
         },
@@ -510,12 +536,12 @@
 
             if (key === keys.DOWN) {
                 if (visible) {
-                    this._move(current ? "next" : "first");
+                    this._move(current ? "focusNext" : "focusFirst");
                 }
                 e.preventDefault();
             } else if (key === keys.UP) {
                 if (visible) {
-                    this._move(current ? "prev" : "last");
+                    this._move(current ? "focusPrev" : "focusLast");
                 }
                 e.preventDefault();
             } else if (key === keys.ENTER || key === keys.TAB) {
@@ -665,6 +691,10 @@
 
     ui.plugin(AutoComplete);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

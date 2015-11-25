@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dataviz.core", "./kendo.drawing" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -23,7 +27,6 @@
         geom = kendo.geometry,
         util = kendo.util,
         defined = util.defined,
-        append = util.append,
         dataviz = kendo.dataviz,
         Box2D = dataviz.Box2D,
         TextBox = dataviz.TextBox,
@@ -1565,11 +1568,12 @@
 
         redraw: function () {
             var size = this._getSize();
-            this.surfaceWrap.css({
+
+            this.surface.clear();
+            this.surface.setSize({
                 width: size.width,
                 height: size.height
             });
-            this.surface.clear();
 
             this.createVisual();
             this.surface.draw(this.visual);
@@ -1783,6 +1787,10 @@
     });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

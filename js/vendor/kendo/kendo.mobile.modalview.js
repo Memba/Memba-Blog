@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.mobile.shim", "./kendo.mobile.view" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -23,7 +27,7 @@
 
     var ModalView = ui.View.extend({
         init: function(element, options) {
-            var that = this, width, height;
+            var that = this;
 
             Widget.fn.init.call(that, element, options);
 
@@ -125,6 +129,10 @@
 
     ui.plugin(ModalView);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

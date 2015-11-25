@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dom", "./kendo.data" ], f);
 })(function(){
+
+(function(){
+
+
 
 /*jshint eqnull: true*/
 (function($, undefined) {
@@ -24,6 +28,7 @@
         isFunction = kendo.isFunction,
         CHANGE = "change",
         ERROR = "error",
+        MEASURES = "Measures",
         PROGRESS = "progress",
         STATERESET = "stateReset",
         AUTO = "auto",
@@ -75,19 +80,12 @@
         });
     }
 
-    function parentName(tuple, level) {
-        var member = tuple.members[level];
-        var parentNameValue = buildPath(tuple, level - 1);
-
-        if (member.parentName) {
-            parentNameValue.push(member.parentName);
+    function normalizeName(name) {
+        if (name.indexOf(" ") !== -1) {
+            name = '["' + name + '"]';
         }
 
-        if (!parentNameValue.length) {
-            parentNameValue = "";
-        }
-
-        return kendo.stringify(parentNameValue);
+        return name;
     }
 
     function accumulateMembers(accumulator, rootTuple, tuple, level) {
@@ -192,7 +190,7 @@
 
         if (measures.length > 1) {
             members.push({
-                name: "Measures",
+                name: MEASURES,
                 measure: true,
                 children: normalizeMembers(measures)
             });
@@ -210,90 +208,6 @@
         }
 
         return members;
-    }
-
-    function addDataCellVertical(result, rowIndex, map, key, resultFuncs, formats, offset) {
-        var value, aggregate, columnKey, resultFunc, format, measuresCount = 0;
-
-        var start = rowIndex;
-
-        for (aggregate in map[key].aggregates) {
-            value = map[key].aggregates[aggregate];
-            resultFunc = resultFuncs[aggregate];
-            format = formats[aggregate];
-
-            value = resultFunc ? resultFunc(value) : value.accumulator;
-
-            result[start] = {
-                ordinal: start,
-                value: value,
-                fmtValue: format ? kendo.format(format, value) : value
-            };
-            ++measuresCount;
-            start += offset;
-        }
-
-        var items = map[key].items;
-
-        for (columnKey in items) {
-            var index = items[columnKey].index * measuresCount;
-
-            index = start + index*offset;
-
-            for (aggregate in items[columnKey].aggregates) {
-                value = items[columnKey].aggregates[aggregate];
-                resultFunc = resultFuncs[aggregate];
-                format = formats[aggregate];
-
-                value = resultFunc ? resultFunc(value) : value.accumulator;
-
-                result[index] = {
-                    ordinal: index,
-                    value: value,
-                    fmtValue: format ? kendo.format(format, value) : value
-                };
-                index += offset;
-            }
-        }
-    }
-
-    function addDataCell(result, rowIndex, map, key, resultFuncs, formats) {
-        var value, aggregate, columnKey, resultFunc, format, measuresCount = 0;
-
-        for (aggregate in map[key].aggregates) {
-            value = map[key].aggregates[aggregate];
-            resultFunc = resultFuncs[aggregate];
-            format = formats[aggregate];
-
-            value = resultFunc ? resultFunc(value) : value.accumulator;
-
-            result[result.length] = {
-                ordinal: rowIndex++,
-                value: value,
-                fmtValue: format ? kendo.format(format, value) : value
-            };
-            ++measuresCount;
-        }
-
-        var items = map[key].items;
-
-        for (columnKey in items) {
-            var index = items[columnKey].index * measuresCount;
-
-            for (aggregate in items[columnKey].aggregates) {
-                value = items[columnKey].aggregates[aggregate];
-                resultFunc = resultFuncs[aggregate];
-                format = formats[aggregate];
-
-                value = resultFunc ? resultFunc(value) : value.accumulator;
-
-                result[result.length] = {
-                    ordinal: rowIndex + index++,
-                    value: value,
-                    fmtValue: format ? kendo.format(format, value) : value
-                };
-            }
-        }
     }
 
     function createAggregateGetter(m) {
@@ -409,26 +323,25 @@
             return descriptors;
         },
 
-        _asTuples: function(map, descriptors, measureAggregators) {
-            measureAggregators = measureAggregators || [];
-
-            var dimensionsSchema = this.dimensions || [];
-            var result = [];
-            var root;
-            var idx;
-            var length;
-            var measureIdx;
-            var tuple;
-            var name;
+        _rootTuples: function(rootNames, measureAggregators) {
             var aggregatorsLength = measureAggregators.length || 1;
+            var dimensionsSchema = this.dimensions || [];
+            var root, name, parts;
+            var measureIdx = 0;
+            var idx;
 
-            if (descriptors.length || measureAggregators.length) {
+            var rootNamesLength = rootNames.length;
+            var result = [];
+            var keys = [];
+
+            if (rootNamesLength || measureAggregators.length) {
                 for (measureIdx = 0; measureIdx < aggregatorsLength; measureIdx++) {
 
                     root = { members: [] };
 
-                    for (idx = 0, length = descriptors.length; idx < length; idx++) {
-                        name = getName(descriptors[idx].name);
+                    for (idx = 0; idx < rootNamesLength; idx++) {
+                        name = rootNames[idx];
+                        parts = name.split("&");
 
                         root.members[root.members.length] = {
                             children: [],
@@ -437,7 +350,7 @@
                             levelName: name,
                             levelNum: "0",
                             hasChildren: true,
-                            parentName: undefined,
+                            parentName: parts.length > 1 ? parts[0] : undefined,
                             hierarchy: name
                         };
                     }
@@ -454,28 +367,68 @@
                             hierarchy: "MEASURES"
                         };
                     }
+
                     result[result.length] = root;
                 }
+
+                keys.push(ROW_TOTAL_KEY);
             }
 
-            for (var key in map) {
+            return {
+                keys: keys,
+                tuples: result
+            };
+        },
+
+        _expandedTuples: function(map, expanded, measureAggregators) {
+            var aggregatorsLength = measureAggregators.length || 1;
+            var dimensionsSchema = this.dimensions || [];
+            var measureIdx;
+            var tuple;
+
+            var key;
+            var mapItem;
+            var current;
+            var currentKeys;
+            var accumulator = [];
+            var accumulatorKeys = [];
+            var memberInfo;
+
+            var expandedNames;
+            var parts;
+            var name;
+            var idx;
+
+            for (key in map) {
+                mapItem = map[key];
+                memberInfo = this._findExpandedMember(expanded, mapItem.uniquePath);
+
+                current = accumulator[memberInfo.index] || [];
+                currentKeys = accumulatorKeys[memberInfo.index] || [];
+
+                expandedNames = memberInfo.member.names;
+
                 for (measureIdx = 0; measureIdx < aggregatorsLength; measureIdx++) {
                     tuple = { members: [] };
-                    for (idx = 0, length = descriptors.length; idx < length; idx++) {
-                        name = getName(descriptors[idx].name);
-
-                        if (map[key].parentName.indexOf(name) === 0) {
+                    for (idx = 0; idx < expandedNames.length; idx++) {
+                        if (idx === memberInfo.member.expandedIdx) {
                             tuple.members[tuple.members.length] = {
                                 children: [],
-                                caption: map[key].value,
-                                name: map[key].name,
-                                levelName: map[key].name,
-                                levelNum: 1,
+                                caption: mapItem.value,
+                                name: mapItem.name,
                                 hasChildren: false,
-                                parentName: name,
-                                hierarchy: name
+                                levelNum: 1,
+                                levelName: mapItem.parentName + mapItem.name,
+                                parentName: mapItem.parentName,
+                                hierarchy: mapItem.parentName + mapItem.name
                             };
+
+                            if (measureIdx === 0) {
+                                currentKeys.push(buildPath(tuple, idx).join(""));
+                            }
                         } else {
+                            name = expandedNames[idx];
+                            parts = name.split("&");
                             tuple.members[tuple.members.length] = {
                                 children: [],
                                 caption: (dimensionsSchema[name] || {}).caption || "All",
@@ -483,7 +436,7 @@
                                 levelName: name,
                                 levelNum: "0",
                                 hasChildren: true,
-                                parentName: undefined,
+                                parentName: parts.length > 1 ? parts[0] : undefined,
                                 hierarchy: name
                             };
                         }
@@ -502,85 +455,169 @@
                         };
                     }
 
-                    result[result.length] = tuple;
+                    current[current.length] = tuple;
                 }
+
+                accumulator[memberInfo.index] = current;
+                accumulatorKeys[memberInfo.index] = currentKeys;
             }
 
-            return result;
+            return {
+                keys: accumulatorKeys,
+                tuples: accumulator
+            };
         },
 
-        _toDataArray: function(map, rowStartOffset, measures, offset, addFunc) {
-            var formats = {};
-            var resultFuncs = {};
-            var descriptors, measure, name;
+        _findExpandedMember: function(members, parentName) {
+            for (var idx = 0; idx < members.length; idx++) {
+                if (members[idx].uniquePath === parentName) {
+                    return {
+                        member: members[idx],
+                        index: idx
+                    };
+                }
+            }
+        },
 
+        _asTuples: function(map, descriptor, measureAggregators) {
+            measureAggregators = measureAggregators || [];
+
+            var rootInfo = this._rootTuples(descriptor.root, measureAggregators);
+            var expandedInfo = this._expandedTuples(map, descriptor.expanded, measureAggregators);
+
+            return {
+                keys: [].concat.apply(rootInfo.keys, expandedInfo.keys),
+                tuples: [].concat.apply(rootInfo.tuples, expandedInfo.tuples)
+            };
+        },
+
+        _measuresInfo: function(measures, rowAxis) {
             var idx = 0;
             var length = measures && measures.length;
 
-            if (length) {
-                descriptors = (this.measures || {});
-                for (; idx < length; idx++) {
-                    name = measures[idx].name;
-                    measure = descriptors[name];
+            var aggregateNames = [];
+            var resultFuncs= {};
+            var formats = {};
 
-                    if (measure.result) {
-                        resultFuncs[name] = measure.result;
-                    }
+            var descriptors = (this.measures || {});
+            var measure;
+            var name;
 
-                    if (measure.format) {
-                        formats[name] = measure.format;
-                    }
+            for (; idx < length; idx++) {
+                name = measures[idx].descriptor.name;
+                measure = descriptors[name] || {};
+
+                aggregateNames.push(name);
+
+                if (measure.result) {
+                    resultFuncs[name] = measure.result;
+                }
+
+                if (measure.format) {
+                    formats[name] = measure.format;
                 }
             }
 
+            return {
+                names: aggregateNames,
+                formats: formats,
+                resultFuncs: resultFuncs,
+                rowAxis: rowAxis
+            };
+        },
+
+        _toDataArray: function(map, measuresInfo, rowKeys, columnKeys) {
             var result = [];
-            var items;
-            var rowIndex = 0;
 
-            addFunc(result, rowIndex, map, ROW_TOTAL_KEY, resultFuncs, formats, rowStartOffset);
+            var aggregates;
+            var name, i, j, k, n;
+            var row, column, columnKey;
 
-            for (var key in map) {
-                if (key === ROW_TOTAL_KEY) {
-                    continue;
+            var rowMeasureNamesLength = 1;
+            var rowMeasureNames = [];
+            var columnMeasureNames;
+
+            var rowLength = rowKeys.length || 1;
+            var columnLength = columnKeys.length || 1;
+
+            if (measuresInfo.rowAxis) {
+                rowMeasureNames = measuresInfo.names;
+                rowMeasureNamesLength = rowMeasureNames.length;
+            } else {
+                columnMeasureNames = measuresInfo.names;
+            }
+
+            for (i = 0; i < rowLength; i++) {
+                row = map[rowKeys[i] || ROW_TOTAL_KEY];
+
+                for (n = 0; n < rowMeasureNamesLength; n++) {
+                    if (measuresInfo.rowAxis) {
+                        columnMeasureNames = [rowMeasureNames[n]];
+                    }
+
+                    for (j = 0; j < columnLength; j++) {
+                        columnKey = columnKeys[j] || ROW_TOTAL_KEY;
+                        column = row.items[columnKey];
+
+                        if (columnKey === ROW_TOTAL_KEY) {
+                            aggregates = row.aggregates;
+                        } else {
+                            aggregates = column ? column.aggregates : {};
+                        }
+
+                        for (k = 0; k < columnMeasureNames.length; k++) {
+                            name = columnMeasureNames[k];
+                            this._addData(result, aggregates[name], measuresInfo.formats[name], measuresInfo.resultFuncs[name]);
+                        }
+                    }
                 }
-
-                rowIndex += offset;
-                addFunc(result, rowIndex, map, key, resultFuncs, formats, rowStartOffset);
             }
 
             return result;
         },
 
-        _matchDescriptors: function(dataItem, descriptors, getters, idx) {
-            var descriptor;
+        _addData: function(result, value, format, resultFunc) {
+            var fmtValue = "";
+            var ordinal;
+
+            if (value) {
+                value = resultFunc ? resultFunc(value) : value.accumulator;
+                fmtValue = format ? kendo.format(format, value) : value;
+            }
+
+            ordinal = result.length;
+
+            result[ordinal] = {
+                ordinal: ordinal,
+                value: value || "",
+                fmtValue: fmtValue
+            };
+        },
+
+        _matchDescriptors: function(dataItem, descriptor, getters) {
             var parts;
             var parentField;
             var expectedValue;
-            var parentGetter;
+
+            var names = descriptor.names;
+            var idx = descriptor.expandedIdx;
+            var value;
 
             while (idx > 0) {
-                descriptor = descriptors[--idx];
-                parts = getName(descriptor).split("&");
+                parts = names[--idx].split("&");
                 if (parts.length > 1) {
                     parentField = parts[0];
                     expectedValue = parts[1];
-                    parentGetter = getters[parentField];
 
-                    if (parentGetter(dataItem) != expectedValue) {
+                    value = getters[parentField](dataItem);
+                    value = (value !== undefined && value !== null) ? value.toString() : value;
+
+                    if (value != expectedValue) {
                         return false;
                     }
                 }
             }
             return true;
-        },
-
-        _isExpanded: function(descriptors) {
-            for (var idx = 0, length = descriptors.length; idx < length; idx++) {
-                if (descriptors[idx].expand) {
-                    return true;
-                }
-            }
-            return false;
         },
 
         _calculateAggregate: function(measureAggregators, aggregatorContext, totalItem) {
@@ -601,48 +638,53 @@
         _processColumns: function(measureAggregators, descriptors, getters, columns, aggregatorContext, rowTotal, state, updateColumn) {
             var value;
             var descriptor;
-            var name;
             var column;
             var totalItem;
+            var key, name, parentName, path;
             var dataItem = aggregatorContext.dataItem;
+            var idx = 0;
 
-            for (var idx = 0; idx < descriptors.length; idx++) {
+            for (; idx < descriptors.length; idx++) {
                 descriptor = descriptors[idx];
 
-                if (descriptor.expand) {
-                    if (!this._matchDescriptors(dataItem, descriptors, getters, idx)) {
-                        continue;
+                //checks whether the dataItem is relevant to the descriptors
+                if (!this._matchDescriptors(dataItem, descriptor, getters)) {
+                    continue;
+                }
+
+                path = descriptor.names.slice(0, descriptor.expandedIdx).join("");
+                name = descriptor.names[descriptor.expandedIdx];
+
+
+                value = getters[name](dataItem);
+                value = (value !== undefined && value !== null) ? value.toString() : value;
+
+                parentName = name;
+                name = name + "&" + value;
+                key = path + name;
+
+                column = columns[key] || {
+                    index: state.columnIndex,
+                    parentName: parentName,
+                    name: name,
+                    uniquePath: path + parentName,
+                    value: value
+                };
+
+                totalItem = rowTotal.items[key] || {
+                    aggregates: {}
+                };
+
+                rowTotal.items[key] = {
+                    index: column.index,
+                    aggregates: this._calculateAggregate(measureAggregators, aggregatorContext, totalItem)
+                };
+
+                if (updateColumn) {
+                    if (!columns[key]) {
+                        state.columnIndex++;
                     }
-
-                    name = getName(descriptor);
-
-                    value = getters[name](dataItem);
-                    value = (value !== undefined && value !== null) ? value.toString() : value;
-
-                    name = name + "&" + value;
-
-                    column = columns[name] || {
-                        index: state.columnIndex,
-                        name: name,
-                        parentName: name,
-                        value: value
-                    };
-
-                    totalItem = rowTotal.items[name] || {
-                        aggregates: {}
-                    };
-
-                    rowTotal.items[name] = {
-                        index: column.index,
-                        aggregates: this._calculateAggregate(measureAggregators, aggregatorContext, totalItem)
-                    };
-
-                    if (updateColumn) {
-                        if (!columns[name]) {
-                            state.columnIndex++;
-                        }
-                        columns[name] = column;
-                    }
+                    columns[key] = column;
                 }
             }
         },
@@ -693,47 +735,95 @@
             return aggregators;
         },
 
-        _normalizeName: function(name) {
-            if (name.indexOf(" ") !== -1) {
-                name = '["' + name + '"]';
-            }
-
-            return name;
-        },
-
-        _buildGetters: function(descriptors) {
+        _buildGetters: function(names) {
             var result = {};
-            var descriptor;
             var parts;
             var name;
 
-            for (var idx = 0, length = descriptors.length; idx < length; idx++) {
-                descriptor = descriptors[idx];
-
-                name = getName(descriptor);
-
+            for (var idx = 0; idx < names.length; idx++) {
+                name = names[idx];
                 parts = name.split("&");
 
                 if (parts.length > 1) {
                     result[parts[0]] = kendo.getter(parts[0], true);
                 } else {
-                    result[name] = kendo.getter(this._normalizeName(name), true);
+                    result[name] = kendo.getter(normalizeName(name), true);
                 }
             }
 
             return result;
         },
 
+        _parseDescriptors: function (descriptors) {
+            var parsedDescriptors = parseDescriptors(descriptors);
+            var rootNames = getRootNames(parsedDescriptors.root);
+            var expanded = parsedDescriptors.expanded;
+            var result = [];
+
+            for (var idx = 0; idx < expanded.length; idx++) {
+                result.push(mapNames(expanded[idx].name, rootNames));
+            }
+
+            return {
+                root: rootNames,
+                expanded: result
+            };
+        },
+
+        _filter: function(data, filter) {
+            if (!filter) {
+                return data;
+            }
+
+            var expr;
+            var idx = 0;
+            var filters = filter.filters;
+
+            for (; idx < filters.length; idx++) {
+                expr = filters[idx];
+
+                if (expr.operator === "in") {
+                    filters[idx] = this._normalizeFilter(expr);
+                }
+            }
+
+            return new kendo.data.Query(data).filter(filter).data;
+        },
+
+        _normalizeFilter: function(filter) {
+            var value = filter.value.split(",");
+            var result = [];
+
+            if (!value.length) {
+                return value;
+            }
+
+            for (var idx = 0; idx < value.length; idx++) {
+                result.push({
+                    field: filter.field,
+                    operator: "eq",
+                    value: value[idx]
+                });
+            }
+
+            return {
+                logic: "or",
+                filters: result
+            };
+        },
+
         process: function(data, options) {
             data = data || [];
             options = options || {};
+
+            data = this._filter(data, options.filter);
 
             var measures = options.measures || [];
 
             var measuresRowAxis = options.measuresAxis === "rows";
 
-            var columnDescriptors = (measuresRowAxis ? options.rows : options.columns) || [];
-            var rowDescriptors = (!measuresRowAxis ? options.rows : options.columns) || [];
+            var columnDescriptors = options.columns || [];
+            var rowDescriptors = options.rows || [];
 
             if (!columnDescriptors.length && rowDescriptors.length && (!measures.length || (measures.length && measuresRowAxis))) {
                 columnDescriptors = rowDescriptors;
@@ -749,6 +839,9 @@
                 columnDescriptors = normalizeMembers(options.measures);
             }
 
+            columnDescriptors = this._parseDescriptors(columnDescriptors);
+            rowDescriptors = this._parseDescriptors(rowDescriptors);
+
             var aggregatedData = {};
             var columns = {};
             var rows = {};
@@ -757,19 +850,29 @@
             var state = { columnIndex: 0 };
 
             var measureAggregators = this._measureAggregators(options);
-            var columnGetters = this._buildGetters(columnDescriptors);
-            var rowGetters = this._buildGetters(rowDescriptors);
+
+            var columnGetters = this._buildGetters(columnDescriptors.root);
+            var rowGetters = this._buildGetters(rowDescriptors.root);
 
             var processed = false;
 
-            if (columnDescriptors.length || rowDescriptors.length) {
-                var dataItem;
-                var aggregatorContext;
-                var hasExpandedRows = this._isExpanded(rowDescriptors);
+            var expandedColumns = columnDescriptors.expanded;
+            var expandedRows = rowDescriptors.expanded;
 
+            var dataItem;
+            var aggregatorContext;
+            var hasExpandedRows = expandedRows.length !== 0;
+
+            var rowIdx, rowDescriptor, rowName, rowTotal;
+            var key, path, parentName, value;
+            var columnsInfo, rowsInfo;
+            var length = data.length;
+            var idx = 0;
+
+            if (columnDescriptors.root.length || rowDescriptors.root.length) {
                 processed = true;
 
-                for (var idx = 0, length = data.length; idx < length; idx++) {
+                for (idx = 0; idx < length; idx++) {
                     dataItem = data[idx];
 
                     aggregatorContext = {
@@ -777,68 +880,70 @@
                         index: idx
                     };
 
-                    var rowTotal = aggregatedData[ROW_TOTAL_KEY] || {
+                    rowTotal = aggregatedData[ROW_TOTAL_KEY] || {
                         items: {},
                         aggregates: {}
                     };
 
-                    this._processColumns(measureAggregators, columnDescriptors, columnGetters, columns, aggregatorContext, rowTotal, state, !hasExpandedRows);
+                    this._processColumns(measureAggregators, expandedColumns, columnGetters, columns, aggregatorContext, rowTotal, state, !hasExpandedRows);
 
                     rowTotal.aggregates = this._calculateAggregate(measureAggregators, aggregatorContext, rowTotal);
                     aggregatedData[ROW_TOTAL_KEY] = rowTotal;
 
-                    for (var rowIdx = 0, rowLength = rowDescriptors.length; rowIdx < rowLength; rowIdx++) {
-                        var rowDescriptor = rowDescriptors[rowIdx];
+                    for (rowIdx = 0; rowIdx < expandedRows.length; rowIdx++) {
+                        rowDescriptor = expandedRows[rowIdx];
 
-                        if (rowDescriptor.expand) {
-                            if (!this._matchDescriptors(dataItem, rowDescriptors, rowGetters, rowIdx)) {
-                                continue;
-                            }
-
-                            var rowName = getName(rowDescriptor);
-
-                            rowValue = rowGetters[rowName](dataItem);
-                            rowValue = rowValue !== undefined ? rowValue.toString() : rowValue;
-                            rows[rowValue] = {
-                                name: rowName + "&" + rowValue,
-                                parentName: rowName,
-                                value: rowValue
-                            };
-
-                            var value = aggregatedData[rowValue] || {
-                                items: {},
-                                aggregates: {}
-                            };
-
-                            this._processColumns(measureAggregators, columnDescriptors, columnGetters, columns, aggregatorContext, value, state, true);
-
-                            value.aggregates = this._calculateAggregate(measureAggregators, aggregatorContext, value);
-                            aggregatedData[rowValue] = value;
+                        if (!this._matchDescriptors(dataItem, rowDescriptor, rowGetters)) {
+                            this._processColumns(measureAggregators, expandedColumns, columnGetters, columns, aggregatorContext, { items: {}, aggregates: {} }, state, true);
+                            continue;
                         }
+
+                        path = rowDescriptor.names.slice(0, rowDescriptor.expandedIdx).join("");
+                        rowName = rowDescriptor.names[rowDescriptor.expandedIdx];
+
+                        parentName = rowName;
+
+                        rowValue = rowGetters[rowName](dataItem);
+                        rowValue = rowValue !== undefined ? rowValue.toString() : rowValue;
+
+                        rowName = rowName + "&" + rowValue;
+                        key = path + rowName;
+
+                        rows[key] = {
+                            uniquePath: path + parentName,
+                            parentName: parentName,
+                            name: rowName,
+                            value: rowValue
+                        };
+
+                        value = aggregatedData[key] || {
+                            items: {},
+                            aggregates: {}
+                        };
+
+                        this._processColumns(measureAggregators, expandedColumns, columnGetters, columns, aggregatorContext, value, state, true);
+
+                        value.aggregates = this._calculateAggregate(measureAggregators, aggregatorContext, value);
+                        aggregatedData[key] = value;
                     }
                 }
             }
 
-            if (processed && data.length) {
+            if (processed && length) {
                 if (measureAggregators.length > 1 && (!options.columns || !options.columns.length)) {
-                    columnDescriptors = [];
+                    columnDescriptors = {
+                        root: [],
+                        expanded: []
+                    };
                 }
 
-                columns = this._asTuples(columns, columnDescriptors, measureAggregators);
-                rows = this._asTuples(rows, rowDescriptors, []);
+                columnsInfo = this._asTuples(columns, columnDescriptors, measuresRowAxis ? [] : measureAggregators);
+                rowsInfo = this._asTuples(rows, rowDescriptors, measuresRowAxis ? measureAggregators : []);
 
-                var offset = columns.length;
+                columns = columnsInfo.tuples;
+                rows = rowsInfo.tuples;
 
-                if (measuresRowAxis) {
-                    offset = 1;
-
-                    var tmp = columns;
-                    columns = rows;
-                    rows = tmp;
-                }
-
-                aggregatedData = this._toDataArray(aggregatedData, columns.length, options.measures, offset, measuresRowAxis ? addDataCellVertical : addDataCell);
-                aggregatedData = this._normalizeData(aggregatedData, columns.length, rows.length);
+                aggregatedData = this._toDataArray(aggregatedData, this._measuresInfo(measureAggregators, measuresRowAxis), rowsInfo.keys, columnsInfo.keys);
             } else {
                 aggregatedData = columns = rows = [];
             }
@@ -850,30 +955,6 @@
                 },
                 data: aggregatedData
             };
-        },
-
-        _normalizeData: function(data, columns, rows) {
-            var axesLength = (columns || 1) * (rows || 1);
-            var result = new Array(axesLength);
-            var length = data.length;
-            var cell, idx;
-
-            if (length === axesLength) {
-                return data;
-            }
-
-            for (idx = 0; idx < axesLength; idx++) {
-                result[idx] = { value: "", fmtValue: "", ordinal: idx };
-            }
-
-            for (idx = 0; idx < length; idx++) {
-               cell = data[idx];
-               if (cell) {
-                   result[cell.ordinal] = cell;
-               }
-            }
-
-            return result;
         }
     });
 
@@ -998,9 +1079,9 @@
 
                     if (cube.measures) {
                         result.push({
-                            name: "Measures",
-                            caption: "Measures",
-                            uniqueName: "Measures",
+                            name: MEASURES,
+                            caption: MEASURES,
+                            uniqueName: MEASURES,
                             type: 2
                         });
                     }
@@ -1024,7 +1105,55 @@
                     }
 
                     return result;
-                }
+                },
+                members: $.proxy(function(response, restrictions) {
+                    var name = restrictions.levelUniqueName || restrictions.memberUniqueName;
+                    var data = this.options.data || this._rawData || [];
+                    var result = [];
+                    var getter;
+                    var value;
+                    var idx = 0;
+                    var distinct = {};
+
+                    if (name) {
+                        name = name.split(".")[0];
+                    }
+
+                    if (!restrictions.treeOp) {
+                        result.push({
+                            caption: cube.dimensions[name].caption || name,
+                            childrenCardinality: "1",
+                            dimensionUniqueName: name,
+                            hierarchyUniqueName: name,
+                            levelUniqueName: name,
+                            name: name,
+                            uniqueName: name
+                        });
+
+                        return result;
+                    }
+
+                    getter = kendo.getter(normalizeName(name), true);
+
+                    for (; idx < data.length; idx++) {
+                        value = getter(data[idx]);
+                        if ((value || value === 0) && !distinct[value]) {
+                            distinct[value] = true;
+
+                            result.push({
+                                caption: value,
+                                childrenCardinality: "0",
+                                dimensionUniqueName: name,
+                                hierarchyUniqueName: name,
+                                levelUniqueName: name,
+                                name: value,
+                                uniqueName: value
+                            });
+                        }
+                    }
+
+                    return result;
+                }, this)
             };
         },
 
@@ -1318,11 +1447,13 @@
                     axisToSkip = "columns";
                     axes.columns = resultAxis;
                     adjustDataByColumn(tuples, resultAxis.tuples, axes.rows.tuples.length, measures, data);
-                    data = this._normalizeData({
-                        columnsLength: membersCount(axes.columns.tuples, measures),
-                        rowsLength: axes.rows.tuples.length,
-                        data: data
-                    });
+                    if (!this.cubeBuilder) {
+                        data = this._normalizeData({
+                            columnsLength: membersCount(axes.columns.tuples, measures),
+                            rowsLength: axes.rows.tuples.length,
+                            data: data
+                        });
+                    }
                 }
             } else if (this._lastExpanded == "columns") {
                 tuples = axes.rows.tuples;
@@ -1334,11 +1465,13 @@
                     axes.rows = resultAxis;
                     adjustDataByRow(tuples, resultAxis.tuples, axes.columns.tuples.length, measures, data);
 
-                    data = this._normalizeData({
-                        columnsLength: membersCount(axes.rows.tuples, measures),
-                        rowsLength: axes.columns.tuples.length,
-                        data: data
-                    });
+                    if (!this.cubeBuilder) {
+                        data = this._normalizeData({
+                            columnsLength: membersCount(axes.rows.tuples, measures),
+                            rowsLength: axes.columns.tuples.length,
+                            data: data
+                        });
+                    }
                 }
             }
 
@@ -1353,6 +1486,10 @@
         _readData: function(data) {
             var axes = this.reader.axes(data);
             var newData = this.reader.data(data);
+
+            if (this.cubeBuilder) {
+                this._rawData = newData;
+            }
 
             return this._processResult(newData, axes);
         },
@@ -1484,6 +1621,11 @@
             } else {
                 //rows are expanded
                 startIndex = mergedRows.index + findDataIndex(mergedRows.parsedRoot, mergedRows.memberIndex, rowMeasures);
+
+                //var colLength = findDataIndex(mergedColumns.parsedRoot, mergedColumns.parsedRoot.members.length, columnMeasures);
+                //startIndex = (startIndex + 1) * colLength;
+
+                //: start index should be 8... current index * columns length
                 data = this._mergeRowData(data, startIndex, newRowsLength, newColumnsLength);
             }
 
@@ -1850,6 +1992,11 @@
 
         schemaMembers: function(restrictions) {
             var that = this;
+            var success = (function(restrictions) {
+                return function(response) {
+                    return that.reader.members(response, restrictions);
+                };
+            }(restrictions));
 
             return that.discover({
                 data: {
@@ -1859,9 +2006,7 @@
                        cubeName: that.transport.cube()
                    }, restrictions)
                 }
-            }, function(response) {
-                return that.reader.members(response);
-            });
+            }, success);
         },
 
         _params: function(data) {
@@ -1917,7 +2062,6 @@
     function adjustDataByRow(sourceTuples, targetTuples, columnsLength, measures, data) {
         var columnIdx, rowIdx, dataIdx;
         var rowsLength = sourceTuples.length;
-        var targetRowsLength = membersCount(targetTuples, measures);
         var measuresLength = measures.length || 1;
 
         for (rowIdx = 0; rowIdx < rowsLength; rowIdx++) {
@@ -1942,7 +2086,7 @@
 
         var queue = tuples.slice();
         var current = queue.shift();
-        var idx, length, result = 1;
+        var result = 1;
 
         while (current) {
             if (current.members) {
@@ -1983,12 +2127,19 @@
             return 0;
         }
 
-        var counter = Math.max(measures.length, 1);
+        var measuresLength = Math.max(measures.length, 1);
         var tuples = tuple.members.slice(0, memberIndex);
+        var counter = measuresLength;
         var current = tuples.shift();
 
+        if (measuresLength > 1) {
+            measuresLength += 1;
+        }
+
         while (current) {
-            if (current.children) {
+            if (current.name === MEASURES) {
+                counter += measuresLength;
+            } else if (current.children) {
                 //is member
                 [].push.apply(tuples, current.children);
             } else {
@@ -2060,7 +2211,6 @@
     function equalTuples(first, second) {
         var equal = true;
         var idx, length;
-        var name;
 
         first = first.members;
         second = second.members;
@@ -2183,7 +2333,7 @@
             return;
         }
         var member = {
-            name: "Measures",
+            name: MEASURES,
             measure: true,
             children: [
                 $.extend({ members: [], dataIndex: tuple.dataIndex }, tuple.members[index])
@@ -2250,7 +2400,7 @@
         return result;
     }
 
-    function prepareDataOnColumns(tuples, data, rootAdded) {
+    function prepareDataOnColumns(tuples, data) {
         if (!tuples || !tuples.length) {
             return data;
         }
@@ -2372,24 +2522,12 @@
 
     function crossJoinCommand(members, measures) {
         var tmp = members.slice(0);
-        var names;
 
         if (measures.length > 1) {
             tmp.push("{" + measureNames(measures).join(",") + "}");
         }
+
         return crossJoin(tmp);
-    }
-
-    function expandedMembers(members) {
-        var result = [];
-
-        for (var idx = 0; idx < members.length; idx++) {
-            if (members[idx].expand) {
-                result.push(members[idx]);
-            }
-        }
-
-        return result;
     }
 
     function measureNames(measures) {
@@ -2452,7 +2590,11 @@
             }
         }
 
-        return rootNames;
+        return {
+            names: rootNames,
+            expandedIdx: j,
+            uniquePath: rootNames.slice(0, j + 1).join("")
+        };
     }
 
     function parseDescriptors(members) {
@@ -2533,7 +2675,7 @@
 
             for (; idx < length; idx++) {
                 memberName = expandMemberDescriptor(expanded[idx].name, sort);
-                names = mapNames(memberName, rootNames);
+                names = mapNames(memberName, rootNames).names;
 
                 crossJoinCommands.push(crossJoinCommand(names, measures));
             }
@@ -2635,7 +2777,7 @@
     };
 
     var convertersMap = {
-        read: function(options, type) {
+        read: function(options) {
             var command = '<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Header/><Body><Execute xmlns="urn:schemas-microsoft-com:xml-analysis"><Command><Statement>';
 
             command += "SELECT NON EMPTY {";
@@ -2693,7 +2835,7 @@
             command += '</Statement></Command><Properties><PropertyList><Catalog>' + options.connection.catalog + '</Catalog><Format>Multidimensional</Format></PropertyList></Properties></Execute></Body></Envelope>';
             return command.replace(/\&/g, "&amp;");
         },
-        discover: function(options, type) {
+        discover: function(options) {
             options = options || {};
 
             var command = '<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Header/><Body><Discover xmlns="urn:schemas-microsoft-com:xml-analysis">';
@@ -3193,7 +3335,6 @@
         add: function(name) {
             var items = this.dataSource[this.options.setting]();
             var i, l;
-            var idx;
 
             name = $.isArray(name) ? name.slice(0) : [name];
 
@@ -3350,6 +3491,8 @@
                     var request = metadata.expanded === undefined;
 
                     eventName = expanded ? COLLAPSEMEMBER : EXPANDMEMBER;
+                    eventArgs.childrenLoaded = metadata.maxChildren > metadata.children;
+
                     if (that.trigger(eventName, eventArgs)) {
                         return;
                     }
@@ -3478,6 +3621,12 @@
             Widget.fn.setOptions.call(this, options);
 
             this._templates();
+        },
+
+        destroy: function() {
+            Widget.fn.destroy.call(this);
+
+            clearTimeout(this._headerReflowTimeout);
         },
 
         _dataSource: function() {
@@ -3638,15 +3787,29 @@
         },
 
         _resize: function() {
-            var columnTable = this.columnsHeader.children("table");
-            var contentTable = this.content.children("table");
-
             if (this.content[0].firstChild) {
                 this._setSectionsWidth();
                 this._setSectionsHeight();
                 this._setContentWidth();
                 this._setContentHeight();
+                this._columnHeaderReflow();
             }
+        },
+
+        _columnHeaderReflow: function() {
+            var columnTable = this.columnsHeader.children("table");
+
+            if (!kendo.support.browser.mozilla) {
+                return;
+            }
+
+            clearTimeout(this._headerReflowTimeout);
+
+            columnTable.css("table-layout", "auto");
+
+            this._headerReflowTimeout = setTimeout(function() {
+                columnTable.css("table-layout", "");
+            });
         },
 
         _setSectionsWidth: function() {
@@ -3865,7 +4028,6 @@
 
     var element = kendo.dom.element;
     var htmlNode = kendo.dom.html;
-    var text = kendo.dom.text;
 
     var createMetadata = function(levelNum, memberIdx) {
        return {
@@ -3902,7 +4064,7 @@
     };
 
     var ColumnBuilder = Class.extend({
-        init: function(options) {
+        init: function() {
             this.measures = 1;
             this.metadata = {};
         },
@@ -4125,6 +4287,7 @@
             metadata = this.metadata[path];
             if (!metadata) {
                 this.metadata[path] = metadata = createMetadata(Number(member.levelNum), memberIdx);
+                metadata.rootLevelNum = Number(this.rootTuple.members[memberIdx].levelNum);
             }
 
             this._indexes.push({
@@ -4226,7 +4389,7 @@
     });
 
     var RowBuilder = Class.extend({
-        init: function(options) {
+        init: function() {
             this.metadata = {};
         },
 
@@ -4312,8 +4475,8 @@
                     maxcolSpan = this[members[memberIdx].name];
                     cell = row.colSpan["dim" + memberIdx];
 
-                    if (cell && cell.levelNum < maxcolSpan) {
-                        cell.attr.colSpan = (maxcolSpan - cell.levelNum) + 1;
+                    if (cell && cell.colSpan < maxcolSpan) {
+                        cell.attr.colSpan = (maxcolSpan - cell.colSpan) + 1;
                     }
                 }
             }
@@ -4364,21 +4527,20 @@
             var children = member.children;
             var childrenLength = children.length;
 
-            var levelNum = Number(member.levelNum) + 1;
+            var levelNum = Number(member.levelNum);
             var rootName = this.rootTuple.members[memberIdx].name;
             var tuplePath = buildPath(tuple, memberIdx - 1).join("");
-
-            var parentName = tuplePath + (member.parentName || "");
+            var rootLevelNum = Number(this.rootTuple.members[memberIdx].levelNum);
+            var parentName = tuplePath + (rootLevelNum === levelNum ? "" : (member.parentName || ""));
             var row = map[parentName + "all"] || map[parentName];
-            var childRow;
-            var allRow;
+            var colSpan = levelNum + 1;
 
+            var cell, allCell;
+            var childRow, allRow;
             var metadata;
             var className;
-            var expandIconAttr;
             var cellChildren = [];
-            var allCell;
-            var cell;
+            var expandIconAttr;
             var idx;
 
             if (!row || row.hasChild) {
@@ -4406,7 +4568,8 @@
 
             metadata = this.metadata[path];
             if (!metadata) {
-                this.metadata[path] = metadata = createMetadata(levelNum - 1, memberIdx);
+                this.metadata[path] = metadata = createMetadata(levelNum, memberIdx);
+                metadata.rootLevelNum = rootLevelNum;
             }
 
             this._indexes.push({
@@ -4430,13 +4593,13 @@
 
             className = row.allCell && !childrenLength ? "k-grid-footer" : "";
             cell = this._cell(className, cellChildren, member);
-            cell.levelNum = levelNum;
+            cell.colSpan = colSpan;
 
             row.children.push(cell);
             row.colSpan["dim" + memberIdx] = cell;
 
-            if (!this[rootName] || this[rootName] < levelNum) {
-                this[rootName] = levelNum;
+            if (!this[rootName] || this[rootName] < colSpan) {
+                this[rootName] = colSpan;
             }
 
             if (childrenLength) {
@@ -4458,7 +4621,7 @@
                 metadata.children = row.rowSpan;
 
                 allCell = this._cell("k-grid-footer", [this._content(member, tuple)], member);
-                allCell.levelNum = levelNum;
+                allCell.colSpan = colSpan;
 
                 allRow = this._row([ allCell ]);
                 allRow.colSpan["dim" + memberIdx] = allCell;
@@ -4571,6 +4734,7 @@
             var idx = 0;
             var length = indexes.length;
             var measureIdx;
+            var index;
 
             var children;
             var skipChildren;
@@ -4601,12 +4765,17 @@
                     skipChildren = current.maxChildren;
                 }
 
-                if (current.parentMember && current.levelNum === 0) {
+                if (current.parentMember && current.levelNum === current.rootLevelNum) {
                     children = -1;
                 }
 
                 if (children > -1) {
                     for (measureIdx = 0; measureIdx < measuresLength; measureIdx++) {
+                        index = children + measureIdx;
+                        if (!current.children) {
+                            index += firstEmpty;
+                        }
+
                         result[children + firstEmpty + measureIdx] = {
                             children: children,
                             index: dataIdx,
@@ -4909,11 +5078,17 @@
         PivotGrid.fn._drawPDF = function() {
             return this._drawPDFShadow({
                 width: this.wrapper.width()
+            }, {
+                avoidLinks: this.options.pdf.avoidLinks
             });
         };
     }
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

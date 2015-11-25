@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.core", "./kendo.draganddrop" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -39,8 +43,7 @@
                 .html(target.attr(kendo.attr("title")) || target.attr(kendo.attr("field")))
                 .prepend('<span class="k-icon k-drag-status k-denied" />');
         },
-        dropCue = $('<div class="k-grouping-dropclue"/>'),
-        nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g;
+        dropCue = $('<div class="k-grouping-dropclue"/>');
 
     function dropCueOffsetTop(element) {
         return element.position().top + 3;
@@ -49,7 +52,6 @@
     var Groupable = Widget.extend({
         init: function(element, options) {
             var that = this,
-                groupContainer,
                 group = kendo.guid(),
                 intializePositions = proxy(that._intializePositions, that),
                 draggable,
@@ -391,6 +393,10 @@
     kendo.ui.plugin(Groupable);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

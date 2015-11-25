@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.popup" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -1250,6 +1254,7 @@
                 if (that._triggerEvent({ item: that.element, type: OPEN }) === false) {
                     if (that.popup.visible() && that.options.filter) {
                         that.popup.close(true);
+                        that.popup.element.kendoStop(true);
                     }
 
                     if (y !== undefined) {
@@ -1257,6 +1262,7 @@
                         that.popup.open(x, y);
                     } else {
                         that.popup.options.anchor = (x ? x : that.popup.anchor) || that.target;
+                        that.popup.element.kendoStop(true);
                         that.popup.open();
                     }
 
@@ -1309,6 +1315,7 @@
 
             if ((options.filter && kendo.support.matchesSelector.call(ev.currentTarget, options.filter)) || !options.filter) {
                 if (options.alignToAnchor) {
+                    that.popup.options.anchor = ev.currentTarget;
                     that.open(ev.currentTarget);
                 } else {
                     that.popup.options.anchor = ev.currentTarget;
@@ -1325,7 +1332,6 @@
 
         _closeHandler: function (e) {
             var that = this,
-				options = that.options,
                 target = $(e.relatedTarget || e.target),
 				sameTarget = target.closest(that.target.selector)[0] == that.target[0],
                 children = target.closest(itemSelector).children(popupSelector),
@@ -1407,6 +1413,10 @@
     ui.plugin(ContextMenu);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

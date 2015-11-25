@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.mobile.popover", "./kendo.mobile.shim" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -67,7 +71,8 @@
             that.shim = new ShimClass(that.wrapper, $.extend({modal: os.ios && os.majorVersion < 7, className: "km-actionsheet-root"}, that.options.popup) );
 
             that._closeProxy = $.proxy(that, "_close");
-            that.shim.bind("hide", that._closeProxy);
+            that._shimHideProxy = $.proxy(that, "_shimHide");
+            that.shim.bind("hide", that._shimHideProxy);
 
             if (tablet) {
                 kendo.onResize(that._closeProxy);
@@ -143,6 +148,14 @@
             this._close();
         },
 
+        _shimHide: function(e) {
+            if (!this.trigger(CLOSE)) {
+                this.context = this.target = null;
+            } else {
+                e.preventDefault();
+            }
+        },
+
         _close: function(e) {
             if (!this.trigger(CLOSE)) {
                 this.close();
@@ -154,6 +167,10 @@
 
     ui.plugin(ActionSheet);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

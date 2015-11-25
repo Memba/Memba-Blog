@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dataviz.core" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($) {
 
@@ -3806,6 +3810,217 @@
         });
     })();
 
+        (function () {
+        var TEXT = "#32364c";
+        var INACTIVE = "#7f7f7f";
+        var INACTIVE_SHAPE = "#bdbdbd";
+        var AXIS = "#dfe0e1";
+        var AXIS_MINOR = "#dfe0e1";
+        var SERIES = ["#ff4350", "#ff9ea5", "#00acc1", "#80deea", "#ffbf46", "#ffd78c"];
+        var SERIES_LIGHT = ["#ffd9dc", "#ffeced", "#cceef3", "#e6f8fb", "#fff2da", "#fff7e8"];
+        var PRIMARY = SERIES[0];
+        var DIAGRAM_HOVER = WHITE;
+
+        function noteStyle() {
+            return {
+                icon: {
+                    background: "#007cc0",
+                    border: {
+                        color: "#007cc0"
+                    }
+                },
+                label: {
+                    color: "#ffffff"
+                },
+                line: {
+                    color: AXIS
+                }
+            };
+        }
+
+        registerTheme("nova", {
+            chart: {
+                title: {
+                    color: TEXT
+                },
+                legend: {
+                    labels: {
+                        color: TEXT
+                    },
+                    inactiveItems: {
+                        labels: {
+                            color: INACTIVE
+                        },
+                        markers: {
+                            color: INACTIVE
+                        }
+                    }
+                },
+                seriesDefaults: {
+                    labels: {
+                        color: TEXT
+                    },
+                    errorBars: {
+                        color: TEXT
+                    },
+                    notes: noteStyle(),
+                    candlestick: {
+                        downColor: AXIS,
+                        line: {
+                            color: INACTIVE_SHAPE
+                        }
+                    },
+                    area: {
+                        opacity: 0.8
+                    },
+                    waterfall: {
+                        line: {
+                            color: AXIS
+                        }
+                    },
+                    horizontalWaterfall: {
+                        line: {
+                            color: AXIS
+                        }
+                    },
+                    overlay: {
+                        gradient: "none"
+                    },
+                    border: {
+                        _brightness: 1
+                    }
+                },
+                seriesColors: SERIES,
+                axisDefaults: {
+                    line: {
+                        color: AXIS
+                    },
+                    labels: {
+                        color: TEXT
+                    },
+                    minorGridLines: {
+                        color: AXIS_MINOR
+                    },
+                    majorGridLines: {
+                        color: AXIS
+                    },
+                    title: {
+                        color: TEXT
+                    },
+                    crosshair: {
+                        color: TEXT
+                    },
+                    notes: noteStyle()
+                }
+            },
+            gauge: {
+                pointer: {
+                    color: PRIMARY
+                },
+                scale: {
+                    rangePlaceholderColor: AXIS,
+                    labels: {
+                        color: TEXT
+                    },
+                    minorTicks: {
+                        color: TEXT
+                    },
+                    majorTicks: {
+                        color: TEXT
+                    },
+                    line: {
+                        color: TEXT
+                    }
+                }
+            },
+            diagram: {
+                shapeDefaults: {
+                    fill: {
+                        color: PRIMARY
+                    },
+                    connectorDefaults: {
+                        fill: {
+                            color: TEXT
+                        },
+                        stroke: {
+                            color: DIAGRAM_HOVER
+                        },
+                        hover: {
+                            fill: {
+                                color: DIAGRAM_HOVER
+                            },
+                            stroke: {
+                                color: TEXT
+                            }
+                        }
+                    },
+                    content: {
+                        color: TEXT
+                    }
+                },
+                editable: {
+                    resize: {
+                        handles: {
+                            fill: {
+                                color: DIAGRAM_HOVER
+                            },
+                            stroke: {
+                                color: INACTIVE_SHAPE
+                            },
+                            hover: {
+                                fill: {
+                                    color: INACTIVE_SHAPE
+                                },
+                                stroke: {
+                                    color: INACTIVE_SHAPE
+                                }
+                            }
+                        }
+                    },
+                    rotate: {
+                        thumb: {
+                            stroke: {
+                                color: INACTIVE_SHAPE
+                            },
+                            fill: {
+                                color: INACTIVE_SHAPE
+                            }
+                        }
+                    }
+                },
+                selectable: {
+                    stroke: {
+                        color: INACTIVE_SHAPE
+                    }
+                },
+                connectionDefaults: {
+                    stroke: {
+                        color: INACTIVE_SHAPE
+                    },
+                    content: {
+                        color: INACTIVE_SHAPE
+                    },
+                    selection: {
+                        handles: {
+                            fill: {
+                                color: DIAGRAM_HOVER
+                            },
+                            stroke: {
+                                color: INACTIVE_SHAPE
+                            }
+                        },
+                        stroke: {
+                            color: INACTIVE_SHAPE
+                        }
+                    }
+                }
+            },
+            treeMap: {
+                colors: fuse(SERIES, SERIES_LIGHT)
+            }
+        });
+    })();
+
     function fuse(arr1, arr2) {
         return $.map(arr1, function(item, index) {
             return [
@@ -3815,6 +4030,10 @@
     }
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

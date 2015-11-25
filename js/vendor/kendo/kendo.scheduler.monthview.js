@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,13 +10,16 @@
     define([ "./kendo.scheduler.view" ], f);
 })(function(){
 
+(function(){
+
+
+
 (function($){
     var kendo = window.kendo,
         ui = kendo.ui,
         SchedulerView = ui.SchedulerView,
         NS = ".kendoMonthView",
         extend = $.extend,
-        proxy = $.proxy,
         getDate = kendo.date.getDate,
         MS_PER_DAY = kendo.date.MS_PER_DAY,
         NUMBER_OF_ROWS = 6,
@@ -280,9 +283,15 @@
 
         _touchEditable: function() {
             var that = this;
+            var threshold = 0;
+
+            if (kendo.support.mobileOS.android) {
+                threshold = 5;
+            }
 
             if (that.options.editable.create !== false) {
                 that._addUserEvents = new kendo.UserEvents(that.element, {
+                    threshold: threshold,
                     filter: ".k-scheduler-monthview .k-scheduler-content td",
                     tap: function(e) {
                         var offset = $(e.target).offset();
@@ -300,6 +309,7 @@
 
             if (that.options.editable.update !== false) {
                 that._editUserEvents = new kendo.UserEvents(that.element, {
+                    threshold: threshold,
                     filter:  ".k-scheduler-monthview .k-event",
                     tap: function(e) {
                         if ($(e.event.target).closest("a:has(.k-si-close)").length === 0) {
@@ -714,6 +724,7 @@
             }
 
             var tableRows = this.content[0].getElementsByTagName("tr");
+            var startDate = this.startDate();
 
             for (var groupIndex = 0; groupIndex < groupCount; groupIndex++) {
                 var cellCount = 0;
@@ -725,7 +736,7 @@
 
                 for (var rowIndex = rowMultiplier*rowCount; rowIndex < (rowMultiplier+1) *rowCount; rowIndex++) {
                     var group = this.groups[groupIndex];
-                    var collection = group.addDaySlotCollection(kendo.date.addDays(this.startDate(), cellCount), kendo.date.addDays(this.startDate(), cellCount + columnCount));
+                    var collection = group.addDaySlotCollection(kendo.date.addDays(startDate, cellCount), kendo.date.addDays(this.startDate(), cellCount + columnCount));
 
                     var tableRow = tableRows[rowIndex];
                     var cells = tableRow.children;
@@ -744,7 +755,15 @@
 
                         var firstChildHeight = cell.children.length ? cell.children[0].offsetHeight + 3 : 0;
 
-                        var start = kendo.date.toUtcTime(kendo.date.addDays(this.startDate(), cellCount));
+                        var start = kendo.date.addDays(startDate, cellCount);
+                        var end = kendo.date.MS_PER_DAY;
+
+                        if (startDate.getHours() !== start.getHours()) {
+                            end += (startDate.getHours() - start.getHours()) * kendo.date.MS_PER_HOUR;
+                        }
+
+                        start = kendo.date.toUtcTime(start);
+                        end += start;
 
                         cellCount ++;
 
@@ -753,7 +772,7 @@
                         cell.setAttribute("role", "gridcell");
                         cell.setAttribute("aria-selected", false);
 
-                        collection.addDaySlot(cell, start, start + kendo.date.MS_PER_DAY, eventCount);
+                        collection.addDaySlot(cell, start, end, eventCount);
                     }
                 }
             }
@@ -931,6 +950,10 @@
         return msValue >= msMin && msValue <= msMax;
     }
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

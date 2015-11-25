@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.dropdownlist", "./kendo.binder" ], f);
 })(function(){
+
+(function(){
+
+
 
 /* jshint eqnull: true */
 (function($, undefined) {
@@ -255,7 +259,7 @@
 
             that.link = link || $();
 
-            that.dataSource = options.dataSource;
+            that.dataSource = DataSource.create(options.dataSource);
 
             that.field = options.field || element.attr(kendo.attr("field"));
 
@@ -521,20 +525,22 @@
             return found;
         },
 
+        _stripFilters: function(filters) {
+           return $.grep(filters, function(filter) {
+                return filter.value !== "" && filter.value != null;
+            });
+        },
+
         _merge: function(expression) {
             var that = this,
                 logic = expression.logic || "and",
-                filters = expression.filters,
+                filters = this._stripFilters(expression.filters),
                 filter,
                 result = that.dataSource.filter() || { filters:[], logic: "and" },
                 idx,
                 length;
 
             removeFiltersForField(result, that.field);
-
-            filters = $.grep(filters, function(filter) {
-                return filter.value !== "" && filter.value != null;
-            });
 
             for (idx = 0, length = filters.length; idx < length; idx++) {
                 filter = filters[idx];
@@ -777,7 +783,10 @@
             this.element = $(element);
             var field = this.field = this.options.field || this.element.attr(kendo.attr("field"));
             var checkSource = options.checkSource;
-            if (options.forceUnique) {
+            if (this._foreignKeyValues()) {
+                this.checkSource = DataSource.create(options.values);
+                this.checkSource.fetch();
+            } else if (options.forceUnique) {
                 checkSource = options.dataSource.options;
                 delete checkSource.pageSize;
 
@@ -837,7 +846,9 @@
 
             this._createForm();
 
-            if (forceUnique && !this.checkSource.options.serverPaging && this.dataSource.data().length) {
+            if (this._foreignKeyValues()) {
+                this.refresh();
+            } else if (forceUnique && !this.checkSource.options.serverPaging && this.dataSource.data().length) {
                 this.checkSource.data(distinct(this.dataSource.data(),this.field));
                 this.refresh();
             } else {
@@ -941,7 +952,8 @@
 
             if (this.form) {
                 if (e && forceUnique && e.sender === dataSource && !dataSource.options.serverPaging &&
-                     (e.action == "itemchange" || e.action == "add" || e.action == "remove")) {
+                     (e.action == "itemchange" || e.action == "add" || e.action == "remove" || (dataSource.options.autoSync && e.action === "sync")) &&
+                         !this._foreignKeyValues()) {
                     this.checkSource.data(distinct(this.dataSource.data(),this.field));
                     this.container.empty();
                 }
@@ -971,8 +983,8 @@
 
             if (!this.options.forceUnique) {
                 data = this.checkSource.view();
-            } else if (options.values) {
-                data = options.values;
+            } else if (this._foreignKeyValues()) {
+                data = this.checkSource.data();
                 templateOptions.valueField = "value";
                 templateOptions.field = "text";
             } else {
@@ -1014,6 +1026,7 @@
             })).prop("checked", true);
             this.updateCheckAllState();
         },
+
         _filter: function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -1031,6 +1044,17 @@
             }
 
             this._closeForm();
+        },
+
+        _stripFilters: function(filters) {
+           return $.grep(filters, function(filter) {
+                return filter.value != null;
+            });
+        },
+
+        _foreignKeyValues: function() {
+            var options = this.options;
+            return options.values && !options.checkSource;
         },
 
         destroy: function() {
@@ -1137,6 +1161,10 @@
     ui.plugin(FilterMenu);
     ui.plugin(FilterMultiCheck);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

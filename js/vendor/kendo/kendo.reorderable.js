@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.core", "./kendo.draganddrop" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -40,6 +44,7 @@
 
             that.draggable = draggable = options.draggable || new kendo.ui.Draggable(element, {
                 group: group,
+                autoScroll: true,
                 filter: options.filter,
                 hint: options.hint
             });
@@ -94,7 +99,6 @@
                     }
                     var dropTarget = this.element;
                     var draggable = that._draggable;
-                    var containerChange = false;
 
                     if (that._dropTargetAllowed(dropTarget) && !that._isLastDraggable()) {
                         that.trigger(CHANGE, {
@@ -227,6 +231,10 @@
     kendo.ui.plugin(Reorderable);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

@@ -99,20 +99,6 @@
     padding-right:.6em;
 }
 
-.k-ie7 .k-scheduler-toolbar .k-nav-prev .k-link,
-.k-ie7 .k-scheduler-toolbar .k-nav-next .k-link
-{
-    height: 2.3em;
-    margin-top: -1px;
-    vertical-align: middle;
-}
-
-.k-ie7 .k-scheduler-toolbar .k-nav-prev .k-link .k-icon,
-.k-ie7 .k-scheduler-toolbar .k-nav-next .k-link .k-icon
-{
-    margin-top: .5em;
-}
-
 .k-scheduler-toolbar .k-nav-current .k-link
 {
     padding:0;
@@ -200,11 +186,6 @@
     width:100%;
     margin:0;
     border-collapse:separate;
-}
-
-.k-ie7 .k-scheduler-content .k-scheduler-table
-{
-    width: auto;
 }
 
 .k-scheduler-layout > tbody > tr > td
@@ -1068,7 +1049,7 @@ div[name="recurrenceRule"] > .k-dropdown
     .k-ff,
     .k-ie11,
     .k-safari {
-        .k-scheduler-toolbar li.k-nav-current .k-sm-date-format
+        .k-scheduler:not(.k-scheduler-mobile) .k-scheduler-toolbar li.k-nav-current .k-sm-date-format
         {
             display: none;
         }

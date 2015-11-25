@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.data", "./kendo.editable", "./kendo.selectable" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -24,7 +28,6 @@
         FOCUSED = "k-state-focused",
         SELECTED = "k-state-selected",
         KEDITITEM = "k-edit-item",
-        STRING = "string",
         EDIT = "edit",
         REMOVE = "remove",
         SAVE = "save",
@@ -513,48 +516,40 @@
            return this.dataSource.getByUid(uid);
        },
 
-       _closeEditable: function(validate) {
+       _closeEditable: function() {
            var that = this,
                editable = that.editable,
                data,
                item,
                index,
-               template = that.template,
-               valid = true;
+               template = that.template;
 
            if (editable) {
-               if (validate) {
-                   valid = editable.end();
+               if (editable.element.index() % 2) {
+                   template = that.altTemplate;
                }
 
-               if (valid) {
-                   if (editable.element.index() % 2) {
-                       template = that.altTemplate;
-                   }
+               that.angular("cleanup", function() {
+                   return { elements: [ editable.element ]};
+               });
 
-                   that.angular("cleanup", function() {
-                       return { elements: [ editable.element ]};
-                   });
+               data = that._modelFromElement(editable.element);
+               that._destroyEditable();
 
-                   data = that._modelFromElement(editable.element);
-                   that._destroyEditable();
+               index = editable.element.index();
+               editable.element.replaceWith(template(data));
+               item = that.items().eq(index);
+               item.attr(kendo.attr("uid"), data.uid);
 
-                   index = editable.element.index();
-                   editable.element.replaceWith(template(data));
-                   item = that.items().eq(index);
-                   item.attr(kendo.attr("uid"), data.uid);
-
-                   if (that._hasBindingTarget()) {
-                        kendo.bind(item, data);
-                   }
-
-                   that.angular("compile", function() {
-                       return { elements: [ item ], data: [ { dataItem: data } ]};
-                   });
+               if (that._hasBindingTarget()) {
+                   kendo.bind(item, data);
                }
+
+               that.angular("compile", function() {
+                   return { elements: [ item ], data: [ { dataItem: data } ]};
+               });
            }
-
-           return valid;
+           return true;
        },
 
        edit: function(item) {
@@ -589,10 +584,11 @@
                return;
            }
 
-           editable = editable.element;
-           model = that._modelFromElement(editable);
+           var container = editable.element;
+           model = that._modelFromElement(container);
 
-           if (!that.trigger(SAVE, { model: model, item: editable }) && that._closeEditable(true)) {
+           if (editable.end() && !that.trigger(SAVE, { model: model, item: container }))  {
+               that._closeEditable();
                that.dataSource.sync();
            }
        },
@@ -604,7 +600,7 @@
 
            if (that.editable) {
                dataSource.cancelChanges(that._modelFromElement(that.editable.element));
-               that._closeEditable(false);
+               that._closeEditable();
            }
 
            if (!that.trigger(REMOVE, { model: data, item: item })) {
@@ -616,6 +612,7 @@
 
        add: function() {
            var that = this,
+               dataItem,
                dataSource = that.dataSource,
                index = dataSource.indexOf((dataSource.view() || [])[0]);
 
@@ -624,8 +621,8 @@
            }
 
            that.cancel();
-           dataSource.insert(index, {});
-           that.edit(that.element.children().first());
+           dataItem = dataSource.insert(index, {});
+           that.edit(that.element.find("[data-uid='" + dataItem.uid + "']"));
        },
 
        cancel: function() {
@@ -638,7 +635,7 @@
 
                if (!that.trigger(CANCEL, { model: model, container: container})) {
                    dataSource.cancelChanges(model);
-                   that._closeEditable(false);
+                   that._closeEditable();
                }
            }
        },
@@ -691,6 +688,10 @@
 
     kendo.ui.plugin(ListView);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

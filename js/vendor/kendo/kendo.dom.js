@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,6 +10,10 @@
     define([ "./kendo.core" ], f);
 })(function(){
 
+(function(){
+
+
+
 (function(kendo) {
     function Node() {
         this.node = null;
@@ -18,8 +22,12 @@
     Node.prototype = {
         remove: function() {
             this.node.parentNode.removeChild(this.node);
+            this.attr = {};
         },
-        attr: {}
+        attr: {},
+        text: function() {
+            return "";
+        }
     };
 
     function NullNode() {
@@ -173,7 +181,7 @@
         }
     };
 
-    Element.prototype.setAttribute = function(name, value, cachedValue) {
+    Element.prototype.setAttribute = function(name, value) {
         var node = this.node;
 
         if (node[name] !== undefined) {
@@ -181,6 +189,14 @@
         } else {
             node.setAttribute(name, value);
         }
+    };
+
+    Element.prototype.text = function() {
+        var str = "";
+        for (var i = 0; i < this.children.length; ++i) {
+            str += this.children[i].text();
+        }
+        return str;
     };
 
     function TextNode(nodeValue) {
@@ -211,6 +227,10 @@
         this.node = node;
     };
 
+    TextNode.prototype.text = function() {
+        return this.nodeValue;
+    };
+
     function HtmlNode(html) {
         this.html = html;
     }
@@ -229,7 +249,7 @@
 
                var lastChild = parent.lastChild;
 
-               parent.insertAdjacentHTML("beforeend", this.html);
+               insertHtml(parent, this.html);
 
                this.nodes = [];
 
@@ -241,6 +261,16 @@
            }
        }
     };
+
+    var HTML_CONTAINER = document.createElement("div");
+
+    function insertHtml(node, html) {
+        HTML_CONTAINER.innerHTML = html;
+
+        while (HTML_CONTAINER.firstChild) {
+            node.appendChild(HTML_CONTAINER.firstChild);
+        }
+    }
 
     function html(value) {
         return new HtmlNode(value);
@@ -286,9 +316,14 @@
         html: html,
         text: text,
         element: element,
-        Tree: Tree
+        Tree: Tree,
+        Node: Node
     };
 })(window.kendo);
+
+
+
+})();
 
 return window.kendo;
 

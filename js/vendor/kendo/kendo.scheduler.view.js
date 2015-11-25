@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.core" ], f);
 })(function(){
+
+(function(){
+
+
 
 /* jshint eqnull: true */
 (function($) {
@@ -180,10 +184,11 @@
     kendo.ui.scheduler = {};
 
     var ResourceView = kendo.Class.extend({
-        init: function(index) {
+        init: function(index, isRtl) {
             this._index = index;
             this._timeSlotCollections = [];
             this._daySlotCollections = [];
+            this._isRtl = isRtl;
         },
 
         addTimeSlotCollection: function(startDate, endDate) {
@@ -219,23 +224,33 @@
         },
 
         _slotByPosition: function(x, y, collections) {
-           var browser = kendo.support.browser;
-
            for (var collectionIndex = 0; collectionIndex < collections.length; collectionIndex++) {
                var collection = collections[collectionIndex];
 
                for (var slotIndex = 0; slotIndex < collection.count(); slotIndex++) {
                    var slot = collection.at(slotIndex);
                    var width = slot.offsetWidth;
-                   var height = slot.clientHeight;
+                   var height = slot.offsetHeight;
 
-                   if (browser.msie) {
-                       height = slot.clientHeight - 1; //border
-                       width = slot.clientWidth;
+                   var horizontalEnd = slot.offsetLeft + width;
+                   var verticalEnd =  slot.offsetTop + height;
+
+                   var nextSlot =  collection.at(slotIndex+1);
+
+                   if (nextSlot) {
+                       if (nextSlot.offsetLeft != slot.offsetLeft) {
+                           if (this._isRtl) {
+                               horizontalEnd = slot.offsetLeft + (slot.offsetLeft - nextSlot.offsetLeft);
+                           } else {
+                               horizontalEnd = nextSlot.offsetLeft;
+                           }
+                       } else {
+                           verticalEnd = nextSlot.offsetTop;
+                       }
                    }
 
-                   if (x >= slot.offsetLeft && x < slot.offsetLeft + width &&
-                       y >= slot.offsetTop && y <= slot.offsetTop + height) {
+                   if (x >= slot.offsetLeft && x < horizontalEnd &&
+                       y >= slot.offsetTop && y < verticalEnd) {
                        return slot;
                    }
                }
@@ -873,6 +888,7 @@
             this.offsetHeight = element.offsetHeight;
             this.offsetTop = element.offsetTop;
             this.offsetLeft = element.offsetLeft;
+
             this.start = start;
             this.end = end;
             this.element = element;
@@ -915,6 +931,7 @@
         },
 
         refresh: function() {
+
             var element = this.element;
 
             this.clientWidth = element.clientWidth;
@@ -1070,7 +1087,7 @@
         },
 
         _addResourceView: function() {
-            var resourceView = new ResourceView(this.groups.length);
+            var resourceView = new ResourceView(this.groups.length, this._isRtl);
 
             this.groups.push(resourceView);
 
@@ -1900,11 +1917,11 @@
             }
         },
 
-        _eventOptionsForMove: function (event) {
+        _eventOptionsForMove: function () {
             return {};
         },
 
-        _updateEventForResize: function (event) {
+        _updateEventForResize: function () {
             return;
         },
 
@@ -2176,6 +2193,10 @@
     });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

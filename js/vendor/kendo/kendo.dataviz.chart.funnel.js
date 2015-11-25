@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dataviz.chart", "./kendo.drawing" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
 
@@ -377,8 +381,35 @@
         },
 
         createVisual: function() {
+            var segment = this;
+            var options = segment.options;
+            var visual;
+
             ChartElement.fn.createVisual.call(this);
 
+            if (options.visual) {
+                visual = options.visual({
+                    category: segment.category,
+                    dataItem: segment.dataItem,
+                    value: segment.value,
+                    series: segment.series,
+                    percentage: segment.percentage,
+                    points: segment.points,
+                    options: options,
+                    createVisual: function() {
+                        return segment.createPath();
+                    }
+                });
+            } else {
+                visual = segment.createPath();
+            }
+
+            if (visual)  {
+                this.visual.append(visual);
+            }
+        },
+
+        createPath: function() {
             var options = this.options;
             var border = options.border;
             var path = draw.Path.fromPoints(this.points, {
@@ -393,7 +424,7 @@
                 }
             }).close();
 
-            this.visual.append(path);
+            return path;
         },
 
         createHighlight: function(style) {
@@ -459,6 +490,10 @@
     });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

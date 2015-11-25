@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.list", "./kendo.mobile.scroller" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -28,9 +32,6 @@
         CHANGE = "change",
         PROGRESS = "progress",
         SELECT = "select",
-        NEXT = "nextSibling",
-        PREV = "previousSibling",
-        HIDE = ' style="display:none"',
         ARIA_DISABLED = "aria-disabled",
         ARIA_READONLY = "aria-readonly",
         FOCUSEDCLASS = "k-state-focused",
@@ -125,9 +126,9 @@
             }
 
             if ($.isPlainObject(data[0]) || data[0] instanceof kendo.data.ObservableObject || !that.options.dataValueField) {
-                that._retrieveData = true;
                 that.dataSource.data(data);
                 that.value(value || that._initialValues);
+                that._retrieveData = true;
             }
         },
 
@@ -149,6 +150,7 @@
             placeholder: "",
             height: 200,
             animation: {},
+            virtual: false,
             itemTemplate: "",
             tagTemplate: "",
             groupTemplate: "#:data#",
@@ -283,6 +285,8 @@
             } else {
                 that.listView = new kendo.ui.VirtualList(that.ul, listOptions);
             }
+
+            that.listView.bind("click", function(e) { e.preventDefault(); });
 
             that.listView.value(that._initialValues || that.options.value);
         },
@@ -445,6 +449,14 @@
             }
         },
 
+        _filterSource: function(filter, force) {
+            if(!force) {
+                force = this._retrieveData;
+            }
+            this._retrieveData = false;
+            List.fn._filterSource.call(this, filter, force);
+        },
+
         close: function() {
             this.popup.close();
         },
@@ -459,7 +471,6 @@
             if (that._retrieveData || !that.listView.isBound() || that._state === ACCEPT) {
                 that._open = true;
                 that._state = REBIND;
-                that._retrieveData = false;
 
                 that.listView.filter(false);
                 that.listView.skipUpdate(true);
@@ -481,7 +492,7 @@
             this.listView.refresh();
         },
 
-        _listBound: function(e) {
+        _listBound: function() {
             var that = this;
             var data = that.dataSource.flatView();
             var page = that.dataSource.page();
@@ -501,7 +512,7 @@
             that.popup.position();
 
             if (that.options.highlightFirst && (page === undefined || page === 1)) {
-                that.listView.first();
+                that.listView.focusFirst();
             }
 
             if (that._touchScroller) {
@@ -546,8 +557,7 @@
                     ignoreCase: ignoreCase
                 };
 
-                that._filterSource(expression, that._retrieveData);
-                that._retrieveData = false;
+                that._filterSource(expression);
             }
         },
 
@@ -555,7 +565,6 @@
             var that = this;
             var oldValue = that.listView.value().slice();
             var maxSelectedItems = that.options.maxSelectedItems;
-            var idx;
 
             if (value === undefined) {
                 return oldValue;
@@ -597,9 +606,10 @@
                 return;
             }
 
-            if (!that._fetch && !hasItems) {
+            if (that._retrieveData || (!that._fetch && !hasItems)) {
                 that._fetch = true;
-                that.dataSource.fetch().done(function() {
+                that._retrieveData = false;
+                that.dataSource.read().done(function() {
                     that._fetch = false;
                 });
             }
@@ -710,23 +720,23 @@
                     that.open();
 
                     if (!current) {
-                        this.listView.first();
+                        this.listView.focusFirst();
                     }
                     return;
                 }
 
                 if (current) {
-                    this.listView.next();
+                    this.listView.focusNext();
                     if (!this.listView.focus()) {
-                        this.listView.last();
+                        this.listView.focusLast();
                     }
                 } else {
-                    this.listView.first();
+                    this.listView.focusFirst();
                 }
             } else if (key === keys.UP) {
                 if (visible) {
                     if (current) {
-                        this.listView.prev();
+                        this.listView.focusPrev();
                     }
 
                     if (!this.listView.focus()) {
@@ -769,7 +779,7 @@
                 that.close();
             } else if (key === keys.HOME) {
                 if (visible) {
-                    this.listView.first();
+                    this.listView.focusFirst();
                 } else if (!hasValue) {
                     tag = that.tagList[0].firstChild;
 
@@ -779,7 +789,7 @@
                 }
             } else if (key === keys.END) {
                 if (visible) {
-                    this.listView.last();
+                    this.listView.focusLast();
                 } else if (!hasValue) {
                     tag = that.tagList[0].lastChild;
 
@@ -1047,6 +1057,14 @@
                         currentTotal: total
                     }));
                 }
+
+                for (idx = removed.length - 1; idx > -1; idx--) {
+                    that._setOption(getter(removed[idx].dataItem), false);
+                }
+
+                for (idx = 0; idx < added.length; idx++) {
+                    that._setOption(getter(added[idx].dataItem), true);
+                }
             }
 
             that._angularTagItems("compile");
@@ -1055,7 +1073,6 @@
 
         _select: function(candidate) {
             var that = this;
-            var idx;
 
             if (that._state === REBIND) {
                 that._state = "";
@@ -1189,6 +1206,10 @@
     ui.plugin(MultiSelect);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

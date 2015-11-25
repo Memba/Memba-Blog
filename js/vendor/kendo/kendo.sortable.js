@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.draganddrop" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -58,7 +62,7 @@
                 that.options.hint = defaultHint;
             }
 
-            that._draggable = that._createDraggable();
+            that.draggable = that._createDraggable();
         },
 
         events: [
@@ -84,11 +88,12 @@
             axis: null,
             ignore: null,
             autoScroll: false,
-            cursor: "auto"
+            cursor: "auto",
+            moveOnDragEnter: false
         },
 
         destroy: function() {
-            this._draggable.destroy();
+            this.draggable.destroy();
             Widget.fn.destroy.call(this);
         },
 
@@ -115,7 +120,6 @@
 
         _dragstart: function(e) {
             var draggedElement = this.draggedElement = e.currentTarget,
-                target = e.target || kendo.elementUnderCursor(e),
                 disabled = this.options.disabled,
                 handler = this.options.handler,
                 _placeholder = this.options.placeholder,
@@ -139,7 +143,7 @@
             }
         },
 
-        _dragcancel: function(e) {
+        _dragcancel: function() {
             this._cancel();
             this.trigger(CANCEL, { item: this.draggedElement });
 
@@ -157,6 +161,7 @@
                 sibling,
                 getSibling,
                 axis = this.options.axis,
+                moveOnDragEnter= this.options.moveOnDragEnter,
                 eventData = { item: draggedElement, list: this, draggableEvent: e };
 
             if(axis === "x" || axis === "y") {
@@ -184,15 +189,15 @@
                 }
 
                 if(this._isFloating(target.element)) { //horizontal
-                    if(axisDelta.x < 0 && offsetDelta.left < 0) {
+                    if(axisDelta.x < 0 && (moveOnDragEnter || offsetDelta.left < 0)) {
                         direction = "prev";
-                    } else if(axisDelta.x > 0 && offsetDelta.left > 0) {
+                    } else if(axisDelta.x > 0 && (moveOnDragEnter || offsetDelta.left > 0)) {
                         direction = "next";
                     }
                 } else { //vertical
-                    if(axisDelta.y < 0 && offsetDelta.top < 0) {
+                    if(axisDelta.y < 0 && (moveOnDragEnter || offsetDelta.top < 0)) {
                         direction = "prev";
-                    } else if(axisDelta.y > 0 && offsetDelta.top > 0) {
+                    } else if(axisDelta.y > 0 && (moveOnDragEnter || offsetDelta.top > 0)) {
                         direction = "next";
                     }
                 }
@@ -258,7 +263,7 @@
             placeholder.replaceWith(draggedElement);
 
             draggedElement.show();
-            this._draggable.dropped = true;
+            this.draggable.dropped = true;
 
             eventData = {
                 action: this.indexOf(draggedElement) != MISSING_INDEX ? ACTION_SORT : ACTION_REMOVE,
@@ -305,10 +310,7 @@
 
         _findElementUnderCursor: function(e) {
             var elementUnderCursor = kendo.elementUnderCursor(e),
-                draggable = e.sender,
-                disabled = this.options.disabled,
-                filter = this.options.filter,
-                items = this.items();
+                draggable = e.sender;
 
             if(containsOrEqualTo(draggable.hint[0], elementUnderCursor)) {
                 draggable.hint.hide();
@@ -509,6 +511,10 @@
 
     kendo.ui.plugin(Sortable);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dom", "./kendo.data", "./kendo.columnsorter", "./kendo.editable", "./kendo.window", "./kendo.filtermenu", "./kendo.selectable", "./kendo.resizable", "./kendo.treeview.draganddrop" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var data = kendo.data;
@@ -54,6 +58,11 @@
     var COLUMNMENUINIT = "columnMenuInit";
     var COLUMNLOCK = "columnLock";
     var COLUMNUNLOCK = "columnUnlock";
+    var PARENTIDFIELD = "parentId";
+    var DRAGSTART = "dragstart";
+    var DRAG = "drag";
+    var DROP = "drop";
+    var DRAGEND = "dragend";
 
     var classNames = {
         wrapper: "k-treelist k-grid k-widget",
@@ -141,6 +150,8 @@
     var TreeListModel = Model.define({
         id: "id",
 
+        parentId: PARENTIDFIELD,
+
         fields: {
             id: { type: "number" },
             parentId: { type: "number", nullable: true }
@@ -150,6 +161,30 @@
             Model.fn.init.call(this, value);
 
             this._loaded = false;
+
+            if (!this.parentIdField) {
+                this.parentIdField = PARENTIDFIELD;
+            }
+
+            this.parentId = this.get(this.parentIdField);
+        },
+
+        accept: function(data) {
+            Model.fn.accept.call(this, data);
+
+            this.parentId = this.get(this.parentIdField);
+        },
+
+        set: function(field, value, initiator) {
+            if (field == PARENTIDFIELD && this.parentIdField != PARENTIDFIELD) {
+                this[this.parentIdField] = value;
+            }
+
+            Model.fn.set.call(this, field, value, initiator);
+
+            if (field == this.parentIdField) {
+                this.parentId = this.get(this.parentIdField);
+            }
         },
 
         loaded: function(value) {
@@ -161,9 +196,30 @@
         },
 
         shouldSerialize: function(field) {
-            return Model.fn.shouldSerialize.call(this, field) && field !== "_loaded" && field != "_error" && field != "_edit";
+            return Model.fn.shouldSerialize.call(this, field) && field !== "_loaded" && field != "_error" && field != "_edit" && !(this.parentIdField !== "parentId" && field === "parentId");
         }
     });
+
+    TreeListModel.parentIdField = PARENTIDFIELD;
+
+    TreeListModel.define = function(base, options) {
+        if (options === undefined) {
+            options = base;
+            base = TreeListModel;
+        }
+
+        var parentId = options.parentId || PARENTIDFIELD;
+
+        options.parentIdField = parentId;
+
+        var model = Model.define(base, options);
+
+        if (parentId) {
+            model.parentIdField = parentId;
+        }
+
+        return model;
+    };
 
     function is(field) {
         return function(object) {
@@ -198,13 +254,16 @@
             model = DataSource.fn._createNewModel.call(this, model);
 
             if (!fromModel) {
+                if (data.parentId) {
+                    data[model.parentIdField] = data.parentId;
+                }
                 model.accept(data);
             }
 
             return model;
         },
 
-        _shouldWrap: function(data) {
+        _shouldWrap: function() {
             return true;
         },
 
@@ -317,7 +376,7 @@
             options = options || {};
 
             var result = {};
-            var item, subtree, i, id, parentId;
+            var item, subtree, i;
             var filter = options.filter;
 
             if (filter) {
@@ -460,7 +519,7 @@
         },
 
         _defaultParentId: function() {
-            return this.reader.model.fn.defaults.parentId;
+            return this.reader.model.fn.defaults[this.reader.model.parentIdField];
         },
 
         childNodes: function(model) {
@@ -744,7 +803,6 @@
 
         _appendFields: function(form) {
             var idx, length, column;
-            var model = this.model;
             var columns = this.options.columns;
 
             for (idx = 0, length = columns.length; idx < length; idx++) {
@@ -798,7 +856,7 @@
             this.trigger(CANCEL, e);
         },
 
-        _save: function(e) {
+        _save: function() {
             this.trigger(SAVE);
         },
 
@@ -865,7 +923,7 @@
                 autoScroll: true,
                 filter: "tbody>tr",
                 itemSelector: "tr",
-                allowedContainers: "#" + this.wrapper.attr("id"),
+                allowedContainers: this.wrapper,
                 hintText: function(row) {
                     var text = function() { return $(this).text(); };
                     var separator = "<span class='k-header k-drag-separator' />";
@@ -881,17 +939,36 @@
                     var tr = target.closest("tr");
                     return { item: tr, content: tr };
                 },
-                dragstart: proxy(function() {
+                dragstart: proxy(function(source) {
                     this.wrapper.addClass("k-treelist-dragging");
+
+                    var model = this.dataItem(source);
+
+                    return this.trigger(DRAGSTART, { source: model });
                 }, this),
-                drop: proxy(function() {
+                drag: proxy(function(e) {
+                    e.source = this.dataItem(e.source);
+
+                    this.trigger(DRAG, e);
+                }, this),
+                drop: proxy(function(e) {
+                    e.source = this.dataItem(e.source);
+                    e.destination = this.dataItem(e.destination);
+
                     this.wrapper.removeClass("k-treelist-dragging");
+
+                    return this.trigger(DROP, e);
                 }, this),
                 dragend: proxy(function(e) {
                     var dest = this.dataItem(e.destination);
                     var src = this.dataItem(e.source);
 
                     src.set("parentId", dest ? dest.id : null);
+
+                    e.source = src;
+                    e.destination = dest;
+
+                    this.trigger(DRAGEND, e);
                 }, this),
                 reorderable: false,
                 dropHintContainer: function(item) {
@@ -901,6 +978,14 @@
                     return dropHint.prevAll(".k-i-none").length > 0 ? "after" : "before";
                 }
             });
+        },
+
+        itemFor: function(model) {
+            if (typeof model == "number") {
+                model = this.dataSource.get(model);
+            }
+
+            return this.tbody.find("[" + kendo.attr("uid") + "=" + model.uid + "]");
         },
 
         _scrollable: function() {
@@ -1005,7 +1090,7 @@
             this.angular(command, function() {
                 return {
                     elements: cells,
-                    data: map(columns, function(col, i){
+                    data: map(columns, function(col){
                         return {
                             column: col,
                             aggregate: aggregates && aggregates[col.field]
@@ -1258,6 +1343,10 @@
             DATABINDING,
             DATABOUND,
             CANCEL,
+            DRAGSTART,
+            DRAG,
+            DROP,
+            DRAGEND,
             FILTERMENUINIT,
             COLUMNHIDE,
             COLUMNSHOW,
@@ -1453,7 +1542,7 @@
 
         _columnAttributes: function() {
             // column style attribute is string, kendo.dom expects object
-            var idx, length, column;
+            var idx, length;
             var columns = this.columns;
 
             function convertStyle(attr) {
@@ -1618,20 +1707,33 @@
             return grep(this.columns, not(is("locked")));
         },
 
+        _templateColumns: function() {
+            return grep(this.columns, is("template"));
+        },
+
+        _flushCache: function() {
+            if (this.options.$angular && this._templateColumns().length) {
+                this._contentTree.render([]);
+                if (this._hasLockedColumns) {
+                    this._lockedContentTree.render([]);
+                }
+            }
+        },
+
         _render: function(options) {
             options = options || {};
 
             var messages = this.options.messages;
             var data = this.dataSource.rootNodes();
-            var aggregates = this.dataSource.aggregates();
             var selected = this.select().map(function(_, row) {
-                return $(row).attr("data-uid");
+                return $(row).attr(kendo.attr("uid"));
             });
 
             this._absoluteIndex = 0;
 
             this._angularItems("cleanup");
             this._angularFooters("cleanup");
+            this._flushCache();
 
             if (options.error) {
                 // root-level error message
@@ -1646,6 +1748,7 @@
                 // no rows message
                 this._showStatus(kendo.htmlEncode(messages.noRows));
             } else {
+
                 // render rows
                 this._hideStatus();
                 this._contentTree.render(this._trs({
@@ -1674,8 +1777,10 @@
                 this._touchScroller.contentResized();
             }
 
-            this._angularItems("compile");
-            this._angularFooters("compile");
+            this._muteAngularRebind(function() {
+                this._angularItems("compile");
+                this._angularFooters("compile");
+            });
 
             this._adjustRowsHeight();
         },
@@ -1741,7 +1846,6 @@
         },
 
         _ths: function(columns) {
-            var filterable = this.options.filterable;
             var ths = [];
             var column, title, children, cellClasses, attr, headerContent;
 
@@ -1865,7 +1969,7 @@
         },
 
         _trs: function(options) {
-            var model, attr, className, hasChildren, childNodes, i, length, parentId;
+            var model, attr, className, hasChildren, childNodes, i, length;
             var rows = [];
             var level = options.level;
             var data = options.data;
@@ -1881,10 +1985,9 @@
                 childNodes = model.loaded() && dataSource.childNodes(model);
                 hasChildren = childNodes && childNodes.length;
 
-                attr = {
-                    "data-uid": model.uid,
-                    "role": "row"
-                };
+                attr = { "role": "row" };
+
+                attr[kendo.attr("uid")] = model.uid;
 
                 if (hasChildren) {
                     attr["aria-expanded"] = !!model.expanded;
@@ -1923,7 +2026,6 @@
                 if (hasChildren) {
                     rows = rows.concat(this._trs({
                         columns: columns,
-                        parentId: model.id,
                         aggregates: aggregates,
                         selected: options.selected,
                         visible: options.visible && !!model.expanded,
@@ -1934,11 +2036,9 @@
             }
 
             if (this._hasFooterTemplate()) {
-                parentId = options.parentId || null;
-
                 attr = {
                     className: classNames.footerTemplate,
-                    "data-parentId": parentId
+                    "data-parentId": model.parentId
                 };
 
                 if (!options.visible) {
@@ -1946,7 +2046,7 @@
                 }
 
                 rows.push(this._tds({
-                    model: aggregates[parentId],
+                    model: aggregates[model.parentId],
                     attr: attr,
                     level: level
                 }, columns, this._footerTd));
@@ -2063,7 +2163,7 @@
                 value = column.template(model);
             } else if (column.field) {
                 value = model.get(column.field);
-                if (column.format) {
+                if (value !== null && column.format) {
                     value = kendo.format(column.format, value);
                 }
             }
@@ -2104,6 +2204,7 @@
 
             return kendoDomElement(
                 "button", {
+                    "type": "button",
                     "data-command": name,
                     className: [ "k-button", "k-button-icontext", command.className ].join(" ")
                 }, icon.concat([ kendoTextElement(command.text || command.name) ])
@@ -2112,12 +2213,13 @@
 
         _positionResizeHandle: function(e) {
             var th = $(e.currentTarget);
-            var indicatorWidth = 3;
             var resizeHandle = this.resizeHandle;
             var position = th.position();
             var left = position.left;
             var cellWidth = th.outerWidth();
-            var container = th.closest(".k-grid-header-wrap,.k-grid-header-locked,.k-treelist");
+            var container = th.closest("div");
+            var clientX = e.clientX + $(window).scrollLeft();
+            var indicatorWidth = this.options.columnResizeHandleWidth || 3;
 
             left += container.scrollLeft();
 
@@ -2127,23 +2229,21 @@
                 );
             }
 
-            container.append(resizeHandle);
+            var cellOffset = th.offset().left + cellWidth;
+            var show = clientX > cellOffset - indicatorWidth && clientX < cellOffset + indicatorWidth;
 
-            if (e.clientX > left + cellWidth/2) {
-                // closer to right th border, align indicator with border
-                left += cellWidth;
-            } else {
-                // closer to left th border, resize previous column
-                th = th.prev();
+            if(!show) {
+                resizeHandle.hide();
+                return;
             }
 
-            var show = !!th.length && left > indicatorWidth;
+            container.append(resizeHandle);
 
             resizeHandle
-                .toggle(show)
+                .show()
                 .css({
                     top: position.top,
-                    left: left - indicatorWidth - 1,
+                    left: left + cellWidth - indicatorWidth - 1,
                     height: th.outerHeight(),
                     width: indicatorWidth * 3
                 })
@@ -2154,7 +2254,7 @@
                 //TODO handle frozen columns index
                 var index= th.index();
                 if ($.contains(that.thead[0], th[0])) {
-                    index += grep(that.columns, function (val,idx) { return val.locked && !val.hidden; }).length;
+                    index += grep(that.columns, function (val) { return val.locked && !val.hidden; }).length;
                 }
                 that.autoFitColumn(index);
             });
@@ -2167,7 +2267,6 @@
                 index,
                 browser = kendo.support.browser,
                 th,
-                header,
                 headerTable,
                 isLocked,
                 visibleLocked = that.lockedHeader ? leafDataCells(that.lockedHeader.find(">table>thead")).filter(isCellVisible).length : 0,
@@ -2246,7 +2345,6 @@
             tables.addClass("k-autofitting");
             tables.css("table-layout", "");
 
-            var newTableWidth = Math.max(headerTable.width(), contentTable.width(), footerTable.width());
             var newColumnWidth = Math.ceil(Math.max(th.outerWidth(), contentTable.find("tr").eq(0).children("td:visible").eq(index).outerWidth(), footerTable.find("tr").eq(0).children("td:visible").eq(index).outerWidth()));
 
             col.width(newColumnWidth);
@@ -2340,7 +2438,7 @@
                 handle: ".k-resize-handle",
                 start: function(e) {
                     var th = $(e.currentTarget).data("th");
-                    var colSelector = "col:eq(" + th.index() + ")";
+                    var colSelector = "col:eq(" + $.inArray(th[0], th.parent().children().filter(":visible")) + ")";
                     var header, contentTable;
 
                     treelist.wrapper.addClass("k-grid-column-resizing");
@@ -2699,7 +2797,7 @@
                     parent = this.dataItem(parent);
                 }
 
-                model.parentId = parent.id;
+                model[parent.parentIdField] = parent.id;
                 index = this.dataSource.indexOf(parent) + 1;
                 parent.set("expanded", true);
 
@@ -2714,7 +2812,7 @@
         _insertAt: function(model, index) {
             model = this.dataSource.insert(index, model);
 
-            var row = this.tbody.find("[" + kendo.attr("uid") + "=" + model.uid + "]");
+            var row = this.itemFor(model);
 
             this.editRow(row);
         },
@@ -2758,7 +2856,7 @@
         },
 
         _createEditor: function(model) {
-            var row = this.tbody.find("[" + kendo.attr("uid") + "=" + model.uid + "]");
+            var row = this.itemFor(model);
 
             row = row.add(this._relatedRow(row));
 
@@ -3108,8 +3206,33 @@
 
     if (kendo.PDFMixin) {
         kendo.PDFMixin.extend(TreeList.prototype);
-    }
 
+        TreeList.fn._drawPDF = function (progress) {
+            var promise = new $.Deferred();
+
+            this._drawPDFShadow({
+                width: this.wrapper.width()
+            }, {
+                avoidLinks: this.options.pdf.avoidLinks
+            })
+            .done(function (group) {
+                var args = {
+                    page: group,
+                    pageNumber: 1,
+                    progress: 1,
+                    totalPages: 1
+                };
+
+                progress.notify(args);
+                promise.resolve(args.page);
+            })
+            .fail(function (err) {
+                promise.reject(err);
+            });
+
+            return promise;
+        };
+    }
 
     extend(true, kendo.data, {
         TreeListDataSource: TreeListDataSource,
@@ -3123,6 +3246,10 @@
     ui.plugin(TreeList);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -7,8 +7,57 @@
 * If you do not own a commercial license, this file shall be governed by the trial license terms.
 */
 (function(f, define){
-    define([ "./kendo.combobox", "./kendo.dropdownlist", "./kendo.resizable", "./kendo.window", "./kendo.colorpicker", "./kendo.imagebrowser", "./kendo.filebrowser" ], f);
+    define([ "./kendo.combobox", "./kendo.dropdownlist", "./kendo.resizable", "./kendo.window", "./kendo.colorpicker", "./kendo.imagebrowser", "./kendo.core", "./kendo.filebrowser" ], f);
 })(function(){
+
+(function(){
+
+(function(kendo) {
+    var UndoRedoStack = kendo.Observable.extend({
+        init: function(options) {
+            kendo.Observable.fn.init.call(this, options);
+            this.clear();
+        },
+        events: [ "undo", "redo" ],
+        push: function (command) {
+            this.stack = this.stack.slice(0, this.currentCommandIndex + 1);
+            this.currentCommandIndex = this.stack.push(command) - 1;
+        },
+        undo: function () {
+            if (this.canUndo()) {
+                var command = this.stack[this.currentCommandIndex--];
+                command.undo();
+                this.trigger("undo", { command: command });
+            }
+        },
+        redo: function () {
+            if (this.canRedo()) {
+                var command = this.stack[++this.currentCommandIndex];
+                command.redo();
+                this.trigger("redo", { command: command });
+            }
+        },
+        clear: function() {
+            this.stack = [];
+            this.currentCommandIndex = -1;
+        },
+        canUndo: function () {
+            return this.currentCommandIndex >= 0;
+        },
+        canRedo: function () {
+            return this.currentCommandIndex != this.stack.length - 1;
+        }
+    });
+
+    kendo.deepExtend(kendo, {
+        util: {
+            UndoRedoStack: UndoRedoStack
+        }
+    });
+})(kendo);
+})();
+
+(function(){
 
 (function($,undefined) {
 
@@ -185,6 +234,7 @@
             Widget.fn.init.call(that, element, options);
 
             that.options = deepExtend({}, that.options, options);
+            that.options.tools = that.options.tools.slice();
 
             element = that.element;
             domElement = element[0];
@@ -240,7 +290,7 @@
 
             that.clipboard = new editorNS.Clipboard(this);
 
-            that.undoRedoStack = new editorNS.UndoRedoStack();
+            that.undoRedoStack = new kendo.util.UndoRedoStack();
 
             if (options && options.value) {
                 value = options.value;
@@ -314,7 +364,7 @@
 
                         this.editor.height(newSize);
                     },
-                    resizeend: function(e) {
+                    resizeend: function() {
                         this.editor.find(".k-overlay").remove();
                         this.editor = null;
                     }
@@ -380,12 +430,12 @@
                 "<meta charset='utf-8' />" +
                 "<style>" +
                     "html,body{padding:0;margin:0;height:100%;min-height:100%;}" +
-                    "body{font-size:12px;font-family:Verdana,Geneva,sans-serif;padding-top:1px;margin-top:-1px;" +
+                    "body{font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:1px .2em 0;" +
                     "word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;" +
                     (kendo.support.isRtl(textarea) ? "direction:rtl;" : "") +
                     "}" +
                     "h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}" +
-                    "p{margin:0 0 1em;padding:0 .2em}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}" +
+                    "p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}" +
                     "ul,ol{padding-left:2.5em}" +
                     "span{-ms-high-contrast-adjust:none;}" +
                     "a{color:#00a}" +
@@ -395,6 +445,7 @@
                     ".k-table td{min-width:1px;padding:.2em .3em;}" +
                     ".k-table,.k-table td{outline:0;border: 1px dotted #ccc;}" +
                     ".k-table p{margin:0;padding:0;}" +
+                    "k\\:script{display:none;}" +
                 "</style>" +
                 domainScript +
                 "<script>(function(d,c){d[c]('header'),d[c]('article'),d[c]('nav'),d[c]('section'),d[c]('footer');})(document, 'createElement');</script>" +
@@ -430,7 +481,7 @@
             var falseTrigger = false;
 
             $(editor.body)
-                .on("contextmenu" + NS, function(e) {
+                .on("contextmenu" + NS, function() {
                     editor.one("select", function() {
                         beforeCorrection = null;
                     });
@@ -440,7 +491,7 @@
                         falseTrigger = false;
                     }, 10);
                 })
-                .on("input" + NS, function(e) {
+                .on("input" + NS, function() {
                     if (!beforeCorrection) {
                         return;
                     }
@@ -650,6 +701,8 @@
                 modal: true, resizable: false, draggable: true,
                 animation: false
             },
+            imageBrowser: null,
+            fileBrowser: null,
             fontName: [
                 { text: "Arial", value: "Arial,Helvetica,sans-serif" },
                 { text: "Courier New", value: "'Courier New',Courier,monospace" },
@@ -747,7 +800,6 @@
         value: function (html) {
             var body = this.body,
                 editorNS = kendo.ui.editor,
-                dom = editorNS.Dom,
                 currentHtml = editorNS.Serializer.domToXhtml(body, this.options.serialization);
 
             if (html === undefined) {
@@ -943,6 +995,7 @@
 
         initialize: function(ui, options) {
             ui.attr({ unselectable: "on", title: options.title });
+            ui.children(".k-tool-text").html(options.title);
         },
 
         command: function (commandArguments) {
@@ -1043,6 +1096,10 @@
     }
 
 })(window.jQuery);
+
+})();
+
+(function(){
 
 (function($) {
 
@@ -1350,7 +1407,7 @@ var Dom = {
     },
 
     emptyNode: function(node) {
-        return !Dom.significantNodes(node.childNodes).length;
+        return node.nodeType == 1 && !Dom.significantNodes(node.childNodes).length;
     },
 
     name: function (node) {
@@ -1755,8 +1812,14 @@ var Dom = {
     },
 
     closestEditable: function(node, types) {
-        var closest = Dom.parentOfType(node, types);
+        var closest;
         var editable = Dom.editableParent(node);
+
+        if (Dom.ofType(node, types)) {
+            closest = node;
+        } else {
+            closest = Dom.parentOfType(node, types);
+        }
 
         if (closest && editable && $.contains(closest, editable)) {
             closest = editable;
@@ -1805,8 +1868,12 @@ var Dom = {
         }
     },
 
-    ensureTrailingBreak: function(node) {
+    removeTrailingBreak: function(node) {
         $(node).find("br[type=_moz],.k-br").remove();
+    },
+
+    ensureTrailingBreak: function(node) {
+        Dom.removeTrailingBreak(node);
 
         var lastChild = node.lastChild;
         var name = lastChild && Dom.name(lastChild);
@@ -1825,6 +1892,10 @@ var Dom = {
 kendo.ui.editor.Dom = Dom;
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($, undefined) {
 
@@ -1863,6 +1934,7 @@ var Serializer = {
             })
             .replace(/(<\/?img[^>]*>)[\r\n\v\f\t ]+/ig, "$1")
             .replace(/^<(table|blockquote)/i, br + '<$1')
+            .replace(/^[\s]*(&nbsp;|\u00a0)/i, '$1')
             .replace(/<\/(table|blockquote)>$/i, '</$1>' + br);
     },
 
@@ -2157,7 +2229,7 @@ var Serializer = {
 
         function styleAttr(cssText) {
             var properties = cssProperties(cssText);
-            var i, length = properties.length;
+            var i;
 
             for (i = 0; i < properties.length; i++) {
                 result.push(properties[i].property);
@@ -2193,7 +2265,9 @@ var Serializer = {
                     specified = false;
                 } else if (name == 'altHtml') {
                     specified = false;
-                } else if (name == 'start' && (dom.is(node, "ul") || dom.is(node, "ol"))) {
+                } else if (name == 'start' && dom.is(node, "ul")) {
+                    specified = false;
+                } else if (name == 'start' && dom.is(node, "ol") && value == "1") {
                     specified = false;
                 } else if (name.indexOf('_moz') >= 0) {
                     specified = false;
@@ -2388,6 +2462,10 @@ extend(Editor, {
 });
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($) {
 
@@ -3243,6 +3321,21 @@ var Marker = Class.extend({
         }
     },
 
+    _normalizedIndex: function(node) {
+        var index = findNodeIndex(node);
+        var pointer = node;
+
+        while (pointer.previousSibling) {
+            if (pointer.nodeType == 3 && pointer.previousSibling.nodeType == 3) {
+                index--;
+            }
+
+            pointer = pointer.previousSibling;
+        }
+
+        return index;
+    },
+
     remove: function (range) {
         var that = this,
             start = that.start,
@@ -3308,23 +3401,12 @@ var Marker = Class.extend({
             }
         }
 
-        var startIndex = findNodeIndex(start), startParent = start.parentNode;
-        var endIndex = findNodeIndex(end), endParent = end.parentNode;
-
-        for (var startPointer = start; startPointer.previousSibling; startPointer = startPointer.previousSibling) {
-            if (startPointer.nodeType == 3 && startPointer.previousSibling.nodeType == 3) {
-                startIndex--;
-            }
-        }
-
-        for (var endPointer = end; endPointer.previousSibling; endPointer = endPointer.previousSibling) {
-            if (endPointer.nodeType == 3 && endPointer.previousSibling.nodeType == 3) {
-                endIndex--;
-            }
-        }
+        var startParent = start.parentNode;
+        var endParent = end.parentNode;
+        var startIndex = this._normalizedIndex(start);
+        var endIndex = this._normalizedIndex(end);
 
         normalize(startParent);
-
         if (start.nodeType == 3) {
             start = startParent.childNodes[startIndex];
         }
@@ -3356,11 +3438,11 @@ var Marker = Class.extend({
                 range.setEndAfter(end);
             }
         }
+
         if (that.caret) {
             that.removeCaret(range);
         }
     }
-
 });
 
 var boundary = /[\u0009-\u000d]|\u0020|\u00a0|\ufeff|\.|,|;|:|!|\(|\)|\?/;
@@ -3490,6 +3572,34 @@ var RangeUtils = {
         return range.startOffset === 0 && range.startContainer == node;
     },
 
+    isEndOf: function(range, node) {
+        range = range.cloneRange();
+
+        range.collapse(false);
+
+        var start = range.startContainer;
+
+        if (dom.isDataNode(start) &&
+            range.startOffset == dom.getNodeLength(start)) {
+            range.setStart(start.parentNode, dom.findNodeIndex(start) + 1);
+            range.collapse(true);
+        }
+
+        range.setEnd(node, dom.getNodeLength(node));
+
+        var nodes = [];
+
+        function visit(node) {
+            if (!dom.insignificant(node)) {
+                nodes.push(node);
+            }
+        }
+
+        new RangeIterator(range).traverse(visit);
+
+        return !nodes.length;
+    },
+
     wrapSelectedElements: function(range) {
         var startEditable = dom.editableParent(range.startContainer);
         var endEditable = dom.editableParent(range.endContainer);
@@ -3598,6 +3708,10 @@ extend(Editor, {
 });
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($) {
 
@@ -3726,7 +3840,7 @@ var InsertHtmlTool = Tool.extend({
             options = this.options,
             dataSource = options.items ? options.items : editor.options.insertHtml;
 
-        new editorNS.SelectBox(ui, {
+        this._selectBox = new editorNS.SelectBox(ui, {
             dataSource: dataSource,
             dataTextField: "text",
             dataValueField: "value",
@@ -3746,42 +3860,6 @@ var InsertHtmlTool = Tool.extend({
         var selectbox = ui.data("kendoSelectBox") || ui.find("select").data("kendoSelectBox");
         selectbox.close();
         selectbox.value(selectbox.options.title);
-    }
-});
-
-var UndoRedoStack = Class.extend({
-    init: function() {
-        this.clear();
-    },
-
-    push: function (command) {
-        this.stack = this.stack.slice(0, this.currentCommandIndex + 1);
-        this.currentCommandIndex = this.stack.push(command) - 1;
-    },
-
-    undo: function () {
-        if (this.canUndo()) {
-            this.stack[this.currentCommandIndex--].undo();
-        }
-    },
-
-    redo: function () {
-        if (this.canRedo()) {
-            this.stack[++this.currentCommandIndex].redo();
-        }
-    },
-
-    clear: function() {
-        this.stack = [];
-        this.currentCommandIndex = -1;
-    },
-
-    canUndo: function () {
-        return this.currentCommandIndex >= 0;
-    },
-
-    canRedo: function () {
-        return this.currentCommandIndex != this.stack.length - 1;
     }
 });
 
@@ -3836,11 +3914,45 @@ var BackspaceHandler = Class.extend({
     init: function(editor) {
         this.editor = editor;
     },
-    _handleCaret: function(range) {
+    _addCaret: function(container) {
+        var caret = dom.create(this.editor.document, "a");
+        dom.insertAt(container, caret, 0);
+        return caret;
+    },
+    _restoreCaret: function(caret) {
+        var range = this.editor.createRange();
+        range.setStartAfter(caret);
+        range.collapse(true);
+        this.editor.selectRange(range);
+        dom.remove(caret);
+    },
+    _handleDelete: function(range) {
+        var node = range.endContainer;
+        var block = dom.closestEditableOfType(node, dom.blockElements);
+
+        if (block && editorNS.RangeUtils.isEndOf(range, block)) {
+            // join with next sibling
+            var next = dom.next(block);
+            if (!next || dom.name(next) != "p") {
+                return false;
+            }
+
+            var caret = this._addCaret(next);
+
+            this._merge(block, next);
+
+            this._restoreCaret(caret);
+
+            return true;
+        }
+
+        return false;
+    },
+    _handleBackspace: function(range) {
         var node = range.startContainer;
         var i = range.startOffset;
         var li = dom.closestEditableOfType(node, ['li']);
-        var header = dom.closestEditableOfType(node, 'h1,h2,h3,h4,h5,h6'.split(','));
+        var block = dom.closestEditableOfType(node, 'p,h1,h2,h3,h4,h5,h6'.split(','));
 
         if (dom.isDataNode(node)) {
             while (i >= 0 && node.nodeValue[i-1] == "\ufeff") {
@@ -3854,22 +3966,13 @@ var BackspaceHandler = Class.extend({
             this.editor.selectRange(range);
         }
 
-        // unwrap header
-        if (header && header.previousSibling && editorNS.RangeUtils.isStartOf(range, header)) {
-            var prev = header.previousSibling;
-            var caret = dom.create(this.editor.document, "a");
+        // unwrap block
+        if (block && block.previousSibling && editorNS.RangeUtils.isStartOf(range, block)) {
+            var prev = block.previousSibling;
+            var caret = this._addCaret(block);
+            this._merge(prev, block);
 
-            prev.appendChild(caret);
-            while (header.firstChild) {
-                prev.appendChild(header.firstChild);
-            }
-
-            dom.remove(header);
-
-            range.setStartAfter(caret);
-            range.collapse(true);
-            this.editor.selectRange(range);
-            dom.remove(caret);
+            this._restoreCaret(caret);
 
             return true;
         }
@@ -3892,18 +3995,25 @@ var BackspaceHandler = Class.extend({
         var ancestor = range.commonAncestorContainer;
         var table = dom.closest(ancestor, "table");
         var emptyParagraphContent = editorNS.emptyElementContent;
-        var result = false;
 
         if (/t(able|body)/i.test(dom.name(ancestor))) {
             range.selectNode(table);
         }
+
+        var marker = new Marker();
+        marker.add(range, false);
+
+        range.setStartAfter(marker.start);
+        range.setEndBefore(marker.end);
+
+        var start = range.startContainer;
+        var end = range.endContainer;
 
         range.deleteContents();
 
         if (table && $(table).text() === "") {
             range.selectNode(table);
             range.deleteContents();
-            result = true;
         }
 
         ancestor = range.commonAncestorContainer;
@@ -3911,24 +4021,67 @@ var BackspaceHandler = Class.extend({
         if (dom.name(ancestor) === "p" && ancestor.innerHTML === "") {
             ancestor.innerHTML = emptyParagraphContent;
             range.setStart(ancestor, 0);
-            range.collapse(true);
-            this.editor.selectRange(range);
-
-            result = true;
         }
 
-        return result;
+        this._join(start, end);
+
+        dom.insertAfter(this.editor.document.createTextNode("\ufeff"), marker.start);
+        marker.remove(range);
+
+        start = range.startContainer;
+        if (dom.name(start) == "tr") {
+            start = start.childNodes[Math.max(0, range.startOffset-1)];
+            range.setStart(start, dom.getNodeLength(start));
+        }
+
+        range.collapse(true);
+
+        this.editor.selectRange(range);
+
+        return true;
+    },
+    _root: function(node) {
+        while (node && node.parentNode && dom.name(node.parentNode) != "body") {
+            node = node.parentNode;
+        }
+
+        return node;
+    },
+    _join: function(start, end) {
+        start = this._root(start);
+        end = this._root(end);
+
+        if (start != end && dom.is(end, "p")) {
+            this._merge(start, end);
+        }
+    },
+    _merge: function(dest, src) {
+        dom.removeTrailingBreak(dest);
+
+        while (src.firstChild) {
+            if (dest.nodeType == 1) {
+                dest.appendChild(src.firstChild);
+            } else {
+                dest.parentNode.appendChild(src.firstChild);
+            }
+        }
+
+        dom.remove(src);
     },
     keydown: function(e) {
         var method, startRestorePoint;
         var range = this.editor.getRange();
         var keyCode = e.keyCode;
         var keys = kendo.keys;
+        var backspace = keyCode === keys.BACKSPACE;
+        var del = keyCode == keys.DELETE;
 
-        if (keyCode === keys.BACKSPACE) {
-            method = range.collapsed ? "_handleCaret" : "_handleSelection";
-        } else if (keyCode == keys.DELETE) {
-            method = range.collapsed ? "" : "_handleSelection";
+        if ((backspace || del) && !range.collapsed) {
+            method = "_handleSelection";
+        } else if (backspace) {
+            method = "_handleBackspace";
+        } else if (del) {
+            method = "_handleDelete";
         }
 
         if (!method) {
@@ -3993,7 +4146,7 @@ var SystemHandler = Class.extend({
         return false;
     },
 
-    keyup: function (e) {
+    keyup: function () {
         var that = this;
 
         if (that.systemCommandIsInProgress && that.changed()) {
@@ -4181,13 +4334,20 @@ var Clipboard = Class.extend({
         this._contentModification($.noop, $.noop);
     },
 
-    _fileToDataURL: function(clipboardItem, complete) {
-        var blob = clipboardItem.getAsFile();
+    _fileToDataURL: function(blob) {
+        var deferred = $.Deferred();
+
         var reader = new FileReader();
 
-        reader.onload = complete || $.noop;
+        if (!(blob instanceof window.File) && blob.getAsFile) {
+            blob = blob.getAsFile();
+        }
+
+        reader.onload = $.proxy(deferred.resolve, deferred);
 
         reader.readAsDataURL(blob);
+
+        return deferred.promise();
     },
 
     _triggerPaste: function(html, options) {
@@ -4198,7 +4358,6 @@ var Clipboard = Class.extend({
         this.editor.trigger("paste", args);
 
         this.paste(args.html, options || {});
-
     },
 
     _handleImagePaste: function(e) {
@@ -4206,35 +4365,40 @@ var Clipboard = Class.extend({
             return;
         }
 
-        var that = this;
-        var clipboardData = e.clipboardData || e.originalEvent.clipboardData;
+        var clipboardData = e.clipboardData || e.originalEvent.clipboardData || window.clipboardData;
         var items = clipboardData && (clipboardData.items || clipboardData.files);
+        var images = items && $.grep(items, function(item) {
+            return (/^image\//i).test(item.type);
+        });
 
-        if (!items || !items.length) {
+        if (!images || !images.length) {
             return;
         }
 
-        if (!/^image\//i.test(items[0].type)) {
-            return;
-        }
-
-        var modificationInfo = that._startModification();
+        var modificationInfo = this._startModification();
 
         if (!modificationInfo) {
             return;
         }
 
-        this._fileToDataURL(items[0], function(e) {
-            that._triggerPaste('<img src="' + e.target.result + '" />');
+        $.when.apply($, $.map(images, this._fileToDataURL))
+            .done($.proxy(function() {
+                var results = Array.prototype.slice.call(arguments);
+                var html = $.map(results, function(e) {
+                    return '<img src="' + e.target.result + '" />';
+                }).join("");
 
-            that._endModification(modificationInfo);
-        });
+                this._triggerPaste(html);
+
+                this._endModification(modificationInfo);
+            }, this));
 
         return true;
     },
 
     onpaste: function(e) {
         if (this._handleImagePaste(e)) {
+            e.preventDefault();
             return;
         }
 
@@ -4268,8 +4432,7 @@ var Clipboard = Class.extend({
                 range.deleteContents();
             },
             function afterPaste(editor, range) {
-                var html = "", args = { html: "" }, containers;
-                var browser = kendo.support.browser;
+                var html = "", containers;
 
                 editor.selectRange(range);
 
@@ -4802,7 +4965,6 @@ extend(editorNS, {
     GenericCommand: GenericCommand,
     InsertHtmlCommand: InsertHtmlCommand,
     InsertHtmlTool: InsertHtmlTool,
-    UndoRedoStack: UndoRedoStack,
     TypingHandler: TypingHandler,
     SystemHandler: SystemHandler,
     BackspaceHandler: BackspaceHandler,
@@ -4822,6 +4984,9 @@ registerTool("pdf", new Tool({ command: ExportPdfCommand, template: new ToolTemp
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
 (function($) {
 
 var kendo = window.kendo,
@@ -5247,7 +5412,6 @@ var ColorTool = Tool.extend({
             palette = options.palette;
 
         ui = this._widget = new kendo.ui.ColorPicker(ui, {
-            value: $.isArray(palette) ? palette[0] : "#000",
             toolIcon: "k-" + options.name,
             palette: palette,
             change: function() {
@@ -5306,6 +5470,10 @@ registerTool("fontName", new FontTool({cssAttr:"font-family", domAttr: "fontFami
 registerTool("fontSize", new FontTool({cssAttr:"font-size", domAttr:"fontSize", name:"fontSize", defaultValue: [{ text: "fontSizeInherit",  value: "inherit" }], template: new ToolTemplate({template: EditorUtils.comboBoxTemplate, title: "Font Size"})}));
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($) {
 
@@ -5667,6 +5835,10 @@ registerTool("justifyFull", new BlockFormatTool({
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function($) {
 
 // Imports ================================================================
@@ -5724,7 +5896,11 @@ var ParagraphCommand = Command.extend({
             if (dom.isEmpty(focusNode)) {
                 range.setStartBefore(focusNode);
             } else {
-                range.selectNodeContents(focusNode);
+                if (dom.emptyNode(focusNode)) {
+                    focusNode.innerHTML = "\ufeff";
+                }
+
+                range.setStartBefore(focusNode.firstChild || focusNode);
             }
         }
     },
@@ -5907,6 +6083,10 @@ registerTool("insertLineBreak", new Tool({ key: 13, shift: true, command: NewLin
 registerTool("insertParagraph", new Tool({ key: 13, command: ParagraphCommand }));
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($) {
 
@@ -6355,6 +6535,10 @@ registerTool("insertOrderedList", new ListTool({tag:'ol', template: new ToolTemp
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function($, undefined) {
 
 var kendo = window.kendo,
@@ -6495,7 +6679,6 @@ var LinkCommand = Command.extend({
     },
 
     exec: function () {
-        var collapsed = this.getRange().collapsed;
         var messages = this.editor.options.messages;
 
         this._initialText = "";
@@ -6653,6 +6836,10 @@ registerTool("createLink", new Tool({ key: "K", ctrl: true, command: LinkCommand
 registerTool("unlink", new UnlinkTool({ key: "K", ctrl: true, shift: true, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Remove Link"})}));
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($, undefined) {
 
@@ -6819,7 +7006,7 @@ var FileCommand = Command.extend({
             .data("kendoWindow");
 
         if (showBrowser) {
-            new kendo.ui.FileBrowser(
+            that._fileBrowser = new kendo.ui.FileBrowser(
                 dialog.element.find(".k-filebrowser"),
                 extend({}, fileBrowser, {
                     change: function() {
@@ -6841,6 +7028,10 @@ kendo.ui.editor.FileCommand = FileCommand;
 registerTool("insertFile", new Editor.Tool({ command: FileCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Insert File" }) }));
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($, undefined) {
 
@@ -7050,7 +7241,7 @@ var ImageCommand = Command.extend({
             .data("kendoWindow");
 
         if (showBrowser) {
-            new kendo.ui.ImageBrowser(
+            this._imageBrowser = new kendo.ui.ImageBrowser(
                 dialog.element.find(".k-imagebrowser"),
                 extend({}, imageBrowser, {
                     change: function() {
@@ -7072,6 +7263,10 @@ kendo.ui.editor.ImageCommand = ImageCommand;
 registerTool("insertImage", new Editor.Tool({ command: ImageCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Insert Image" }) }));
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($, undefined) {
 
@@ -7198,6 +7393,10 @@ kendo.ui.plugin(SelectBox);
 kendo.ui.editor.SelectBox = SelectBox;
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($, undefined) {
 
@@ -7428,6 +7627,10 @@ registerTool("outdent", new OutdentTool({ command: OutdentCommand, template: new
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function($, undefined) {
 
 var kendo = window.kendo,
@@ -7510,6 +7713,10 @@ kendo.ui.editor.ViewHtmlCommand = ViewHtmlCommand;
 Editor.EditorUtils.registerTool("viewHtml", new Tool({ command: ViewHtmlCommand, template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "View HTML"})}));
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
 
 (function($) {
 
@@ -7768,6 +7975,10 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
 })(window.kendo.jQuery);
 
+})();
+
+(function(){
+
 (function($,undefined) {
     var kendo = window.kendo;
     var ui = kendo.ui;
@@ -7780,6 +7991,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
     var EditorUtils = kendo.ui.editor.EditorUtils;
     var ToolTemplate = kendo.ui.editor.ToolTemplate;
     var Tool = kendo.ui.editor.Tool;
+    var OVERFLOWANCHOR = "overflowAnchor";
 
     var focusable = ".k-tool-group:visible a.k-tool:not(.k-state-disabled)," +
                     ".k-tool.k-overflow-anchor," +
@@ -7799,7 +8011,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
         },
 
         options: {
-            name: "overflowAnchor"
+            name: OVERFLOWANCHOR
         },
 
         command: $.noop,
@@ -7808,7 +8020,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
     });
 
-    EditorUtils.registerTool("overflowAnchor", new OverflowAnchorTool({
+    EditorUtils.registerTool(OVERFLOWANCHOR, new OverflowAnchorTool({
         key: "",
         ctrl: true,
         template: new ToolTemplate({ template: EditorUtils.overflowAnchorTemplate })
@@ -7851,7 +8063,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
             colors: [ "foreColor", "backColor" ]
         },
 
-        overflowFlaseTools: [ "formatting", "fontName", "fontSize", "foreColor", "backColor" ],
+        overflowFlaseTools: [ "formatting", "fontName", "fontSize", "foreColor", "backColor", "insertHtml" ],
 
         _initPopup: function() {
             this.window = $(this.element)
@@ -7964,7 +8176,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
             that._editor = editor;
 
             if (that.options.resizable && that.options.resizable.toolbar) {
-                editor.options.tools.push("overflowAnchor");
+                editor.options.tools.push(OVERFLOWANCHOR);
             }
 
             // re-initialize the tools
@@ -7987,7 +8199,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
             that._attachEvents();
 
-            that.items().each(function initializeTool(x, y) {
+            that.items().each(function initializeTool() {
                 var toolName = that._toolName(this),
                     tool = toolName !== "more" ? that.tools[toolName] : that.tools.overflowAnchor,
                     options = tool && tool.options,
@@ -8082,7 +8294,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
             element.closest(".k-animation-container").addClass("k-overflow-wrapper");
 
-            element.attr(TABINDEX, tabIndex || 0).focus()
+            element.attr(TABINDEX, tabIndex || 0)
                 .find(focusable).first().focus();
 
             if (!tabIndex && tabIndex !== 0) {
@@ -8191,8 +8403,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
                 browser = kendo.support.browser,
                 group, i, groupPosition = 0,
                 resizable = that.options.resizable && that.options.resizable.toolbar,
-                overflowFlaseTools = this.overflowFlaseTools,
-                overflow;
+                overflowFlaseTools = this.overflowFlaseTools;
 
             function stringify(template) {
                 var result;
@@ -8222,7 +8433,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
             }
 
             function startGroup(toolName) {
-                if (toolName !== "overflowAnchor") {
+                if (toolName !== OVERFLOWANCHOR) {
                     group = $("<li class='k-tool-group' role='presentation' />");
                     group.data("overflow", $.inArray(toolName, overflowFlaseTools) === -1 ? true : false);
                 } else {
@@ -8259,7 +8470,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
                 newGroupName = that.toolGroupFor(toolName);
 
-                if (groupName != newGroupName) {
+                if (groupName != newGroupName || toolName == OVERFLOWANCHOR) {
                     endGroup();
                     startGroup(toolName, overflowFlaseTools);
                     groupName = newGroupName;
@@ -8610,6 +8821,10 @@ $.extend(editorNS, {
 
 })(window.jQuery);
 
+})();
+
+(function(){
+
 (function($, undefined) {
 
 var kendo = window.kendo,
@@ -8801,7 +9016,6 @@ var InsertTableTool = PopupTool.extend({
         var element = this._popup.element;
         var status = element.find(".k-status");
         var cells = element.find(".k-ct-cell");
-        var rows = this.rows;
         var cols = this.cols;
         var messages = this._editor.options.messages;
 
@@ -9075,6 +9289,14 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 //registerTool("mergeCells", new Tool({ template: new ToolTemplate({template: EditorUtils.buttonTemplate, title: "Merge cells"})}));
 
 })(window.kendo.jQuery);
+
+})();
+
+(function(){
+
+    
+
+})();
 
 return window.kendo;
 

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.draganddrop" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -128,8 +132,6 @@
             }
 
             that.appendTo = $(options.appendTo);
-
-            that._animations();
 
             if (content && !isPlainObject(content)) {
                 content = options.content = { url: content };
@@ -317,12 +319,14 @@
             });
         },
 
-        _animations: function() {
-            var options = this.options;
+        _animationOptions: function(id) {
+            var animation = this.options.animation;
+            var basicAnimation = {
+                open: { effects: {} },
+                close: { hide: true, effects: {} }
+            };
 
-            if (options.animation === false) {
-                options.animation = { open: { effects: {} }, close: { hide: true, effects: {} } };
-            }
+            return animation && animation[id] || basicAnimation[id];
         },
 
         _resize: function() {
@@ -385,13 +389,21 @@
 
         setOptions: function(options) {
             Widget.fn.setOptions.call(this, options);
+            var scrollable = this.options.scrollable !== false;
+
             this.restore();
-            this._animations();
             this._dimensions();
             this._position();
             this._resizable();
             this._draggable();
             this._actions();
+            if (typeof options.modal !== "undefined") {
+                var visible = this.options.visible !== false;
+
+                this._overlay(options.modal && visible);
+            }
+
+            this.element.css(OVERFLOW, scrollable ? "" : "hidden");
         },
 
         events:[
@@ -431,6 +443,7 @@
             maxWidth: Infinity,
             maxHeight: Infinity,
             pinned: false,
+            scrollable: true,
             position: {},
             content: null,
             visible: null,
@@ -566,7 +579,7 @@
                 var object = that._object(dom);
                 var options = object && object.options;
 
-                return options && options.modal && options.visible && dom.is(VISIBLE);
+                return options && options.modal && options.visible && options.appendTo === that.options.appendTo && dom.is(VISIBLE);
             }).sort(function(a, b){
                 return +$(a).css("zIndex") - +$(b).css("zIndex");
             });
@@ -578,8 +591,13 @@
 
         _object: function(element) {
             var content = element.children(KWINDOWCONTENT);
+            var widget = kendo.widgetInstance(content);
 
-            return content.data("kendoWindow") || content.data("kendo" + this.options.name);
+            if (widget instanceof Window) {
+                return widget;
+            }
+
+            return undefined;
         },
 
         center: function () {
@@ -685,7 +703,7 @@
             var that = this,
                 wrapper = that.wrapper,
                 options = that.options,
-                showOptions = options.animation.open,
+                showOptions = this._animationOptions("open"),
                 contentElement = wrapper.children(KWINDOWCONTENT),
                 overlay,
                 doc = $(document);
@@ -742,11 +760,14 @@
         },
 
         _activate: function() {
+            var scrollable = this.options.scrollable !== false;
+
             if (this.options.autoFocus) {
                 this.element.focus();
             }
+
+            this.element.css(OVERFLOW, scrollable ? "" : "hidden");
             this.trigger(ACTIVATE);
-            this.wrapper.children(KWINDOWCONTENT).css(OVERFLOW, "");
         },
 
         _removeOverlay: function(suppressAnimation) {
@@ -754,7 +775,7 @@
             var options = this.options;
             var hideOverlay = options.modal && !modals.length;
             var overlay = options.modal ? this._overlay(true) : $(undefined);
-            var hideOptions = options.animation.close;
+            var hideOptions  = this._animationOptions("close");
 
             if (hideOverlay) {
                 if (!suppressAnimation && hideOptions.duration && kendo.effects.Fade) {
@@ -774,8 +795,8 @@
             var that = this,
                 wrapper = that.wrapper,
                 options = that.options,
-                showOptions = options.animation.open,
-                hideOptions = options.animation.close,
+                showOptions = this._animationOptions("open"),
+                hideOptions  = this._animationOptions("close"),
                 doc = $(document);
 
             if (wrapper.is(VISIBLE) && !that.trigger(CLOSE, { userTriggered: !systemTriggered })) {
@@ -816,12 +837,15 @@
             }
         },
 
-        _deactivate: function() {
-            this.wrapper.hide().css("opacity","");
-            this.trigger(DEACTIVATE);
-            var lastModal = this._object(this._modals().last());
-            if (lastModal) {
-                lastModal.toFront();
+        _deactivate: function () {
+            var that = this;
+            that.wrapper.hide().css("opacity", "");
+            that.trigger(DEACTIVATE);
+            if (that.options.modal) {
+                var lastModal = that._object(that._modals().last());
+                if (lastModal) {
+                    lastModal.toFront();
+                }
             }
         },
 
@@ -1141,36 +1165,38 @@
             }, options));
         },
 
-        destroy: function () {
-            var that = this;
-
-            if (that.resizing) {
-                that.resizing.destroy();
+        _destroy: function() {
+            if (this.resizing) {
+                this.resizing.destroy();
             }
 
-            if (that.dragging) {
-                that.dragging.destroy();
+            if (this.dragging) {
+                this.dragging.destroy();
             }
 
-            that.wrapper.off(NS)
+            this.wrapper.off(NS)
                 .children(KWINDOWCONTENT).off(NS).end()
                 .find(".k-resize-handle,.k-window-titlebar").off(NS);
 
-            $(window).off("resize" + NS + that._marker);
+            $(window).off("resize" + NS + this._marker);
 
-            clearTimeout(that._loadingIconTimeout);
+            clearTimeout(this._loadingIconTimeout);
 
-            Widget.fn.destroy.call(that);
+            Widget.fn.destroy.call(this);
 
-            that.unbind(undefined);
+            this.unbind(undefined);
 
-            kendo.destroy(that.wrapper);
+            kendo.destroy(this.wrapper);
 
-            that._removeOverlay(true);
+            this._removeOverlay(true);
+        },
 
-            that.wrapper.empty().remove();
+        destroy: function() {
+            this._destroy();
 
-            that.wrapper = that.appendTo = that.element = $();
+            this.wrapper.empty().remove();
+
+            this.wrapper = this.appendTo = this.element = $();
         },
 
         _createWindow: function() {
@@ -1469,6 +1495,10 @@
     kendo.ui.plugin(Window);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

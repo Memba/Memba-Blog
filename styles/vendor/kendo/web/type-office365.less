@@ -1,3 +1,4 @@
+@sprite-image: url('@{image-folder}/sprite.png');
 @tooltip-texture: none;
 @widget-text-color: @normal-text-color;
 @inverse-text-color: @background;
@@ -53,7 +54,7 @@
 @tooltip-text-color: @normal-text-color;
 @tooltip-background-color: @background;
 @tooltip-border-color: darken(@background, 21%);
-@validation-text-color: lighten(@normal-text-color, 10%);
+@validation-text-color: contrast(@validation-background-color, lighten(@warning, 80%), darken(@warning, 60%), 0.5);
 @validation-background-color: @warning;
 @validation-border-color: @warning;
 @splitbar-background-color: @hover-background;
@@ -76,11 +77,11 @@
 @event-inverse-text-color: @normal-text-color;
 @scheduler-nonwork-background-color: @background;
 @resize-background-color: @background;
-@upload-progress-background-color: @base;
-@upload-progress-text-color: @background;
-@upload-success-background-color: darken(@warning, 9%);
+@upload-progress-background-color: @info;
+@upload-progress-text-color: @normal-text-color;
+@upload-success-background-color: @success;
 @upload-success-text-color: @normal-text-color;
-@upload-error-background-color: darken(@warning, 9%);
+@upload-error-background-color: @error;
 @upload-error-text-color: @normal-text-color;
 @task-summary-color: darken(@background, 18%);
 @task-summary-selected-color: @hover-text-color;
@@ -109,7 +110,7 @@
 @tabstrip-tabs-color: @normal-text-color;
 @form-widget-color: @normal-text-color;
 @drop-down-border-color: darken(@background, 27%);
-@drop-down-hover-border-color: darken(@success, 29%);
+@drop-down-hover-border-color: darken(@hover-background, 41%);
 @drop-down-focused-border-color: @base;
 @drop-down-background: @background;
 @drop-down-text-color: @normal-text-color;
@@ -178,43 +179,7 @@
 @secondary-header-color: rgba(256, 256, 256, 0.5);
 @secondary-header-background-color: darken(@base, 13%);
 @accent-color: lighten(@base, 17%);
-@checkbox-border-color-before: transparent;
-@checkbox-border-color-after: lighten(@normal-text-color, 20%);
-@checkbox-border-radius-before: 1px;
-@checkbox-background-color: @background;
-@checkbox-hover-border-color: darken(@normal-text-color, 7%);
-@checkbox-hover-box-shadow: none;
-@checkbox-checked-border-color-after: lighten(@normal-text-color, 20%);
-@checkbox-checked-border-radius-after: 1px;
-@checkbox-checked-background-color-after: @background;
-@checkbox-checked-color-after: @normal-text-color;
-@checkbox-active-border-color-before: transparent;
-@checkbox-active-border-color-after: darken(@normal-text-color, 7%);
-@checkbox-active-border-radius: 50%;
-@checkbox-active-border-radius-after: 1px;
-@checkbox-active-box-shadow: none;
-@checkbox-checked-active-border-radius-before: 50%;
-@checkbox-checked-active-box-shadow: none;
-@checkbox-checked-disabled-color-after: darken(@hover-background, 29%);
-@checkbox-disabled-background-color-after: @background;
-@checkbox-disabled-color: a6a6a6;
-@checkbox-disabled-box-shadow: none;
-@checkbox-disabled-border-color-before: darken(@hover-background, 29%);
-@radio-border-color-before: lighten(@normal-text-color, 20%);
-@radio-background-color: @background;
-@radio-border-width-before: 1px;
-@radio-hover-border-color: darken(@normal-text-color, 7%);
-@radio-hover-box-shadow: none;
-@radio-checked-border-color-before: darken(@normal-text-color, 7%);
-@radio-checked-background-color-after: darken(@normal-text-color, 7%);
-@radio-active-border-color-before: lighten(@normal-text-color, 20%);
-@radio-active-box-shadow: none;
-@radio-checked-active-border-color-before: darken(@normal-text-color, 7%);
-@radio-checked-active-box-shadow: none;
-@radio-disabled-background-color-after: @background;
-@radio-disabled-color: darken(@hover-background, 29%);
-@radio-disabled-box-shadow: none;
-@radio-disabled-background-color-before: @background;
+
 /* Kendo skin */
 
 @theme-name: ~"office365";
@@ -512,7 +477,8 @@ html .km-pane-wrapper .k-header
 .k-grid-mobile .k-resize-handle-inner:before,
 .k-grid-mobile .k-resize-handle-inner:after,
 .k-pager-numbers .k-current-page .k-link:after,
-.k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view > .k-link:after
+.k-scheduler-toolbar > ul.k-scheduler-views > li.k-current-view > .k-link:after,
+.k-gantt-views > .k-current-view > .k-link:after
 {
     background-image: @sprite-image;
     border-color: transparent;
@@ -633,14 +599,13 @@ html .km-pane-wrapper .k-header
     color: @event-inverse-text-color;
 }
 
-.k-event.k-state-selected
+.k-scheduler-content .k-event.k-state-selected
 {
     background-position: 0 0;
+    box-shadow: 0 0 0 2px @normal-text-color, inset 4px 0 0 0 rgba(255, 255, 255, .5);
 }
 
-.k-ie7 .k-event .k-resize-handle,
 .k-event .k-resize-handle:after,
-.k-ie7 .k-task-single .k-resize-handle,
 .k-task-single .k-resize-handle:after
 {
     background-color: @resize-background-color;
@@ -720,20 +685,6 @@ html .km-pane-wrapper .k-header
     color: @primary-hover-text-color;
     border-color: @primary-hover-border-color;
     background-color: @primary-hover-background-color;
-}
-
-.k-button[disabled],
-.k-button.k-state-disabled,
-.k-state-disabled .k-button,
-.k-state-disabled .k-button:hover,
-.k-button.k-state-disabled:hover,
-.k-state-disabled .k-button:active,
-.k-button.k-state-disabled:active
-{
-    color: @disabled-text-color;
-    border-color: @disabled-border-color;
-    background-color: @disabled-background-color;
-	.composite-background(@disabled-gradient);
 }
 
 .k-button:focus:not(.k-state-disabled):not([disabled])
@@ -896,18 +847,6 @@ td.k-state-focused.k-state-selected
 .k-ie8 .k-button:focus,
 .k-ie8 .k-button.k-state-focused,
 
-.k-ie7 .k-panelbar span.k-state-focused,
-.k-ie7 .k-menu li.k-state-focused,
-.k-ie7 .k-listview>.k-state-focused,
-.k-ie7 .k-grid-header th.k-state-focused,
-.k-ie7 td.k-state-focused,
-.k-ie7 .k-tool.k-state-hover,
-.k-ie7 .k-button:focus,
-.k-ie7 .k-button.k-state-focused
-{
-    background-color: @hover-background-color;
-}
-
 .k-list>.k-state-selected.k-state-focused,
 .k-list-optionlabel.k-state-selected.k-state-focused
 {
@@ -948,7 +887,6 @@ td.k-state-focused.k-state-selected
     border-color: @hover-border-color;
 }
 
-.k-ie7 .k-window-titlebar .k-state-hover,
 .k-ie8 .k-window-titlebar .k-state-hover
 {
     border-color: @hover-border-color;
@@ -1061,7 +999,6 @@ div.k-filebrowser-dropzone em
     opacity:.7;
 }
 
-.k-ie7 .k-state-disabled,
 .k-ie8 .k-state-disabled
 {
     filter:alpha(opacity=70);
@@ -1293,6 +1230,7 @@ div.k-filebrowser-dropzone em
     .box-shadow(@hover-shadow);
 }
 
+.k-textbox:focus,
 .k-autocomplete.k-state-focused,
 .k-dropdown-wrap.k-state-focused,
 .k-picker-wrap.k-state-focused,
@@ -1896,11 +1834,7 @@ html .km-pane-wrapper .km-widget,
     color: #fff;
     border-color: @error-border-color;
     background-color: red;
-    background-image: ~"-webkit-gradient(linear, 50% 0, 50% 100%, from(rgba(255,255,255,.3)), to(rgba(255,255,255,.15)))";
-    background-image: ~"-webkit-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,.15))";
-    background-image: ~"-moz-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,.15))";
-    background-image: ~"-ms-linear-gradient(top, rgba(255,255,255,.3), rgba(255,255,255,.15))";
-    background-image: ~"linear-gradient(to bottom, rgba(255,255,255,.3), rgba(255,255,255,.15))";
+    background-image: linear-gradient(to bottom, rgba(255,255,255,.3), rgba(255,255,255,.15));
 }
 
 .km-actionsheet .k-grid-delete:active,
@@ -2009,21 +1943,18 @@ html .km-pane-wrapper .km-widget,
 	.box-shadow(none);
 }
 
-.k-tabstrip-items .k-state-default,
-.k-ie7 .k-tabstrip-items .k-state-default .k-loading
+.k-tabstrip-items .k-state-default
 {
     border-color: @tabstrip-items-border;
 }
 
-.k-tabstrip-items .k-state-hover,
-.k-ie7 .k-tabstrip-items .k-state-hover .k-loading
+.k-tabstrip-items .k-state-hover
 {
     border-color: @hover-border-color;
 }
 
 .k-tabstrip-items .k-state-active,
-.k-panelbar .k-tabstrip-items .k-state-active,
-.k-ie7 .k-tabstrip-items .k-state-active .k-loading
+.k-panelbar .k-tabstrip-items .k-state-active
 {
     background-color: @active-background-color;
     .composite-background(@active-gradient);
@@ -2081,6 +2012,10 @@ html .km-pane-wrapper .km-widget,
     background-color: @active-filter-background-color;
 }
 
+.k-grid-filter.k-state-active .k-icon {
+    opacity: 1;
+}
+
 .k-grouping-row td,
 .k-group-footer td,
 .k-grid-footer td
@@ -2097,7 +2032,6 @@ html .km-pane-wrapper .km-widget,
 
 .k-grid td.k-state-focused
 {
-    -webkit-box-shadow: inset 0 0 0 1px @focused-item-shadow;
     box-shadow: inset 0 0 0 1px @focused-item-shadow;
 }
 
@@ -2194,9 +2128,23 @@ html .km-pane-wrapper .km-widget,
     background-color: transparent;
 }
 
-.k-button:focus
+.k-button:focus,
+.k-split-button:focus
 {
     outline:none;
+}
+
+.k-split-button:focus {
+    box-shadow: 0 0 0px 1px @button-focused-border-color;
+}
+
+.k-split-button:focus > .k-button {
+    background: transparent;
+    border-color: transparent;
+}
+
+.k-split-button:focus > .k-button.k-split-button-arrow {
+    border-left-color: @button-focused-border-color;
 }
 
 .k-editor .k-tool:focus
@@ -2206,136 +2154,28 @@ html .km-pane-wrapper .km-widget,
    .box-shadow(@button-focused-shadow);
 }
 
-.k-checkbox-label:before {
-   border-color: @checkbox-border-color-before;
-   border-radius: @checkbox-border-radius-before;
-}
+@import "themes/checkbox.less";
 
-.k-checkbox-label:after{
-  border-color: @checkbox-border-color-after;
-  background: @checkbox-background-color;
-  border-radius: @checkbox-border-radius-before;
-}
+@checkbox-border-color: lighten(@normal-text-color, 20%);
+@checkbox-border-radius: 1px;
+@checkbox-hover-border-color: darken(@normal-text-color, 7%);
+@checkbox-hover-box-shadow: none;
+@checkbox-checked-border-color: lighten(@normal-text-color, 20%);
+@checkbox-checked-color: @normal-text-color;
+@checkbox-active-border-color: @base;
+@checkbox-active-box-shadow: none;
+@checkbox-disabled-color: darken(@hover-background, 29%);
+@checkbox-disabled-border-color: darken(@hover-background, 29%);
 
-.k-checkbox-label:hover:after,
-.k-checkbox:checked + .k-checkbox-label:hover:after  {
-   border-color: @checkbox-hover-border-color;
-   box-shadow: @checkbox-hover-box-shadow;
-}
+@import "themes/radiobutton.less";
 
-.k-checkbox:checked + .k-checkbox-label:after {
-  background-color: @checkbox-checked-background-color-after;
-  border-color: @checkbox-checked-border-color-after; 
-  border-radius: @checkbox-checked-border-radius-after;
-  color: @checkbox-checked-color-after;
-}
-
-.k-checkbox-label:active:before {
-   box-shadow: @checkbox-active-box-shadow;
-   border-color: @checkbox-active-border-color-before;
-   border-radius: @checkbox-active-border-radius;
-}
-
-.k-checkbox-label:active:after {
-   border-color: @checkbox-active-border-color-after;
-   border-radius: @checkbox-active-border-radius-after;
-}
-
-.k-checkbox:checked + .k-checkbox-label:active:after {
-    border-color: @checkbox-active-border-color-after;
-}   
-
-.k-checkbox:checked + .k-checkbox-label:active:before {
- box-shadow: @checkbox-checked-active-box-shadow;
- border-radius: @checkbox-checked-active-border-radius-before; 
-}
-
-.k-checkbox:disabled + .k-checkbox-label {
-   color: @checkbox-disabled-color;
-}
-
-.k-checkbox:disabled + .k-checkbox-label:hover:after,
-.k-checkbox:disabled + .k-checkbox-label:active:before {
-  box-shadow: @checkbox-disabled-box-shadow;
-}
-
-.k-checkbox:checked:disabled + .k-checkbox-label:after {
-    background: @checkbox-disabled-background-color-after;
-    color: @checkbox-checked-disabled-color-after;
-}
-
- 
-.k-checkbox:disabled + .k-checkbox-label:after,
-.k-checkbox:checked:disabled + .k-checkbox-label:active:after,
-.k-checkbox:disabled + .k-checkbox-label:hover:before,
-.k-checkbox:checked:disabled + .k-checkbox-label:hover:after  {
-    background: @checkbox-disabled-background-color-after;
-    border-color: @checkbox-disabled-border-color-before;
-    border-radius: @checkbox-border-radius-before;
-}
-
-//Radio buttons
-.k-radio-label:before {  
-  border-color: @radio-border-color-before;
-  border-radius: 50%;
-  background-color: @radio-background-color;
-  border-width: @radio-border-width-before;
-}
-
-.k-radio-label:hover:before,
-.k-radio:checked + .k-radio-label:hover:before  {
-   border-color: @radio-hover-border-color;
-   box-shadow: @radio-hover-box-shadow;
-}
-
-.k-radio:checked + .k-radio-label:before {
-   border-color: @radio-checked-border-color-before;
-}
-
-.k-radio:checked + .k-radio-label:after {
-  background-color: @radio-checked-background-color-after;
-  border-radius: 50%; 
-}
-
-.k-radio-label:active:before {
-  box-shadow: @radio-active-box-shadow; 
-  border-radius: 50%;
-  border-color: @radio-active-border-color-before;
-}
-
-.k-radio:checked + .k-radio-label:active:before {
-  box-shadow: @radio-checked-active-box-shadow; 
-  border-radius: 50%;
-  border-color: @radio-checked-active-border-color-before;
-}
-
-.k-radio:disabled + .k-radio-label {
-   color: @radio-disabled-color;
-}
-
-.k-radio:disabled + .k-radio-label:before {       
-   border-color: #bfbfbf;
-}
-
-.k-radio:disabled + .k-radio-label:active:before {
-  box-shadow: @radio-disabled-box-shadow;
-  background: @radio-disabled-background-color-before;
-}
-
-.k-radio:disabled + .k-radio-label:before {
-    background: @radio-disabled-background-color-after;
-}
-
-.k-radio:disabled + .k-radio-label:hover:after,
-.k-radio:disabled + .k-radio-label:hover:before {
-  box-shadow: @radio-disabled-box-shadow;
-}
-
-.k-checkbox:focus + .k-checkbox-label:after,
-.k-radio:focus + .k-radio-label:before {
-  border-color: @checkbox-active-border-color-after;
-  box-shadow: @checkbox-active-box-shadow;
-}
+@radio-border-color: lighten(@normal-text-color, 20%);
+@radio-hover-border-color: darken(@normal-text-color, 7%);
+@radio-checked-background-color: darken(@normal-text-color, 7%);
+@radio-active-border-color: lighten(@normal-text-color, 20%);
+@radio-active-box-shadow: none;
+@radio-disabled-color: darken(@hover-background, 29%);
+@radio-disabled-border-color: #bfbfbf;
 
 // Retina sprite
 @media only screen and (-webkit-min-device-pixel-ratio: 2),
@@ -2382,74 +2222,6 @@ html .km-pane-wrapper .km-widget,
     .k-editor-toolbar-wrap .k-button-group .k-tool:focus {
         border-color: #fff;
     }
-}
-
-//ThemeBuilder Checkboxes / Radio buttons rules
-.ktb-checkbox-label-after {
-    border-color: @checkbox-border-color-after;
-    background: @checkbox-background-color;
-}
-
-.ktb-checkbox-label-hover-after,
-.ktb-checkbox-checked + .ktb-checkbox-label-hover-after {
-    border-color: @checkbox-hover-border-color;
-}
-
-.ktb-checkbox-checked + .ktb-checkbox-label-after {
-   background-color: @checkbox-checked-background-color-after;
-   border-color: @checkbox-checked-border-color-after; 
-   color: @checkbox-checked-color-after;
-}
-
-.ktb-checkbox-label-hover-after,
-.ktb-checkbox-checked + .ktb-checkbox-label-hover-after  {
-   border-color: @checkbox-hover-border-color;
-}
-
-.ktb-checkbox-label-active-after {
-   border-color: @checkbox-active-border-color-after;
-}
-
-.ktb-checkbox-checked-disabled + .ktb-checkbox-label-after,
-.ktb-checkbox-disabled + .ktb-checkbox-label-after,
-.ktb-checkbox-checked-disabled + .ktb-checkbox-label-active-after,
-.ktb-checkbox-disabled + .ktb-checkbox-label-hover-before,
-.ktb-checkbox-checked-disabled + .ktb-checkbox-label-hover-after  {
-    background: @checkbox-disabled-background-color-after;
-    color: @checkbox-checked-disabled-color-after;
-    border-color: @checkbox-disabled-border-color-before;
-}
-
-.ktb-radio-label-before {  
-   border-color: @radio-border-color-before;
-   background-color: @radio-background-color;
-}
-
-.ktb-radio-checked + .ktb-radio-label-after {
-    background-color: @radio-checked-background-color-after;
-}
-
-.ktb-radio-checked + .ktb-radio-label-before {
-    border-color: @radio-checked-border-color-before;
-}
-
-.ktb-radio-label-hover-before,
-.ktb-radio-checked + .ktb-radio-label-hover-before  {
-    border-color: @radio-hover-border-color;
-}
-
-.ktb-radio-label-active-before {
-   border-color: @radio-active-border-color-before;
-}
-
-.ktb-radio-checked + .ktb-radio-label-after {
-   background-color: @radio-checked-background-color-after;
-}
-
-.ktb-radio-disabled + .ktb-radio-label-before,
-.ktb-radio-disabled + .ktb-radio-label-active-before {
-    background: @radio-disabled-background-color-after;
-    border-color: @checkbox-disabled-border-color-before;
 }
 
 /* Responsive styles */
@@ -2937,6 +2709,15 @@ input.k-textbox:focus {
 		color: @widget-text-color;
 	}
 
+    .k-toggle-button.k-state-disabled,
+    .k-toggle-button.k-state-disabled:active,
+    .k-toggle-button.k-state-disabled:active:hover {
+        color: @disabled-text-color;
+        border-color: @disabled-border-color;
+        background-color: @disabled-background-color;
+        .composite-background(@disabled-gradient);
+    }
+    
     .k-overflow-anchor {
         background-color: @widget-background-color;
         border-color: @widget-border-color;
@@ -3014,8 +2795,8 @@ input.k-textbox:focus {
 .k-flatcolorpicker .k-transparency-slider .k-draghandle:hover,
 .k-flatcolorpicker .k-hue-slider .k-draghandle:focus,
 .k-flatcolorpicker .k-transparency-slider .k-draghandle:focus {
-    background-color: @checkbox-border-color-after;
-    border-color: @checkbox-border-color-after;
+    background-color: @checkbox-border-color;
+    border-color: @checkbox-border-color;
 }
 
 .k-flatcolorpicker .k-slider-horizontal .k-slider-track {
@@ -3086,7 +2867,7 @@ input.k-textbox:focus {
 }
 
 .k-scheduler-content .k-event {
-    box-shadow: inset 4px 0 0 0 rgba(255, 255, 255, .5);
+    .box-shadow(inset 4px 0 0 0 rgba(255, 255, 255, .5));
 }
 
 .k-scheduler-times tr,
@@ -3264,7 +3045,6 @@ input.k-textbox:focus {
     
         .k-pager-wrap .k-pager-nav,
         .k-pager-input {
-            float:none;
             display: inline-block;
             vertical-align: top;
         }
@@ -3273,16 +3053,11 @@ input.k-textbox:focus {
         .k-grid .k-pager-numbers {
             position: absolute;
             left: 5em;
-            display: -moz-inline-flex;
-            display: -webkit-inline-flex;
             display: inline-flex;
-            -webkit-flex-direction: column-reverse;
             flex-direction: column-reverse;
-            -webkit-transform: translatey(-100%);
-            -moz-transform: translatey(-100%);
-            transform: translatey(-100%);
             overflow: visible;
             height: auto;
+            transform: translatey(-100%);
         }
         
         .km-pane-wrapper .k-pager-numbers .k-link,
@@ -3304,8 +3079,6 @@ input.k-textbox:focus {
         .k-grid .k-pager-numbers .k-current-page {
             display: block;
             border-left: 0;
-            -webkit-transform: translatey(100%);
-            -moz-transform: translatey(100%);
             transform: translatey(100%);
         }
         
@@ -3433,7 +3206,6 @@ input.k-textbox:focus {
 .k-chart .k-mask {
     background-color: #fff;
     filter: alpha(opacity=68);
-    -moz-opacity: 0.68;
     opacity: 0.68;
 }
 
@@ -3445,8 +3217,6 @@ input.k-textbox:focus {
     width: 15px;
     height: 15px;
     background-color: #00b0ff;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
     border-radius: 10px;
 }
 
@@ -3465,8 +3235,6 @@ input.k-textbox:focus {
 
 .k-chart .k-navigator-hint .k-tooltip {
     border: 3px solid #ffffff;
-    -moz-box-shadow: 0 0 0 3px rgba(0,0,0,.2);
-    -webkit-box-shadow: 0 0 0 3px rgba(0,0,0,.2);
     box-shadow: 0 0 0 3px rgba(0,0,0,.2);
     background: #ffffff;
     color: #242424;
@@ -3495,4 +3263,21 @@ input.k-textbox:focus {
 
 .k-map .k-attribution {
     color: #666666;
+}
+
+@import "themes/spreadsheet.less";
+
+@spreadsheet-cell-border: #c8c8c8;
+@spreadsheet-selection-background: fadeout(@base, 80%);
+@spreadsheet-selection-border: @base;
+@spreadsheet-header-background: @background;
+@spreadsheet-header-border: #dadada;
+@spreadsheet-pane-border: #c8c8c8;
+
+.k-spreadsheet-sheets-bar {
+    background-color: #f4f4f4;
+
+    .k-item, .k-item.k-state-active {
+        border-color: @spreadsheet-header-border;
+    }
 }

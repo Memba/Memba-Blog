@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.core", "./kendo.data", "./kendo.ooxml" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, kendo){
 
@@ -42,6 +46,11 @@ kendo.ExcelExporter = kendo.Class.extend({
             if (data.length > 0) {
                 // Avoid toJSON() for perf and avoid data() to prevent reparenting.
                 this.dataSource._data = data;
+
+                var transport = this.dataSource.transport;
+                if (dataSource._isServerGrouped() && transport.options.data) { // clear the transport data when using aspnet-mvc transport
+                    transport.options.data = null;
+                }
             }
 
         } else {
@@ -103,7 +112,7 @@ kendo.ExcelExporter = kendo.Class.extend({
         if (column.values) {
             values = {};
 
-            $.each(column.values, function(item) {
+            $.each(column.values, function() {
                values[this.value] = this.text;
             });
 
@@ -115,7 +124,7 @@ kendo.ExcelExporter = kendo.Class.extend({
         return $.extend({}, column, {
             value: value,
             values: values,
-            groupHeaderTemplate: kendo.template(column.groupHeaderTemplate || "${title}: ${value}"),
+            groupHeaderTemplate: kendo.template(column.groupHeaderTemplate || "#= title #: #= value #"),
             groupFooterTemplate: column.groupFooterTemplate ? kendo.template(column.groupFooterTemplate) : null,
             footerTemplate: column.footerTemplate ? kendo.template(column.footerTemplate) : null
         });
@@ -385,9 +394,9 @@ kendo.ExcelExporter = kendo.Class.extend({
     _freezePane: function() {
         var columns = this._visibleColumns(this.options.columns || []);
 
-        var colSplit = this._trimColumns(this._leafColumns($.grep(columns, function(column) {
+        var colSplit = this._visibleColumns(this._trimColumns(this._leafColumns($.grep(columns, function(column) {
             return column.locked;
-        }))).length;
+        })))).length;
 
         return {
             rowSplit: this._headerDepth(columns),
@@ -479,6 +488,10 @@ kendo.ExcelMixin = {
 };
 
 })(kendo.jQuery, kendo);
+
+
+
+})();
 
 return window.kendo;
 

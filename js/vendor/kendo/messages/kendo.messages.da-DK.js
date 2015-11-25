@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -38,7 +38,7 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "neq": "Er forskellig fra",
     "startswith": "Begynder med",
     "contains": "Indeholder",
-    "doesnotcontain": "Does not contain"
+    "doesnotcontain": "Indeholder ikke"
   },
   "enums": {
     "eq": "Er lig med",
@@ -58,7 +58,7 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "gt": "Er senere end",
     "lte": "Er før eller lig med",
     "lt": "Er før",
-    "neq": "Er ikke lig med"
+    "neq": "Er forskellig fra"
   },
   "number": {
     "eq": "Er lig med",
@@ -74,7 +74,7 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "neq": "Er forskellig fra",
     "startswith": "Begynder med",
     "contains": "Indeholder",
-    "doesnotcontain": "Does not contain"
+    "doesnotcontain": "Indeholder ikke"
   },
   "enums": {
     "eq": "Er lig med",
@@ -94,7 +94,7 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
   "settings": "Kolonneindstillinger",
   "done": "Udført",
   "lock": "Lås",
-  "unlock": "Låse"
+  "unlock": "Lås op"
 });
 }
 
@@ -105,51 +105,51 @@ kendo.ui.RecurrenceEditor.prototype.options.messages =
 $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
   "daily": {
     "interval": "days(s)",
-    "repeatEvery": "Repeat every:"
+    "repeatEvery": "Gentag hver:"
   },
   "end": {
-    "after": "After",
-    "occurrence": "occurrence(s)",
-    "label": "End:",
-    "never": "Never",
-    "on": "On",
-    "mobileLabel": "Ends"
+    "after": "Efter",
+    "occurrence": "forekomst(er)",
+    "label": "Slut:",
+    "never": "Aldrig",
+    "on": "Den",
+    "mobileLabel": "Slutter"
   },
   "frequencies": {
-    "daily": "Daily",
-    "monthly": "Monthly",
-    "never": "Never",
-    "weekly": "Weekly",
-    "yearly": "Yearly"
+    "daily": "Daglig",
+    "monthly": "Månedlig",
+    "never": "Aldrig",
+    "weekly": "Ugentlig",
+    "yearly": "Årlig"
   },
   "monthly": {
-    "day": "Day",
-    "interval": "month(s)",
-    "repeatEvery": "Repeat every:",
-    "repeatOn": "Repeat on:"
+    "day": "Dag",
+    "interval": "måned(er)",
+    "repeatEvery": "Gentag hver:",
+    "repeatOn": "Gentag den:"
   },
   "offsetPositions": {
-    "first": "first",
-    "fourth": "fourth",
-    "last": "last",
-    "second": "second",
-    "third": "third"
+    "first": "første",
+    "fourth": "fjerde",
+    "last": "sidste",
+    "second": "anden",
+    "third": "tredje"
   },
   "weekly": {
-    "repeatEvery": "Repeat every:",
-    "repeatOn": "Repeat on:",
-    "interval": "week(s)"
+    "repeatEvery": "Gentag hver:",
+    "repeatOn": "Gentag den:",
+    "interval": "uge(r)"
   },
   "yearly": {
     "of": "of",
-    "repeatEvery": "Repeat every:",
-    "repeatOn": "Repeat on:",
-    "interval": "year(s)"
+    "repeatEvery": "Gentag hvert:",
+    "repeatOn": "Gentag den:",
+    "interval": "år"
   },
   "weekdays": {
-    "day": "day",
-    "weekday": "weekday",
-    "weekend": "weekend day"
+    "day": "dag",
+    "weekday": "ugedag",
+    "weekend": "weekend dag"
   }
 });
 }
@@ -165,15 +165,15 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "canceledit": "Fortryd",
     "update": "Opdatér",
     "edit": "Redigér",
-    "excel": "Export to Excel",
-    "pdf": "Export to PDF",
+    "excel": "Eksportér til Excel",
+    "pdf": "Eksportér til PDF",
     "select": "Vælg",
     "cancel": "Fortryd ændringer",
     "save": "Gem ændringer"
   },
   "editable": {
     "confirmation": "Er du sikker på, at du ønsker at slette denne række?",
-    "cancelDelete": "Annuller",
+    "cancelDelete": "Annullér",
     "confirmDelete": "Slet"
   }
 });
@@ -184,6 +184,7 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
 if (kendo.ui.Pager) {
 kendo.ui.Pager.prototype.options.messages =
 $.extend(true, kendo.ui.Pager.prototype.options.messages,{
+  "allPages": "All",
   "page": "Side",
   "display": "Viser rækker {0} - {1} af {2}",
   "of": "af {0}",
@@ -279,7 +280,7 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "uploadFile": "Upload",
   "backColor": "Baggrundsfarve",
   "foreColor": "Farve",
-  "dialogButtonSeparator": "or",
+  "dialogButtonSeparator": "eller",
   "dialogCancel": "Cancel",
   "dialogInsert": "Insert",
   "imageAltText": "Alternate text",
@@ -288,19 +289,19 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "linkText": "Text",
   "linkToolTip": "ToolTip",
   "linkWebAddress": "Web address",
-  "search": "Search",
-  "addColumnLeft": "Add column on the left",
-  "addColumnRight": "Add column on the right",
-  "addRowAbove": "Add row above",
-  "addRowBelow": "Add row below",
-  "deleteColumn": "Delete column",
-  "deleteRow": "Delete row",
-  "createTable": "Create table",
-  "dropFilesHere": "drop files here to upload",
-  "formatting": "Format",
-  "viewHtml": "View HTML",
-  "dialogUpdate": "Update",
-  "insertFile": "Insert file"
+  "search": "Søg",
+  "addColumnLeft": "Tilføj kolonne til venstre",
+  "addColumnRight": "Tilføj kolonne til højre",
+  "addRowAbove": "Tilføj kolonne over",
+  "addRowBelow": "Tilføj kolonne under",
+  "deleteColumn": "Slet kolonne",
+  "deleteRow": "Slet række row",
+  "createTable": "Opret tabel",
+  "dropFilesHere": "træk og slip filer for at uploade",
+  "formatting": "Formatér",
+  "viewHtml": "Vis HTML",
+  "dialogUpdate": "Opdater",
+  "insertFile": "Indsæt fil"
 });
 }
 
@@ -318,8 +319,8 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "statusUploaded": "uploadet",
   "statusUploading": "uploader",
   "uploadSelectedFiles": "Upload filer",
-  "headerStatusUploaded": "Done",
-  "headerStatusUploading": "Uploading..."
+  "headerStatusUploaded": "Færdig",
+  "headerStatusUploading": "Uploader..."
 });
 }
 

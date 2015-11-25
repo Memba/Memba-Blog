@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,8 @@
 (function(f, define){
     define([ "./kendo.core", "./kendo.color", "./kendo.drawing" ], f);
 })(function(){
+
+(function(){
 
 (function(window, parseFloat, undefined){
 
@@ -21,6 +23,7 @@
     /* jshint loopfunc:true */
     /* jshint newcap:false */
     /* global VBArray */
+    /* jshint latedef: nofunc */
 
     var kendo = window.kendo;
 
@@ -1026,7 +1029,6 @@
         },
         beforeRender: function() {
             var self = this;
-            var font = self._font;
             var sub = self._sub;
 
             // write the TTF data
@@ -2037,6 +2039,10 @@
 
 })(window, parseFloat);
 
+})();
+
+(function(){
+
 (function(window){
 
 /*****************************************************************************\
@@ -2397,7 +2403,7 @@ var GlyfTable = (function(){
     var MORE_COMPONENTS           = 0x0020;
     var WE_HAVE_AN_X_AND_Y_SCALE  = 0x0040;
     var WE_HAVE_A_TWO_BY_TWO      = 0x0080;
-    var WE_HAVE_INSTRUCTIONS      = 0x0100;
+    //var WE_HAVE_INSTRUCTIONS      = 0x0100;
 
     function CompoundGlyph(data) {
         this.raw = data;
@@ -2438,7 +2444,7 @@ var GlyfTable = (function(){
     };
 
     return deftable({
-        parse: function(data) {
+        parse: function() {
             this.cache = {};
         },
         glyphFor: function(id) {
@@ -2508,7 +2514,7 @@ var NameTable = (function(){
     return deftable({
         parse: function(data) {
             data.offset(this.offset);
-            var format = data.readShort();
+            data.readShort();   // format
             var count = data.readShort();
             var stringOffset = this.offset + data.readShort();
             var nameRecords = data.times(count, function(){
@@ -3077,7 +3083,7 @@ function TTFFont(rawData, name) {
         if (!name) {
             throw new Error("Must specify a name for TTC files");
         }
-        var version = data.readLong();
+        data.readLong();        // version
         var numFonts = data.readLong();
         for (var i = 0; i < numFonts; ++i) {
             var offset = data.readLong();
@@ -3129,17 +3135,21 @@ PDF.TTFFont = TTFFont;
 
 })(window);
 
+})();
+
+(function(){
+
 (function(kendo, $){
 
     "use strict";
 
     // WARNING: removing the following jshint declaration and turning
     // == into === to make JSHint happy will break functionality.
-    /*jshint eqnull:true  */
+    /* jshint eqnull: true  */
+    /* jshint latedef: nofunc */
 
     var drawing     = kendo.drawing;
     var geo         = kendo.geometry;
-    var Color       = drawing.Color;
 
     var TEXT_RENDERING_MODE = kendo.pdf.TEXT_RENDERING_MODE;
 
@@ -3219,7 +3229,7 @@ PDF.TTFFont = TTFFont;
                 var bbox = tmp.bbox;
                 group = tmp.root;
                 // var tmp, bbox;
-                
+
                 var paperSize = getOption("paperSize", getOption("paperSize", "auto"), options), addMargin = false;
                 if (paperSize == "auto") {
                     if (bbox) {
@@ -3317,12 +3327,13 @@ PDF.TTFFont = TTFFont;
 
         setStrokeOptions(element, page, pdf);
         setFillOptions(element, page, pdf);
-        setClipping(element, page, pdf);
 
         if (transform) {
             var m = transform.matrix();
             page.transform(m.a, m.b, m.c, m.d, m.e, m.f);
         }
+
+        setClipping(element, page, pdf);
 
         dispatch({
             Path      : drawPath,
@@ -3331,7 +3342,8 @@ PDF.TTFFont = TTFFont;
             Arc       : drawArc,
             Text      : drawText,
             Image     : drawImage,
-            Group     : drawGroup
+            Group     : drawGroup,
+            Rect      : drawRect
         }, element, page, pdf);
 
         page.restore();
@@ -3341,7 +3353,7 @@ PDF.TTFFont = TTFFont;
         }
     }
 
-    function setStrokeOptions(element, page, pdf) {
+    function setStrokeOptions(element, page) {
         var stroke = element.stroke && element.stroke();
         if (!stroke) {
             return;
@@ -3388,7 +3400,7 @@ PDF.TTFFont = TTFFont;
         }
     }
 
-    function setFillOptions(element, page, pdf) {
+    function setFillOptions(element, page) {
         var fill = element.fill && element.fill();
         if (!fill) {
             return;
@@ -3504,7 +3516,7 @@ PDF.TTFFont = TTFFont;
         }
     }
 
-    function maybeDrawRect(path, page, pdf) {
+    function maybeDrawRect(path, page) {
         var segments = path.segments;
         if (segments.length == 4 && path.options.closed) {
             // detect if this path looks like a rectangle parallel to the axis
@@ -3597,7 +3609,7 @@ PDF.TTFFont = TTFFont;
         maybeFillStroke(element, page, pdf);
     }
 
-    function drawText(element, page, pdf) {
+    function drawText(element, page) {
         var style = kendo.pdf.parseFontDef(element.options.font);
         var pos = element._position;
         var mode;
@@ -3627,7 +3639,7 @@ PDF.TTFFont = TTFFont;
         }
     }
 
-    function drawImage(element, page, pdf) {
+    function drawImage(element, page) {
         var url = element.src();
         if (!url) {
             return;
@@ -3638,6 +3650,12 @@ PDF.TTFFont = TTFFont;
         var sz = rect.getSize();
         page.transform(sz.width, 0, 0, -sz.height, tl.x, tl.y + sz.height);
         page.drawImage(url);
+    }
+
+    function drawRect(element, page, pdf) {
+        var geometry = element.geometry();
+        page.rect(geometry.origin.x, geometry.origin.y, geometry.size.width, geometry.size.height);
+        maybeFillStroke(element, page, pdf);
     }
 
     function exportPDF(group, options) {
@@ -3786,6 +3804,12 @@ PDF.TTFFont = TTFFont;
                             return change(null);
                         }
                         return el;
+                    },
+                    Rect: function(shape) {
+                        if (!visible(shape)) {
+                            return change(null);
+                        }
+                        return shape;
                     }
                 }, shape);
             });
@@ -3804,6 +3828,10 @@ PDF.TTFFont = TTFFont;
     });
 
 })(window.kendo, window.kendo.jQuery);
+
+})();
+
+(function(){
 
 
 
@@ -3881,11 +3909,29 @@ kendo.PDFMixin = {
         return promise;
     },
 
-    _drawPDF: function() {
-        return kendo.drawing.drawDOM(this.wrapper);
+    _drawPDF: function(progress) {
+        var promise = new $.Deferred();
+
+        kendo.drawing.drawDOM(this.wrapper)
+        .done(function(group) {
+            var args = {
+                page: group,
+                pageNumber: 1,
+                progress: 1,
+                totalPages: 1
+            };
+
+            progress.notify(args);
+            promise.resolve(args.page);
+        })
+        .fail(function(err) {
+            promise.reject(err);
+        });
+
+        return promise;
     },
 
-    _drawPDFShadow: function(settings) {
+    _drawPDFShadow: function(settings, drawOptions) {
         settings = settings || {};
         var wrapper = this.wrapper;
         var shadow = $("<div class='k-pdf-export-shadow'>");
@@ -3901,16 +3947,37 @@ kendo.PDFMixin = {
         wrapper.before(shadow);
         shadow.append(settings.content || wrapper.clone(true, true));
 
-        var promise = kendo.drawing.drawDOM(shadow);
-        promise.always(function() {
-            shadow.remove();
-        });
+        var defer = $.Deferred();
 
-        return promise;
+        /* https://github.com/telerik/kendo/issues/4790 -- We need to
+         * allow a small timeout so that the browser finalizes the
+         * layout of any images here.  Another option would be to pass
+         * forcePageBreak: "-" to drawDOM, but that would make it
+         * clone the content as well and look for page breaks;
+         * needless work, so better do it here.
+         */
+        setTimeout(function(){
+            var promise = kendo.drawing.drawDOM(shadow, drawOptions);
+            promise.always(function() {
+                shadow.remove();
+            }).then(function(){
+                defer.resolve.apply(defer, arguments);
+            }).fail(function(){
+                defer.reject.apply(defer, arguments);
+            }).progress(function(){
+                defer.progress.apply(defer, arguments);
+            });
+        }, 15);
+
+        return defer.promise();
     }
 };
 
 })(kendo, window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

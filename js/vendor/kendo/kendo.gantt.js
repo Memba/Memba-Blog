@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,10 +10,16 @@
     define([ "./kendo.data", "./kendo.popup", "./kendo.window", "./kendo.resizable", "./kendo.gantt.list", "./kendo.gantt.timeline", "./kendo.grid", "./kendo.pdf" ], f);
 })(function(){
 
+(function(){
+
+
+
 (function($, undefined) {
 
     var kendo = window.kendo;
+    var supportsMedia = "matchMedia" in window;
     var browser = kendo.support.browser;
+    var mobileOS = kendo.support.mobileOS;
     var Observable = kendo.Observable;
     var Widget = kendo.ui.Widget;
     var DataSource = kendo.data.DataSource;
@@ -28,6 +34,7 @@
     var isPlainObject = $.isPlainObject;
     var map = $.map;
     var keys = kendo.keys;
+    var defaultIndicatorWidth = 3;
     var NS = ".kendoGantt";
     var PERCENTAGE_FORMAT = "p0";
     var TABINDEX = "tabIndex";
@@ -36,12 +43,12 @@
     var STRING = "string";
     var DIRECTIONS = {
         "down": {
-            origin: "bottom center",
-            position: "top center"
+            origin: "bottom left",
+            position: "top left"
         },
         "up": {
-            origin: "top center",
-            position: "bottom center"
+            origin: "top left",
+            position: "bottom left"
         }
     };
     var ARIA_DESCENDANT = "aria-activedescendant";
@@ -50,12 +57,14 @@
     var DOT = ".";
     var TASK_DELETE_CONFIRM = "Are you sure you want to delete this task?";
     var DEPENDENCY_DELETE_CONFIRM = "Are you sure you want to delete this dependency?";
+    var TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="#=styles.buttonToggle#"><span class="#=styles.iconToggle#">&nbps;</span></button>');
     var BUTTON_TEMPLATE = '<button class="#=styles.button# #=className#" '+
             '#if (action) {#' +
                 'data-action="#=action#"' +
             '#}#' +
-        '><span class="#=iconClass#"></span>#=text#</button>';
+        '><span class="#=iconClass#"></span><span>#=text#</span></button>';
     var COMMAND_BUTTON_TEMPLATE = '<a class="#=className#" #=attr# href="\\#">#=text#</a>';
+    var VIEWBUTTONTEMPLATE = kendo.template('<li class="#=styles.currentView# #=styles.viewButtonDefault#"><a href="\\#" class="#=styles.link#">&nbps;</a></li>');
     var HEADER_VIEWS_TEMPLATE = kendo.template('<ul class="#=styles.viewsWrapper#">' +
             '#for(var view in views){#' +
                 '<li class="#=styles.viewButtonDefault# #=styles.viewButton#-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a href="\\#" class="#=styles.link#">#=views[view].title#</a></li>' +
@@ -97,6 +106,7 @@
 
     var ganttStyles = {
         wrapper: "k-widget k-gantt",
+        rowHeight: "k-gantt-rowheight",
         listWrapper: "k-gantt-layout k-gantt-treelist",
         list: "k-gantt-treelist",
         timelineWrapper: "k-gantt-layout k-gantt-timeline",
@@ -113,6 +123,7 @@
         buttonDelete: "k-gantt-delete",
         buttonCancel: "k-gantt-cancel",
         buttonSave: "k-gantt-update",
+        buttonToggle: "k-gantt-toggle",
         primary: "k-primary",
         hovered: "k-state-hover",
         selected: "k-state-selected",
@@ -136,14 +147,18 @@
             headerWrapper: "k-floatwrap k-header k-gantt-toolbar",
             footerWrapper: "k-floatwrap k-header k-gantt-toolbar",
             toolbar: "k-gantt-toolbar",
+            expanded: "k-state-expanded",
             views: "k-gantt-views",
             viewsWrapper: "k-reset k-header k-gantt-views",
             actions: "k-gantt-actions",
             button: "k-button k-button-icontext",
+            buttonToggle: "k-button k-button-icon k-gantt-toggle",
             iconPlus: "k-icon k-i-plus",
             iconPdf: "k-icon k-i-pdf",
+            iconToggle: "k-icon k-i-gantt-toggle",
             viewButtonDefault: "k-state-default",
             viewButton: "k-view",
+            currentView: "k-current-view",
             link: "k-link",
             pdfButton: "k-gantt-pdf",
             appendButton: "k-gantt-create"
@@ -233,19 +248,7 @@
                 .add(window);
     }
 
-    var defaultCommands = {
-        append: {
-            text: "Add Task",
-            action: "add",
-            className: ganttStyles.toolbar.appendButton,
-            iconClass: ganttStyles.toolbar.iconPlus
-        },
-        pdf: {
-            text: "Export to PDF",
-            className: ganttStyles.toolbar.pdfButton,
-            iconClass: ganttStyles.toolbar.iconPdf
-        }
-    };
+    var defaultCommands;
 
     var TaskDropDown = Observable.extend({
         init: function(element, options) {
@@ -287,6 +290,7 @@
             var that = this;
             var ganttStyles = Gantt.styles;
             var itemSelector = "li" + DOT + ganttStyles.item;
+            var appendButtonSelector = DOT + ganttStyles.toolbar.appendButton;
             var actions = this.options.messages.actions;
             var navigatable = this.options.navigatable;
 
@@ -312,8 +316,8 @@
 
             this.popup = new kendo.ui.Popup(this.list,
                 extend({
-                    anchor: this.element,
-                    open: function(e) {
+                    anchor: this.element.find(appendButtonSelector),
+                    open: function() {
                         that._adjustListWidth();
                     },
                     animation: this.options.animation
@@ -321,7 +325,7 @@
             );
 
             this.element
-                .on(CLICK + NS, DOT + ganttStyles.toolbar.appendButton, function(e) {
+                .on(CLICK + NS, appendButtonSelector, function(e) {
                     var target = $(this);
                     var action = target.attr(kendo.attr("action"));
 
@@ -356,7 +360,7 @@
                     $(this).removeClass(ganttStyles.hovered);
                 })
                 .end()
-                .on(CLICK + NS, itemSelector, function(e) {
+                .on(CLICK + NS, itemSelector, function() {
                     that.trigger("command", { type: $(this).attr(kendo.attr("action")) });
                     that.popup.close();
                 });
@@ -407,8 +411,10 @@
 
         _adjustListWidth: function() {
             var list = this.list;
+            var ganttStyles = Gantt.styles;
             var width = list[0].style.width;
-            var wrapper = this.element;
+            var wrapper = this.element.find(DOT + ganttStyles.toolbar.appendButton);
+            var outerWidth = list.outerWidth();
             var computedStyle;
             var computedWidth;
 
@@ -429,6 +435,10 @@
                 width = computedWidth;
             }
 
+            if (outerWidth > width) {
+                width = outerWidth;
+            }
+
             list.css({
                 fontFamily: wrapper.css("font-family"),
                 width: width
@@ -447,7 +457,7 @@
 
     var createDataSource = function(type, name) {
         return function(options) {
-            options = isArray(dataSource) ? { data: options } : options;
+            options = isArray(options) ? { data: options } : options;
 
             var dataSource = options || {};
             var data = dataSource.data;
@@ -543,14 +553,8 @@
             id: { type: "number" },
             parentId: { type: "number", defaultValue: null, validation: { required: true } },
             orderId: { type: "number", validation: { required: true } },
-            title: { type: "string", defaultValue: "" },
-            start: {
-                type: "date", validation: {
-                    required: true,
-                    dateCompare: dateCompareValidator,
-                    message: "Start date should be before or equal to the end date"
-                }
-            },
+            title: { type: "string", defaultValue: "New task" },
+            start: { type: "date", validation: { required: true } },
             end: {
                 type: "date", validation: {
                     required: true,
@@ -1243,7 +1247,7 @@
                 }
             });
 
-            grid.wrapper.on(CLICK + NS, "input[type='checkbox']", function(e) {
+            grid.wrapper.on(CLICK + NS, "input[type='checkbox']", function() {
                 var element = $(this);
                 var row = $(element).closest("tr");
                 var model = grid.dataSource.getByUid(row.attr(kendo.attr("uid")));
@@ -1386,6 +1390,20 @@
                 options = { dataSource: options };
             }
 
+            defaultCommands = {
+                append: {
+                    text: "Add Task",
+                    action: "add",
+                    className: Gantt.styles.toolbar.appendButton,
+                    iconClass: Gantt.styles.toolbar.iconPlus
+                },
+                pdf: {
+                    text: "Export to PDF",
+                    className: Gantt.styles.toolbar.pdfButton,
+                    iconClass: Gantt.styles.toolbar.iconPdf
+                }
+            };
+
             Widget.fn.init.call(this, element, options);
 
             this._wrapper();
@@ -1445,7 +1463,8 @@
             "moveEnd",
             "resizeStart",
             "resize",
-            "resizeEnd"
+            "resizeEnd",
+            "columnResize"
         ],
 
         options: {
@@ -1454,12 +1473,15 @@
             navigatable: false,
             selectable: true,
             editable: true,
+            resizable: false,
+            columnResizeHandleWidth: defaultIndicatorWidth,
             columns: [],
             views: [],
             dataSource: {},
             dependencies: {},
             resources: {},
             assignments: {},
+            taskTemplate: null,
             messages: {
                 save: "Save",
                 cancel: "Cancel",
@@ -1506,7 +1528,8 @@
             hourSpan: 1,
             snap: true,
             height: 600,
-            listWidth: "30%"
+            listWidth: "30%",
+            rowHeight: null
         },
 
         select: function(value) {
@@ -1567,6 +1590,11 @@
 
             this.toolbar.off(NS);
 
+            if (supportsMedia) {
+                this._mediaQuery.removeListener(this._mediaQueryHandler);
+                this._mediaQuery = null;
+            }
+
             $(window).off("resize" + NS, this._resizeHandler);
             $(this.wrapper).off(NS);
 
@@ -1601,6 +1629,10 @@
             if (width) {
                 this.wrapper.width(width);
             }
+
+            if (options.rowHeight) {
+                this.wrapper.addClass(ganttStyles.rowHeight);
+            }
         },
 
         _toolbar: function() {
@@ -1608,16 +1640,47 @@
             var ganttStyles = Gantt.styles;
             var viewsSelector = DOT + ganttStyles.toolbar.views + " > li";
             var pdfSelector = DOT + ganttStyles.toolbar.pdfButton;
+            var toggleSelector = DOT + ganttStyles.buttonToggle;
+            var contentSelector = DOT + ganttStyles.gridContent;
+            var treelist = $(DOT + ganttStyles.list);
+            var timeline = $(DOT + ganttStyles.timeline);
             var hoveredClassName = ganttStyles.hovered;
             var actions = this.options.toolbar;
             var actionsWrap = $("<div class='" + ganttStyles.toolbar.actions + "'>");
             var toolbar;
             var views;
+            var toggleButton;
+            var handler = function(e) {
+                if (e.matches) {
+                    treelist.css({
+                        "display": "none",
+                        "max-width": 0
+                    });
+                } else {
+                    treelist.css({
+                        "display": "inline-block",
+                        "width": "30%",
+                        "max-width": "none"
+                    });
+
+                    timeline.css("display", "inline-block");
+
+                    that.refresh();
+
+                    timeline
+                        .find(contentSelector)
+                        .scrollTop(that.scrollTop);
+                }
+
+                that._resize();
+            };
 
             if (!isFunction(actions)) {
                 actions = (typeof actions === STRING ? actions : this._actions(actions));
                 actions = proxy(kendo.template(actions), this);
             }
+
+            toggleButton = $(TOGGLE_BUTTON_TEMPLATE({ styles: ganttStyles.toolbar }));
 
             views = $(HEADER_VIEWS_TEMPLATE({
                 ns: kendo.ns,
@@ -1628,24 +1691,82 @@
             actionsWrap.append(actions({}));
 
             toolbar = $("<div class='" + ganttStyles.toolbar.headerWrapper + "'>")
-                .append(actionsWrap)
-                .append(views);
+                .append(toggleButton)
+                .append(views)
+                .append(actionsWrap);
+
+            if (views.find("li").length > 1) {
+                views.prepend(VIEWBUTTONTEMPLATE({ styles: ganttStyles.toolbar }));
+            }
 
             this.wrapper.prepend(toolbar);
             this.toolbar = toolbar;
+
+            if (supportsMedia) {
+                this._mediaQueryHandler = proxy(handler, this);
+                this._mediaQuery = window.matchMedia("(max-width: 480px)");
+                this._mediaQuery.addListener(this._mediaQueryHandler);
+            }
 
             toolbar
                 .on(CLICK + NS, viewsSelector, function(e) {
                     e.preventDefault();
 
+                    var list = that.list;
                     var name = $(this).attr(kendo.attr("name"));
+                    var currentView = views.find(DOT + ganttStyles.toolbar.currentView);
+
+                    if (currentView.is(":visible")) {
+                        currentView.parent().toggleClass(ganttStyles.toolbar.expanded);
+                    }
+
+                    if (list.editable && list.editable.trigger("validate")) {
+                        return;
+                    }
 
                     if (!that.trigger("navigate", { view: name })) {
                         that.view(name);
                     }
                 })
                 .on(CLICK + NS, pdfSelector, function(e) {
+                    e.preventDefault();
+
                     that.saveAsPDF();
+                })
+                .on(CLICK + NS, toggleSelector, function(e) {
+                    e.preventDefault();
+
+                    if (treelist.is(":visible")) {
+                        treelist.css({
+                            "display": "none",
+                            "width": "0"
+                        });
+                        timeline.css({
+                            "display": "inline-block",
+                            "width": "100%"
+                        });
+
+                        that.refresh();
+
+                        timeline
+                            .find(contentSelector)
+                            .scrollTop(that.scrollTop);
+                    } else {
+                        timeline.css({
+                            "display": "none",
+                            "width": 0
+                        });
+                        treelist
+                            .css({
+                                "display": "inline-block",
+                                "width": "100%",
+                                "max-width": "none"
+                            })
+                            .find(contentSelector)
+                            .scrollTop(that.scrollTop);
+                    }
+
+                    that._resize();
                 });
 
             this.wrapper
@@ -1741,35 +1862,61 @@
                 .end()
                 .children(timelineSelector)
                 .width(totalWidth - (splitBarWidth + treeListWidth));
+
+            if (totalWidth < (treeListWidth + splitBarWidth)) {
+                element.find(listSelector).width(totalWidth - splitBarWidth);
+            }
         },
 
         _scrollTo: function(value) {
             var view = this.timeline.view();
+            var list = this.list;
             var attr = kendo.attr("uid");
             var id = typeof value === "string" ? value :
                 value.closest("tr" + selector()).attr(attr);
-            var scrollTarget = view.content.find(selector(id));
+            var action;
+            var scrollTarget;
+            var scrollIntoView = function() {
+                if (scrollTarget.length !== 0) {
+                    action();
+                }
+            };
 
-            if (scrollTarget.length !== 0) {
-                view._scrollTo(scrollTarget);
+            if (view.content.is(":visible")) {
+                scrollTarget = view.content.find(selector(id));
+                action = function() {
+                    view._scrollTo(scrollTarget);
+                };
+            } else {
+                scrollTarget = list.content.find(selector(id));
+                action = function() {
+                    scrollTarget.get(0).scrollIntoView();
+                };
             }
+
+            scrollIntoView();
         },
 
         _dropDowns: function() {
             var that = this;
             var actionsSelector = DOT + Gantt.styles.toolbar.actions;
             var actionMessages = this.options.messages.actions;
-            var dataSource = this.dataSource;
             var timeline = this.timeline;
 
             var handler = function(e) {
                 var type = e.type;
                 var orderId;
+                var dataSource = that.dataSource;
                 var task = dataSource._createNewModel();
                 var selected = that.dataItem(that.select());
                 var parent = dataSource.taskParent(selected);
                 var firstSlot = timeline.view()._timeSlots()[0];
                 var target = type === "add" ? selected : parent;
+                var editable = that.list.editable;
+
+                if (editable && editable.trigger("validate")) {
+                    return;
+                }
 
                 task.set("title", "New task");
 
@@ -1830,8 +1977,11 @@
                 dataSource: this.dataSource,
                 selectable: this.options.selectable,
                 editable: this.options.editable,
+                resizable: this.options.resizable,
+                columnResizeHandleWidth: this.options.columnResizeHandleWidth,
                 listWidth: listWrapper.outerWidth(),
-                resourcesField: this.resources.field
+                resourcesField: this.resources.field,
+                rowHeight: this.options.rowHeight
             };
             var columns = options.columns;
             var column;
@@ -1888,6 +2038,9 @@
                         toggleButtons.attr("data-action", "add");
                         that.timeline.clearSelection();
                     }
+                })
+                .bind("columnResize", function(e) {
+                    that.trigger("columnResize", { column: e.column, oldWidth: e.oldWidth, newWidth: e.newWidth });
                 });
         },
 
@@ -1896,21 +2049,37 @@
             var ganttStyles = Gantt.styles;
             var options = trimOptions(extend(true, { resourcesField: this.resources.field }, this.options));
             var element = this.wrapper.find(DOT + ganttStyles.timeline + " > div");
+            var currentViewSelector = DOT + ganttStyles.toolbar.currentView + " > " + DOT + ganttStyles.toolbar.link;
 
             this.timeline = new kendo.ui.GanttTimeline(element, options);
 
             this.timeline
                 .bind("navigate", function(e) {
-                    that.toolbar
+                    var viewName = e.view.replace(/\./g, "\\.").toLowerCase();
+
+                    var text = that.toolbar
                         .find(DOT + ganttStyles.toolbar.views +" > li")
                         .removeClass(ganttStyles.selected)
                         .end()
-                        .find(DOT + ganttStyles.toolbar.viewButton + "-" + e.view.replace(/\./g, "\\.").toLowerCase())
-                        .addClass(ganttStyles.selected);
+                        .find(DOT + ganttStyles.toolbar.viewButton + "-" + viewName)
+                        .addClass(ganttStyles.selected)
+                        .find(DOT + ganttStyles.toolbar.link)
+                        .text();
+
+                    that.toolbar
+                        .find(currentViewSelector)
+                        .text(text);
 
                     that.refresh();
                 })
                 .bind("moveStart", function(e) {
+                    var editable = that.list.editable;
+
+                    if (editable && editable.trigger("validate")) {
+                        e.preventDefault();
+                        return;
+                    }
+
                     if (that.trigger("moveStart", { task: e.task })) {
                         e.preventDefault();
                     }
@@ -1937,6 +2106,13 @@
                     }
                 })
                 .bind("resizeStart", function(e) {
+                    var editable = that.list.editable;
+
+                    if (editable && editable.trigger("validate")) {
+                        e.preventDefault();
+                        return;
+                    }
+
                     if (that.trigger("resizeStart", { task: e.task })) {
                         e.preventDefault();
                     }
@@ -1960,8 +2136,22 @@
                         that._updateTask(that.dataSource.getByUid(task.uid), updateInfo);
                     }
                 })
+                .bind("percentResizeStart", function(e) {
+                    var editable = that.list.editable;
+
+                    if (editable && editable.trigger("validate")) {
+                        e.preventDefault();
+                    }
+                })
                 .bind("percentResizeEnd", function(e) {
                     that._updateTask(that.dataSource.getByUid(e.task.uid), { percentComplete: e.percentComplete });
+                })
+                .bind("dependencyDragStart", function(e) {
+                    var editable = that.list.editable;
+
+                    if (editable && editable.trigger("validate")) {
+                        e.preventDefault();
+                    }
                 })
                 .bind("dependencyDragEnd", function(e) {
                     var dependency = that.dependencies._createNewModel({
@@ -1973,18 +2163,42 @@
                     that._createDependency(dependency);
                 })
                 .bind("select", function(e) {
+                    var editable = that.list.editable;
+
+                    if (editable) {
+                        editable.trigger("validate");
+                    }
+
                     that.select("[data-uid='" + e.uid + "']");
                 })
                 .bind("editTask", function(e) {
+                    var editable = that.list.editable;
+
+                    if (editable && editable.trigger("validate")) {
+                        return;
+                    }
+
                     that.editTask(e.uid);
                 })
-                .bind("clear", function(e) {
+                .bind("clear", function() {
                     that.clearSelection();
                 })
                 .bind("removeTask", function(e) {
+                    var editable = that.list.editable;
+
+                    if (editable && editable.trigger("validate")) {
+                        return;
+                    }
+
                     that.removeTask(that.dataSource.getByUid(e.uid));
                 })
                 .bind("removeDependency", function(e) {
+                    var editable = that.list.editable;
+
+                    if (editable && editable.trigger("validate")) {
+                        return;
+                    }
+
                     that.removeDependency(that.dependencies.getByUid(e.uid));
                 });
         },
@@ -2071,7 +2285,7 @@
                 bind("change", this._assignmentsRefreshHandler);
         },
 
-        _createEditor: function(command) {
+        _createEditor: function() {
             var that = this;
 
             var editor = this._editor = new PopupEditor(this.wrapper, extend({}, this.options, {
@@ -2500,7 +2714,7 @@
             this._editor.showDialog(options);
         },
 
-        refresh: function(e) {
+        refresh: function() {
             if (this._preventRefresh || this.list.editable) {
                 return;
             }
@@ -2553,7 +2767,7 @@
             this.trigger("dataBound");
         },
 
-        refreshDependencies: function(e) {
+        refreshDependencies: function() {
             if (this._preventDependencyRefresh) {
                 return;
             }
@@ -2568,7 +2782,6 @@
         },
 
         _assignResources: function(taskTree) {
-            var that = this;
             var resources = this.resources;
             var assignments = this.assignments;
             var groupAssigments = function() {
@@ -2687,16 +2900,16 @@
             this._resizeDraggable = wrapper
                 .find(DOT + ganttStyles.splitBar)
                 .height(treeListWrapper.height())
-                .hover(function (e) {
+                .hover(function () {
                     $(this).addClass(ganttStyles.splitBarHover);
-                }, function (e) {
+                }, function () {
                     $(this).removeClass(ganttStyles.splitBarHover);
                 })
                 .end()
                 .kendoResizable({
                     orientation: "horizontal",
                     handle: DOT + ganttStyles.splitBar,
-                    "start": function (e) {
+                    "start": function () {
                         treeListWidth = treeListWrapper.width();
                         timelineWidth = timelineWrapper.width();
                         timelineScroll = timelineWrapper.find(contentSelector).scrollLeft();
@@ -2722,24 +2935,33 @@
         },
 
         _scrollable: function() {
+            var that = this;
             var ganttStyles = Gantt.styles;
             var contentSelector = DOT + ganttStyles.gridContent;
             var headerSelector = DOT + ganttStyles.gridHeaderWrap;
-            var timelineWrapper = this.timeline.element;
-            var treeListWrapper = this.list.element;
+            var timelineHeader = this.timeline.element.find(headerSelector);
+            var timelineContent = this.timeline.element.find(contentSelector);
+            var treeListHeader = this.list.element.find(headerSelector);
+            var treeListContent = this.list.element.find(contentSelector);
 
-            timelineWrapper.find(contentSelector).on("scroll", function(e) {
-                timelineWrapper.find(headerSelector).scrollLeft(this.scrollLeft);
-                treeListWrapper.find(contentSelector).scrollTop(this.scrollTop);
+            if (mobileOS) {
+                treeListContent.css("overflow-y", "auto");
+            }
+
+            timelineContent.on("scroll", function() {
+                that.scrollTop = this.scrollTop;
+                timelineHeader.scrollLeft(this.scrollLeft);
+                treeListContent.scrollTop(this.scrollTop);
             });
 
-            treeListWrapper.find(contentSelector)
-                .on("scroll", function(e) {
-                    treeListWrapper.find(headerSelector).scrollLeft(this.scrollLeft);
+            treeListContent
+                .on("scroll", function() {
+                    that.scrollTop = this.scrollTop;
+                    treeListHeader.scrollLeft(this.scrollLeft);
+                    timelineContent.scrollTop(this.scrollTop);
                 })
                 .on("DOMMouseScroll" + NS + " mousewheel" + NS, function(e) {
-                    var content = timelineWrapper.find(contentSelector);
-                    var scrollTop = content.scrollTop();
+                    var scrollTop = timelineContent.scrollTop();
                     var delta = kendo.wheelDeltaY(e);
 
                     if (delta) {
@@ -2747,7 +2969,7 @@
                         //In Firefox DOMMouseScroll event cannot be canceled
                         $(e.currentTarget).one("wheel" + NS, false);
 
-                        content.scrollTop(scrollTop + (-delta));
+                        timelineContent.scrollTop(scrollTop + (-delta));
                     }
                 });
         },
@@ -2861,9 +3083,8 @@
             }
 
             tables
-                .on("focus" + NS, function(e) {
+                .on("focus" + NS, function() {
                     var selector = this === contentTable.get(0) ? "td" : "th";
-                    var table = $(this);
                     var selection = that.select();
                     var current = that.current || $((selection.length ? selection : this))
                         .find(selector + ":eq(" + (cellIndex || 0) + ")");
@@ -2928,8 +3149,10 @@
                                 if (that.options.editable) {
                                     that._cachedCurrent = that.current;
                                     that.list._startEditHandler(that.current);
-                                    /* Stop the event propagation so that the list widget won't close its editor immediately */
-                                    e.stopPropagation();
+                                    $(this).one("keyup", function(e) {
+                                        /* Stop the event propagation so that the list widget won't close its editor immediately */
+                                        e.stopPropagation();
+                                    });
                                 }
                             } else {
                                 /* Sort */
@@ -3028,6 +3251,8 @@
 
             return this._drawPDFShadow({
                 content: content
+            }, {
+                avoidLinks: this.options.pdf.avoidLinks
             });
         };
     }
@@ -3037,6 +3262,10 @@
     extend(true, Gantt, { styles: ganttStyles });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

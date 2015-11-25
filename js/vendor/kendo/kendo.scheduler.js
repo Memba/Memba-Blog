@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dropdownlist", "./kendo.editable", "./kendo.multiselect", "./kendo.window", "./kendo.datetimepicker", "./kendo.scheduler.recurrence", "./kendo.scheduler.view", "./kendo.scheduler.dayview", "./kendo.scheduler.agendaview", "./kendo.scheduler.monthview", "./kendo.scheduler.timelineview", "./kendo.mobile.actionsheet", "./kendo.mobile.pane", "./kendo.pdf" ], f);
 })(function(){
+
+(function(){
+
+
 
 /*jshint eqnull: true */
 (function($, undefined) {
@@ -775,16 +779,18 @@
         return options;
     }
 
+    /*
     function fieldType(field) {
         field = field != null ? field : "";
         return field.type || $.type(field) || "string";
     }
+    */
 
     function createValidationAttributes(model, field) {
         var modelField = (model.fields || model)[field];
         var specialRules = ["url", "email", "number", "date", "boolean"];
         var validation = modelField ? modelField.validation : {};
-        var type = fieldType(modelField);
+        // var type = fieldType(modelField);
         var datatype = kendo.attr("type");
         var inArray = $.inArray;
         var ruleName;
@@ -2336,15 +2342,19 @@
             var clonedEvent;
             var that = this;
             var originSlot;
+            var distance = 0;
 
             var isMobile = that._isMobile();
             var movable = that.options.editable && that.options.editable.move !== false;
             var resizable = that.options.editable && that.options.editable.resize !== false;
 
             if (movable || (resizable && isMobile)) {
+                if (isMobile && kendo.support.mobileOS.android) {
+                    distance = 5;
+                }
 
                 that._moveDraggable = new kendo.ui.Draggable(that.element, {
-                    distance: 0,
+                    distance: distance,
                     filter: ".k-event",
                     ignore: ".k-resize-handle",
                     holdToDrag: isMobile
@@ -2501,6 +2511,7 @@
             var clonedEvent;
             var slot;
             var that = this;
+            var distance = 0;
 
             function direction(handle) {
                 var directions = {
@@ -2517,8 +2528,12 @@
                 }
             }
 
+            if (that._isMobile() && kendo.support.mobileOS.android) {
+                distance = 5;
+            }
+
             that._resizeDraggable = new kendo.ui.Draggable(that.element, {
-                distance: 0,
+                distance: distance,
                 filter: ".k-resize-handle",
                 dragstart: function(e) {
                     var dragHandle = $(e.currentTarget);
@@ -3655,7 +3670,7 @@
                 }
             });
 
-            toolbar.on(CLICK + NS, ".k-scheduler-views li.k-current-view", function(e) {
+            toolbar.on(CLICK + NS, ".k-scheduler-views li.k-current-view", function() {
                 that.element.find(".k-scheduler-views").toggleClass("k-state-expanded");
             });
 
@@ -3801,7 +3816,7 @@
         kendo.PDFMixin.extend(Scheduler.prototype);
 
         var SCHEDULER_EXPORT = "k-scheduler-pdf-export";
-        Scheduler.fn._drawPDF = function() {
+        Scheduler.fn._drawPDF = function(progress) {
             var wrapper = this.wrapper;
             var styles = wrapper[0].style.cssText;
 
@@ -3813,10 +3828,28 @@
             wrapper.addClass(SCHEDULER_EXPORT);
 
             this.resize(true);
-            var promise = this._drawPDFShadow();
 
             var scheduler = this;
-            promise.always(function() {
+            var promise = new $.Deferred();
+
+            this._drawPDFShadow({}, {
+                avoidLinks: this.options.pdf.avoidLinks
+            })
+            .done(function(group) {
+                var args = {
+                    page: group,
+                    pageNumber: 1,
+                    progress: 1,
+                    totalPages: 1
+                };
+
+                progress.notify(args);
+                promise.resolve(args.page);
+            })
+            .fail(function(err) {
+                promise.reject(err);
+            })
+            .always(function() {
                 wrapper[0].style.cssText = styles;
                 wrapper.removeClass(SCHEDULER_EXPORT);
                 scheduler.resize(true);
@@ -4061,6 +4094,10 @@
     ui.plugin(MobileTimezoneEditor);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

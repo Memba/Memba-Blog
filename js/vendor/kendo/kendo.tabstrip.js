@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.data" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
     var kendo = window.kendo,
@@ -164,7 +168,7 @@
 
     var TabStrip = Widget.extend({
         init: function(element, options) {
-            var that = this;
+            var that = this, value;
 
             Widget.fn.init.call(that, element, options);
 
@@ -208,6 +212,10 @@
                 that.wrapper.on("keydown" + NS, that._keyDownProxy);
             }
 
+            if (that.options.value) {
+                value = that.options.value;
+            }
+
             that.wrapper.children(".k-tabstrip-items")
                 .on(CLICK + NS, ".k-state-disabled .k-link", false)
                 .on(CLICK + NS, " > " + NAVIGATABLEITEMS, function (e) {
@@ -243,7 +251,7 @@
             if (that.element[0].id) {
                 that._ariaId = that.element[0].id + "_ts_active";
             }
-
+            that.value(value);
             kendo.notify(that);
         },
 
@@ -609,7 +617,13 @@
             each(inserted.tabs, function (idx) {
                 var contents = inserted.contents[idx];
                 that.tabGroup.append(this);
-                that.wrapper.append(contents);
+                if (that.options.tabPosition == "bottom") {
+                    that.tabGroup.before(contents);
+                } else if (that._scrollableModeActive) {
+                    that._scrollPrevButton.before(contents);
+                } else {
+                    that.wrapper.append(contents);
+                }
                 that.angular("compile", function(){ return { elements: [ contents ] }; });
             });
 
@@ -859,8 +873,7 @@
 
         _tabPosition: function() {
             var that = this,
-                tabPosition = that.options.tabPosition,
-                tabGroup = that.tabGroup;
+                tabPosition = that.options.tabPosition;
 
             that.wrapper.addClass("k-floatwrap k-tabstrip-" + tabPosition);
 
@@ -954,7 +967,7 @@
 
             return prevent;
         },
-        
+
         _scrollable: function() {
             var that = this,
                 options = that.options,
@@ -1001,9 +1014,15 @@
                 } else if (that._scrollableModeActive && tabGroupScrollWidth <= wrapperOffsetWidth) {
                     that._scrollableModeActive = false;
 
+                    that.wrapper.removeClass("k-tabstrip-scrollable");
+
                     that._scrollPrevButton.off().remove();
                     that._scrollNextButton.off().remove();
                     that.tabGroup.css({ marginLeft: "", marginRight: "" });
+                } else if (!that._scrollableModeActive) {
+                    that.wrapper.removeClass("k-tabstrip-scrollable");
+                } else {
+                    that._toggleScrollButtons();
                 }
             }
         },
@@ -1425,6 +1444,10 @@
     kendo.ui.plugin(TabStrip);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dom", "./kendo.touch", "./kendo.draganddrop", "./kendo.columnsorter", "./kendo.datetimepicker", "./kendo.editable" ], f);
 })(function(){
+
+(function() {
+
+
 
 (function($) {
     var kendo = window.kendo;
@@ -22,6 +26,7 @@
     var extend = $.extend;
     var map = $.map;
     var isFunction = $.isFunction;
+    var oldIE = browser.msie && browser.version < 9;
     var keys = kendo.keys;
     var titleFromField = {
         "title": "Title",
@@ -36,6 +41,13 @@
     var NS = ".kendoGanttList";
     var CLICK = "click";
     var DOT = ".";
+    var SIZE_CALCULATION_TEMPLATE = "<table style='visibility: hidden;'>" +
+        "<tbody>" +
+            "<tr style='height:{0}'>" +
+                "<td>&nbsp;</td>" +
+            "</tr>" +
+        "</tbody>" +
+    "</table>";
 
     var listStyles = {
         wrapper: "k-treelist k-grid k-widget",
@@ -54,6 +66,9 @@
         iconHidden: "k-i-none",
         iconPlaceHolder: "k-icon k-i-none",
         input: "k-input",
+        link: "k-link",
+        resizeHandle: "k-resize-handle",
+        resizeHandleInner: "k-resize-handle-inner",
         dropPositions: "k-insert-top k-insert-bottom k-add k-insert-middle",
         dropTop: "k-insert-top",
         dropBottom: "k-insert-bottom",
@@ -102,9 +117,29 @@
             this._editable();
             this._selectable();
             this._draggable();
+            this._resizable();
             this._attachEvents();
-
             this._adjustHeight();
+
+            this.bind("render", function() {
+                var headerCols;
+                var tableCols;
+
+                if (this.options.resizable) {
+                    headerCols = this.header.find("col");
+                    tableCols = this.content.find("col");
+
+                    this.header.find("th").not(':last').each(function(index) {
+                        var width = $(this).outerWidth();
+
+                        headerCols.eq(index).width(width);
+                        tableCols.eq(index).width(width);
+                    });
+
+                    headerCols.last().css("width", "auto");
+                    tableCols.last().css("width", "auto");
+                }
+            }, true);
         },
 
         _adjustHeight: function() {
@@ -126,6 +161,10 @@
                 this._contentDropArea.destroy();
             }
 
+            if (this._columnResizable) {
+                this._columnResizable.destroy();
+            }
+
             if (this.touch) {
                 this.touch.destroy();
             }
@@ -135,6 +174,9 @@
             }
 
             this.content.off(NS);
+            this.header.find("thead").off(NS);
+            this.header.find(DOT + GanttList.link).off(NS);
+
             this.header = null;
             this.content = null;
             this.levels = null;
@@ -145,7 +187,8 @@
         options: {
             name: "GanttList",
             selectable: true,
-            editable: true
+            editable: true,
+            resizable: false
         },
 
         _attachEvents: function() {
@@ -170,7 +213,6 @@
 
         _columns: function() {
             var columns = this.options.columns;
-            var column;
             var model = function() {
                 this.field = "";
                 this.title = "";
@@ -179,7 +221,7 @@
             };
 
             this.columns = map(columns, function(column) {
-                column = typeof column === "string" ? {
+                column = typeof column === STRING ? {
                     field: column, title: titleFromField[column]
                 } : column;
 
@@ -188,8 +230,22 @@
         },
 
         _layout: function () {
+            var that = this;
+            var options = this.options;
             var element = this.element;
             var listStyles = GanttList.styles;
+            var calculateRowHeight = function() {
+                var rowHeight = typeof options.rowHeight === STRING ? options.rowHeight :
+                    options.rowHeight + "px";
+                var table = $(kendo.format(SIZE_CALCULATION_TEMPLATE, rowHeight));
+                var height;
+
+                that.content.append(table);
+                height = table.find("tr").outerHeight();
+                table.remove();
+
+                return height;
+            };
 
             element
                 .addClass(listStyles.wrapper)
@@ -198,6 +254,10 @@
 
             this.header = element.find(DOT + listStyles.gridHeaderWrap);
             this.content = element.find(DOT + listStyles.gridContent);
+
+            if (options.rowHeight) {
+                this._rowHeight = calculateRowHeight();
+            }
         },
 
         _header: function() {
@@ -220,16 +280,21 @@
             var colgroup;
             var tbody;
             var table;
+            var tableAttr = {
+                "style": { "minWidth": this.options.listWidth + "px" },
+                "tabIndex": 0,
+                "role": "treegrid"
+            };
+
+            if (this._rowHeight) {
+                tableAttr.style.height = (tasks.length * this._rowHeight) + "px";
+            }
 
             this.levels = [{ field: null, value: 0 }];
 
             colgroup = kendoDomElement("colgroup", null, this._cols());
             tbody = kendoDomElement("tbody", { "role": "rowgroup" }, this._trs(tasks));
-            table = kendoDomElement("table", {
-                "style": { "minWidth": this.options.listWidth + "px" },
-                "tabIndex": 0,
-                "role": "treegrid"
-            }, [colgroup, tbody]);
+            table = kendoDomElement("table", tableAttr, [colgroup, tbody]);
 
             this.contentTree.render([table]);
             this.trigger("render");
@@ -245,11 +310,19 @@
                 column = columns[i];
                 attr = {
                     "data-field": column.field,
-                    "data-title": column.title, className: GanttList.styles.header,
+                    "data-title": column.title,
+                    className: GanttList.styles.header,
                     "role": "columnheader"
                 };
 
                 ths.push(kendoDomElement("th", attr, [kendoTextElement(column.title)]));
+            }
+
+            if (this.options.resizable) {
+                ths.push(kendoDomElement("th", {
+                    className: GanttList.styles.header,
+                    "role": "columnheader"
+                }));
             }
 
             return ths;
@@ -273,6 +346,10 @@
                 }
 
                 cols.push(kendoDomElement("col", style, []));
+            }
+
+            if (this.options.resizable) {
+                cols.push(kendoDomElement("col", { style: { width: "1px" }}));
             }
 
             return cols;
@@ -339,6 +416,10 @@
                 children.push(this._td({ task: options.task, column: column, level: options.level }));
             }
 
+            if (this.options.resizable) {
+                children.push(kendoDomElement("td", { "role": "gridcell" }));
+            }
+
             return kendoDomElement("tr", options.attr, children);
         },
 
@@ -350,6 +431,7 @@
             var column = options.column;
             var value = task.get(column.field) || [];
             var formatedValue;
+            var label;
 
             if (column.field == resourcesField) {
                 formatedValue = [];
@@ -361,7 +443,6 @@
                 formatedValue = column.format ? kendo.format(column.format, value) : value;
             }
 
-            var label;
             if (column.field === "title") {
                 children = createPlaceholders({ level: options.level, className: listStyles.iconPlaceHolder });
                 children.push(kendoDomElement("span", {
@@ -399,11 +480,18 @@
         },
 
         _sortable: function() {
+            var that = this;
             var resourcesField = this.options.resourcesField;
             var columns = this.columns;
             var column;
             var sortableInstance;
-            var cells = this.header.find("th");
+            var cells = this.header.find("th[" + kendo.attr("field") + "]");
+            var handler = function(e) {
+                if (that.editable && that.editable.trigger("validate")) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                }
+            };
             var cell;
 
             for (var idx = 0, length = cells.length; idx < length; idx++) {
@@ -419,7 +507,9 @@
                     }
 
                     cell.attr("data-" + kendo.ns + "field", column.field)
-                        .kendoColumnSorter({ dataSource: this.dataSource });
+                        .kendoColumnSorter({ dataSource: this.dataSource })
+                        .find(DOT + GanttList.link)
+                        .on("click" + NS, handler);
                 }
             }
             cells = null;
@@ -433,6 +523,10 @@
                 this.content
                    .on(CLICK + NS, "tr", function(e) {
                        var element = $(this);
+
+                       if (that.editable) {
+                           that.editable.trigger("validate");
+                       }
 
                        if (!e.ctrlKey) {
                            that.select(element);
@@ -483,8 +577,14 @@
             var listStyles = GanttList.styles;
             var iconSelector = "span." + listStyles.icon + ":not(" + listStyles.iconHidden +")";
             var finishEdit = function() {
-                if (that.editable && that.editable.end()) {
-                    that._closeCell();
+                var editable = that.editable;
+
+                if (editable) {
+                    if (editable.end()) {
+                        that._closeCell();
+                    } else {
+                        editable.trigger("validate");
+                    }
                 }
             };
             var mousedown = function(e) {
@@ -507,7 +607,7 @@
                     return;
                 }
 
-                if (column.editable) {
+                if (column && column.editable) {
                     that._editCell({ cell: td, column: column });
                 }
             };
@@ -521,6 +621,11 @@
                     that.timer = setTimeout(finishEdit, 1);
                 })
                 .on("keydown" + NS, function(e) {
+                    if (e.keyCode === keys.ENTER) {
+                        e.preventDefault();
+                    }
+                })
+                .on("keyup" + NS, function(e) {
                     var key = e.keyCode;
                     var cell;
                     var model;
@@ -579,6 +684,7 @@
             var validation = field.validation;
             var DATATYPE = kendo.attr("type");
             var BINDING = kendo.attr("bind");
+            var FORMAT = kendo.attr("format");
             var attr = {
                 "name": column.field,
                 "required": field.validation ?
@@ -597,13 +703,15 @@
             cell.data("modelCopy", modelCopy);
 
             if ((field.type === "date" || $.type(field) === "date") &&
-                /H|m|s|F|g|u/.test(column.format)) {
-                if (column.field === "start") {
-                    delete field.validation.dateCompare;
-                }
+                (!column.format || /H|m|s|F|g|u/.test(column.format))) {
 
                 attr[BINDING] = "value:" + column.field;
                 attr[DATATYPE] = "date";
+
+                if (column.format) {
+                    attr[FORMAT] = kendo._extractFormat(column.format);
+                }
+
                 editor = function(container, options) {
                     $('<input type="text"/>').attr(attr)
                         .appendTo(container).kendoDateTimePicker({ format: options.format });
@@ -635,6 +743,16 @@
             if (this.trigger("edit", { model: model, cell: cell })) {
                 this._closeCell(true);
             }
+
+            this.editable.bind("validate", function(e) {
+                var focusable = this.element.find(":kendoFocusable:first").focus();
+
+                if (oldIE) {
+                    focusable.focus();
+                }
+
+                e.preventDefault();
+            });
         },
 
         _closeCell: function(cancelUpdate) {
@@ -653,6 +771,7 @@
                 .removeClass(listStyles.editCell)
                 .append(this._editableContent);
 
+            this.editable.unbind();
             this.editable.destroy();
             this.editable = null;
 
@@ -759,8 +878,9 @@
                     cursorOffset: { top: -20, left: 0 },
                     container: this.content,
                     "dragstart": function(e) {
-                        if (that.editable) {
+                        if (that.editable && that.editable.trigger("validate")) {
                             e.preventDefault();
+                            return;
                         }
                         draggedTask = that._modelFromElement(e.currentTarget);
                         this.hint.children(DOT + listStyles.dragClueText)
@@ -772,10 +892,10 @@
                             status().addClass(action.className);
                         }
                     },
-                    "dragend": function(e) {
+                    "dragend": function() {
                         clear();
                     },
-                    "dragcancel": function(e) {
+                    "dragcancel": function() {
                         clear();
                     }
                 }).data("kendoDraggable");
@@ -791,11 +911,11 @@
                         defineLimits();
                         status().toggleClass(listStyles.dropDenied, !dropAllowed);
                     },
-                    "dragleave": function(e) {
+                    "dragleave": function() {
                         dropAllowed = true;
                         status();
                     },
-                    "drop": function(e) {
+                    "drop": function() {
                         var target = that._modelFromElement(dropTarget);
                         var orderId = target.orderId;
                         var taskInfo = {
@@ -837,7 +957,7 @@
                    distance: 0,
                    group: "listGroup",
                    filter: DOT + listStyles.gridContent,
-                   "drop": function(e) {
+                   "drop": function() {
                        var target = that._modelFromElement(that.content.find(selector));
                        var orderId = target.orderId;
                        var taskInfo = {
@@ -852,6 +972,109 @@
                         });
                    }
                }).data("kendoDropTargetArea");
+        },
+
+        _resizable: function() {
+            var that = this;
+            var listStyles = GanttList.styles;
+            var positionResizeHandle = function(e) {
+                var th = $(e.currentTarget);
+                var resizeHandle = that.resizeHandle;
+                var position = th.position();
+                var left = position.left;
+                var cellWidth = th.outerWidth();
+                var container = th.closest("div");
+                var clientX = e.clientX + $(window).scrollLeft();
+                var indicatorWidth = that.options.columnResizeHandleWidth;
+
+                left += container.scrollLeft();
+
+                if (!resizeHandle) {
+                    resizeHandle = that.resizeHandle = $(
+                        '<div class="' + listStyles.resizeHandle + '"><div class="' + listStyles.resizeHandleInner + '" /></div>'
+                    );
+                }
+
+                var cellOffset = th.offset().left + cellWidth;
+                var show = clientX > cellOffset - indicatorWidth && clientX < cellOffset + indicatorWidth;
+
+                if (!show) {
+                    resizeHandle.hide();
+                    return;
+                }
+
+                container.append(resizeHandle);
+
+                resizeHandle
+                    .show()
+                    .css({
+                        top: position.top,
+                        left: left + cellWidth - indicatorWidth - 1,
+                        height: th.outerHeight(),
+                        width: indicatorWidth * 3
+                    })
+                    .data("th", th);
+            };
+
+            if (!this.options.resizable) {
+                return;
+            }
+
+            if (this._columnResizable) {
+                this._columnResizable.destroy();
+            }
+
+            this.header.find("thead")
+               .on("mousemove" + NS, "th", positionResizeHandle);
+
+            this._columnResizable = this.header.kendoResizable({
+                handle: DOT + listStyles.resizeHandle,
+                start: function(e) {
+                    var th = $(e.currentTarget).data("th");
+                    var colSelector = "col:eq(" + th.index() + ")";
+                    var header = that.header.find("table");
+                    var contentTable = that.content.find("table");
+
+                    that.element.addClass("k-grid-column-resizing");
+
+                    this.col = contentTable.children("colgroup").find(colSelector)
+                          .add(header.find(colSelector));
+
+                    this.th = th;
+                    this.startLocation = e.x.location;
+                    this.columnWidth = th.outerWidth();
+                    this.table = header.add(contentTable);
+                    this.totalWidth = (this.table.width() - header.find("th:last").outerWidth());
+                },
+                resize: function(e) {
+                    var minColumnWidth = 11;
+                    var delta = e.x.location - this.startLocation;
+
+                    if (this.columnWidth + delta < minColumnWidth) {
+                        delta = minColumnWidth - this.columnWidth;
+                    }
+
+                    this.table.css({
+                        "minWidth": (this.totalWidth + delta)
+                    });
+                    this.col.width(this.columnWidth + delta);
+                },
+                resizeend: function() {
+                    that.element.removeClass("k-grid-column-resizing");
+
+                    var oldWidth = Math.floor(this.columnWidth);
+                    var newWidth = Math.floor(this.th.outerWidth());
+                    var column = that.columns[this.th.index()];
+
+                    that.trigger("columnResize", {
+                        column: column,
+                        oldWidth: oldWidth,
+                        newWidth: newWidth
+                    });
+
+                    this.table = this.col = this.th = null;
+                }
+            }).data("kendoResizable");
         },
 
         _modelFromElement: function(element) {
@@ -873,6 +1096,10 @@
     extend(true, ui.GanttList, { styles: listStyles });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

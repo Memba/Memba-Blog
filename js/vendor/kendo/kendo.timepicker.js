@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.popup" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -58,6 +62,7 @@
             id = options.id;
 
         that.options = options;
+        that._dates = [];
 
         that.ul = $('<ul tabindex="-1" role="listbox" aria-hidden="true" unselectable="on" class="k-list k-reset"/>')
                     .css({ overflow: support.kineticScrollNeeded ? "": "auto" })
@@ -217,6 +222,7 @@
                     }
                 }
 
+                that._dates.push(getMilliseconds(start));
                 html += template(toString(start, format, options.culture));
             }
 
@@ -278,7 +284,8 @@
         select: function(li) {
             var that = this,
                 options = that.options,
-                current = that._current;
+                current = that._current,
+                selection;
 
             if (li instanceof Date) {
                 li = kendo.toString(li, options.format, options.culture);
@@ -295,8 +302,22 @@
                     li = current;
                 }
             }
+            selection = that._distinctSelection(li);
+            that.current(selection);
+        },
 
-            that.current(li);
+        _distinctSelection: function(selection) {
+            var that = this,
+                currentValue,
+                selectionIndex;
+
+            if (selection && selection.length > 1) {
+                currentValue = getMilliseconds(that._value);
+                selectionIndex = $.inArray(currentValue, that._dates);
+                selection = that.ul.children()[selectionIndex];
+            }
+
+            return selection;
         },
 
         setOptions: function(options) {
@@ -917,6 +938,10 @@
     ui.plugin(TimePicker);
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

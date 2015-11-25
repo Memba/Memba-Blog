@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.scheduler.view" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -273,9 +277,15 @@
 
         _touchEditable: function() {
             var that = this;
+            var threshold = 0;
+
+            if (kendo.support.mobileOS.android) {
+                threshold = 5;
+            }
 
             if (that.options.editable.create !== false) {
                 that._addUserEvents = new kendo.UserEvents(that.element, {
+                    threshold: threshold,
                     filter:  ".k-scheduler-content td",
                     tap: function(e) {
                         var slot = that._slotByPosition(e.x.location, e.y.location);
@@ -292,6 +302,7 @@
 
             if (that.options.editable.update !== false) {
                 that._editUserEvents = new kendo.UserEvents(that.element, {
+                    threshold: threshold,
                     filter: ".k-event",
                     tap: function(e) {
                         var eventElement = $(e.target).closest(".k-event");
@@ -678,7 +689,7 @@
 
             html += '<tbody>';
 
-            var appendRow = function(date, majorTick) {
+            var appendRow = function(date) {
                 var content = "";
                 var classes = "";
                 var tmplDate;
@@ -1170,12 +1181,12 @@
 
             var resources = this.eventResources(event);
 
-            if (event._startTime) {
+            if (event._startTime && eventStartTime !== kendo.date.getMilliseconds(event.start)) {
                 eventStartDate = new Date(eventStartTime);
                 eventStartDate = kendo.timezone.apply(eventStartDate, "Etc/UTC");
             }
 
-            if (event.endTime) {
+            if (event._endTime && eventEndTime !== kendo.date.getMilliseconds(event.end)) {
                 eventEndDate = new Date(eventEndTime);
                 eventEndDate = kendo.timezone.apply(eventEndDate, "Etc/UTC");
             }
@@ -1466,7 +1477,7 @@
             };
         },
 
-        _changeViewPeriod: function(selection, reverse, vertical) {
+        _changeViewPeriod: function(selection, reverse) {
             var date = reverse ? this.previousDate() : this.nextDate();
             var start = selection.start;
             var end = selection.end;
@@ -1660,6 +1671,10 @@
     });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

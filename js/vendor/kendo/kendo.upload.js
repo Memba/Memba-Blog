@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.core" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function($, undefined) {
     var kendo = window.kendo,
@@ -238,7 +242,7 @@
 
             stopEvent(e);
 
-            if (droppedFiles.length > 0) {
+            if (droppedFiles.length > 0 && !that.wrapper.hasClass("k-state-disabled")) {
                 if (!that.multiple && files.length > 1) {
                     files.splice(1, files.length - 1);
                 }
@@ -495,6 +499,10 @@
         _onFileProgress: function(e, percentComplete) {
             var progressPct;
 
+            if (percentComplete > 100) {
+                percentComplete = 100;
+            }
+
             if (!this.options.template) {
                 progressPct = $(".k-upload-pct", e.target);
                 if (progressPct.length === 0) {
@@ -678,8 +686,7 @@
         _setupDropZone: function() {
             var that = this;
 
-            $(".k-upload-button", this.wrapper)
-                .wrap("<div class='k-dropzone'></div>");
+            $(".k-upload-button", this.wrapper).wrap("<div class='k-dropzone'></div>");
 
             var ns = that._ns;
             var dropZone = $(".k-dropzone", that.wrapper)
@@ -689,13 +696,19 @@
                 .on("drop" + ns, $.proxy(this._onDrop, this));
 
             bindDragEventWrappers(dropZone, ns,
-                function() { dropZone.addClass("k-dropzone-hovered"); },
+                function() {
+                    if (!dropZone.closest('.k-upload').hasClass("k-state-disabled")) {
+                        dropZone.addClass("k-dropzone-hovered");
+                    }
+                },
                 function() { dropZone.removeClass("k-dropzone-hovered"); });
 
             bindDragEventWrappers($(document), ns,
                 function() {
-                    dropZone.addClass("k-dropzone-active");
-                    dropZone.closest('.k-upload').removeClass('k-upload-empty');
+                    if (!dropZone.closest('.k-upload').hasClass("k-state-disabled")) {
+                        dropZone.addClass("k-dropzone-active");
+                        dropZone.closest('.k-upload').removeClass('k-upload-empty');
+                    }
                 },
                 function() {
                     dropZone.removeClass("k-dropzone-active");
@@ -1431,6 +1444,10 @@
 
     kendo.ui.plugin(Upload);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

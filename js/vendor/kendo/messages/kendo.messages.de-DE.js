@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -329,6 +329,7 @@ $.extend(true, kendo.ui.NumericTextBox.prototype.options,{
 if (kendo.ui.Pager) {
 kendo.ui.Pager.prototype.options.messages =
 $.extend(true, kendo.ui.Pager.prototype.options.messages,{
+  "allPages": "All",
   "display": "Anzeigen der Elemente {0} - {1} von {2}",
   "empty": "keine Daten",
   "first": "Gehen Sie zur ersten Seite",
@@ -374,7 +375,7 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "destroy": "Löschen",
   "pdf": "Exportieren als PDF",
   "editable": {
-    "confirmation": "Möchten Sie diesen Termin wirklich löschen?"
+    "confirmation": "Möchten Sie diesen Termin wirklich löschen?"
   },
   "editor": {
     "allDayEvent": "Ganztägiger Termin",
@@ -395,11 +396,11 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   },
   "event": "Termin",
   "recurrenceMessages": {
-    "deleteRecurring": "Möchten Sie nur diesen Termin oder alle Wiederholungen löschen?",
+    "deleteRecurring": "Möchten Sie nur diesen Termin oder alle Wiederholungen löschen?",
     "deleteWindowOccurrence": "Diesen Termin löschen",
     "deleteWindowSeries": "Alle Wiederholungen des Termins löschen",
     "deleteWindowTitle": "Diesen Termin und alle Wiederholungen löschen",
-    "editRecurring": "Möchten Sie nur diesen Termin oder alle Wiederholungen bearbeiten?",
+    "editRecurring": "Möchten Sie nur diesen Termin oder alle Wiederholungen bearbeiten?",
     "editWindowOccurrence": "Aktuelles Ereignis bearbeiten",
     "editWindowSeries": "Serie bearbeiten",
     "editWindowTitle": "Wiederholungs-Eintrag bearbeiten"

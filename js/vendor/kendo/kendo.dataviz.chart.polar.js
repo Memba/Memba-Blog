@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dataviz.chart", "./kendo.drawing" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
     // Imports ================================================================
@@ -214,7 +218,6 @@
                 options = axis.options,
                 categories = options.categories.length,
                 angle = 0,
-                skipAngle = 0,
                 divCount = categories / size || 1,
                 divAngle = 360 / divCount,
                 divs = [],
@@ -374,7 +377,6 @@
         },
 
         slot: function(from, to) {
-            var options = this.options;
             var slot = this.getSlot(from, to);
             var startAngle = slot.startAngle + 180;
             var endAngle = startAngle + slot.angle;
@@ -508,8 +510,7 @@
         },
 
         renderGridLines: function(center, ticks, angles, options) {
-            var axis = this,
-                tickRadius,
+            var tickRadius,
                 tickIx,
                 angleIx;
 
@@ -1144,7 +1145,7 @@
         },
 
         sortPoints: function(points) {
-            var missingValues, value, point;
+            var value, point;
             points.sort(xComparer);
 
             if (this._hasMissingValuesGap()) {
@@ -1553,6 +1554,10 @@
     });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

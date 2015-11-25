@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -9,6 +9,10 @@
 (function(f, define){
     define([ "./kendo.dataviz.core", "./kendo.drawing", "./kendo.dataviz.themes" ], f);
 })(function(){
+
+(function(){
+
+
 
 (function ($, undefined) {
 
@@ -26,22 +30,18 @@
         Box2D = dataviz.Box2D,
         Class = kendo.Class,
         defined = util.defined,
-        isArray = $.isArray,
         isNumber = util.isNumber,
         interpolateValue = dataviz.interpolateValue,
-        valueOrDefault = util.valueOrDefault,
 
         getSpacing = dataviz.getSpacing,
         round = dataviz.round,
         geo = dataviz.geometry,
         draw = dataviz.drawing,
         Point = geo.Point,
-        Circle = draw.Circle,
         Group = draw.Group,
         Path = draw.Path,
         Rect = geo.Rect,
-        Text = draw.Text,
-        Surface = draw.Surface;
+        Text = draw.Text;
 
     // Constants ==============================================================
     var ANGULAR_SPEED = 150,
@@ -164,7 +164,6 @@
             var scale = that.scale;
             var center = scale.arc.center;
             var options = that.options;
-            var minAngle = scale.slotAngle(scale.options.min);
             var elements = new Group();
 
             if (options.animation !== false) {
@@ -278,7 +277,6 @@
 
         render: function(center, radius) {
             var that = this;
-            var options = that.options;
             var arc = that.renderArc(center, radius);
 
             that.bbox = arc.bbox();
@@ -289,7 +287,6 @@
 
         reflow: function(bbox) {
             var that = this;
-            var options = that.options;
             var center = bbox.center();
             var radius = math.min(bbox.height(), bbox.width()) / 2;
 
@@ -390,7 +387,6 @@
 
         repositionRanges: function() {
             var that = this;
-            var arc = that.arc;
             var ranges = that.ranges.children;
             var rangeSize = that.options.rangeSize;
             var rangeDistance = that.options.rangeDistance;
@@ -421,7 +417,6 @@
             var segments = that.rangeSegments();
             var segmentsCount = segments.length;
             var reverse = that.options.reverse;
-            var radius = that.radius();
             var rangeSize = that.options.rangeSize;
             var rangeDistance = that.options.rangeDistance;
             var segment, rangeRadius, rangeGeom, i;
@@ -549,7 +544,6 @@
                     center = arc.center,
                     radius = arc.getRadiusX(),
                     i, tickStart, tickEnd,
-                    tickSize = unit.size,
                     visible = tickOptions.visible;
 
                 if (visible) {
@@ -631,8 +625,6 @@
 
         radius: function(radius) {
             var that = this;
-            var parent = that.parent;
-            var center = that.arc.center;
 
             if(radius) {
                 that.arc.setRadiusX(radius).setRadiusY(radius);
@@ -817,9 +809,10 @@
             var that = this;
             var options = that.options.gaugeArea;
             var size = that.surface.size();
-            var margin = that._gaugeAreaMargin = options.margin || DEFAULT_MARGIN;
             var border = options.border || {};
             var areaGeometry =  new Rect([0, 0], [size.width, size.height]);
+
+            that._gaugeAreaMargin = options.margin || DEFAULT_MARGIN;
 
             if (border.width > 0) {
                 areaGeometry = _unpad(areaGeometry, border.width);
@@ -899,11 +892,11 @@
         reflow: function(bbox) {
             var that = this;
             var pointers = that.pointers;
-            var scaleElements = that.scale.reflow(bbox);
+            that.scale.reflow(bbox);
             that._initialPlotArea = that.scale.bbox;
 
             for (var i = 0; i < pointers.length; i++) {
-                var pointerElement = pointers[i].reflow(that.scale.arc);
+                pointers[i].reflow(that.scale.arc);
                 that._initialPlotArea = Rect.union(that._initialPlotArea, pointers[i].bbox);
             }
 
@@ -1079,7 +1072,6 @@
 
         reflow: function(bbox) {
             var that = this;
-            var surface = that.surface;
             var pointers = that.pointers;
             var bboxX = bbox.origin.x;
             var bboxY = bbox.origin.y;
@@ -1390,7 +1382,6 @@
                _alignLines: options._alignLines,
                vertical: options.vertical
             };
-            var start, end;
 
             function render(tickPositions, tickOptions) {
                 var i, count = tickPositions.length;
@@ -1540,8 +1531,6 @@
 
         getElementOptions: function() {
             var options = this.options;
-            var elements = new Group();
-            var scale = this.scale;
 
             return {
                 fill: {
@@ -1582,7 +1571,7 @@
             }
         },
 
-        pointerShape: function(value) {
+        pointerShape: function() {
             var that = this;
             var options = that.options;
             var scale = that.scale;
@@ -1675,7 +1664,6 @@
             var sizeAxis = vertical ? X : Y;
             var margin = that._margin() * dir;
 
-            var shape = [];
             var p1 = new Point();
             p1[axis] = minSlot[axis + "1"];
             p1[sizeAxis] = minSlot[sizeAxis + "1"];
@@ -1733,9 +1721,7 @@
 
         render: function() {
             var that = this;
-            var options = that.options;
             var group = new Group();
-            var scale = that.scale;
             var elementOptions = that.getElementOptions();
 
             var pointer = new Path({
@@ -1783,7 +1769,6 @@
 
         setup: function() {
             var options = this.options;
-            var halfSize = this.element.bbox().width() / 2;
             var margin = options.margin;
             var from = options.from;
             var to = options.to;
@@ -1819,7 +1804,6 @@
         },
 
         setup: function() {
-            var element = this.element;
             var options = this.options;
 
             var newPoints = options.newPoints;
@@ -1937,6 +1921,10 @@
     });
 
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 

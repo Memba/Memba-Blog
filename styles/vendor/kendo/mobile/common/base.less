@@ -128,7 +128,6 @@
     .flexbox();
     height: 100%;
     width: 100%;
-    .box-orient(vertical);
     .flex-direction(column);
     .flex-align-items(stretch);
     .flex-align-content(stretch);
@@ -177,7 +176,7 @@
 {
     display: block;
     display: -moz-box;
-    -moz-box-orient: vertical;
+    flex-direction: column;
     width: 100%;
 }
 
@@ -424,6 +423,14 @@
     width: 100%;
 }
 
+.km-stretched-view > .km-pane-wrapper {
+    position: static;
+}
+
+.km-stretched-view > .km-pane-wrapper > .km-pane {
+    position: static;
+}
+
 .km-overlay
 {
     position: absolute;
@@ -543,8 +550,6 @@
 .km-native-scrolling > .km-pane > .km-loader
 {
     position: fixed;
-    top: 50%;
-    margin-top: -2em;
 }
 
 .km-native-scrolling .km-header,

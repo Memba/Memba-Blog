@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -155,11 +155,11 @@ $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
 });
 }
 
-/* FilterCenn messages */
+/* FilterCell messages */
 
-if (kendo.ui.FilterCenn) {
-kendo.ui.FilterCenn.prototype.options.messages =
-$.extend(true, kendo.ui.FilterCenn.prototype.options.messages,{
+if (kendo.ui.FilterCell) {
+kendo.ui.FilterCell.prototype.options.messages =
+$.extend(true, kendo.ui.FilterCell.prototype.options.messages,{
   "clear": "Rimuovi",
   "filter": "Filtro",
   "isFalse": "è falso",
@@ -226,6 +226,7 @@ $.extend(true, kendo.ui.Groupable.prototype.options.messages,{
 if (kendo.ui.Pager) {
 kendo.ui.Pager.prototype.options.messages =
 $.extend(true, kendo.ui.Pager.prototype.options.messages,{
+  "allPages": "All",
   "display": "{0} - {1} di {2} elementi",
   "empty": "Nessun elemento da visualizzare",
   "first": "Vai alla prima pagina",
@@ -378,7 +379,6 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
 });
 }
 })(window.kendo.jQuery);
-
 
 return window.kendo;
 

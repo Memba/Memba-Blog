@@ -126,12 +126,6 @@
 }
 
 .k-grid-column-resizing {
-    // fixes Chrome 38+ column resizing glitches
-    th, td
-    {
-        -webkit-transform: translateZ(0);
-    }
-
     &,
     .k-grid-filter,
     .k-link,
@@ -228,20 +222,24 @@ div.k-grid-footer
 
 .k-grid-norecords
 {
-    width:100%;
+    width: 100%;
     height: 100%;
+    text-align: center;
 }
 
 .k-grid-norecords-template {
     width: 20em;
     height: 4em;
+    line-height: 4em;
+    vertical-align: middle;
+    margin: 0 auto;
+}
+
+.k-grid-content > .k-grid-norecords > .k-grid-norecords-template {
     top: 50%;
     left: 50%;
     margin-left: -10em;
     margin-top: -2em;
-    line-height: 4em;
-    vertical-align: middle;
-    text-align: center;
     position: absolute;
 }
 
@@ -265,6 +263,11 @@ div.k-grid-footer
     }
 }
 
+.k-grid .k-scrollbar
+{
+    -ms-overflow-style: scrollbar;
+}
+
 .k-virtual-scrollable-wrap
 {
     height: 100%;
@@ -279,8 +282,6 @@ div.k-grid-footer
 {
     table-layout: fixed;
 }
-
-.k-ie7 .k-grid-content table { width: auto; }
 
 /* Grid :: locked columns */
 
@@ -501,13 +502,6 @@ div.k-grid-footer
     width:3.333em;
 }
 
-.k-ie7 .k-pager-wrap .k-textbox
-{
-    height:1.3333em;
-    margin-top:0.16666em;
-    display:inline;
-}
-
 .k-pager-wrap .k-dropdown
 {
     width:4.500em;
@@ -533,11 +527,6 @@ div.k-grid-footer
 .k-pager-sizes .k-widget.k-dropdown
 {
     margin-top: -2px;
-}
-
-.k-ie7 .k-pager-sizes
-{
-    float:left;
 }
 
 .k-pager-wrap .k-textbox,
@@ -722,16 +711,6 @@ form.k-filter-menu .k-textbox
     float: left;
 }
 
-.k-ie7 .k-dirty-cell
-{
-    position: relative;
-}
-
-.k-ie7 .k-dirty
-{
-    top: 5px;
-}
-
 .k-dirty
 {
     position: absolute;
@@ -781,8 +760,6 @@ form.k-filter-menu .k-textbox
     display: inline-block;
 }
 
-.k-ie7 .k-grid-actions{ vertical-align: bottom; }
-
 .k-grid .k-button
 {
     margin: 0 .16em;
@@ -799,11 +776,6 @@ form.k-filter-menu .k-textbox
 .k-grid tbody button.k-button
 {
     min-width: @grid-button-min-width + 14; /* for all except IE8 */
-}
-
-.k-ie7 .k-grid tbody a.k-button
-{
-    min-width: @grid-button-min-width - 2; /* for IE7 link buttons */
 }
 
 html body .k-grid tbody .k-button-icon
@@ -841,18 +813,6 @@ html body .k-grid tbody .k-button-icon
 {
     width: 100%;
 }
-
-.k-ie7 .k-edit-cell>.text-box,
-.k-ie7 .k-edit-cell>.k-textbox,
-.k-ie7 .k-edit-cell>.k-widget,
-.k-ie7 .k-grid-edit-row>td>.k-textbox,
-.k-ie7 .k-grid-edit-row>td>.k-widget,
-.k-ie7 .k-grid-edit-row>td>.text-box,
-{
-    display: block;
-    width: 90%;
-}
-
 
 html .k-edit-cell .k-tooltip,
 html .k-grid-edit-row .k-tooltip
@@ -952,14 +912,22 @@ html .k-grid-edit-row .k-tooltip
 
 /* Remove all sizes and scrolling */
 .k-pdf-export-shadow .k-grid,
-.k-pdf-export-shadow .k-grid-content {
+.k-pdf-export-shadow .k-grid-content,
+.k-pdf-export-shadow .k-grid-content-locked {
     height: auto !important;
     overflow: visible;
 }
 
+.k-pdf-export-shadow .k-grid-header-locked + .k-grid-header-wrap,
+.k-pdf-export-shadow .k-grid-content-locked + .k-grid-content,
+.k-pdf-export-shadow .k-grid-footer-locked + .k-grid-footer-wrap {
+    width: auto !important;
+}
+
 /* Remove empty space reserved above the scrollbar */
-.k-pdf-export-shadow .k-grid-header {
-    padding-right: 0 !important;
+.k-pdf-export-shadow .k-grid-header,
+.k-pdf-export-shadow .k-grid-footer {
+    padding: 0 !important;
 }
 
 .k-loading-pdf-mask {
@@ -1020,7 +988,6 @@ html .k-grid-edit-row .k-tooltip
         
         .k-pager-wrap .k-pager-nav,
         .k-pager-input {
-            float:none;
             display: inline-block;
             vertical-align: top;
         }
@@ -1029,22 +996,24 @@ html .k-grid-edit-row .k-tooltip
         .k-grid .k-pager-numbers {
             position: absolute;
             left: 4.8em;             
-            display: -moz-inline-flex;
-            display: -webkit-inline-flex;
             display: inline-flex;
-            -webkit-flex-direction: column-reverse;
             flex-direction: column-reverse;
-            -webkit-transform: translatey(-100%);
-            -moz-transform: translatey(-100%);
-            transform: translatey(-100%);
             overflow: visible;
             height: auto;
         }
 
+        .k-pager-numbers.k-state-expanded,
+        .k-grid .k-pager-numbers.k-state-expanded {
+            transform: translatey(-100%);
+            -webkit-transform: translatey(-100%);
+        }
+
+
         .km-pane-wrapper .k-pager-numbers,
-        .km-pane-wrapper .k-grid .k-pager-numbers
-        {
-            left: 5.8em;
+        .km-pane-wrapper .k-grid .k-pager-numbers {
+            left: 50%;
+            transform: translate(-50%, -100%);
+            -webkit-transform: translate(-50%, -100%);
         }
         
         .km-pane-wrapper .k-pager-numbers .k-link,
@@ -1056,16 +1025,14 @@ html .k-grid-edit-row .k-tooltip
         }
         
         .k-rtl .k-pager-numbers,
-        .k-rtl .k-grid .k-pager-numbers
-        {
+        .k-rtl .k-grid .k-pager-numbers {
             left: auto;
             right: 4.8em;
             width: 4.5em
         }
 
         .k-rtl .km-pane-wrapper .k-pager-numbers,
-        .k-rtl .km-pane-wrapper .k-grid .k-pager-numbers
-        {
+        .k-rtl .km-pane-wrapper .k-grid .k-pager-numbers {
             right: 5.8em;
         }
         
@@ -1073,9 +1040,12 @@ html .k-grid-edit-row .k-tooltip
         .k-grid .k-pager-numbers .k-current-page {
             display: block;
             border-left: 0;
-            -webkit-transform: translatey(100%);
-            -moz-transform: translatey(100%);
+        }
+
+        .k-pager-numbers.k-state-expanded .k-current-page,
+        .k-grid .k-pager-number.k-state-expanded .k-current-page {
             transform: translatey(100%);
+            -webkit-transform: translatey(100%);
         }
         
         .k-pager-numbers li:not(.k-current-page) {

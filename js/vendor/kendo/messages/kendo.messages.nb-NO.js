@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -225,6 +225,7 @@ if (kendo.ui.Groupable) {
 if (kendo.ui.Pager) {
     kendo.ui.Pager.prototype.options.messages =
     $.extend(true, kendo.ui.Pager.prototype.options.messages, {
+        "allPages": "All",
         "display": "{0} - {1} av {2} poster",
         "empty": "Det finnes ingen poster",
         "first": "Gå til første side",

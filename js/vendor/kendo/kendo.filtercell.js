@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2015.2.624 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
 * Copyright 2015 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -10,6 +10,10 @@
     define([ "./kendo.autocomplete", "./kendo.datepicker", "./kendo.numerictextbox", "./kendo.combobox", "./kendo.dropdownlist" ], f);
 })(function(){
 
+(function(){
+
+
+
 (function($, undefined) {
     var kendo = window.kendo,
         ui = kendo.ui,
@@ -19,7 +23,6 @@
         BOOL = "boolean",
         ENUM = "enums",
         STRING = "string",
-        NS = ".kendoFilterCell",
         EQ = "Is equal to",
         NEQ = "Is not equal to",
         proxy = $.proxy;
@@ -191,6 +194,9 @@
                     element: that.input,
                     dataSource: that.suggestDataSource
                 });
+
+                that._angularItems("compile");
+
             } else if (type == STRING) {
                 input.attr(kendo.attr("role"), "autocomplete")
                         .attr(kendo.attr("text-field"), options.dataTextField || options.field)
@@ -289,7 +295,7 @@
             }
         },
 
-        _refreshUI: function(e) {
+        _refreshUI: function() {
             var that = this,
                 filter = findFilterForField(that.dataSource.filter(), this.options.field) || {},
                 viewModel = that.viewModel;
@@ -382,7 +388,7 @@
         _createClearIcon: function() {
             var that = this;
 
-            $("<button type='button' class='k-button k-button-icon'/>")
+            $("<button type='button' class='k-button k-button-icon' title = " + that.options.messages.clear + "/>")
                 .attr(kendo.attr("bind"), "visible:operatorVisible")
                 .html("<span class='k-icon k-i-close'/>")
                 .click(proxy(that.clearFilter, that))
@@ -393,10 +399,32 @@
             this.viewModel.set("value", null);
         },
 
+        _angularItems: function(action) {
+            var elements = this.wrapper.closest("th").get();
+            var column = this.options.column;
+
+            this.angular(action, function() {
+                return {
+                    elements: elements,
+                    data: [{ column: column }]
+                };
+            });
+        },
+
         destroy: function() {
             var that = this;
 
             that.filterModel = null;
+            that.operatorDropDown = null;
+
+            that._angularItems("cleanup");
+
+            if (that._refreshHandler) {
+                that.dataSource.bind(CHANGE, that._refreshHandler);
+                that._refreshHandler = null;
+            }
+
+            kendo.unbind(that.element);
 
             Widget.fn.destroy.call(that);
 
@@ -464,6 +492,10 @@
 
     ui.plugin(FilterCell);
 })(window.kendo.jQuery);
+
+
+
+})();
 
 return window.kendo;
 
