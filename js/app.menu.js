@@ -4,32 +4,32 @@
  */
 
 /* jshint browser: true, jquery: true */
-/* globals define: false */
+/* globals define: false, require: false */
 
-//Bootstrap menus
+// Bootstrap menus
 require('./vendor/bootstrap/dropdown.js');
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define([
         './vendor/kendo/kendo.core',
         './app.logger',
         './app.i18n'
     ], f);
-})(function() {
+})(function () {
 
     'use strict';
 
     (function ($, undefined) {
 
-        var kendo = window.kendo,
-            app = window.app,
-            logger = app.logger,
-            i18n = app.i18n,
-            BLUR = 'blur',
-            FOCUS = 'focus',
-            KEYPRESS = 'keypress',
-            searchInputWidth;
+        var kendo = window.kendo;
+        var app = window.app;
+        var logger = new window.Logger('app.menu');
+        var i18n = app.i18n;
+        var BLUR = 'blur';
+        var FOCUS = 'focus';
+        var KEYPRESS = 'keypress';
+        var searchInputWidth;
 
         /**
          * Event handler triggered when the search input loses focus
@@ -57,27 +57,26 @@ require('./vendor/bootstrap/dropdown.js');
                     '?q=' + encodeURIComponent($(e.currentTarget).val());
                 return false; // Prevent a form submission
             } else {
-                return true; //accept any other character
+                return true; // Accept any other character
             }
         }
 
         /**
          * Initialization code to execute when document is ready
          */
-        $(document).ready(function() {
+        $(document).ready(function () {
             var searchInput =  $('#navbar-search-input');
             searchInputWidth = searchInput.width();
 
-            //Search input event handlers
+            // Search input event handlers
             searchInput
                 .on(BLUR, onSearchInputBlur)
                 .on(FOCUS, onSearchInputFocus)
                 .on(KEYPRESS, onSearchInputKeyPress);
 
-            //Log page readiness
+            // Log page readiness
             logger.info({
                 message: 'Menu initialized in ' + i18n.locale() ,
-                module: 'app.menu',
                 method: '$(document).ready'
             });
         });
@@ -86,4 +85,4 @@ require('./vendor/bootstrap/dropdown.js');
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

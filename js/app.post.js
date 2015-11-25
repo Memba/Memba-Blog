@@ -22,16 +22,15 @@ require('../styles/app.page.post.less');
 
     (function ($, undefined) {
 
-        var app = window.app,
-            logger = app.logger,
-            i18n = app.i18n;
+        var app = window.app;
+        var logger = new window.Logger('app.post');
+        var i18n = app.i18n;
 
         $(document).ready(function() {
 
-            //Log page readiness
+            // Log page readiness
             logger.info({
                 message: 'post page initialized in ' + i18n.locale(),
-                module: 'app.post',
                 method: '$(document).ready'
             });
 
