@@ -76,8 +76,8 @@ module.exports = function (grunt) {
                     timeout: 10000,
                     ui: 'bdd'
                 },
-                // src: ['test/node/**/*.js']
-                src: ['test/node/lib/*.js', 'test/node/middleware/*.js', 'test/node/models/*.js', 'test/node/routes/*.js']
+                src: ['test/node/**/*.js']
+                // src: ['test/node/lib/*.js', 'test/node/middleware/*.js', 'test/node/models/*.js', 'test/node/routes/*.js']
             }
         }
     });
