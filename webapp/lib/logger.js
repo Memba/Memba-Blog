@@ -66,7 +66,9 @@ function process(entry) {
     if (entry.error instanceof Error) {
         // We need to do that because JSON.stringify(new Error('Oops)) === {} and is not sent to logentries
         entry.message = entry.error.message;
-        if (entry.error.originalError instanceof Error) {
+        // entry.error.originalError is not necessarily an instance of Error because we use deepExtend
+        // if (entry.error.originalError instanceof Error) {
+        if (entry.error.originalError) {
             entry.originalError = entry.error.originalError;
             delete entry.error.originalError;
             entry.originalMessage = entry.originalError.message;
