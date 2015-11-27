@@ -9,9 +9,9 @@
 (function (f, define) {
     'use strict';
     define([
+        './vendor/logentries/le.js', // <-- keep first or adapt function (LE)
         './window.assert',
-        './window.logger',
-        './vendor/logentries/le.js'
+        './window.logger'
     ], f);
 })(function (LE) {
 
