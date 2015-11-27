@@ -77,7 +77,6 @@ module.exports = function (grunt) {
                     ui: 'bdd'
                 },
                 src: ['test/node/**/*.js']
-                // src: ['test/node/lib/*.js', 'test/node/middleware/*.js', 'test/node/models/*.js', 'test/node/routes/*.js']
             }
         }
     });
