@@ -6,12 +6,12 @@
 /* jshint browser: true */
 /* globals define: false */
 
-(function (f, define){
+(function (f, define) {
     'use strict';
     define([
         './app.logger'
     ], f);
-})(function (){
+})(function () {
 
     'use strict';
 
@@ -48,7 +48,7 @@
      * of control over the experience.
      */
 
-    (function (window, document, undefined){
+    (function (window, document, undefined) {
         var tests = [];
 
 
@@ -97,7 +97,7 @@
         // Fake some of Object.create
         // so we can force non test results
         // to be non "own" properties.
-        var Modernizr = function (){};
+        var Modernizr = function () {};
         Modernizr.prototype = ModernizrProto;
 
         // Leak modernizr globally when you `require` it
@@ -438,7 +438,7 @@
 
                     bool.hls = elem.canPlayType('application/x-mpegURL; codecs="avc1.42E01E"').replace(/^no$/,'');
                 }
-            } catch(e){}
+            } catch(e) {}
 
             return bool;
         });
@@ -1040,4 +1040,4 @@
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

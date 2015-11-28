@@ -18,7 +18,7 @@ if (typeof(require) === 'function') {
     require('./vendor/bootstrap/dropdown.js');
 }
 
-(function (f, define){
+(function (f, define) {
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
@@ -121,4 +121,4 @@ if (typeof(require) === 'function') {
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
