@@ -1,5 +1,6 @@
 {
     "debug": false,
+    "level": 0,
     "express": {
         "port"  : 3000
     },
