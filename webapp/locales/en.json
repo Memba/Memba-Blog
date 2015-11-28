@@ -121,6 +121,15 @@
 				"#212a33"
 			]
 		},
+        {
+            "value": "nova",
+            "name": "Nova",
+            "colors": [
+                "#32364c",
+                "#ff4350",
+                "#dfe0e1"
+            ]
+        },
 		{
 			"value": "office365",
 			"name": "Office 365",
