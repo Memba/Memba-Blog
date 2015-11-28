@@ -14,7 +14,7 @@ module.exports = {
      * @param req
      * @param res
      */
-    getOK: function(req, res){
+    getOK: function(req, res) {
         res.json({ping: 'OK'});
     }
 

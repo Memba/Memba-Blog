@@ -12,7 +12,7 @@ var expect = require('chai').expect,
     github = require('../../../webapp/lib/github'),
     NAME = 'Memba Robot';
 
-describe('lib/github', function() {
+describe('lib/github', function () {
 
     var content = {
         path: 'temp/' + ((1 + Math.random()) * 1e10).toString(36).slice(-5) + '.md',
@@ -20,8 +20,8 @@ describe('lib/github', function() {
         update: '# This is a dummy sample\n\nwith an update'
     };
 
-    it('it should create content', function(done) {
-        github.createContent(content.path, content.markdown, function(error, response) {
+    it('it should create content', function (done) {
+        github.createContent(content.path, content.markdown, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.have.deep.property('commit.committer.name', NAME);
             //expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
@@ -34,16 +34,16 @@ describe('lib/github', function() {
         });
     });
 
-    it('it should get commits', function(done) {
-        github.getCommits(content.path, function(error, response) {
+    it('it should get commits', function (done) {
+        github.getCommits(content.path, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.be.instanceof(Array);
             done();
         });
     });
 
-    it('it should get content', function(done) {
-        github.getContent(content.path, function(error, response) {
+    it('it should get content', function (done) {
+        github.getContent(content.path, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.have.property('path', content.path);
             expect(response).to.have.property('html_url');
@@ -52,9 +52,9 @@ describe('lib/github', function() {
         });
     });
 
-    it('it should update content', function(done) {
+    it('it should update content', function (done) {
         expect(content.sha).not.to.be.undefined;
-        github.updateContent(content.path, content.update, content.sha, function(error, response) {
+        github.updateContent(content.path, content.update, content.sha, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.have.deep.property('commit.committer.name', NAME);
             //expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
@@ -68,17 +68,17 @@ describe('lib/github', function() {
         });
     });
 
-    it('it should get commits', function(done) {
-        github.getCommits(content.path, function(error, response) {
+    it('it should get commits', function (done) {
+        github.getCommits(content.path, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.be.instanceof(Array);
             done();
         });
     });
 
-    it('it should delete content', function(done) {
+    it('it should delete content', function (done) {
         expect(content.sha).not.to.be.undefined;
-        github.deleteContent(content.path, content.sha, function(error, response) {
+        github.deleteContent(content.path, content.sha, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.have.deep.property('commit.committer.name', NAME);
             //expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
@@ -88,8 +88,8 @@ describe('lib/github', function() {
         });
     });
 
-    it('it should fail getting deleted content', function(done) {
-        github.getContent(content.path, function(error, response) {
+    it('it should fail getting deleted content', function (done) {
+        github.getContent(content.path, function (error, response) {
             expect(response).to.be.undefined;
             expect(error).to.be.instanceof(Error);
             done();

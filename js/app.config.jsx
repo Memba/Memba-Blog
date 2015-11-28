@@ -6,12 +6,12 @@
 /* jshint browser: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define([
         './app.logger'
     ], f);
-})(function(){
+})(function () {
 
     'use strict';
 
@@ -23,8 +23,9 @@
 
     (function () {
 
-        var app = window.app = window.app || {},
-            logger = app.logger = app.logger || {};
+        var app = window.app = window.app || {};
+        var assert = window.assert;
+        var logger = app.logger = app.logger || {};
 
         /**
          * application DEBUG mode
@@ -35,17 +36,36 @@
         /**
          * Logger token
          */
+        window.Logger.prototype.level = parseInt('<%- level %>', 10) || 0;
+        app.logger.level = parseInt('<%- level %>', 10) || 0;
         app.logger.token = '<%- logentries.browser.token %>';
 
         /**
-         * Get formatting strings for Kendo UI from nodejs
+         * Convert nodejs printf like formatting strings into Kendo UI formatting strings
          * where %s placeholders are replaced with {i} placeholders
+         * @see https://nodejs.org/api/util.html#util_util_format_format
+         * @see http://docs.telerik.com/kendo-ui/api/javascript/kendo#methods-format
+         * @param value
+         * @returns {*}
          */
-        function format(value) {
-            if ((value.match(/%s/g) || []).length > 5) {
-                throw new Error('app.config value has too many %s to format');
+        function convertFormat (value) {
+            var i = 0;
+            var ret = value;
+            var rx = /%[sdj]/;
+            while (typeof ret === 'string' && rx.test(ret)) {
+                ret = ret.replace(rx, '{' + i + '}');
+                i++;
             }
-            return value.replace(/%s/, '{0}').replace(/%s/, '{1}').replace(/%s/, '{2}').replace(/%s/, '{3}').replace(/%s/, '{4}');
+            return ret;
+        }
+
+        /**
+         * Join url bits, adding slashes where required
+         * TODO: This could be improved to account for . and ..
+         */
+        function urljoin() {
+            // Actually we first join with slashes, then we replace double or triple slashes, except when preceded by colons like in http://
+            return Array.prototype.slice.call(arguments).join('/').replace(/([^:])[\/]{2,}/g, '$1/');
         }
 
         /**
@@ -54,19 +74,19 @@
          */
         app.uris = {
             cdn: {
-                default: '<%- uris.cdn.root %>' + format('<%- uris.cdn.default %>'),
+                default: '<%- uris.cdn.root %>' + convertFormat('<%- uris.cdn.default %>'),
                 svg: {
-                    office: '<%- uris.cdn.root %>' + format('<%- uris.cdn.svg.office %>'),
-                    white: '<%- uris.cdn.root %>' + format('<%- uris.cdn.svg.white %>'),
-                    dark_grey: '<%- uris.cdn.root %>' + format('<%- uris.cdn.svg.dark_grey %>')
+                    office: '<%- uris.cdn.root %>' + convertFormat('<%- uris.cdn.svg.office %>'),
+                    white: '<%- uris.cdn.root %>' + convertFormat('<%- uris.cdn.svg.white %>'),
+                    dark_grey: '<%- uris.cdn.root %>' + convertFormat('<%- uris.cdn.svg.dark_grey %>')
                 }
             },
             webapp: {
-                home: '<%- uris.webapp.root %>' + format('<%- uris.webapp.home %>'),
-                feed:  '<%- uris.webapp.root %>' + format('<%- uris.webapp.feed %>'),
-                sitemap:  '<%- uris.webapp.root %>' + format('<%- uris.webapp.sitemap %>'),
-                pages:  '<%- uris.webapp.root %>' + format('<%- uris.webapp.pages %>'),
-                posts:  '<%- uris.webapp.root %>' + format('<%- uris.webapp.posts %>')
+                home: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.home %>'),
+                feed:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.feed %>'),
+                sitemap:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.sitemap %>'),
+                pages:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.pages %>'),
+                posts:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.posts %>')
             }
         };
 
@@ -74,4 +94,4 @@
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

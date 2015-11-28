@@ -25,19 +25,19 @@ var Zombie = require('zombie'),
     browser = new Zombie(/*{waitDuration: '10s'}*/);
 
 
-describe('French pages', function() {
+describe('French pages', function () {
 
-    before(function(done) {
+    before(function (done) {
         //Increase max listeners in case of timeout
         browser.setMaxListeners(30);
         // browser.runScripts = false;
         browser.visit(webapp.index, done);
     });
 
-    describe('When navigating pages', function() {
+    describe('When navigating pages', function () {
 
-        it('it should find support', function(done) {
-            browser.clickLink('Support', function() {
+        it('it should find support', function (done) {
+            browser.clickLink('Support', function () {
                 browser.assert.success();
                 browser.assert.url(webapp.index);
                 browser.assert.attribute('html', 'lang', 'fr');
@@ -46,8 +46,8 @@ describe('French pages', function() {
             });
         });
 
-        it('it should find faqs', function(done) {
-            browser.clickLink('FAQs', function() {
+        it('it should find faqs', function (done) {
+            browser.clickLink('FAQs', function () {
                 browser.assert.success();
                 browser.assert.url(webapp.faqs);
                 browser.assert.attribute('html', 'lang', 'fr');
@@ -56,8 +56,8 @@ describe('French pages', function() {
             });
         });
 
-        it('it should find privacy', function(done) {
-            browser.clickLink('Confidentialité des Données', function() {
+        it('it should find privacy', function (done) {
+            browser.clickLink('Confidentialité des Données', function () {
                 browser.assert.success();
                 browser.assert.url(webapp.privacy);
                 browser.assert.attribute('html', 'lang', 'fr');
@@ -66,8 +66,8 @@ describe('French pages', function() {
             });
         });
 
-        it('it should find terms', function(done) {
-            browser.clickLink('Conditions d\'Utilisation', function() {
+        it('it should find terms', function (done) {
+            browser.clickLink('Conditions d\'Utilisation', function () {
                 browser.assert.success();
                 browser.assert.url(webapp.terms);
                 browser.assert.attribute('html', 'lang', 'fr');
@@ -78,7 +78,7 @@ describe('French pages', function() {
 
     });
 
-    after(function() {
+    after(function () {
         browser.destroy();
     });
 

@@ -25,28 +25,28 @@ var Zombie = require('zombie'),
     browser = new Zombie(/*{waitDuration: '10s'}*/);
 
 
-describe('English pages', function() {
+describe('English pages', function () {
 
-    before(function(done) {
+    before(function (done) {
         // Increase max listeners in case of timeout
         browser.setMaxListeners(30);
         // browser.runScripts = false;
         browser.visit(webapp.home, done);
     });
 
-    describe('When navigating pages', function() {
+    describe('When navigating pages', function () {
 
-        xit('Check that jQuery event handlers are triggered', function(done) {
+        xit('Check that jQuery event handlers are triggered', function (done) {
             // See https://github.com/assaf/zombie/blob/master/test/jquery_compat_test.js#L149
             console.log(browser.window.$.expando);
-            browser.window.$(browser.document).on('click', '.flag', function(e) {
+            browser.window.$(browser.document).on('click', '.flag', function (e) {
                 console.log('Triggered!');
                 done();
             });
             browser.click('div.uk.flag');
         });
 
-        it('it should land on the home page with a choice of languages', function(done) {
+        it('it should land on the home page with a choice of languages', function (done) {
             browser.assert.success();
             browser.assert.attribute('html', 'lang', 'en');
             browser.assert.element('div.uk.flag');
@@ -55,8 +55,8 @@ describe('English pages', function() {
             done();
         });
 
-        it('it should find support', function(done) {
-            browser.clickLink('Support', function() {
+        it('it should find support', function (done) {
+            browser.clickLink('Support', function () {
                 browser.assert.success();
                 browser.assert.url(webapp.index);
                 browser.assert.attribute('html', 'lang', 'en');
@@ -65,8 +65,8 @@ describe('English pages', function() {
             });
         });
 
-        it('it should find faqs', function(done) {
-            browser.clickLink('FAQs', function() {
+        it('it should find faqs', function (done) {
+            browser.clickLink('FAQs', function () {
                 browser.assert.success();
                 browser.assert.url(webapp.faqs);
                 browser.assert.attribute('html', 'lang', 'en');
@@ -75,8 +75,8 @@ describe('English pages', function() {
             });
         });
 
-        it('it should find privacy', function(done) {
-            browser.clickLink('Privacy Policy', function() {
+        it('it should find privacy', function (done) {
+            browser.clickLink('Privacy Policy', function () {
                 browser.assert.success();
                 browser.assert.url(webapp.privacy);
                 browser.assert.attribute('html', 'lang', 'en');
@@ -85,8 +85,8 @@ describe('English pages', function() {
             });
         });
 
-        it('it should find terms', function(done) {
-            browser.clickLink('Terms of Use', function() {
+        it('it should find terms', function (done) {
+            browser.clickLink('Terms of Use', function () {
                 browser.assert.success();
                 browser.assert.url(webapp.terms);
                 browser.assert.attribute('html', 'lang', 'en');
@@ -97,7 +97,7 @@ describe('English pages', function() {
 
     });
 
-    after(function() {
+    after(function () {
         browser.destroy();
     });
 

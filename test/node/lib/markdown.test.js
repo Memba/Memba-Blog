@@ -37,14 +37,14 @@ var html = '<h2>Question 1</h2>\n' +
     '<h2>Question 3</h2>\n' +
     '<p>Response 3</p>\n'; //Note: for whatever reason a \n is added
 
-describe('lib/markdown', function() {
+describe('lib/markdown', function () {
 
-    it('body', function() {
+    it('body', function () {
         var body = markdown.body(keyval + text);
         expect(body).to.equal(text);
     });
 
-    it('head', function() {
+    it('head', function () {
         var head = markdown.head(keyval + text);
         expect(head).to.have.property('uuid', '6037fe20-eb54-11e4-9cc1-795dae8caad4');
         expect(head).to.have.property('description', 'Kidoju - A new way to teach and learn');
@@ -59,7 +59,7 @@ describe('lib/markdown', function() {
         expect(head).to.have.property('edit_url', 'https://github.com/Memba/test/blob/master/fr/pages/faqs.md');
     });
 
-    it('html rendering', function() {
+    it('html rendering', function () {
         var rendered = markdown.render(text);
         expect(rendered).to.equal(html);
     });

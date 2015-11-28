@@ -269,7 +269,7 @@ logger.info({
     execArgv: execArgv
 });
 var db = {};
-locales.forEach(function(locale){
+locales.forEach(function(locale) {
     db[locale] = new Collection(locale);
     db[locale].load();
 });

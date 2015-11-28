@@ -11,10 +11,10 @@
 var expect = require('chai').expect,
     index = require('../../../webapp/models/indexModel');
 
-describe('models/indexModel', function() {
+describe('models/indexModel', function () {
 
-    it('getIndex: english', function(done) {
-        index.getIndex('en', function(error, index) {
+    it('getIndex: english', function (done) {
+        index.getIndex('en', function (error, index) {
             expect(error).to.be.null;
             expect(index).to.be.instanceof(Array);
             for (var i = 0; i < index.length; i++) {
@@ -24,8 +24,8 @@ describe('models/indexModel', function() {
         });
     });
 
-    it('getIndex: french', function(done) {
-        index.getIndex('fr', function(error, index) {
+    it('getIndex: french', function (done) {
+        index.getIndex('fr', function (error, index) {
             expect(error).to.be.null;
             expect(index).to.be.instanceof(Array);
             for (var i = 0; i < index.length; i++) {
@@ -35,7 +35,7 @@ describe('models/indexModel', function() {
         });
     });
 
-    it('getIndex: unknown language', function() {
+    it('getIndex: unknown language', function () {
         function test() {
             index.getIndex('zz', function () {});
         }

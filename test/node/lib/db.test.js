@@ -13,12 +13,12 @@ var expect = require('chai').expect,
     config = require('../../../webapp/config'),
     db = require('../../../webapp/lib/db');
 
-describe('lib/db', function() {
+describe('lib/db', function () {
 
-    describe('find method', function() {
+    describe('find method', function () {
 
-        it('Retrieve all english index entries', function(done) {
-            db.en.find({}, function(error, indexEntries) {
+        it('Retrieve all english index entries', function (done) {
+            db.en.find({}, function (error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -43,8 +43,8 @@ describe('lib/db', function() {
             });
         });
 
-        it('Retrieve all french index entries', function(done) {
-            db.fr.find({}, function(error, indexEntries) {
+        it('Retrieve all french index entries', function (done) {
+            db.fr.find({}, function (error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -69,9 +69,9 @@ describe('lib/db', function() {
             });
         });
 
-        it('Retrieve by language and path', function(done) {
+        it('Retrieve by language and path', function (done) {
             var path = util.format(config.get('github:language'), 'en') + config.get('github:pages') + '/' + util.format(config.get('github:markdown'), 'faqs');
-            db.en.find({ language: 'en', path: path }, function(error, indexEntries) {
+            db.en.find({ language: 'en', path: path }, function (error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -96,9 +96,9 @@ describe('lib/db', function() {
             });
         });
 
-        it('Retrieve by language and path with $eq', function(done) {
+        it('Retrieve by language and path with $eq', function (done) {
             var path = util.format(config.get('github:language'), 'en') + config.get('github:pages') + '/' + util.format(config.get('github:markdown'), 'faqs');
-            db.en.find({ language: { $eq: 'en' }, path: { $eq: path } }, function(error, indexEntries) {
+            db.en.find({ language: { $eq: 'en' }, path: { $eq: path } }, function (error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -123,9 +123,9 @@ describe('lib/db', function() {
             });
         });
 
-        it('Retrieve by category', function(done) {
+        it('Retrieve by category', function (done) {
             var category = 'Default';
-            db.en.find({ language: 'en', category: category }, function(error, indexEntries) {
+            db.en.find({ language: 'en', category: category }, function (error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -150,9 +150,9 @@ describe('lib/db', function() {
             });
         });
 
-        it('Retrieve by author', function(done) {
+        it('Retrieve by author', function (done) {
             var author = 'jlchereau';
-            db.en.find({ language: 'en', author: author }, function(error, indexEntries) {
+            db.en.find({ language: 'en', author: author }, function (error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -177,9 +177,9 @@ describe('lib/db', function() {
             });
         });
 
-        it('Retrieve by root site_url', function(done) {
+        it('Retrieve by root site_url', function (done) {
             var site_url = new RegExp('^' + config.get('uris:webapp:root') + util.format(config.get('uris:webapp:posts'), 'en', '2015', '', '').replace(/[\/]+$/, '/'));
-            db.en.find({ language: 'en', site_url: site_url }, function(error, indexEntries) {
+            db.en.find({ language: 'en', site_url: site_url }, function (error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -204,9 +204,9 @@ describe('lib/db', function() {
             });
         });
 
-        it('Retrieve by full text search', function(done) {
+        it('Retrieve by full text search', function (done) {
             var text = new RegExp('support');
-            db.en.find({ language: 'en', text: text }, function(error, indexEntries) {
+            db.en.find({ language: 'en', text: text }, function (error, indexEntries) {
                 expect(error).to.be.null;
                 expect(indexEntries).to.be.instanceof(Array).with.length.gte(1);
                 for (var i = 0; i < indexEntries.length; i++) {
@@ -233,13 +233,13 @@ describe('lib/db', function() {
 
     });
 
-    describe('group method', function() {
+    describe('group method', function () {
 
         it('Retrieve a count by category', function (done) {
             db.en.group(
                 {
                     key: { category: 1 },
-                    reduce: function(curr, result) {
+                    reduce: function (curr, result) {
                         result.count++;
                     },
                     initial: { count: 0 }
@@ -260,7 +260,7 @@ describe('lib/db', function() {
             db.en.group(
                 {
                     key: { author: 1 },
-                    reduce: function(curr, result) {
+                    reduce: function (curr, result) {
                         result.count++;
                     },
                     initial: { count: 0 }
@@ -280,14 +280,14 @@ describe('lib/db', function() {
         it('Retrieve a count by year and month', function (done) {
             db.en.group(
                 {
-                    keyf: function(doc) {
+                    keyf: function (doc) {
                         var date = new Date(doc.creation_date);
                         return {
                             year: date.getUTCFullYear(),
                             month: date.getUTCMonth()
                         };
                     },
-                    reduce: function(curr, result) {
+                    reduce: function (curr, result) {
                         result.count++;
                     },
                     initial: { count: 0 }

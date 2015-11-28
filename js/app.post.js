@@ -8,7 +8,7 @@
 
 require('../styles/app.page.post.less');
 
-(function(f, define){
+(function (f, define) {
     'use strict';
     define([
         './app.logger',
@@ -16,7 +16,7 @@ require('../styles/app.page.post.less');
         './app.common',
         './app.menu'
     ], f);
-})(function() {
+})(function () {
 
     'use strict';
 
@@ -26,7 +26,7 @@ require('../styles/app.page.post.less');
         var logger = new window.Logger('app.post');
         var i18n = app.i18n;
 
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             // Log page readiness
             logger.info({
@@ -40,4 +40,4 @@ require('../styles/app.page.post.less');
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

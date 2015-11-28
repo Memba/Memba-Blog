@@ -17,9 +17,9 @@ var request = require('supertest'),
     app = config.get('uris:webapp:root');
 
 
-describe('routes/homeRoute', function() {
+describe('routes/homeRoute', function () {
 
-    it('it should return the home page', function(done) {
+    it('it should return the home page', function (done) {
         request(app)
             .get(config.get('uris:webapp:home'))
             .expect(200)

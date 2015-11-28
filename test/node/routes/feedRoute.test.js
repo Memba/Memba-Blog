@@ -18,9 +18,9 @@ var request = require('supertest'),
     app = config.get('uris:webapp:root');
 
 
-describe('routes/feedRoute', function() {
+describe('routes/feedRoute', function () {
 
-    it('it should return an english feed', function(done) {
+    it('it should return an english feed', function (done) {
         request(app)
             .get(util.format(config.get('uris:webapp:feed'), 'en'))
             .expect(200)
@@ -28,7 +28,7 @@ describe('routes/feedRoute', function() {
             .end(done);
     });
 
-    it('it should return a french feed', function(done) {
+    it('it should return a french feed', function (done) {
         request(app)
             .get(util.format(config.get('uris:webapp:feed'), 'fr'))
             .expect(200)

@@ -10,7 +10,7 @@
 var expect = require('chai').expect,
     url = require('../../../webapp/lib/url');
 
-describe('lib/url', function() {
+describe('lib/url', function () {
 
     it('join: simple case', function () {
         expect(url.join('http://www.google.com/', 'foo/bar', '?test=123'))
@@ -39,7 +39,7 @@ describe('lib/url', function() {
             .to.equal('en/pages/foo/bar.md');
     });
 
-    it('join: formatting %s', function() {
+    it('join: formatting %s', function () {
         expect(url.join('blog/%s', 'posts', '2013/%s'))
             .to.equal('blog/%s/posts/2013/%s');
     });

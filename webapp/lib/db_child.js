@@ -273,7 +273,7 @@ module.exports = {
 /**
  * Handler triggered when the worker receives a request to rebuild an index
  */
-process.on('message', function(language){
+process.on('message', function(language) {
     if (!inProgress[language]) {
         inProgress[language] = true;
         module.exports.createIndex(language, function (error) {
@@ -299,7 +299,7 @@ process.on('message', function(language){
 /**
  * Handler triggered when there is an uncaught exception on the child process (not the main one)
  */
-process.on('uncaughtException', function(error){
+process.on('uncaughtException', function(error) {
     for (var language in inProgress) {
         inProgress[language] = false;
     }

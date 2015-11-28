@@ -18,7 +18,7 @@ var request = require('supertest'),
     app = config.get('uris:webapp:root');
 
 
-describe('routes/static', function() {
+describe('routes/static', function () {
 
     it('it should return a favicon', function (done) {
         request(app)

@@ -16,7 +16,7 @@ var request = require('supertest'),
     config = require('../../../webapp/config'),
     app = config.get('uris:webapp:root');
 
-describe('Ping Route', function(){
+describe('Ping Route', function () {
 
     /**
      * Feature: Ping
@@ -24,8 +24,8 @@ describe('Ping Route', function(){
      * I want to visit an endpoint
      * So that I can confirm the server is responding
      */
-    describe('when requesting resource /ping', function(){
-        it('it should respond with 200', function(done){
+    describe('when requesting resource /ping', function () {
+        it('it should respond with 200', function (done) {
             request(app)
                 .get(config.get('uris:webapp:ping'))
                 .expect(200)

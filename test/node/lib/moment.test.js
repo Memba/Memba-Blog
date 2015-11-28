@@ -11,7 +11,7 @@
 var expect = require('chai').expect,
     moment = require('moment');
 
-describe('moment', function() {
+describe('moment', function () {
 
     it('it should parse an ISO date', function () {
         var d = new Date();
