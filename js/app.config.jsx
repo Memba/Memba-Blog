@@ -74,12 +74,7 @@
          */
         app.uris = {
             cdn: {
-                default: '<%- uris.cdn.root %>' + convertFormat('<%- uris.cdn.default %>'),
-                svg: {
-                    office: '<%- uris.cdn.root %>' + convertFormat('<%- uris.cdn.svg.office %>'),
-                    white: '<%- uris.cdn.root %>' + convertFormat('<%- uris.cdn.svg.white %>'),
-                    dark_grey: '<%- uris.cdn.root %>' + convertFormat('<%- uris.cdn.svg.dark_grey %>')
-                }
+                icons: urljoin('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))
             },
             webapp: {
                 home: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.home %>'),

@@ -12,7 +12,7 @@
     <% // Open graph protocol %>
     <meta property="og:title" content="<%= title %>" />
     <meta property="og:description" content="<%= description %>" />
-    <meta property="og:image" content="<%= format(config.uris.cdn.svg.office, icon) %>" />
+    <meta property="og:image" content="<%= urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" />
     <meta property="og:image:type" content="image/svg+xml" />
     <% // Favicon and apple touch icons %>
     <link rel="shortcut icon" href="<%= urljoin(config.uris.webapp.public, 'favicon.ico') %>">

@@ -7,7 +7,6 @@
 
 'use strict';
 
-var util = require('util');
 var logger = require('../lib/logger');
 var utils = require('../lib/utils');
 var menu = require('../models/menuModel');
@@ -21,6 +20,10 @@ module.exports = {
      * @param next
      */
     getHtmlPage: function(req, res, next) {
+
+        var config = res.locals.config;
+        var format = res.locals.format;
+        var urljoin = res.locals.urljoin;
 
         // Create a trace that we can track in the browser
         req.trace = utils.uuid();
@@ -46,7 +49,7 @@ module.exports = {
                     .render('home', {
                         author: res.__('meta.author'),
                         description: res.__('meta.description'),
-                        icon: util.format(res.locals.config.uris.cdn.svg.office, res.__('home.icon')), // TODO: Review
+                        icon: urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, res.__('home.icon'))), // TODO: which icon for home?
                         keywords: res.__('meta.keywords'),
                         menu: data,
                         results: false, // trick header into not displaying robots noindex directive

@@ -24,12 +24,7 @@
     "uris" : {
         "cdn": {
             "root":  "https://d2rvsmwqptocm.cloudfront.net",
-            "default": "/images/%s",
-            "svg": {
-                "office": "/images/o_collection/svg/office/%s.svg",
-                "white": "/images/o_collection/svg/white/%s.svg",
-                "dark_grey": "/images/o_collection/svg/dark_grey/%s.svg"
-            }
+            "icons": "/images/o_collection/svg/office/%s.svg"
         },
         "webapp": {
             "root": "http://localhost:3000",
