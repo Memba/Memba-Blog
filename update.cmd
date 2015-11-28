@@ -202,6 +202,8 @@ REM Copy ./webapp/middleware files
 ATTRIB -R .\webapp\middleware\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\error.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\error.js
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\locals.js .\webapp\middleware /Y
+ATTRIB +R .\webapp\middleware\locals.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\notFound.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\notFound.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware /Y
