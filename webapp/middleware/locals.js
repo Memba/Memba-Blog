@@ -3,46 +3,46 @@
  * Sources at https://github.com/Memba
  */
 
+/* jslint node: true */
 /* jshint node: true */
 
 'use strict';
 
 var util = require('util'),
-    moment = require('moment'),
+    // moment = require('moment'),
     config = require('../config'),
     url = require('../lib/url');
 
-    module.exports = function(req, res, next) {
+module.exports = function (req, res, next) {
 
-    //Set res.locals values that we want available in our EJS templates, including for app.config.jsx
+    // Make nconf configurations available to our EJS templates
+    res.locals.config = config.get();
+
+    /*
     res.locals.config = {
-        debug                   : config.get('debug'),
+        debug               : config.get('debug'),
         locales                 : config.get('locales'),
         logentries: {
             browser: {
                 token           : config.get('logentries:browser:token')
             }
         },
-        uris: {
-            cdn: {
-                images          : url.join(config.get('uris:cdn:root'), config.get('uris:cdn:default')),
-                svg: {
-                    office      : url.join(config.get('uris:cdn:root'), config.get('uris:cdn:svg:office')),
-                    white       : url.join(config.get('uris:cdn:root'), config.get('uris:cdn:svg:white')),
-                    dark_grey   : url.join(config.get('uris:cdn:root'), config.get('uris:cdn:svg:dark_grey'))
-                }
-            },
+        uris : {
             webapp: {
-                root            : config.get('uris:webapp:root'),
-                public          : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:public')),
+                editor          : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:editor')),
+                finder          : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:finder')),
                 home            : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
-                pages           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:pages')),
-                posts           : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:posts')),
-                feed            : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:feed')),
-                sitemap         : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:sitemap'))
+                ping            : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:ping')),
+                player          : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:player')),
+                public          : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:public')),
+                rss             : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:rss')),
+                sitemap         : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:sitemap')),
+                summary         : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:summary')),
+                user            : url.join(config.get('uris:webapp:root'), config.get('uris:webapp:user'))
             }
         }
     };
+    */
 
     // format function
     res.locals.format = function () {
@@ -54,10 +54,10 @@ var util = require('util'),
         return url.join.apply(this, arguments);
     };
 
-    //moment
-    res.locals.moment = moment;
+    // moment
+    // res.locals.moment = moment;
 
-    //Pass the req to the next middleware
+    // Pass the req to the next middleware
     next();
 
 };

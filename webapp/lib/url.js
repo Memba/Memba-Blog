@@ -25,7 +25,7 @@ module.exports = {
      * @see https://github.com/jfromaniello/url-join/blob/master/lib/url-join.js
      * @returns {string}
      */
-    join: function() {
+    join: function () {
         var joined = [].slice.call(arguments, 0).join('/');
         return normalize(joined);
     },

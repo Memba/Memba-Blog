@@ -6,12 +6,12 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define){
     'use strict';
     define([
         './app.logger'
     ], f);
-})(function(){
+})(function (){
 
     'use strict';
 
@@ -45,7 +45,7 @@
                     dfd.resolve();
                 }
 
-                if(cultures[locale]) {
+                if (cultures[locale]) {
                     // locale already loaded
                     setLocale();
                 } else {
@@ -81,8 +81,8 @@
          */
         var locale = i18n.locale();
         i18n.load(locale)
-            .then(function() {
-                $(document).ready(function() {
+            .then(function () {
+                $(document).ready(function () {
 
                     // Log readiness
                     logger.info({
@@ -99,7 +99,7 @@
          * Wait until locale is loaded to localize and hide preload
          * @see http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui
          */
-        $(document).on('i18n.loaded', function() {
+        $(document).on('i18n.loaded', function () {
             $('body>div.k-loading-image').fadeOut();
         });
 
@@ -107,4 +107,4 @@
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });

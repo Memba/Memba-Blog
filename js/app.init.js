@@ -7,6 +7,8 @@
 /* globals require: false, process: false */
 
 if (typeof(require) === 'function') {
+    require('./window.assert');
+    require('./window.logger');
     require('./app.config.jsx?env=' + process.env.NODE_ENV);
     require('./app.logger.js');
     require('./app.support.js');

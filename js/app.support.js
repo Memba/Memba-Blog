@@ -6,12 +6,12 @@
 /* jshint browser: true */
 /* globals define: false */
 
-(function(f, define){
+(function (f, define){
     'use strict';
     define([
         './app.logger'
     ], f);
-})(function(){
+})(function (){
 
     'use strict';
 
@@ -48,7 +48,7 @@
      * of control over the experience.
      */
 
-    (function(window, document, undefined){
+    (function (window, document, undefined){
         var tests = [];
 
 
@@ -69,7 +69,7 @@
             _q: [],
 
             // Stub these for people who are listening
-            on: function( test, cb ) {
+            on: function ( test, cb ) {
                 // I don't really think people should do this, but we can
                 // safe guard it a bit.
                 // -- NOTE:: this gets WAY overridden in src/addTest for
@@ -78,12 +78,12 @@
                 // to *disallow* sync tests in the real version of this
                 // function is actually larger than this.
                 var self = this;
-                setTimeout(function() {
+                setTimeout(function () {
                     cb(self[test]);
                 }, 0);
             },
 
-            addTest: function( name, fn, options ) {
+            addTest: function ( name, fn, options ) {
                 tests.push({name : name, fn : fn, options : options });
             },
 
@@ -97,7 +97,7 @@
         // Fake some of Object.create
         // so we can force non test results
         // to be non "own" properties.
-        var Modernizr = function(){};
+        var Modernizr = function (){};
         Modernizr.prototype = ModernizrProto;
 
         // Leak modernizr globally when you `require` it
@@ -142,7 +142,7 @@
         //   www.quirksmode.org/dom/html5.html
         // But IE8 doesn't support either with local files
 
-        Modernizr.addTest('localstorage', function() {
+        Modernizr.addTest('localstorage', function () {
             var mod = 'modernizr';
             try {
                 localStorage.setItem(mod, mod);
@@ -167,7 +167,7 @@
         // Just FWIW: IE8 Compat mode supports these features completely:
         //   www.quirksmode.org/dom/html5.html
         // But IE8 doesn't support either with local files
-        Modernizr.addTest('sessionstorage', function() {
+        Modernizr.addTest('sessionstorage', function () {
             var mod = 'modernizr';
             try {
                 sessionStorage.setItem(mod, mod);
@@ -280,7 +280,7 @@
 
         ;
 
-        var createElement = function() {
+        var createElement = function () {
             if (typeof document.createElement !== 'function') {
                 // This is the case in IE7, where the type of createElement is "object".
                 // For this reason, we cannot call apply() as Object is not a Function.
@@ -306,7 +306,7 @@
         // On the S60 and BB Storm, getContext exists, but always returns undefined
         // so we actually have to call getContext() to verify
         // github.com/Modernizr/Modernizr/issues/issue/97/
-        Modernizr.addTest('canvas', function() {
+        Modernizr.addTest('canvas', function () {
             var elem = createElement('canvas');
             return !!(elem.getContext && elem.getContext('2d'));
         });
@@ -328,7 +328,7 @@
          Detects support for native drag & drop of elements.
          */
 
-        Modernizr.addTest('draganddrop', function() {
+        Modernizr.addTest('draganddrop', function () {
             var div = createElement('div');
             return ('draggable' in div) || ('ondragstart' in div && 'ondrop' in div);
         });
@@ -357,7 +357,7 @@
         // Note: in some older browsers, "no" was a return value instead of empty string.
         //   It was live in FF3.5.0 and 3.5.1, but fixed in 3.5.2
         //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5
-        Modernizr.addTest('audio', function() {
+        Modernizr.addTest('audio', function () {
             /* jshint -W053 */
             var elem = createElement('audio');
             var bool = false;
@@ -418,7 +418,7 @@
         //   It was live in FF3.5.0 and 3.5.1, but fixed in 3.5.2
         //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5
 
-        Modernizr.addTest('video', function() {
+        Modernizr.addTest('video', function () {
             /* jshint -W053 */
             var elem = createElement('video');
             var bool = false;
@@ -477,7 +477,7 @@
         // Helper function for converting kebab-case to camelCase,
         // e.g. box-sizing -> boxSizing
         function cssToDOM( name ) {
-            return name.replace(/([a-z])-([a-z])/g, function(str, m1, m2) {
+            return name.replace(/([a-z])-([a-z])/g, function (str, m1, m2) {
                 return m1 + m2.toUpperCase();
             }).replace(/^-/, '');
         }
@@ -485,7 +485,7 @@
 
         // Change the function's scope.
         function fnBind(fn, that) {
-            return function() {
+            return function () {
                 return fn.apply(that, arguments);
             };
         }
@@ -530,7 +530,7 @@
         };
 
         // Clean up this element
-        Modernizr._q.push(function() {
+        Modernizr._q.push(function () {
             delete modElem.elem;
         });
 
@@ -543,7 +543,7 @@
         // kill ref for gc, must happen before
         // mod.elem is removed, so we unshift on to
         // the front of the queue.
-        Modernizr._q.unshift(function() {
+        Modernizr._q.unshift(function () {
             delete mStyle.style;
         });
 
@@ -552,7 +552,7 @@
         // Helper function for converting camelCase to kebab-case,
         // e.g. boxSizing -> box-sizing
         function domToCSS( name ) {
-            return name.replace(/([A-Z])/g, function(str, m1) {
+            return name.replace(/([A-Z])/g, function (str, m1) {
                 return '-' + m1.toLowerCase();
             }).replace(/^ms-/, '-ms-');
         }
@@ -565,7 +565,7 @@
             // After page load injecting a fake body doesn't work so check if body exists
             var body = document.body;
 
-            if(!body) {
+            if (!body) {
                 // Can't use the real body create a fake one.
                 body = createElement('body');
                 body.fake = true;
@@ -657,7 +657,7 @@
                     conditionText.push('(' + domToCSS(props[i]) + ':' + value + ')');
                 }
                 conditionText = conditionText.join(' or ');
-                return injectElementWithStyles('@supports (' + conditionText + ') { #modernizr { position: absolute; } }', function( node ) {
+                return injectElementWithStyles('@supports (' + conditionText + ') { #modernizr { position: absolute; } }', function ( node ) {
                     return getComputedStyle(node, null).position == 'absolute';
                 });
             }
@@ -684,7 +684,7 @@
             // Try native detect first
             if (!is(value, 'undefined')) {
                 var result = nativeTestProps(props, value);
-                if(!is(result, 'undefined')) {
+                if (!is(result, 'undefined')) {
                     return result;
                 }
             }
@@ -767,7 +767,7 @@
                 props = (prop + ' ' + cssomPrefixes.join(ucProp + ' ') + ucProp).split(' ');
 
             // did they call .prefixed('boxSizing') or are we just testing a prop?
-            if(is(prefixed, 'string') || is(prefixed, 'undefined')) {
+            if (is(prefixed, 'string') || is(prefixed, 'undefined')) {
                 return testProps(props, prefixed, value, skipValueTest);
 
                 // otherwise, they called .prefixed('requestAnimationFrame', window[, elem])
@@ -815,7 +815,7 @@
          }
          !*/
 
-        Modernizr.addTest('csstransforms', function() {
+        Modernizr.addTest('csstransforms', function () {
             // Android < 3.0 is buggy, so we sniff and blacklist
             // http://git.io/hHzL7w
             return navigator.userAgent.indexOf('Android 2.') === -1 &&
@@ -906,13 +906,13 @@
          */
 
         // Chrome (desktop) used to lie about its support on this, but that has since been rectified: http://crbug.com/36415
-        Modernizr.addTest('touchevents', function() {
+        Modernizr.addTest('touchevents', function () {
             var bool;
-            if(('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
+            if (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
                 bool = true;
             } else {
                 var query = ['@media (',prefixes.join('touch-enabled),('),'heartz',')','{#modernizr{top:9px;position:absolute}}'].join('');
-                testStyles(query, function( node ) {
+                testStyles(query, function ( node ) {
                     bool = node.offsetTop === 9;
                 });
             }
@@ -1004,7 +1004,7 @@
          Detects support for the `hashchange` event, fired when the current location fragment changes.
          */
 
-        Modernizr.addTest('hashchange', function() {
+        Modernizr.addTest('hashchange', function () {
             if (hasEvent('hashchange', window) === false) {
                 return false;
             }
@@ -1040,4 +1040,4 @@
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });

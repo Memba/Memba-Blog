@@ -14,7 +14,8 @@ var awss3;
 try { awss3 = require('./awss3'); } catch (ex) {}
 
 function Config() {
-    nconf.argv().env('_');
+    // nconf.argv().env('_');
+    nconf.env({ separator: '_', whitelist: ['NODE_ENV'] });
     this.environment = nconf.get('NODE:ENV') || 'production';
     nconf.file('default', path.join(__dirname, 'default.json'));
     if (awss3 && this.environment === 'production') {

@@ -41,7 +41,7 @@ process.on('uncaughtException', function (exception) {
 /**
  * Ensure we exit properly when interrupting by Ctrl+C
  */
-process.on('SIGINT', function() {
+process.on('SIGINT', function () {
     process.exit(0);
 });
 
@@ -50,7 +50,7 @@ process.on('SIGINT', function() {
  * Therefore it closes the mongoose connection before exiting
  * either from an uncaughtException or from Ctrl+C
  */
-process.on('exit', function(code) {
+process.on('exit', function (code) {
     // We use a try/catch block here because we might have reached here from an uncaughtException
     try {
         logger.warn({
@@ -79,8 +79,8 @@ var path = require('path'),
     app = express(),
     port = process.env.PORT || config.get('express:port');
 
-//Secure expressJS with helmet from https://github.com/helmetjs/helmet
-//app.disable('x-powered-by');
+// Secure expressJS with helmet from https://github.com/helmetjs/helmet
+// app.disable('x-powered-by');
 app.use(helmet());
 
 // Configure expressJS
@@ -89,9 +89,9 @@ app.set('port', port);
 
 // i18n
 i18n.configure({
-    locales: config.get('locales'), //['en', 'fr'],
+    locales: config.get('locales'), // ['en', 'fr'],
     directory: path.join(__dirname, 'locales'),
-    objectNotation: true //Use hierarchies in locales.json files
+    objectNotation: true // Use hierarchies in locales.json files
 });
 // Use __() in templates
 app.use(i18n.init);
@@ -110,12 +110,12 @@ app.use(config.get('uris:webapp:public'), express.static(path.join(__dirname, 'p
 // Routing
 app.use(router);
 
-//Launch server
+// Launch server
 var server = http.createServer(app).listen(port);
 logger.info({
     message: 'expressJS server listening on port ' + port,
     module: 'server'
 });
 
-//Export app for unit tests
+// Export app for unit tests
 module.exports = app;

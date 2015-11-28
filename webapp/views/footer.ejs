@@ -11,7 +11,7 @@
                     <div class="form-group" title="<%- __('footer.language.tooltip') %>">
                         <label for="footer-settings-language"><%- __('footer.language.label') %>&nbsp;
                             <select id="footer-settings-language" data-role="dropdownlist" data-bind="value:locale">
-                                <% __('languages').forEach(function(language){ %>
+                                <% __('languages').forEach(function (language) { %>
                                 <option value="<%- language.value %>"><%- language.name %></option>
                                 <% }) %>
                             </select>
@@ -20,7 +20,7 @@
                     <div class="form-group hidden-xs" title="<%- __('footer.theme.tooltip') %>">&nbsp;&nbsp;&nbsp;
                         <label for="footer-settings-theme"><%- __('footer.theme.label') %>&nbsp;
                             <select id="footer-settings-theme" data-role="dropdownlist" data-bind="value:theme">
-                                <% __('themes').forEach(function(theme){ %>
+                                <% __('themes').forEach(function (theme) { %>
                                 <option value="<%- theme.value %>"><%- theme.name %></option>
                                 <% }) %>
                             </select>

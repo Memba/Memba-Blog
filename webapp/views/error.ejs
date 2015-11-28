@@ -5,7 +5,7 @@
         <div class="container">
             <div class="page-header">
                 <h1>
-                    <% if (icon) { %><img src="<%= format(config.uris.cdn.svg.office, icon) %>" alt="<%= title %>"><% } %>
+                    <% if (icon) { %><img src="<%= urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>"><% } %>
                     <span><%= title %></span>
                 </h1>
             </div>
@@ -20,7 +20,7 @@
 </main>
 
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="<%= urljoin(config.uris.webapp.public, 'assets/common.bundle.js') %>"></script>
-<script src="<%= urljoin(config.uris.webapp.public, 'assets/error.bundle.js') %>"></script>
+<script src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'assets/common.bundle.js') %>"></script>
+<script src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'assets/error.bundle.js') %>"></script>
 
 <% include footer.ejs %>

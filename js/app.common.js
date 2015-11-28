@@ -18,18 +18,20 @@ if (typeof(require) === 'function') {
     require('./vendor/bootstrap/dropdown.js');
 }
 
-(function(f, define){
+(function (f, define){
     'use strict';
     define([
         './vendor/kendo/kendo.binder',
         // './vendor/kendo/kendo.button',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.notification',
+        './window.assert',
+        './window.logger',
         './app.logger',
         './app.i18n',
         './app.theme'
     ], f);
-})(function() {
+})(function () {
 
     'use strict';
 
@@ -53,7 +55,7 @@ if (typeof(require) === 'function') {
         /**
          * Change event handler on viewModel
          */
-        viewModel.bind(CHANGE, function(e) {
+        viewModel.bind(CHANGE, function (e) {
             if (e.field === 'locale') {
                 i18n.locale(e.sender.get('locale'));
             } else if (e.field === 'theme') {
@@ -101,7 +103,7 @@ if (typeof(require) === 'function') {
         /**
          * Wait until document is ready to initialize UI
          */
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             kendo.init('body'); // , kendo.mobile.ui);
             initNotifications();
@@ -119,4 +121,4 @@ if (typeof(require) === 'function') {
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function(_, f){ 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f){ 'use strict'; f(); });
