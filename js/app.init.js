@@ -9,8 +9,8 @@
 if (typeof(require) === 'function') {
     require('./window.assert');
     require('./window.logger');
-    require('./app.config.jsx?env=' + process.env.NODE_ENV);
     require('./app.logger.js');
+    require('./app.config.jsx?env=' + process.env.NODE_ENV);
     require('./app.support.js');
 }
 
