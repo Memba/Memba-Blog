@@ -9,6 +9,8 @@
 (function (f, define) {
     'use strict';
     define([
+        './window.assert',
+        './window.logger',
         './app.logger'
     ], f);
 })(function () {
@@ -24,8 +26,8 @@
     (function () {
 
         var app = window.app = window.app || {};
-        var assert = window.assert;
-        var logger = app.logger = app.logger || {};
+        // var assert = window.assert;
+        var logger = new window.Logger('app.config');
 
         /**
          * application DEBUG mode
@@ -78,12 +80,17 @@
             },
             webapp: {
                 home: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.home %>'),
+                locale: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.locale %>'), // redirection when changing locale
                 feed:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.feed %>'),
                 sitemap:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.sitemap %>'),
                 pages:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.pages %>'),
                 posts:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.posts %>')
             }
         };
+
+        logger.info({
+            message: 'app configured'
+        });
 
     }());
 

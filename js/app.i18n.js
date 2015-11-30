@@ -9,6 +9,8 @@
 (function (f, define) {
     'use strict';
     define([
+        './window.assert',
+        './window.logger',
         './app.logger'
     ], f);
 })(function () {
@@ -18,6 +20,7 @@
     (function ($, undefined) {
 
         var app = window.app;
+        // var assert = window.assert;
         var logger = new window.Logger('app.i18n');
         var cultures = app.cultures = app.cultures || {};
         var STRING = 'string';
@@ -65,8 +68,8 @@
              */
             locale: function (locale) {
                 if (typeof locale === STRING) {
-                    // TODO Reject locales not in config
-                    window.location.href = app.uris.webapp.finder.replace('{0}', locale);
+                    // TODO assert locales from config
+                    window.location.href = app.uris.webapp.locale.replace('{0}', locale);
                 } else if (locale === undefined) {
                     return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
                 } else {

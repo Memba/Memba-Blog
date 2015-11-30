@@ -31,6 +31,7 @@
             "root": "http://localhost:3000",
             "public": "/",
             "home": "/",
+            "locale": "/%s",
             "ping": "/ping",
             "hook": "/hook",
             "pages": "/%s/%s",
