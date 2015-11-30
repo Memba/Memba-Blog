@@ -17,11 +17,11 @@
 
     (function ($, undefined) {
 
-        var app = window.app,
-            logger = new window.Logger('app.theme'),
-            STRING = 'string',
-            THEME = 'theme',
-            DEFAULT = 'default';
+        var app = window.app;
+        var logger = new window.Logger('app.theme');
+        var STRING = 'string';
+        var THEME = 'theme';
+        var DEFAULT = 'default';
 
         app.theme = {
 
@@ -31,8 +31,8 @@
              */
             load: function (theme) {
                 // TODO Reject unlisted theme
-                var dfd = $.Deferred(),
-                    oldTheme = localStorage.getItem(THEME), loader;
+                var dfd = $.Deferred();
+                var oldTheme = localStorage.getItem(THEME), loader;
                 if (typeof oldTheme === STRING && oldTheme !== theme) {
                     // See https://github.com/webpack/style-loader/issues/48
                     // See https://github.com/webpack/webpack/issues/924
