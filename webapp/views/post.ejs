@@ -42,7 +42,7 @@
 </main>
 
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="<%= urljoin(config.uris.webapp.public, 'assets/common.bundle.js') %>"></script>
-<script src="<%= urljoin(config.uris.webapp.public, 'assets/post.bundle.js') %>"></script>
+<script src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'assets/common.bundle.js') %>"></script>
+<script src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'assets/post.bundle.js') %>"></script>
 
 <% include footer.ejs %>

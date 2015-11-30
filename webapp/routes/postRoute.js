@@ -9,7 +9,6 @@
 
 var async = require('async'),
     qs = require('qs'),
-    util = require('util'),
     ApplicationError = require('../lib/error'),
     convert = require('../lib/convert'),
     logger = require('../lib/logger'),
@@ -28,6 +27,10 @@ module.exports = {
      * @param next
      */
     getHtmlPage: function(req, res, next) {
+
+        var config = res.locals.config;
+        var format = res.locals.format;
+        var urljoin = res.locals.urljoin;
 
         //Create a trace that we can track in the browser
         req.trace = utils.uuid();
@@ -99,7 +102,7 @@ module.exports = {
                             months: responses[4],
                             results: responses[1],
                             trace: req.trace,
-                            site_url: url.join(util.format(res.locals.config.uris.webapp.posts, req.params.language, req.params.year || '', req.params.month || '', ''), '?' + qs.stringify(req.query)),
+                            site_url: urljoin(config.uris.webapp.root, format(config.uris.webapp.posts, req.params.language, req.params.year || '', req.params.month || '', ''), '?' + qs.stringify(req.query)),
                             title: res.__('search.title.heading')
                         };
                         res

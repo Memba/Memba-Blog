@@ -54,7 +54,7 @@ module.exports = {
                         menu: data,
                         results: false, // trick header into not displaying robots noindex directive
                         trace: req.trace,
-                        site_url: res.locals.config.uris.webapp.home, // canonical link
+                        site_url: urljoin(config.uris.webapp.root, config.uris.webapp.home), // canonical link
                         title: res.__('meta.title')
                     });
             } else {
