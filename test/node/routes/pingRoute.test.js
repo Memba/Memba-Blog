@@ -3,9 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-/* jslint node: true, expr: true */
-/* jshint node: true, expr: true */
-/* global describe, it, before, xdescribe, xit */
+/* jshint node: true, mocha: true, expr: true */
 
 'use strict';
 

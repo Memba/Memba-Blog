@@ -3,9 +3,7 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-/* jslint browser: true */
-/* jshint browser: true */
-/* global describe, it, expect */
+/* jshint browser: true, mocha: true, expr: true */
 
 ;(function (window) {
 
