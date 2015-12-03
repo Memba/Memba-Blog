@@ -13,13 +13,13 @@ var logger = require('./lib/logger');
  * Handle uncaught exceptions
  * @see http://stackoverflow.com/questions/7310521/node-js-best-practice-exception-handling
  */
-process.on('uncaughtException', function (exception) {
+process.on('uncaughtException', function (ex) {
 
     logger.critical({
         // message = exception.message
         module: 'server',
         method: 'process.onuncaughtException',
-        error: exception
+        error: ex
     });
 
     if (typeof server === 'undefined') {
@@ -58,8 +58,8 @@ process.on('exit', function (code) {
             module: 'server',
             method: 'process.onexit'
         });
-    } catch(exception) {
-        console.error(exception);
+    } catch (ex) {
+        console.error(ex);
     }
 });
 
@@ -70,14 +70,14 @@ logger.info({
     module: 'config/index'
 });
 
-var path = require('path'),
-    express = require('express'),
-    helmet = require('helmet'),
-    http = require('http'),
-    i18n = require('i18n'),
-    router = require('./routes'),
-    app = express(),
-    port = process.env.PORT || config.get('express:port');
+var path = require('path');
+var express = require('express');
+var helmet = require('helmet');
+var http = require('http');
+var i18n = require('i18n');
+var router = require('./routes');
+var app = express();
+var port = process.env.PORT || config.get('express:port');
 
 // Secure expressJS with helmet from https://github.com/helmetjs/helmet
 // app.disable('x-powered-by');

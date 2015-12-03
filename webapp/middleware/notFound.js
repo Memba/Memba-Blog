@@ -9,7 +9,7 @@
 
 var http = require('http');
 var url = require('url');
-var ApplicationError = require('./../lib/error');
+var ApplicationError = require('../lib/error');
 
 module.exports = {
 

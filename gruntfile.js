@@ -6,6 +6,9 @@
 /* jslint node: true */
 /* jshint node: true */
 
+/* And because of kendo_lint */
+/* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+
 'use strict';
 
 module.exports = function (grunt) {
@@ -25,15 +28,16 @@ module.exports = function (grunt) {
         console.log('IMPORTANT: grunt environment is undefined. Use the `build.cmd` script');
     }
 
-    var webpack = require('webpack'),
-        webpackConfig = require(__dirname + '/webpack.config.js');
+    var webpack = require('webpack');
+    var webpackConfig = require(__dirname + '/webpack.config.js');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jscs: {
             files: ['gruntfile.js', 'webpack.config.js', 'js/**/app.*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
             options: {
-                config: '.jscsrc'
+                config: '.jscsrc',
+                excludeFiles: ['js/kidoju.*.js', 'js/vendor/**/*.js', 'webapp/public/**/*.js', 'test/vendor/**/*.js']
             }
         },
         jshint: {
@@ -43,11 +47,12 @@ module.exports = function (grunt) {
                 jshintrc: true
             }
         },
-        kendo_lint: { // TODO: html too
+        kendo_lint: {
             files: ['src/js/app*.js']
         },
+        // TODO: lint html too
         webpack: {
-            //See https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
+            // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
             options: webpackConfig,
             build: {
                 plugins: webpackConfig.plugins.concat(
@@ -57,7 +62,7 @@ module.exports = function (grunt) {
             }
         },
         mocha: {
-            browser: { //In browser unit tests
+            browser: { // In browser (phantomJS) unit tests
                 options: {
                     log: true,
                     logErrors: true,
@@ -68,7 +73,7 @@ module.exports = function (grunt) {
                 src: ['test/browser/**/*.html']
             }
         },
-        mochaTest: { //In node unit tests
+        mochaTest: { // In node (Zombie) unit tests
             node: {
                 options: {
                     quiet: false,
@@ -81,19 +86,19 @@ module.exports = function (grunt) {
         }
     });
 
-    //Lint
+    // Lint
     grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-kendo-lint');
 
-    //Build
+    // Build
     grunt.loadNpmTasks('grunt-webpack');
 
-    //Tests
+    // Tests
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
 
-    //Commands
+    // Commands
     grunt.registerTask('lint', ['jshint', 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);

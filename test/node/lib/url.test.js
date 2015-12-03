@@ -3,12 +3,12 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true, mocha: true; expr: true */
+/* jshint node: true, mocha: true, expr: true */
 
 'use strict';
 
-var expect = require('chai').expect,
-    url = require('../../../webapp/lib/url');
+var expect = require('chai').expect;
+var url = require('../../../webapp/lib/url');
 
 describe('lib/url', function () {
 

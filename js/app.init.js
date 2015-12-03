@@ -6,6 +6,8 @@
 /* jshint browser: true */
 /* globals require: false, process: false */
 
+'use strict';
+
 if (typeof(require) === 'function') {
     require('./window.assert');
     require('./window.logger');

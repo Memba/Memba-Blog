@@ -6,13 +6,15 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false, require: false */
 
+'use strict';
+
 if (typeof(require) === 'function') {
     // Load styles
     require('../styles/app.page.error.less');
 }
 
 (function (f, define) {
-    'use strict';
+    // 'use strict';
     define([
         './window.assert',
         './window.logger',
@@ -21,7 +23,7 @@ if (typeof(require) === 'function') {
     ], f);
 })(function () {
 
-    'use strict';
+    // 'use strict';
 
     (function ($, undefined) {
 
@@ -52,4 +54,4 @@ if (typeof(require) === 'function') {
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { /*'use strict';*/ f(); });

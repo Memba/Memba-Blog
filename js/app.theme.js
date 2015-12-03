@@ -4,7 +4,7 @@
  */
 
 /* jshint browser: true, jquery: true */
-/* globals define: false */
+/* globals define: false, require: false */
 
 (function (f, define) {
     'use strict';
@@ -32,7 +32,8 @@
             load: function (theme) {
                 // TODO Reject unlisted theme
                 var dfd = $.Deferred();
-                var oldTheme = localStorage.getItem(THEME), loader;
+                var oldTheme = localStorage.getItem(THEME);
+                var loader;
                 if (typeof oldTheme === STRING && oldTheme !== theme) {
                     // See https://github.com/webpack/style-loader/issues/48
                     // See https://github.com/webpack/webpack/issues/924

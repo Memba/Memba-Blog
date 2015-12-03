@@ -6,6 +6,8 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false, require: false */
 
+'use strict';
+
 if (typeof(require) === 'function') {
     // Load styles
     require('../styles/bootstrap.custom.less');
@@ -19,7 +21,7 @@ if (typeof(require) === 'function') {
 }
 
 (function (f, define) {
-    'use strict';
+    // 'use strict';
     define([
         './vendor/kendo/kendo.binder',
         // './vendor/kendo/kendo.button',
@@ -33,16 +35,16 @@ if (typeof(require) === 'function') {
     ], f);
 })(function () {
 
-    'use strict';
+    // 'use strict';
 
     (function ($, undefined) {
 
-        var kendo = window.kendo,
-            app = window.app,
-            logger = new window.Logger('app.common'),
-            i18n = app.i18n,
-            theme = app.theme,
-            CHANGE = 'change';
+        var kendo = window.kendo;
+        var app = window.app;
+        var logger = new window.Logger('app.common');
+        var i18n = app.i18n;
+        var theme = app.theme;
+        var CHANGE = 'change';
 
         /**
          * Footer viewModel
@@ -111,7 +113,7 @@ if (typeof(require) === 'function') {
 
             // Log page readiness
             logger.info({
-                message: 'common elements initialized in ' + i18n.locale() ,
+                message: 'common elements initialized in ' + i18n.locale(),
                 method: '$(document).ready'
             });
         });
@@ -121,4 +123,4 @@ if (typeof(require) === 'function') {
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { /*'use strict';*/ f(); });
