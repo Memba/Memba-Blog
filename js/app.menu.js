@@ -76,7 +76,7 @@ require('./vendor/bootstrap/dropdown.js');
 
             // Log page readiness
             logger.info({
-                message: 'Menu initialized in ' + i18n.locale() ,
+                message: 'Menu initialized in ' + i18n.locale(),
                 method: '$(document).ready'
             });
         });
