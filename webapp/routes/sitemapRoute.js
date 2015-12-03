@@ -7,10 +7,10 @@
 
 'use strict';
 
-var util = require('util'),
-    config = require('../config'),
-    logger = require('../lib/logger'),
-    index = require('../models/indexModel');
+var util = require('util');
+var config = require('../config');
+var logger = require('../lib/logger');
+var index = require('../models/indexModel');
 
 module.exports = {
 
@@ -22,12 +22,12 @@ module.exports = {
      * @param res
      * @param next
      */
-    getXmlSitemap: function(req, res, next) {
+    getXmlSitemap: function (req, res, next) {
 
-        //Create a trace that we can track in the browser
-        //req.trace = utils.uuid();
+        // Create a trace that we can track in the browser
+        // req.trace = utils.uuid();
 
-        //Log the request
+        // Log the request
         logger.info({
             message: 'requesting a sitemap',
             module: 'routes/sitemapRoute',
@@ -35,11 +35,13 @@ module.exports = {
             request: req
         });
 
-        index.getIndex(req.params.language, function(error, indexEntries) {
-            if(!error && Array.isArray(indexEntries)) {
+        index.getIndex(req.params.language, function (error, indexEntries) {
+            if (!error && Array.isArray(indexEntries)) {
                 var sitemap = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-                for(var i = 0; i < indexEntries.length; i++) {
+                for (var i = 0; i < indexEntries.length; i++) {
+                    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                     sitemap += util.format('<url><loc>%s</loc></url>', indexEntries[i].site_url);
+                    /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                 }
                 sitemap+= '</urlset>';
                 res
@@ -48,7 +50,7 @@ module.exports = {
                         'Content-Language': res.getLocale(),
                         'Cache-Control': 'max-age=3600, public'
                     })
-                    .vary('Accept-Encoding') //See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                    .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                     .send(sitemap);
             } else {
                 next(error);

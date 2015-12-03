@@ -7,10 +7,10 @@
 
 'use strict';
 
-var convert = require('../lib/convert'),
-    github = require('../lib/github'),
-    ApplicationError = require('../lib/error'),
-    cache = {};
+var convert = require('../lib/convert');
+var github = require('../lib/github');
+var ApplicationError = require('../lib/error');
+var cache = {};
 
 module.exports = {
 
@@ -19,21 +19,21 @@ module.exports = {
      * @param language
      * @param callback
      */
-    getMenu : function(language, callback) {
-        //TODO: check available locales
+    getMenu : function (language, callback) {
+        // TODO: check available locales
         var menu = cache[language];
-        if(menu) {
+        if (menu) {
             callback(null, menu);
         } else {
             github.getContent(convert.getMenuPath(language), function (error, response) {
                 if (!error && response) {
-                    var buf = new Buffer(response.content, 'base64'),
-                        content = buf.toString(),
-                    menu = JSON.parse(content);
+                    var buf = new Buffer(response.content, 'base64');
+                    var content = buf.toString();
+                    var menu = JSON.parse(content);
                     cache[language] = menu;
                     callback(null, menu);
                 } else {
-                    callback(error); //TODO: || not found
+                    callback(error); // TODO: || not found
                 }
             });
         }
@@ -42,7 +42,7 @@ module.exports = {
     /**
      * Reset cache
      */
-    resetCache: function() {
+    resetCache: function () {
         cache = {};
     }
 

@@ -7,39 +7,39 @@
 
 'use strict';
 
-var util = require('util'),
-    paths = require('path'),
-    url = require('./url'),
-    config = require('../config'),
-    PAGES = 'pages',
-    POSTS = 'posts',
-    locales = config.get('locales'),
-    db = {
+var util = require('util');
+var paths = require('path');
+var url = require('./url');
+var config = require('../config');
+var PAGES = 'pages';
+var POSTS = 'posts';
+var locales = config.get('locales');
+var db = {
         index: config.get('db:index')
-    },
-    github = {
+    };
+var github = {
         language: config.get('github:language'),    // "%s/"
         pages: config.get('github:' + PAGES),       // "pages"
         posts: config.get('github:' + POSTS),       // "posts"
         markdown: config.get('github:markdown'),    // "%s.md"
         menu: config.get('github:menu'),
         index: config.get('github:index')
-    },
-    webapp = {
+    };
+var webapp = {
         root: config.get('uris:webapp:root'),       // "http://localhost:3000",
         pages: config.get('uris:webapp:' + PAGES),  // "/%s/%s"
         posts: config.get('uris:webapp:' + POSTS)   // "/%s/posts/%s/%s/%s"
-    },
-    SEPARATOR = '\\/',
-    ANY_BETWEEN_SEPARATORS = util.format('[^%s]+', SEPARATOR),
-    MATCH_BETWEEN_SEPARATORS = util.format('(%s)', ANY_BETWEEN_SEPARATORS),
-    SITE_URL_2_LANGUAGE = url.join(webapp.root, webapp.pages).replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
-    RX_SITE_URL_2_LANGUAGE = new RegExp('^' + util.format(SITE_URL_2_LANGUAGE, MATCH_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS)),
-    RX_MARKDOWN = new RegExp(util.format(config.get('github:markdown'), '') + '$'),
-    RX_PATH_2_LANGUAGE = new RegExp('^' + util.format(github.language, MATCH_BETWEEN_SEPARATORS)),
-    PATH_2_SECTION = url.join(github.language, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
-    RX_PATH_2_SECTION = new RegExp('^' + util.format(PATH_2_SECTION, ANY_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS)),
-    RX_PATH_2_SLUG = new RegExp(util.format(github.markdown, MATCH_BETWEEN_SEPARATORS) + '$');
+    };
+var SEPARATOR = '\\/';
+var ANY_BETWEEN_SEPARATORS = util.format('[^%s]+', SEPARATOR);
+var MATCH_BETWEEN_SEPARATORS = util.format('(%s)', ANY_BETWEEN_SEPARATORS);
+var SITE_URL_2_LANGUAGE = url.join(webapp.root, webapp.pages).replace(new RegExp(SEPARATOR, 'g'), SEPARATOR);
+var RX_SITE_URL_2_LANGUAGE = new RegExp('^' + util.format(SITE_URL_2_LANGUAGE, MATCH_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS));
+var RX_MARKDOWN = new RegExp(util.format(config.get('github:markdown'), '') + '$');
+var RX_PATH_2_LANGUAGE = new RegExp('^' + util.format(github.language, MATCH_BETWEEN_SEPARATORS));
+var PATH_2_SECTION = url.join(github.language, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR);
+var RX_PATH_2_SECTION = new RegExp('^' + util.format(PATH_2_SECTION, ANY_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS));
+var RX_PATH_2_SLUG = new RegExp(util.format(github.markdown, MATCH_BETWEEN_SEPARATORS) + '$');
 
 /**
  * A github path comprises 3 portions:
@@ -55,7 +55,7 @@ module.exports = {
      * @param path
      * @returns {boolean}
      */
-    isMarkdown: function(path) {
+    isMarkdown: function (path) {
         return RX_MARKDOWN.test(path);
     },
 
@@ -64,16 +64,16 @@ module.exports = {
      * @param path
      * @returns {boolean}
      */
-    //isMenu: function(path) {
+    // isMenu: function (path) {
     //    return RX_MENU.test(path);
-    //},
+    // },
 
     /**
      * Returns the menu path for a designated language
      * @param language
      * @returns {*}
      */
-    getMenuPath: function(language) {
+    getMenuPath: function (language) {
         return url.join(util.format(github.language, language), github.menu);
     },
 
@@ -82,7 +82,7 @@ module.exports = {
      * @param language
      * @returns {*}
      */
-    getLanguageDir: function(language) {
+    getLanguageDir: function (language) {
         return util.format(github.language, language);
     },
 
@@ -91,7 +91,7 @@ module.exports = {
      * @param language
      * @param slug
      */
-    getPagePath: function(language, slug) {
+    getPagePath: function (language, slug) {
         return url.join(util.format(github.language, language), github.pages, (slug || 'index') + '.md');
     },
 
@@ -99,7 +99,7 @@ module.exports = {
      * Returns post root dir on Github
      * @param language
      */
-    getPostDir: function(language) {
+    getPostDir: function (language) {
         return url.join(util.format(github.language, language), github.posts);
     },
 
@@ -109,7 +109,7 @@ module.exports = {
      * @param language
      * @returns {*}
      */
-    getIndexPath: function(language) {
+    getIndexPath: function (language) {
         return paths.join(__dirname, util.format(db.index, language));
     },
 
@@ -118,7 +118,7 @@ module.exports = {
      * @param language
      * @returns {*}
      */
-    getIndexDir: function() {
+    getIndexDir: function () {
         return paths.join(__dirname, paths.dirname(db.index));
     },
 
@@ -126,20 +126,23 @@ module.exports = {
      * Extracts language from index file name
      * @param fileName
      */
-    index2language: function(fileName) {
-        for (var i = 0; i <locales.length; i++) {
+    index2language: function (fileName) {
+        for (var i = 0; i < locales.length; i++) {
             if (fileName === module.exports.getIndexPath(locales[i])) {
                 return locales[i];
             }
         }
     },
 
+    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
+
     /**
      * Extracts language from a site url
      * @param path
      * @returns {*}
      */
-    site_url2language: function(path) {
+    site_url2language: function (path) {
+        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
         var matches = path.match(RX_SITE_URL_2_LANGUAGE);
         if (Array.isArray(matches) && matches.length > 1) {
             return matches[1];
@@ -153,7 +156,7 @@ module.exports = {
      * @param path
      * @returns {*}
      */
-    path2language: function(path) {
+    path2language: function (path) {
         var matches = path.match(RX_PATH_2_LANGUAGE);
         if (Array.isArray(matches) && matches.length === 2) {
             return matches[1];
@@ -167,14 +170,14 @@ module.exports = {
      * @param path
      * @returns {*}
      */
-    path2section: function(path) {
+    path2section: function (path) {
         var matches = path.match(RX_PATH_2_SECTION);
         if (Array.isArray(matches) && matches.length === 2) {
             var section = matches[1];
             if (section === github.pages) {
-                return PAGES; //name (not value) of webapp pages config key in json file
+                return PAGES; // name (not value) of webapp pages config key in json file
             } else if (section === github.posts) {
-                return POSTS; //name (not value) of webapp posts config key in json file
+                return POSTS; // name (not value) of webapp posts config key in json file
             }
         }
     },
@@ -184,23 +187,26 @@ module.exports = {
      * @param path
      * @returns {*}
      */
-    path2slug: function(path) {
-        //TODO: Consider using https://github.com/dodo/node-slug
+    path2slug: function (path) {
+        // TODO: Consider using https://github.com/dodo/node-slug
         var matches = path.match(RX_PATH_2_SLUG);
         if (Array.isArray(matches) && matches.length === 2) {
             return matches[1];
         }
     },
 
+    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
+
     /**
      * Returns a site url from a github path
      * @param path
      * @param date
      */
-    path2site_url: function(path, date) {
-        var language = module.exports.path2language(path),
-            section = module.exports.path2section(path),
-            slug = module.exports.path2slug(path);
+    path2site_url: function (path, date) {
+        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
+        var language = module.exports.path2language(path);
+        var section = module.exports.path2section(path);
+        var slug = module.exports.path2slug(path);
         if (section === PAGES) {
             if (slug === 'index') {
                 slug = '';
@@ -210,10 +216,9 @@ module.exports = {
             if (typeof date === 'string') {
                 date = new Date(date);
             }
-            var year = date.getUTCFullYear().toString(),
-                month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+            var year = date.getUTCFullYear().toString();
+            var month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
             return url.join(webapp.root, util.format(webapp.posts, language, year, month, slug));
         }
     }
-
 };

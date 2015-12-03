@@ -7,29 +7,29 @@
 
 'use strict';
 
-var express = require('express'),
-    jsonParser = require('body-parser').json(),
-    util = require('util'),
-    router = express.Router(),
-    config = require('../config'),
-    error = require('../middleware/error'),
-    extension = require('../middleware/extension'),
-    locals = require('../middleware/locals'),
-    notFound = require('../middleware/notFound'),
-    params = require('../middleware/params'),
-    pingRoute = require('./pingRoute'),
-    homeRoute = require('./homeRoute'),
-    hookRoute = require('./hookRoute'),
-    feedRoute = require('./feedRoute'),
-    sitemapRoute = require('./sitemapRoute'),
-    pageRoute = require('./pageRoute'),
-    postRoute = require('./postRoute');
+var express = require('express');
+var jsonParser = require('body-parser').json();
+var util = require('util');
+var router = express.Router();
+var config = require('../config');
+var error = require('../middleware/error');
+var extension = require('../middleware/extension');
+var locals = require('../middleware/locals');
+var notFound = require('../middleware/notFound');
+var params = require('../middleware/params');
+var pingRoute = require('./pingRoute');
+var homeRoute = require('./homeRoute');
+var hookRoute = require('./hookRoute');
+var feedRoute = require('./feedRoute');
+var sitemapRoute = require('./sitemapRoute');
+var pageRoute = require('./pageRoute');
+var postRoute = require('./postRoute');
 
 // Validate parameters
 router.param('language', params.validateLanguage);
 router.param('year', params.validateYear);
 router.param('month', params.validateMonth);
-//router.param('slug', params.validateSlug);
+// router.param('slug', params.validateSlug);
 
 // Return simplified 404 for support files with extensions
 router.use(extension);
@@ -58,11 +58,11 @@ router.route(util.format(config.get('uris:webapp:sitemap'), ':language'))
     .get(sitemapRoute.getXmlSitemap);
 
 // Blog posts
-router.route(util.format(config.get('uris:webapp:posts'),':language', ':year?', ':month?', ':slug?'))
+router.route(util.format(config.get('uris:webapp:posts'), ':language', ':year?', ':month?', ':slug?'))
     .get(postRoute.getHtmlPage);
 
 // Pages
-router.route(util.format(config.get('uris:webapp:pages'),':language', ':slug?'))
+router.route(util.format(config.get('uris:webapp:pages'), ':language', ':slug?'))
     .get(pageRoute.getHtmlPage);
 
 // Anything not found

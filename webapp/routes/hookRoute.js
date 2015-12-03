@@ -7,14 +7,14 @@
 
 'use strict';
 
-var config = require('../config'),
-    locales = config.get('locales'),
-    ApplicationError = require('../lib/error'),
-    db = require('../lib/db'),
-    logger = require('../lib/logger'),
-    utils = require('../lib/utils'),
-    menu = require('../models/menuModel'),
-    index = require('../models/indexModel');
+var config = require('../config');
+var locales = config.get('locales');
+var ApplicationError = require('../lib/error');
+var db = require('../lib/db');
+var logger = require('../lib/logger');
+var utils = require('../lib/utils');
+var menu = require('../models/menuModel');
+var index = require('../models/indexModel');
 
 module.exports = {
 
@@ -27,7 +27,7 @@ module.exports = {
      */
     handler: function (req, res, next) {
 
-        //Log the request
+        // Log the request
         logger.info({
             message: 'Github webhook triggered',
             module: 'routes/hookRoute',
@@ -35,23 +35,23 @@ module.exports = {
             request: req
         });
 
-        //In production only, validate the request
-        if(process.env.NODE_ENV === 'production') {
+        // In production only, validate the request
+        if (process.env.NODE_ENV === 'production') {
 
-            //Check user agent
+            // Check user agent
             if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
                 throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
             }
 
         }
 
-        //Reindex contents
+        // Reindex contents
         locales.forEach(function (locale) {
             db[locale].reindex();
         });
 
-        //Reset cache
-        setTimeout(function() {
+        // Reset cache
+        setTimeout(function () {
             menu.resetCache();
             index.resetCache();
             logger.info({
@@ -62,7 +62,7 @@ module.exports = {
             });
         }, 10000);
 
-        //Close and send the response
+        // Close and send the response
         res.end();
 
     }

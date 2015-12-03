@@ -7,26 +7,26 @@
 
 'use strict';
 
-var fs = require('fs'),
-    paths = require('path'),
-    util = require('util'),
-    async = require('async'),
-    i18n = require('i18n'),
-    config = require('../config'),
-    convert = require('./convert'),
-    github = require('./github'),
-    logger = require('./logger'),
-    markdown = require('./markdown'),
-    utils = require('./utils'),
-    indexPath = paths.join(__dirname, config.get('db:index')),
-    indexDir = paths.dirname(indexPath),
-    inProgress = {};
+var fs = require('fs');
+var paths = require('path');
+var util = require('util');
+var async = require('async');
+var i18n = require('i18n');
+var config = require('../config');
+var convert = require('./convert');
+var github = require('./github');
+var logger = require('./logger');
+var markdown = require('./markdown');
+var utils = require('./utils');
+var indexPath = paths.join(__dirname, config.get('db:index'));
+var indexDir = paths.dirname(indexPath);
+var inProgress = {};
 
 // i18n: it is a child process so it needs to be configured too
 i18n.configure({
-    locales: config.get('locales'), //['en', 'fr'],
+    locales: config.get('locales'), // ['en', 'fr'],
     directory: paths.join(__dirname,  '../locales'),
-    objectNotation: true //Use hierarchies in locales.json files
+    objectNotation: true // Use hierarchies in locales.json files
 });
 
 /**
@@ -38,9 +38,9 @@ function formatIndexEntry(response, callback) {
 
     /**
      * Update guthub content with yml head
-     * @param update_cb
+     * @param updateCallback
      */
-    function update(update_cb) {
+    function update(updateCallback) {
         var out = '---\n';
         for (var key in head) {
             if (head.hasOwnProperty(key) && head[key]) {
@@ -48,7 +48,7 @@ function formatIndexEntry(response, callback) {
             }
         }
         out += '---\n' + body;
-        github.updateContent(path, out, sha, update_cb);
+        github.updateContent(path, out, sha, updateCallback);
     }
 
     /* This function's cyclomatic complexity is too high. */
@@ -60,6 +60,7 @@ function formatIndexEntry(response, callback) {
      * @returns {*}
      */
     function metaFormat() {
+        /* jshint maxcomplexity: 8 */
         if (!head.category) {
             head.category = i18n.__('meta.category');
             dirty = true;
@@ -68,7 +69,7 @@ function formatIndexEntry(response, callback) {
             head.description = i18n.__('meta.description');
             dirty = true;
         }
-        if(!head.icon) {
+        if (!head.icon) {
             head.icon = i18n.__('meta.icon');
             dirty = true;
         }
@@ -77,7 +78,7 @@ function formatIndexEntry(response, callback) {
             dirty = true;
         }
         if (!head.language) {
-            head.language = convert.path2language(path); //i18n.__('locale');
+            head.language = convert.path2language(path); // i18n.__('locale');
             dirty = true;
         }
         if (!head.title) {
@@ -93,52 +94,56 @@ function formatIndexEntry(response, callback) {
 
     /**
      * Read commits to add system data to yml head
-     * @param system_cb
+     * @param systemCallback
      */
-    function systemFormat(system_cb) {
-        if(head.author && head.author_url && head.avatar_url && head.creation_date && head.edit_url && head.site_url /*&& yml.update_date*/) {
-            formatted = utils.deepExtend({text: body}, head);
+    function systemFormat(systemCallback) {
+        /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
+        if (head.author && head.author_url && head.avatar_url && head.creation_date && head.edit_url && head.site_url /*&& yml.update_date*/) {
+            /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
+            formatted = utils.deepExtend({ text: body }, head);
             if (dirty) {
-                update(function(error, data) {
-                    system_cb(error, error instanceof Error ? undefined : formatted);
+                update(function (error, data) {
+                    systemCallback(error, error instanceof Error ? undefined : formatted);
                 });
             } else {
-                system_cb(null, formatted);
+                systemCallback(null, formatted);
             }
         } else {
-            github.getCommits(path, function(error, commits) {
-                if(!error && Array.isArray(commits)) {
+            github.getCommits(path, function (error, commits) {
+                if (!error && Array.isArray(commits)) {
                     var first = commits[commits.length - 1];
-                    //last = commits[0];
+                    // last = commits[0];
                     head.author = first.commit.author.name;
+                    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                     head.author_url = first.author.html_url;
                     head.avatar_url = first.author.avatar_url;
                     head.creation_date = first.commit.author.date;
                     head.edit_url = response.html_url;
                     head.site_url = convert.path2site_url(path, head.creation_date);
-                    //TODO: update_date will never be updated because it will always be found in the yml portion of the github file
-                    //yml.update_date = last.commit.author.date;
-                    formatted = utils.deepExtend({text: body}, head);
-                    //console.dir(formatted);
-                    update(function(error, data) {
-                        system_cb(error, error instanceof Error ? undefined : formatted);
+                    // TODO: update_date will never be updated because it will always be found in the yml portion of the github file
+                    // yml.update_date = last.commit.author.date;
+                    /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
+                    formatted = utils.deepExtend({ text: body }, head);
+                    // console.dir(formatted);
+                    update(function (error, data) {
+                        systemCallback(error, error instanceof Error ? undefined : formatted);
                     });
                 } else {
-                    system_cb(error || new Error('Getting Github commits for `' + path + '` returned an unexpected value'));
+                    systemCallback(error || new Error('Getting Github commits for `' + path + '` returned an unexpected value'));
                 }
             });
         }
     }
 
-    var buf = new Buffer(response.content, 'base64'),
-        content = buf.toString(),
-        path = response.path,
-        //name = response.name,
-        sha = response.sha,
-        head = markdown.head(content),
-        body = markdown.body(content),
-        dirty = false,
-        formatted;
+    var buf = new Buffer(response.content, 'base64');
+    var content = buf.toString();
+    var path = response.path;
+    // var name = response.name;
+    var sha = response.sha;
+    var head = markdown.head(content);
+    var body = markdown.body(content);
+    var dirty = false;
+    var formatted;
     metaFormat();
     systemFormat(callback);
 }
@@ -153,19 +158,19 @@ module.exports = {
      * @param path
      * @param callback
      */
-    getIndexEntry: function(path, callback) {
+    getIndexEntry: function (path, callback) {
         logger.info({
             message: 'Indexing ' + path,
             module: 'lib/db_child',
             method: 'getIndexEntry'
         });
-        if(!convert.isMarkdown(path)) {
+        if (!convert.isMarkdown(path)) {
             return callback(new Error('The path to an index entry should designate a markdown file'));
         }
         github.getContent(path, function (error, response) {
             if (!error && response) {
-                formatIndexEntry(response, function(error, indexEntry) {
-                    if(!error && indexEntry) {
+                formatIndexEntry(response, function (error, indexEntry) {
+                    if (!error && indexEntry) {
                         indexEntry.path = path;
                         callback(null, indexEntry);
                     } else {
@@ -187,34 +192,34 @@ module.exports = {
         github.getContent(dir, function (error, entries) {
             if (!error && Array.isArray(entries)) {
                 var index = [];
-                //TODO prefer async.each but http://stackoverflow.com/questions/19576601/github-api-issue-with-file-upload
+                // TODO prefer async.each but http://stackoverflow.com/questions/19576601/github-api-issue-with-file-upload
                 async.eachSeries(
                     entries,
-                    function (entry, each_cb) {
-                        //Only process markedown files
+                    function (entry, eachCallback) {
+                        // Only process markedown files
                         if (entry.type === 'file' && convert.isMarkdown(entry.path)) {
-                            //process markdown yml for indexation
+                            // process markdown yml for indexation
                             module.exports.getIndexEntry(entry.path, function (error, indexEntry) {
                                 if (!error && indexEntry) {
                                     index.push(indexEntry);
-                                    each_cb();
+                                    eachCallback();
                                 } else {
-                                    each_cb(error);
+                                    eachCallback(error);
                                 }
                             });
                         } else if (entry.type === 'dir') {
-                            //recursive inside directory
+                            // recursive inside directory
                             module.exports.buildIndex(entry.path, function (error, subindex) {
                                 if (!error && Array.isArray(subindex)) {
                                     index = index.concat(subindex);
-                                    each_cb();
+                                    eachCallback();
                                 } else {
-                                    each_cb(error);
+                                    eachCallback(error);
                                 }
                             });
                         } else {
-                            //ignore other types of files
-                            each_cb();
+                            // ignore other types of files
+                            eachCallback();
                         }
                     },
                     function (error) {
@@ -236,9 +241,9 @@ module.exports = {
      * @param language
      * @param callback
      */
-    createIndex: function(language, callback) {
-        var dir = convert.getLanguageDir(language),
-            indexFile = util.format(indexPath, language);
+    createIndex: function (language, callback) {
+        var dir = convert.getLanguageDir(language);
+        var indexFile = util.format(indexPath, language);
         logger.debug({
             message: 'Building index ' + indexFile,
             module: 'lib/db_child',
@@ -246,8 +251,8 @@ module.exports = {
         });
         module.exports.buildIndex(dir, function (error, index) {
             if (!error && Array.isArray(index)) {
-                //Check that directory exists or create
-                if(!fs.existsSync(indexDir)) {
+                // Check that directory exists or create
+                if (!fs.existsSync(indexDir)) {
                     logger.debug({
                         message: 'Creating directory ' + indexDir,
                         module: 'lib/db_child',
@@ -255,7 +260,7 @@ module.exports = {
                     });
                     fs.mkdirSync(indexDir);
                 }
-                //Save index to disk in directory
+                // Save index to disk in directory
                 logger.debug({
                     message: 'Writing file ' + indexFile,
                     module: 'lib/db_child',
@@ -273,7 +278,7 @@ module.exports = {
 /**
  * Handler triggered when the worker receives a request to rebuild an index
  */
-process.on('message', function(language) {
+process.on('message', function (language) {
     if (!inProgress[language]) {
         inProgress[language] = true;
         module.exports.createIndex(language, function (error) {
@@ -299,7 +304,7 @@ process.on('message', function(language) {
 /**
  * Handler triggered when there is an uncaught exception on the child process (not the main one)
  */
-process.on('uncaughtException', function(error) {
+process.on('uncaughtException', function (error) {
     for (var language in inProgress) {
         inProgress[language] = false;
     }

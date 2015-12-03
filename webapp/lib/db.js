@@ -7,21 +7,21 @@
 
 'use strict';
 
-var fs = require('fs'),
-    util = require('util'),
-    path = require('path'),
-    chokidar = require('chokidar'),
-    config = require('../config'),
-    convert = require('./convert'),
-    logger = require('./logger'),
-    utils = require('./utils'),
-    locales = config.get('locales'),
-    indexer;
+var fs = require('fs');
+var util = require('util');
+var path = require('path');
+var chokidar = require('chokidar');
+var config = require('../config');
+var convert = require('./convert');
+var logger = require('./logger');
+var utils = require('./utils');
+var locales = config.get('locales');
+var indexer;
 
 /**
  * Fork the indexer as a child process
  */
-if(typeof indexer === 'undefined') {
+if (typeof indexer === 'undefined') {
     // @see https://youtrack.jetbrains.com/issue/WEB-1919
     // @see http://stackoverflow.com/questions/16840623/how-to-debug-node-js-child-forked-process
     // @see http://stackoverflow.com/questions/19252310/how-to-fork-a-child-process-that-listens-on-a-different-debug-port-than-the-pare
@@ -48,13 +48,13 @@ if(typeof indexer === 'undefined') {
 /**
  * The chokidar file watcher loads the index when it is ready
  */
-chokidar.watch(convert.getIndexDir()).on('all', function(event, path) {
+chokidar.watch(convert.getIndexDir()).on('all', function (event, path) {
     logger.info({
         message: event + ' event on ' + path,
         module: 'lib/db',
         method: 'chokidar.watch'
     });
-    if(/^(add|change)$/i.test(event)) {
+    if (/^(add|change)$/i.test(event)) {
         var language = convert.index2language(path);
         if (locales.indexOf(language) > -1) {
             db[language].load();
@@ -67,19 +67,19 @@ chokidar.watch(convert.getIndexDir()).on('all', function(event, path) {
  * @param locale
  * @constructor
  */
-var Collection = function(locale) {
-  this.locale = locale;
-  this.data = [];
+var Collection = function (locale) {
+    this.locale = locale;
+    this.data = [];
 };
 
 /**
  * Read the index from file on disk
  */
-Collection.prototype.load = function() {
+Collection.prototype.load = function () {
     try {
-        var indexFile = convert.getIndexPath(this.locale),
-            buf = fs.readFileSync(indexFile),
-            data = JSON.parse(buf.toString());
+        var indexFile = convert.getIndexPath(this.locale);
+        var buf = fs.readFileSync(indexFile);
+        var data = JSON.parse(buf.toString());
         if (Array.isArray(data) && data.length) {
             this.data = data;
         }
@@ -89,18 +89,18 @@ Collection.prototype.load = function() {
             method: 'Collection.prototype.load',
             data: this.data.slice(0, 1)
         });
-    } catch(exception) {
+    } catch (exception) {
         logger.error({
             message: 'Error loading index from ' + indexFile,
             module: 'lib/db',
             method: 'Collection.prototype.load',
             data: this.data.slice(0, 1)
         });
-        if(exception.code === 'ENOENT') {
-            //if index file not found, reindex
+        if (exception.code === 'ENOENT') {
+            // if index file not found, reindex
             this.reindex();
         } else if (!(exception instanceof SyntaxError)) {
-            //e.g. JSON.parse('') throws SyntaxError
+            // e.g. JSON.parse('') throws SyntaxError
             throw exception;
         }
     }
@@ -110,7 +110,7 @@ Collection.prototype.load = function() {
  * Request from child process to rebuild the index
  * Once built, the file watcher will be triggered to reload the index
  */
-Collection.prototype.reindex = function() {
+Collection.prototype.reindex = function () {
     if (indexer) {
         logger.info({
             message: 'Reindexation triggered for ' + this.locale,
@@ -135,7 +135,14 @@ Collection.prototype.reindex = function() {
  */
 function mongoQuery(data, query) {
     query = query || {};
-    var results = data.filter(function(indexEntry) {
+
+    /* Blocks are nested too deeply. */
+    /* jshint -W073 */
+
+    /* This function's cyclomatic complexity is too high. */
+    /* jshint -W074 */
+
+    var results = data.filter(function (indexEntry) {
         var include = true;
         for (var prop in query) {
             if (query.hasOwnProperty(prop)) {
@@ -146,7 +153,7 @@ function mongoQuery(data, query) {
                     for (var operator in criterion) {
                         if (criterion.hasOwnProperty(operator)) {
                             // @see http://docs.mongodb.org/manual/reference/operator/query/
-                            switch(operator) {
+                            switch (operator) {
                                 case '$eq':
                                     include = include && (indexEntry[prop] === criterion[operator]);
                                     break;
@@ -178,6 +185,10 @@ function mongoQuery(data, query) {
         }
         return include;
     });
+
+    /* jshint +W074 */
+    /* jshint +W073 */
+
     return results;
 }
 
@@ -187,9 +198,9 @@ function mongoQuery(data, query) {
  * @param query
  * @param callback
  */
-Collection.prototype.find = function(query, callback) {
+Collection.prototype.find = function (query, callback) {
     var results = mongoQuery(this.data, query);
-    //Note: Results are not sorted
+    // Note: Results are not sorted
     callback(null, results);
 };
 
@@ -200,7 +211,7 @@ Collection.prototype.find = function(query, callback) {
  * @param query
  * @param callback
  */
-Collection.prototype.group = function(query, callback) {
+Collection.prototype.group = function (query, callback) {
 
     /**
      * Return a group from key or keyf
@@ -221,19 +232,23 @@ Collection.prototype.group = function(query, callback) {
         return grp;
     }
 
-    var data = [],
-        groups = [];
+    var data = [];
+    var groups = [];
 
-    //Filter data with query.cond
+    // Filter data with query.cond
     if (utils.isObject(query.cond)) {
         data = mongoQuery(this.data, query.cond);
     } else {
         data = this.data;
     }
 
-    //Now iterate over data to aggregate groups
-    data.forEach(function(indexEntry) {
-        var group, groupToFind = getGroup(indexEntry);
+    /* This function's cyclomatic complexity is too high. */
+    /* jshint -W074 */
+
+    // Now iterate over data to aggregate groups
+    data.forEach(function (indexEntry) {
+        var group;
+        var groupToFind = getGroup(indexEntry);
         for (var i = 0; i < groups.length; i++) {
             var found = true;
             for (var prop in groupToFind) {
@@ -246,7 +261,7 @@ Collection.prototype.group = function(query, callback) {
                 break;
             }
         }
-        if(!group) {
+        if (!group) {
             group = utils.deepExtend({}, query.initial, groupToFind);
             groups.push(group);
         }
@@ -254,6 +269,9 @@ Collection.prototype.group = function(query, callback) {
             query.reduce(indexEntry, group);
         }
     });
+
+    /* jshint +W074 */
+
     callback(null, groups);
 };
 
@@ -269,7 +287,7 @@ logger.info({
     execArgv: execArgv
 });
 var db = {};
-locales.forEach(function(locale) {
+locales.forEach(function (locale) {
     db[locale] = new Collection(locale);
     db[locale].load();
 });

@@ -19,7 +19,7 @@ module.exports = {
      * @param res
      * @param next
      */
-    getHtmlPage: function(req, res, next) {
+    getHtmlPage: function (req, res, next) {
 
         var config = res.locals.config;
         var format = res.locals.format;
@@ -37,8 +37,8 @@ module.exports = {
         });
 
         // Get menu with english as default language
-        menu.getMenu('en', function(error, data) {
-            if(!error && data) {
+        menu.getMenu('en', function (error, data) {
+            if (!error && data) {
                 res
                     .set({
                         'Content-Type': 'text/html; charset=utf-8',
@@ -54,7 +54,9 @@ module.exports = {
                         menu: data,
                         results: false, // trick header into not displaying robots noindex directive
                         trace: req.trace,
+                        /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                         site_url: urljoin(config.uris.webapp.root, config.uris.webapp.home), // canonical link
+                        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                         title: res.__('meta.title')
                     });
             } else {
