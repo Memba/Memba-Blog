@@ -14,9 +14,9 @@
  * @see http://christianalfoni.github.io/javascript/2014/12/13/did-you-know-webpack-and-react-is-awesome.html
  */
 
-var webpack = require('webpack'),
-    path = require('path'),
-    config = require('./webapp/config');
+var webpack = require('webpack');
+var path = require('path');
+var config = require('./webapp/config');
 
 /**
  * definePlugin defines a global variable which is only available when running webpack
@@ -25,10 +25,10 @@ var webpack = require('webpack'),
  * @see http://webpack.github.io/docs/list-of-plugins.html#defineplugin
  * @see https://github.com/petehunt/webpack-howto#6-feature-flags
  */
-var environment = process.env.NODE_ENV || 'development',
-    definePlugin = new webpack.DefinePlugin({
+var environment = process.env.NODE_ENV || 'development';
+var definePlugin = new webpack.DefinePlugin({
         'process.env': {
-            'NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+            NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
         }
     });
 console.log('webpack environment is ' + environment);
@@ -40,8 +40,8 @@ var commonsChunkPlugin =
     new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['error', 'home', 'post', 'page', 'search'] });
 
 
-//TODO read copyright from package.json
-//var bannerPlugin = new webpack.BannerPlugin('Copyright');
+// TODO read copyright from package.json
+// var bannerPlugin = new webpack.BannerPlugin('Copyright');
 
 /**
  * SourceMapDevToolPlugin builds source maps
@@ -61,36 +61,36 @@ var commonsChunkPlugin =
  * @see https://github.com/webpack/docs/wiki/configuration
  */
 module.exports = {
-    //All paths below are relative to the context
+    // All paths below are relative to the context
     context: path.join(__dirname, '/webapp'),
     devtool: 'source-map',
     entry: {
-        //We need init especially because of FOUJI
+        // We need init especially because of FOUJI
         init:   '../js/app.init.js',
-        //one entry per view
+        // One entry per view
         error:  '../js/app.error.js',
         home:   '../js/app.home.js',
         page:   '../js/app.page.js',
         post:   '../js/app.post.js',
         search: '../js/app.search.js'
     },
-    externals: { //CDN modules
+    externals: { // CDN modules
         jquery: 'jQuery'
     },
     output: {
-        //Unfortunately it is not possible to specialize output directories
-        //See https://github.com/webpack/webpack/issues/882
+        // Unfortunately it is not possible to specialize output directories
+        // See https://github.com/webpack/webpack/issues/882
         path: path.join(__dirname, '/webapp/public/assets'),
         publicPath: config.get('uris:webapp:root') + config.get('uris:webapp:public') + 'assets/',
         filename:   '[name].bundle.js',
         chunkFilename: '[name].chunk.js'
     },
-    //resolve: {},
+    // resolve: {},
     module: {
         loaders: [
             {
-                //Do not put a $ at the end of the test regex
-                test: /\.jsx/, //see ./web_modules/jsx-loader
+                // Do not put a $ at the end of the test regex
+                test: /\.jsx/, // see ./web_modules/jsx-loader
                 loader: 'jsx?config=webapp/config'
             },
             {
@@ -129,6 +129,6 @@ module.exports = {
     plugins: [
         definePlugin,
         commonsChunkPlugin
-        //sourceMapDevToolPlugin
+        // sourceMapDevToolPlugin
     ]
 };
