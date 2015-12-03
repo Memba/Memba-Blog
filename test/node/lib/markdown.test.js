@@ -7,8 +7,8 @@
 
 'use strict';
 
-var expect = require('chai').expect,
-    markdown = require('../../../webapp/lib/markdown');
+var expect = require('chai').expect;
+var markdown = require('../../../webapp/lib/markdown');
 
 var keyval = '---\n' +
     'uuid: 6037fe20-eb54-11e4-9cc1-795dae8caad4\n' +
@@ -34,7 +34,7 @@ var html = '<h2>Question 1</h2>\n' +
     '<h2>Question 2</h2>\n' +
     '<p>Response 2</p>\n' +
     '<h2>Question 3</h2>\n' +
-    '<p>Response 3</p>\n'; //Note: for whatever reason a \n is added
+    '<p>Response 3</p>\n'; // Note: for whatever reason a \n is added
 
 describe('lib/markdown', function () {
 

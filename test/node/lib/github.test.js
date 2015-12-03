@@ -7,9 +7,9 @@
 
 'use strict';
 
-var expect = require('chai').expect,
-    github = require('../../../webapp/lib/github'),
-    NAME = 'Memba Robot';
+var expect = require('chai').expect;
+var github = require('../../../webapp/lib/github');
+var NAME = 'Memba Robot';
 
 describe('lib/github', function () {
 
@@ -23,7 +23,7 @@ describe('lib/github', function () {
         github.createContent(content.path, content.markdown, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.have.deep.property('commit.committer.name', NAME);
-            //expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+            // expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
             expect(response).to.have.deep.property('commit.message', 'System creation');
             expect(response).to.have.deep.property('content.path', content.path);
             expect(response).to.have.deep.property('content.html_url');
@@ -56,12 +56,12 @@ describe('lib/github', function () {
         github.updateContent(content.path, content.update, content.sha, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.have.deep.property('commit.committer.name', NAME);
-            //expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+            // expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
             expect(response).to.have.deep.property('commit.message', 'System update');
             expect(response).to.have.deep.property('content.path', content.path);
             expect(response).to.have.deep.property('content.html_url');
             expect(response).to.have.deep.property('content.sha');
-            //content.sha changes which each update
+            // content.sha changes which each update
             content.sha = response.content.sha;
             done();
         });
@@ -80,7 +80,7 @@ describe('lib/github', function () {
         github.deleteContent(content.path, content.sha, function (error, response) {
             expect(error).to.be.null;
             expect(response).to.have.deep.property('commit.committer.name', NAME);
-            //expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+            // expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
             expect(response).to.have.deep.property('commit.message', 'System deletion');
             expect(response).to.have.property('content', null);
             done();
@@ -95,6 +95,6 @@ describe('lib/github', function () {
         });
     });
 
-    //Note: Updating deleted contents works as restoring
+    // Note: Updating deleted contents works as restoring
 
 });

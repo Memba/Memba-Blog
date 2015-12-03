@@ -7,14 +7,14 @@
 
 'use strict';
 
-var request = require('supertest'),
-    util = require('util'),
+var request = require('supertest');
+var util = require('util');
 
-    //We cannot define app like this because the server is already running
-    //app = request('../../../webapp/server');
+// We cannot define app like this because the server is already running
+// var app = request('../../../webapp/server');
 
-    config = require('../../../webapp/config'),
-    app = config.get('uris:webapp:root');
+var config = require('../../../webapp/config');
+var app = config.get('uris:webapp:root');
 
 
 describe('routes/static', function () {
@@ -27,7 +27,7 @@ describe('routes/static', function () {
             .end(done);
     });
 
-    //TODO: Apple touch icons
+    // TODO: Apple touch icons
 
     it('it should return robots.txt', function (done) {
         request(app)

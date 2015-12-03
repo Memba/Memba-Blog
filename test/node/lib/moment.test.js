@@ -7,8 +7,8 @@
 
 'use strict';
 
-var expect = require('chai').expect,
-    moment = require('moment');
+var expect = require('chai').expect;
+var moment = require('moment');
 
 describe('moment', function () {
 
@@ -31,12 +31,12 @@ describe('moment', function () {
     });
 
     it('it should display an english month+year', function () {
-        var m = moment({year: 2015, month: 7}).locale('en');
+        var m = moment({ year: 2015, month: 7 }).locale('en');
         expect(m.format('MMMM YYYY')).to.equal('August 2015');
     });
 
     it('it should display a french month+year', function () {
-        var m = moment({year: 2015, month: 7}).locale('fr');
+        var m = moment({ year: 2015, month: 7 }).locale('fr');
         expect(m.format('MMMM YYYY')).to.equal('août 2015');
     });
 

@@ -7,12 +7,15 @@
 
 'use strict';
 
-var request = require('supertest'),
+var request = require('supertest');
+// var util = require('util');
 
-    //We cannot define app like this because the server is already running
-    //app = request('../../../webapp/server');
-    config = require('../../../webapp/config'),
-    app = config.get('uris:webapp:root');
+// We cannot define app like this because the server is already running
+// var app = request('../../../webapp/server');
+
+var config = require('../../../webapp/config');
+var app = config.get('uris:webapp:root');
+
 
 describe('Ping Route', function () {
 

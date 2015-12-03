@@ -7,22 +7,22 @@
 
 'use strict';
 
-var path = require('path'),
-    util = require('util'),
-    expect = require('chai').expect,
-    convert = require('../../../webapp/lib/convert'),
-    config = require('../../../webapp/config'),
-    github = {
-        language: config.get('github:language'),    // "%s/"
-        pages: config.get('github:pages'),          // "pages"
-        posts: config.get('github:posts'),          // "posts"
-        markdown: config.get('github:markdown')     // "%s.md"
-    },
-    webapp = {
-        root: config.get('uris:webapp:root'),       // "http://localhost:3000",
-        pages: config.get('uris:webapp:pages'),     // "/%s/%s"
-        posts: config.get('uris:webapp:posts')      // "/%s/posts/%s/%s/%s"
-    };
+var path = require('path');
+var util = require('util');
+var expect = require('chai').expect;
+var convert = require('../../../webapp/lib/convert');
+var config = require('../../../webapp/config');
+var github = {
+    language: config.get('github:language'),    // "%s/"
+    pages: config.get('github:pages'),          // "pages"
+    posts: config.get('github:posts'),          // "posts"
+    markdown: config.get('github:markdown')     // "%s.md"
+};
+var webapp = {
+    root: config.get('uris:webapp:root'),       // "http://localhost:3000",
+    pages: config.get('uris:webapp:pages'),     // "/%s/%s"
+    posts: config.get('uris:webapp:posts')      // "/%s/posts/%s/%s/%s"
+};
 
 describe('lib/convert', function () {
 
@@ -52,10 +52,10 @@ describe('lib/convert', function () {
     });
 
     it('getPagePath', function () {
-        //pages
+        // pages
         expect(convert.getPagePath('en', 'dummy-slug')).to.equal(util.format(github.language, 'en') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'));
         expect(convert.getPagePath('fr', 'dummy-slug')).to.equal(util.format(github.language, 'fr') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'));
-        //default index page
+        // default index page
         expect(convert.getPagePath('en', '')).to.equal(util.format(github.language, 'en') + github.pages + '/' + util.format(github.markdown, 'index'));
         expect(convert.getPagePath('fr', '')).to.equal(util.format(github.language, 'fr') + github.pages + '/' + util.format(github.markdown, 'index'));
     });
@@ -70,54 +70,69 @@ describe('lib/convert', function () {
         expect(convert.index2language(convert.getIndexPath('fr'))).to.equal('fr');
     });
 
+    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
+
     it('site_url2language', function () {
-        //pages
+        // pages
         expect(convert.site_url2language(webapp.root + util.format(webapp.pages, 'en', 'dummy-slug'))).to.equal('en');
         expect(convert.site_url2language(webapp.root + util.format(webapp.pages, 'fr', 'dummy-slug'))).to.equal('fr');
-        //posts
-        var date = new Date(), year = date.getUTCFullYear().toString(), month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+        // posts
+        var date = new Date();
+        var year = date.getUTCFullYear().toString();
+        var month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
         expect(convert.site_url2language(webapp.root + util.format(webapp.posts, 'en', year, month, 'dummy-slug'))).to.equal('en');
         expect(convert.site_url2language(webapp.root + util.format(webapp.posts, 'fr', year, month, 'dummy-slug'))).to.equal('fr');
     });
 
+    /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
+
     it('path2language', function () {
-        //pages
+        // pages
         expect(convert.path2language(util.format(github.language, 'en') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('en');
         expect(convert.path2language(util.format(github.language, 'fr') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('fr');
-        //posts
-        var date = new Date(), year = date.getUTCFullYear().toString();
+        // posts
+        var date = new Date();
+        var year = date.getUTCFullYear().toString();
         expect(convert.path2language(util.format(github.language, 'en') + github.posts + '/' + year + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('en');
         expect(convert.path2language(util.format(github.language, 'fr') + github.posts + '/' + year + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('fr');
     });
 
     it('path2section', function () {
-        //pages
+        // pages
         expect(convert.path2section(util.format(github.language, 'en') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('pages');
         expect(convert.path2section(util.format(github.language, 'fr') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('pages');
-        //posts
-        var date = new Date(), year = date.getUTCFullYear().toString();
+        // posts
+        var date = new Date();
+        var year = date.getUTCFullYear().toString();
         expect(convert.path2section(util.format(github.language, 'en') + github.posts + '/' + year + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('posts');
         expect(convert.path2section(util.format(github.language, 'fr') + github.posts + '/' + year + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('posts');
     });
 
     it('path2slug', function () {
-        //pages
+        // pages
         expect(convert.path2slug(util.format(github.language, 'en') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('dummy-slug');
         expect(convert.path2slug(util.format(github.language, 'fr') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('dummy-slug');
-        //posts
-        var date = new Date(), year = date.getUTCFullYear().toString();
+        // posts
+        var date = new Date();
+        var year = date.getUTCFullYear().toString();
         expect(convert.path2slug(util.format(github.language, 'en') + github.posts + '/' + year + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('dummy-slug');
         expect(convert.path2slug(util.format(github.language, 'fr') + github.posts + '/' + year + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal('dummy-slug');
     });
 
+    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
+
     it('path2site_url', function () {
-        var date = new Date(), year = date.getUTCFullYear().toString(), month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
-        //pages
+        var date = new Date();
+        var year = date.getUTCFullYear().toString();
+        var month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
+        // pages
         expect(convert.path2site_url(util.format(github.language, 'en') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal(webapp.root + util.format(webapp.pages, 'en', 'dummy-slug'));
         expect(convert.path2site_url(util.format(github.language, 'fr') + github.pages + '/' + util.format(github.markdown, 'dummy-slug'))).to.equal(webapp.root + util.format(webapp.pages, 'fr', 'dummy-slug'));
-        //posts
+        // posts
         expect(convert.path2site_url(util.format(github.language, 'en') + github.posts + '/' + year + '/' + util.format(github.markdown, 'dummy-slug'), date)).to.equal(webapp.root + util.format(webapp.posts, 'en', year, month, 'dummy-slug'));
         expect(convert.path2site_url(util.format(github.language, 'fr') + github.posts + '/' + year + '/' + util.format(github.markdown, 'dummy-slug'), date)).to.equal(webapp.root + util.format(webapp.posts, 'fr', year, month, 'dummy-slug'));
     });
+
+    /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
 
 });

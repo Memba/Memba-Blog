@@ -7,10 +7,10 @@
 
 'use strict';
 
-var expect = require('chai').expect,
-    util = require('util'),
-    config = require('../../../webapp/config'),
-    db = require('../../../webapp/lib/db');
+var expect = require('chai').expect;
+var util = require('util');
+var config = require('../../../webapp/config');
+var db = require('../../../webapp/lib/db');
 
 describe('lib/db', function () {
 
@@ -35,7 +35,7 @@ describe('lib/db', function () {
                     expect(indexEntries[i]).to.have.property('site_url').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('text').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('title').that.is.a('string');
-                    //expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
+                    // expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('uuid').that.is.a('string');
                 }
                 done();
@@ -61,7 +61,7 @@ describe('lib/db', function () {
                     expect(indexEntries[i]).to.have.property('site_url').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('text').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('title').that.is.a('string');
-                    //expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
+                    // expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('uuid').that.is.a('string');
                 }
                 done();
@@ -88,7 +88,7 @@ describe('lib/db', function () {
                     expect(indexEntries[i]).to.have.property('text').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('site_url').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('title').that.is.a('string');
-                    //expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
+                    // expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('uuid').that.is.a('string');
                 }
                 done();
@@ -115,7 +115,7 @@ describe('lib/db', function () {
                     expect(indexEntries[i]).to.have.property('site_url').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('text').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('title').that.is.a('string');
-                    //expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
+                    // expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('uuid').that.is.a('string');
                 }
                 done();
@@ -142,7 +142,7 @@ describe('lib/db', function () {
                     expect(indexEntries[i]).to.have.property('site_url').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('text').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('title').that.is.a('string');
-                    //expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
+                    // expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('uuid').that.is.a('string');
                 }
                 done();
@@ -169,12 +169,14 @@ describe('lib/db', function () {
                     expect(indexEntries[i]).to.have.property('site_url').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('text').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('title').that.is.a('string');
-                    //expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
+                    // expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('uuid').that.is.a('string');
                 }
                 done();
             });
         });
+
+        /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
 
         it('Retrieve by root site_url', function (done) {
             var site_url = new RegExp('^' + config.get('uris:webapp:root') + util.format(config.get('uris:webapp:posts'), 'en', '2015', '', '').replace(/[\/]+$/, '/'));
@@ -196,12 +198,14 @@ describe('lib/db', function () {
                     expect(indexEntries[i]).to.have.property('site_url').that.match(site_url);
                     expect(indexEntries[i]).to.have.property('text').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('title').that.is.a('string');
-                    //expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
+                    // expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('uuid').that.is.a('string');
                 }
                 done();
             });
         });
+
+        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
 
         it('Retrieve by full text search', function (done) {
             var text = new RegExp('support');
@@ -223,7 +227,7 @@ describe('lib/db', function () {
                     expect(indexEntries[i]).to.have.property('site_url').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('text').that.match(text);
                     expect(indexEntries[i]).to.have.property('title').that.is.a('string');
-                    //expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
+                    // expect(indexEntries[i]).to.have.property('update_date').that.is.a('string');
                     expect(indexEntries[i]).to.have.property('uuid').that.is.a('string');
                 }
                 done();
@@ -280,7 +284,9 @@ describe('lib/db', function () {
             db.en.group(
                 {
                     keyf: function (doc) {
+                        /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                         var date = new Date(doc.creation_date);
+                        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                         return {
                             year: date.getUTCFullYear(),
                             month: date.getUTCMonth()

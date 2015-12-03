@@ -7,27 +7,26 @@
 
 'use strict';
 
-var util = require('util'),
-    server = require('../../../webapp/server'), //Start the web application
-    config = require('../../../webapp/config'),
-    url = require('../../../webapp/lib/url'),
-    webapp = {
-        //home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
-        index: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', '')) + '/',
-        faqs: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'faqs')),
-        privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'privacy')),
-        terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'terms'))
-    };
+var util = require('util');
+var server = require('../../../webapp/server'); // Start the web application
+var config = require('../../../webapp/config');
+var url = require('../../../webapp/lib/url');
+var webapp = {
+    // home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
+    index: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', '')) + '/',
+    faqs: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'faqs')),
+    privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'privacy')),
+    terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'terms'))
+};
 
-//Create a browser
-var Zombie = require('zombie'),
-    browser = new Zombie(/*{waitDuration: '10s'}*/);
-
+// Create a browser
+var Zombie = require('zombie');
+var browser = new Zombie(/*{ waitDuration: '10s' }*/);
 
 describe('French pages', function () {
 
     before(function (done) {
-        //Increase max listeners in case of timeout
+        // Increase max listeners in case of timeout
         browser.setMaxListeners(30);
         // browser.runScripts = false;
         browser.visit(webapp.index, done);

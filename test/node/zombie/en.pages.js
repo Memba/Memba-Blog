@@ -7,22 +7,21 @@
 
 'use strict';
 
-var util = require('util'),
-    server = require('../../../webapp/server'), //Start the web application
-    config = require('../../../webapp/config'),
-    url = require('../../../webapp/lib/url'),
-    webapp = {
-        home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
-        index: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', '')) + '/',
-        faqs: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'faqs')),
-        privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'privacy')),
-        terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'terms'))
-    };
+var util = require('util');
+var server = require('../../../webapp/server'); // Start the web application
+var config = require('../../../webapp/config');
+var url = require('../../../webapp/lib/url');
+var webapp = {
+    home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
+    index: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', '')) + '/',
+    faqs: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'faqs')),
+    privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'privacy')),
+    terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'terms'))
+};
 
-//Create a browser
-var Zombie = require('zombie'),
-    browser = new Zombie(/*{waitDuration: '10s'}*/);
-
+// Create a browser
+var Zombie = require('zombie');
+var browser = new Zombie(/*{ waitDuration: '10s' }*/);
 
 describe('English pages', function () {
 
@@ -50,7 +49,7 @@ describe('English pages', function () {
             browser.assert.attribute('html', 'lang', 'en');
             browser.assert.element('div.uk.flag');
             browser.assert.element('div.fr.flag');
-            //TODO Get the click on flag to execute (jQuery event handler)
+            // TODO Get the click on flag to execute (jQuery event handler)
             done();
         });
 
