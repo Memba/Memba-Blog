@@ -7,8 +7,8 @@
 
 'use strict';
 
-var expect = require('chai').expect,
-    index = require('../../../webapp/models/indexModel');
+var expect = require('chai').expect;
+var index = require('../../../webapp/models/indexModel');
 
 describe('models/indexModel', function () {
 
@@ -16,9 +16,8 @@ describe('models/indexModel', function () {
         index.getIndex('en', function (error, index) {
             expect(error).to.be.null;
             expect(index).to.be.instanceof(Array);
-            for (var i = 0; i < index.length; i++) {
-
-            }
+            // for (var i = 0; i < index.length; i++) {
+            // }
             done();
         });
     });
@@ -27,9 +26,8 @@ describe('models/indexModel', function () {
         index.getIndex('fr', function (error, index) {
             expect(error).to.be.null;
             expect(index).to.be.instanceof(Array);
-            for (var i = 0; i < index.length; i++) {
-
-            }
+            // for (var i = 0; i < index.length; i++) {
+            // }
             done();
         });
     });

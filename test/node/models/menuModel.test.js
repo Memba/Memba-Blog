@@ -7,15 +7,15 @@
 
 'use strict';
 
-var expect = require('chai').expect,
-    menu = require('../../../webapp/models/menuModel');
+var expect = require('chai').expect;
+var menu = require('../../../webapp/models/menuModel');
 
 describe('models/menuModel', function () {
 
     it('getMenu: english', function (done) {
         menu.getMenu('en', function (error, menu) {
             expect(menu).to.be.instanceof(Array);
-            for(var i = 0; i < menu.length; i++) {
+            for (var i = 0; i < menu.length; i++) {
                 expect(menu[i]).to.have.property('text').that.is.a('string');
                 if (typeof menu[i].items !== 'undefined') {
                     expect(menu[i]).to.have.property('items').that.is.instanceof(Array);
@@ -30,7 +30,7 @@ describe('models/menuModel', function () {
     it('getMenu: french', function (done) {
         menu.getMenu('fr', function (error, menu) {
             expect(menu).to.be.instanceof(Array);
-            for(var i = 0; i < menu.length; i++) {
+            for (var i = 0; i < menu.length; i++) {
                 expect(menu[i]).to.have.property('text').that.is.a('string');
                 if (typeof menu[i].items !== 'undefined') {
                     expect(menu[i]).to.have.property('items').that.is.instanceof(Array);
