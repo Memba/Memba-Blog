@@ -52,7 +52,7 @@
                 loader(function (style) {
                     style.use();
                     localStorage.setItem(THEME, theme);
-                    $(document.documentElement).removeClass("k-" + oldTheme).addClass("k-" + theme);
+                    $(document.documentElement).removeClass('k-' + oldTheme).addClass('k-' + theme);
                     app.theme.updateCharts(theme);
                     logger.debug({
                         message: 'theme changed to ' + theme,
@@ -62,6 +62,9 @@
                 });
                 return dfd.promise();
             },
+
+            /* Blocks are nested too deeply. */
+            /* jshint -W073 */
 
             /**
              * Update dataviz charts with new theme
@@ -90,6 +93,8 @@
                     }
                 }
             },
+
+            /* jshint +W073 */
 
             /**
              * Update QR Codes
