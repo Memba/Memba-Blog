@@ -153,32 +153,32 @@
 }
 
 
-.kf-comment:before {
+.kf-report:before {
 	content:"\f10f";
 }
 
 
-.kf-pinterest:before {
+.kf-comment:before {
 	content:"\f110";
 }
 
 
-.kf-create:before {
+.kf-pinterest:before {
 	content:"\f111";
 }
 
 
-.kf-publish:before {
+.kf-create:before {
 	content:"\f112";
 }
 
 
-.kf-help:before {
+.kf-publish:before {
 	content:"\f113";
 }
 
 
-.kf-report:before {
+.kf-help:before {
 	content:"\f114";
 }
 
@@ -218,8 +218,13 @@
 }
 
 
-.kf-youtube:before {
+.kf-uservoice:before {
 	content:"\f11a";
+}
+
+
+.kf-youtube:before {
+	content:"\f11b";
 }
 
 		</style>
@@ -257,6 +262,8 @@
 			
 				<div class="icons__item" data-name="signin"><i class="kf kf-signin"></i> kf-signin</div>
 			
+				<div class="icons__item" data-name="report"><i class="kf kf-report"></i> kf-report</div>
+			
 				<div class="icons__item" data-name="comment"><i class="kf kf-comment"></i> kf-comment</div>
 			
 				<div class="icons__item" data-name="pinterest"><i class="kf kf-pinterest"></i> kf-pinterest</div>
@@ -266,8 +273,6 @@
 				<div class="icons__item" data-name="publish"><i class="kf kf-publish"></i> kf-publish</div>
 			
 				<div class="icons__item" data-name="help"><i class="kf kf-help"></i> kf-help</div>
-			
-				<div class="icons__item" data-name="report"><i class="kf kf-report"></i> kf-report</div>
 			
 				<div class="icons__item" data-name="star"><i class="kf kf-star"></i> kf-star</div>
 			
@@ -282,6 +287,8 @@
 				<div class="icons__item" data-name="twitter"><i class="kf kf-twitter"></i> kf-twitter</div>
 			
 				<div class="icons__item" data-name="user"><i class="kf kf-user"></i> kf-user</div>
+			
+				<div class="icons__item" data-name="uservoice"><i class="kf kf-uservoice"></i> kf-uservoice</div>
 			
 				<div class="icons__item" data-name="youtube"><i class="kf kf-youtube"></i> kf-youtube</div>
 			
@@ -301,7 +308,7 @@
 				e = e || window.event;
 				var name = e.target.getAttribute('data-name') || e.target.parentNode.getAttribute('data-name');
 				document.getElementById('name').innerHTML = name;
-				document.getElementById('name2').innerHTML = name;
+				
 			}
 		})();
 		</script>
