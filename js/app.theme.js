@@ -9,6 +9,9 @@
 (function (f, define) {
     'use strict';
     define([
+        // We are not loading window.kendo
+        './window.assert',
+        './window.logger',
         './app.logger'
     ], f);
 })(function () {
@@ -18,8 +21,10 @@
     (function ($, undefined) {
 
         var app = window.app;
+        var kendo = window.kendo;
         var logger = new window.Logger('app.theme');
         var STRING = 'string';
+        var FUNCTION = 'function';
         var THEME = 'theme';
         var DEFAULT = 'default';
 
@@ -30,7 +35,7 @@
              * @param theme
              */
             load: function (theme) {
-                // TODO Reject unlisted theme
+                // TODO assert theme within enum
                 var dfd = $.Deferred();
                 var oldTheme = localStorage.getItem(THEME);
                 var loader;
@@ -43,10 +48,12 @@
                         style.unuse();
                     });
                 }
-                localStorage.setItem(THEME, theme);
                 loader = require('../styles/app.theme.' + theme + '.less');
                 loader(function (style) {
                     style.use();
+                    localStorage.setItem(THEME, theme);
+                    $(document.documentElement).removeClass("k-" + oldTheme).addClass("k-" + theme);
+                    app.theme.updateCharts(theme);
                     logger.debug({
                         message: 'theme changed to ' + theme,
                         method: 'load'
@@ -54,6 +61,43 @@
                     dfd.resolve();
                 });
                 return dfd.promise();
+            },
+
+            /**
+             * Update dataviz charts with new theme
+             * @see http://demos.telerik.com/kendo-ui/content/shared/js/theme-chooser.js
+             * @param theme
+             */
+            updateCharts: function (theme) {
+                var themable = ['Chart', 'TreeMap', 'Diagram', 'StockChart', 'Sparkline', 'RadialGauge', 'LinearGauge'];
+                if (kendo.dataviz && $.type(theme) === STRING) {
+                    for (var i = 0; i < themable.length; i++) {
+                        // Set globally for new widgets
+                        var widget = kendo.dataviz.ui[themable[i]];
+                        if (widget) {
+                            widget.fn.options.theme = theme;
+                        }
+                        // Redraw existing widgets
+                        var elements = $(kendo.roleSelector(themable[i].toLowerCase()));
+                        for (var j = 0; j < elements.length; j++) {
+                            var instance = $(elements[j]).data('kendo' + themable[i]);
+                            if (instance && $.type(instance.setOptions) === FUNCTION && $.type(instance.redraw) === FUNCTION) {
+                                // instance.options.theme = theme;
+                                instance.setOptions({ theme: theme });
+                                instance.redraw();
+                            }
+                        }
+                    }
+                }
+            },
+
+            /**
+             * Update QR Codes
+             * QR Codes are not themable, so we need to set color and background
+             * @param theme
+             */
+            updateQRCodes: function (theme) {
+                // TODO
             },
 
             /**

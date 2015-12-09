@@ -23,6 +23,7 @@
         // var assert = window.assert;
         var logger = new window.Logger('app.i18n');
         var cultures = app.cultures = app.cultures || {};
+        var LOADED = 'i18n.loaded';
         var STRING = 'string';
 
         /**
@@ -94,7 +95,7 @@
                     });
 
                     // trigger event for client localization of page
-                    $(document).trigger('i18n.loaded');
+                    $(document).trigger(LOADED);
                 });
             });
 
@@ -102,9 +103,10 @@
          * Wait until locale is loaded to localize and hide preload
          * @see http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui
          */
-        $(document).on('i18n.loaded', function () {
-            $('body>div.k-loading-image').fadeOut();
-        });
+        $(document)
+            .on(LOADED, function () {
+                $('body>div.k-loading-image').fadeOut();
+            });
 
     }(window.jQuery));
 
