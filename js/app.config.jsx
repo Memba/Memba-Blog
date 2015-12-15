@@ -36,6 +36,11 @@
         app.DEBUG = '<%- debug %>'.toLowerCase() === 'true';
 
         /**
+         * application locales
+         */
+        app.locales = JSON.parse('<%- JSON.stringify(locales) %>');
+
+        /**
          * Logger token
          */
         window.Logger.prototype.level = parseInt('<%- level %>', 10) || 0;
