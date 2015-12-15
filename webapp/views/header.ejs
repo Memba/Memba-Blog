@@ -15,6 +15,9 @@
     <meta property="og:image" content="<%= urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" />
     <meta property="og:image:type" content="image/svg+xml" />
     <meta property="og:site_name" content="Memba" />
+    <% if (typeof site_url === 'string' ) { %>
+    <meta property="og:url" content="<%= site_url %>" />
+    <% } %>
     <% // Favicon and apple touch icons %>
     <link rel="shortcut icon" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'favicon.ico') %>">
     <link rel="apple-touch-icon" sizes="57x57" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'apple-touch-icon-57x57.png') %>">
