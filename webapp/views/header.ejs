@@ -14,6 +14,7 @@
     <meta property="og:description" content="<%= description %>" />
     <meta property="og:image" content="<%= urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" />
     <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:site_name" content="Memba" />
     <% // Favicon and apple touch icons %>
     <link rel="shortcut icon" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'favicon.ico') %>">
     <link rel="apple-touch-icon" sizes="57x57" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'apple-touch-icon-57x57.png') %>">
@@ -23,6 +24,8 @@
     <link rel="apple-touch-icon" sizes="120x120" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'apple-touch-icon-120x120.png') %>">
     <link rel="apple-touch-icon" sizes="144x144" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'apple-touch-icon-144x144.png') %>">
     <link rel="apple-touch-icon" sizes="152x152" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'apple-touch-icon-152x152.png') %>">
+    <% // Pinterest %>
+    <meta name="p:domain_verify" content="e22eb7259d53835583e22d6bf7a0f52e"/>
     <% // Canonical URL %>
     <% if (typeof site_url === 'string' ) { %>
     <link rel="canonical" href="<%= site_url %>" />
