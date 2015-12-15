@@ -10,7 +10,7 @@
 var MarkdownIt = require('markdown-it');
 var hljs = require('highlight.js');
 var markdown = new MarkdownIt({
-    html: true,
+    html: false,
     linkify: true,
     typographer: true,
     // See https://github.com/markdown-it/markdown-it#syntax-highlighting
@@ -22,7 +22,16 @@ var markdown = new MarkdownIt({
         }
     }
 });
-
+// Add videos - @[youtube](dQw4w9WgXcQ)
+markdown.use(require('markdown-it-video'));
+// Add the .img-responsive class to all images
+markdown.renderer.defaults = {
+    image: markdown.renderer.rules.image
+};
+markdown.renderer.rules.image = function(tokens, idx, options, env, slf) {
+    tokens[idx].attrPush(['class', 'img-responsive']);
+    return markdown.renderer.defaults.image(tokens, idx, options, env, slf);
+};
 var RX_YML = /^---\n([\s\S]*)\n---/;
 var RX_KEYVAL = /([^:\n]+):([^\n]+)/g;
 var KEY_BLACKLIST = /[-\s]/g;
