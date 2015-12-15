@@ -46,6 +46,7 @@ if (typeof(require) === 'function') {
         var logger = new window.Logger('app.common');
         var i18n = app.i18n;
         var theme = app.theme;
+        var LOADED = 'i18n.loaded';
         var CHANGE = 'change';
         var LOCALE = 'locale';
         var THEME = 'theme';
@@ -110,18 +111,18 @@ if (typeof(require) === 'function') {
         /**
          * Wait until document is ready to initialize UI
          */
-        $(document).ready(function () {
+        $(document)
+            .on(LOADED, function () { // LOADED occurs after $(document).ready
+                kendo.init('body'); // , kendo.mobile.ui);
+                initNotifications();
+                kendo.bind('footer', viewModel);
 
-            kendo.init('body'); // , kendo.mobile.ui);
-            initNotifications();
-            kendo.bind('footer', viewModel);
-
-            // Log page readiness
-            logger.info({
-                message: 'common elements initialized in ' + i18n.locale(),
-                method: '$(document).ready'
+                // Log page readiness
+                logger.info({
+                    message: 'common elements initialized in ' + i18n.locale(),
+                    method: '$(document).ready'
+                });
             });
-        });
 
 
     }(window.jQuery));

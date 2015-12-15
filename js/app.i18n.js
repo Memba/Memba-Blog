@@ -20,11 +20,12 @@
     (function ($, undefined) {
 
         var app = window.app;
-        // var assert = window.assert;
+        var assert = window.assert;
         var logger = new window.Logger('app.i18n');
         var cultures = app.cultures = app.cultures || {};
         var LOADED = 'i18n.loaded';
         var STRING = 'string';
+        var ARRAY = 'array';
 
         /**
          * localization functions
@@ -38,14 +39,14 @@
              */
             load: function (locale) {
 
-                // TODO check locale in config and throw exception it it does not exist
+                assert.type(ARRAY, app.locales, '`app.locales` is expected to be an array');
+                assert.enum(app.locales, locale, '`locale` is expected to be on of `app.locales`');
 
                 var dfd = $.Deferred();
 
                 // Setter
                 function setLocale() {
                     i18n.culture = cultures[locale];
-                    // TODO set kendo
                     dfd.resolve();
                 }
 
@@ -69,7 +70,8 @@
              */
             locale: function (locale) {
                 if (typeof locale === STRING) {
-                    // TODO assert locales from config
+                    assert.type(ARRAY, app.locales, '`app.locales` is expected to be an array');
+                    assert.enum(app.locales, locale, '`locale` is expected to be on of `app.locales`');
                     window.location.href = app.uris.webapp.locale.replace('{0}', locale);
                 } else if (locale === undefined) {
                     return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
