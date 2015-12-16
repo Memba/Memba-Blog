@@ -124,6 +124,15 @@ REM Copy images
 COPY .\graphics\memba.home.jpg .\styles\images\jumbotron.jpg
 ATTRIB +R .\styles\images\*.* /S
 
+REM Copy social icons
+ATTRIB -R .\webapp\public\*.svg
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\facebook.svg .\webapp\public\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\google.svg .\webapp\public\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\linkedin.svg .\webapp\public\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\pinterest.svg .\webapp\public\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\twitter.svg .\webapp\public\ /Y
+ATTRIB +R .\webapp\public\*.svg
+
 REM Copy ./js/vendor files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\vendor\bootstrap\*.* .\styles\vendor\bootstrap\ /C /E /I /R /Y
 ATTRIB +R .\styles\vendor\bootstrap\*.* /S
