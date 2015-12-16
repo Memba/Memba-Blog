@@ -28,7 +28,7 @@ markdown.use(require('markdown-it-video'));
 markdown.renderer.defaults = {
     image: markdown.renderer.rules.image
 };
-markdown.renderer.rules.image = function(tokens, idx, options, env, slf) {
+markdown.renderer.rules.image = function (tokens, idx, options, env, slf) {
     tokens[idx].attrPush(['class', 'img-responsive']);
     return markdown.renderer.defaults.image(tokens, idx, options, env, slf);
 };
