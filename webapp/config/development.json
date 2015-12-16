@@ -10,6 +10,9 @@
             "token": "e78bac0b-377a-49e2-ad91-20bb4ec7cedc"
         }
     },
+    "facebook": {
+        "clientID": "628502177236998"
+    },
     "db": {
         "index": "../cache/%s.json"
     },

@@ -48,6 +48,12 @@
         app.logger.token = '<%- logentries.browser.token %>';
 
         /**
+         * Facebook
+         * @type {{clientId: string}}
+         */
+        app.facebook = { clientID: '<%- facebook.clientID %>' };
+
+        /**
          * Convert nodejs printf like formatting strings into Kendo UI formatting strings
          * where %s placeholders are replaced with {i} placeholders
          * @see https://nodejs.org/api/util.html#util_util_format_format
