@@ -2,7 +2,7 @@
 # built on debian 8 "jessie" (current stable release)
 # see https://registry.hub.docker.com/_/node/
 # see also https://github.com/joyent/docker-node/blob/master/0.12/Dockerfile
-FROM node:0.12
+FROM node:5.2
 
 # Maintained by Jacques L. Chereau
 MAINTAINER jlchereau
@@ -29,7 +29,7 @@ RUN npm install -g forever
 RUN if [ -d /usr/src/webapp/cache ]; then rm -f /usr/src/webapp/cache/*; fi
 
 # Expose nodeJS port
-EXPOSE 3001
+EXPOSE 3000
 
 # Start node application
 CMD [ "npm", "start" ]
