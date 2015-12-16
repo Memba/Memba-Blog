@@ -32,14 +32,14 @@
         },
         "webapp": {
             "root": "http://localhost:3000",
-            "public": "/",
-            "home": "/",
-            "locale": "/%s",
-            "ping": "/ping",
-            "hook": "/hook",
-            "pages": "/%s/%s",
-            "posts": "/%s/posts/%s/%s/%s",
             "feed": "/%s/index.rss",
+            "home": "/",
+            "hook": "/hook",
+            "locale": "/%s",
+            "pages": "/%s/%s",
+            "ping": "/ping",
+            "posts": "/%s/posts/%s/%s/%s",
+            "public": "/",
             "sitemap": "/%s/sitemap.xml"
         }
     }
