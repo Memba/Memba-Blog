@@ -46,6 +46,11 @@ ATTRIB -R .\UPDATE.md
 COPY ..\..\Kidoju\Kidoju.Webapp\UPDATE.md .\ /Y
 ATTRIB +R .\UPDATE.md
 
+REM setup.cmd
+ATTRIB -R .\watch.cmd
+COPY ..\..\Kidoju\Kidoju.Webapp\watch.cmd .\ /Y
+ATTRIB +R .\watch.cmd
+
 REM webpack
 REM ATTRIB -R .\webpack.config.js
 REM COPY ..\..\Kidoju\Kidoju.Webapp\webpack.config.js .\ /Y
