@@ -11,6 +11,8 @@ require('../styles/app.page.search.less');
 (function (f, define) {
     'use strict';
     define([
+        './window.assert',
+        './window.logger',
         './app.logger',
         './app.i18n',
         './app.common',
@@ -23,7 +25,7 @@ require('../styles/app.page.search.less');
     (function ($, undefined) {
 
         var app = window.app;
-        var logger = new window.logger('app.search');
+        var logger = new window.Logger('app.search');
         var i18n = app.i18n;
 
         $(document).ready(function () {

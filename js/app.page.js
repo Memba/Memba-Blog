@@ -11,6 +11,8 @@ require('../styles/app.page.page.less');
 (function (f, define) {
     'use strict';
     define([
+        './window.assert',
+        './window.logger',
         './app.logger',
         './app.i18n',
         './app.common',
