@@ -2,10 +2,11 @@
     "application": {
         "name": "Memba.Blog"
     },
-    "head" : "<meta name=\"p:domain_verify\" content=\"00a8ab216c21a6cd727d5d50881ceb1e\"/>",
     "home": {
+        "author": "Memba Sarl",
         "title": "Memba",
         "description": "Memba are the proud makers of Kidoju",
+        "keywords": "Memba, Kidoju, teach, learn, knowledge, test, blog, article, documentation, ebook, video, webinar, slide",
         "uk": {
             "title": "English Web Site",
             "text": "English version of our web site."
