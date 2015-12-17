@@ -47,10 +47,10 @@ module.exports = {
                     })
                     .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                     .render('home', {
-                        author: res.__('meta.author'),
+                        author: config.home.author,
                         description: config.home.description,
                         icon: urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, res.__('home.icon'))), // TODO: which icon for home?
-                        keywords: res.__('meta.keywords'),
+                        keywords: config.home.keywords,
                         menu: data,
                         results: false, // trick header into not displaying robots noindex directive
                         trace: req.trace,
