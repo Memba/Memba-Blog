@@ -1,5 +1,17 @@
 {
     "application": {
         "name": "Memba.Blog"
+    },
+    "home": {
+        "title": "Memba",
+        "description": "Memba are the proud makers of Kidoju",
+        "uk": {
+            "title": "English Web Site",
+            "text": "English version of our web site."
+        },
+        "fr": {
+            "title": "Site en Français",
+            "text": "Version française de notre site."
+        }
     }
 }
