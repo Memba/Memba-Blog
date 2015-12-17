@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="<%- getLocale() %>">
-<head>
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
     <title><%= title %></title>
     <%// meta data %>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -9,12 +9,15 @@
     <meta name="author" content="<%= author %>">
     <meta name="description" content="<%= description %>">
     <meta name="keywords" content="<%= keywords %>">
+    <% // Facebook %>
+    <meta property="fb:app_id" content="<%= config.facebook.clientID %>" />
     <% // Open graph protocol %>
     <meta property="og:title" content="<%= title %>" />
     <meta property="og:description" content="<%= description %>" />
     <meta property="og:image" content="<%= urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" />
     <meta property="og:image:type" content="image/svg+xml" />
     <meta property="og:site_name" content="Memba" />
+    <meta property="og:type" content="article" />
     <% if (typeof site_url === 'string' ) { %>
     <meta property="og:url" content="<%= site_url %>" />
     <% } %>
@@ -27,8 +30,6 @@
     <link rel="apple-touch-icon" sizes="120x120" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'apple-touch-icon-120x120.png') %>">
     <link rel="apple-touch-icon" sizes="144x144" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'apple-touch-icon-144x144.png') %>">
     <link rel="apple-touch-icon" sizes="152x152" href="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'apple-touch-icon-152x152.png') %>">
-    <% // Pinterest %>
-    <meta name="p:domain_verify" content="e22eb7259d53835583e22d6bf7a0f52e"/>
     <% // Canonical URL %>
     <% if (typeof site_url === 'string' ) { %>
     <link rel="canonical" href="<%= site_url %>" />
@@ -36,6 +37,10 @@
     <% // Robots: do not index/archive search pages %>
     <% if (Array.isArray(results)) { %>
     <meta name="robots" content="noindex, noarchive">
+    <% } %>
+    <% // Config head %>
+    <% if (typeof config.head === 'string' ) { %>
+    <%- config.head %>
     <% } %>
     <% // IE10 viewport hack for Surface/desktop Windows 8 bug %>
     <!--script src="//getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script-->
