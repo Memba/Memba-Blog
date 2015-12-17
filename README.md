@@ -16,19 +16,22 @@ See a demo running at http://www.memba.com and https://kidoju.com/support.
 We needed a blog engine with:
 
 1. pages and blog posts,
-2. same look and feel as Kidoju, that is based on Twitter bootstrap (not easy to achieve with Wordpress, Ghost or Blogger),
-3. multi-user with live edit (which discards the likes of Jekyll and Octopress).
+2. "integrated" with Kidoju (not easy to achieve with Wordpress, Ghost or Blogger),
+3. multi-user with live edit (which discarded the likes of Jekyll and Octopress).
 
 and possibly the following nice-to-have:
 
 1. nodeJS tooling,
+2. docker microservices architecture,
 2. markdown sources,
 3. editing in Github.
 
 ## History
 
-We initially built a server-less single page HTML application (version 0.0.1) which would pull markdown from URLs (possibly from Github) but we realized that it was poorly indexed by search engines.
-So we rearchitected the project to convert markdown into html server side, dropping the SPA architecture.
+We initially built a server-less single page HTML application (version 0.0.1) which would pull markdown from URLs (possibly from Github) 
+and convert it inro HTML in the browser (client-side) but we realized that it was poorly indexed by search engines.
+
+So we rearchitected the project to convert markdown into html server-side, dropping the SPA architecture.
 
 ## Architecture
 
@@ -36,7 +39,7 @@ This is a nodeJS + expressJS application which pulls markdown content from a Git
 
 ## Getting started
 
-//TODO
+Clone the project, configure ./webapp/config/*.json files and run.
 
 ## Disclaimer
 
@@ -49,6 +52,7 @@ You can help by testing and reporting defects, making suggestions or even better
 ## Release History
 
 _v0.0.1_ - Server-less SPA architecture
+
 _v0.0.2_ - Server-side ExpressJS + EJS templates
 
 ## Licensing
@@ -56,4 +60,4 @@ _v0.0.2_ - Server-side ExpressJS + EJS templates
 This code is bound to the GPL license considering the use of [Telerik's Kendo UI framework](http://www.kendoui.com).
 As far as Memba is concerned, this code is free to use for all types of applications.
 
-Copyright (c) 2013-2015 Memba. All rights reserved.
+Copyright (c) 2013-2016 Memba. All rights reserved.
