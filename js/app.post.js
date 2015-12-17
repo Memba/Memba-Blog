@@ -68,8 +68,8 @@ require('../styles/app.page.post.less');
                             // @ see https://developers.facebook.com/docs/sharing/best-practices
                             // @see https://developers.facebook.com/tools/debug/ <---------------- DEBUG
                             openUrl = 'https://www.facebook.com/sharer/sharer.php' +
-                                '?app_id=' + app.facebook.clientID +
-                                '&u=' + sharedUrl;
+                                '?u=' + sharedUrl;
+                                // '&app_id=' + app.facebook.clientID  not required since in teh header
                             break;
                         case COMMAND.GOOGLE:
                             // @see https://developers.google.com/+/web/share/
@@ -93,9 +93,9 @@ require('../styles/app.page.post.less');
                             // Twitter web intent
                             // @ see https://dev.twitter.com/web/tweet-button/web-intent
                             openUrl = 'https://twitter.com/intent/tweet' +
-                                '?text=' + 'Can%20you%20beat%20me%20at' +
+                                '?text=' + window.encodeURIComponent('Can you beat me at ') +
                                 '&url=' + sharedUrl +
-                                '&via=' + app.twitter.account;
+                                '&via=' + app.twitter.account; // TODO: hashtags
                             break;
                         case COMMAND.EMAIL:
                             // TODO add icon in summary.ejs
