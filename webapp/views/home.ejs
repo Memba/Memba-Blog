@@ -2,17 +2,17 @@
 
 <main>
     <div id="home-wrapper">
-        <div class="jumbotron"><h1 class="hidden"><%= title %></h1></div>
+        <div class="jumbotron"><h1><%= description %></h1></div>
         <div class="container k-content">
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-xs-6">
                     <a href="<%= format(config.uris.webapp.pages, 'en', '') %>">
                         <div class="uk flag"></div>
                     </a>
                     <h2>English Web Site</h2>
                     <p>English version of our web site.</p>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-xs-6">
                     <a href="<%= format(config.uris.webapp.pages, 'fr', '') %>">
                         <div class="fr flag"></div>
                     </a>
