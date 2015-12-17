@@ -48,7 +48,6 @@ module.exports = {
                     .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                     .render('home', {
                         author: res.__('meta.author'),
-                        content: config.home,
                         description: config.home.description,
                         icon: urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, res.__('home.icon'))), // TODO: which icon for home?
                         keywords: res.__('meta.keywords'),
