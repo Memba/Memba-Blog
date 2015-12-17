@@ -11,7 +11,7 @@
         }
     },
     "facebook": {
-        "clientID": "628502177236998"
+        "clientID": "765157796920609"
     },
     "db": {
         "index": "../cache/%s.json"
