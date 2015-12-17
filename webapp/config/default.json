@@ -15,5 +15,6 @@
             "title": "Site en Français",
             "text": "Version française de notre site."
         }
-    }
+    },
+    "locales": [ "en", "fr" ]
 }
