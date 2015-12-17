@@ -58,31 +58,43 @@ require('../styles/app.page.post.less');
                     var sharedUrl = window.encodeURIComponent(window.location.href);
                     var command = $(e.currentTarget).attr(kendo.attr('command'));
                     var openUrl;
-                    var height = 600;
-                    var width = 800;
+                    var height = 400;
+                    var width = 600;
                     switch (command) {
                         case COMMAND.FACEBOOK:
-                            // We shall use the feed dialog
+                            // Facebook share dialog
                             // @ see https://developers.facebook.com/docs/sharing/web
-                            // @ see https://developers.facebook.com/docs/sharing/reference/feed-dialog/v2.5
+                            // @ see https://developers.facebook.com/docs/sharing/reference/share-dialog
+                            // @ see https://developers.facebook.com/docs/sharing/best-practices
                             // @see https://developers.facebook.com/tools/debug/ <---------------- DEBUG
-                            // openUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + sharedUrl;
-                            openUrl = 'https://www.facebook.com/dialog/feed?app_id=' + app.facebook.clientID +
-                                '&display=popup&caption=' + 'coucou' + '&link=' + sharedUrl + '&redirect_uri=' + sharedUrl; // + picture + name + description + ref
+                            openUrl = 'https://www.facebook.com/sharer/sharer.php' +
+                                '?app_id=' + app.facebook.clientID +
+                                '&u=' + sharedUrl;
                             break;
                         case COMMAND.GOOGLE:
                             // @see https://developers.google.com/+/web/share/
-                            openUrl = 'https://plus.google.com/share?url=' + sharedUrl;
+                            openUrl = 'https://plus.google.com/share' +
+                                '?url=' + sharedUrl;
                             break;
                         case COMMAND.LINKEDIN:
-                            openUrl = 'https://www.linkedin.com/shareArticle?mini=true&url=http%3A//localhost%3A3000/fr/s/566ea23acf5049e04b81702e&title=My%20Title&summary=Beat%20me%20if%20you%20can!&source=Kidoju';
+                            openUrl = 'https://www.linkedin.com/shareArticle' +
+                                '?mini=true' +
+                                '&url=' + sharedUrl +
+                                '&title=' + 'blabla' + // TODO
+                                '&source=Kidoju';
                             break;
                         case COMMAND.PINTEREST:
-                            openUrl = 'https://pinterest.com/pin/create/button/?url=Kidoju&media=http%3A//localhost%3A3000/fr/s/566ea23acf5049e04b81702e&description=Can%20you%20beat%20me%20at%20http%3A//www.kidoju.com';
+                            openUrl = 'https://pinterest.com/pin/create/button/' +
+                                '?url=Kidoju' +
+                                '&media=' + sharedUrl +
+                                '&description=' + 'blabla'; // TODO
                             break;
                         case COMMAND.TWITTER:
-                            openUrl = 'https://twitter.com/home?' +
-                                'status=' + 'Can%20you%20beat%20me%20at%' + sharedUrl;
+                            // Twitter web intent
+                            // @ see https://dev.twitter.com/web/tweet-button/web-intent
+                            openUrl = 'https://twitter.com/intent/tweet' +
+                                '?text=' + 'Can%20you%20beat%20me%20at%' +
+                                '&url=' + sharedUrl;
                             break;
                         case COMMAND.EMAIL:
                             // TODO add icon in summary.ejs
