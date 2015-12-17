@@ -93,8 +93,9 @@ require('../styles/app.page.post.less');
                             // Twitter web intent
                             // @ see https://dev.twitter.com/web/tweet-button/web-intent
                             openUrl = 'https://twitter.com/intent/tweet' +
-                                '?text=' + 'Can%20you%20beat%20me%20at%' +
-                                '&url=' + sharedUrl;
+                                '?text=' + 'Can%20you%20beat%20me%20at' +
+                                '&url=' + sharedUrl +
+                                '&via=' + app.twitter.account;
                             break;
                         case COMMAND.EMAIL:
                             // TODO add icon in summary.ejs
