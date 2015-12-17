@@ -69,7 +69,7 @@ require('../styles/app.page.post.less');
                             // @see https://developers.facebook.com/tools/debug/ <---------------- DEBUG
                             openUrl = 'https://www.facebook.com/sharer/sharer.php' +
                                 '?u=' + sharedUrl;
-                                // '&app_id=' + app.facebook.clientID  not required since in teh header
+                            // '&app_id=' + app.facebook.clientID  not required since in teh header
                             break;
                         case COMMAND.GOOGLE:
                             // @see https://developers.google.com/+/web/share/
