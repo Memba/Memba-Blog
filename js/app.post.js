@@ -119,8 +119,8 @@ require('../styles/app.page.post.less');
                     }
                     if (socialWindow === null || socialWindow.closed || socialUrl !== openUrl) {
                         // Most social share dialogs resize themselves from a smaller window (not from a larger one)
-                        // We might improve
-                        socialWindow = window.open(openUrl, 'social', 'toolbar=0,height=450,width=600');
+                        // We might want to improve the (top, left) position
+                        socialWindow = window.open(openUrl, 'social', 'toolbar=0,status=0,menubar=0,height=450,width=600');
                     }
                     socialUrl = openUrl;
                     socialWindow.focus();
