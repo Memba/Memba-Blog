@@ -36,11 +36,11 @@
                 <div class="hidden-xs col-sm-4 col-md-3 hidden-print">
                     <% // Social buttons %>
                     <section>
-                        <a role="button" href="#" class="social" data-command="facebook"><img src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'facebook.svg') %>" alt="Facebook"></a>
-                        <a role="button" href="#" class="social" data-command="google"><img src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'google.svg') %>" alt="Google+"></a>
-                        <a role="button" href="#" class="social" data-command="linkedin"><img src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'linkedin.svg') %>" alt="Linkedin"></a>
-                        <a role="button" href="#" class="social" data-command="pinterest"><img src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'pinterest.svg') %>" alt="Pinterest"></a>
-                        <a role="button" href="#" class="social" data-command="twitter"><img src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'twitter.svg') %>" alt="Twitter"></a>
+                        <a role="button" href="#" class="social" data-command="facebook"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'facebook.svg')) %>" alt="Facebook"></a>
+                        <a role="button" href="#" class="social" data-command="google"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'google.svg')) %>" alt="Google+"></a>
+                        <a role="button" href="#" class="social" data-command="linkedin"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'linkedin.svg')) %>" alt="Linkedin"></a>
+                        <a role="button" href="#" class="social" data-command="pinterest"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'pinterest.svg')) %>" alt="Pinterest"></a>
+                        <a role="button" href="#" class="social" data-command="twitter"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'twitter.svg')) %>" alt="Twitter"></a>
                     </section>
                     <% // Side menus for calendar, categories and authors %>
                     <% include groups.ejs %>
@@ -51,7 +51,7 @@
 </main>
 
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'assets/common.bundle.js') %>"></script>
-<script src="<%= urljoin(config.uris.webapp.root, config.uris.webapp.public, 'assets/post.bundle.js') %>"></script>
+<script src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'assets/common.bundle.js')) %>"></script>
+<script src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'assets/post.bundle.js')) %>"></script>
 
 <% include footer.ejs %>
