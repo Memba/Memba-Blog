@@ -24,7 +24,7 @@ var markdown = new MarkdownIt({
 });
 // Add videos - @[youtube](dQw4w9WgXcQ)
 markdown.use(require('markdown-it-video'));
-// Add the .img-responsive class to all images
+// Add the .img-responsive class to all images - see https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md
 markdown.renderer.defaults = {
     image: markdown.renderer.rules.image
 };
