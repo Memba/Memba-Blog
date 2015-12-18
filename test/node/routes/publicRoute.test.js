@@ -21,7 +21,7 @@ describe('routes/static', function () {
 
     it('it should return a favicon', function (done) {
         request(app)
-            .get(config.get('uris:webapp:public') + 'favicon.ico')
+            .get(util.format(config.get('uris:webapp:public') + 'favicon.ico'))
             .expect(200)
             .expect('Content-Type', /image/)
             .end(done);
@@ -31,7 +31,7 @@ describe('routes/static', function () {
 
     it('it should return robots.txt', function (done) {
         request(app)
-            .get(config.get('uris:webapp:public') + 'robots.txt')
+            .get(util.format(config.get('uris:webapp:public') + 'robots.txt'))
             .expect(200)
             .expect('Content-Type', /plain/)
             .end(done);
@@ -39,7 +39,7 @@ describe('routes/static', function () {
 
     it('it should return a simplified error page on missing js file', function (done) {
         request(app)
-            .get(config.get('uris:webapp:public') + 'dummy.js')
+            .get(util.format(config.get('uris:webapp:public') + 'dummy.js'))
             .expect(404)
             .expect('Content-Type', /plain/)
             .expect('Not Found')

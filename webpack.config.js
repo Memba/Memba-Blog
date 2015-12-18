@@ -14,8 +14,9 @@
  * @see http://christianalfoni.github.io/javascript/2014/12/13/did-you-know-webpack-and-react-is-awesome.html
  */
 
-var webpack = require('webpack');
 var path = require('path');
+var util = require('util');
+var webpack = require('webpack');
 var config = require('./webapp/config');
 
 /**
@@ -81,7 +82,7 @@ module.exports = {
         // Unfortunately it is not possible to specialize output directories
         // See https://github.com/webpack/webpack/issues/882
         path: path.join(__dirname, '/webapp/public/assets'),
-        publicPath: config.get('uris:webapp:root') + config.get('uris:webapp:public') + 'assets/',
+        publicPath: config.get('uris:webapp:root') + util.format(config.get('uris:webapp:public'), 'assets/'),
         filename:   '[name].bundle.js',
         chunkFilename: '[name].chunk.js'
     },

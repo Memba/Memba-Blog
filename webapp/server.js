@@ -7,6 +7,7 @@
 
 'use strict';
 
+var util = require('util');
 var logger = require('./lib/logger');
 
 /**
@@ -105,7 +106,7 @@ app.set('view engine', 'ejs');
 
 // Static files (before routing)
 // Cache-Control maxAge requires a string in MS format - see https://www.npmjs.com/package/ms
-app.use(config.get('uris:webapp:public'), express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+app.use(util.format(config.get('uris:webapp:public'), ''), express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
 
 // Routing
 app.use(router);
