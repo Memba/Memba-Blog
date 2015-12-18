@@ -12,15 +12,21 @@
     <% // Facebook %>
     <meta property="fb:app_id" content="<%= config.facebook.clientID %>" />
     <% // Open graph protocol - https://developers.facebook.com/docs/sharing/webmasters#markup %>
-    <meta property="og:title" content="<%= title %>" />
     <meta property="og:description" content="<%= description %>" />
     <meta property="og:image" content="<%= image %>" />
     <meta property="og:site_name" content="<%= config.application.siteName %>" />
     <meta property="og:type" content="article" />
+    <meta property="og:title" content="<%= title %>" />
     <% if (typeof site_url === 'string' ) { %>
     <meta property="og:url" content="<%= site_url %>" />
     <link rel="canonical" href="<%= site_url %>" />
     <% } %>
+    <% // Twitter card - https://dev.twitter.com/cards/markup %>
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:description" content="<%= description %>">
+    <meta property="twitter:image" content="<%= image %>">
+    <meta property="twitter:site" content="@<%= config.twitter.account %>">
+    <meta property="twitter:title" content="<%= title %>">
     <% // Favicon and apple touch icons %>
     <link rel="shortcut icon" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'favicon.ico')) %>">
     <link rel="apple-touch-icon" sizes="57x57" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-57x57.png')) %>">
