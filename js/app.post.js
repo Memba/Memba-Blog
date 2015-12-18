@@ -55,11 +55,13 @@ require('../styles/app.page.post.less');
                 .on(CLICK, function (e) {
                     assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'default'));
                     assert.instanceof(window.HTMLAnchorElement, e.currentTarget, kendo.format(assert.messages.instanceof.default, 'e.currentTarget', 'window.HTMLAnchorElement'));
-                    var sharedUrl = window.encodeURIComponent(window.location.href);
+                    var sharedUrl = window.encodeURIComponent($('meta[property="og:url"]').attr('content'));
+                    var source = window.encodeURIComponent($('meta[property="og:site_name"]').attr('content'));
+                    var title = window.encodeURIComponent($('meta[property="og:title"]').attr('content'));
+                    var description =window.encodeURIComponent( $('meta[property="og:description"]').attr('content'));
+                    var image = window.encodeURIComponent($('meta[property="og:image"]').attr('content'));
                     var command = $(e.currentTarget).attr(kendo.attr('command'));
                     var openUrl;
-                    var height = 400;
-                    var width = 600;
                     switch (command) {
                         case COMMAND.FACEBOOK:
                             // Facebook share dialog
@@ -67,35 +69,48 @@ require('../styles/app.page.post.less');
                             // @ see https://developers.facebook.com/docs/sharing/reference/share-dialog
                             // @ see https://developers.facebook.com/docs/sharing/best-practices
                             // @see https://developers.facebook.com/tools/debug/ <---------------- DEBUG
+                            openUrl = 'https://www.facebook.com/dialog/share' +
+                                '?display=popup' +
+                                '&app_id=' + app.facebook.clientID +
+                                '&href=' + sharedUrl +
+                                '&redirect_uri=' + sharedUrl;
+                            /*
                             openUrl = 'https://www.facebook.com/sharer/sharer.php' +
                                 '?u=' + sharedUrl;
-                            // '&app_id=' + app.facebook.clientID  not required since in teh header
+                            */
                             break;
                         case COMMAND.GOOGLE:
                             // @see https://developers.google.com/+/web/share/
                             openUrl = 'https://plus.google.com/share' +
-                                '?url=' + sharedUrl;
+                                '?url=' + sharedUrl +
+                                '&hl=' + i18n.locale();
                             break;
                         case COMMAND.LINKEDIN:
+                            // @see https://developer.linkedin.com/docs/share-on-linkedin
+                            // Note Linkedin uses open graph meta tags
                             openUrl = 'https://www.linkedin.com/shareArticle' +
                                 '?mini=true' +
-                                '&url=' + sharedUrl +
-                                '&title=' + 'blabla' + // TODO
-                                '&source=Kidoju';
+                                '&source=' + source +
+                                '&summary=' + description +
+                                '&title=' + title +
+                                '&url=' + sharedUrl;
+
                             break;
                         case COMMAND.PINTEREST:
+                            // @see https://developers.pinterest.com/docs/widgets/pin-it/
                             openUrl = 'https://pinterest.com/pin/create/button/' +
-                                '?url=Kidoju' +
-                                '&media=' + sharedUrl +
-                                '&description=' + 'blabla'; // TODO
+                                '?url=' + sharedUrl +
+                                '&media=' + image +
+                                '&description=' + description;
                             break;
                         case COMMAND.TWITTER:
                             // Twitter web intent
                             // @ see https://dev.twitter.com/web/tweet-button/web-intent
                             openUrl = 'https://twitter.com/intent/tweet' +
-                                '?text=' + window.encodeURIComponent('Can you beat me at ') +
+                                '?text=' + title +
                                 '&url=' + sharedUrl +
-                                '&via=' + app.twitter.account; // TODO: hashtags
+                                '&via=' + app.twitter.account;
+                            // TODO: hashtags (message size limit)?
                             break;
                         case COMMAND.EMAIL:
                             // TODO add icon in summary.ejs
@@ -103,7 +118,9 @@ require('../styles/app.page.post.less');
                             break;
                     }
                     if (socialWindow === null || socialWindow.closed || socialUrl !== openUrl) {
-                        socialWindow = window.open(openUrl, 'social', kendo.format('toolbar=0,height={0},width={1}', height, width));
+                        // Most social share dialogs resize themselves from a smaller window (not from a larger one)
+                        // We might improve
+                        socialWindow = window.open(openUrl, 'social', 'toolbar=0,height=450,width=600');
                     }
                     socialUrl = openUrl;
                     socialWindow.focus();
