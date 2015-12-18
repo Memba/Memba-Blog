@@ -49,7 +49,7 @@ module.exports = {
                     .render('home', {
                         author: config.home.author,
                         description: config.home.description,
-                        icon: urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, res.__('home.icon'))), // TODO: which icon for home?
+                        image: urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                         keywords: config.home.keywords,
                         menu: data,
                         results: false, // trick header into not displaying robots noindex directive

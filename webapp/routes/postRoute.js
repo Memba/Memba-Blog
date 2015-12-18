@@ -78,6 +78,7 @@ module.exports = {
                             authors: responses[3],
                             categories: responses[2],
                             content: markdown.render(responses[1][0].text),
+                            image: urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                             menu: responses[0],
                             months: responses[4],
                             results: false, // trick header into not displaying robots noindex directive
@@ -99,6 +100,7 @@ module.exports = {
                             categories: responses[2],
                             description: res.__('meta.description'),
                             icon: res.__('search.title.icon'),
+                            image: urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                             keywords: res.__('meta.keywords'),
                             menu: responses[0],
                             months: responses[4],

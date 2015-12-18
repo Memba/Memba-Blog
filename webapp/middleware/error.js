@@ -73,6 +73,7 @@ module.exports = {
                     author: res.__('meta.author'),
                     description: error.message,
                     icon: res.__('error.icon'),
+                    image: '', // <--------------------------------------------------------- TODO
                     keywords: res.__('meta.keywords'),
                     menu: [], // Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
                     results: [], // trick header into displaying robots noindex directive
