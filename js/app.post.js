@@ -58,7 +58,7 @@ require('../styles/app.page.post.less');
                     var sharedUrl = window.encodeURIComponent($('meta[property="og:url"]').attr('content'));
                     var source = window.encodeURIComponent($('meta[property="og:site_name"]').attr('content'));
                     var title = window.encodeURIComponent($('meta[property="og:title"]').attr('content'));
-                    var description =window.encodeURIComponent( $('meta[property="og:description"]').attr('content'));
+                    var description = window.encodeURIComponent($('meta[property="og:description"]').attr('content'));
                     var image = window.encodeURIComponent($('meta[property="og:image"]').attr('content'));
                     var command = $(e.currentTarget).attr(kendo.attr('command'));
                     var openUrl;
