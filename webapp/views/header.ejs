@@ -14,12 +14,12 @@
     <% // Open graph protocol - https://developers.facebook.com/docs/sharing/webmasters#markup %>
     <meta property="og:title" content="<%= title %>" />
     <meta property="og:description" content="<%= description %>" />
-    <meta property="og:image" content="<%= icon %>" />
-    <meta property="og:image:type" content="image/svg+xml" />
-    <meta property="og:site_name" content="Memba" />
+    <meta property="og:image" content="<%= image %>" />
+    <meta property="og:site_name" content="<%= config.application.siteName %>" />
     <meta property="og:type" content="article" />
     <% if (typeof site_url === 'string' ) { %>
     <meta property="og:url" content="<%= site_url %>" />
+    <link rel="canonical" href="<%= site_url %>" />
     <% } %>
     <% // Favicon and apple touch icons %>
     <link rel="shortcut icon" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'favicon.ico')) %>">
@@ -30,10 +30,6 @@
     <link rel="apple-touch-icon" sizes="120x120" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-120x120.png')) %>">
     <link rel="apple-touch-icon" sizes="144x144" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-144x144.png')) %>">
     <link rel="apple-touch-icon" sizes="152x152" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')) %>">
-    <% // Canonical URL %>
-    <% if (typeof site_url === 'string' ) { %>
-    <link rel="canonical" href="<%= site_url %>" />
-    <% } %>
     <% // Robots: do not index/archive search pages %>
     <% if (Array.isArray(results)) { %>
     <meta name="robots" content="noindex, noarchive">
@@ -57,7 +53,7 @@
             overflow:auto;
         }
         body>div.k-loading-image{
-            top:0px;
+            top:0;
             height:100%;
             width:100%;
             background-color:#CCCCCC;
