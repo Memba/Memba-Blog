@@ -36,6 +36,21 @@ var html = '<h2>Question 1</h2>\n' +
     '<h2>Question 3</h2>\n' +
     '<p>Response 3</p>\n'; // Note: for whatever reason a \n is added
 
+var text2 = '## Image 1\n' +
+    '![IMAGE 1](http://monsite.com/image1.jpg)\n' +
+    '## Image 2\n' +
+    '![IMAGE 2](http://monsite.com/image2.jpg)\n';
+var text3 = '## Image 1\n' +
+    '![IMAGE 1](http://monsite.com/image1.jpg)\n' +
+    '## Video 1\n' +
+    '@[youtube](InqU8CLwbPg)\n' +
+    '## Image 2\n' +
+    '![IMAGE 2](http://monsite.com/image2.jpg)\n' +
+    '## Video 2\n' +
+    '@[youtube](qoXk1_3KRZg)';
+
+
+
 describe('lib/markdown', function () {
 
     it('body', function () {
@@ -61,6 +76,15 @@ describe('lib/markdown', function () {
     it('html rendering', function () {
         var rendered = markdown.render(text);
         expect(rendered).to.equal(html);
+    });
+
+    it('image', function () {
+        var image1 = markdown.image(text);
+        expect(image1).to.be.an.undefined;
+        var images2 = markdown.image(text2);
+        expect(images2).to.equal('http://monsite.com/image1.jpg');
+        var images3 = markdown.image(text3);
+        expect(images3).to.equal('http://img.youtube.com/vi/InqU8CLwbPg/0.jpg');
     });
 
 });

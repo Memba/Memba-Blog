@@ -7,6 +7,7 @@
 
 'use strict';
 
+var util = require('util');
 var MarkdownIt = require('markdown-it');
 var hljs = require('highlight.js');
 var markdown = new MarkdownIt({
@@ -35,7 +36,9 @@ markdown.renderer.rules.image = function (tokens, idx, options, env, slf) {
 var RX_YML = /^---\n([\s\S]*)\n---/;
 var RX_KEYVAL = /([^:\n]+):([^\n]+)/g;
 var KEY_BLACKLIST = /[-\s]/g;
-
+var RX_VIDEO = /@\[youtube\]\(([^\(\)]+)\)/i;
+var RX_IMAGE = /!\[[^\[\]]+\]\((http[^\(\)]+)\)/i;
+var YOUTUBE_IMG = 'http://img.youtube.com/vi/%s/0.jpg'; // @see http://stackoverflow.com/questions/2068344/how-do-i-get-a-youtube-video-thumbnail-from-the-youtube-api
 
 module.exports = {
 
@@ -79,6 +82,24 @@ module.exports = {
      */
     body: function (content) {
         return content.replace(RX_YML, '').trim();
+    },
+
+    /**
+     * Return first content image
+     * @param content
+     * @returns {Array.<T>}
+     */
+    image: function (content) {
+        // rx.exec returns null without match
+        var video = RX_VIDEO.exec(content);
+        if (Array.isArray(video) && video.length === 2) {
+            return util.format(YOUTUBE_IMG, video[1]);
+        } else {
+            var image = RX_IMAGE.exec(content);
+            if (Array.isArray(image) && image.length === 2) {
+                return image[1];
+            }
+        }
     }
 
 };

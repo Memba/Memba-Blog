@@ -69,16 +69,19 @@ module.exports = {
                     index.groupByYearMonth(req.params.language, callback);
                 }
             ],
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
             function (error, responses) {
+                /* jshint maxcomplexity: 7 */
                 if (!error && Array.isArray(responses) && responses.length > 1 && Array.isArray(responses[0]) && Array.isArray(responses[1]) && responses[1].length > 0) {
                     var data;
-
                     if (req.params.slug) { // single post
+                        var text = responses[1][0].text;
                         data = utils.deepExtend({}, responses[1][0], {
                             authors: responses[3],
                             categories: responses[2],
-                            content: markdown.render(responses[1][0].text),
-                            image: urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
+                            content: markdown.render(text),
+                            image: markdown.image(text) || urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                             menu: responses[0],
                             months: responses[4],
                             results: false, // trick header into not displaying robots noindex directive
@@ -125,6 +128,7 @@ module.exports = {
                     next(error || new ApplicationError(404));
                 }
             }
+            /* jshint +W074 */
         );
 
     }

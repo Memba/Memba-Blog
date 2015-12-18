@@ -72,12 +72,12 @@ module.exports = {
                     var data;
 
                     if (req.params.slug || utils.isEmptyObject(req.query)) { // single page
-
+                        var text = responses[1][0].text;
                         data = utils.deepExtend({}, responses[1][0], {
                             authors: responses[3],
                             categories: responses[2],
-                            content: markdown.render(responses[1][0].text),
-                            image: urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
+                            content: markdown.render(text),
+                            image: markdown.image(text) || urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                             menu: responses[0],
                             months: responses[4],
                             results: false, // trick header into not displaying robots noindex directive
