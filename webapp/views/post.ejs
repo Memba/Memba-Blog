@@ -1,4 +1,10 @@
+<% // Blog posting page %>
+
+<% // page header %>
 <% include header.ejs %>
+
+<% // navigation bar %>
+<% include navbar.ejs %>
 
 <main itemscope itemtype="http://schema.org/BlogPosting">
     <div id="post-wrapper" class="k-content">
@@ -50,7 +56,7 @@
     </div>
 </main>
 
-<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 <script src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'assets/common.bundle.js')) %>"></script>
 <script src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'assets/post.bundle.js')) %>"></script>
 
