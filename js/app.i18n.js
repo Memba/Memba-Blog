@@ -72,7 +72,13 @@
                 if (typeof locale === STRING) {
                     assert.type(ARRAY, app.locales, '`app.locales` is expected to be an array');
                     assert.enum(app.locales, locale, '`locale` is expected to be on of `app.locales`');
-                    window.location.href = app.uris.webapp.locale.replace('{0}', locale);
+                    var href = app.uris.webapp.locale.replace('{0}', locale);
+                    if (window.top === window.self) {
+                        window.location.assign(href);
+                    } else {
+                        // This is an embedded player
+                        window.top.location.assign(href)
+                    }
                 } else if (locale === undefined) {
                     return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
                 } else {

@@ -53,7 +53,10 @@ if (typeof(require) === 'function') {
         var NOTIFICATION_SELECTOR = '#notification';
 
         /**
-         * Footer viewModel
+         * viewModel
+         * viewModel contains any data functions
+         * It does not interact with the UI except through MVVM bindings and app.notification
+         * viewModel functions should follow the jQuery promise pattern to be called from controller and trigger UI changes when done
          */
         var viewModel = kendo.observable({
 
@@ -65,47 +68,60 @@ if (typeof(require) === 'function') {
 
         });
 
-        /**
-         * Change event handler on viewModel
-         */
-        viewModel.bind(CHANGE, function (e) {
-            if (e.field === LOCALE) {
-                i18n.locale(e.sender.get(LOCALE));
-            } else if (e.field === THEME) {
-                theme.name(e.sender.get(THEME));
-            }
-        });
-
-        /**
-         * Make global for debugging
-         */
+        // Make the viewModel global for debugging
         if (app.DEBUG) {
-            // Make the viewModel global to watch in debugger
             window.viewModel1 = viewModel;
         }
 
         /**
-         * Initialize notifications
-         * Then display notifications using app.notification.show
+         * controller
+         * controller contains any UI function
+         * controller can call viewModel but not the contrary
          */
-        function initNotifications() {
-            var element = $(NOTIFICATION_SELECTOR);
-            assert.hasLength(element, kendo.format(assert.messages.hasLength.default, NOTIFICATION_SELECTOR));
-            app.notification =  element.kendoNotification({
-                position: {
-                    top: 70,
-                    right: 30
-                },
-                stacking: 'down',
-                // hide automatically after 7 seconds
-                autoHideAfter: 7000,
-                // prevent accidental hiding for 1 second
-                allowHideAfter: 1000,
-                // show a hide button
-                button: true,
-                // prevent hiding by clicking on the notification content
-                hideOnClick: false
-            }).data('kendoNotification');
+        var controller = {
+
+            /**
+             * Initialize the viewModel
+             */
+            initViewModel: function () {
+                viewModel.bind(CHANGE, function (e) {
+                    if (e.field === LOCALE) {
+                        i18n.locale(e.sender.get(LOCALE));
+                    } else if (e.field === THEME) {
+                        theme.name(e.sender.get(THEME));
+                    }
+                });
+            },
+
+            /**
+             * Initialize notifications
+             * Then display notifications using app.notification.show
+             */
+            initNotifications: function () {
+                var element = $(NOTIFICATION_SELECTOR);
+                assert.hasLength(element, kendo.format(assert.messages.hasLength.default, NOTIFICATION_SELECTOR));
+                app.notification =  element.kendoNotification({
+                    position: {
+                        top: 70,
+                        right: 30
+                    },
+                    stacking: 'down',
+                    // hide automatically after 7 seconds
+                    autoHideAfter: 7000,
+                    // prevent accidental hiding for 1 second
+                    allowHideAfter: 1000,
+                    // show a hide button
+                    button: true,
+                    // prevent hiding by clicking on the notification content
+                    hideOnClick: false
+                }).data('kendoNotification');
+            }
+
+        };
+
+        // Make the controller global for debugging
+        if (app.DEBUG) {
+            window.controller1 = controller;
         }
 
         /**
@@ -113,14 +129,16 @@ if (typeof(require) === 'function') {
          */
         $(document)
             .on(LOADED, function () { // LOADED occurs after $(document).ready
+
                 kendo.init('body'); // , kendo.mobile.ui);
-                initNotifications();
+                controller.initViewModel();
+                controller.initNotifications();
                 kendo.bind('footer', viewModel);
 
                 // Log page readiness
                 logger.info({
                     message: 'common elements initialized in ' + i18n.locale(),
-                    method: '$(document).ready'
+                    method: LOADED
                 });
             });
 

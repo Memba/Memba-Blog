@@ -10,7 +10,8 @@
     'use strict';
     define([
         '../vendor/kendo/cultures/kendo.culture.fr-FR.js',
-        '../vendor/kendo/messages/kendo.messages.fr-FR.js'
+        '../vendor/kendo/messages/kendo.messages.fr-FR.js',
+        '../messages/kidoju.messages.fr.js'
     ], f);
 })(function () {
 

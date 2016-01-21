@@ -21,7 +21,7 @@ module.exports = {
      */
     handler: function (req, res, next) {
         var pathname = url.parse(req.originalUrl).pathname;
-        if ((/\/[^\/\.]+\.[\w]{1,5}$/i).test(pathname) && !/\.html?$/i.test(pathname)) {
+        if ((/\/[^\/\.]+\.[a-z0-9]{2,7}$/i).test(pathname) && !/\.html?$/i.test(pathname)) {
             // If pathname ends with a file extension (images, stylesheets, scripts, ...), spare bandwidth by returning an empty error for missing assets
             res
                 .status(404)

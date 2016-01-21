@@ -148,19 +148,19 @@
 }
 
 .secondary-text-color(@background-color) when (lightness(@background-color) < 50%) {
-    color: lighten(@disabled-text-color, 40%);
+    color: lighten(@normal-text-color, 40%);
 }
 
 .secondary-text-color(@background-color) when (lightness(@background-color) >= 50%) {
-    color: darken(@disabled-text-color, 40%);
+    color: darken(@normal-text-color, 40%);
 }
 
 .tertiary-text-color(@background-color) when (lightness(@background-color) < 50%) {
-    color: lighten(@disabled-text-color, 20%);
+    color: lighten(@normal-text-color, 20%);
 }
 
 .tertiary-text-color(@background-color) when (lightness(@background-color) >= 50%) {
-    color: darken(@disabled-text-color, 20%);
+    color: darken(@normal-text-color, 20%);
 }
 
 /*********************************************
@@ -204,6 +204,25 @@ h1, h2, h3, h4, h5, h6 {
             }
         }
     }
+    .navbar-toggle {
+        color: @primary-button-text-color;
+        background-color: @primary-button-background-color;
+        background-position: 50% 50%;
+        border-color: @primary-button-border-color;
+        .box-shadow(@primary-shadow);
+        .composite-background(@primary-gradient);
+    }
+    /*
+    .navbar-toggle:hover {
+        color: @hover-text-color;
+        background-color: @hover-background;
+        .composite-background(@hover-gradient);
+    .navbar-toggle:active: {
+        color: @selected-text-color;
+        background-color: @selected-background;
+        .composite-background(@selected-gradient);
+    }
+    */
     form.navbar-form {
         border-color: @widget-border-color;
     }
@@ -291,6 +310,12 @@ h1, h2, h3, h4, h5, h6 {
             a[role="button"] {
                 border-radius: @calendar-border-radius;
             }
+            a[role="button"]:hover {
+                border-color: @hover-border-color;
+                .composite-background(@hover-gradient);
+                background-color: @hover-background-color;
+                // border-size
+            }
         }
     }
     .panel-body {
@@ -310,6 +335,9 @@ h1, h2, h3, h4, h5, h6 {
         }
         div.media-body {
             h4.media-heading {
+                a {
+                    color: @normal-text-color;
+                }
                 a:hover {
                     text-decoration: underline;
                 }
@@ -325,6 +353,9 @@ h1, h2, h3, h4, h5, h6 {
             }
             .author, .metrics {
                 .tertiary-text-color(@widget-background-color);
+                a {
+                    .tertiary-text-color(@widget-background-color);
+                }
                 a:hover {
                     text-decoration: underline;
                 }
@@ -353,6 +384,23 @@ form {
     .buttons {
         //background-color: rgba(0,0,0,0.1);
     }
+}
+//---------------------------------------------
+// Stage
+.kj-stage {
+    .k-button.k-state-disabled.k-state-active {
+        color: @primary-button-text-color;
+        background-color: @primary-button-background-color;
+        background-position: 50% 50%;
+        border-color: @primary-button-border-color;
+        .box-shadow(@primary-shadow);
+        .composite-background(@primary-gradient);
+    }
+}
+.chevron {
+    color: @primary-button-text-color;
+    background-color: @primary-button-background-color;
+    border-color: @primary-button-border-color;
 }
 
 //---------------------------------------------

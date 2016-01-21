@@ -26,7 +26,10 @@
         var STRING = 'string';
         var FUNCTION = 'function';
         var THEME = 'theme';
-        var DEFAULT = 'default';
+        var DEFAULT = 'flat';
+        // Note: app.i18n is not yet loaded, so we need a duplicated list
+        var ALL = ['black', 'blueopal', 'bootstrap', 'default', 'fiori', 'flat', 'highcontrast', 'material', 'materialblack',
+            'metro', 'metroblack', 'moonlight', 'nova', 'office365', 'silver', 'uniform'];
 
         app.theme = {
 
@@ -35,10 +38,12 @@
              * @param theme
              */
             load: function (theme) {
-                // TODO assert theme within enum
                 var dfd = $.Deferred();
                 var oldTheme = localStorage.getItem(THEME);
                 var loader;
+                if (ALL.indexOf(theme) === -1) {
+                    theme = DEFAULT;
+                }
                 if (typeof oldTheme === STRING && oldTheme !== theme) {
                     // See https://github.com/webpack/style-loader/issues/48
                     // See https://github.com/webpack/webpack/issues/924
@@ -51,7 +56,9 @@
                 loader = require('../styles/app.theme.' + theme + '.less');
                 loader(function (style) {
                     style.use();
-                    localStorage.setItem(THEME, theme);
+                    if (!$.isArray(matches)) {
+                        localStorage.setItem(THEME, theme);
+                    }
                     $(document.documentElement).removeClass('k-' + oldTheme).addClass('k-' + theme);
                     app.theme.updateCharts(theme);
                     logger.debug({
@@ -110,10 +117,15 @@
              * @param theme
              */
             name: function (theme) {
-                if (typeof theme === STRING) {
+                if ($.type(theme) === STRING) {
                     app.theme.load(theme);
                 } else if (theme === undefined) {
-                    return localStorage.getItem(THEME);
+                    if ($.isArray(matches) && matches.length === 2 && $.type(matches[1] === STRING)) {
+                        return matches[1].trim().toLowerCase();
+                    } else {
+                        theme = localStorage.getItem(THEME);
+                        return ($.type(theme) === STRING) ? theme : DEFAULT;
+                    }
                 } else {
                     throw new TypeError('bad theme');
                 }
@@ -121,13 +133,12 @@
 
         };
 
-        // load theme
+        // find a match in querystring (embedded player)
+        var matches = /theme=([^&]+)/.exec(window.location.search.substr(1));
+        // get theme from match or from localstorage ur use DEFAULT
         var theme = app.theme.name();
-        if (theme) {
-            app.theme.name(theme);
-        } else {
-            app.theme.name(DEFAULT);
-        }
+        // load theme
+        app.theme.load(theme);
 
     }(window.jQuery));
 

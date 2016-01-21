@@ -5,3 +5,14 @@
 @import "./vendor/kendo/web/kendo.moonlight.less";
 
 @import "app.template.less";
+
+.k-textbox, .k-textbox:hover,
+textarea.k-input, textarea.k-input:hover,
+.k-multiselect.k-header, .k-multiselect.k-header.k-state-hover,
+.k-autocomplete.k-state-default, .k-autocomplete.k-state-hover,
+.k-picker-wrap.k-state-default, .k-picker-wrap.k-state-hover,
+.k-numeric-wrap.k-state-default, .k-numeric-wrap.k-state-hover,
+.k-dropdown-wrap.k-state-default, .k-dropdown-wrap.k-state-hover
+{
+    border-color: @hover-background !important;
+}
