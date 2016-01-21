@@ -1,3 +1,27 @@
+/*!
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+
+*/
 @sprite-image: url('@{image-folder}/sprite.png');
 @tooltip-texture: none;
 @widget-text-color: @normal-text-color;
@@ -822,17 +846,19 @@ html .km-pane-wrapper .k-header
 
 .k-state-focused,
 .k-list>.k-state-focused,
-.k-listview>.k-state-focused,
-.k-grid-header th.k-state-focused,
 td.k-state-focused,
 .k-button.k-state-focused
 {
     .box-shadow(@focused-item-shadow);
 }
 
+.k-listview>.k-state-focused,
+.k-listview > .k-state-focused.k-state-selected {
+    .box-shadow(inset 0 0 0 1px @focused-border-color);
+}
+
 .k-state-focused.k-state-selected,
 .k-list>.k-state-focused.k-state-selected,
-.k-listview>.k-state-focused.k-state-selected,
 td.k-state-focused.k-state-selected
 {
     .box-shadow(@focused-active-item-shadow);
@@ -1353,6 +1379,12 @@ div.k-filebrowser-dropzone em
 .k-gantt .k-treelist .k-alt.k-state-selected > td
 {
     background-color: @selected-background-color;
+}
+
+.k-gantt .k-treelist .k-state-selected:hover,
+.k-gantt .k-treelist .k-state-selected:hover td
+{
+    background-color: desaturate(@selected-background-color, 35%);
 }
 
 .k-task-dot:after
@@ -1937,7 +1969,7 @@ html .km-pane-wrapper .km-widget,
     color: @hover-text-color;
 }
 
-.k-panelbar .k-state-focused.k-state-hover
+.k-panelbar > li > .k-state-focused.k-state-hover
 {
     background: @hover-background-color;
 	.box-shadow(none);
@@ -2028,11 +2060,6 @@ html .km-pane-wrapper .km-widget,
 .k-grouping-header
 {
     color: @secondary-text-color;
-}
-
-.k-grid td.k-state-focused
-{
-    box-shadow: inset 0 0 0 1px @focused-item-shadow;
 }
 
 .k-header,
@@ -2166,6 +2193,10 @@ html .km-pane-wrapper .km-widget,
 @checkbox-active-box-shadow: none;
 @checkbox-disabled-color: darken(@hover-background, 29%);
 @checkbox-disabled-border-color: darken(@hover-background, 29%);
+@checkbox-indeterminate-border-color: @checkbox-checked-border-color; 
+@checkbox-indeterminate-background-color: @checkbox-checked-border-color;
+@checkbox-indeterminate-hover-background-color: @checkbox-hover-border-color;
+@checkbox-indeterminate-hover-border-color: @checkbox-hover-border-color;
 
 @import "themes/radiobutton.less";
 
@@ -2527,24 +2558,44 @@ input.k-textbox:focus {
 }
 
 .k-calendar {
-	.k-state-selected .k-link
-	{
-	    color: @inverse-text-color;
-	}
+    .k-state-focused,
+    .k-state-selected.k-state-focused {
+        box-shadow: inset 0 0 0px 1px @base;
+    }
 
-	.k-state-selected,
-	.k-state-selected.k-state-hover 
-	{
-		background-color: @primary-hover-background-color;
-		border-color: @primary-hover-border-color;
-	}
+	.k-state-selected {
+		background-color: @accent;
+    }
+	
+    td:active,
+    .k-state-selected.k-state-hover {
+        background-color: difference(@accent, #0b0b0b);
+    }
 
- 	.k-nav-fast.k-state-hover,
+   	.k-nav-fast.k-state-hover,
  	.k-nav-prev.k-state-hover,
  	.k-nav-next.k-state-hover
 	{
 		background-color: @widget-background-color;	
 	}
+
+    .k-today {
+        background-color: @base;
+    }
+
+    .k-today .k-link {
+        color: @normal-background;
+    }
+
+    .k-today.k-state-hover {
+        background-color: darken(@base, 8%);
+    }
+
+    .k-today.k-state-focused,
+    .k-today:active,
+    .k-today.k-state-selected:active {
+        box-shadow: inset 0 0 0px 1px darken(@base, 15%);        
+    }
 
 	.k-footer .k-nav-today 
 	{
@@ -2590,9 +2641,14 @@ input.k-textbox:focus {
 	background-color: @selected-background-color;
 }
 
-.k-grid-content tr:hover,
+.k-grid tr:hover,
 .k-gantt .k-treelist tr:hover {
 	background-color: @hover-background-color;
+}
+
+.k-grid tr.k-state-selected:hover,
+.k-grid td.k-state-selected:hover {
+    background-color: desaturate(@selected-background-color, 35%);
 }
 
 .k-gantt .k-treelist .k-alt,
@@ -2600,6 +2656,7 @@ input.k-textbox:focus {
    background-color: @alt-background-color;
 }
 
+.k-grid-header th.k-state-focused,
 .k-grid td.k-state-focused {
 	.box-shadow(inset 0 0 0 1px @focused-border-color);
 }

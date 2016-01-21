@@ -1,3 +1,27 @@
+/*!
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+
+*/
 /* ComboBox & DropDownList */
 
 span.k-datepicker,
@@ -112,6 +136,12 @@ span.k-dropdown,
 .k-header-column-menu
 {
     -webkit-touch-callout: none;
+}
+
+.k-list-scroller
+{
+    position: relative;
+    overflow: auto;
 }
 
 .k-popup.k-list-container,
@@ -387,7 +417,7 @@ body .k-datetimepicker .k-select
 
 .k-list
 {
-    height: 100%;
+    height: auto;
 }
 
 .k-popup .k-list .k-item,
@@ -450,7 +480,15 @@ body .k-datetimepicker .k-select
 {
     position: absolute;
     right: 6px;
-    top: 1px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.km-root .k-list-filter > .k-textbox {
+    padding-left: 0;
+    padding-right: 0;
+    border-left-width: 0;
+    border-right-width: 0;    
 }
 
 /* MultiSelect */
@@ -719,7 +757,7 @@ span.k-numerictextbox
             position: relative;
         }
     }
-    
+
     .k-item:hover {
         z-index: 101;
         position: relative;

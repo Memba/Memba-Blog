@@ -1,15 +1,35 @@
-/*
-* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
-*/
-(function(f, define){
-    define([], f);
-})(function(){
+/** 
+ * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
+*/
+
+(function(f){
+    if (typeof define === 'function' && define.amd) {
+        define([ "./kendo.core" ], f);
+    } else {
+        f();
+    }
+}(function(){
 (function ($, undefined) {
 /* Validator */
 if (kendo.ui.Validator) {
@@ -84,6 +104,22 @@ $.extend(true, kendo.spreadsheet.messages.dialogs,{
   "cancel": "Откажи",
   "remove": "Премахни",
   "okText": "OK",
+  "exportAsDialog": {
+    "title": "Експортирай...",
+    "labels": {
+      "fileName": "Име на файл",
+      "saveAsType": "Запази като",
+      "exportArea": "Експортирай",
+      "paperSize": "Размер на лист",
+      "margins": "Отстояние",
+      "orientation": "Ориентация",
+      "print": "Отпечатай",
+      "guidelines": "Guidelines",
+      "center": "Центрирай",
+      "horizontally": "Хоризонтално",
+      "vertically": "Вертикално"
+    }
+  },
   "formatCellsDialog": {
     "title": "Форматиране",
     "categories": {
@@ -190,9 +226,6 @@ $.extend(true, kendo.spreadsheet.messages.dialogs,{
       "saveAsType": "Запиши като"
     }
   },
-  "excelExportDialog": {
-    "title": "Експортиране към Excel..."
-  },
   "modifyMergedDialog": {
     "errorMessage": "Не може да се промени част от обединена клетка."
   },
@@ -207,6 +240,45 @@ $.extend(true, kendo.spreadsheet.messages.dialogs,{
   },
   "unsupportedSelectionDialog": {
     "errorMessage": "Командата, която сте избрали, не може да бъде използвана с няколко селекции."
+  }
+});
+}
+
+if (kendo.spreadsheet && kendo.spreadsheet.messages.filterMenu) {
+kendo.spreadsheet.messages.filterMenu =
+$.extend(true, kendo.spreadsheet.messages.filterMenu,{
+  "sortAscending": "Сортирай възходящо",
+  "sortDescending": "Сортирай низходящо",
+  "filterByValue": "Филтрирай по стойност",
+  "filterByCondition": "Филтрирай по критерий",
+  "apply": "Приложи",
+  "search": "Търси",
+  "clear": "Премахни филтър",
+  "blanks": "(Празни места)",
+  "operatorNone": "Без критерии",
+  "and": "И",
+  "or": "ИЛИ",
+  "operators": {
+    "string": {
+      "contains": "Съдържа",
+      "doesnotcontain": "Не съдържа",
+      "startswith": "Започва с",
+      "endswith": "Завършва на"
+    },
+    "date": {
+      "eq": "Е равно на",
+      "neq": "Не е равно на",
+      "lt": "Е преди",
+      "gt": "Е след"
+    },
+    "number": {
+      "eq": "Е равно на",
+      "neq": "Не е равно на",
+      "gte": "Е по-голяма или равно на",
+      "gt": "Е по-голямо от",
+      "lte": "Е по-малко или равно на",
+      "lt": "Е по-малко от"
+    }
   }
 });
 }
@@ -235,7 +307,7 @@ $.extend(true, kendo.spreadsheet.messages.toolbar,{
   "cut": "Изрежи",
   "deleteColumn": "Изтрий колона",
   "deleteRow": "Изтрии ред",
-  "excelExport": "Експортиране към Excel...",
+  "excelImport": "Импортиране от Excel...",
   "filter": "Филтриране",
   "fontFamily": "Шрифт",
   "fontSize": "Размер на шрифт",
@@ -269,11 +341,13 @@ $.extend(true, kendo.spreadsheet.messages.toolbar,{
     "mergeVertically": "Обединяване по колони",
     "unmerge": "Разделяне на клетки"
   },
+  "open": "Отвори...",
   "paste": "Поставяне",
   "quickAccess": {
     "redo": "Стъпка напред",
     "undo": "Стъпка назад"
   },
+  "saveAs": "Запиши като...",
   "sortAsc": "Сортирай възходящо",
   "sortDesc": "Сортирай низходящо",
   "sortButtons": {
@@ -785,8 +859,4 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
 });
 }
 })(window.kendo.jQuery);
-
-
-return window.kendo;
-
-}, typeof define == 'function' && define.amd ? define : function(_, f){ f(); });
+}));

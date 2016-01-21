@@ -1,10 +1,26 @@
-/*
-* Kendo UI v2015.3.1111 (http://www.telerik.com/kendo-ui)
-* Copyright 2015 Telerik AD. All rights reserved.
-*
-* Kendo UI commercial licenses may be obtained at
-* http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
-* If you do not own a commercial license, this file shall be governed by the trial license terms.
+/** 
+ * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+
 */
 @input-height: 2.214em;
 @input-indent: .8em;
@@ -992,14 +1008,23 @@ span.k-tooltip
 @checkbox-tick-icon-content: "\2714";
 @checkbox-border-width: 2px;
 
+.k-checkbox:indeterminate + .k-checkbox-label:after {
+    width: 6px;
+    height: 6px;
+    margin-left: 0;
+    top: 4px;
+    left: 4px;
+    transform: none;
+}
+
 .k-radio:checked + .k-radio-label:after {
-  top: 5px; 
-  left: 5px
+   top: 5px; 
+   left: 5px;
 }
 
 .k-radio-label:before {
-  width: 16px;
-  height: 16px;
+   width: 16px;
+   height: 16px;
 }
 
 .k-dropzone .k-upload-status
@@ -1070,5 +1095,15 @@ span.k-tooltip
 
     .k-tabstrip-items  .k-link {
         padding-top: .4em;
+    }
+}
+
+.k-spreadsheet-window {
+    .k-page-orientation {
+        top: 26%;
+    }
+
+    .k-page-landscape {
+        top: 30%;
     }
 }

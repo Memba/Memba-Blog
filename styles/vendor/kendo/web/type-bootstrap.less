@@ -1,3 +1,27 @@
+/*!
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+
+*/
 @sprite-image: url('@{image-folder}/sprite.png');
 @theme-type: "Bootstrap";
 @tooltip-texture: none;
@@ -140,7 +164,7 @@
 @form-widgets-border-color: darken(@base, 12%);
 @pager-text-color: darken(@base, 27%);
 @draghandle-selected-background: darken(@base, 12%);
-@upload-status-color: darken(@error, 17%);
+@upload-status-color: @normal-text-color;
 @form-widgets-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 @menu-active-background: darken(@base, 1%);
 @concave-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
@@ -710,65 +734,87 @@ html .km-pane-wrapper .k-header
     border-color: @focused-border-color;
 }
 
-.k-calendar .k-link
-{
-    color: @calendar-content-text-color;
+.k-calendar {
+    .k-link {
+        color: @calendar-content-text-color;
+    }
+
+    .k-footer {
+        padding: 0;
+    }
+
+    .k-footer .k-nav-today {
+        color: @form-widget-color;
+        text-decoration: @calendar-footer-text-decoration;
+        background-color: @calendar-footer-background;
+    }
+
+    .k-footer .k-nav-today:hover,
+    .k-footer .k-nav-today.k-state-hover {
+        background-color: @calendar-footer-hover-background;
+        text-decoration: @calendar-footer-hover-text-decoration;
+    }
+
+    .k-footer .k-nav-today:active {
+        background-color: @calendar-footer-active-background;
+    }
+
+    .k-link.k-nav-fast {
+        color: @form-widget-color;
+    }
+
+    .k-nav-fast.k-state-hover {
+        text-decoration: @calendar-header-hover-text-decoration;
+        background-color: @calendar-header-hover-background;
+        color: @hover-text-color;
+    }
+
+    .k-link.k-state-hover {
+        border-radius: @calendar-border-radius;
+    }
+
+    .k-state-focused.k-state-hover {
+        background-color: lighten(@selected-background-color, 37%);
+    }
+
+    .k-state-selected.k-state-hover {
+        background-color: darken(@selected-background, 8%);
+    }
+
+    .k-state-selected.k-state-hover .k-link {
+        color: @selected-text-color;
+    }
+
+    td.k-state-focused.k-state-selected.k-state-hover {
+        box-shadow: inset 0 0 7px 0 darken(@selected-background, 25%); 
+    }
+
+    .k-today {
+        background-color: @base;
+    }
+
+    .k-today.k-state-hover {
+        background-color: darken(@base, 7%);
+    }
+
+    .k-today.k-state-focused.k-state-hover {
+        background-color: lighten(@selected-background-color, 37%);
+    }
+
+    .k-footer .k-link {
+        border-radius: 0;
+    }
+
+    th {
+        background-color: @calendar-group-background-color;
+    }
 }
 
-.k-calendar .k-footer
-{
-    padding: 0;
-}
-
-.k-calendar .k-footer .k-nav-today
-{
-    color: @form-widget-color;
-    text-decoration: @calendar-footer-text-decoration;
-    background-color: @calendar-footer-background;
-}
-
-.k-calendar .k-footer .k-nav-today:hover,
-.k-calendar .k-footer .k-nav-today.k-state-hover
-{
-    background-color: @calendar-footer-hover-background;
-    text-decoration: @calendar-footer-hover-text-decoration;
-}
-
-.k-calendar .k-footer .k-nav-today:active
-{
-    background-color: @calendar-footer-active-background;
-}
-
-.k-calendar .k-link.k-nav-fast
-{
-    color: @form-widget-color;
-}
-
-.k-calendar .k-nav-fast.k-state-hover
-{
-    text-decoration: @calendar-header-hover-text-decoration;
-    background-color: @calendar-header-hover-background;
-    color: @hover-text-color;
-}
-
-.k-calendar .k-link.k-state-hover,
-.k-window-titlebar .k-link
-{
+.k-window-titlebar .k-link {
     border-radius: @calendar-border-radius;
 }
 
-.k-calendar .k-footer .k-link
-{
-    border-radius: 0;
-}
-
-.k-calendar th
-{
-    background-color: @calendar-group-background-color;
-}
-
-.k-calendar-container.k-group
-{
+ .k-calendar-container.k-group {
     border-color: @group-border-color;
 }
 
@@ -1345,6 +1391,10 @@ div.k-filebrowser-dropzone em
     background-color: darken(@alt-background-color, 10%);
 }
 
+.k-gantt .k-treelist tr:hover {
+    background-color: @hover-background;
+}
+
 .k-gantt .k-treelist .k-state-selected,
 .k-gantt .k-treelist .k-state-selected td,
 .k-gantt .k-treelist .k-alt.k-state-selected,
@@ -1492,8 +1542,12 @@ div.k-filebrowser-dropzone em
     border-radius: 0 @main-border-radius @main-border-radius 0;
 }
 
+.k-toolbar .k-button-group > .k-group-end {
+    border-radius: @main-border-radius;
+}
+
 .k-tool.k-group-end,
-.k-toolbar .k-button-group .k-group-end,
+.k-toolbar .k-button-group .k-button + .k-group-end,
 .k-toolbar .k-split-button .k-split-button-arrow
 {
     border-radius: 0 @main-border-radius @main-border-radius 0;
@@ -1858,6 +1912,16 @@ html .km-pane-wrapper .km-widget,
     background-color: darken(red, 20);
 }
 
+.km-pane-wrapper .k-pager-numbers .k-link,
+.km-pane-wrapper .k-pager-numbers .k-state-selected,
+.km-pane-wrapper .k-pager-wrap > .k-link {
+    border-radius: 0;
+}
+
+.km-pane-wrapper .k-pager-nav.k-pager-first {
+    border-radius: 4px 0 0 4px;
+}
+
 /* /Column Menu */
 
 .k-autocomplete.k-state-default,
@@ -1950,7 +2014,7 @@ html .km-pane-wrapper .km-widget,
     color: @hover-text-color;
 }
 
-.k-panelbar .k-state-focused.k-state-hover
+.k-panelbar > .k-state-focused.k-state-hover
 {
     background: @hover-background-color;
 	.box-shadow(none);
@@ -2039,9 +2103,28 @@ html .km-pane-wrapper .km-widget,
     color: @secondary-text-color;
 }
 
+.k-grid tr:hover {
+    background-color: @hover-background;
+}
+
 .k-grid td.k-state-focused
 {
     box-shadow: inset 0 0 0 1px @focused-item-shadow;
+}
+
+.k-grid tr:hover .k-state-focused,
+.k-grid tr.k-state-focused:hover td {
+    background-color: lighten(@selected-background-color, 37%);
+}
+
+.k-grid tr:hover .k-state-selected,
+.k-grid tr.k-state-selected:hover td {
+    background-color: darken(@selected-background-color, 7%);
+}
+
+.k-grid tr:hover .k-state-focused.k-state-selected,
+.k-grid tr.k-state-selected:hover td.k-state-focused {
+    box-shadow: inset 0 0 7px 0 darken(@accent, 30%);
 }
 
 .k-header,
@@ -2609,7 +2692,7 @@ thead.k-grid-header th.k-header:last-child
     color: @widget-text-color;
 }
 
-.k-panelbar .k-state-focused
+.k-panelbar > .k-state-focused
 {
     .box-shadow(inset @focused-shadow);
 }
@@ -2630,7 +2713,6 @@ thead.k-grid-header th.k-header:last-child
     color: @hover-text-color;
 }
 
-.k-panelbar .k-state-focused.k-state-selected,
 td.k-state-focused.k-state-selected,
 .k-state-selected td.k-state-focused,
 .k-listview>.k-state-focused.k-state-selected
@@ -2638,10 +2720,14 @@ td.k-state-focused.k-state-selected,
     .box-shadow(@focused-active-item-shadow);
 }
 
-.k-panelbar .k-state-focused.k-state-hover
+.k-panelbar > .k-state-focused.k-state-hover
 {
     background: @hover-background-color;
 	.box-shadow(none);
+}
+
+.k-panelbar > li .k-state-selected.k-state-hover {
+    .box-shadow(none);
 }
 
 .k-pager-wrap

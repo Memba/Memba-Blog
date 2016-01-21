@@ -1,3 +1,27 @@
+/*!
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+
+*/
 @sprite-image: url('@{image-folder}/sprite.png');
 @tooltip-texture: none;
 @widget-text-color: @normal-text-color;
@@ -28,7 +52,7 @@
 @selected-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
 @focused-border-color: #67afe9;
 @focused-shadow: 0 2px 6px rgba(0,0,0,.2), 0 2px 3px rgba(0,0,0,.05);
-@focused-item-shadow: 0 6px 17px 0 rgba(0, 0, 0, 0.3);
+@focused-item-shadow: inset 0 0 0 1px contrast(@background, darken(@base, 50%), lighten(@base, 30%), 0.5);
 @focused-active-item-shadow: none;
 @active-text-color: @normal-text-color;
 @active-gradient: none;
@@ -713,65 +737,61 @@ html .km-pane-wrapper .k-header
     border-color: @focused-border-color;
 }
 
-.k-calendar .k-link
-{
-    color: @calendar-content-text-color;
+
+.k-calendar {
+    .k-link {
+        color: @calendar-content-text-color;
+    }
+
+    .k-footer {
+        padding: 0;
+    }
+
+    .k-footer .k-nav-today {
+        color: @form-widget-color;
+        text-decoration: @calendar-footer-text-decoration;
+        background-color: @calendar-footer-background;
+    }
+
+    .k-footer .k-nav-today:hover,
+    .k-footer .k-nav-today.k-state-hover {
+        background-color: @calendar-footer-hover-background;
+        text-decoration: @calendar-footer-hover-text-decoration;
+    }
+
+    .k-footer .k-nav-today:active {
+        background-color: @calendar-footer-active-background;
+    }
+
+    .k-link.k-nav-fast {
+        color: @form-widget-color;
+    }
+
+    .k-nav-fast.k-state-hover {
+        text-decoration: @calendar-header-hover-text-decoration;
+        background-color: @calendar-header-hover-background;
+        color: @hover-text-color;
+    }
+
+    .k-link.k-state-hover {
+        border-radius: @calendar-border-radius;
+    }
+
+    .k-footer .k-link {
+        border-radius: 0;
+    }
+
+    th {
+        background-color: @calendar-group-background-color;
+    }
+
 }
 
-.k-calendar .k-footer
-{
-    padding: 0;
-}
-
-.k-calendar .k-footer .k-nav-today
-{
-    color: @form-widget-color;
-    text-decoration: @calendar-footer-text-decoration;
-    background-color: @calendar-footer-background;
-}
-
-.k-calendar .k-footer .k-nav-today:hover,
-.k-calendar .k-footer .k-nav-today.k-state-hover
-{
-    background-color: @calendar-footer-hover-background;
-    text-decoration: @calendar-footer-hover-text-decoration;
-}
-
-.k-calendar .k-footer .k-nav-today:active
-{
-    background-color: @calendar-footer-active-background;
-}
-
-.k-calendar .k-link.k-nav-fast
-{
-    color: @form-widget-color;
-}
-
-.k-calendar .k-nav-fast.k-state-hover
-{
-    text-decoration: @calendar-header-hover-text-decoration;
-    background-color: @calendar-header-hover-background;
-    color: @hover-text-color;
-}
-
-.k-calendar .k-link.k-state-hover,
-.k-window-titlebar .k-link
-{
+.k-window-titlebar .k-link {
     border-radius: @calendar-border-radius;
 }
 
-.k-calendar .k-footer .k-link
-{
-    border-radius: 0;
-}
-
-.k-calendar th
-{
-    background-color: @calendar-group-background-color;
-}
-
-.k-calendar-container.k-group
-{
+.k-calendar-container.k-group {
     border-color: @group-border-color;
 }
 
@@ -822,7 +842,7 @@ html .km-pane-wrapper .k-header
 .k-state-focused,
 .k-list>.k-state-focused,
 .k-listview>.k-state-focused,
-.k-grid-header th.k-state-focused,
+.k-listview > .k-state-focused.k-state-selected,
 td.k-state-focused,
 .k-button.k-state-focused
 {
@@ -831,7 +851,6 @@ td.k-state-focused,
 
 .k-state-focused.k-state-selected,
 .k-list>.k-state-focused.k-state-selected,
-.k-listview>.k-state-focused.k-state-selected,
 td.k-state-focused.k-state-selected
 {
     .box-shadow(@focused-active-item-shadow);
@@ -1137,7 +1156,7 @@ div.k-filebrowser-dropzone em
 
 .k-file
 {
-    background-color: @active-background-color;
+    background-color: @background;
     border-color: @widget-border-color;
 }
 
@@ -1350,12 +1369,22 @@ div.k-filebrowser-dropzone em
     background-color: darken(@alt-background-color, 10%);
 }
 
+.k-gantt .k-treelist tr:hover {
+    background-color: @hover-background;
+}
+
 .k-gantt .k-treelist .k-state-selected,
 .k-gantt .k-treelist .k-state-selected td,
 .k-gantt .k-treelist .k-alt.k-state-selected,
 .k-gantt .k-treelist .k-alt.k-state-selected > td
 {
     background-color: @selected-background-color;
+}
+
+.k-gantt .k-treelist .k-alt.k-state-selected:hover,
+.k-gantt .k-treelist .k-alt.k-state-selected:hover td
+{
+    background-color: darken(@selected-background, 4%);
 }
 
 .k-task-dot:after
@@ -1931,13 +1960,14 @@ html .km-pane-wrapper .km-widget,
     color: @hover-text-color;
 }
 
-.k-panelbar .k-state-focused.k-state-hover
+.k-panelbar > li > .k-state-focused.k-state-hover
 {
     background: @hover-background-color;
     .box-shadow(none);
 }
 
-.k-tabstrip-items .k-state-default
+.k-tabstrip-items .k-state-default,
+.k-panelbar .k-tabstrip-items .k-state-default
 {
     border-color: @tabstrip-items-border;
 }
@@ -1945,14 +1975,6 @@ html .km-pane-wrapper .km-widget,
 .k-tabstrip-items .k-state-hover
 {
     border-color: @hover-border-color;
-}
-
-.k-tabstrip-items .k-state-active,
-.k-panelbar .k-tabstrip-items .k-state-active
-{
-    background-color: @active-background-color;
-    .composite-background(@active-gradient);
-    border-color: @active-border-color;
 }
 
 .k-tabstrip .k-content.k-state-active
@@ -2018,11 +2040,6 @@ html .km-pane-wrapper .km-widget,
 .k-grouping-header
 {
     color: @secondary-text-color;
-}
-
-.k-grid td.k-state-focused
-{
-    box-shadow: inset 0 0 0 1px @focused-item-shadow;
 }
 
 .k-header,
@@ -2158,10 +2175,8 @@ html .km-pane-wrapper .km-widget,
 @checkbox-disabled-background-color: contrast(@background, lighten(@background, 20%), darken(@background, 4%), 0.5);
 @checkbox-disabled-color: darken(@hover-background, 17%);
 @checkbox-disabled-border-color: contrast(@background, lighten(@background, 20%), darken(@background, 25%), 0.5);
-
-.k-checkbox + .k-checkbox-label:before {
-    z-index: 1;
-}
+@checkbox-indeterminate-background-color: @accent;
+@checkbox-indeterminate-border-color: @accent;
 
 .k-checkbox + .k-checkbox-label:after {
     content: "";
@@ -2183,6 +2198,10 @@ html .km-pane-wrapper .km-widget,
 
 .k-checkbox:checked + .k-checkbox-label:active:after {
     box-shadow: 0 0 0 12px fadeout(@accent, 70%);
+}
+
+.k-checkbox:indeterminate + .k-checkbox-label:before {
+    border-color: @accent;
 }
 
 @import "themes/radiobutton.less";
@@ -2683,18 +2702,22 @@ td.k-state-focused.k-state-selected
 .box-shadow(@focused-active-item-shadow);
 }
 
-.k-calendar td.k-state-focused {
-    background-color: @hover-background-color;
-    .box-shadow(none);
+.k-calendar td.k-state-focused,
+.k-calendar td.k-state-selected.k-state-focused {
+    .box-shadow(@focused-item-shadow);
 }
 
 .k-calendar td.k-state-selected {
-    background-color: @primary-button-background-color;
+    background-color: @selected-background;
     .box-shadow(none);
 }
 
+.k-calendar td.k-state-selected.k-state-hover {
+    background-color: darken(@selected-background, 4%);
+}
+
 .k-calendar .k-state-selected > .k-link {
-    color: @inverse-text-color;
+    color: @base;
 }
 
 /* Calendar */
@@ -2726,6 +2749,19 @@ background-color: @secondary-header-background-color;
 border-radius: 0;
 }
 
+.k-calendar .k-today {
+    background-color: @accent;
+}
+
+.k-calendar .k-today .k-link {
+    color: @base;
+}
+
+.k-calendar .k-today.k-state-hover {
+    background-color: contrast(@background, darken(@accent, 10%), softlight(@accent, #b9b9b9), .5);
+} 
+
+
 .k-calendar .k-link.k-state-hover,
 .k-window-titlebar .k-link
 {
@@ -2742,7 +2778,8 @@ border-radius: 0;
     border-radius: 0;
 }
 
-.k-tabstrip-items .k-state-active {
+.k-tabstrip-items .k-state-active,
+.k-panelbar .k-tabstrip-items .k-state-active {
 background-color: @header-background-color;
 .composite-background(@active-gradient);
 border-color: @selected-background;
@@ -2958,6 +2995,20 @@ background-color: @selected-background;
 color: @base;
 }
 
+.k-grid tr:hover {
+    background-color: @hover-background;
+}
+
+.k-grid td.k-state-selected,
+.k-grid tr.k-state-selected > td {
+    border-color: darken(@selected-background, 10%);
+}
+
+.k-grid tr:hover .k-state-selected,
+.k-grid tr.k-state-selected:hover td {
+    background-color: darken(@selected-background, 4%);
+}
+
 .k-grid-header .k-header .k-link,
 .k-grid-header .k-header,
 .k-grid-header .k-link,
@@ -3049,13 +3100,15 @@ background-color: @secondary-background-color;
 color: @widget-text-color;
 }
 
-.k-panelbar .k-state-hover {
+.k-panelbar > li >.k-state-hover {
 background-color: @hover-background-color;
 }
 
 .k-panelbar > .k-item > .k-link,
 .k-panelbar.k-header,
-.k-panelbar .k-content, .k-panelbar .k-panel, .k-panelbar .k-item {
+.k-panelbar .k-content,
+.k-panelbar .k-panel,
+.k-panelbar .k-item {
 border-color: @panelbar-items-border;
 }
 
@@ -3110,7 +3163,6 @@ background-color: @selected-background;
 border-color: @selected-background;
 }
 
-.k-grid td.k-state-focused,
 .k-multiselect .k-button:focus:active:not(.k-state-disabled):not([disabled]),
 .k-toolbar .k-button:focus:active:not(.k-state-disabled):not([disabled]),
 .k-group-indicator .k-button,
@@ -3160,12 +3212,12 @@ table.k-editor {
 .k-treeview .k-state-selected,
 .k-treeview .k-state-focused,
 .k-editor-toolbar .k-dropdown,
-.k-panelbar .k-state-focused {
+.k-panelbar > li > .k-state-focused {
     .box-shadow(none);
 }
 
 .k-treeview .k-state-focused,
-.k-panelbar .k-state-focused {
+.k-panelbar > li > .k-state-focused {
     background-color: @hover-background-color;
 }
 
@@ -3836,3 +3888,5 @@ div.k-scheduler-marquee:after {
         line-height: 2em;
     }
 }
+
+@spreadsheet-page-orientation-border-color: @widget-border-color;
