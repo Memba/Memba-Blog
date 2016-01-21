@@ -64,6 +64,10 @@ REM Copy ./js/cultures files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\cultures\*.*  .\js\cultures\ /C /E /I /R /Y
 ATTRIB +R .\js\cultures\*.* /S
 
+REM Copy ./js/messages files
+XCOPY ..\..\Kidoju\Kidoju.Webapp\js\messages\*.*  .\js\messages\ /C /E /I /R /Y
+ATTRIB +R .\js\messages\*.* /S
+
 REM Copy ./js/vendor files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\vendor\bootstrap\*.* .\js\vendor\bootstrap\ /C /E /I /R /Y
 ATTRIB +R .\js\vendor\bootstrap\*.* /S

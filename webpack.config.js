@@ -86,7 +86,10 @@ module.exports = {
         filename:   '[name].bundle.js',
         chunkFilename: '[name].chunk.js'
     },
-    // resolve: {},
+    resolve: {
+        // required since Kendo UI 2016.1.112
+        fallback: path.join(__dirname, "./js/vendor/kendo")
+    },
     module: {
         loaders: [
             {
