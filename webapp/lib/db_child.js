@@ -264,8 +264,8 @@ module.exports = {
                 logger.debug({
                     message: 'Writing file ' + indexFile,
                     module: 'lib/db_child',
-                    method: 'createIndex',
-                    data: index
+                    method: 'createIndex'
+                    // data: index <-- clutters logs
                 });
                 fs.writeFile(indexFile, JSON.stringify(index), callback);
             } else {

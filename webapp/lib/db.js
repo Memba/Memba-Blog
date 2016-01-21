@@ -86,8 +86,8 @@ Collection.prototype.load = function () {
         logger.info({
             message: 'Index ' + this.locale + ' loaded with ' + this.data.length + ' entries',
             module: 'lib/db',
-            method: 'Collection.prototype.load',
-            data: this.data.slice(0, 1)
+            method: 'Collection.prototype.load'
+            // data: this.data.slice(0, 1) <-- clutters logs
         });
     } catch (exception) {
         logger.error({
