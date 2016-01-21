@@ -15,6 +15,12 @@
 
     var kendo = window.kendo;
     var kidoju = window.kidoju;
+
+    if (!kidoju) {
+        // Especially for Memba.Blog and Kidoju.Blog
+        return;
+    }
+
     var ui = kendo.ui;
     var tools = kidoju.tools;
     var Tool = kidoju.Tool;
