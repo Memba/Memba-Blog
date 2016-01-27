@@ -41,7 +41,7 @@
     // ECMAScript 5
     // "es5": true, @see https://jslinterrors.com/es5-option-is-now-set-per-default
     // Whether the "use strict"; pragma should be required.
-    "strict": true,
+    "strict": false,
     // Whether global "use strict"; should be allowed (also enables strict).
     "globalstrict": true,
 
