@@ -109,7 +109,7 @@ config.load(function (error/*, store*/) {
 
     // Static files (before routing)
     // Cache-Control maxAge requires a string in MS format - see https://www.npmjs.com/package/ms
-    app.use(util.format(config.get('uris:webapp:public'), ''), express.static(path.join(__dirname, 'public'), {maxAge: '1d'}));
+    app.use(util.format(config.get('uris:webapp:public'), ''), express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
 
     // Routing
     router = require('./routes');
@@ -131,4 +131,6 @@ config.load(function (error/*, store*/) {
 });
 
 // Export app for unit tests
+// It is fine, because app does not accept requests
+// until it has been fully configured here above
 module.exports = app;

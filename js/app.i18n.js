@@ -77,7 +77,7 @@
                         window.location.assign(href);
                     } else {
                         // This is an embedded player
-                        window.top.location.assign(href)
+                        window.top.location.assign(href);
                     }
                 } else if (locale === undefined) {
                     return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';

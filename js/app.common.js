@@ -6,8 +6,6 @@
 /* jshint browser: true, jquery: true */
 /* globals define: false, require: false */
 
-'use strict';
-
 if (typeof(require) === 'function') {
     // Load styles
     require('../styles/bootstrap.custom.less');
@@ -22,7 +20,7 @@ if (typeof(require) === 'function') {
 }
 
 (function (f, define) {
-    // 'use strict';
+    'use strict';
     define([
         './vendor/kendo/kendo.binder',
         // './vendor/kendo/kendo.button',
@@ -36,7 +34,7 @@ if (typeof(require) === 'function') {
     ], f);
 })(function () {
 
-    // 'use strict';
+    'use strict';
 
     (function ($, undefined) {
 
@@ -147,4 +145,4 @@ if (typeof(require) === 'function') {
 
     return window.app;
 
-}, typeof define === 'function' && define.amd ? define : function (_, f) { /*'use strict';*/ f(); });
+}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

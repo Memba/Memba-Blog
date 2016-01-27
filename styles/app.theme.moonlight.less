@@ -6,13 +6,9 @@
 
 @import "app.template.less";
 
-.k-textbox, .k-textbox:hover,
-textarea.k-input, textarea.k-input:hover,
-.k-multiselect.k-header, .k-multiselect.k-header.k-state-hover,
-.k-autocomplete.k-state-default, .k-autocomplete.k-state-hover,
-.k-picker-wrap.k-state-default, .k-picker-wrap.k-state-hover,
-.k-numeric-wrap.k-state-default, .k-numeric-wrap.k-state-hover,
-.k-dropdown-wrap.k-state-default, .k-dropdown-wrap.k-state-hover
+// Fix - See https://github.com/telerik/kendo-ui-core/issues/1376
+// TODO removed when fixed in 2016.Q1.SP1
+.k-content
 {
-    border-color: @hover-background !important;
+    background-color: #414550 !important;
 }

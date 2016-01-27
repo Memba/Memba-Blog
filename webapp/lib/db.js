@@ -76,8 +76,8 @@ var Collection = function (locale) {
  * Read the index from file on disk
  */
 Collection.prototype.load = function () {
+    var indexFile = convert.getIndexPath(this.locale);
     try {
-        var indexFile = convert.getIndexPath(this.locale);
         var buf = fs.readFileSync(indexFile);
         var data = JSON.parse(buf.toString());
         if (Array.isArray(data) && data.length) {

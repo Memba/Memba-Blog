@@ -109,8 +109,8 @@ function process(entry) {
 * @param label
 */
 function print(entry, label) {
-    /* jshint maxstatements: 37 */
-    /* jshint maxcomplexity: 24 */
+    /* jshint maxstatements: 41 */
+    /* jshint maxcomplexity: 28 */
     var message = label;
     var first = true;
     if (entry.message) {
