@@ -88,7 +88,7 @@ module.exports = {
     },
     resolve: {
         // required since Kendo UI 2016.1.112
-        fallback: path.join(__dirname, "./js/vendor/kendo")
+        fallback: path.join(__dirname, './js/vendor/kendo')
     },
     module: {
         loaders: [
