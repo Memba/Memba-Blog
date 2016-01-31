@@ -29,7 +29,7 @@
     },
     "uris" : {
         "cdn": {
-            "root":  "https://d2rvsmwqptocm.cloudfront.net",
+            "root":  "https://cdn.kidoju.com",
             "icons": "/images/o_collection/svg/office/%s.svg"
         },
         "webapp": {
