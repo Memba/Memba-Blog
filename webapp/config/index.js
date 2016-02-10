@@ -9,6 +9,7 @@
 
 var nconf = require('nconf');
 var path = require('path');
+var pkg = require('../../package.json');
 var awss3;
 
 try { awss3 = require('./awss3'); } catch (ex) {}
@@ -23,6 +24,7 @@ function Config() {
     } else {
         nconf.file(this.environment, path.join(__dirname, this.environment + '.json'));
     }
+    nconf.set('version', pkg.version);
 }
 
 /**
