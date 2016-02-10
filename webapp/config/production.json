@@ -45,7 +45,7 @@
             "sitemap": "/%s/sitemap.xml"
         },
         "webpack": {
-            "root": "http://localhost:3000/assets/"
+            "root": "http://www.memba.com/assets/"
         }
     }
 }
