@@ -67,6 +67,7 @@ process.on('exit', function (code) {
 
 var express = require('express');
 var app = express();
+var cors = require('cors');
 var helmet = require('helmet');
 var http = require('http');
 var i18n = require('i18n');
@@ -109,7 +110,11 @@ config.load(function (error/*, store*/) {
 
     // Static files (before routing)
     // Cache-Control maxAge requires a string in MS format - see https://www.npmjs.com/package/ms
-    app.use(util.format(config.get('uris:webapp:public'), ''), express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+    app.use(
+        util.format(config.get('uris:webapp:public'), ''),
+        cors({ origin: config.get('uris:webapp:root') }),
+        express.static(path.join(__dirname, 'public'), { maxAge: '1d' })
+    );
 
     // Routing
     router = require('./routes');
