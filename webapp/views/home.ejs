@@ -31,7 +31,7 @@
 </main>
 
 <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'assets/common.bundle.js')) %>"></script>
-<script src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'assets/home.bundle.js')) %>"></script>
+<script src="<%= urljoin(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.version %>"></script>
+<script src="<%= urljoin(config.uris.webpack.root, 'home.bundle.js') + '?v=' + config.version %>"></script>
 
 <% include footer.ejs %>
