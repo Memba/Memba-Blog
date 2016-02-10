@@ -26,13 +26,15 @@ var config = require('./webapp/config');
  * @see http://webpack.github.io/docs/list-of-plugins.html#defineplugin
  * @see https://github.com/petehunt/webpack-howto#6-feature-flags
  */
-var environment = process.env.NODE_ENV || 'development';
+var pkg = require('./package.json');
+var environment = config.environment || 'development';
 var definePlugin = new webpack.DefinePlugin({
-        'process.env': {
-            NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
-        }
-    });
+    __NODE_ENV__: JSON.stringify(environment),
+    __VERSION__: JSON.stringify(pkg.version)
+});
 console.log('webpack environment is ' + environment);
+console.log('webpack public path is ' + config.get('uris:webpack:root'));
+console.log('building version ' + pkg.version);
 
 /**
  * commonsChunkPlugin builds a common denominator of the designated chunks
@@ -41,8 +43,11 @@ var commonsChunkPlugin =
     new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['error', 'home', 'post', 'page', 'search'] });
 
 
-// TODO read copyright from package.json
-// var bannerPlugin = new webpack.BannerPlugin('Copyright');
+/**
+ * Add banner at the top of every bundle/chunk
+ */
+var bannerPlugin =
+    new webpack.BannerPlugin(pkg.copyright + ' - Version ' + pkg.version + ' dated ' + (new Date()).toLocaleDateString());
 
 /**
  * SourceMapDevToolPlugin builds source maps
@@ -63,17 +68,17 @@ var commonsChunkPlugin =
  */
 module.exports = {
     // All paths below are relative to the context
-    context: path.join(__dirname, '/webapp'),
+    context: path.join(__dirname, '/'),
     devtool: 'source-map',
     entry: {
         // We need init especially because of FOUJI
-        init:   '../js/app.init.js',
+        init:   './js/app.init.js',
         // One entry per view
-        error:  '../js/app.error.js',
-        home:   '../js/app.home.js',
-        page:   '../js/app.page.js',
-        post:   '../js/app.post.js',
-        search: '../js/app.search.js'
+        error:  './js/app.error.js',
+        home:   './js/app.home.js',
+        page:   './js/app.page.js',
+        post:   './js/app.post.js',
+        search: './js/app.search.js'
     },
     externals: { // CDN modules
         jquery: 'jQuery'
@@ -82,11 +87,13 @@ module.exports = {
         // Unfortunately it is not possible to specialize output directories
         // See https://github.com/webpack/webpack/issues/882
         path: path.join(__dirname, '/webapp/public/assets'),
-        publicPath: config.get('uris:webapp:root') + util.format(config.get('uris:webapp:public'), 'assets/'),
-        filename:   '[name].bundle.js',
-        chunkFilename: '[name].chunk.js'
+        publicPath: config.get('uris:webpack:root'),
+        filename: '[name].bundle.js?v=' + pkg.version,
+        chunkFilename: '[name].chunk.js?v=' + pkg.version
     },
     resolve: {
+        // moduleDirectories: ['web_modules', 'node_modules'], this is default
+        root: path.resolve('.'),
         // required since Kendo UI 2016.1.112
         fallback: path.join(__dirname, './js/vendor/kendo')
     },
@@ -132,7 +139,9 @@ module.exports = {
     },
     plugins: [
         definePlugin,
-        commonsChunkPlugin
+        // dedupePlugin,
+        commonsChunkPlugin,
+        bannerPlugin
         // sourceMapDevToolPlugin
     ]
 };
