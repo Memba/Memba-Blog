@@ -4,7 +4,7 @@
  */
 
 /* jshint browser: true */
-/* globals define: false */
+/* globals define: false, __VERSION__: false */
 
 (function (f, define) {
     'use strict';

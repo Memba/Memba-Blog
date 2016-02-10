@@ -4,7 +4,7 @@
  */
 
 /* jshint browser: true */
-/* globals require: false, process: false */
+/* globals require: false, __NODE_ENV__: false */
 
 if (typeof(require) === 'function') {
     require('./window.assert');
