@@ -60,12 +60,14 @@ module.exports = {
 
             /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
 
+            var language = res.getLocale();
+
             // Display error page for webapp
             res
                 .status(error.status)
                 .set({
                     'Cache-Control': 'no-cache',
-                    'Content-Language': res.getLocale(),
+                    'Content-Language': language,
                     'Content-Type': 'text/html; charset=utf-8'
                 })
                 .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
@@ -75,11 +77,12 @@ module.exports = {
                     icon: res.__('error.icon'),
                     image: '', // <--------------------------------------------------------- TODO
                     keywords: res.__('meta.keywords'),
+                    language: language,
                     menu: [], // Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
                     results: [], // trick header into displaying robots noindex directive
-                    trace: req.trace,
                     site_url: false, // trick header into not displaying a canonical link since we have a robots noindex directive
-                    title: error.title
+                    title: error.title,
+                    trace: req.trace
                 });
 
             /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
