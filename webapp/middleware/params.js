@@ -32,7 +32,16 @@ module.exports = {
         // if ((/^[a-z]{2}$/).test(language)) {
         if (locales.indexOf(language) > -1) {
             if (res && typeof res.setLocale === 'function') {
+                // @see https://github.com/mashpie/i18n-node/issues/202
+                // @see https://github.com/mashpie/i18n-node/issues/203
+                // request backend
+                // req.setLocale(language);
+                // request template
+                // req.locals.setLocale(language);
+                // response backend
                 res.setLocale(language);
+                // response template
+                res.locals.setLocale(language);
             }
             next();
         } else {
