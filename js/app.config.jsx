@@ -36,6 +36,12 @@
         app.DEBUG = '<%- debug %>'.toLowerCase() === 'true';
 
         /**
+         * application version
+         * Note: this is the only way to do it because version does not exist in configuration files loaded by ./web_modules/jsx_loader
+         */
+        app.version = __VERSION__;
+
+        /**
          * application locales
          */
         app.locales = JSON.parse('<%- JSON.stringify(locales) %>');
