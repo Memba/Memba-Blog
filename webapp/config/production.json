@@ -43,6 +43,9 @@
             "posts": "/%s/posts/%s/%s/%s",
             "public": "/%s",
             "sitemap": "/%s/sitemap.xml"
+        },
+        "webpack": {
+            "root": "http://localhost:3000/assets/"
         }
     }
 }
