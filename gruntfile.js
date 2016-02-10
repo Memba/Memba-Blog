@@ -99,7 +99,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-mocha-test');
 
     // Commands
-    grunt.registerTask('lint', ['jshint', 'kendo_lint']);
+    grunt.registerTask('lint', ['jscs', 'jshint', 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
