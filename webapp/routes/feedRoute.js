@@ -38,6 +38,8 @@ module.exports = {
             request: req
         });
 
+        var language = res.getLocale();
+
         index.getIndex(req.params.language, function (error, indexEntries) {
             if (!error && Array.isArray(indexEntries)) {
                 var feed = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel>';
@@ -68,7 +70,7 @@ module.exports = {
                 res
                     .set({
                         'Content-Type': 'application/rss+xml; charset=utf-8',
-                        'Content-Language': res.getLocale(),
+                        'Content-Language': language,
                         'Cache-Control': 'max-age=3600, public'
                     })
                     .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/

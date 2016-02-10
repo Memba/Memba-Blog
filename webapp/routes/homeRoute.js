@@ -36,13 +36,15 @@ module.exports = {
             request: req
         });
 
+        var language = res.getLocale();
+
         // Get menu with english as default language
         menu.getMenu('en', function (error, data) {
             if (!error && data) {
                 res
                     .set({
                         'Content-Type': 'text/html; charset=utf-8',
-                        'Content-Language': res.getLocale(),
+                        'Content-Language': language,
                         'Cache-Control': 'max-age=86400, public'
                     })
                     .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
@@ -51,6 +53,7 @@ module.exports = {
                         description: config.home.description,
                         image: urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                         keywords: config.home.keywords,
+                        language: language,
                         menu: data,
                         results: false, // trick header into not displaying robots noindex directive
                         trace: req.trace,

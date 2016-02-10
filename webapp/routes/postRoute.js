@@ -43,6 +43,8 @@ module.exports = {
             request: req
         });
 
+        var language = res.getLocale();
+
         async.parallel(
             [
                 // get menu
@@ -82,6 +84,7 @@ module.exports = {
                             categories: responses[2],
                             content: markdown.render(text),
                             image: markdown.image(text) || urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
+                            language: language,
                             menu: responses[0],
                             months: responses[4],
                             results: false, // trick header into not displaying robots noindex directive
@@ -90,7 +93,7 @@ module.exports = {
                         res
                             .set({
                                 'Content-Type': 'text/html; charset=utf-8',
-                                'Content-Language': res.getLocale(),
+                                'Content-Language': language,
                                 'Cache-Control': 'max-age=3600, public'
                             })
                             .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
@@ -105,6 +108,7 @@ module.exports = {
                             icon: res.__('search.title.icon'),
                             image: urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                             keywords: res.__('meta.keywords'),
+                            language: language,
                             menu: responses[0],
                             months: responses[4],
                             results: responses[1],
@@ -117,7 +121,7 @@ module.exports = {
                         res
                             .set({
                                 'Content-Type': 'text/html; charset=utf-8',
-                                'Content-Language': res.getLocale(),
+                                'Content-Language': language,
                                 'Cache-Control': 'max-age=0, public'
                             })
                             .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
