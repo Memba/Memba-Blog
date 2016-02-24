@@ -4,7 +4,7 @@
   "version": "0.0.4",
   "description": "A blog engine powered by nodeJS and pulling markdown from GitHub",
   "author": "Memba Sarl",
-  "copyright": "Copyright ©2013-2015 Memba® Sarl. All rights reserved.",
+  "copyright": "Copyright ©2013-2016 Memba® Sarl. All rights reserved.",
   "license": "AGPL-3.0",
   "homepage": "http://www.memba.com",
   "keywords": [
