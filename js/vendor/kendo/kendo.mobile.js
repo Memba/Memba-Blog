@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.1.112'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2016.1.226'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2057,10 +2057,10 @@
                 }
                 kendo._widgetRegisteredCallbacks.push(callback);
             },
-            logToConsole: function (message) {
+            logToConsole: function (message, type) {
                 var console = window.console;
                 if (!kendo.suppressLog && typeof console != 'undefined' && console.log) {
-                    console.log(message);
+                    console[type || 'log'](message);
                 }
             }
         });
@@ -3289,7 +3289,7 @@
         }());
         kendo.proxyModelSetters = function proxyModelSetters(data) {
             var observable = {};
-            Object.keys(data).forEach(function (property) {
+            Object.keys(data || {}).forEach(function (property) {
                 Object.defineProperty(observable, property, {
                     get: function () {
                         return data[property];
@@ -5302,7 +5302,7 @@
                 return composite;
             },
             set: function (field, value) {
-                var that = this, composite = field.indexOf('.') >= 0, current = kendo.getter(field, true)(that);
+                var that = this, isSetPrevented = false, composite = field.indexOf('.') >= 0, current = kendo.getter(field, true)(that);
                 if (current !== value) {
                     if (current instanceof Observable && this._handlers[field]) {
                         if (this._handlers[field].get) {
@@ -5310,10 +5310,11 @@
                         }
                         current.unbind(CHANGE, this._handlers[field].change);
                     }
-                    if (!that.trigger('set', {
-                            field: field,
-                            value: value
-                        })) {
+                    isSetPrevented = that.trigger('set', {
+                        field: field,
+                        value: value
+                    });
+                    if (!isSetPrevented) {
                         if (!composite) {
                             value = that.wrap(value, field, function () {
                                 return that;
@@ -5324,6 +5325,7 @@
                         }
                     }
                 }
+                return isSetPrevented;
             },
             parent: noop,
             wrap: function (object, field, parent) {
@@ -5469,11 +5471,14 @@
             },
             set: function (field, value, initiator) {
                 var that = this;
+                var dirty = that.dirty;
                 if (that.editable(field)) {
                     value = that._parse(field, value);
                     if (!equal(value, that.get(field))) {
                         that.dirty = true;
-                        ObservableObject.fn.set.call(that, field, value, initiator);
+                        if (ObservableObject.fn.set.call(that, field, value, initiator) && !dirty) {
+                            that.dirty = dirty;
+                        }
                     }
                 }
             },
@@ -7417,7 +7422,7 @@
                     }
                     this.offlineData(state.concat(destroyed));
                     if (updatePristine) {
-                        this._pristineData = state;
+                        this._pristineData = this._readData(state);
                     }
                 }
             },
@@ -8122,7 +8127,9 @@
                 if (options.type) {
                     kendo.data.transports = kendo.data.transports || {};
                     kendo.data.schemas = kendo.data.schemas || {};
-                    if (kendo.data.transports[options.type] && !isPlainObject(kendo.data.transports[options.type])) {
+                    if (!kendo.data.transports[options.type]) {
+                        kendo.logToConsole('Unknown DataSource transport type \'' + options.type + '\'.\nVerify that registration scripts for this type are included after Kendo UI on the page.', 'warn');
+                    } else if (!isPlainObject(kendo.data.transports[options.type])) {
                         transport = new kendo.data.transports[options.type](extend(transportOptions, { data: data }));
                     } else {
                         transportOptions = extend(true, {}, kendo.data.transports[options.type], transportOptions);
@@ -10486,7 +10493,7 @@
             _extractMessage: function (input, ruleKey) {
                 var that = this, customMessage = that.options.messages[ruleKey], fieldName = input.attr(NAME);
                 customMessage = kendo.isFunction(customMessage) ? customMessage(input) : customMessage;
-                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || input.attr('title') || customMessage || '', fieldName, input.attr(ruleKey));
+                return kendo.format(input.attr(kendo.attr(ruleKey + '-msg')) || input.attr('validationMessage') || input.attr('title') || customMessage || '', fieldName, input.attr(ruleKey) || input.attr(kendo.attr(ruleKey)));
             },
             _checkValidity: function (input) {
                 var rules = this.options.rules, rule;
@@ -18681,10 +18688,7 @@
                 deregister();
                 if (widget) {
                     if (widget.element) {
-                        widget = kendoWidgetInstance(widget.element);
-                        if (widget) {
-                            widget.destroy();
-                        }
+                        widget.destroy();
                     }
                     widget = null;
                 }
@@ -19810,6 +19814,7 @@
     ], f);
 }(function () {
     'bundle all';
+    return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));

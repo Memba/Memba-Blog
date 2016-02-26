@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -344,6 +344,17 @@
             refresh: function () {
                 this.listView.refresh();
             },
+            _angularItems: function (cmd) {
+                var that = this;
+                that.angular(cmd, function () {
+                    return {
+                        elements: that.items(),
+                        data: $.map(that.dataSource.flatView(), function (dataItem) {
+                            return { dataItem: dataItem };
+                        })
+                    };
+                });
+            },
             _listBound: function () {
                 var that = this;
                 var data = that.dataSource.flatView();
@@ -371,7 +382,6 @@
                 var that = this;
                 var options = that.options;
                 var ignoreCase = options.ignoreCase;
-                var filter = options.filter;
                 var field = options.dataTextField;
                 var inputValue = that.input.val();
                 var expression;
@@ -388,7 +398,7 @@
                     expression = {
                         value: ignoreCase ? word.toLowerCase() : word,
                         field: field,
-                        operator: filter,
+                        operator: options.filter,
                         ignoreCase: ignoreCase
                     };
                     that._filterSource(expression);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -113,7 +113,7 @@
                 that.field = options.field || element.attr(kendo.attr('field'));
                 that.model = that.dataSource.reader.model;
                 that._parse = function (value) {
-                    return value + '';
+                    return value != null ? value + '' : value;
                 };
                 if (that.model && that.model.fields) {
                     field = that.model.fields[that.field];

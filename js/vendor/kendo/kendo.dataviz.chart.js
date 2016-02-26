@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -419,6 +419,13 @@
             }
         });
         var defaultMeasureBox = $('<div style=\'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;\' />')[0];
+        function zeroSize() {
+            return {
+                width: 0,
+                height: 0,
+                baseline: 0
+            };
+        }
         var TextMetrics = Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
@@ -426,15 +433,14 @@
             },
             options: { baselineMarkerSize: 1 },
             measure: function (text, style, box) {
+                if (!text) {
+                    return zeroSize();
+                }
                 var styleKey = util.objectKey(style), cacheKey = util.hashKey(text + styleKey), cachedResult = this._cache.get(cacheKey);
                 if (cachedResult) {
                     return cachedResult;
                 }
-                var size = {
-                    width: 0,
-                    height: 0,
-                    baseline: 0
-                };
+                var size = zeroSize();
                 var measureBox = box ? box : defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
@@ -465,8 +471,24 @@
         function measureText(text, style, measureBox) {
             return TextMetrics.current.measure(text, style, measureBox);
         }
+        function loadFonts(fonts, callback) {
+            var promises = [];
+            if (fonts.length > 0 && document.fonts) {
+                try {
+                    promises = fonts.map(function (font) {
+                        return document.fonts.load(font);
+                    });
+                } catch (e) {
+                    kendo.logToConsole(e);
+                }
+                Promise.all(promises).then(callback, callback);
+            } else {
+                callback();
+            }
+        }
         kendo.util.TextMetrics = TextMetrics;
         kendo.util.LRUCache = LRUCache;
+        kendo.util.loadFonts = loadFonts;
         kendo.util.measureText = measureText;
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -596,11 +618,12 @@
 }));
 (function (f, define) {
     define('kendo.dataviz.chart', [
+        'kendo.color',
         'kendo.data',
-        'kendo.userevents',
         'kendo.dataviz.core',
+        'kendo.dataviz.themes',
         'kendo.drawing',
-        'kendo.dataviz.themes'
+        'kendo.userevents'
     ], f);
 }(function () {
     var __meta__ = {
@@ -721,8 +744,10 @@
                 if (dataSource) {
                     chart._hasDataSource = true;
                 }
-                chart._redraw();
-                chart._attachEvents();
+                preloadFonts(userOptions, function () {
+                    chart._redraw();
+                    chart._attachEvents();
+                });
                 if (dataSource) {
                     if (chart.options.autoBind) {
                         chart.dataSource.fetch();
@@ -1578,7 +1603,9 @@
             destroy: function () {
                 var chart = this, dataSource = chart.dataSource;
                 chart.element.off(NS);
-                dataSource.unbind(CHANGE, chart._dataChangeHandler);
+                if (dataSource) {
+                    dataSource.unbind(CHANGE, chart._dataChangeHandler);
+                }
                 $(document).off(MOUSEMOVE_TRACKING);
                 if (chart._userEvents) {
                     chart._userEvents.destroy();
@@ -7835,11 +7862,13 @@
                 range.max = isNumber(categoryAxis.options.max) ? justified ? math.floor(range.max) + 1 : math.ceil(range.max) : currentSeries.data.length;
                 currentSeries = deepExtend({}, currentSeries);
                 if (outOfRangePoints) {
-                    if (range.min - 1 >= 0) {
-                        categoryIx = range.min - 1;
+                    var minCategory = range.min - 1;
+                    var srcCategories = categoryAxis.options.srcCategories || [];
+                    if (minCategory >= 0 && minCategory < currentSeries.data.length) {
+                        categoryIx = minCategory;
                         currentSeries._outOfRangeMinPoint = {
                             item: currentSeries.data[categoryIx],
-                            category: categoryAxis.options.srcCategories[categoryIx],
+                            category: srcCategories[categoryIx],
                             categoryIx: -1
                         };
                     }
@@ -7847,7 +7876,7 @@
                         categoryIx = range.max;
                         currentSeries._outOfRangeMaxPoint = {
                             item: currentSeries.data[categoryIx],
-                            category: categoryAxis.options.srcCategories[categoryIx],
+                            category: srcCategories[categoryIx],
                             categoryIx: range.max - range.min
                         };
                     }
@@ -8472,7 +8501,8 @@
             },
             updateAxisOptions: function (axis, options) {
                 var vertical = axis.options.vertical;
-                var index = indexOf(axis, [].concat(vertical ? this.axisY : this.axisX));
+                var axes = this.groupAxes(this.panes);
+                var index = indexOf(axis, vertical ? axes.y : axes.x);
                 var axisOptions = [].concat(vertical ? this.options.yAxis : this.options.xAxis)[index];
                 deepExtend(axisOptions, options);
             }
@@ -9326,8 +9356,9 @@
                 return value;
             },
             _slot: function (value) {
-                var that = this, categoryAxis = this.categoryAxis;
-                return categoryAxis.getSlot(that._index(value));
+                var categoryAxis = this.categoryAxis;
+                var index = this._index(value);
+                return categoryAxis.getSlot(index, index, true);
             },
             move: function (from, to) {
                 var that = this, options = that.options, offset = options.offset, padding = options.padding, border = options.selection.border, leftMaskWidth, rightMaskWidth, box, distance;
@@ -10073,7 +10104,9 @@
                             options[property] = valueOrDefault(propValue(context), defaults[property]);
                         }
                     } else if (typeof propValue === OBJECT) {
-                        state.defaults = defaults[property];
+                        if (!dryRun) {
+                            state.defaults = defaults[property];
+                        }
                         state.depth++;
                         needsEval = evalOptions(propValue, context, state, dryRun) || needsEval;
                         state.depth--;
@@ -10245,6 +10278,31 @@
             var key = (mouseKey || '').toLowerCase();
             var accept = key == 'none' && !(e.ctrlKey || e.shiftKey || e.altKey) || e[key + 'Key'];
             return accept;
+        }
+        function preloadFonts(options, callback) {
+            var fonts = [];
+            fetchFonts(options, fonts);
+            kendo.util.loadFonts(fonts, callback);
+        }
+        function fetchFonts(options, fonts, state) {
+            var MAX_DEPTH = 5;
+            state = state || { depth: 0 };
+            if (!options || state.depth > MAX_DEPTH || !document.fonts) {
+                return;
+            }
+            Object.keys(options).forEach(function (key) {
+                var value = options[key];
+                if (key === 'dataSource' || key[0] === '$' || !value) {
+                    return;
+                }
+                if (key === 'font') {
+                    fonts.push(value);
+                } else if (typeof value === 'object') {
+                    state.depth++;
+                    fetchFonts(value, fonts, state);
+                    state.depth--;
+                }
+            });
         }
         dataviz.ui.plugin(Chart);
         PlotAreaFactory.current.register(CategoricalPlotArea, [
@@ -10502,6 +10560,7 @@
             WaterfallChart: WaterfallChart,
             WaterfallSegment: WaterfallSegment,
             XYPlotArea: XYPlotArea,
+            MousewheelZoom: MousewheelZoom,
             addDuration: addDuration,
             areNumbers: areNumbers,
             axisGroupBox: axisGroupBox,

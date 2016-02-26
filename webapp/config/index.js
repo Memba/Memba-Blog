@@ -9,7 +9,6 @@
 
 var nconf = require('nconf');
 var path = require('path');
-var pkg = require('../../package.json');
 var awss3;
 
 try { awss3 = require('./awss3'); } catch (ex) {}
@@ -24,7 +23,6 @@ function Config() {
     } else {
         nconf.file(this.environment, path.join(__dirname, this.environment + '.json'));
     }
-    nconf.set('version', pkg.version);
 }
 
 /**
@@ -46,6 +44,16 @@ Config.prototype.load = function (callback) {
  */
 Config.prototype.get = function (key) {
     return nconf.get(key);
+};
+
+/**
+ * Set a config key
+ * @param key
+ * @param value
+ * @returns {String|*}
+ */
+Config.prototype.set = function (key, value) {
+    return nconf.set(key, value);
 };
 
 module.exports = new Config();

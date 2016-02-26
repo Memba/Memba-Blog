@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -441,7 +441,7 @@
                 var sortableInstance;
                 var cells = this.header.find('th[' + kendo.attr('field') + ']');
                 var handler = function (e) {
-                    if (that.editable && that.editable.trigger('validate')) {
+                    if (that.dataSource.total() === 0 || that.editable && that.editable.trigger('validate')) {
                         e.preventDefault();
                         e.stopImmediatePropagation();
                     }
@@ -455,7 +455,7 @@
                         if (sortableInstance) {
                             sortableInstance.destroy();
                         }
-                        cell.attr('data-' + kendo.ns + 'field', column.field).kendoColumnSorter({ dataSource: this.dataSource }).find(DOT + GanttList.link).on('click' + NS, handler);
+                        cell.attr('data-' + kendo.ns + 'field', column.field).kendoColumnSorter({ dataSource: this.dataSource }).find(DOT + GanttList.styles.link).on('click' + NS, handler);
                     }
                 }
                 cells = null;
@@ -634,12 +634,6 @@
                     $('<span ' + kendo.attr('for') + '="' + column.field + '" class="k-invalid-msg"/>').hide().appendTo(cell);
                     cell.find('[name=' + column.field + ']').attr(kendo.attr('dateCompare-msg'), validation.message);
                 }
-                if (this.trigger('edit', {
-                        model: model,
-                        cell: cell
-                    })) {
-                    this._closeCell(true);
-                }
                 this.editable.bind('validate', function (e) {
                     var focusable = this.element.find(':kendoFocusable:first').focus();
                     if (oldIE) {
@@ -647,6 +641,12 @@
                     }
                     e.preventDefault();
                 });
+                if (this.trigger('edit', {
+                        model: model,
+                        cell: cell
+                    })) {
+                    this._closeCell(true);
+                }
             },
             _closeCell: function (cancelUpdate) {
                 var listStyles = GanttList.styles;
@@ -707,6 +707,9 @@
                     });
                 };
                 var defineAction = function (coordinate) {
+                    if (!dropTarget) {
+                        return;
+                    }
                     var location = coordinate.location;
                     var className = listStyles.dropAdd;
                     var command = 'add';

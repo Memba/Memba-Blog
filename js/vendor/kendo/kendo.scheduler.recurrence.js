@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -809,11 +809,9 @@
             }
             return date;
         }
-        function normalizeEventsByPosition(events, start, rule) {
-            var periodEvents = events.slice(rule._startIdx);
+        function eventsByPosition(periodEvents, start, positions) {
             var periodEventsLength = periodEvents.length;
-            var positions = rule.positions;
-            var list = [];
+            var events = [];
             var position;
             var event;
             for (var idx = 0, length = positions.length; idx < length; idx++) {
@@ -825,20 +823,29 @@
                 }
                 event = periodEvents[position];
                 if (event && event.start >= start) {
-                    list.push(event);
+                    events.push(event);
                 }
             }
-            events = events.slice(0, rule._startIdx).concat(list);
-            rule._startIdx = events.length;
+            return events;
+        }
+        function removeExceptionDates(periodEvents, exceptionDates, zone) {
+            var events = [];
+            var event;
+            for (var idx = 0; idx < periodEvents.length; idx++) {
+                event = periodEvents[idx];
+                if (!isException(exceptionDates, event.start, zone)) {
+                    events.push(event);
+                }
+            }
             return events;
         }
         function expand(event, start, end, zone) {
-            var rule = parseRule(event.recurrenceRule, zone), startTime, endTime, endDate, hours, minutes, seconds, durationMS, startPeriod, inPeriod, ruleStart, ruleEnd, useEventStart, freqName, exceptionDates, eventStartTime, eventStartMS, eventStart, count, freq, positions, current, events = [];
+            var rule = parseRule(event.recurrenceRule, zone), startTime, endTime, endDate, hours, minutes, seconds, durationMS, startPeriod, inPeriod, ruleStart, ruleEnd, useEventStart, freqName, exceptionDates, eventStartTime, eventStartMS, eventStart, count, freq, positions, currentIdx, periodEvents, events = [];
             if (!rule) {
                 return [event];
             }
             positions = rule.positions;
-            current = positions ? 0 : 1;
+            currentIdx = positions ? 0 : 1;
             ruleStart = rule.start;
             ruleEnd = rule.end;
             if (ruleStart || ruleEnd) {
@@ -893,7 +900,6 @@
                 }
                 rule._startPeriod = new Date(start);
                 rule._endPeriod = endPeriodByFreq(start, rule);
-                rule._startIdx = 0;
             }
             durationMS = event.duration();
             rule._startTime = startTime = kendoDate.toInvariantTime(start);
@@ -925,18 +931,20 @@
                     freq.next(start, rule);
                     freq.limit(start, end, rule);
                     if (start > rule._endPeriod) {
-                        events = normalizeEventsByPosition(events, eventStart, rule);
+                        periodEvents = eventsByPosition(events.slice(currentIdx), eventStart, positions);
+                        periodEvents = removeExceptionDates(periodEvents, exceptionDates, zone);
+                        events = events.slice(0, currentIdx).concat(periodEvents);
                         rule._endPeriod = endPeriodByFreq(start, rule);
-                        current = events.length;
+                        currentIdx = events.length;
                     }
-                    if (count && count === current) {
+                    if (count && count === currentIdx) {
                         break;
                     }
                 } else {
-                    if (count && count === current) {
+                    if (count && count === currentIdx) {
                         break;
                     }
-                    current++;
+                    currentIdx += 1;
                     freq.next(start, rule);
                     freq.limit(start, end, rule);
                 }

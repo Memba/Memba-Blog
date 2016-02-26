@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -116,7 +116,7 @@
                 $('<span class=\'k-checkbox-wrapper\' />').appendTo(wrapper).append(checkbox);
             }
             if (!innerWrapper.length) {
-                innerWrapper = node.children('a').eq(0).addClass('k-in');
+                innerWrapper = node.children('a').eq(0).addClass('k-in k-link');
                 if (!innerWrapper.length) {
                     innerWrapper = $('<span class=\'k-in\' />');
                 }
@@ -362,8 +362,11 @@
                         }
                         return result;
                     },
-                    textClass: function (item) {
+                    textClass: function (item, isLink) {
                         var result = 'k-in';
+                        if (isLink) {
+                            result += ' k-link';
+                        }
                         if (item.enabled === false) {
                             result += ' k-state-disabled';
                         }
@@ -401,7 +404,7 @@
                     dragClue: templateNoWith('#= data.treeview.template(data) #'),
                     group: templateNoWith('<ul class=\'#= data.r.groupCssClass(data.group) #\'#= data.r.groupAttributes(data.group) #>' + '#= data.renderItems(data) #' + '</ul>'),
                     itemContent: templateNoWith('# var imageUrl = ' + fieldAccessor('imageUrl') + '(data.item); #' + '# var spriteCssClass = ' + fieldAccessor('spriteCssClass') + '(data.item); #' + '# if (imageUrl) { #' + '<img class=\'k-image\' alt=\'\' src=\'#= imageUrl #\'>' + '# } #' + '# if (spriteCssClass) { #' + '<span class=\'k-sprite #= spriteCssClass #\' />' + '# } #' + '#= data.treeview.template(data) #'),
-                    itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'#= r.toggleButtonClass(item) #\' role=\'presentation\' />' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag#  class=\'#= r.textClass(item) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
+                    itemElement: templateNoWith('# var item = data.item, r = data.r; #' + '# var url = ' + fieldAccessor('url') + '(item); #' + '<div class=\'#= r.cssClass(data.group, item) #\'>' + '# if (item.hasChildren) { #' + '<span class=\'#= r.toggleButtonClass(item) #\' role=\'presentation\' />' + '# } #' + '# if (data.treeview.checkboxes) { #' + '<span class=\'k-checkbox-wrapper\' role=\'presentation\'>' + '#= data.treeview.checkboxes.template(data) #' + '</span>' + '# } #' + '# var tag = url ? \'a\' : \'span\'; #' + '# var textAttr = url ? \' href=\\\'\' + url + \'\\\'\' : \'\'; #' + '<#=tag# class=\'#= r.textClass(item, !!url) #\'#= textAttr #>' + '#= r.itemContent(data) #' + '</#=tag#>' + '</div>'),
                     item: templateNoWith('# var item = data.item, r = data.r; #' + '<li role=\'treeitem\' class=\'#= r.wrapperCssClass(data.group, item) #\' ' + kendo.attr('uid') + '=\'#= item.uid #\' ' + 'aria-selected=\'#= item.selected ? "true" : "false " #\' ' + '#=item.enabled === false ? "aria-disabled=\'true\'" : \'\'#' + '# if (item.expanded) { #' + 'data-expanded=\'true\' aria-expanded=\'true\'' + '# } #' + '>' + '#= r.itemElement(data) #' + '</li>'),
                     loading: templateNoWith('<div class=\'k-icon k-loading\' /> #: data.messages.loading #'),
                     retry: templateNoWith('#: data.messages.requestFailed # ' + '<button class=\'k-button k-request-retry\'>#: data.messages.retry #</button>')
@@ -852,7 +855,9 @@
                 groupData.length = typeof groupData.length != UNDEFINED ? groupData.length : node.parent().children().length;
                 node.removeClass('k-first k-last').addClass(templates.wrapperCssClass(groupData, nodeData));
                 wrapper.removeClass('k-top k-mid k-bot').addClass(templates.cssClass(groupData, nodeData));
-                wrapper.children('.k-in').removeClass('k-in k-state-default k-state-disabled').addClass(templates.textClass(nodeData));
+                var textWrap = wrapper.children('.k-in');
+                var isLink = textWrap[0] && textWrap[0].nodeName.toLowerCase() == 'a';
+                textWrap.removeClass('k-in k-link k-state-default k-state-disabled').addClass(templates.textClass(nodeData, isLink));
                 if (group.length || node.attr('data-hasChildren') == 'true') {
                     wrapper.children('.k-icon').removeClass('k-plus k-minus k-plus-disabled k-minus-disabled').addClass(templates.toggleButtonClass(nodeData));
                     group.addClass('k-group');
@@ -1196,6 +1201,7 @@
                 });
                 if (node.length) {
                     that.dataItem(node).set('selected', true);
+                    that._clickTarget = node;
                 }
                 that.trigger(CHANGE);
             },

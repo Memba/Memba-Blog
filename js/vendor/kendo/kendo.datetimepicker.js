@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -372,7 +372,7 @@
                     id: id,
                     anchor: that.wrapper,
                     change: function () {
-                        var value = dateView.calendar.value(), msValue = +value, msMin = +options.min, msMax = +options.max, current;
+                        var value = dateView.calendar.value(), msValue = +value, msMin = +options.min, msMax = +options.max, current, adjustedDate;
                         if (msValue === msMin || msValue === msMax) {
                             current = new DATE(+that._value);
                             current.setFullYear(value.getFullYear(), value.getMonth(), value.getDate());
@@ -381,7 +381,10 @@
                             }
                         }
                         if (that._value) {
-                            value = kendo.date.setHours(new Date(value), that._value);
+                            adjustedDate = kendo.date.setHours(new Date(value), that._value);
+                            if (isInRange(adjustedDate, msMin, msMax)) {
+                                value = adjustedDate;
+                            }
                         }
                         that._change(value);
                         that.close('date');

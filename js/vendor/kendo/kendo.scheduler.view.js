@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -809,6 +809,7 @@
         kendo.ui.SchedulerView = Widget.extend({
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
+                this._normalizeOptions();
                 this._scrollbar = scrollbar();
                 this._isRtl = kendo.support.isRtl(element);
                 this._resizeHint = $();
@@ -816,6 +817,21 @@
                 this._cellId = kendo.guid();
                 this._resourcesForGroups();
                 this._selectedSlots = [];
+            },
+            _normalizeOptions: function () {
+                var options = this.options;
+                if (options.startTime) {
+                    options.startTime.setMilliseconds(0);
+                }
+                if (options.endTime) {
+                    options.endTime.setMilliseconds(0);
+                }
+                if (options.workDayStart) {
+                    options.workDayStart.setMilliseconds(0);
+                }
+                if (options.workDayEnd) {
+                    options.workDayEnd.setMilliseconds(0);
+                }
             },
             _isMobile: function () {
                 var options = this.options;

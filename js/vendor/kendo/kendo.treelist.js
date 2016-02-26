@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -462,7 +462,7 @@
                 this.get(id)._error = e;
             },
             success: function (data, requestParams) {
-                if (!requestParams || !requestParams.id) {
+                if (!requestParams || typeof requestParams.id == 'undefined') {
                     this._data = this._observe([]);
                 }
                 return DataSource.fn.success.call(this, data, requestParams);
@@ -1144,32 +1144,34 @@
                 COLUMNUNLOCK
             ],
             _toggle: function (model, expand) {
+                var defaultPromise = $.Deferred().resolve().promise();
                 var loaded = model.loaded();
                 if (model._error) {
                     model.expanded = false;
                     model._error = undefined;
                 }
                 if (!loaded && model.expanded) {
-                    return;
+                    return defaultPromise;
                 }
                 if (typeof expand == 'undefined') {
                     expand = !model.expanded;
                 }
                 model.expanded = expand;
                 if (!loaded) {
-                    this.dataSource.load(model).always(proxy(function () {
+                    defaultPromise = this.dataSource.load(model).always(proxy(function () {
                         this._render();
                         this._syncLockedContentHeight();
                     }, this));
                 }
                 this._render();
                 this._syncLockedContentHeight();
+                return defaultPromise;
             },
             expand: function (row) {
-                this._toggle(this.dataItem(row), true);
+                return this._toggle(this.dataItem(row), true);
             },
             collapse: function (row) {
-                this._toggle(this.dataItem(row), false);
+                return this._toggle(this.dataItem(row), false);
             },
             _toggleChildren: function (e) {
                 var icon = $(e.currentTarget);
@@ -1400,7 +1402,7 @@
                 options = options || {};
                 var messages = this.options.messages;
                 var data = this.dataSource.rootNodes();
-                var selected = this.select().map(function (_, row) {
+                var selected = this.select().removeClass('k-state-selected').map(function (_, row) {
                     return $(row).attr(kendo.attr('uid'));
                 });
                 this._absoluteIndex = 0;
@@ -2161,6 +2163,9 @@
                 }
             },
             dataItem: function (element) {
+                if (element instanceof TreeListModel) {
+                    return element;
+                }
                 var row = $(element).closest('tr');
                 var model = this.dataSource.getByUid(row.attr(kendo.attr('uid')));
                 return model;
@@ -2226,8 +2231,7 @@
                     }
                     model[parent.parentIdField] = parent.id;
                     index = this.dataSource.indexOf(parent) + 1;
-                    parent.set('expanded', true);
-                    this.dataSource.load(parent).then(proxy(this._insertAt, this, model, index));
+                    this.expand(parent).then(proxy(this._insertAt, this, model, index));
                     return;
                 }
                 this._insertAt(model, index);

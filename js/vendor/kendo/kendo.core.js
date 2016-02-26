@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.1.112'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2016.1.226'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -2057,10 +2057,10 @@
                 }
                 kendo._widgetRegisteredCallbacks.push(callback);
             },
-            logToConsole: function (message) {
+            logToConsole: function (message, type) {
                 var console = window.console;
                 if (!kendo.suppressLog && typeof console != 'undefined' && console.log) {
-                    console.log(message);
+                    console[type || 'log'](message);
                 }
             }
         });
@@ -3289,7 +3289,7 @@
         }());
         kendo.proxyModelSetters = function proxyModelSetters(data) {
             var observable = {};
-            Object.keys(data).forEach(function (property) {
+            Object.keys(data || {}).forEach(function (property) {
                 Object.defineProperty(observable, property, {
                     get: function () {
                         return data[property];

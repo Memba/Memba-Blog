@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -419,6 +419,13 @@
             }
         });
         var defaultMeasureBox = $('<div style=\'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;\' />')[0];
+        function zeroSize() {
+            return {
+                width: 0,
+                height: 0,
+                baseline: 0
+            };
+        }
         var TextMetrics = Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
@@ -426,15 +433,14 @@
             },
             options: { baselineMarkerSize: 1 },
             measure: function (text, style, box) {
+                if (!text) {
+                    return zeroSize();
+                }
                 var styleKey = util.objectKey(style), cacheKey = util.hashKey(text + styleKey), cachedResult = this._cache.get(cacheKey);
                 if (cachedResult) {
                     return cachedResult;
                 }
-                var size = {
-                    width: 0,
-                    height: 0,
-                    baseline: 0
-                };
+                var size = zeroSize();
                 var measureBox = box ? box : defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
@@ -465,8 +471,24 @@
         function measureText(text, style, measureBox) {
             return TextMetrics.current.measure(text, style, measureBox);
         }
+        function loadFonts(fonts, callback) {
+            var promises = [];
+            if (fonts.length > 0 && document.fonts) {
+                try {
+                    promises = fonts.map(function (font) {
+                        return document.fonts.load(font);
+                    });
+                } catch (e) {
+                    kendo.logToConsole(e);
+                }
+                Promise.all(promises).then(callback, callback);
+            } else {
+                callback();
+            }
+        }
         kendo.util.TextMetrics = TextMetrics;
         kendo.util.LRUCache = LRUCache;
+        kendo.util.loadFonts = loadFonts;
         kendo.util.measureText = measureText;
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -5892,6 +5914,9 @@
                         return function (data) {
                             var el = template(data);
                             if (el) {
+                                if (typeof el == 'string') {
+                                    el = el.replace(/^\s+|\s+$/g, '');
+                                }
                                 return $(el)[0];
                             }
                         };
@@ -5911,6 +5936,8 @@
                     }
                     if (/^canvas$/i.test(el.tagName)) {
                         clone.getContext('2d').drawImage(el, 0, 0);
+                    } else if (/^input$/i.test(el.tagName)) {
+                        el.removeAttribute('name');
                     } else {
                         for (i = el.firstChild; i; i = i.nextSibling) {
                             clone.appendChild(cloneNodes(i));
@@ -5986,12 +6013,12 @@
                         next();
                     }
                     function next() {
-                        setTimeout(function () {
+                        whenImagesAreActuallyLoaded(pages, function () {
                             callback({
                                 pages: pages,
                                 container: container
                             });
-                        }, 10);
+                        });
                     }
                 }
                 function splitElement(element) {
@@ -6467,6 +6494,27 @@
             }
             return color;
         }
+        function whenImagesAreActuallyLoaded(elements, callback) {
+            var pending = 0;
+            elements.forEach(function (el) {
+                var images = el.querySelectorAll('img');
+                for (var i = 0; i < images.length; ++i) {
+                    var img = images[i];
+                    if (!img.complete) {
+                        pending++;
+                        img.onload = img.onerror = next;
+                    }
+                }
+            });
+            if (!pending) {
+                next();
+            }
+            function next() {
+                if (--pending <= 0) {
+                    callback();
+                }
+            }
+        }
         function cacheImages(element, callback) {
             var urls = [];
             function add(url) {
@@ -6925,15 +6973,15 @@
                     psel.style.cssText = getCssText(style);
                     psel.textContent = evalPseudoElementContent(element, style.content);
                     element.insertBefore(psel, place);
-                    if (kind == ':before' && !/absolute|fixed/.test(getPropertyValue(psel.style, 'position'))) {
-                        psel.style.marginLeft = parseFloat(getPropertyValue(psel.style, 'margin-left')) - psel.offsetWidth + 'px';
-                    }
                     fake.push(psel);
                 }
             }
             pseudo(':before', element.firstChild);
             pseudo(':after', null);
+            var saveClass = element.className;
+            element.className += ' kendo-pdf-hide-pseudo-elements';
             _renderElement(element, group);
+            element.className = saveClass;
             fake.forEach(function (el) {
                 element.removeChild(el);
             });
@@ -7664,7 +7712,6 @@
             var el = doc.createElement(KENDO_PSEUDO_ELEMENT);
             var option;
             el.style.cssText = getCssText(getComputedStyle(element));
-            el.style.display = 'inline-block';
             if (tag == 'input') {
                 el.style.whiteSpace = 'pre';
             }

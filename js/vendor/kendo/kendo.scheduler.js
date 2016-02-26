@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -419,6 +419,13 @@
             }
         });
         var defaultMeasureBox = $('<div style=\'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;\' />')[0];
+        function zeroSize() {
+            return {
+                width: 0,
+                height: 0,
+                baseline: 0
+            };
+        }
         var TextMetrics = Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
@@ -426,15 +433,14 @@
             },
             options: { baselineMarkerSize: 1 },
             measure: function (text, style, box) {
+                if (!text) {
+                    return zeroSize();
+                }
                 var styleKey = util.objectKey(style), cacheKey = util.hashKey(text + styleKey), cachedResult = this._cache.get(cacheKey);
                 if (cachedResult) {
                     return cachedResult;
                 }
-                var size = {
-                    width: 0,
-                    height: 0,
-                    baseline: 0
-                };
+                var size = zeroSize();
                 var measureBox = box ? box : defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
@@ -465,8 +471,24 @@
         function measureText(text, style, measureBox) {
             return TextMetrics.current.measure(text, style, measureBox);
         }
+        function loadFonts(fonts, callback) {
+            var promises = [];
+            if (fonts.length > 0 && document.fonts) {
+                try {
+                    promises = fonts.map(function (font) {
+                        return document.fonts.load(font);
+                    });
+                } catch (e) {
+                    kendo.logToConsole(e);
+                }
+                Promise.all(promises).then(callback, callback);
+            } else {
+                callback();
+            }
+        }
         kendo.util.TextMetrics = TextMetrics;
         kendo.util.LRUCache = LRUCache;
+        kendo.util.loadFonts = loadFonts;
         kendo.util.measureText = measureText;
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -2625,9 +2647,11 @@
                             that.element.find('.k-event-active').removeClass('k-event-active');
                             e.currentTarget.addClass('k-event-active');
                         });
-                        that._moveDraggable.userEvents.bind('press', function (e) {
-                            e.preventDefault();
-                        });
+                        if (!kendo.support.mobileOS.android) {
+                            that._moveDraggable.userEvents.bind('press', function (e) {
+                                e.preventDefault();
+                            });
+                        }
                     }
                 }
             },

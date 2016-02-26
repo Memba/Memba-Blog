@@ -1,31 +1,31 @@
-/**
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)
- * Copyright 2016 Telerik AD. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 
 (function(f){
     if (typeof define === 'function' && define.amd) {
-        define([ "../kendo.core" ], f);
+        define(["kendo.core"], f);
     } else {
         f();
     }
@@ -42,7 +42,9 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "gt": "Est postérieur",
     "lte": "Est antérieur ou égal à",
     "lt": "Est antérieur",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nulle",
+    "isnotnull": "N’est pas nulle"
   },
   "number": {
     "eq": "Est égal à",
@@ -50,7 +52,9 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "gt": "Est supérieur à",
     "lte": "Est inférieur ou égal à",
     "lt": "Est inférieur à",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nulle",
+    "isnotnull": "N’est pas nulle"
   },
   "string": {
     "endswith": "Se termine par",
@@ -58,11 +62,17 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "neq": "N’est pas égal à",
     "startswith": "Commence par",
     "contains": "Contient",
-    "doesnotcontain": "Ne contient pas"
+    "doesnotcontain": "Ne contient pas",
+    "isnull": "Est nulle",
+    "isnotnull": "N’est pas nulle",
+    "isempty": "Est vide",
+    "isnotempty": "N’est pas vide"
   },
   "enums": {
     "eq": "Est égal à",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nulle",
+    "isnotnull": "N’est pas nulle"
   }
 });
 }
@@ -78,7 +88,9 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "gt": "Est postérieur",
     "lte": "Est antérieur ou égal à",
     "lt": "Est antérieur",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nulle",
+    "isnotnull": "N’est pas nulle"
   },
   "number": {
     "eq": "Est égal à",
@@ -86,7 +98,9 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "gt": "Est supérieur à",
     "lte": "Est inférieur ou égal à",
     "lt": "Est inférieur à",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nulle",
+    "isnotnull": "N’est pas nulle"
   },
   "string": {
     "endswith": "Se termine par",
@@ -94,11 +108,17 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "neq": "N’est pas égal à",
     "startswith": "Commence par",
     "contains": "Contient",
-    "doesnotcontain": "Ne contient pas"
+    "doesnotcontain": "Ne contient pas",
+    "isnull": "Est nulle",
+    "isnotnull": "N’est pas nulle",
+    "isempty": "Est vide",
+    "isnotempty": "N’est pas vide"
   },
   "enums": {
     "eq": "Est égal à",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nulle",
+    "isnotnull": "N’est pas nulle"
   }
 });
 }
@@ -112,7 +132,7 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
   "sortAscending": "Tri croissant",
   "sortDescending": "Tri décroissant",
   "settings": "Paramètres de colonne",
-  "done": "Done",
+  "done": "Fini",
   "lock": "Bloquer",
   "unlock": "Ouvrir"
 });
@@ -205,7 +225,7 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
 if (kendo.ui.Pager) {
 kendo.ui.Pager.prototype.options.messages =
 $.extend(true, kendo.ui.Pager.prototype.options.messages,{
-  "allPages": "All",
+  "allPages": "Tous",
   "page": "Page",
   "display": "Afficher les items {0} - {1} de {2}",
   "of": "de {0}",
@@ -329,8 +349,8 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "addColumnRight": "Add column on the right",
   "addRowAbove": "Add row above",
   "addRowBelow": "Add row below",
-  "deleteColumn": "Delete column",
-  "deleteRow": "Delete row",
+  "deleteColumn": "Supprimer la colonne",
+  "deleteRow": "Supprimer ligne",
   "dropFilesHere": "drop files here to upload",
   "formatting": "Format",
   "viewHtml": "View HTML",
@@ -400,7 +420,7 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
   "editor": {
     "allDayEvent": "Toute la journée",
     "description": "Description",
-    "editorTitle": "Event",
+    "editorTitle": "Evènement",
     "end": "Fin",
     "endTimezone": "End timezone",
     "repeat": "Répéter",
@@ -408,10 +428,10 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "start": "Début",
     "startTimezone": "Start timezone",
     "timezone": " ",
-    "timezoneEditorButton": "Time zone",
-    "timezoneEditorTitle": "Timezones",
+    "timezoneEditorButton": "Fuseau horaire",
+    "timezoneEditorTitle": "Fuseaux horaires",
     "title": "Titre",
-    "noTimezone": "No timezone"
+    "noTimezone": "Pas de fuseau horaire"
   },
   "event": "Evènement",
   "recurrenceMessages": {
@@ -432,11 +452,30 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "day": "Jour",
     "month": "Mois",
     "week": "Semaine",
-    "workWeek": "Semaine de travail"
+    "workWeek": "Semaine de travail",
+    "timeline": "Chronologie"
   },
   "deleteWindowTitle": "Suppression de l'élément",
   "showFullDay": "Montrer toute la journée",
   "showWorkDay": "Montrer les heures ouvrables"
+});
+}
+
+
+/* Validator messages */
+
+if (kendo.ui.Validator) {
+kendo.ui.Validator.prototype.options.messages =
+$.extend(true, kendo.ui.Validator.prototype.options.messages,{
+  "required": "{0} est requis",
+  "pattern": "{0} n'est pas valide",
+  "min": "{0} doit être plus grand ou égal à {1}",
+  "max": "{0} doit être plus petit ou égal à {1}",
+  "step": "{0} n'est pas valide",
+  "email": "{0} n'est pas un courriel valide",
+  "url": "{0} n'est pas une adresse web valide",
+  "date": "{0} n'est pas une date valide",
+  "dateCompare": "La date de fin doit être postérieure à la date de début"
 });
 }
 })(window.kendo.jQuery);

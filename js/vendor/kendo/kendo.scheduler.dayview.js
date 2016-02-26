@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -502,7 +502,9 @@
                         filter: '.k-scheduler-content td',
                         tap: function (e) {
                             if (!$(e.target).parent().hasClass('k-scheduler-header-all-day')) {
-                                var slot = that._slotByPosition(e.x.location, e.y.location);
+                                var x = e.x.location !== undefined ? e.x.location : e.x;
+                                var y = e.y.location !== undefined ? e.y.location : e.y;
+                                var slot = that._slotByPosition(x, y);
                                 if (slot) {
                                     var resourceInfo = that._resourceBySlot(slot);
                                     that.trigger('add', {
@@ -520,7 +522,9 @@
                         threshold: threshold,
                         filter: '.k-scheduler-header-all-day td',
                         tap: function (e) {
-                            var slot = that._slotByPosition(e.x.location, e.y.location);
+                            var x = e.x.location !== undefined ? e.x.location : e.x;
+                            var y = e.y.location !== undefined ? e.y.location : e.y;
+                            var slot = that._slotByPosition(x, y);
                             if (slot) {
                                 var resourceInfo = that._resourceBySlot(slot);
                                 that.trigger('add', {

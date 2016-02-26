@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -393,7 +393,7 @@
                 return composite;
             },
             set: function (field, value) {
-                var that = this, composite = field.indexOf('.') >= 0, current = kendo.getter(field, true)(that);
+                var that = this, isSetPrevented = false, composite = field.indexOf('.') >= 0, current = kendo.getter(field, true)(that);
                 if (current !== value) {
                     if (current instanceof Observable && this._handlers[field]) {
                         if (this._handlers[field].get) {
@@ -401,10 +401,11 @@
                         }
                         current.unbind(CHANGE, this._handlers[field].change);
                     }
-                    if (!that.trigger('set', {
-                            field: field,
-                            value: value
-                        })) {
+                    isSetPrevented = that.trigger('set', {
+                        field: field,
+                        value: value
+                    });
+                    if (!isSetPrevented) {
                         if (!composite) {
                             value = that.wrap(value, field, function () {
                                 return that;
@@ -415,6 +416,7 @@
                         }
                     }
                 }
+                return isSetPrevented;
             },
             parent: noop,
             wrap: function (object, field, parent) {
@@ -560,11 +562,14 @@
             },
             set: function (field, value, initiator) {
                 var that = this;
+                var dirty = that.dirty;
                 if (that.editable(field)) {
                     value = that._parse(field, value);
                     if (!equal(value, that.get(field))) {
                         that.dirty = true;
-                        ObservableObject.fn.set.call(that, field, value, initiator);
+                        if (ObservableObject.fn.set.call(that, field, value, initiator) && !dirty) {
+                            that.dirty = dirty;
+                        }
                     }
                 }
             },
@@ -2508,7 +2513,7 @@
                     }
                     this.offlineData(state.concat(destroyed));
                     if (updatePristine) {
-                        this._pristineData = state;
+                        this._pristineData = this._readData(state);
                     }
                 }
             },
@@ -3213,7 +3218,9 @@
                 if (options.type) {
                     kendo.data.transports = kendo.data.transports || {};
                     kendo.data.schemas = kendo.data.schemas || {};
-                    if (kendo.data.transports[options.type] && !isPlainObject(kendo.data.transports[options.type])) {
+                    if (!kendo.data.transports[options.type]) {
+                        kendo.logToConsole('Unknown DataSource transport type \'' + options.type + '\'.\nVerify that registration scripts for this type are included after Kendo UI on the page.', 'warn');
+                    } else if (!isPlainObject(kendo.data.transports[options.type])) {
                         transport = new kendo.data.transports[options.type](extend(transportOptions, { data: data }));
                     } else {
                         transportOptions = extend(true, {}, kendo.data.transports[options.type], transportOptions);

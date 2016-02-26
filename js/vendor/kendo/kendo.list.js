@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -149,6 +149,10 @@
                     e.preventDefault();
                 }
             },
+            _isFilterEnabled: function () {
+                var filter = this.options.filter;
+                return filter && filter !== 'none';
+            },
             _filterSource: function (filter, force) {
                 var that = this;
                 var options = that.options;
@@ -277,7 +281,7 @@
                 }
                 id = id ? id + ' ' + that.ul[0].id : that.ul[0].id;
                 element.attr('aria-owns', id);
-                that.ul.attr('aria-live', !options.filter || options.filter === 'none' ? 'off' : 'polite');
+                that.ul.attr('aria-live', !that._isFilterEnabled() ? 'off' : 'polite');
             },
             _blur: function () {
                 var that = this;
@@ -567,19 +571,18 @@
                 var length = word.length;
                 var options = that.options;
                 var ignoreCase = options.ignoreCase;
-                var filter = options.filter;
                 var field = options.dataTextField;
                 clearTimeout(that._typingTimeout);
                 if (!length || length >= options.minLength) {
                     that._state = 'filter';
-                    if (filter === 'none') {
+                    if (!that._isFilterEnabled()) {
                         that._filter(word);
                     } else {
                         that._open = true;
                         that._filterSource({
                             value: ignoreCase ? word.toLowerCase() : word,
                             field: field,
-                            operator: filter,
+                            operator: options.filter,
                             ignoreCase: ignoreCase
                         });
                     }
@@ -870,6 +873,11 @@
                     if (!parent) {
                         return;
                     }
+                    parent.bind('set', function () {
+                        that.one('set', function (e) {
+                            that._selectedValue = e.value;
+                        });
+                    });
                     options.autoBind = false;
                     cascadeHandler = proxy(function (e) {
                         var valueBeforeCascade = this.value();
@@ -897,7 +905,8 @@
             },
             _cascadeChange: function (parent) {
                 var that = this;
-                var value = that._accessor();
+                var value = that._accessor() || that._selectedValue;
+                that._selectedValue = null;
                 if (that._userTriggered) {
                     that._clearSelection(parent, true);
                 } else if (value) {
@@ -925,7 +934,7 @@
                 if (filterValue || filterValue === 0) {
                     expressions = that.dataSource.filter() || {};
                     removeFiltersForField(expressions, valueField);
-                    filters = expressions.filters || [];
+                    filters = (expressions.filters || []).slice(0);
                     filters.push({
                         field: valueField,
                         operator: 'eq',

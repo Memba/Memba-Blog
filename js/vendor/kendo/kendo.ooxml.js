@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -90,7 +90,7 @@
                     return a.index - b.index;
                 });
                 var filter = this.options.filter;
-                if (filter) {
+                if (filter && typeof filter.from === 'number' && typeof filter.to === 'number') {
                     filter = {
                         from: ref(filterRowIndex(this.options), filter.from),
                         to: ref(filterRowIndex(this.options), filter.to)
@@ -211,10 +211,14 @@
                 };
                 var columns = this.options.columns || [];
                 var column = columns[cellIndex];
-                if (column && column.autoWidth) {
-                    column.width = Math.max(column.width || 0, ('' + value).length);
-                }
                 var type = typeof value;
+                if (column && column.autoWidth) {
+                    var displayValue = value;
+                    if (type === 'number') {
+                        displayValue = kendo.toString(value, data.format);
+                    }
+                    column.width = Math.max(column.width || 0, (displayValue + '').length);
+                }
                 if (type === 'string') {
                     value = this._lookupString(value);
                     type = 's';

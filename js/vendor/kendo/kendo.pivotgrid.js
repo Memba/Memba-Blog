@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -941,7 +941,8 @@
                     },
                     members: $.proxy(function (response, restrictions) {
                         var name = restrictions.levelUniqueName || restrictions.memberUniqueName;
-                        var data = this.options.data || this._rawData || [];
+                        var dataGetter = kendo.getter(this.options.schema.data, true);
+                        var data = dataGetter(this.options.data) || this._rawData || [];
                         var result = [];
                         var getter;
                         var value;
@@ -1331,6 +1332,7 @@
                 var rowMeasures = this._rowMeasures();
                 var axes = this.axes();
                 var startIndex, tuples;
+                var oldRowsLength = membersCount(axes.rows.tuples, rowMeasures);
                 var newRowsLength = sourceAxes.rows.tuples.length;
                 var oldColumnsLength = membersCount(axes.columns.tuples, columnMeasures);
                 var newColumnsLength = sourceAxes.columns.tuples.length;
@@ -1356,9 +1358,12 @@
                     startIndex = mergedColumns.index + findDataIndex(mergedColumns.parsedRoot, mergedColumns.memberIndex, columnMeasures);
                     var offset = oldColumnsLength + newColumnsLength;
                     data = this._mergeColumnData(data, startIndex, newRowsLength, newColumnsLength, offset);
-                } else {
+                } else if (oldRowsLength !== membersCount(axes.rows.tuples, rowMeasures)) {
                     startIndex = mergedRows.index + findDataIndex(mergedRows.parsedRoot, mergedRows.memberIndex, rowMeasures);
                     data = this._mergeRowData(data, startIndex, newRowsLength, newColumnsLength);
+                }
+                if (axes.columns.tuples.length === 0 && axes.rows.tuples.length === 0) {
+                    data = [];
                 }
                 return {
                     axes: axes,

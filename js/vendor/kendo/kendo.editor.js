@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -79,7 +79,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, os = kendo.support.mobileOS, browser = kendo.support.browser, extend = $.extend, proxy = $.proxy, deepExtend = kendo.deepExtend, NS = '.kendoEditor', keys = kendo.keys;
+        var kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, os = kendo.support.mobileOS, browser = kendo.support.browser, extend = $.extend, proxy = $.proxy, deepExtend = kendo.deepExtend, keys = kendo.keys;
         var ToolTemplate = Class.extend({
             init: function (options) {
                 this.options = options;
@@ -229,9 +229,7 @@
                 element = that.element;
                 domElement = element[0];
                 type = dom.name(domElement);
-                element.closest('form').on('submit' + NS, function () {
-                    that.update();
-                });
+                this._registerHandler(element.closest('form'), 'submit', proxy(that.update, that, undefined));
                 toolbarOptions = extend({}, that.options);
                 toolbarOptions.editor = that;
                 if (type == 'textarea') {
@@ -278,7 +276,14 @@
                     value = domElement.innerHTML;
                 }
                 that.value(value || kendo.ui.editor.emptyElementContent);
-                $(document).on('mousedown', proxy(that._endTyping, that)).on('mouseup', proxy(that._mouseup, that));
+                this._registerHandler(document, {
+                    'mousedown': function () {
+                        that._endTyping();
+                    },
+                    'mouseup': function () {
+                        that._mouseup();
+                    }
+                });
                 that.toolbar.resize();
                 kendo.notify(that);
             },
@@ -378,24 +383,57 @@
             _spellCorrect: function (editor) {
                 var beforeCorrection;
                 var falseTrigger = false;
-                $(editor.body).on('contextmenu' + NS, function () {
-                    editor.one('select', function () {
-                        beforeCorrection = null;
-                    });
-                    editor._spellCorrectTimeout = setTimeout(function () {
-                        beforeCorrection = new kendo.ui.editor.RestorePoint(editor.getRange());
-                        falseTrigger = false;
-                    }, 10);
-                }).on('input' + NS, function () {
-                    if (!beforeCorrection) {
-                        return;
+                this._registerHandler(editor.body, {
+                    'contextmenu': function () {
+                        editor.one('select', function () {
+                            beforeCorrection = null;
+                        });
+                        editor._spellCorrectTimeout = setTimeout(function () {
+                            beforeCorrection = new kendo.ui.editor.RestorePoint(editor.getRange());
+                            falseTrigger = false;
+                        }, 10);
+                    },
+                    'input': function () {
+                        if (!beforeCorrection) {
+                            return;
+                        }
+                        if (kendo.support.browser.mozilla && !falseTrigger) {
+                            falseTrigger = true;
+                            return;
+                        }
+                        kendo.ui.editor._finishUpdate(editor, beforeCorrection);
                     }
-                    if (kendo.support.browser.mozilla && !falseTrigger) {
-                        falseTrigger = true;
-                        return;
-                    }
-                    kendo.ui.editor._finishUpdate(editor, beforeCorrection);
                 });
+            },
+            _registerHandler: function (element, type, handler) {
+                element = $(element);
+                if (!this._handlers) {
+                    this._handlers = [];
+                }
+                if (element.length) {
+                    if ($.isPlainObject(type)) {
+                        for (var t in type) {
+                            if (type.hasOwnProperty(t)) {
+                                this._registerHandler(element, t, type[t]);
+                            }
+                        }
+                    } else {
+                        this._handlers.push({
+                            element: element,
+                            type: type,
+                            handler: handler
+                        });
+                        element.on(type, handler);
+                    }
+                }
+            },
+            _deregisterHandlers: function () {
+                var handlers = this._handlers;
+                for (var i = 0; i < handlers.length; i++) {
+                    var h = handlers[i];
+                    h.element.off(h.type, h.handler);
+                }
+                this._handlers = [];
             },
             _initializeContentElement: function () {
                 var editor = this;
@@ -406,7 +444,7 @@
                     doc = editor.document = editor.window.contentDocument || editor.window.document;
                     editor.body = doc.body;
                     blurTrigger = editor.window;
-                    $(doc).on('mouseup' + NS, proxy(editor._mouseup, editor));
+                    this._registerHandler(doc, 'mouseup', proxy(this._mouseup, this));
                 } else {
                     editor.window = window;
                     doc = editor.document = document;
@@ -414,106 +452,122 @@
                     blurTrigger = editor.body;
                     editor.toolbar.decorateFrom(editor.body);
                 }
-                $(blurTrigger).on('blur' + NS, proxy(this._blur, this));
+                this._registerHandler(blurTrigger, 'blur', proxy(this._blur, this));
                 try {
                     doc.execCommand('enableInlineTableEditing', null, false);
                 } catch (e) {
                 }
                 if (kendo.support.touch) {
-                    $(doc).on('selectionchange' + NS, proxy(this._selectionChange, this)).on('keydown' + NS, function () {
-                        if (kendo._activeElement() != doc.body) {
-                            editor.window.focus();
+                    this._registerHandler(doc, {
+                        'selectionchange': proxy(this._selectionChange, this),
+                        'keydown': function () {
+                            if (kendo._activeElement() != doc.body) {
+                                editor.window.focus();
+                            }
                         }
                     });
                 }
                 this._spellCorrect(editor);
-                $(editor.body).on('dragstart' + NS, false).on('keydown' + NS, function (e) {
-                    var range;
-                    if ((e.keyCode === keys.BACKSPACE || e.keyCode === keys.DELETE) && editor.body.getAttribute('contenteditable') !== 'true') {
-                        return false;
-                    }
-                    if (e.keyCode === keys.F10) {
-                        setTimeout(proxy(editor.toolbar.focus, editor.toolbar), 100);
+                this._registerHandler(editor.body, {
+                    'dragstart': function (e) {
                         e.preventDefault();
-                        return;
-                    } else if (e.keyCode == keys.LEFT || e.keyCode == keys.RIGHT) {
-                        range = editor.getRange();
-                        var left = e.keyCode == keys.LEFT;
-                        var container = range[left ? 'startContainer' : 'endContainer'];
-                        var offset = range[left ? 'startOffset' : 'endOffset'];
-                        var direction = left ? -1 : 1;
-                        if (left) {
-                            offset -= 1;
+                    },
+                    'keydown': function (e) {
+                        var range;
+                        if ((e.keyCode === keys.BACKSPACE || e.keyCode === keys.DELETE) && editor.body.getAttribute('contenteditable') !== 'true') {
+                            return false;
                         }
-                        if (offset + direction > 0 && container.nodeType == 3 && container.nodeValue[offset] == '\uFEFF') {
-                            range.setStart(container, offset + direction);
-                            range.collapse(true);
+                        if (e.keyCode === keys.F10) {
+                            setTimeout(proxy(editor.toolbar.focus, editor.toolbar), 100);
+                            e.preventDefault();
+                            return;
+                        } else if (e.keyCode == keys.LEFT || e.keyCode == keys.RIGHT) {
+                            range = editor.getRange();
+                            var left = e.keyCode == keys.LEFT;
+                            var container = range[left ? 'startContainer' : 'endContainer'];
+                            var offset = range[left ? 'startOffset' : 'endOffset'];
+                            var direction = left ? -1 : 1;
+                            if (left) {
+                                offset -= 1;
+                            }
+                            if (offset + direction > 0 && container.nodeType == 3 && container.nodeValue[offset] == '\uFEFF') {
+                                range.setStart(container, offset + direction);
+                                range.collapse(true);
+                                editor.selectRange(range);
+                            }
+                        }
+                        var toolName = editor.keyboard.toolFromShortcut(editor.toolbar.tools, e);
+                        if (toolName) {
+                            e.preventDefault();
+                            if (!/^(undo|redo)$/.test(toolName)) {
+                                editor.keyboard.endTyping(true);
+                            }
+                            editor.trigger('keydown', e);
+                            editor.exec(toolName);
+                            return false;
+                        }
+                        editor.keyboard.clearTimeout();
+                        editor.keyboard.keydown(e);
+                    },
+                    'keyup': function (e) {
+                        var selectionCodes = [
+                            8,
+                            9,
+                            33,
+                            34,
+                            35,
+                            36,
+                            37,
+                            38,
+                            39,
+                            40,
+                            40,
+                            45,
+                            46
+                        ];
+                        if ($.inArray(e.keyCode, selectionCodes) > -1 || e.keyCode == 65 && e.ctrlKey && !e.altKey && !e.shiftKey) {
+                            editor._selectionChange();
+                        }
+                        editor.keyboard.keyup(e);
+                    },
+                    'mousedown': function (e) {
+                        editor._selectionStarted = true;
+                        if (browser.gecko) {
+                            return;
+                        }
+                        var target = $(e.target);
+                        if ((e.which == 2 || e.which == 1 && e.ctrlKey) && target.is('a[href]')) {
+                            window.open(target.attr('href'), '_new');
+                        }
+                    },
+                    'click': function (e) {
+                        var dom = kendo.ui.editor.Dom, range;
+                        if (dom.name(e.target) === 'img') {
+                            range = editor.createRange();
+                            range.selectNode(e.target);
                             editor.selectRange(range);
                         }
-                    }
-                    var toolName = editor.keyboard.toolFromShortcut(editor.toolbar.tools, e);
-                    if (toolName) {
-                        e.preventDefault();
-                        if (!/^(undo|redo)$/.test(toolName)) {
-                            editor.keyboard.endTyping(true);
+                    },
+                    'cut copy paste': function (e) {
+                        editor.clipboard['on' + e.type](e);
+                    },
+                    'focusin': function () {
+                        if (editor.body.hasAttribute('contenteditable')) {
+                            $(this).addClass('k-state-active');
+                            editor.toolbar.show();
                         }
-                        editor.trigger('keydown', e);
-                        editor.exec(toolName);
-                        return false;
+                    },
+                    'focusout': function () {
+                        setTimeout(function () {
+                            var active = kendo._activeElement();
+                            var body = editor.body;
+                            var toolbar = editor.toolbar;
+                            if (active != body && !$.contains(body, active) && !$(active).is('.k-editortoolbar-dragHandle') && !toolbar.focused()) {
+                                $(body).removeClass('k-state-active');
+                                toolbar.hide();
+                            }
+                        }, 10);
                     }
-                    editor.keyboard.clearTimeout();
-                    editor.keyboard.keydown(e);
-                }).on('keyup' + NS, function (e) {
-                    var selectionCodes = [
-                        8,
-                        9,
-                        33,
-                        34,
-                        35,
-                        36,
-                        37,
-                        38,
-                        39,
-                        40,
-                        40,
-                        45,
-                        46
-                    ];
-                    if ($.inArray(e.keyCode, selectionCodes) > -1 || e.keyCode == 65 && e.ctrlKey && !e.altKey && !e.shiftKey) {
-                        editor._selectionChange();
-                    }
-                    editor.keyboard.keyup(e);
-                }).on('mousedown' + NS, function (e) {
-                    editor._selectionStarted = true;
-                    if (browser.gecko) {
-                        return;
-                    }
-                    var target = $(e.target);
-                    if ((e.which == 2 || e.which == 1 && e.ctrlKey) && target.is('a[href]')) {
-                        window.open(target.attr('href'), '_new');
-                    }
-                }).on('click' + NS, function (e) {
-                    var dom = kendo.ui.editor.Dom, range;
-                    if (dom.name(e.target) === 'img') {
-                        range = editor.createRange();
-                        range.selectNode(e.target);
-                        editor.selectRange(range);
-                    }
-                }).on('cut' + NS + ' copy' + NS + ' paste' + NS, function (e) {
-                    editor.clipboard['on' + e.type](e);
-                }).on('focusin' + NS, function () {
-                    $(this).addClass('k-state-active');
-                    editor.toolbar.show();
-                }).on('focusout' + NS, function () {
-                    setTimeout(function () {
-                        var active = kendo._activeElement();
-                        var body = editor.body;
-                        var toolbar = editor.toolbar;
-                        if (active != body && !$.contains(body, active) && !$(active).is('.k-editortoolbar-dragHandle') && !toolbar.focused()) {
-                            $(body).removeClass('k-state-active');
-                            toolbar.hide();
-                        }
-                    }, 10);
                 });
             },
             _mouseup: function () {
@@ -668,14 +722,12 @@
                 tools: [].concat.call(['formatting'], toolGroups.basic, toolGroups.alignment, toolGroups.lists, toolGroups.indenting, toolGroups.links, ['insertImage'], toolGroups.tables)
             },
             destroy: function () {
-                var that = this;
-                Widget.fn.destroy.call(that);
-                $(that.window).add(that.document).add(that.body).add(that.wrapper).add(that.element.closest('form')).off(NS);
-                $(document).off('mousedown', proxy(that._endTyping, that)).off('mouseup', proxy(that._mouseup, that));
+                Widget.fn.destroy.call(this);
+                this._deregisterHandlers();
                 clearTimeout(this._spellCorrectTimeout);
-                that._focusOutside();
-                that.toolbar.destroy();
-                kendo.destroy(that.wrapper);
+                this._focusOutside();
+                this.toolbar.destroy();
+                kendo.destroy(this.wrapper);
             },
             _focusOutside: function () {
                 if (kendo.support.browser.msie && this.textarea) {
@@ -981,7 +1033,7 @@
                 }
             };
         }
-        var whitespace = /^\s+$/, rgb = /rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i, bom = /\ufeff/g, whitespaceOrBom = /^(\s+|\ufeff)$/, persistedScrollTop, cssAttributes = ('color,padding-left,padding-right,padding-top,padding-bottom,' + 'background-color,background-attachment,background-image,background-position,background-repeat,' + 'border-top-style,border-top-width,border-top-color,' + 'border-bottom-style,border-bottom-width,border-bottom-color,' + 'border-left-style,border-left-width,border-left-color,' + 'border-right-style,border-right-width,border-right-color,' + 'font-family,font-size,font-style,font-variant,font-weight,line-height').split(','), htmlRe = /[<>\&]/g, entityRe = /[\u00A0-\u2666<>\&]/g, entityTable = {
+        var whitespace = /^\s+$/, emptyspace = /^[\n\r\t]+$/, rgb = /rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i, bom = /\ufeff/g, whitespaceOrBom = /^(\s+|\ufeff)$/, persistedScrollTop, cssAttributes = ('color,padding-left,padding-right,padding-top,padding-bottom,' + 'background-color,background-attachment,background-image,background-position,background-repeat,' + 'border-top-style,border-top-width,border-top-color,' + 'border-bottom-style,border-bottom-width,border-bottom-color,' + 'border-left-style,border-left-width,border-left-color,' + 'border-right-style,border-right-width,border-right-color,' + 'font-family,font-size,font-style,font-variant,font-weight,line-height').split(','), htmlRe = /[<>\&]/g, entityRe = /[\u00A0-\u2666<>\&]/g, entityTable = {
                 34: 'quot',
                 38: 'amp',
                 39: 'apos',
@@ -1405,6 +1457,9 @@
             },
             isWhitespace: function (node) {
                 return whitespace.test(node.nodeValue);
+            },
+            isEmptyspace: function (node) {
+                return emptyspace.test(node.nodeValue);
             },
             isBlock: function (node) {
                 return block[Dom.name(node)];
@@ -2378,6 +2433,9 @@
                 ].join('');
             }
         });
+        W3CRange.fromNode = function (node) {
+            return new W3CRange(node.ownerDocument);
+        };
         function compareBoundaries(start, end, startOffset, endOffset) {
             if (start == end) {
                 return endOffset - startOffset;
@@ -2687,7 +2745,7 @@
                 this.enumerate = function () {
                     var nodes = [];
                     function visit(node) {
-                        if (dom.is(node, 'img') || node.nodeType == 3 && (!dom.isWhitespace(node) || node.nodeValue == '\uFEFF')) {
+                        if (dom.is(node, 'img') || node.nodeType == 3 && (!dom.isEmptyspace(node) || node.nodeValue == '\uFEFF')) {
                             nodes.push(node);
                         } else {
                             node = node.firstChild;
@@ -4692,7 +4750,7 @@
                 var format = this.format, suitable = [], i, len, candidate;
                 for (i = 0, len = nodes.length; i < len; i++) {
                     for (var f = format.length - 1; f >= 0; f--) {
-                        candidate = dom.ofType(nodes[i], format[f].tags) ? nodes[i] : dom.parentOfType(nodes[i], format[f].tags);
+                        candidate = dom.ofType(nodes[i], format[f].tags) ? nodes[i] : dom.closestEditableOfType(nodes[i], format[f].tags);
                         if (candidate) {
                             break;
                         }
@@ -6526,39 +6584,55 @@
         });
         var CleanFormatCommand = Command.extend({
             exec: function () {
-                var listFormatter = new Editor.ListFormatter('ul');
                 var range = this.lockRange(true);
-                var remove = this.options.remove || 'strong,em,span,sup,sub,del,b,i,u,font'.split(',');
+                this.tagsToClean = this.options.remove || 'strong,em,span,sup,sub,del,b,i,u,font'.split(',');
                 RangeUtils.wrapSelectedElements(range);
-                var iterator = new Editor.RangeIterator(range);
-                iterator.traverse(function clean(node) {
-                    if (!node || dom.isMarker(node)) {
-                        return;
-                    }
-                    var name = dom.name(node);
-                    if (name == 'ul' || name == 'ol') {
-                        var prev = node.previousSibling;
-                        var next = node.nextSibling;
-                        listFormatter.unwrap(node);
-                        for (; prev && prev != next; prev = prev.nextSibling) {
-                            clean(prev);
-                        }
-                    } else if (name == 'blockquote') {
-                        dom.changeTag(node, 'p');
-                    } else if (node.nodeType == 1 && !dom.insignificant(node)) {
-                        for (var i = node.childNodes.length - 1; i >= 0; i--) {
-                            clean(node.childNodes[i]);
-                        }
-                        node.removeAttribute('style');
-                        node.removeAttribute('class');
-                    }
-                    if ($.inArray(name, remove) > -1) {
-                        dom.unwrap(node);
-                    }
+                var nodes = RangeUtils.mapAll(range, function (node) {
+                    return node;
                 });
+                for (var c = nodes.length - 1; c >= 0; c--) {
+                    this.clean(nodes[c]);
+                }
                 this.releaseRange(range);
+            },
+            clean: function (node) {
+                if (!node || dom.isMarker(node)) {
+                    return;
+                }
+                var name = dom.name(node);
+                if (name == 'ul' || name == 'ol') {
+                    var listFormatter = new Editor.ListFormatter(name);
+                    var prev = node.previousSibling;
+                    var next = node.nextSibling;
+                    listFormatter.unwrap(node);
+                    for (; prev && prev != next; prev = prev.nextSibling) {
+                        this.clean(prev);
+                    }
+                } else if (name == 'blockquote') {
+                    dom.changeTag(node, 'p');
+                } else if (node.nodeType == 1 && !dom.insignificant(node)) {
+                    for (var i = node.childNodes.length - 1; i >= 0; i--) {
+                        this.clean(node.childNodes[i]);
+                    }
+                    node.removeAttribute('style');
+                    node.removeAttribute('class');
+                } else {
+                    unwrapListItem(node);
+                }
+                if ($.inArray(name, this.tagsToClean) > -1) {
+                    dom.unwrap(node);
+                }
             }
         });
+        function unwrapListItem(node) {
+            var li = dom.closestEditableOfType(node, ['li']);
+            if (li) {
+                var listFormatter = new Editor.ListFormatter(dom.name(li.parentNode));
+                var range = kendo.ui.editor.W3CRange.fromNode(node);
+                range.selectNode(li);
+                listFormatter.toggle(range);
+            }
+        }
         $.extend(Editor, {
             FormattingTool: FormattingTool,
             CleanFormatCommand: CleanFormatCommand

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -116,7 +116,7 @@
                     var event = events[idx];
                     var start = event.start;
                     var end = event.end;
-                    var eventDurationInDays = (kendo.date.getDate(end) - kendo.date.getDate(start)) / kendo.date.MS_PER_DAY + 1;
+                    var eventDurationInDays = Math.ceil((end - kendo.date.getDate(start)) / kendo.date.MS_PER_DAY);
                     var task = event.clone();
                     task.startDate = kendo.date.getDate(start);
                     if (task.startDate >= this.startDate()) {

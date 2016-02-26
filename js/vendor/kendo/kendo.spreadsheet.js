@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.112 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -466,6 +466,13 @@
             }
         });
         var defaultMeasureBox = $('<div style=\'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;\' />')[0];
+        function zeroSize() {
+            return {
+                width: 0,
+                height: 0,
+                baseline: 0
+            };
+        }
         var TextMetrics = Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
@@ -473,15 +480,14 @@
             },
             options: { baselineMarkerSize: 1 },
             measure: function (text, style, box) {
+                if (!text) {
+                    return zeroSize();
+                }
                 var styleKey = util.objectKey(style), cacheKey = util.hashKey(text + styleKey), cachedResult = this._cache.get(cacheKey);
                 if (cachedResult) {
                     return cachedResult;
                 }
-                var size = {
-                    width: 0,
-                    height: 0,
-                    baseline: 0
-                };
+                var size = zeroSize();
                 var measureBox = box ? box : defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
@@ -512,8 +518,24 @@
         function measureText(text, style, measureBox) {
             return TextMetrics.current.measure(text, style, measureBox);
         }
+        function loadFonts(fonts, callback) {
+            var promises = [];
+            if (fonts.length > 0 && document.fonts) {
+                try {
+                    promises = fonts.map(function (font) {
+                        return document.fonts.load(font);
+                    });
+                } catch (e) {
+                    kendo.logToConsole(e);
+                }
+                Promise.all(promises).then(callback, callback);
+            } else {
+                callback();
+            }
+        }
         kendo.util.TextMetrics = TextMetrics;
         kendo.util.LRUCache = LRUCache;
+        kendo.util.loadFonts = loadFonts;
         kendo.util.measureText = measureText;
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -767,6 +789,11 @@
             if (f) {
                 f.call(object, thing, arg1, arg2);
             }
+        }
+        var tmp = [];
+        readChar(tmp);
+        if (tmp[0] != 65279) {
+            index = 0;
         }
         while (index < data.length) {
             skipWhitespace();
@@ -4972,6 +4999,8 @@
                         var formula = null;
                         if (x.type == 'exp') {
                             formula = kendo.spreadsheet.calc.compile(x);
+                        } else if (x.format) {
+                            this.format(x.format);
                         } else if (x.type == 'date') {
                             this.format(toExcelFormat(kendo.culture().calendar.patterns.d));
                         } else if (x.type == 'percent') {
@@ -6038,7 +6067,9 @@
                         var thmatrix = self.asMatrix(th);
                         var elmatrix = self.asMatrix(el);
                         callback(comatrix.map(function (val, row, col) {
-                            if (self.bool(val)) {
+                            if (val instanceof CalcError) {
+                                return val;
+                            } else if (self.bool(val)) {
                                 return thmatrix ? thmatrix.get(row, col) : th;
                             } else {
                                 return elmatrix ? elmatrix.get(row, col) : el;
@@ -6047,7 +6078,10 @@
                     });
                 });
             } else {
-                if (self.bool(co)) {
+                co = this.force(co);
+                if (co instanceof CalcError) {
+                    callback(co);
+                } else if (self.bool(co)) {
                     th(callback);
                 } else {
                     el(callback);
@@ -6306,7 +6340,8 @@
                                 var xargs = [];
                                 for (var i = 0; i < args.length; ++i) {
                                     if (x.arrays[i]) {
-                                        xargs[i] = args[i].get(row, col);
+                                        var m = args[i];
+                                        xargs[i] = m.get(row % m.height, col % m.width);
                                     } else {
                                         xargs[i] = args[i];
                                     }
@@ -6351,7 +6386,8 @@
                                 var xargs = [];
                                 for (var i = 0; i < args.length; ++i) {
                                     if (x.arrays[i]) {
-                                        xargs[i] = args[i].get(row, col);
+                                        var m = args[i];
+                                        xargs[i] = m.get(row % m.height, col % m.width);
                                     } else {
                                         xargs[i] = args[i];
                                     }
@@ -6547,8 +6583,8 @@
         var d = unpackDate(serial), t = unpackTime(serial);
         return new Date(d.year, d.month, d.date, t.hours, t.minutes, t.seconds, t.milliseconds);
     }
-    function packTime(hours, minutes, seconds, ms) {
-        return (hours + minutes / 60 + seconds / 3600 + ms / 3600000) / 24;
+    function packTime(hh, mm, ss, ms) {
+        return (hh + (mm + (ss + ms / 1000) / 60) / 60) / 24;
     }
     function dateToSerial(date) {
         var time = packTime(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
@@ -6617,24 +6653,46 @@
         FUNCS[alias] = orig;
     };
     exports.FUNCS = FUNCS;
+    var NUMBER_OR_ZERO = [
+        'or',
+        'number',
+        [
+            'null',
+            0
+        ]
+    ];
     var ARGS_NUMERIC = [
         [
             '*a',
-            'number'
+            NUMBER_OR_ZERO
         ],
         [
             '*b',
-            'number'
+            NUMBER_OR_ZERO
         ]
     ];
     var ARGS_ANYVALUE = [
         [
             '*a',
-            'anyvalue'
+            [
+                'or',
+                'anyvalue',
+                [
+                    'null',
+                    0
+                ]
+            ]
         ],
         [
             '*b',
-            'anyvalue'
+            [
+                'or',
+                'anyvalue',
+                [
+                    'null',
+                    0
+                ]
+            ]
         ]
     ];
     defineFunction('binary+', function (a, b) {
@@ -6651,7 +6709,7 @@
     }).args([
         [
             '*a',
-            'number'
+            NUMBER_OR_ZERO
         ],
         [
             '*b',
@@ -6713,19 +6771,19 @@
         return a;
     }).args([[
             '*a',
-            'number'
+            NUMBER_OR_ZERO
         ]]);
     defineFunction('unary-', function (a) {
         return -a;
     }).args([[
             '*a',
-            'number'
+            NUMBER_OR_ZERO
         ]]);
     defineFunction('unary%', function (a) {
         return a / 100;
     }).args([[
             '*a',
-            'number'
+            NUMBER_OR_ZERO
         ]]);
     defineFunction('binary:', function (a, b) {
         return new RangeRef(a, b).setSheet(a.sheet || this.formula.sheet, a.hasSheet());
@@ -6770,7 +6828,14 @@
         return !this.bool(a);
     }).args([[
             '*a',
-            'anyvalue'
+            [
+                'or',
+                'anyvalue',
+                [
+                    'null',
+                    0
+                ]
+            ]
         ]]);
     defineFunction('isblank', function (val) {
         if (val instanceof CellRef) {
@@ -7174,7 +7239,6 @@
         var RangeRef = kendo.spreadsheet.RangeRef;
         var CellRef = kendo.spreadsheet.CellRef;
         var Range = kendo.spreadsheet.Range;
-        var Color = kendo.Color;
         var Selection = kendo.Class.extend({
             init: function (sheet) {
                 this._sheet = sheet;
@@ -7885,22 +7949,22 @@
                         cell.validation = cell.validation.toJSON();
                     }
                     if (cell.color) {
-                        cell.color = new Color(cell.color).toHex();
+                        cell.color = kendo.parseColor(cell.color).toCss();
                     }
                     if (cell.background) {
-                        cell.background = new Color(cell.background).toHex();
+                        cell.background = kendo.parseColor(cell.background).toCss();
                     }
                     if (cell.borderTop && cell.borderTop.color) {
-                        cell.borderTop.color = new Color(cell.borderTop.color).toHex();
+                        cell.borderTop.color = kendo.parseColor(cell.borderTop.color).toCss();
                     }
                     if (cell.borderBottom && cell.borderBottom.color) {
-                        cell.borderBottom.color = new Color(cell.borderBottom.color).toHex();
+                        cell.borderBottom.color = kendo.parseColor(cell.borderBottom.color).toCss();
                     }
                     if (cell.borderRight && cell.borderRight.color) {
-                        cell.borderRight.color = new Color(cell.borderRight.color).toHex();
+                        cell.borderRight.color = kendo.parseColor(cell.borderRight.color).toCss();
                     }
                     if (cell.borderLeft && cell.borderLeft.color) {
-                        cell.borderLeft.color = new Color(cell.borderLeft.color).toHex();
+                        cell.borderLeft.color = kendo.parseColor(cell.borderLeft.color).toCss();
                     }
                     row.cells.push(cell);
                 });
@@ -8072,10 +8136,10 @@
                 return this._properties.get('validation', index);
             },
             _compileValidation: function (row, col, validation) {
-                if (validation.from) {
+                if (validation.from !== null || validation.from !== undefined) {
                     validation.from = (validation.from + '').replace(/^=/, '');
                 }
-                if (validation.to) {
+                if (validation.to !== null || validation.to !== undefined) {
                     validation.to = (validation.to + '').replace(/^=/, '');
                 }
                 return kendo.spreadsheet.validation.compile(this._name(), row, col, validation);
@@ -8333,6 +8397,7 @@
                     this._addButton(),
                     this._createSheetsWrapper([])
                 ]);
+                this._toggleScrollEvents(true);
                 this._createSortable();
                 this._sortable.bind('start', this._onSheetReorderStart.bind(this));
                 this._sortable.bind('end', this._onSheetReorderEnd.bind(this));
@@ -8372,53 +8437,63 @@
                 var that = this;
                 var wrapperOffsetWidth;
                 var sheetsGroupScrollWidth;
-                var scrollPrevButton;
-                var scrollNextButton;
-                var sheetsWrapper = that._sheetsWrapper();
-                var sheetsGroup = that._sheetsGroup();
                 var classNames = SheetsBar.classNames;
-                var addButtonWidth = $(DOT + classNames.sheetsBarAdd).outerWidth() + 11;
                 that._isRtl = kendo.support.isRtl(that.element);
                 that._sheets = sheets;
                 that._selectedIndex = selectedIndex;
+                that._renderHtml(isInEditMode, true);
                 if (!that._scrollableAllowed()) {
-                    that._renderHtml(isInEditMode, false);
                     return;
                 }
+                var sheetsWrapper = that._sheetsWrapper();
+                var scrollPrevButton = sheetsWrapper.children(DOT + classNames.sheetsBarPrev);
+                var scrollNextButton = sheetsWrapper.children(DOT + classNames.sheetsBarNext);
+                var gapWidth = 2;
+                var addButton = that.element.find(DOT + classNames.sheetsBarAdd);
+                var addButtonWidth = addButton.outerWidth() + addButton.position().left + gapWidth;
+                var scrollPrevButtonWidth = scrollPrevButton.outerWidth() + gapWidth;
+                var sheetsGroup = that._sheetsGroup();
+                scrollPrevButton.css({ left: addButtonWidth });
                 sheetsWrapper.addClass(classNames.sheetsBarScrollable + EMPTYCHAR + classNames.sheetsBarSheetsWrapper);
+                sheetsGroup.css({ marginLeft: addButtonWidth });
                 wrapperOffsetWidth = sheetsWrapper[0].offsetWidth;
-                sheetsGroupScrollWidth = sheetsGroup[0].scrollWidth + addButtonWidth + 11;
-                if (sheetsGroupScrollWidth > wrapperOffsetWidth) {
+                sheetsGroupScrollWidth = sheetsGroup[0].scrollWidth;
+                if (sheetsGroupScrollWidth + addButtonWidth > wrapperOffsetWidth) {
+                    var scrollNextButtonRight = Math.ceil(kendo.parseFloat(scrollNextButton.css('right')));
                     if (!that._scrollableModeActive) {
-                        var scrollPrevButtonWidth;
                         that._nowScrollingSheets = false;
-                        that._renderHtml(isInEditMode, true);
-                        scrollPrevButton = sheetsWrapper.children(DOT + classNames.sheetsBarPrev);
-                        scrollNextButton = sheetsWrapper.children(DOT + classNames.sheetsBarNext);
-                        scrollPrevButtonWidth = scrollPrevButton.outerWidth();
-                        scrollPrevButton.css({ marginLeft: scrollPrevButtonWidth + 4 });
-                        that._sheetsGroup().css({
-                            marginLeft: scrollPrevButtonWidth + addButtonWidth,
-                            marginRight: scrollNextButton.outerWidth() + 12
-                        });
                         that._scrollableModeActive = true;
-                        that._toggleScrollEvents(true);
-                        that._toggleScrollButtons();
-                    } else {
-                        that._toggleScrollButtons();
-                        that._renderHtml(isInEditMode, true);
                     }
-                } else if (that._scrollableModeActive && sheetsGroupScrollWidth <= wrapperOffsetWidth) {
-                    that._scrollableModeActive = false;
-                    that._toggleScrollEvents(false);
-                    that._renderHtml(isInEditMode, false);
-                    that._sheetsGroup().css({
-                        marginLeft: addButtonWidth,
-                        marginRight: ''
+                    sheetsGroup.css({
+                        marginLeft: scrollPrevButtonWidth + addButtonWidth,
+                        marginRight: scrollNextButton.outerWidth() + scrollNextButtonRight + gapWidth
                     });
                 } else {
-                    that._renderHtml(isInEditMode, false);
-                    that._sheetsGroup().css({ marginLeft: addButtonWidth });
+                    if (that._scrollableModeActive && sheetsGroupScrollWidth <= wrapperOffsetWidth) {
+                        that._scrollableModeActive = false;
+                        sheetsGroup.css({
+                            marginLeft: addButtonWidth,
+                            marginRight: ''
+                        });
+                    } else {
+                        sheetsGroup.css({ marginLeft: addButtonWidth });
+                    }
+                }
+                that._toggleScrollButtons();
+            },
+            _toggleScrollButtons: function (toggle) {
+                var that = this;
+                var ul = that._sheetsGroup();
+                var wrapper = that._sheetsWrapper();
+                var scrollLeft = ul.scrollLeft();
+                var prev = wrapper.find(DOT + SheetsBar.classNames.sheetsBarPrev);
+                var next = wrapper.find(DOT + SheetsBar.classNames.sheetsBarNext);
+                if (toggle === false) {
+                    prev.toggle(false);
+                    next.toggle(false);
+                } else {
+                    prev.toggle(that._isRtl ? scrollLeft < ul[0].scrollWidth - ul[0].offsetWidth - 1 : scrollLeft !== 0);
+                    next.toggle(that._isRtl ? scrollLeft !== 0 : scrollLeft < ul[0].scrollWidth - ul[0].offsetWidth - 1);
                 }
             },
             _toggleScrollEvents: function (toggle) {
@@ -8491,6 +8566,7 @@
                 var element = kendo.dom.element;
                 var classNames = SheetsBar.classNames;
                 var childrenElements = [element('ul', { className: classNames.sheetsBarKReset }, sheetElements)];
+                renderScrollButtons = true;
                 if (renderScrollButtons) {
                     var baseButtonClass = classNames.sheetsBarKButton + EMPTYCHAR + classNames.sheetsBarKButtonBare + EMPTYCHAR;
                     childrenElements.push(element('span', { className: baseButtonClass + classNames.sheetsBarPrev }, [element('span', { className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowW }, [])]));
@@ -8506,6 +8582,11 @@
                     axis: 'x',
                     animation: false,
                     ignore: 'input',
+                    end: function () {
+                        if (this.draggable.hint) {
+                            this.draggable.hint.remove();
+                        }
+                    },
                     hint: function (element) {
                         var hint = $(element).clone();
                         return hint.wrap('<div class=\'' + classNames.sheetsBarHintWrapper + '\'><ul class=\'' + classNames.sheetsBarKResetItems + '\'></ul></div>').closest('div');
@@ -8634,14 +8715,6 @@
                         that._toggleScrollButtons();
                     }
                 });
-            },
-            _toggleScrollButtons: function () {
-                var that = this;
-                var ul = that._sheetsGroup();
-                var wrapper = that._sheetsWrapper();
-                var scrollLeft = ul.scrollLeft();
-                wrapper.find(DOT + SheetsBar.classNames.sheetsBarPrev).toggle(that._isRtl ? scrollLeft < ul[0].scrollWidth - ul[0].offsetWidth - 1 : scrollLeft !== 0);
-                wrapper.find(DOT + SheetsBar.classNames.sheetsBarNext).toggle(that._isRtl ? scrollLeft !== 0 : scrollLeft < ul[0].scrollWidth - ul[0].offsetWidth - 1);
             }
         });
         kendo.spreadsheet.SheetsBar = SheetsBar;
@@ -9676,6 +9749,10 @@
             return rx.exec(input.substr(pos));
         }
     }
+    var FORMAT_PARSERS = [];
+    var registerFormatParser = exports.registerFormatParser = function (p) {
+        FORMAT_PARSERS.push(p);
+    };
     exports.parse = function (sheet, row, col, input) {
         if (input instanceof Date) {
             return {
@@ -9721,6 +9798,12 @@
                     type: 'string',
                     value: '=' + input
                 };
+            }
+        }
+        for (var i = 0; i < FORMAT_PARSERS.length; ++i) {
+            var result = FORMAT_PARSERS[i](input);
+            if (result) {
+                return result;
             }
         }
         if (input.toLowerCase() == 'true') {
@@ -9796,6 +9879,85 @@
     exports.InputStream = InputStream;
     exports.ParseError = ParseError;
     exports.tokenize = tokenize;
+    registerFormatParser(function (input) {
+        var m;
+        if (m = /^(\d+):(\d+)$/.exec(input)) {
+            var hh = parseInt(m[1], 10);
+            var mm = parseInt(m[2], 10);
+            return {
+                type: 'date',
+                format: 'hh:mm',
+                value: runtime.packTime(hh, mm, 0, 0)
+            };
+        }
+        if (m = /^(\d+):(\d+)(\.\d+)$/.exec(input)) {
+            var mm = parseInt(m[1], 10);
+            var ss = parseInt(m[2], 10);
+            var ms = parseFloat(m[3]) * 1000;
+            return {
+                type: 'date',
+                format: 'mm:ss.00',
+                value: runtime.packTime(0, mm, ss, ms)
+            };
+        }
+        if (m = /^(\d+):(\d+):(\d+)$/.exec(input)) {
+            var hh = parseInt(m[1], 10);
+            var mm = parseInt(m[2], 10);
+            var ss = parseInt(m[3], 10);
+            return {
+                type: 'date',
+                format: 'hh:mm:ss',
+                value: runtime.packTime(hh, mm, ss, 0)
+            };
+        }
+        if (m = /^(\d+):(\d+):(\d+)(\.\d+)$/.exec(input)) {
+            var hh = parseInt(m[1], 10);
+            var mm = parseInt(m[2], 10);
+            var ss = parseInt(m[3], 10);
+            var ms = parseFloat(m[4]) * 1000;
+            return {
+                type: 'date',
+                format: 'hh:mm:ss.00',
+                value: runtime.packTime(hh, mm, ss, ms)
+            };
+        }
+    });
+    registerFormatParser(function (input) {
+        var m;
+        var culture = kendo.culture();
+        var comma = culture.numberFormat[','];
+        var dot = culture.numberFormat['.'];
+        var currency = culture.numberFormat.currency.symbol;
+        var rx = new RegExp('^(\\' + currency + '\\s*)?(\\d+(\\' + comma + '\\d{3})*(\\' + dot + '\\d+)?)(\\s*\\' + currency + ')?$');
+        if (m = rx.exec(input)) {
+            var value = m[2].replace(new RegExp('\\' + comma, 'g'), '').replace(dot, '.');
+            var format = '#';
+            if (m[1] || m[3] || m[5]) {
+                format += ',#';
+            }
+            if (m[4]) {
+                format += '.' + repeat('0', m[1] || m[5] ? 2 : m[4].length - 1);
+            }
+            if (m[1]) {
+                format = '"' + m[1] + '"' + format;
+            }
+            if (m[5]) {
+                format = format + '"' + m[5] + '"';
+            }
+            return {
+                type: 'number',
+                format: format,
+                value: parseFloat(value)
+            };
+        }
+    });
+    function repeat(str, len) {
+        var out = '';
+        while (len-- > 0) {
+            out += str;
+        }
+        return out;
+    }
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
@@ -10012,6 +10174,7 @@
     function readSheet(zip, file, sheet, strings, styles) {
         var ref, type, value, formula, formulaRange;
         var nCols = sheet._columns._count;
+        var prevCellRef = null;
         parse(zip, 'xl/' + file, {
             enter: function (tag, attrs) {
                 if (this.is(SEL_CELL)) {
@@ -10019,6 +10182,12 @@
                     formula = null;
                     formulaRange = null;
                     ref = attrs.r;
+                    if (ref == null) {
+                        ref = parseReference(prevCellRef);
+                        ref.col++;
+                        ref = ref.toString();
+                    }
+                    prevCellRef = ref;
                     type = attrs.t;
                     var styleIndex = attrs.s;
                     if (styleIndex != null) {
@@ -11651,9 +11820,14 @@
                         var table = this.clipboardElement.find('table.kendo-clipboard-' + this.clipboard._uid).detach();
                         this.clipboardElement.empty();
                         setTimeout(function () {
+                            var html = this.clipboardElement.html();
+                            var plain = window.clipboardData.getData('Text').trim();
+                            if (!html && !plain) {
+                                return;
+                            }
                             this.clipboard.external({
-                                html: this.clipboardElement.html(),
-                                plain: window.clipboardData.getData('Text').trim()
+                                html: html,
+                                plain: plain
                             });
                             this.clipboardElement.empty().append(table);
                             this._execute({
@@ -11672,6 +11846,9 @@
                     } else {
                         this.clipboard.menuInvoked = true;
                     }
+                }
+                if (!html && !plain) {
+                    return;
                 }
                 this.clipboard.external({
                     html: html,
@@ -14086,7 +14263,7 @@
     var RX_CONDITION = /^\[(<=|>=|<>|<|>|=)(-?[0-9.]+)\]/;
     function parse(input) {
         input = calc.InputStream(input);
-        var sections = [], haveTimePart = false, haveConditional = false, decimalPart;
+        var sections = [], haveConditional = false, decimalPart;
         while (!input.eof()) {
             var sec = readSection();
             sections.push(sec);
@@ -14154,12 +14331,35 @@
             }
         }
         function readFormat() {
-            var format = [], tok;
-            LOOP:
-                while (!input.eof() && (tok = readNext())) {
-                    format.push(tok);
+            var format = [], tok, prev = null;
+            while (!input.eof() && (tok = readNext())) {
+                if (tok.type == 'date') {
+                    if (prev && /^(el)?time$/.test(prev.type) && prev.part == 'h' && tok.part == 'm' && tok.format < 3) {
+                        tok.type = 'time';
+                    }
+                } else if (/^(el)?time$/.test(tok.type) && tok.part == 's') {
+                    if (prev && prev.type == 'date' && prev.part == 'm' && prev.format < 3) {
+                        prev.type = 'time';
+                    }
                 }
+                if (!/^(?:str|space|fill)$/.test(tok.type)) {
+                    prev = tok;
+                }
+                format.push(tok);
+            }
             return format;
+        }
+        function maybeFraction(tok) {
+            if (tok.type != 'date' || tok.part == 'm' && tok.format < 3) {
+                var m = input.skip(/^\.(0+)/);
+                if (m) {
+                    tok.fraction = m[1].length;
+                    if (tok.type == 'date') {
+                        tok.type = 'time';
+                    }
+                }
+            }
+            return tok;
         }
         function readNext() {
             var ch, m;
@@ -14187,34 +14387,28 @@
                 };
             }
             if (m = input.skip(/^(d{1,4}|m{1,5}|yyyy|yy)/i)) {
-                var type = 'date', m = m[1].toLowerCase();
-                if (haveTimePart && (m == 'm' || m == 'mm')) {
-                    type = 'time';
-                }
-                haveTimePart = false;
-                return {
-                    type: type,
+                m = m[1].toLowerCase();
+                return maybeFraction({
+                    type: 'date',
                     part: m.charAt(0),
                     format: m.length
-                };
+                });
             }
             if (m = input.skip(/^(hh?|ss?)/i)) {
-                haveTimePart = true;
                 m = m[1].toLowerCase();
-                return {
+                return maybeFraction({
                     type: 'time',
                     part: m.charAt(0),
                     format: m.length
-                };
+                });
             }
             if (m = input.skip(/^\[(hh?|mm?|ss?)\]/i)) {
-                haveTimePart = true;
                 m = m[1].toLowerCase();
-                return {
+                return maybeFraction({
                     type: 'eltime',
                     part: m.charAt(0),
                     format: m.length
-                };
+                });
             }
             if (m = input.skip(/^(am\/pm|a\/p)/i)) {
                 m = m[1].split('/');
@@ -14296,6 +14490,12 @@
             out += sec.body.map(printToken).join('');
             return out;
         }
+        function maybeFraction(fmt, tok) {
+            if (tok.fraction) {
+                fmt += '.' + padLeft('', tok.fraction, '0');
+            }
+            return fmt;
+        }
         function printToken(tok) {
             if (tok.type == 'digit') {
                 if (tok.sep) {
@@ -14306,7 +14506,9 @@
             } else if (tok.type == 'exp') {
                 return tok.ch + tok.sign;
             } else if (tok.type == 'date' || tok.type == 'time') {
-                return padLeft('', tok.format, tok.part);
+                return maybeFraction(padLeft('', tok.format, tok.part), tok);
+            } else if (tok.type == 'eltime') {
+                return maybeFraction('[' + padLeft('', tok.format, tok.part) + ']', tok);
             } else if (tok.type == 'ampm') {
                 return tok.am + '/' + tok.pm;
             } else if (tok.type == 'str') {
@@ -14462,7 +14664,7 @@
             code += 'var intPart = runtime.formatInt(culture, value, ' + JSON.stringify(intFormat) + ', ' + declen + ', ' + separeThousands + '); ';
         }
         if (decFormat.length) {
-            code += 'var decPart = runtime.formatDec(culture, value, ' + JSON.stringify(decFormat) + ', ' + declen + '); ';
+            code += 'var decPart = runtime.formatDec(value, ' + JSON.stringify(decFormat) + ', ' + declen + '); ';
         }
         if (intFormat.length || decFormat.length) {
             code += 'type = \'number\'; ';
@@ -14507,9 +14709,9 @@
             } else if (tok.type == 'date') {
                 code += 'output += runtime.date(culture, date, ' + JSON.stringify(tok.part) + ', ' + tok.format + '); ';
             } else if (tok.type == 'time') {
-                code += 'output += runtime.time(culture, time, ' + JSON.stringify(tok.part) + ', ' + tok.format + ', ' + hasAmpm + '); ';
+                code += 'output += runtime.time(time, ' + JSON.stringify(tok.part) + ', ' + tok.format + ', ' + hasAmpm + ', ' + tok.fraction + '); ';
             } else if (tok.type == 'eltime') {
-                code += 'output += runtime.eltime(culture, value, ' + JSON.stringify(tok.part) + ', ' + tok.format + '); ';
+                code += 'output += runtime.eltime(value, ' + JSON.stringify(tok.part) + ', ' + tok.format + ', ' + tok.fraction + '); ';
             } else if (tok.type == 'ampm') {
                 code += 'output += time.hours < 12 ? ' + JSON.stringify(tok.am) + ' : ' + JSON.stringify(tok.pm) + '; ';
             }
@@ -14575,56 +14777,54 @@
             }
             return '##';
         },
-        time: function (culture, t, part, length, ampm) {
+        time: function (t, part, length, ampm, fraclen) {
+            var ret, fraction;
             switch (part) {
             case 'h':
-                var h = ampm ? t.hours % 12 || 12 : t.hours;
-                switch (length) {
-                case 1:
-                    return h;
-                case 2:
-                    return padLeft(h, 2, '0');
+                ret = padLeft(ampm ? t.hours % 12 || 12 : t.hours, length, '0');
+                if (fraclen) {
+                    fraction = (t.minutes + (t.seconds + t.milliseconds / 1000) / 60) / 60;
                 }
                 break;
             case 'm':
-                switch (length) {
-                case 1:
-                    return t.minutes;
-                case 2:
-                    return padLeft(t.minutes, 2, '0');
+                ret = padLeft(t.minutes, length, '0');
+                if (fraclen) {
+                    fraction = (t.seconds + t.milliseconds / 1000) / 60;
                 }
                 break;
             case 's':
-                switch (length) {
-                case 1:
-                    return t.seconds;
-                case 2:
-                    return padLeft(t.seconds, 2, '0');
+                ret = padLeft(t.seconds, length, '0');
+                if (fraclen) {
+                    fraction = t.milliseconds / 1000;
                 }
                 break;
             }
-            return '##';
+            if (fraction) {
+                ret += fraction.toFixed(fraclen).replace(/^0+/, '');
+            }
+            return ret;
         },
-        eltime: function (culture, value, part, length) {
+        eltime: function (value, part, length, fraclen) {
+            var ret, fraction;
             switch (part) {
             case 'h':
-                value = value * 24;
+                ret = value * 24;
                 break;
             case 'm':
-                value = value * 24 * 60;
+                ret = value * 24 * 60;
                 break;
             case 's':
-                value = value * 24 * 60 * 60;
+                ret = value * 24 * 60 * 60;
                 break;
             }
-            value |= 0;
-            switch (length) {
-            case 1:
-                return value;
-            case 2:
-                return padLeft(value, 2, '0');
+            if (fraclen) {
+                fraction = ret - (ret | 0);
             }
-            return '##';
+            ret = padLeft(ret | 0, length, '0');
+            if (fraction) {
+                ret += fraction.toFixed(fraclen).replace(/^0+/, '');
+            }
+            return ret;
         },
         fill: function (ch) {
             return ch;
@@ -14672,7 +14872,7 @@
             }
             return result;
         },
-        formatDec: function (culture, value, parts, declen) {
+        formatDec: function (value, parts, declen) {
             value = value.toFixed(declen);
             var pos = value.indexOf('.');
             if (pos >= 0) {
@@ -15328,12 +15528,12 @@
                 'number'
             ]
         ]]);
-    defineFunction('sumproduct', function (a) {
+    defineFunction('sumproduct', function (first, rest) {
         var sum = 0;
-        a[0].each(function (p, row, col) {
+        first.each(function (p, row, col) {
             if (typeof p == 'number') {
-                for (var i = 1; i < a.length; ++i) {
-                    var v = a[i].get(row, col);
+                for (var i = 0; i < rest.length; ++i) {
+                    var v = rest[i].get(row, col);
                     if (typeof v != 'number') {
                         return;
                     }
@@ -23279,14 +23479,19 @@
             init: function (options, toolbar) {
                 this.toolbar = toolbar;
                 this.element = $('<div class=\'k-button k-upload-button k-button-icon\'>' + '<span class=\'k-icon k-font-icon k-i-folder-open\' />' + '</div>').data('instance', this);
-                $('<input type=\'file\' autocomplete=\'off\' accept=\'.xlsx\'/>').attr('title', options.attributes.title).bind('change', this._change.bind(this)).appendTo($('<form>').appendTo(this.element));
+                this._title = options.attributes.title;
+                this._reset();
+            },
+            _reset: function () {
+                this.element.remove('input');
+                $('<input type=\'file\' autocomplete=\'off\' accept=\'.xlsx\'/>').attr('title', this._title).one('change', this._change.bind(this)).appendTo(this.element);
             },
             _change: function (e) {
                 this.toolbar.action({
                     command: 'OpenCommand',
                     options: { file: e.target.files[0] }
                 });
-                e.target.parentNode.reset();
+                this._reset();
             }
         });
         kendo.toolbar.registerComponent('open', Open);
@@ -26501,6 +26706,10 @@
                 if (this._autoRefresh) {
                     this.refresh(e);
                 }
+                if (e.recalc && e.ref) {
+                    var range = new kendo.spreadsheet.Range(e.ref, this.activeSheet());
+                    this.trigger('change', { range: range });
+                }
             },
             activeSheet: function (sheet) {
                 return this._workbook.activeSheet(sheet);
@@ -26667,6 +26876,7 @@
                 'pdfExport',
                 'excelExport',
                 'excelImport',
+                'change',
                 'render'
             ]
         });

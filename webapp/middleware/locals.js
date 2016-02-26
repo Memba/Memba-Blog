@@ -23,9 +23,11 @@ module.exports = function (req, res, next) {
         return util.format.apply(this, arguments);
     };
 
-    // urljoin function
-    res.locals.urljoin = function () {
-        return url.join.apply(this, arguments);
+    // url.join function
+    res.locals.url = {
+        join: function () {
+            return url.join.apply(this, arguments);
+        }
     };
 
     // moment
