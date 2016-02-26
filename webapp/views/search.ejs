@@ -11,7 +11,7 @@
         <div class="container">
             <div class="page-header">
                 <h1>
-                    <% if (icon) { %><img src="<%= urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>"><% } %>
+                    <% if (icon) { %><img src="<%= url.join(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>"><% } %>
                     <span><%= title %></span>
                 </h1>
             </div>
@@ -22,7 +22,7 @@
                         <li class="media">
                             <div class="media-left">
                                 <a href="<%= results[i].site_url %>">
-                                    <img class="media-object" src="<%= urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, results[i].icon)) %>" alt="<%= results[i].title %>">
+                                    <img class="media-object" src="<%= url.join(config.uris.cdn.root, format(config.uris.cdn.icons, results[i].icon)) %>" alt="<%= results[i].title %>">
                                 </a>
                             </div>
                             <div class="media-body">
@@ -49,7 +49,7 @@
 </main>
 
 <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="<%= urljoin(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.version %>"></script>
-<script src="<%= urljoin(config.uris.webpack.root, 'search.bundle.js') + '?v=' + config.version %>"></script>
+<script src="<%= url.join(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.version %>"></script>
+<script src="<%= url.join(config.uris.webpack.root, 'search.bundle.js') + '?v=' + config.version %>"></script>
 
 <% include footer.ejs %>

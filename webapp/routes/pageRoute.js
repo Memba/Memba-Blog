@@ -29,7 +29,7 @@ module.exports = {
 
         var config = res.locals.config;
         var format = res.locals.format;
-        var urljoin = res.locals.urljoin;
+        var url = res.locals.url;
 
         // Create a trace that we can track in the browser
         req.trace = utils.uuid();
@@ -79,7 +79,7 @@ module.exports = {
                             authors: responses[3],
                             categories: responses[2],
                             content: markdown.render(text),
-                            image: markdown.image(text) || urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
+                            image: markdown.image(text) || url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                             language: language,
                             menu: responses[0],
                             months: responses[4],
@@ -102,7 +102,7 @@ module.exports = {
                             categories: responses[2],
                             description: res.__('meta.description'),
                             icon: res.__('search.title.icon'),
-                            image: urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
+                            image: url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                             keywords: res.__('meta.keywords'),
                             language: language,
                             menu: responses[0],
@@ -110,7 +110,7 @@ module.exports = {
                             results: responses[1],
                             trace: req.trace,
                             /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
-                            site_url: urljoin(config.uris.webapp.root, format(config.uris.webapp.pages, req.params.language, ''), '?' + qs.stringify(req.query)),
+                            site_url: url.join(config.uris.webapp.root, format(config.uris.webapp.pages, req.params.language, ''), '?' + qs.stringify(req.query)),
                             /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                             title: res.__('search.title.heading')
                         };

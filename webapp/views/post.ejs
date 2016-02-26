@@ -11,7 +11,7 @@
         <div class="container" role="document">
             <div class="page-header">
                 <h1>
-                    <% if (icon) { %><img src="<%= urljoin(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>" itemprop="image"><% } %>
+                    <% if (icon) { %><img src="<%= url.join(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>" itemprop="image"><% } %>
                     <span itemprop="name"><%= title %></span>
                 </h1>
             </div>
@@ -42,11 +42,11 @@
                 <div class="hidden-xs col-sm-4 col-md-3 hidden-print">
                     <% // Social buttons %>
                     <section>
-                        <a role="button" href="#" class="social" data-command="facebook"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'facebook.svg')) %>" alt="Facebook"></a>
-                        <a role="button" href="#" class="social" data-command="google"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'google.svg')) %>" alt="Google+"></a>
-                        <a role="button" href="#" class="social" data-command="linkedin"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'linkedin.svg')) %>" alt="Linkedin"></a>
-                        <a role="button" href="#" class="social" data-command="pinterest"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'pinterest.svg')) %>" alt="Pinterest"></a>
-                        <a role="button" href="#" class="social" data-command="twitter"><img src="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'twitter.svg')) %>" alt="Twitter"></a>
+                        <a role="button" href="#" class="social" data-command="facebook"><img src="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'facebook.svg')) %>" alt="Facebook"></a>
+                        <a role="button" href="#" class="social" data-command="google"><img src="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'google.svg')) %>" alt="Google+"></a>
+                        <a role="button" href="#" class="social" data-command="linkedin"><img src="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'linkedin.svg')) %>" alt="Linkedin"></a>
+                        <a role="button" href="#" class="social" data-command="pinterest"><img src="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'pinterest.svg')) %>" alt="Pinterest"></a>
+                        <a role="button" href="#" class="social" data-command="twitter"><img src="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'twitter.svg')) %>" alt="Twitter"></a>
                     </section>
                     <% // Side menus for calendar, categories and authors %>
                     <% include groups.ejs %>
@@ -57,7 +57,7 @@
 </main>
 
 <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="<%= urljoin(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.version %>"></script>
-<script src="<%= urljoin(config.uris.webpack.root, 'post.bundle.js') + '?v=' + config.version %>"></script>
+<script src="<%= url.join(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.version %>"></script>
+<script src="<%= url.join(config.uris.webpack.root, 'post.bundle.js') + '?v=' + config.version %>"></script>
 
 <% include footer.ejs %>

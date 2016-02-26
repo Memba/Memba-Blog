@@ -23,7 +23,7 @@ module.exports = {
 
         var config = res.locals.config;
         var format = res.locals.format;
-        var urljoin = res.locals.urljoin;
+        var url = res.locals.url;
 
         // Create a trace that we can track in the browser
         req.trace = utils.uuid();
@@ -51,14 +51,14 @@ module.exports = {
                     .render('home', {
                         author: config.home.author,
                         description: config.home.description,
-                        image: urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
+                        image: url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
                         keywords: config.home.keywords,
                         language: language,
                         menu: data,
                         results: false, // trick header into not displaying robots noindex directive
                         trace: req.trace,
                         /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
-                        site_url: urljoin(config.uris.webapp.root, config.uris.webapp.home), // canonical link
+                        site_url: url.join(config.uris.webapp.root, config.uris.webapp.home), // canonical link
                         /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                         title: config.home.title
                     });

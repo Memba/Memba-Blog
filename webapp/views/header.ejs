@@ -28,15 +28,15 @@
     <meta property="twitter:site" content="@<%= config.twitter.account %>">
     <meta property="twitter:title" content="<%= title %>">
     <% // Favicon and apple touch icons %>
-    <link rel="shortcut icon" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'favicon.ico')) %>">
-    <link rel="apple-touch-icon" sizes="57x57" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-57x57.png')) %>">
-    <link rel="apple-touch-icon" sizes="72x72" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-72x72.png')) %>">
-    <link rel="apple-touch-icon" sizes="76x76" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-76x76.png')) %>">
-    <link rel="apple-touch-icon" sizes="114x114" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-114x114.png')) %>">
-    <link rel="apple-touch-icon" sizes="120x120" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-120x120.png')) %>">
-    <link rel="apple-touch-icon" sizes="144x144" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-144x144.png')) %>">
-    <link rel="apple-touch-icon" sizes="152x152" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')) %>">
-    <link rel="apple-touch-icon" sizes="180x180" href="<%= urljoin(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-180x180.png')) %>">
+    <link rel="shortcut icon" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'favicon.ico')) %>">
+    <link rel="apple-touch-icon" sizes="57x57" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-57x57.png')) %>">
+    <link rel="apple-touch-icon" sizes="72x72" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-72x72.png')) %>">
+    <link rel="apple-touch-icon" sizes="76x76" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-76x76.png')) %>">
+    <link rel="apple-touch-icon" sizes="114x114" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-114x114.png')) %>">
+    <link rel="apple-touch-icon" sizes="120x120" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-120x120.png')) %>">
+    <link rel="apple-touch-icon" sizes="144x144" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-144x144.png')) %>">
+    <link rel="apple-touch-icon" sizes="152x152" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')) %>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-180x180.png')) %>">
     <% // Robots: do not index/archive search pages %>
     <% if (Array.isArray(results)) { %>
     <meta name="robots" content="noindex, noarchive">
@@ -52,7 +52,7 @@
     <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <script src="<%= urljoin(config.uris.webpack.root, 'init.bundle.js') + '?v=' + config.version %>"></script>
+    <script src="<%= url.join(config.uris.webpack.root, 'init.bundle.js') + '?v=' + config.version %>"></script>
     <style>
         html,body{
             width:100%;
