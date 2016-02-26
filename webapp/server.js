@@ -73,6 +73,7 @@ var http = require('http');
 var i18n = require('i18n');
 var path = require('path');
 var config = require('./config');
+var pkg = require('../package.json');
 var router;
 var port;
 var server;
@@ -87,6 +88,9 @@ config.load(function (error/*, store*/) {
     if (error instanceof Error) {
         throw error;
     }
+
+    // set version (to invalidate cache when loading new versions of scripts)
+    config.set('application:version', pkg.version);
 
     // Secure expressJS with helmet from https://github.com/helmetjs/helmet
     // app.disable('x-powered-by');
