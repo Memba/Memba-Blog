@@ -15,6 +15,7 @@ var logger = require('../lib/logger');
 var utils = require('../lib/utils');
 var indexModel = require('../models/indexModel');
 var menuModel = require('../models/menuModel');
+var timer = Date.now();
 
 module.exports = {
 
@@ -36,31 +37,40 @@ module.exports = {
         });
 
         // In production only, validate the request
-        if (process.env.NODE_ENV === 'production') {
+        // if (process.env.NODE_ENV === 'production') {
+        if (config.environment === 'production') {
 
-            // Check user agent
+            // Check user agent - see https://developer.github.com/webhooks/
             if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
                 throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
             }
 
         }
 
-        // Reindex contents
-        locales.forEach(function (locale) {
-            db[locale].reindex();
-        });
+        // Ignore any calls within 1 minute of a previous call
+        if (Date.now() - timer > 60 * 1000) {
 
-        // Reset cache
-        setTimeout(function () {
-            menuModel.resetCache();
-            indexModel.resetCache();
-            logger.info({
-                message: 'Index and menu cache reset',
-                module: 'routes/hookRoute',
-                method: 'handler',
-                request: req
+            // Reindex contents and writes json indexes on hard drive
+            locales.forEach(function (locale) {
+                db[locale].reindex();
             });
-        }, 10000);
+
+            // Give some time for everything to reload
+            // considering we have no idea when the spanned process is done reindexing
+            // and reset the in-memory cache
+            setTimeout(function () {
+                menuModel.resetCache();
+                indexModel.resetCache();
+                logger.info({
+                    message: 'Index and menu cache reset',
+                    module: 'routes/hookRoute',
+                    method: 'handler',
+                    request: req
+                });
+                timer = Date.now();
+            }, 30 * 1000);
+
+        }
 
         // Close and send the response
         res.end();
