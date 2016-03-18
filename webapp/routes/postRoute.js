@@ -44,6 +44,7 @@ module.exports = {
             request: req
         });
 
+        var language = req.params.language;
         assert.equal(language, res.getLocale(), format('i18n locale is not `{0}`', language));
 
         async.parallel(
