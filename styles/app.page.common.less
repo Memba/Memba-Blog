@@ -249,6 +249,17 @@ label {
 //Forms
 form {
     .form-group {
+        .form-control-static {
+            min-height: 0; // Fixes a 34px height in IE
+        }
+        .form-tooltip { // This is required for cross-browser positioning
+            position: relative;
+            .k-invalid-msg {
+                position:absolute;
+                text-align: initial;
+                right: 0;
+            }
+        }
         .k-widget,
         .k-input,
         .k-textbox {
@@ -318,6 +329,14 @@ form:not(.form-horizontal) .k-invalid-msg {
                 width: 24px;
             }
         }
+    }
+}
+
+//---------------------------------------------
+// Markdown
+.markdown {
+    a:hover {
+        text-decoration: underline;
     }
 }
 

@@ -218,6 +218,8 @@
             if (tools instanceof kendo.Observable) {
 
                 if (tools.audio instanceof Tool) {
+                    // Description
+                    tools.checkbox.constructor.prototype.description = 'Lecteur Audio';
                     // Attributes
                     attributes = tools.audio.constructor.prototype.attributes;
                     attributes.autoplay.title = 'Auto.';
@@ -225,12 +227,33 @@
                     attributes.ogg.title = 'Fichier OGG';
                 }
 
+                if (tools.chargrid instanceof Tool) {
+                    // Description
+                    tools.chargrid.constructor.prototype.description = 'Character Grid';
+                    // Attributes
+                    attributes = tools.chargrid.constructor.prototype.attributes;
+                    attributes.blank.title = 'Vide';
+                    attributes.columns.title = 'Colonnes';
+                    attributes.layout.title = 'Mise en Page';
+                    attributes.rows.title = 'Lignes';
+                    attributes.whitelist.title = 'Caractères';
+                    // Properties
+                    properties = tools.chargrid.constructor.prototype.attributes;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Description';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Echec';
+                    properties.omit.title = 'Omission';
+                }
+
                 if (tools.checkbox instanceof Tool) {
+                    // Description
+                    tools.checkbox.constructor.prototype.description = 'Boîte à Cocher';
                     // Attributes
                     attributes = tools.checkbox.constructor.prototype.attributes;
-                    // attributes.checkboxStyle.title = 'Style Boîte';
-                    attributes.containerStyle.title = 'Style';
-                    // attributes.labelStyle.title = 'Style Texte';
+                    attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;
@@ -243,25 +266,62 @@
                     properties.omit.title = 'Omission';
                 }
 
+                if (tools.connector instanceof Tool) {
+                    // Description
+                    tools.connector.constructor.prototype.description = 'Connecteur';
+                    // Attributes
+                    attributes = tools.connector.constructor.prototype.attributes;
+                    attributes.color.title = 'Color';
+                    // Properties
+                    properties = tools.connector.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Description';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Echec';
+                    properties.omit.title = 'Omission';
+                }
+
                 if (tools.image instanceof Tool) {
+                    // Description
+                    tools.image.constructor.prototype.description = 'Image';
                     // Attributes
                     attributes = tools.image.constructor.prototype.attributes;
-                    attributes.src.title = 'Source';
                     attributes.alt.title = 'Texte';
+                    attributes.alt.defaultValue = 'Image';
+                    // attributes.draggable.title = 'Draggable';
+                    attributes.src.title = 'Source';
+                    attributes.style.title = 'Style';
                 }
 
                 if (tools.label instanceof Tool) {
+                    // Description
+                    tools.label.constructor.prototype.description = 'Etiquette';
                     // Attributes
                     attributes = tools.label.constructor.prototype.attributes;
+                    // attributes.draggable.title = 'Draggable';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
                 }
 
+                if (tools.mathexpression instanceof Tool) {
+                    // Description
+                    tools.mathexpression.constructor.prototype.description = 'Expression Mathématique';
+                    // Attributes
+                    attributes = tools.mathexpression.constructor.prototype.attributes;
+                    attributes.formula.title = 'Formule';
+                    attributes.style.title = 'Style';
+                }
+
                 if (tools.quiz instanceof Tool) {
+                    // Description
+                    tools.quiz.constructor.prototype.description = 'Question à Choix Multiple';
                     // Attributes
                     attributes = tools.quiz.constructor.prototype.attributes;
-                    attributes.activeStyle.title = 'Style Sélect.';
+                    attributes.activeStyle.title = 'Style Sélection';
                     attributes.data.title = 'Valeurs';
+                    attributes.data.defaultValue = 'Vrai\nFaux';
                     attributes.groupStyle.title = 'Style Groupe';
                     attributes.itemStyle.title = 'Style Element';
                     attributes.mode.title = 'Mode';
@@ -277,6 +337,8 @@
                 }
 
                 if (tools.textbox instanceof Tool) {
+                    // Description
+                    tools.textbox.constructor.prototype.description = 'Boîte de Texte';
                     // Attributes
                     attributes = tools.textbox.constructor.prototype.attributes;
                     attributes.style.title = 'Style';
@@ -292,6 +354,8 @@
                 }
 
                 if (tools.video instanceof Tool) {
+                    // Description
+                    tools.video.constructor.prototype.description = 'Lecteur Vidéo';
                     // Attributes
                     attributes = tools.video.constructor.prototype.attributes;
                     attributes.autoplay.title = 'Auto.';
