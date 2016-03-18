@@ -9,7 +9,7 @@
 
 var logger = require('../lib/logger');
 var utils = require('../lib/utils');
-var menu = require('../models/menuModel');
+var menuModel = require('../models/menuModel');
 
 module.exports = {
 
@@ -39,7 +39,7 @@ module.exports = {
         var language = res.getLocale();
 
         // Get menu with english as default language
-        menu.getMenu('en', function (error, data) {
+        menuModel.getMenu('en', function (error, data) {
             if (!error && data) {
                 res
                     .set({

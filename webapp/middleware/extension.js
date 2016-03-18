@@ -13,8 +13,8 @@ var Url = require('url');
 var config = require('../config');
 var SEPARATOR = '\\/';
 var webapp = {
-    feed: util.format(config.get('uris:webapp:feed').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR), '[a-z]{2}') + '$',
-    sitemap: util.format(config.get('uris:webapp:sitemap').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR), '[a-z]{2}') + '$'
+    feed: '^' + util.format(config.get('uris:webapp:feed').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR), '[a-z]{2}') + '$',
+    sitemap: '^(' + util.format(config.get('uris:webapp:sitemap').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR), '[a-z]{2})?') + '$'
 };
 
 /**

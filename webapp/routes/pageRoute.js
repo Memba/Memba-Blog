@@ -7,6 +7,7 @@
 
 'use strict';
 
+var assert = require('assert');
 var async = require('async');
 var qs = require('qs');
 var ApplicationError = require('../lib/error');
@@ -14,8 +15,8 @@ var convert = require('../lib/convert');
 var logger = require('../lib/logger');
 var markdown = require('../lib/markdown');
 var utils = require('../lib/utils');
-var index = require('../models/indexModel');
-var menu = require('../models/menuModel');
+var indexModel = require('../models/indexModel');
+var menuModel = require('../models/menuModel');
 
 module.exports = {
 
@@ -42,30 +43,31 @@ module.exports = {
             request: req
         });
 
-        var language = res.getLocale();
+        var language = req.params.language;
+        assert.equal(language, res.getLocale(), format('i18n locale is not `{0}`', language));
 
         async.parallel(
             [
                 // get menu
                 function (callback) {
-                    menu.getMenu(req.params.language, callback);
+                    menuModel.getMenu(language, callback);
                 },
                 // get page
                 function (callback) {
-                    var path = convert.getPagePath(req.params.language, req.params.slug);
-                    index.findByPath(path, req.params.slug ? undefined : req.query, callback);
+                    var path = convert.getPagePath(language, req.params.slug);
+                    indexModel.findByPath(path, req.params.slug ? undefined : req.query, callback);
                 },
                 // Get grouped categories
                 function (callback) {
-                    index.groupByCategory(req.params.language, callback);
+                    indexModel.groupByCategory(language, callback);
                 },
                 // Get grouped authors
                 function (callback) {
-                    index.groupByAuthor(req.params.language, callback);
+                    indexModel.groupByAuthor(language, callback);
                 },
                 // Get grouped years/months
                 function (callback) {
-                    index.groupByYearMonth(req.params.language, callback);
+                    indexModel.groupByYearMonth(language, callback);
                 }
             ],
             function (error, responses) {
@@ -110,7 +112,7 @@ module.exports = {
                             results: responses[1],
                             trace: req.trace,
                             /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
-                            site_url: url.join(config.uris.webapp.root, format(config.uris.webapp.pages, req.params.language, ''), '?' + qs.stringify(req.query)),
+                            site_url: url.join(config.uris.webapp.root, format(config.uris.webapp.pages, language, ''), '?' + qs.stringify(req.query)),
                             /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                             title: res.__('search.title.heading')
                         };

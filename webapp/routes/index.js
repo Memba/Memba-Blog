@@ -29,9 +29,10 @@ var postRoute = require('./postRoute');
 router.param('language', params.validateLanguage);
 router.param('year', params.validateYear);
 router.param('month', params.validateMonth);
-// router.param('slug', params.validateSlug);
+// TODO? router.param('slug', params.validateSlug);
 
 // Return simplified 404 for support files with extensions
+// ATTENTION! we have exceptions for ping, feeds, sitemaps and hook
 router.use(extension);
 
 // Make config values, including paths to images, available to our templates
@@ -49,13 +50,13 @@ router.route(config.get('uris:webapp:home'))
 router.route(config.get('uris:webapp:hook'))
     .post(jsonParser, hookRoute.handler);
 
+// Sitemap (index at the root)
+router.route(util.format(config.get('uris:webapp:sitemap'), ':language?'))
+    .get(sitemapRoute.getXmlSitemap);
+
 // Rss feed
 router.route(util.format(config.get('uris:webapp:feed'), ':language'))
     .get(feedRoute.getRSS);
-
-// Sitemap
-router.route(util.format(config.get('uris:webapp:sitemap'), ':language'))
-    .get(sitemapRoute.getXmlSitemap);
 
 // Blog posts
 router.route(util.format(config.get('uris:webapp:posts'), ':language', ':year?', ':month?', ':slug?'))

@@ -7,11 +7,12 @@
 
 'use strict';
 
+var assert = require('assert');
 var util = require('util');
 var config = require('../config');
 var logger = require('../lib/logger');
 var url = require('../lib/url');
-var index = require('../models/indexModel');
+var indexModel = require('../models/indexModel');
 var SITE_URL = url.join(config.get('uris:webapp:root'), '%s');
 var FEED_URL = url.join(config.get('uris:webapp:root'), config.get('uris:webapp:feed'));
 
@@ -27,6 +28,10 @@ module.exports = {
      */
     getRSS: function (req, res, next) {
 
+        // var config = res.locals.config;
+        var format = res.locals.format;
+        // var url = res.locals.url;
+
         // Create a trace that we can track in the browser
         // req.trace = utils.uuid();
 
@@ -38,16 +43,17 @@ module.exports = {
             request: req
         });
 
-        var language = res.getLocale();
+        var language = req.params.language;
+        assert.equal(language, res.getLocale(), format('i18n locale is not `{0}`', language));
 
-        index.getIndex(req.params.language, function (error, indexEntries) {
+        indexModel.getIndex(language, function (error, indexEntries) {
             if (!error && Array.isArray(indexEntries)) {
                 var feed = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel>';
-                feed+= util.format('<atom:link href="%s" rel="self" type="application/rss+xml" />', util.format(FEED_URL, req.params.language));
+                feed+= util.format('<atom:link href="%s" rel="self" type="application/rss+xml" />', util.format(FEED_URL, language));
                 feed += util.format('<title>%s</title>', res.__('meta.title'));
-                feed += util.format('<link>%s</link>', util.format(SITE_URL, req.params.language));
+                feed += util.format('<link>%s</link>', util.format(SITE_URL, language));
                 feed += util.format('<description>%s</description>', res.__('meta.description'));
-                feed += util.format('<language>%s</language>', req.params.language);
+                feed += util.format('<language>%s</language>', language);
                 feed += util.format('<copyright>%s</copyright>', res.__('footer.copyright').replace('&copy;', '&#169;'));
                 feed += util.format('<pubDate>%s</pubDate>', (new Date()).toUTCString());
                 // TODO add image

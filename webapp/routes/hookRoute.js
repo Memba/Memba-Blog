@@ -13,8 +13,8 @@ var ApplicationError = require('../lib/error');
 var db = require('../lib/db');
 var logger = require('../lib/logger');
 var utils = require('../lib/utils');
-var menu = require('../models/menuModel');
-var index = require('../models/indexModel');
+var indexModel = require('../models/indexModel');
+var menuModel = require('../models/menuModel');
 
 module.exports = {
 
@@ -52,8 +52,8 @@ module.exports = {
 
         // Reset cache
         setTimeout(function () {
-            menu.resetCache();
-            index.resetCache();
+            menuModel.resetCache();
+            indexModel.resetCache();
             logger.info({
                 message: 'Index and menu cache reset',
                 module: 'routes/hookRoute',
