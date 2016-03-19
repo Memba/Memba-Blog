@@ -59,6 +59,7 @@
     "loader-utils": "^0.2.12",
     "mocha": "^2.4.5",
     "node-libs-browser": "^1.0.0",
+    "phantomjs-prebuilt": "^2.1.6",
     "style-loader": "^0.13.0",
     "supertest": "^1.2.0",
     "url-loader": "^0.5.7",
