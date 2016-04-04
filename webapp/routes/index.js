@@ -18,6 +18,7 @@ var locals = require('../middleware/locals');
 var notFound = require('../middleware/notFound');
 var params = require('../middleware/params');
 var pingRoute = require('./pingRoute');
+var loggerRoute = require('./loggerRoute');
 var homeRoute = require('./homeRoute');
 var hookRoute = require('./hookRoute');
 var feedRoute = require('./feedRoute');
@@ -41,6 +42,10 @@ router.use(locals);
 // Ping
 router.route(config.get('uris:webapp:ping'))
     .get(pingRoute.getOK);
+
+// Logger
+router.route(config.get('uris:webapp:logger'))
+    .get(loggerRoute.createLogEntry);
 
 // Home
 router.route(config.get('uris:webapp:home'))
