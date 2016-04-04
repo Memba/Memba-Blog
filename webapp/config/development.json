@@ -28,21 +28,8 @@
         "markdown": "%s.md"
     },
     "uris" : {
-        "cdn": {
-            "root":  "https://cdn.kidoju.com",
-            "icons": "/images/o_collection/svg/office/%s.svg"
-        },
         "webapp": {
-            "root": "http://localhost:3000",
-            "feed": "/%s/index.rss",
-            "home": "/",
-            "hook": "/hook",
-            "locale": "/%s",
-            "pages": "/%s/%s",
-            "ping": "/ping",
-            "posts": "/%s/posts/%s/%s/%s",
-            "public": "/%s",
-            "sitemap": "/%s/sitemap.xml"
+            "root": "http://localhost:3000"
         },
         "webpack": {
             "root": "http://localhost:3000/assets/"

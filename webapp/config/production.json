@@ -28,21 +28,8 @@
         "markdown": "%s.md"
     },
     "uris" : {
-        "cdn": {
-            "root":  "https://cdn.kidoju.com",
-            "icons": "/images/o_collection/svg/office/%s.svg"
-        },
         "webapp": {
-            "root": "http://www.memba.com",
-            "feed": "/%s/index.rss",
-            "home": "/",
-            "hook": "/hook",
-            "locale": "/%s",
-            "pages": "/%s/%s",
-            "ping": "/ping",
-            "posts": "/%s/posts/%s/%s/%s",
-            "public": "/%s",
-            "sitemap": "/%s/sitemap.xml"
+            "root": "http://www.memba.com"
         },
         "webpack": {
             "root": "http://www.memba.com/assets/"
