@@ -29,6 +29,7 @@ module.exports = {
      * @param language
      */
     validateLanguage: function (req, res, next, language) {
+        // TODO we could assert that locales === res.locals.getLocales() (both are arrays)
         // if ((/^[a-z]{2}$/).test(language)) {
         if (locales.indexOf(language) > -1) {
             if (res && typeof res.setLocale === 'function') {

@@ -244,7 +244,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 
@@ -255,6 +255,7 @@
                     attributes = tools.checkbox.constructor.prototype.attributes;
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
+                    attributes.text.defaultValue = 'Texte';
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;
                     properties.name.title = 'Nom';
@@ -262,7 +263,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 
@@ -279,7 +280,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 
@@ -303,6 +304,7 @@
                     // attributes.draggable.title = 'Draggable';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
+                    attributes.text.defaultValue = 'Label';
                 }
 
                 if (tools.mathexpression instanceof Tool) {
@@ -332,7 +334,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 
@@ -349,7 +351,7 @@
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
-                    properties.failure.title = 'Echec';
+                    properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
                 }
 

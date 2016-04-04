@@ -245,6 +245,14 @@ label {
     }
 }
 
+// -------------------------------------------
+// Windows
+.k-window {
+    .container-fluid {
+        padding-top: 15px;
+    }
+}
+
 //---------------------------------------------
 //Forms
 form {
@@ -286,26 +294,6 @@ form {
         }
     }
 }
-form:not(.form-horizontal) .k-invalid-msg {
-    width: initial; //align validation messages with labels in forms where labels sit above inputs
-    position: relative;
-    margin-left: 10px;
-    font-weight: normal;
-
-    // width: initial; // make it no larger than necessary
-    // position: fixed;
-    // margin-top: 34px; // height of .k-textbox, so that it sits underneath
-    // left: 15px; // padding of .container-fluid, so that is is aligned to the left of the input
-    // font-weight: normal;
-}
-.k-window {
-    .container-fluid {
-        padding-top: 15px;
-    }
-    .form-control-static {
-        min-height: initial;
-    }
-}
 
 //---------------------------------------------
 // Images in buttons
@@ -319,9 +307,9 @@ form:not(.form-horizontal) .k-invalid-msg {
 }
 
 //---------------------------------------------
-//Images in drop down lists
+//Images in drop down lists and drop down trees
 .k-popup {
-    .k-list {
+    .k-list, .k-treeview {
         .k-item {
             img {
                 border: 0;
@@ -335,7 +323,11 @@ form:not(.form-horizontal) .k-invalid-msg {
 //---------------------------------------------
 // Markdown
 .markdown {
-    a:hover {
+    word-wrap: break-word;
+    img {
+        max-width: 100%;
+    }
+    a {
         text-decoration: underline;
     }
 }

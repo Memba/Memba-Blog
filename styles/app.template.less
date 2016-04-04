@@ -374,17 +374,26 @@ form {
 }
 
 //---------------------------------------------
-// Comments
-.comment {
-    .signature {
-        //color: #7F7F7F;
-    }
-    .data {
-    }
-    .buttons {
-        //background-color: rgba(0,0,0,0.1);
+// Drop down trees
+.k-popup {
+    .k-treeview {
+        color: @widget-text-color;
     }
 }
+//---------------------------------------------
+// Tooltips
+.k-tooltip.k-popup.k-group {
+    background-color: @notification-info-background-color;
+    color: @notification-info-text-color;
+    border-color: @notification-info-border-color;
+    .k-callout-n {
+        border-bottom-color: @notification-info-border-color;
+    }
+    .k-callout-s {
+        border-top-color: @notification-info-border-color;
+    }
+}
+
 //---------------------------------------------
 // Stage
 .kj-stage {
