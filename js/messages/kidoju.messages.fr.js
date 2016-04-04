@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2015 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -272,7 +272,7 @@
                     tools.connector.constructor.prototype.description = 'Connecteur';
                     // Attributes
                     attributes = tools.connector.constructor.prototype.attributes;
-                    attributes.color.title = 'Color';
+                    attributes.color.title = 'Couleur';
                     // Properties
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Nom';
