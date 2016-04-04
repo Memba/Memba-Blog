@@ -14,7 +14,7 @@ module.exports = {
      * @param req
      * @param res
      */
-    createLogEntry: function (req, res) {        
+    createLogEntry: function (req, res) {
         res.end();
     }
 
