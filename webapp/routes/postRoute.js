@@ -56,7 +56,9 @@ module.exports = {
                 // get blog post
                 function (callback) {
                     /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
-                    var site_url = req.protocol + '://' + req.get('host') + url.parse(req.originalUrl).pathname;
+                    // The following won't work is original protocol is https, and nodeJS server is hosted in http behind a proxy
+                    // var site_url = req.protocol + '://' + req.get('host') + url.parse(req.originalUrl).pathname;
+                    var site_url = config.uris.webapp.root + url.parse(req.originalUrl).pathname;
                     indexModel.findBySiteUrl(site_url, req.query, callback);
                     /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                 },
