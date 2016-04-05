@@ -293,6 +293,6 @@ locales.forEach(function (locale) {
     // because teh child process does not receive the message sent
     setTimeout(function () {
         db[locale].load();
-    }, 100);
+    }, 0);
 });
 module.exports = db;
