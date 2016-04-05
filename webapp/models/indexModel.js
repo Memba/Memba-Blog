@@ -25,7 +25,11 @@ module.exports = {
      * @param callback
      */
     getIndex: function (language, callback) {
-        db[language].find({}, callback);
+        if (db[language] && typeof db[language].find === 'function') {
+            db[language].find({}, callback);
+        } else {
+            callback(new Error('db collection not found for language ' + language));
+        }
     },
 
     /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
@@ -39,7 +43,11 @@ module.exports = {
     findBySiteUrl: function (site_url, query, callback) {
         var language = convert.site_url2language(site_url);
         query = utils.deepExtend(query, { site_url: new RegExp('^' + site_url, 'i') });
-        db[language].find(query, callback);
+        if (db[language] && typeof db[language].find === 'function') {
+            db[language].find(query, callback);
+        } else {
+            callback(new Error('db collection not found for language ' + language));
+        }
     },
 
     /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
@@ -63,7 +71,11 @@ module.exports = {
         } else {
             query = { path: path };
         }
-        db[language].find(query, callback);
+        if (db[language] && typeof db[language].find === 'function') {
+            db[language].find(query, callback);
+        } else {
+            callback(new Error('db collection not found for language ' + language));
+        }
     },
 
     /**
@@ -74,7 +86,7 @@ module.exports = {
     groupByCategory: function (language, callback) {
         if (cache.categories[language]) {
             callback(null, cache.categories[language]);
-        } else {
+        } else if (db[language] && typeof db[language].group === 'function') {
             db[language].group(
                 {
                     key: { category: 1 },
@@ -93,6 +105,8 @@ module.exports = {
                     }
                 }
             );
+        } else {
+            callback(new Error('db collection not found for language ' + language));
         }
     },
 
@@ -104,7 +118,7 @@ module.exports = {
     groupByAuthor: function (language, callback) {
         if (cache.authors[language]) {
             callback(null, cache.authors[language]);
-        } else {
+        } else if (db[language] && typeof db[language].group === 'function') {
             db[language].group(
                 {
                     /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
@@ -125,6 +139,8 @@ module.exports = {
                     }
                 }
             );
+        } else {
+            callback(new Error('db collection not found for language ' + language));
         }
     },
 
@@ -136,7 +152,7 @@ module.exports = {
     groupByYearMonth: function (language, callback) {
         if (cache.months[language]) {
             callback(null, cache.months[language]);
-        } else {
+        } else if (db[language] && typeof db[language].group === 'function') {
             db[language].group(
                 {
                     keyf: function (doc) {
@@ -163,6 +179,8 @@ module.exports = {
                     }
                 }
             );
+        } else {
+            callback(new Error('db collection not found for language ' + language));
         }
     },
 
