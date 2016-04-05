@@ -289,6 +289,10 @@ logger.info({
 var db = {};
 locales.forEach(function (locale) {
     db[locale] = new Collection(locale);
-    db[locale].load();
+    // Note: for whatever reason without a timer, the indexing does not always start
+    // because teh child process does not receive the message sent
+    setTimeout(function () {
+        db[locale].load();
+    }, 100);
 });
 module.exports = db;

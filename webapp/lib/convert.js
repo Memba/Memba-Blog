@@ -146,8 +146,6 @@ module.exports = {
         var matches = path.match(RX_SITE_URL_2_LANGUAGE);
         if (Array.isArray(matches) && matches.length > 1) {
             return matches[1];
-        } else {
-            return undefined;
         }
     },
 
@@ -160,8 +158,6 @@ module.exports = {
         var matches = path.match(RX_PATH_2_LANGUAGE);
         if (Array.isArray(matches) && matches.length === 2) {
             return matches[1];
-        } else {
-            return undefined;
         }
     },
 
