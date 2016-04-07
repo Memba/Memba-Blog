@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -139,6 +139,7 @@
             ],
             setDataSource: function (dataSource) {
                 this.options.dataSource = dataSource;
+                this._state = '';
                 this._dataSource();
                 this.listView.setDataSource(this.dataSource);
                 if (this.options.autoBind) {

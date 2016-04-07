@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -47,7 +47,7 @@
                     lineHeight: target.height() + 'px',
                     paddingTop: target.css('paddingTop'),
                     paddingBottom: target.css('paddingBottom')
-                }).html(target.attr(kendo.attr('title')) || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-denied" />');
+                }).html(kendo.htmlEncode(target.attr(kendo.attr('title'))) || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-denied" />');
             }, dropCue = $('<div class="k-grouping-dropclue"/>');
         function dropCueOffsetTop(element) {
             return element.position().top + 3;

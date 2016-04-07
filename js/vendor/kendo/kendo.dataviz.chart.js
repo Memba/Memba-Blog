@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1104,7 +1104,12 @@
                     chart._pannable.start(e);
                 }
                 if (chart._zoomSelection) {
-                    chart._zoomSelection.start(e);
+                    if (chart._zoomSelection.start(e)) {
+                        this.trigger(ZOOM_START, {
+                            axisRanges: axisRanges(this._plotArea.axes),
+                            originalEvent: e
+                        });
+                    }
                 }
             },
             _move: function (e) {
@@ -1151,6 +1156,10 @@
                             originalEvent: e
                         })) {
                         this._zoomSelection.zoom();
+                        this.trigger(ZOOM_END, {
+                            axisRanges: ranges,
+                            originalEvent: e
+                        });
                     }
                 }
                 if (this._pannable) {
@@ -1160,14 +1169,18 @@
             _mousewheel: function (e) {
                 var chart = this, origEvent = e.originalEvent, prevented, delta = mwDelta(e), totalDelta, state = chart._navState, axes, i, currentAxis, axisName, ranges = {}, mousewheelZoom = chart._mousewheelZoom;
                 if (mousewheelZoom) {
-                    e.preventDefault();
-                    ranges = mousewheelZoom.updateRanges(delta);
-                    if (ranges && !chart.trigger(ZOOM, {
-                            delta: delta,
-                            axisRanges: ranges,
-                            originalEvent: e
-                        })) {
-                        mousewheelZoom.zoom();
+                    var args = {
+                        delta: delta,
+                        axisRanges: axisRanges(this._plotArea.axes),
+                        originalEvent: e
+                    };
+                    if (!chart.trigger(ZOOM_START, args)) {
+                        e.preventDefault();
+                        args.axisRanges = ranges = mousewheelZoom.updateRanges(delta);
+                        if (ranges && !chart.trigger(ZOOM, args)) {
+                            mousewheelZoom.zoom();
+                            chart.trigger(ZOOM_END, args);
+                        }
                     }
                 } else {
                     if (!state) {
@@ -2935,7 +2948,7 @@
                 var scale = lineSize / timeRange;
                 var positions = [start];
                 for (var i = 1; i < divisions; i++) {
-                    var date = addDuration(options.min, i * options.majorUnit, options.baseUnit);
+                    var date = addDuration(options.min, i * step, options.baseUnit);
                     var pos = start + dateDiff(date, options.min) * scale * dir;
                     positions.push(round(pos, COORD_PRECISION));
                 }
@@ -3285,16 +3298,16 @@
             tooltipAnchor: function (tooltipWidth, tooltipHeight) {
                 var bar = this, options = bar.options, box = bar.box, vertical = options.vertical, aboveAxis = bar.aboveAxis, clipBox = bar.owner.pane.clipBox() || box, x, y;
                 if (vertical) {
-                    x = box.x2 + TOOLTIP_OFFSET;
+                    x = math.min(box.x2, clipBox.x2) + TOOLTIP_OFFSET;
                     y = aboveAxis ? math.max(box.y1, clipBox.y1) : math.min(box.y2, clipBox.y2) - tooltipHeight;
                 } else {
                     var x1 = math.max(box.x1, clipBox.x1), x2 = math.min(box.x2, clipBox.x2);
                     if (options.isStacked) {
                         x = aboveAxis ? x2 - tooltipWidth : x1;
-                        y = box.y1 - tooltipHeight - TOOLTIP_OFFSET;
+                        y = math.max(box.y1, clipBox.y1) - tooltipHeight - TOOLTIP_OFFSET;
                     } else {
                         x = aboveAxis ? x2 + TOOLTIP_OFFSET : x1 - tooltipWidth - TOOLTIP_OFFSET;
-                        y = box.y1;
+                        y = math.max(box.y1, clipBox.y1);
                     }
                 }
                 return new Point2D(x, y);
@@ -3558,6 +3571,9 @@
                 var max = MIN_VALUE;
                 for (var i = 0; i < this.categoryPoints.length; i++) {
                     var categoryPts = this.categoryPoints[i];
+                    if (!categoryPts) {
+                        continue;
+                    }
                     for (var pIx = 0; pIx < categoryPts.length; pIx++) {
                         var point = categoryPts[pIx];
                         if (point) {
@@ -4276,23 +4292,7 @@
                     this.animation = draw.Animation.create(this.bodyVisual, this.options.animation);
                 }
             },
-            tooltipAnchor: function (tooltipWidth, tooltipHeight) {
-                var bar = this, options = bar.options, box = bar.box, vertical = options.vertical, aboveAxis = bar.aboveAxis, clipBox = bar.owner.pane.clipBox() || box, x, y;
-                if (vertical) {
-                    x = box.x2 + TOOLTIP_OFFSET;
-                    y = aboveAxis ? math.max(box.y1, clipBox.y1) : math.min(box.y2, clipBox.y2) - tooltipHeight;
-                } else {
-                    var x1 = math.max(box.x1, clipBox.x1), x2 = math.min(box.x2, clipBox.x2);
-                    if (options.isStacked) {
-                        x = aboveAxis ? x2 - tooltipWidth : x1;
-                        y = box.y1 - tooltipHeight - TOOLTIP_OFFSET;
-                    } else {
-                        x = aboveAxis ? x2 + TOOLTIP_OFFSET : x1 - tooltipWidth - TOOLTIP_OFFSET;
-                        y = box.y1;
-                    }
-                }
-                return new Point2D(x, y);
-            },
+            tooltipAnchor: Bar.fn.tooltipAnchor,
             createHighlight: function (style) {
                 return draw.Path.fromRect(this.box.toRect(), style);
             },
@@ -4556,7 +4556,7 @@
                 }
                 if (point.note) {
                     var noteTargetBox = point.markerBox();
-                    if (!point.marker) {
+                    if (!(options.markers.visible && options.markers.size)) {
                         center = noteTargetBox.center();
                         noteTargetBox = Box2D(center.x, center.y, center.x, center.y);
                     }
@@ -9492,7 +9492,7 @@
                     var chart = this.chart;
                     var point = chart._toModelCoordinates(e.x.client, e.y.client);
                     var zoomPane = this._zoomPane = chart._plotArea.paneByPoint(point);
-                    if (zoomPane) {
+                    if (zoomPane && zoomPane.clipBox()) {
                         var clipBox = zoomPane.clipBox().clone();
                         var elementOffset = this._elementOffset();
                         clipBox.translate(elementOffset.left, elementOffset.top);
@@ -9503,8 +9503,10 @@
                             width: 0,
                             height: 0
                         });
+                        return true;
                     }
                 }
+                return false;
             },
             _elementOffset: function () {
                 var chartElement = this.chart.element;
@@ -9728,8 +9730,11 @@
             init: function (axis) {
                 this._axis = axis;
             },
-            slot: function (from, to) {
-                return this._axis.slot(from, to);
+            slot: function (from, to, limit) {
+                if (!defined(limit)) {
+                    limit = true;
+                }
+                return this._axis.slot(from, to, limit);
             },
             range: function () {
                 return this._axis.range();
@@ -9991,15 +9996,17 @@
             var startDate = toDate(start);
             if (baseUnit == MONTHS) {
                 index = date.getMonth() - startDate.getMonth() + (date.getFullYear() - startDate.getFullYear()) * 12 + timeIndex(date, new Date(date.getFullYear(), date.getMonth()), DAYS) / new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-            } else if (baseUnit === YEARS) {
+            } else if (baseUnit == YEARS) {
                 index = date.getFullYear() - startDate.getFullYear() + dateIndex(date, new Date(date.getFullYear(), 0), MONTHS, 1) / 12;
-            } else {
+            } else if (baseUnit == DAYS || baseUnit == WEEKS) {
                 index = timeIndex(date, startDate, baseUnit);
+            } else {
+                index = dateDiff(date, start) / TIME_PER_UNIT[baseUnit];
             }
             return index / baseUnitStep;
         }
         function timeIndex(date, start, baseUnit) {
-            return dateDiff(date, start) / TIME_PER_UNIT[baseUnit];
+            return absoluteDateDiff(date, start) / TIME_PER_UNIT[baseUnit];
         }
         function singleItemOrArray(array) {
             return array.length === 1 ? array[0] : array;
@@ -10561,6 +10568,8 @@
             WaterfallSegment: WaterfallSegment,
             XYPlotArea: XYPlotArea,
             MousewheelZoom: MousewheelZoom,
+            ZoomSelection: ZoomSelection,
+            Pannable: Pannable,
             addDuration: addDuration,
             areNumbers: areNumbers,
             axisGroupBox: axisGroupBox,

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2247,6 +2247,10 @@
                             that._hideResizeHandle();
                         },
                         hint: function (target) {
+                            var title = target.attr(kendo.attr('title'));
+                            if (title) {
+                                title = kendo.htmlEncode(title);
+                            }
                             return $('<div class="k-header k-drag-clue" />').css({
                                 width: target.width(),
                                 paddingLeft: target.css('paddingLeft'),
@@ -2254,7 +2258,7 @@
                                 lineHeight: target.height() + 'px',
                                 paddingTop: target.css('paddingTop'),
                                 paddingBottom: target.css('paddingBottom')
-                            }).html(target.attr(kendo.attr('title')) || target.attr(kendo.attr('field')) || target.text()).prepend('<span class="k-icon k-drag-status k-denied" />');
+                            }).html(title || target.attr(kendo.attr('field')) || target.text()).prepend('<span class="k-icon k-drag-status k-denied" />');
                         }
                     }).data('kendoDraggable');
                 }
@@ -3136,6 +3140,18 @@
                     });
                     newRow = $((isAlt ? that.altRowTemplate : that.rowTemplate)(model));
                     row.replaceWith(newRow);
+                    that.trigger('itemChange', {
+                        item: newRow,
+                        data: model,
+                        ns: ui
+                    });
+                    if (related && related.length) {
+                        that.trigger('itemChange', {
+                            item: related,
+                            data: model,
+                            ns: ui
+                        });
+                    }
                     var angularElements = newRow;
                     var angularData = [{ dataItem: model }];
                     if (related && related.length) {
@@ -4356,10 +4372,19 @@
                 if (that.options.noRecords) {
                     var noRecordsElement = that.table.parent().children('.' + NORECORDSCLASS);
                     if (noRecordsElement.length) {
+                        that.angular('cleanup', function () {
+                            return { elements: noRecordsElement.get() };
+                        });
                         noRecordsElement.remove();
                     }
                     if (!that.dataSource || !that.dataSource.view().length) {
-                        $(that.noRecordsTemplate({})).insertAfter(that.table);
+                        noRecordsElement = $(that.noRecordsTemplate({})).insertAfter(that.table);
+                        that.angular('compile', function () {
+                            return {
+                                elements: noRecordsElement.get(),
+                                data: [{}]
+                            };
+                        });
                     }
                 }
             },
@@ -4637,8 +4662,7 @@
                     }
                     if (footerWrap) {
                         var offset = that.content.scrollLeft();
-                        var hasVirtualScroll = options.scrollable !== true && options.scrollable.virtual && !that.virtualScrollable;
-                        if (hasVirtualScroll) {
+                        if (options.scrollable !== true && options.scrollable.virtual) {
                             offset = that.wrapper.find('.k-virtual-scrollable-wrap').scrollLeft();
                         }
                         footerWrap.scrollLeft(offset);
@@ -5956,6 +5980,9 @@
             },
             _isActiveInTable: function () {
                 var active = activeElement();
+                if (!active) {
+                    return false;
+                }
                 return this.table[0] === active || $.contains(this.table[0], active) || this._isLocked() && (this.lockedTable[0] === active || $.contains(this.lockedTable[0], active));
             },
             refresh: function (e) {

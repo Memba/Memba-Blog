@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -87,6 +87,10 @@
     margin-left: -5px;
 }
 
+input.k-textbox {
+  height: 2.43em;
+}
+
 .k-textbox > input,
 .k-autocomplete .k-input,
 .k-picker-wrap .k-input,
@@ -137,6 +141,11 @@
     margin: 0;
 }
 
+.k-checkbox-label,
+.k-radio-label {
+    display: inline;
+}
+
 .k-checkbox-label:before,
 .k-checkbox-label:after,
 .k-radio-label:before,
@@ -154,8 +163,13 @@
     }
 }
 
+.k-spreadsheet-sheets-bar .k-link:first-child {
+    padding-right: 0;
+}
+
 .k-spreadsheet-sheets-bar .k-spreadsheet-sheets-remove {
     margin: 0;
+    padding: .65em .92em .65em .32em;
 }
 
 .k-button.k-spreadsheet-sheets-bar-add {

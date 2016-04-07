@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3526,7 +3526,7 @@
         });
         var TextBlock = VisualBase.extend({
             init: function (options) {
-                this._textColor(options);
+                options = this._textColor(options);
                 VisualBase.fn.init.call(this, options);
                 this._font();
                 this._initText();
@@ -3547,8 +3547,9 @@
             },
             _textColor: function (options) {
                 if (options && options.color) {
-                    deepExtend(options, { fill: { color: options.color } });
+                    options = deepExtend({}, options, { fill: { color: options.color } });
                 }
+                return options;
             },
             _font: function () {
                 var options = this.options;
@@ -3565,7 +3566,7 @@
                 if (options) {
                     var sizeChanged = false;
                     var textOptions = this.options;
-                    this._textColor(options);
+                    options = this._textColor(options);
                     VisualBase.fn.redraw.call(this, options);
                     if (options.fontFamily || defined(options.fontSize)) {
                         deepExtend(textOptions, {
@@ -5719,9 +5720,22 @@
                 this._ts._connectionManipulation();
                 return new ConnectionEditUndoUnit(this.connection, this._initialSource, this._initialTarget);
             },
-            _hitTest: function (p) {
-                var sp = this.connection.sourcePoint(), tp = this.connection.targetPoint(), rx = this.options.handles.width / 2, ry = this.options.handles.height / 2, sb = new Rect(sp.x, sp.y).inflate(rx, ry), tb = new Rect(tp.x, tp.y).inflate(rx, ry);
-                return sb.contains(p) ? -1 : tb.contains(p) ? 1 : 0;
+            _hitTest: function (point) {
+                var sourcePoint = this.connection.sourcePoint();
+                var targetPoint = this.connection.targetPoint();
+                var radiusX = this.options.handles.width / 2 + HIT_TEST_DISTANCE;
+                var radiusY = this.options.handles.height / 2 + HIT_TEST_DISTANCE;
+                var sourcePointDistance = sourcePoint.distanceTo(point);
+                var targetPointDistance = targetPoint.distanceTo(point);
+                var sourceHandle = new Rect(sourcePoint.x, sourcePoint.y).inflate(radiusX, radiusY).contains(point);
+                var targetHandle = new Rect(targetPoint.x, targetPoint.y).inflate(radiusX, radiusY).contains(point);
+                var handle = 0;
+                if (sourceHandle && (!targetHandle || sourcePointDistance < targetPointDistance)) {
+                    handle = -1;
+                } else if (targetHandle && (!sourceHandle || targetPointDistance < sourcePointDistance)) {
+                    handle = 1;
+                }
+                return handle;
             },
             refresh: function () {
                 this.spVisual.redraw({ center: this.diagram.modelToLayer(this.connection.sourcePoint()) });
@@ -10456,8 +10470,6 @@
                 that.canvas.append(that.adornerLayer);
                 that._createHandlers();
                 that._initialize();
-                that._fetchFreshData();
-                that._createGlobalToolBar();
                 that._resizingAdorner = new ResizingAdorner(that, { editable: that.options.editable });
                 that._connectorsAdorner = new ConnectorsAdorner(that);
                 that._adorn(that._resizingAdorner, true);
@@ -10465,6 +10477,8 @@
                 that.selector = new Selector(that);
                 that._clipboard = [];
                 that.pauseMouseHandlers = false;
+                that._fetchFreshData();
+                that._createGlobalToolBar();
                 that._createOptionElements();
                 that.zoom(that.options.zoom);
                 that.canvas.draw();
@@ -12399,11 +12413,14 @@
                 }
             },
             createTool: function (tool) {
-                var toolName = (isPlainObject(tool) ? tool.name : tool) + 'Tool';
+                if (!isPlainObject(tool)) {
+                    tool = { name: tool };
+                }
+                var toolName = tool.name + 'Tool';
                 if (this[toolName]) {
                     this[toolName](tool);
                 } else {
-                    this._tools.push(tool);
+                    this._tools.push(deepExtend({}, tool, { attributes: this._setAttributes({ action: tool.name }) }));
                 }
             },
             showAt: function (point) {
@@ -12538,22 +12555,26 @@
             click: function (e) {
                 var attributes = this._getAttributes($(e.target));
                 var action = attributes.action;
-                if (action) {
+                if (action && this[action]) {
                     this[action](attributes);
                 }
-                this.trigger('click', this.eventData(action));
+                this.trigger('click', this.eventData(action, e.target));
             },
-            eventData: function (action) {
-                var element = this.selectedElements(), shapes = [], connections = [];
-                if (element instanceof Shape) {
-                    shapes.push(element);
-                } else {
-                    connections.push(element);
+            eventData: function (action, target) {
+                var elements = this.selectedElements(), length = elements.length, shapes = [], connections = [], element;
+                for (var idx = 0; idx < length; idx++) {
+                    element = elements[idx];
+                    if (element instanceof Shape) {
+                        shapes.push(element);
+                    } else {
+                        connections.push(element);
+                    }
                 }
                 return {
                     shapes: shapes,
                     connections: connections,
-                    action: action
+                    action: action,
+                    target: target
                 };
             },
             'delete': function () {

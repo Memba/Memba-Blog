@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1312,7 +1312,7 @@
                 if (this._hasLockedColumns) {
                     layout += '<div class=\'k-grid-content-locked\'>' + '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<tbody />' + '</table>' + '</div>';
                 }
-                layout += '<div class=\'#= gridContentWrap #\'>' + '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<tbody />' + '</table>' + '</div>';
+                layout += '<div class=\'#= gridContentWrap # k-auto-scrollable\'>' + '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<tbody />' + '</table>' + '</div>';
                 if (!this.options.scrollable) {
                     layout = '<table role=\'treegrid\' tabindex=\'0\'>' + '<colgroup></colgroup>' + '<thead class=\'#= gridHeader #\' role=\'rowgroup\' />' + '<tbody />' + '</table>';
                 }

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -130,12 +130,13 @@
                         }
                     }
                 }
+                that.defaultOperator = options.operator;
                 that.viewModel = viewModel = kendo.observable({
                     operator: options.operator,
                     value: null,
                     operatorVisible: function () {
                         var val = this.get('value');
-                        return val !== null && val !== undefined && val != 'undefined' || isNonValueFilter(this.get('operator')) && !that._clearInProgress && !that.manuallyUpdatingVM;
+                        return val !== null && val !== undefined && val != 'undefined' || isNonValueFilter(this.get('operator')) && !that._clearInProgress;
                     }
                 });
                 viewModel.bind(CHANGE, proxy(that.updateDsFilter, that));
@@ -319,6 +320,9 @@
             },
             clearFilter: function () {
                 this._clearInProgress = true;
+                if (isNonValueFilter(this.viewModel.operator)) {
+                    this.viewModel.set('operator', this.defaultOperator);
+                }
                 this.viewModel.set('value', null);
                 this._clearInProgress = false;
             },

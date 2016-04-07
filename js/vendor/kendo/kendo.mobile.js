@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.1.226'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2016.1.406'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -5795,10 +5795,10 @@
                     return a + ' !== \'\'';
                 },
                 isnull: function (a) {
-                    return a + ' === null || ' + a + ' === undefined';
+                    return '(' + a + ' === null || ' + a + ' === undefined)';
                 },
                 isnotnull: function (a) {
-                    return a + ' !== null && ' + a + ' !== undefined';
+                    return '(' + a + ' !== null && ' + a + ' !== undefined)';
                 }
             };
         }();
@@ -13052,6 +13052,7 @@
                 surface: null,
                 global: false,
                 fastTap: false,
+                filter: null,
                 multiTouch: false,
                 enableSwipe: false,
                 minXDelta: 30,
@@ -18568,6 +18569,7 @@
                 return;
             }
             var value;
+            var haveChangeOnElement = false;
             if (isForm(element)) {
                 value = function () {
                     return formValue(element);
@@ -18585,7 +18587,9 @@
                 if (val === undefined) {
                     val = null;
                 }
+                haveChangeOnElement = true;
                 setTimeout(function () {
+                    haveChangeOnElement = false;
                     if (widget) {
                         var kNgModel = scope[widget.element.attr('k-ng-model')];
                         if (kNgModel) {
@@ -18601,7 +18605,6 @@
                     }
                 }, 0);
             };
-            var haveChangeOnElement = false;
             if (isForm(element)) {
                 element.on('change', function () {
                     haveChangeOnElement = true;
@@ -18687,9 +18690,7 @@
             var deregister = scope.$on('$destroy', function () {
                 deregister();
                 if (widget) {
-                    if (widget.element) {
-                        widget.destroy();
-                    }
+                    kendo.destroy(widget.element);
                     widget = null;
                 }
             });
@@ -19495,7 +19496,7 @@
                                     $log.warn(attrName + ' without a matching parent widget found. It can be one of the following: ' + parents.join(', '));
                                 } else {
                                     controller.template(templateName, template);
-                                    $element.remove();
+                                    element.remove();
                                 }
                             };
                         }

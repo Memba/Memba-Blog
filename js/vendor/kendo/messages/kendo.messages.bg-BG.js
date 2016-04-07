@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -644,6 +644,28 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "confirmDelete": "Изтрий"
   },
   "noRecords": "Няма налични записи."
+});
+}
+
+/* TreeList messages */
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+    "noRows": "Няма налични записи.",
+    "loading": "Зареждане...",
+    "requestFailed": "Грешка при заявка",
+    "retry": "Опитай отново",
+    "commands": {
+        "edit": "Редактиране",
+        "update": "Обнови",
+        "canceledit": "Отказ",
+        "create": "Добави",
+        "createchild": "Добави подзапис",
+        "destroy": "Изтриване",
+        "excel": "Експорт към Excel",
+        "pdf": "Експорт към PDF"
+    }
 });
 }
 

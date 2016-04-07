@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3450,7 +3450,7 @@
                     if (isSettings) {
                         type = name = view.type ? view.type : view;
                         if (typeof type !== STRING) {
-                            name = view.title;
+                            name = view.name || view.title;
                             hasType = true;
                         }
                     } else {

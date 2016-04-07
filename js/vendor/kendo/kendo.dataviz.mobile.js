@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.1.226'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2016.1.406'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -6216,10 +6216,10 @@
                     return a + ' !== \'\'';
                 },
                 isnull: function (a) {
-                    return a + ' === null || ' + a + ' === undefined';
+                    return '(' + a + ' === null || ' + a + ' === undefined)';
                 },
                 isnotnull: function (a) {
-                    return a + ' !== null && ' + a + ' !== undefined';
+                    return '(' + a + ' !== null && ' + a + ' !== undefined)';
                 }
             };
         }();
@@ -23943,8 +23943,8 @@
                 }
                 return text;
             },
-            slot: function (from, to) {
-                var slot = this.getSlot(from, to);
+            slot: function (from, to, limit) {
+                var slot = this.getSlot(from, to, limit);
                 if (slot) {
                     return slot.toRect();
                 }
@@ -28463,7 +28463,12 @@
                     chart._pannable.start(e);
                 }
                 if (chart._zoomSelection) {
-                    chart._zoomSelection.start(e);
+                    if (chart._zoomSelection.start(e)) {
+                        this.trigger(ZOOM_START, {
+                            axisRanges: axisRanges(this._plotArea.axes),
+                            originalEvent: e
+                        });
+                    }
                 }
             },
             _move: function (e) {
@@ -28510,6 +28515,10 @@
                             originalEvent: e
                         })) {
                         this._zoomSelection.zoom();
+                        this.trigger(ZOOM_END, {
+                            axisRanges: ranges,
+                            originalEvent: e
+                        });
                     }
                 }
                 if (this._pannable) {
@@ -28519,14 +28528,18 @@
             _mousewheel: function (e) {
                 var chart = this, origEvent = e.originalEvent, prevented, delta = mwDelta(e), totalDelta, state = chart._navState, axes, i, currentAxis, axisName, ranges = {}, mousewheelZoom = chart._mousewheelZoom;
                 if (mousewheelZoom) {
-                    e.preventDefault();
-                    ranges = mousewheelZoom.updateRanges(delta);
-                    if (ranges && !chart.trigger(ZOOM, {
-                            delta: delta,
-                            axisRanges: ranges,
-                            originalEvent: e
-                        })) {
-                        mousewheelZoom.zoom();
+                    var args = {
+                        delta: delta,
+                        axisRanges: axisRanges(this._plotArea.axes),
+                        originalEvent: e
+                    };
+                    if (!chart.trigger(ZOOM_START, args)) {
+                        e.preventDefault();
+                        args.axisRanges = ranges = mousewheelZoom.updateRanges(delta);
+                        if (ranges && !chart.trigger(ZOOM, args)) {
+                            mousewheelZoom.zoom();
+                            chart.trigger(ZOOM_END, args);
+                        }
                     }
                 } else {
                     if (!state) {
@@ -30294,7 +30307,7 @@
                 var scale = lineSize / timeRange;
                 var positions = [start];
                 for (var i = 1; i < divisions; i++) {
-                    var date = addDuration(options.min, i * options.majorUnit, options.baseUnit);
+                    var date = addDuration(options.min, i * step, options.baseUnit);
                     var pos = start + dateDiff(date, options.min) * scale * dir;
                     positions.push(round(pos, COORD_PRECISION));
                 }
@@ -30644,16 +30657,16 @@
             tooltipAnchor: function (tooltipWidth, tooltipHeight) {
                 var bar = this, options = bar.options, box = bar.box, vertical = options.vertical, aboveAxis = bar.aboveAxis, clipBox = bar.owner.pane.clipBox() || box, x, y;
                 if (vertical) {
-                    x = box.x2 + TOOLTIP_OFFSET;
+                    x = math.min(box.x2, clipBox.x2) + TOOLTIP_OFFSET;
                     y = aboveAxis ? math.max(box.y1, clipBox.y1) : math.min(box.y2, clipBox.y2) - tooltipHeight;
                 } else {
                     var x1 = math.max(box.x1, clipBox.x1), x2 = math.min(box.x2, clipBox.x2);
                     if (options.isStacked) {
                         x = aboveAxis ? x2 - tooltipWidth : x1;
-                        y = box.y1 - tooltipHeight - TOOLTIP_OFFSET;
+                        y = math.max(box.y1, clipBox.y1) - tooltipHeight - TOOLTIP_OFFSET;
                     } else {
                         x = aboveAxis ? x2 + TOOLTIP_OFFSET : x1 - tooltipWidth - TOOLTIP_OFFSET;
-                        y = box.y1;
+                        y = math.max(box.y1, clipBox.y1);
                     }
                 }
                 return new Point2D(x, y);
@@ -30917,6 +30930,9 @@
                 var max = MIN_VALUE;
                 for (var i = 0; i < this.categoryPoints.length; i++) {
                     var categoryPts = this.categoryPoints[i];
+                    if (!categoryPts) {
+                        continue;
+                    }
                     for (var pIx = 0; pIx < categoryPts.length; pIx++) {
                         var point = categoryPts[pIx];
                         if (point) {
@@ -31635,23 +31651,7 @@
                     this.animation = draw.Animation.create(this.bodyVisual, this.options.animation);
                 }
             },
-            tooltipAnchor: function (tooltipWidth, tooltipHeight) {
-                var bar = this, options = bar.options, box = bar.box, vertical = options.vertical, aboveAxis = bar.aboveAxis, clipBox = bar.owner.pane.clipBox() || box, x, y;
-                if (vertical) {
-                    x = box.x2 + TOOLTIP_OFFSET;
-                    y = aboveAxis ? math.max(box.y1, clipBox.y1) : math.min(box.y2, clipBox.y2) - tooltipHeight;
-                } else {
-                    var x1 = math.max(box.x1, clipBox.x1), x2 = math.min(box.x2, clipBox.x2);
-                    if (options.isStacked) {
-                        x = aboveAxis ? x2 - tooltipWidth : x1;
-                        y = box.y1 - tooltipHeight - TOOLTIP_OFFSET;
-                    } else {
-                        x = aboveAxis ? x2 + TOOLTIP_OFFSET : x1 - tooltipWidth - TOOLTIP_OFFSET;
-                        y = box.y1;
-                    }
-                }
-                return new Point2D(x, y);
-            },
+            tooltipAnchor: Bar.fn.tooltipAnchor,
             createHighlight: function (style) {
                 return draw.Path.fromRect(this.box.toRect(), style);
             },
@@ -31915,7 +31915,7 @@
                 }
                 if (point.note) {
                     var noteTargetBox = point.markerBox();
-                    if (!point.marker) {
+                    if (!(options.markers.visible && options.markers.size)) {
                         center = noteTargetBox.center();
                         noteTargetBox = Box2D(center.x, center.y, center.x, center.y);
                     }
@@ -36851,7 +36851,7 @@
                     var chart = this.chart;
                     var point = chart._toModelCoordinates(e.x.client, e.y.client);
                     var zoomPane = this._zoomPane = chart._plotArea.paneByPoint(point);
-                    if (zoomPane) {
+                    if (zoomPane && zoomPane.clipBox()) {
                         var clipBox = zoomPane.clipBox().clone();
                         var elementOffset = this._elementOffset();
                         clipBox.translate(elementOffset.left, elementOffset.top);
@@ -36862,8 +36862,10 @@
                             width: 0,
                             height: 0
                         });
+                        return true;
                     }
                 }
+                return false;
             },
             _elementOffset: function () {
                 var chartElement = this.chart.element;
@@ -37087,8 +37089,11 @@
             init: function (axis) {
                 this._axis = axis;
             },
-            slot: function (from, to) {
-                return this._axis.slot(from, to);
+            slot: function (from, to, limit) {
+                if (!defined(limit)) {
+                    limit = true;
+                }
+                return this._axis.slot(from, to, limit);
             },
             range: function () {
                 return this._axis.range();
@@ -37350,15 +37355,17 @@
             var startDate = toDate(start);
             if (baseUnit == MONTHS) {
                 index = date.getMonth() - startDate.getMonth() + (date.getFullYear() - startDate.getFullYear()) * 12 + timeIndex(date, new Date(date.getFullYear(), date.getMonth()), DAYS) / new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-            } else if (baseUnit === YEARS) {
+            } else if (baseUnit == YEARS) {
                 index = date.getFullYear() - startDate.getFullYear() + dateIndex(date, new Date(date.getFullYear(), 0), MONTHS, 1) / 12;
-            } else {
+            } else if (baseUnit == DAYS || baseUnit == WEEKS) {
                 index = timeIndex(date, startDate, baseUnit);
+            } else {
+                index = dateDiff(date, start) / TIME_PER_UNIT[baseUnit];
             }
             return index / baseUnitStep;
         }
         function timeIndex(date, start, baseUnit) {
-            return dateDiff(date, start) / TIME_PER_UNIT[baseUnit];
+            return absoluteDateDiff(date, start) / TIME_PER_UNIT[baseUnit];
         }
         function singleItemOrArray(array) {
             return array.length === 1 ? array[0] : array;
@@ -37920,6 +37927,8 @@
             WaterfallSegment: WaterfallSegment,
             XYPlotArea: XYPlotArea,
             MousewheelZoom: MousewheelZoom,
+            ZoomSelection: ZoomSelection,
+            Pannable: Pannable,
             addDuration: addDuration,
             areNumbers: areNumbers,
             axisGroupBox: axisGroupBox,
@@ -48141,6 +48150,7 @@
                 for (var i = 0; i < items.length; i++) {
                     if (items[i].id === id) {
                         tile = items[i];
+                        break;
                     }
                 }
                 if (tile) {
@@ -48157,7 +48167,7 @@
                 var index = -1;
                 for (var i = 0; i < items.length; i++) {
                     var dist = items[i].options.point.distanceTo(center);
-                    if (dist > maxDist) {
+                    if (dist > maxDist && !items[i].visible) {
                         index = i;
                         maxDist = dist;
                     }
@@ -51980,7 +51990,7 @@
         });
         var TextBlock = VisualBase.extend({
             init: function (options) {
-                this._textColor(options);
+                options = this._textColor(options);
                 VisualBase.fn.init.call(this, options);
                 this._font();
                 this._initText();
@@ -52001,8 +52011,9 @@
             },
             _textColor: function (options) {
                 if (options && options.color) {
-                    deepExtend(options, { fill: { color: options.color } });
+                    options = deepExtend({}, options, { fill: { color: options.color } });
                 }
+                return options;
             },
             _font: function () {
                 var options = this.options;
@@ -52019,7 +52030,7 @@
                 if (options) {
                     var sizeChanged = false;
                     var textOptions = this.options;
-                    this._textColor(options);
+                    options = this._textColor(options);
                     VisualBase.fn.redraw.call(this, options);
                     if (options.fontFamily || defined(options.fontSize)) {
                         deepExtend(textOptions, {
@@ -54173,9 +54184,22 @@
                 this._ts._connectionManipulation();
                 return new ConnectionEditUndoUnit(this.connection, this._initialSource, this._initialTarget);
             },
-            _hitTest: function (p) {
-                var sp = this.connection.sourcePoint(), tp = this.connection.targetPoint(), rx = this.options.handles.width / 2, ry = this.options.handles.height / 2, sb = new Rect(sp.x, sp.y).inflate(rx, ry), tb = new Rect(tp.x, tp.y).inflate(rx, ry);
-                return sb.contains(p) ? -1 : tb.contains(p) ? 1 : 0;
+            _hitTest: function (point) {
+                var sourcePoint = this.connection.sourcePoint();
+                var targetPoint = this.connection.targetPoint();
+                var radiusX = this.options.handles.width / 2 + HIT_TEST_DISTANCE;
+                var radiusY = this.options.handles.height / 2 + HIT_TEST_DISTANCE;
+                var sourcePointDistance = sourcePoint.distanceTo(point);
+                var targetPointDistance = targetPoint.distanceTo(point);
+                var sourceHandle = new Rect(sourcePoint.x, sourcePoint.y).inflate(radiusX, radiusY).contains(point);
+                var targetHandle = new Rect(targetPoint.x, targetPoint.y).inflate(radiusX, radiusY).contains(point);
+                var handle = 0;
+                if (sourceHandle && (!targetHandle || sourcePointDistance < targetPointDistance)) {
+                    handle = -1;
+                } else if (targetHandle && (!sourceHandle || targetPointDistance < sourcePointDistance)) {
+                    handle = 1;
+                }
+                return handle;
             },
             refresh: function () {
                 this.spVisual.redraw({ center: this.diagram.modelToLayer(this.connection.sourcePoint()) });
@@ -58331,15 +58355,19 @@
             hide: function (candidate) {
                 var item = this._getItem(candidate);
                 if (item.toolbar) {
-                    item.toolbar.hide();
                     if (item.toolbar.options.type === 'button' && item.toolbar.options.isChild) {
+                        item.toolbar.hide();
                         item.toolbar.getParentGroup().refresh();
+                    } else if (!item.toolbar.options.hidden) {
+                        item.toolbar.hide();
                     }
                 }
                 if (item.overflow) {
-                    item.overflow.hide();
                     if (item.overflow.options.type === 'button' && item.overflow.options.isChild) {
+                        item.overflow.hide();
                         item.overflow.getParentGroup().refresh();
+                    } else if (!item.toolbar.options.hidden) {
+                        item.overflow.hide();
                     }
                 }
                 this.resize(true);
@@ -58347,15 +58375,19 @@
             show: function (candidate) {
                 var item = this._getItem(candidate);
                 if (item.toolbar) {
-                    item.toolbar.show();
                     if (item.toolbar.options.type === 'button' && item.toolbar.options.isChild) {
+                        item.toolbar.show();
                         item.toolbar.getParentGroup().refresh();
+                    } else if (item.toolbar.options.hidden) {
+                        item.toolbar.show();
                     }
                 }
                 if (item.overflow) {
-                    item.overflow.show();
                     if (item.overflow.options.type === 'button' && item.overflow.options.isChild) {
+                        item.toolbar.show();
                         item.overflow.getParentGroup().refresh();
+                    } else if (item.overflow.options.hidden) {
+                        item.overflow.show();
                     }
                 }
                 this.resize(true);
@@ -58565,7 +58597,7 @@
                             firstHasFocus = true;
                         }
                     }
-                    if (lastHasFocus && this.overflowAnchor.css('visibility') !== 'hidden') {
+                    if (lastHasFocus && this.overflowAnchor && this.overflowAnchor.css('visibility') !== 'hidden') {
                         e.preventDefault();
                         this.overflowAnchor.focus();
                     }
@@ -59766,6 +59798,10 @@
             },
             setOptions: function (options) {
                 var old = this.options;
+                var disableDates = options.disableDates;
+                if (disableDates) {
+                    options.disableDates = calendar.disabled(disableDates);
+                }
                 this.options = extend(old, options, {
                     change: old.change,
                     close: old.close,
@@ -63026,42 +63062,53 @@
                 var that = this;
                 var options = that.options;
                 var cascade = options.cascadeFrom;
-                var cascadeHandler;
                 var parent;
                 if (cascade) {
                     parent = that._parentWidget();
+                    that._cascadeHandlerProxy = proxy(that._cascadeHandler, that);
                     if (!parent) {
                         return;
                     }
+                    options.autoBind = false;
                     parent.bind('set', function () {
                         that.one('set', function (e) {
                             that._selectedValue = e.value;
                         });
                     });
-                    options.autoBind = false;
-                    cascadeHandler = proxy(function (e) {
-                        var valueBeforeCascade = this.value();
-                        this._userTriggered = e.userTriggered;
-                        if (this.listView.bound()) {
-                            this._clearSelection(parent, true);
-                        }
-                        this._cascadeSelect(parent, valueBeforeCascade);
-                    }, that);
-                    parent.first(CASCADE, cascadeHandler);
-                    parent._focused.bind('focus', function () {
-                        parent.unbind(CASCADE, cascadeHandler);
-                        parent.first(CHANGE, cascadeHandler);
-                    });
-                    parent._focused.bind('focusout', function () {
-                        parent.unbind(CHANGE, cascadeHandler);
-                        parent.first(CASCADE, cascadeHandler);
-                    });
+                    parent.first(CASCADE, that._cascadeHandlerProxy);
                     if (parent.listView.bound()) {
+                        that._toggleCascadeOnFocus();
                         that._cascadeSelect(parent);
-                    } else if (!parent.value()) {
-                        that.enable(false);
+                    } else {
+                        parent.one('dataBound', function () {
+                            that._toggleCascadeOnFocus();
+                        });
+                        if (!parent.value()) {
+                            that.enable(false);
+                        }
                     }
                 }
+            },
+            _toggleCascadeOnFocus: function () {
+                var that = this;
+                var parent = that._parentWidget();
+                parent._focused.bind('focus', function () {
+                    parent.unbind(CASCADE, that._cascadeHandlerProxy);
+                    parent.first(CHANGE, that._cascadeHandlerProxy);
+                });
+                parent._focused.bind('focusout', function () {
+                    parent.unbind(CHANGE, that._cascadeHandlerProxy);
+                    parent.first(CASCADE, that._cascadeHandlerProxy);
+                });
+            },
+            _cascadeHandler: function (e) {
+                var parent = this._parentWidget();
+                var valueBeforeCascade = this.value();
+                this._userTriggered = e.userTriggered;
+                if (this.listView.bound()) {
+                    this._clearSelection(parent, true);
+                }
+                this._cascadeSelect(parent, valueBeforeCascade);
             },
             _cascadeChange: function (parent) {
                 var that = this;
@@ -63089,17 +63136,11 @@
                 var dataItem = parent.dataItem();
                 var filterValue = dataItem ? parent._value(dataItem) : null;
                 var valueField = that.options.cascadeFromField || parent.options.dataValueField;
-                var expressions, filters;
+                var expressions;
                 that._valueBeforeCascade = valueBeforeCascade !== undefined ? valueBeforeCascade : that.value();
                 if (filterValue || filterValue === 0) {
                     expressions = that.dataSource.filter() || {};
                     removeFiltersForField(expressions, valueField);
-                    filters = (expressions.filters || []).slice(0);
-                    filters.push({
-                        field: valueField,
-                        operator: 'eq',
-                        value: filterValue
-                    });
                     var handler = function () {
                         that.unbind('dataBound', handler);
                         that._cascadeChange(parent);
@@ -66125,8 +66166,6 @@
                 that.canvas.append(that.adornerLayer);
                 that._createHandlers();
                 that._initialize();
-                that._fetchFreshData();
-                that._createGlobalToolBar();
                 that._resizingAdorner = new ResizingAdorner(that, { editable: that.options.editable });
                 that._connectorsAdorner = new ConnectorsAdorner(that);
                 that._adorn(that._resizingAdorner, true);
@@ -66134,6 +66173,8 @@
                 that.selector = new Selector(that);
                 that._clipboard = [];
                 that.pauseMouseHandlers = false;
+                that._fetchFreshData();
+                that._createGlobalToolBar();
                 that._createOptionElements();
                 that.zoom(that.options.zoom);
                 that.canvas.draw();
@@ -68068,11 +68109,14 @@
                 }
             },
             createTool: function (tool) {
-                var toolName = (isPlainObject(tool) ? tool.name : tool) + 'Tool';
+                if (!isPlainObject(tool)) {
+                    tool = { name: tool };
+                }
+                var toolName = tool.name + 'Tool';
                 if (this[toolName]) {
                     this[toolName](tool);
                 } else {
-                    this._tools.push(tool);
+                    this._tools.push(deepExtend({}, tool, { attributes: this._setAttributes({ action: tool.name }) }));
                 }
             },
             showAt: function (point) {
@@ -68207,22 +68251,26 @@
             click: function (e) {
                 var attributes = this._getAttributes($(e.target));
                 var action = attributes.action;
-                if (action) {
+                if (action && this[action]) {
                     this[action](attributes);
                 }
-                this.trigger('click', this.eventData(action));
+                this.trigger('click', this.eventData(action, e.target));
             },
-            eventData: function (action) {
-                var element = this.selectedElements(), shapes = [], connections = [];
-                if (element instanceof Shape) {
-                    shapes.push(element);
-                } else {
-                    connections.push(element);
+            eventData: function (action, target) {
+                var elements = this.selectedElements(), length = elements.length, shapes = [], connections = [], element;
+                for (var idx = 0; idx < length; idx++) {
+                    element = elements[idx];
+                    if (element instanceof Shape) {
+                        shapes.push(element);
+                    } else {
+                        connections.push(element);
+                    }
                 }
                 return {
                     shapes: shapes,
                     connections: connections,
-                    action: action
+                    action: action,
+                    target: target
                 };
             },
             'delete': function () {
@@ -69878,6 +69926,7 @@
                 return;
             }
             var value;
+            var haveChangeOnElement = false;
             if (isForm(element)) {
                 value = function () {
                     return formValue(element);
@@ -69895,7 +69944,9 @@
                 if (val === undefined) {
                     val = null;
                 }
+                haveChangeOnElement = true;
                 setTimeout(function () {
+                    haveChangeOnElement = false;
                     if (widget) {
                         var kNgModel = scope[widget.element.attr('k-ng-model')];
                         if (kNgModel) {
@@ -69911,7 +69962,6 @@
                     }
                 }, 0);
             };
-            var haveChangeOnElement = false;
             if (isForm(element)) {
                 element.on('change', function () {
                     haveChangeOnElement = true;
@@ -69997,9 +70047,7 @@
             var deregister = scope.$on('$destroy', function () {
                 deregister();
                 if (widget) {
-                    if (widget.element) {
-                        widget.destroy();
-                    }
+                    kendo.destroy(widget.element);
                     widget = null;
                 }
             });
@@ -70805,7 +70853,7 @@
                                     $log.warn(attrName + ' without a matching parent widget found. It can be one of the following: ' + parents.join(', '));
                                 } else {
                                     controller.template(templateName, template);
-                                    $element.remove();
+                                    element.remove();
                                 }
                             };
                         }
@@ -71205,6 +71253,7 @@
                 surface: null,
                 global: false,
                 fastTap: false,
+                filter: null,
                 multiTouch: false,
                 enableSwipe: false,
                 minXDelta: 30,

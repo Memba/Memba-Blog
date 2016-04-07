@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1982,6 +1982,7 @@
                 for (var i = 0; i < items.length; i++) {
                     if (items[i].id === id) {
                         tile = items[i];
+                        break;
                     }
                 }
                 if (tile) {
@@ -1998,7 +1999,7 @@
                 var index = -1;
                 for (var i = 0; i < items.length; i++) {
                     var dist = items[i].options.point.distanceTo(center);
-                    if (dist > maxDist) {
+                    if (dist > maxDist && !items[i].visible) {
                         index = i;
                         maxDist = dist;
                     }

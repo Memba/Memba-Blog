@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -296,7 +296,9 @@
                     formattedValue = kendo.toString(date, options.format, options.culture);
                     if (formattedValue !== value) {
                         that.element.val(date === null ? value : formattedValue);
-                        that.element.trigger(CHANGE);
+                        if (value instanceof String) {
+                            that.element.trigger(CHANGE);
+                        }
                     }
                     return date;
                 }

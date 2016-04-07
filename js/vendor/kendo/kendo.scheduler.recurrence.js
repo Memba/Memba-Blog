@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -390,8 +390,8 @@
                             modified = true;
                         }
                     } else if (frequency === 'daily') {
-                        kendoDate.setTime(date, -start);
-                        diff = Math.floor(date / kendoDate.MS_PER_DAY);
+                        kendoDate.setTime(date, -start, true);
+                        diff = Math.ceil(date / kendoDate.MS_PER_DAY);
                         excess = intervalExcess(diff, interval);
                         if (excess !== 0) {
                             this._date(current, rule, excess);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -104,6 +104,10 @@
             },
             setOptions: function (options) {
                 var old = this.options;
+                var disableDates = options.disableDates;
+                if (disableDates) {
+                    options.disableDates = calendar.disabled(disableDates);
+                }
                 this.options = extend(old, options, {
                     change: old.change,
                     close: old.close,

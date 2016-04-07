@@ -1,5 +1,5 @@
 /**
- * @license Copyright 2013 Logentries.
+ * @license Copyright 2015 Logentries.
  * Please view license at https://raw.github.com/logentries/le_js/master/LICENSE
  */
 
@@ -66,6 +66,8 @@
         /** @type {boolean} */
         var _print = options.print;
         /** @type {boolean} */
+        var _noFormat = options.no_format;
+        /** @type {boolean} */
         var _SSL = function() {
             if (typeof XDomainRequest === "undefined") {
                 return options.ssl;
@@ -78,8 +80,11 @@
         var _endpoint;
         if (window.LEENDPOINT) {
             _endpoint = window.LEENDPOINT;
-        } else {
-            _endpoint = "js.logentries.com/v1";
+        } else if (_noFormat) {
+            _endpoint = "localhost:8080/noformat";
+        }
+        else {
+            _endpoint = "localhost:8080/v1";
         }
         _endpoint = (_SSL ? "https://" : "http://") + _endpoint + "/logs/" + _token;
 
@@ -113,23 +118,23 @@
             var location = window.location || {};
 
             return {
-              url: location.pathname,
-              referrer: document.referrer,
-              screen: {
-                width: screen.width,
-                height: screen.height
-              },
-              window: {
-                width: window.innerWidth,
-                height: window.innerHeight
-              },
-              browser: {
-                name: nav.appName,
-                version: nav.appVersion,
-                cookie_enabled: nav.cookieEnabled,
-                do_not_track: nav.doNotTrack
-              },
-              platform: nav.platform
+                url: location.pathname,
+                referrer: document.referrer,
+                screen: {
+                    width: screen.width,
+                    height: screen.height
+                },
+                window: {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                },
+                browser: {
+                    name: nav.appName,
+                    version: nav.appVersion,
+                    cookie_enabled: nav.cookieEnabled,
+                    do_not_track: nav.doNotTrack
+                },
+                platform: nav.platform
             };
         };
 
@@ -143,7 +148,7 @@
             } else {
                 // Handle a variadic overload,
                 // e.g. _rawLog("some text ", x, " ...", 1);
-              raw = args;
+                raw = args;
             }
             return raw;
         };
@@ -160,7 +165,7 @@
                     _sentPageInfo = true;
                     if (typeof event.screen === "undefined" &&
                         typeof event.browser === "undefined")
-                      _rawLog(_agentInfo()).level('PAGE').send();
+                        _rawLog(_agentInfo()).level('PAGE').send();
                 }
             }
 
@@ -171,46 +176,46 @@
             return {level: function(l) {
                 // Don't log PAGE events to console
                 // PAGE events are generated for the agentInfo function
-                    if (_print && typeof console !== "undefined" && l !== 'PAGE') {
-                      var serialized = null;
-                      if (typeof XDomainRequest !== "undefined") {
+                if (_print && typeof console !== "undefined" && l !== 'PAGE') {
+                    var serialized = null;
+                    if (typeof XDomainRequest !== "undefined") {
                         // We're using IE8/9
                         serialized = data.trace + ' ' + data.event;
-                      }
-                      try {
+                    }
+                    try {
                         console[l.toLowerCase()].call(console, (serialized || data));
-                      } catch (ex) {
+                    } catch (ex) {
                         // IE compat fix
                         console.log((serialized || data));
-                      }
                     }
-                    data.level = l;
+                }
+                data.level = l;
 
-                    return {send: function() {
-                        var cache = [];
-                        var serialized = JSON.stringify(data, function(key, value) {
+                return {send: function() {
+                    var cache = [];
+                    var serialized = JSON.stringify(data, function(key, value) {
 
-                              if (typeof value === "undefined") {
-                                return "undefined";
-                              } else if (typeof value === "object" && value !== null) {
-                                if (_indexOf(cache, value) !== -1) {
-                                  // We've seen this object before;
-                                  // return a placeholder instead to prevent
-                                  // cycles
-                                  return "<?>";
-                                }
-                                cache.push(value);
-                              }
-                          return value;
-                        });
-
-                            if (_active) {
-                                _backlog.push(serialized);
-                            } else {
-                                _apiCall(_token, serialized);
+                        if (typeof value === "undefined") {
+                            return "undefined";
+                        } else if (typeof value === "object" && value !== null) {
+                            if (_indexOf(cache, value) !== -1) {
+                                // We've seen this object before;
+                                // return a placeholder instead to prevent
+                                // cycles
+                                return "<?>";
                             }
-                        }};
+                            cache.push(value);
+                        }
+                        return value;
+                    });
+
+                    if (_active) {
+                        _backlog.push(serialized);
+                    } else {
+                        _apiCall(_token, serialized);
+                    }
                 }};
+            }};
         };
 
         /** @expose */
@@ -226,38 +231,38 @@
                     // Currently we don't support fine-grained error
                     // handling in older versions of IE
                     request.onreadystatechange = function() {
-                    if (request.readyState === 4) {
-                        // Handle any errors
-                        if (request.status >= 400) {
-                            console.error("Couldn't submit events.");
-                            if (request.status === 410) {
-                                // This API version has been phased out
-                                console.warn("This version of le_js is no longer supported!");
-                            }
-                        } else {
-                            if (request.status === 301) {
-                                // Server issued a deprecation warning
-                                console.warn("This version of le_js is deprecated! Consider upgrading.");
-                            }
-                            if (_backlog.length > 0) {
-                                // Submit the next event in the backlog
-                                _apiCall(token, _backlog.shift());
+                        if (request.readyState === 4) {
+                            // Handle any errors
+                            if (request.status >= 400) {
+                                console.error("Couldn't submit events.");
+                                if (request.status === 410) {
+                                    // This API version has been phased out
+                                    console.warn("This version of le_js is no longer supported!");
+                                }
                             } else {
-                                _active = false;
+                                if (request.status === 301) {
+                                    // Server issued a deprecation warning
+                                    console.warn("This version of le_js is deprecated! Consider upgrading.");
+                                }
+                                if (_backlog.length > 0) {
+                                    // Submit the next event in the backlog
+                                    _apiCall(token, _backlog.shift());
+                                } else {
+                                    _active = false;
+                                }
                             }
                         }
-                    }
 
                     };
                 } else {
-                  request.onload = function() {
-                    if (_backlog.length > 0) {
-                      // Submit the next event in the backlog
-                      _apiCall(token, _backlog.shift());
-                    } else {
-                      _active = false;
-                    }
-                  };
+                    request.onload = function() {
+                        if (_backlog.length > 0) {
+                            // Submit the next event in the backlog
+                            _apiCall(token, _backlog.shift());
+                        } else {
+                            _active = false;
+                        }
+                    };
                 }
 
                 request.open("POST", _endpoint, true);
@@ -265,7 +270,7 @@
                     request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                     request.setRequestHeader('Content-type', 'application/json');
                 }
-                
+
                 if (request.overrideMimeType) {
                     request.overrideMimeType('text');
                 }
@@ -313,7 +318,7 @@
                 throw new Error("You must call LE.init(...) first.");
         };
 
-         // The public interface
+        // The public interface
         return {
             log: function() {
                 _log.apply(this, arguments).level('LOG').send();
@@ -335,7 +340,7 @@
 
     var _getLogger = function(name) {
         if (!loggers.hasOwnProperty(name))
-           throw new Error("Invalid name for logStream");
+            throw new Error("Invalid name for logStream");
 
         return loggers[name];
     };

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -287,6 +287,13 @@
                 that.toolbar.resize();
                 kendo.notify(that);
             },
+            setOptions: function (options) {
+                var editor = this;
+                Widget.fn.setOptions.call(editor, options);
+                if (options.tools) {
+                    editor.toolbar.bindTo(editor);
+                }
+            },
             _endTyping: function () {
                 var keyboard = this.keyboard;
                 try {
@@ -406,6 +413,7 @@
                 });
             },
             _registerHandler: function (element, type, handler) {
+                var NS = '.kendoEditor';
                 element = $(element);
                 if (!this._handlers) {
                     this._handlers = [];
@@ -418,6 +426,7 @@
                             }
                         }
                     } else {
+                        type = type.split(' ').join(NS + ' ') + NS;
                         this._handlers.push({
                             element: element,
                             type: type,
@@ -731,7 +740,7 @@
             },
             _focusOutside: function () {
                 if (kendo.support.browser.msie && this.textarea) {
-                    var tempInput = $('<input style=\'position:absolute;left:-10px;top:-10px;width:1px;height:1px;font-size:0;border:0;\' />').appendTo(document.body).focus();
+                    var tempInput = $('<input style=\'position:fixed;left:1px;top:1px;width:1px;height:1px;font-size:0;border:0;opacity:0\' />').appendTo(document.body).focus();
                     tempInput.blur().remove();
                 }
             },
@@ -4521,6 +4530,7 @@
                         }];
                 }
                 dataSource = defaultValue.concat(options.items ? options.items : editor.options[toolName] || []);
+                ui.attr({ title: initOptions.title });
                 ui[this.type]({
                     dataTextField: 'text',
                     dataValueField: 'value',
