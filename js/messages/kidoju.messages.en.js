@@ -272,7 +272,7 @@
 
                 if (tools.connector instanceof Tool) {
                     // Description
-                    tools.connector.constructor.prototype.description = 'Connectorr';
+                    tools.connector.constructor.prototype.description = 'Connector';
                     // Attributes
                     attributes = tools.connector.constructor.prototype.attributes;
                     attributes.color.title = 'Color';
@@ -280,7 +280,25 @@
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Name';
                     properties.description.title = 'Description';
-                    properties.value.title = 'Value';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                }
+
+                if (tools.dropzone instanceof Tool) {
+                    // Description
+                    tools.dropzone.constructor.prototype.description = 'Drop Zone';
+                    // Attributes
+                    attributes = tools.dropzone.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Text';
+                    attributes.defaultValue.title = 'Please drop here.';
+                    // Properties
+                    properties = tools.dropzone.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.description.title = 'Description';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -300,7 +318,7 @@
                     // Properties
                     properties = tools.image.constructor.prototype.properties;
                     properties.draggable.title = 'Draggable';
-                    properties.value.title = 'Value';
+                    properties.dropValue.title = 'Value';
                 }
 
                 if (tools.label instanceof Tool) {
@@ -314,7 +332,7 @@
                     // Properties
                     properties = tools.label.constructor.prototype.properties;
                     properties.draggable.title = 'Draggable';
-                    properties.value.title = 'Value';
+                    properties.dropValue.title = 'Value';
                 }
 
                 if (tools.mathexpression instanceof Tool) {

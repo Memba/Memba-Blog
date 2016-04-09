@@ -279,7 +279,25 @@
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Nom';
                     properties.description.title = 'Description';
-                    properties.value.title = 'Value';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
+                }
+
+                if (tools.dropzone instanceof Tool) {
+                    // Description
+                    tools.dropzone.constructor.prototype.description = 'Zone de Dépot';
+                    // Attributes
+                    attributes = tools.dropzone.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Texte';
+                    attributes.defaultValue.title = 'Veuillez déposer ici.';
+                    // Properties
+                    properties = tools.dropzone.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Description';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
@@ -299,7 +317,7 @@
                     // Properties
                     properties = tools.image.constructor.prototype.properties;
                     properties.draggable.title = 'Déplaçable';
-                    properties.value.title = 'Valeur';
+                    properties.dropValue.title = 'Valeur';
                 }
 
                 if (tools.label instanceof Tool) {
@@ -313,7 +331,7 @@
                     // Properties
                     properties = tools.label.constructor.prototype.properties;
                     properties.draggable.title = 'Déplaçable';
-                    properties.value.title = 'Valeur';
+                    properties.dropValue.title = 'Valeur';
                 }
 
                 if (tools.mathexpression instanceof Tool) {
