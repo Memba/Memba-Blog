@@ -110,12 +110,12 @@ module.exports = {
             },
             {
                 test: /app\.theme\.[a-z0-9]+\.less$/,
-                loader: 'bundle?name=[name]!style/useable!css!less'
+                loader: 'bundle?name=[name]!style/useable!css!less?compress'
             },
             {
                 test: /\.less$/,
                 exclude: /app\.theme\.[a-z0-9]+\.less$/,
-                loader: 'style!css!less'
+                loader: 'style!css!less?compress'
             },
             {
                 test: /\.css$/,
