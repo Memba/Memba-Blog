@@ -24,7 +24,7 @@
             "icons": "/images/o_collection/svg/office/%s.svg"
         },
         "webapp": {
-            "feed": "/%s/index.rss",
+            "feed": "/%s/rss.xml",
             "home": "/",
             "hook": "/hook",
             "locale": "/%s",
