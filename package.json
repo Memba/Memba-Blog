@@ -39,7 +39,7 @@
     "nconf": "^0.8.4",
     "node-uuid": "^1.4.7",
     "qs": "^6.1.0",
-    "request": "^2.70.0"
+    "request": "^2.71.0"
   },
   "devDependencies": {
     "bundle-loader": "^0.5.4",
