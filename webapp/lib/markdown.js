@@ -11,7 +11,7 @@ var util = require('util');
 var MarkdownIt = require('markdown-it');
 var hljs = require('highlight.js');
 var markdown = new MarkdownIt({
-    html: false,
+    html: true,
     linkify: true,
     typographer: true,
     // See https://github.com/markdown-it/markdown-it#syntax-highlighting
