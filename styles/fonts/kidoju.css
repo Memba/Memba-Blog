@@ -19,65 +19,74 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-.kf-android:before {
+.kf-add:before {
     content: "\f101";
 }
-.kf-apple:before {
+.kf-android:before {
     content: "\f102";
 }
-.kf-blog:before {
+.kf-apple:before {
     content: "\f103";
 }
-.kf-datetime:before {
+.kf-blog:before {
     content: "\f104";
 }
-.kf-signout:before {
+.kf-datetime:before {
     content: "\f105";
 }
-.kf-view:before {
+.kf-signout:before {
     content: "\f106";
 }
-.kf-facebook:before {
+.kf-view:before {
     content: "\f107";
 }
-.kf-feed:before {
+.kf-facebook:before {
     content: "\f108";
 }
-.kf-search-adv:before {
+.kf-feed:before {
     content: "\f109";
 }
-.kf-google:before {
+.kf-search-adv:before {
     content: "\f10a";
 }
-.kf-home:before {
+.kf-google:before {
     content: "\f10b";
 }
-.kf-linkedin:before {
+.kf-home:before {
     content: "\f10c";
 }
-.kf-live:before {
+.kf-support:before {
     content: "\f10d";
 }
-.kf-signin:before {
+.kf-linkedin:before {
     content: "\f10e";
 }
-.kf-report:before {
+.kf-live:before {
     content: "\f10f";
 }
-.kf-comment:before {
+.kf-signin:before {
     content: "\f110";
 }
-.kf-pinterest:before {
+.kf-report:before {
     content: "\f111";
 }
-.kf-create:before {
+.kf-comment:before {
     content: "\f112";
 }
-.kf-publish:before {
+.kf-pinterest:before {
     content: "\f113";
 }
-.kf-help:before {
+.kf-create:before {
     content: "\f114";
+}
+.kf-publish:before {
+    content: "\f115";
+}
+.kf-help:before {
+    content: "\f116";
+}
+.kf-share:before {
+    content: "\f117";
 }
 .kf-star:before {
     content: "\2605";
@@ -86,23 +95,23 @@
     content: "\2606";
 }
 .kf-stumbleupon:before {
-    content: "\f115";
-}
-.kf-tags:before {
-    content: "\f116";
-}
-.kf-score:before {
-    content: "\f117";
-}
-.kf-twitter:before {
     content: "\f118";
 }
-.kf-user:before {
+.kf-tags:before {
     content: "\f119";
 }
-.kf-uservoice:before {
+.kf-score:before {
     content: "\f11a";
 }
-.kf-youtube:before {
+.kf-twitter:before {
     content: "\f11b";
+}
+.kf-user:before {
+    content: "\f11c";
+}
+.kf-uservoice:before {
+    content: "\f11d";
+}
+.kf-youtube:before {
+    content: "\f11e";
 }
