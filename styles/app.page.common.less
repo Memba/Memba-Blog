@@ -127,11 +127,23 @@ label {
 .page-header {
     margin: 20px 0 20px;
     h1 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         img {
             border: 0;
             height: 64px;
             width: 64px;
             vertical-align: sub;
+        }
+    }
+}
+@media (max-width: 768px) {
+    h1 {
+        font-size: 28px;
+        img {
+            height: 48px;
+            width: 48px;
         }
     }
 }
