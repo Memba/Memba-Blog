@@ -20,7 +20,7 @@
   "main": "webapp/server.js",
   "scripts": {
     "test": "grunt test",
-    "start": "forever webapp/server.js"
+    "start": "forever start --minUptime 5000 --spinSleepTime 10000 webapp/server.js"
   },
   "dependencies": {
     "async": "^1.5.2",
