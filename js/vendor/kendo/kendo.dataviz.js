@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.1.406'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2016.1.412'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -7507,6 +7507,20 @@
                     that._ranges = [];
                     that._addRange(that._data);
                     that._change();
+                    that._markOfflineUpdatesAsDirty();
+                }
+            },
+            _markOfflineUpdatesAsDirty: function () {
+                var that = this;
+                if (that.options.offlineStorage != null) {
+                    that._eachItem(that._data, function (items) {
+                        for (var idx = 0; idx < items.length; idx++) {
+                            var item = items.at(idx);
+                            if (item.__state__ == 'update') {
+                                item.dirty = true;
+                            }
+                        }
+                    });
                 }
             },
             hasChanges: function () {
@@ -7610,6 +7624,9 @@
                     if (idx >= 0) {
                         if (pristine && (!model.isNew() || pristine.__state__)) {
                             items[idx].accept(pristine);
+                            if (pristine.__state__ == 'update') {
+                                items[idx].dirty = true;
+                            }
                         } else {
                             items.splice(idx, 1);
                         }
@@ -7785,16 +7802,7 @@
                 that._pristineData = data.slice(0);
                 that._detachObservableParents();
                 that._data = that._observe(data);
-                if (that.options.offlineStorage != null) {
-                    that._eachItem(that._data, function (items) {
-                        for (var idx = 0; idx < items.length; idx++) {
-                            var item = items.at(idx);
-                            if (item.__state__ == 'update') {
-                                item.dirty = true;
-                            }
-                        }
-                    });
-                }
+                that._markOfflineUpdatesAsDirty();
                 that._storeData();
                 that._addRange(that._data);
                 that._process(that._data);
@@ -21262,7 +21270,7 @@
                     return;
                 }
                 function drawBackgroundImage(group, box, img_width, img_height, renderBG) {
-                    var aspect_ratio = img_width / img_height;
+                    var aspect_ratio = img_width / img_height, f;
                     var orgBox = box;
                     if (backgroundOrigin == 'content-box') {
                         orgBox = innerBox(orgBox, 'border-*-width', element);
@@ -21271,18 +21279,28 @@
                         orgBox = innerBox(orgBox, 'border-*-width', element);
                     }
                     if (!/^\s*auto(\s+auto)?\s*$/.test(backgroundSize)) {
-                        var size = backgroundSize.split(/\s+/g);
-                        if (/%$/.test(size[0])) {
-                            img_width = orgBox.width * parseFloat(size[0]) / 100;
+                        if (backgroundSize == 'contain') {
+                            f = Math.min(orgBox.width / img_width, orgBox.height / img_height);
+                            img_width *= f;
+                            img_height *= f;
+                        } else if (backgroundSize == 'cover') {
+                            f = Math.max(orgBox.width / img_width, orgBox.height / img_height);
+                            img_width *= f;
+                            img_height *= f;
                         } else {
-                            img_width = parseFloat(size[0]);
-                        }
-                        if (size.length == 1 || size[1] == 'auto') {
-                            img_height = img_width / aspect_ratio;
-                        } else if (/%$/.test(size[1])) {
-                            img_height = orgBox.height * parseFloat(size[1]) / 100;
-                        } else {
-                            img_height = parseFloat(size[1]);
+                            var size = backgroundSize.split(/\s+/g);
+                            if (/%$/.test(size[0])) {
+                                img_width = orgBox.width * parseFloat(size[0]) / 100;
+                            } else {
+                                img_width = parseFloat(size[0]);
+                            }
+                            if (size.length == 1 || size[1] == 'auto') {
+                                img_height = img_width / aspect_ratio;
+                            } else if (/%$/.test(size[1])) {
+                                img_height = orgBox.height * parseFloat(size[1]) / 100;
+                            } else {
+                                img_height = parseFloat(size[1]);
+                            }
                         }
                     }
                     var pos = (backgroundPosition + '').split(/\s+/);
@@ -70113,6 +70131,9 @@
             var unregister = scope.$watch(rebindAttr, function (newValue, oldValue) {
                 if (!widget._muteRebind && newValue !== oldValue) {
                     unregister();
+                    if (attrs._cleanUp) {
+                        attrs._cleanUp();
+                    }
                     var templateOptions = WIDGET_TEMPLATE_OPTIONS[widget.options.name];
                     if (templateOptions) {
                         templateOptions.forEach(function (name) {
@@ -70145,6 +70166,14 @@
             }, true);
             digest(scope);
         }
+        function bind(f, obj) {
+            return function (a, b) {
+                return f.call(obj, a, b);
+            };
+        }
+        function setTemplate(key, value) {
+            this[key] = kendo.stringify(value);
+        }
         module.factory('directiveFactory', [
             '$compile',
             function (compile) {
@@ -70164,14 +70193,11 @@
                             '$attrs',
                             '$element',
                             function ($scope, $attrs) {
-                                var that = this;
-                                that.template = function (key, value) {
-                                    $attrs[key] = kendo.stringify(value);
-                                };
-                                $scope.$on('$destroy', function () {
-                                    that.template = null;
-                                    that = null;
-                                });
+                                this.template = bind(setTemplate, $attrs);
+                                $attrs._cleanUp = bind(function () {
+                                    this.template = null;
+                                    $attrs._cleanUp = null;
+                                }, this);
                             }
                         ],
                         link: function (scope, element, attrs, controllers) {

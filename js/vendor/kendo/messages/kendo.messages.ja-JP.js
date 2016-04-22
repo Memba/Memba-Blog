@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -254,6 +254,15 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "eq": "が次の値と同じ",
     "neq": "が次の値と異なる"
   }
+});
+}
+
+/* FilterMultiCheck messages */
+
+if (kendo.ui.FilterMultiCheck) {
+kendo.ui.FilterMultiCheck.prototype.options.messages =
+$.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
+  "search": "検索"
 });
 }
 

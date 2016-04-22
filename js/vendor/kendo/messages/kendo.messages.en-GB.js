@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -274,7 +274,8 @@ kendo.ui.FilterMultiCheck.prototype.options.messages =
 $.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
   "checkAll": "Select All",
   "clear": "Clear",
-  "filter": "Filter"
+  "filter": "Filter",
+  "search": "Search"
 });
 }
 

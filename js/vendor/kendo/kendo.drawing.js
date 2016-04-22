@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.406 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -7212,7 +7212,7 @@
                     return;
                 }
                 function drawBackgroundImage(group, box, img_width, img_height, renderBG) {
-                    var aspect_ratio = img_width / img_height;
+                    var aspect_ratio = img_width / img_height, f;
                     var orgBox = box;
                     if (backgroundOrigin == 'content-box') {
                         orgBox = innerBox(orgBox, 'border-*-width', element);
@@ -7221,18 +7221,28 @@
                         orgBox = innerBox(orgBox, 'border-*-width', element);
                     }
                     if (!/^\s*auto(\s+auto)?\s*$/.test(backgroundSize)) {
-                        var size = backgroundSize.split(/\s+/g);
-                        if (/%$/.test(size[0])) {
-                            img_width = orgBox.width * parseFloat(size[0]) / 100;
+                        if (backgroundSize == 'contain') {
+                            f = Math.min(orgBox.width / img_width, orgBox.height / img_height);
+                            img_width *= f;
+                            img_height *= f;
+                        } else if (backgroundSize == 'cover') {
+                            f = Math.max(orgBox.width / img_width, orgBox.height / img_height);
+                            img_width *= f;
+                            img_height *= f;
                         } else {
-                            img_width = parseFloat(size[0]);
-                        }
-                        if (size.length == 1 || size[1] == 'auto') {
-                            img_height = img_width / aspect_ratio;
-                        } else if (/%$/.test(size[1])) {
-                            img_height = orgBox.height * parseFloat(size[1]) / 100;
-                        } else {
-                            img_height = parseFloat(size[1]);
+                            var size = backgroundSize.split(/\s+/g);
+                            if (/%$/.test(size[0])) {
+                                img_width = orgBox.width * parseFloat(size[0]) / 100;
+                            } else {
+                                img_width = parseFloat(size[0]);
+                            }
+                            if (size.length == 1 || size[1] == 'auto') {
+                                img_height = img_width / aspect_ratio;
+                            } else if (/%$/.test(size[1])) {
+                                img_height = orgBox.height * parseFloat(size[1]) / 100;
+                            } else {
+                                img_height = parseFloat(size[1]);
+                            }
                         }
                     }
                     var pos = (backgroundPosition + '').split(/\s+/);
