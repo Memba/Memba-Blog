@@ -9,12 +9,15 @@
 
 var util = require('util');
 var logger = require('./lib/logger');
+var closingInProgress = false;
 
 /**
  * Handle uncaught exceptions
  * @see http://stackoverflow.com/questions/7310521/node-js-best-practice-exception-handling
  */
 process.on('uncaughtException', function (exception) {
+
+    closingInProgress = true;
 
     logger.critical({
         // message = exception.message
@@ -24,15 +27,15 @@ process.on('uncaughtException', function (exception) {
     });
 
     if (typeof server !== 'undefined') {
-        // make sure we close down within 2 seconds
+        // stop taking new requests
+        server.close();
+        // make sure we close down within 5 seconds
         // which should give enough time for any pending request to complete
         var killtimer = setTimeout(function () {
             process.exit(1);
-        }, 2000);
+        }, 5 * 1000);
         // see https://nodejs.org/api/domain.html
         killtimer.unref();
-        // stop taking new requests
-        server.close();
     } else {
         process.exit(1);
     }
@@ -40,10 +43,19 @@ process.on('uncaughtException', function (exception) {
 });
 
 /**
+ * Ensure we exit properly when interrupted by a kill
+ */
+process.on('SIGTERM', function () {
+    // TODO pass exit code 0
+    throw new Error('Process killed.');
+});
+
+/**
  * Ensure we exit properly when interrupting by Ctrl+C
  */
 process.on('SIGINT', function () {
-    process.exit(0);
+    // TODO pass exit code 0
+    throw new Error('Process interrupted by Ctrl+C.');
 });
 
 /**
@@ -95,6 +107,16 @@ config.load(function (error/*, store*/) {
     // Secure expressJS with helmet from https://github.com/helmetjs/helmet
     // app.disable('x-powered-by');
     app.use(helmet());
+
+    // handle requests while closing
+    app.use(function (req, res, next) {
+        if (closingInProgress) {
+            res.setHeader('Connection', 'close');
+            res.send(503, 'A webapp server is in the process of restarting');
+        } else {
+            return next();
+        }
+    });
 
     // i18n
     i18n.configure({
