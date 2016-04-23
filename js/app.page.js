@@ -11,6 +11,7 @@ require('../styles/app.page.page.less');
 (function (f, define) {
     'use strict';
     define([
+        './vendor/kendo/kendo.validator',
         './window.assert',
         './window.logger',
         './app.logger',
