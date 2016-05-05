@@ -188,16 +188,46 @@
 
 
         /**
-         * kidoju.tools
+         * kidoju.data & kidoju.tools
          */
 
         if (window.kidoju) {
 
             var kidoju = window.kidoju;
+            var data = kidoju.data;
             var tools = kidoju.tools;
             var Tool = kidoju.Tool;
             var attributes;
             var properties;
+
+            /*
+             if (data && data.PageComponent) {
+                data.PageComponent.prototype.messages = {
+                }
+             }
+             */
+
+            if (data && data.Page) {
+                data.Page.prototype.messages = {
+                    emptyPage: 'Page {0} is empty.',
+                    minConnectors: 'You need at least {0} connectors to make a question on page {1}.',
+                    // TODO ERROR dropZone without draggables
+                    // TODO WARNING page without multimedia element
+                    missingLabel: 'A label is missing on page {0}.',
+                    missingQuestion: 'A question is missing on page {0}.',
+                    missingInstructions: 'Instructions are missing on page {0}.',
+                    missingExplanations: 'Explanations are missing on page {0}.'
+                }
+            }
+
+            if (data && data.Stream) {
+                data.Stream.prototype.messages = {
+                    minPages: 'You need at least {0} pages to be allowed to publish.',
+                    minQuestions: 'You need at least {0} questions to be allowed to publish.',
+                    typeVariety: 'We recommend the use of at least {0} types of questions (multiple choice, simple answer, connector or else).',
+                    qtyVariety: '{0:p0} of questions are of type {1}. We recommend more variety.'
+                }
+            }
 
             // if (kidoju.Tool instanceof Function) {
             if (Tool && Tool.constructor && Tool.constructor.name === 'Function') {
