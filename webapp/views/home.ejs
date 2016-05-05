@@ -30,8 +30,8 @@
     </div>
 </main>
 
-<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="<%= url.join(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.application.version %>"></script>
-<script src="<%= url.join(config.uris.webpack.root, 'home.bundle.js') + '?v=' + config.application.version %>"></script>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js" integrity="sha256-7LkWEzqTdpEfELxcZZlS6wAx5Ff13zZ83lYO2/ujj7g=" crossorigin="anonymous"></script>
+<script src="<%= url.join(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script src="<%= url.join(config.uris.webpack.root, 'home.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
 
 <% include footer.ejs %>
