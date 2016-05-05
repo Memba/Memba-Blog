@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -589,10 +589,12 @@
                 return this;
             },
             optionsChange: function (e) {
+                e = e || {};
+                e.element = this;
                 this.trigger('optionsChange', e);
             },
-            geometryChange: function (e) {
-                this.trigger('geometryChange', e);
+            geometryChange: function () {
+                this.trigger('geometryChange', { element: this });
             },
             suspend: function () {
                 this._suspended = (this._suspended || 0) + 1;
@@ -624,7 +626,7 @@
 }(function () {
     (function () {
         var math = Math, pow = math.pow, kendo = window.kendo, Class = kendo.Class, deepExtend = kendo.deepExtend, ObserversMixin = kendo.mixins.ObserversMixin, util = kendo.util, defined = util.defined, rad = util.rad, deg = util.deg, round = util.round;
-        var PI_DIV_2 = math.PI / 2, MIN_NUM = util.MIN_NUM, MAX_NUM = util.MAX_NUM;
+        var PI_DIV_2 = math.PI / 2, MIN_NUM = util.MIN_NUM, MAX_NUM = util.MAX_NUM, PRECISION = 10;
         var Point = Class.extend({
             init: function (x, y) {
                 this.x = x || 0;
@@ -846,6 +848,28 @@
             },
             transformCopy: function (m) {
                 return Rect.fromPoints(this.topLeft().transform(m), this.bottomRight().transform(m));
+            },
+            expand: function (x, y) {
+                if (!defined(y)) {
+                    y = x;
+                }
+                this.size.width += 2 * x;
+                this.size.height += 2 * y;
+                this.origin.translate(-x, -y);
+                return this;
+            },
+            expandCopy: function (x, y) {
+                return this.clone().expand(x, y);
+            },
+            containsPoint: function (point) {
+                var origin = this.origin;
+                var bottomRight = this.bottomRight();
+                return !(point.x < origin.x || point.y < origin.y || bottomRight.x < point.x || bottomRight.y < point.y);
+            },
+            _isOnPath: function (point, width) {
+                var rectOuter = this.expandCopy(width, width);
+                var rectInner = this.expandCopy(-width, -width);
+                return rectOuter.containsPoint(point) && !rectInner.containsPoint(point);
             }
         });
         deepExtend(Rect.fn, ObserversMixin);
@@ -914,6 +938,17 @@
                 var c = this.center;
                 var r = this.radius;
                 return new Point(c.x - r * math.cos(angle), c.y - r * math.sin(angle));
+            },
+            containsPoint: function (point) {
+                var center = this.center;
+                var inCircle = math.pow(point.x - center.x, 2) + math.pow(point.y - center.y, 2) <= math.pow(this.radius, 2);
+                return inCircle;
+            },
+            _isOnPath: function (point, width) {
+                var center = this.center;
+                var radius = this.radius;
+                var pointDistance = center.distanceTo(point);
+                return radius - width <= pointDistance && pointDistance <= radius + width;
             }
         });
         defineAccessors(Circle.fn, ['radius']);
@@ -1036,6 +1071,39 @@
                 var arc = this;
                 var radian = rad(angle);
                 return new Point(-arc.radiusX * math.sin(radian), arc.radiusY * math.cos(radian));
+            },
+            containsPoint: function (point) {
+                var interval = this._arcInterval();
+                var intervalAngle = interval.endAngle - interval.startAngle;
+                var center = this.center;
+                var distance = center.distanceTo(point);
+                var angleRad = math.atan2(point.y - center.y, point.x - center.x);
+                var pointRadius = this.radiusX * this.radiusY / math.sqrt(math.pow(this.radiusX, 2) * math.pow(math.sin(angleRad), 2) + math.pow(this.radiusY, 2) * math.pow(math.cos(angleRad), 2));
+                var startPoint = this.pointAt(this.startAngle).round(PRECISION);
+                var endPoint = this.pointAt(this.endAngle).round(PRECISION);
+                var intersection = lineIntersection(center, point.round(PRECISION), startPoint, endPoint);
+                var containsPoint;
+                if (intervalAngle < 180) {
+                    containsPoint = intersection && closeOrLess(center.distanceTo(intersection), distance) && closeOrLess(distance, pointRadius);
+                } else {
+                    var angle = calculateAngle(center.x, center.y, this.radiusX, this.radiusY, point.x, point.y);
+                    if (angle != 360) {
+                        angle = (360 + angle) % 360;
+                    }
+                    var inAngleRange = interval.startAngle <= angle && angle <= interval.endAngle;
+                    containsPoint = inAngleRange && closeOrLess(distance, pointRadius) || !inAngleRange && (!intersection || intersection.equals(point));
+                }
+                return containsPoint;
+            },
+            _isOnPath: function (point, width) {
+                var interval = this._arcInterval();
+                var center = this.center;
+                var angle = calculateAngle(center.x, center.y, this.radiusX, this.radiusY, point.x, point.y);
+                if (angle != 360) {
+                    angle = (360 + angle) % 360;
+                }
+                var inAngleRange = interval.startAngle <= angle && angle <= interval.endAngle;
+                return inAngleRange && this.pointAt(angle).distanceTo(point) <= width;
             }
         });
         defineAccessors(Arc.fn, [
@@ -1310,17 +1378,169 @@
                 endAngle: end
             };
         }
+        var ComplexNumber = function (real, img) {
+            this.real = real || 0;
+            this.img = img || 0;
+        };
+        ComplexNumber.fn = ComplexNumber.prototype = {
+            add: function (cNumber) {
+                return new ComplexNumber(round(this.real + cNumber.real, PRECISION), round(this.img + cNumber.img, PRECISION));
+            },
+            addConstant: function (value) {
+                return new ComplexNumber(this.real + value, this.img);
+            },
+            negate: function () {
+                return new ComplexNumber(-this.real, -this.img);
+            },
+            multiply: function (cNumber) {
+                return new ComplexNumber(this.real * cNumber.real - this.img * cNumber.img, this.real * cNumber.img + this.img * cNumber.real);
+            },
+            multiplyConstant: function (value) {
+                return new ComplexNumber(this.real * value, this.img * value);
+            },
+            nthRoot: function (n) {
+                var rad = math.atan2(this.img, this.real), r = math.sqrt(math.pow(this.img, 2) + math.pow(this.real, 2)), nthR = math.pow(r, 1 / n);
+                return new ComplexNumber(nthR * math.cos(rad / n), nthR * math.sin(rad / n));
+            },
+            equals: function (cNumber) {
+                return this.real === cNumber.real && this.img === cNumber.img;
+            },
+            isReal: function () {
+                return this.img === 0;
+            }
+        };
+        function solveCubic(a, b, c, d) {
+            if (a === 0) {
+                return solveQuadratic(b, c, d);
+            }
+            var p = (3 * a * c - math.pow(b, 2)) / (3 * math.pow(a, 2)), q = (2 * math.pow(b, 3) - 9 * a * b * c + 27 * math.pow(a, 2) * d) / (27 * math.pow(a, 3)), Q = math.pow(p / 3, 3) + math.pow(q / 2, 2), i = new ComplexNumber(0, 1), b3a = -b / (3 * a), x1, x2, y1, y2, y3, result = [], z1, z2;
+            if (Q < 0) {
+                x1 = new ComplexNumber(-q / 2, math.sqrt(-Q)).nthRoot(3);
+                x2 = new ComplexNumber(-q / 2, -math.sqrt(-Q)).nthRoot(3);
+            } else {
+                x1 = -q / 2 + math.sqrt(Q);
+                x1 = new ComplexNumber(numberSign(x1) * math.pow(math.abs(x1), 1 / 3));
+                x2 = -q / 2 - math.sqrt(Q);
+                x2 = new ComplexNumber(numberSign(x2) * math.pow(math.abs(x2), 1 / 3));
+            }
+            y1 = x1.add(x2);
+            z1 = x1.add(x2).multiplyConstant(-1 / 2);
+            z2 = x1.add(x2.negate()).multiplyConstant(math.sqrt(3) / 2);
+            y2 = z1.add(i.multiply(z2));
+            y3 = z1.add(i.negate().multiply(z2));
+            if (y1.isReal()) {
+                result.push(round(y1.real + b3a, PRECISION));
+            }
+            if (y2.isReal()) {
+                result.push(round(y2.real + b3a, PRECISION));
+            }
+            if (y3.isReal()) {
+                result.push(round(y3.real + b3a, PRECISION));
+            }
+            return result;
+        }
+        function toCubicPolynomial(points, field) {
+            return [
+                -points[0][field] + 3 * points[1][field] - 3 * points[2][field] + points[3][field],
+                3 * (points[0][field] - 2 * points[1][field] + points[2][field]),
+                3 * (-points[0][field] + points[1][field]),
+                points[0][field]
+            ];
+        }
+        function calculateCurveAt(t, field, points) {
+            var t1 = 1 - t;
+            return math.pow(t1, 3) * points[0][field] + 3 * math.pow(t1, 2) * t * points[1][field] + 3 * math.pow(t, 2) * t1 * points[2][field] + math.pow(t, 3) * points[3][field];
+        }
+        function curveIntersectionsCount(points, point, bbox) {
+            var polynomial = toCubicPolynomial(points, 'x');
+            var roots = solveCubic(polynomial[0], polynomial[1], polynomial[2], polynomial[3] - point.x);
+            var count = 0;
+            var rayIntersection;
+            var intersectsRay;
+            for (var i = 0; i < roots.length; i++) {
+                rayIntersection = calculateCurveAt(roots[i], 'y', points);
+                intersectsRay = close(rayIntersection, point.y) || rayIntersection > point.y;
+                if (intersectsRay && ((roots[i] === 0 || roots[i] === 1) && bbox.bottomRight().x > point.x || 0 < roots[i] && roots[i] < 1)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        function lineIntersectionsCount(a, b, point) {
+            var intersects;
+            if (a.x != b.x) {
+                var minX = math.min(a.x, b.x), maxX = math.max(a.x, b.x), minY = math.min(a.y, b.y), maxY = math.max(a.y, b.y), inRange = minX <= point.x && point.x < maxX;
+                if (minY == maxY) {
+                    intersects = point.y <= minY && inRange;
+                } else {
+                    intersects = inRange && (maxY - minY) * ((a.x - b.x) * (a.y - b.y) > 0 ? point.x - minX : maxX - point.x) / (maxX - minX) + minY - point.y >= 0;
+                }
+            }
+            return intersects ? 1 : 0;
+        }
+        function lineIntersection(p0, p1, p2, p3) {
+            var s1x = p1.x - p0.x;
+            var s2x = p3.x - p2.x;
+            var s1y = p1.y - p0.y;
+            var s2y = p3.y - p2.y;
+            var nx = p0.x - p2.x;
+            var ny = p0.y - p2.y;
+            var d = s1x * s2y - s2x * s1y;
+            var s = (s1x * ny - s1y * nx) / d;
+            var t = (s2x * ny - s2y * nx) / d;
+            if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+                return new Point(p0.x + t * s1x, p0.y + t * s1y);
+            }
+        }
+        function close(a, b, tolerance) {
+            return round(math.abs(a - b), tolerance || PRECISION) === 0;
+        }
+        function closeOrLess(a, b, tolerance) {
+            return a < b || close(a, b, tolerance);
+        }
+        function numberSign(x) {
+            return x < 0 ? -1 : 1;
+        }
+        function isOutOfEndPoint(endPoint, controlPoint, point) {
+            var angle = util.deg(math.atan2(controlPoint.y - endPoint.y, controlPoint.x - endPoint.x));
+            var rotatedPoint = point.transformCopy(transform().rotate(-angle, endPoint));
+            return rotatedPoint.x < endPoint.x;
+        }
+        function hasRootsInRange(points, point, field, rootField, range) {
+            var polynomial = toCubicPolynomial(points, rootField);
+            var roots = solveCubic(polynomial[0], polynomial[1], polynomial[2], polynomial[3] - point[rootField]);
+            var intersection;
+            for (var idx = 0; idx < roots.length; idx++) {
+                if (0 <= roots[idx] && roots[idx] <= 1) {
+                    intersection = calculateCurveAt(roots[idx], field, points);
+                    if (math.abs(intersection - point[field]) <= range) {
+                        return true;
+                    }
+                }
+            }
+        }
+        function solveQuadratic(a, b, c) {
+            var squareRoot = math.sqrt(math.pow(b, 2) - 4 * a * c);
+            return [
+                (-b + squareRoot) / (2 * a),
+                (-b - squareRoot) / (2 * a)
+            ];
+        }
         deepExtend(kendo, {
             geometry: {
                 Arc: Arc,
                 Circle: Circle,
+                curveIntersectionsCount: curveIntersectionsCount,
+                lineIntersectionsCount: lineIntersectionsCount,
                 Matrix: Matrix,
                 Point: Point,
                 Rect: Rect,
                 Size: Size,
                 Transformation: Transformation,
                 transform: transform,
-                toMatrix: toMatrix
+                toMatrix: toMatrix,
+                isOutOfEndPoint: isOutOfEndPoint,
+                hasRootsInRange: hasRootsInRange
             }
         });
         kendo.dataviz.geometry = kendo.geometry;
@@ -1330,10 +1550,13 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('drawing/core', ['drawing/geometry'], f);
+    define('drawing/core', [
+        'drawing/geometry',
+        'kendo.popup'
+    ], f);
 }(function () {
     (function ($) {
-        var noop = $.noop, toString = Object.prototype.toString, kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, util = kendo.util, defined = util.defined;
+        var noop = $.noop, toString = Object.prototype.toString, kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, util = kendo.util, defined = util.defined, limitValue = util.limitValue, g = kendo.geometry, proxy = $.proxy, NS = '.kendo', TOOLTIP_TEMPLATE = '<div class="k-tooltip">' + '<div class="k-tooltip-content"></div>' + '</div>', TOOLTIP_CLOSE_TEMPLATE = '<div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close">close</a></div>';
         var Surface = Widget.extend({
             init: function (element, options) {
                 this.options = deepExtend({}, this.options, options);
@@ -1341,6 +1564,7 @@
                 this._click = this._handler('click');
                 this._mouseenter = this._handler('mouseenter');
                 this._mouseleave = this._handler('mouseleave');
+                this._mousemove = this._handler('mousemove');
                 this._visual = new kendo.drawing.Group();
                 if (this.options.width) {
                     this.element.css('width', this.options.width);
@@ -1348,22 +1572,34 @@
                 if (this.options.height) {
                     this.element.css('height', this.options.height);
                 }
+                this._enableTracking();
             },
-            options: { name: 'Surface' },
+            options: {
+                name: 'Surface',
+                tooltip: {}
+            },
             events: [
                 'click',
                 'mouseenter',
                 'mouseleave',
-                'resize'
+                'mousemove',
+                'resize',
+                'tooltipOpen',
+                'tooltipClose'
             ],
             draw: function (element) {
                 this._visual.children.push(element);
             },
             clear: function () {
                 this._visual.children = [];
+                this.hideTooltip();
             },
             destroy: function () {
                 this._visual = null;
+                if (this._tooltip) {
+                    this._tooltip.destroy();
+                    delete this._tooltip;
+                }
                 Widget.fn.destroy.call(this);
             },
             exportVisual: function () {
@@ -1397,18 +1633,56 @@
                     return node.srcElement;
                 }
             },
+            showTooltip: function (shape, options) {
+                if (this._tooltip) {
+                    this._tooltip.show(shape, options);
+                }
+            },
+            hideTooltip: function () {
+                if (this._tooltip) {
+                    this._tooltip.hide();
+                }
+            },
+            suspendTracking: function () {
+                this._suspendedTracking = true;
+                this.hideTooltip();
+            },
+            resumeTracking: function () {
+                this._suspendedTracking = false;
+            },
             _resize: noop,
             _handler: function (event) {
                 var surface = this;
                 return function (e) {
                     var node = surface.eventTarget(e);
-                    if (node) {
+                    if (node && !surface._suspendedTracking) {
                         surface.trigger(event, {
                             element: node,
-                            originalEvent: e
+                            originalEvent: e,
+                            type: event
                         });
                     }
                 };
+            },
+            _enableTracking: function () {
+                this._tooltip = new SurfaceTooltip(this, this.options.tooltip || {});
+            },
+            _elementOffset: function () {
+                var element = this.element;
+                var offset = element.offset();
+                var paddingLeft = parseInt(element.css('paddingLeft'), 10);
+                var paddingTop = parseInt(element.css('paddingTop'), 10);
+                return {
+                    left: offset.left + paddingLeft,
+                    top: offset.top + paddingTop
+                };
+            },
+            _surfacePoint: function (event) {
+                var offset = this._elementOffset();
+                var coord = eventCoordinates(event);
+                var x = coord.x - offset.left;
+                var y = coord.y - offset.top;
+                return new g.Point(x, y);
             }
         });
         kendo.ui.plugin(Surface);
@@ -1582,6 +1856,281 @@
             }
         };
         SurfaceFactory.current = new SurfaceFactory();
+        var SurfaceTooltip = Class.extend({
+            init: function (surface, options) {
+                this.element = $(TOOLTIP_TEMPLATE);
+                this.content = this.element.children('.k-tooltip-content');
+                options = options || {};
+                this.options = deepExtend({}, this.options, this._tooltipOptions(options));
+                this.popup = new kendo.ui.Popup(this.element, {
+                    appendTo: options.appendTo,
+                    animation: options.animation,
+                    copyAnchorStyles: false,
+                    collision: 'fit fit'
+                });
+                this._openPopupHandler = $.proxy(this._openPopup, this);
+                this.surface = surface;
+                this._bindEvents();
+            },
+            options: {
+                position: 'top',
+                showOn: 'mouseenter',
+                offset: 7,
+                autoHide: true,
+                hideDelay: 0,
+                showAfter: 100
+            },
+            _bindEvents: function () {
+                this._showHandler = proxy(this._showEvent, this);
+                this._surfaceLeaveHandler = proxy(this._surfaceLeave, this);
+                this._mouseleaveHandler = proxy(this._mouseleave, this);
+                this._mousemoveHandler = proxy(this._mousemove, this);
+                this.surface.bind('click', this._showHandler);
+                this.surface.bind('mouseenter', this._showHandler);
+                this.surface.bind('mouseleave', this._mouseleaveHandler);
+                this.surface.bind('mousemove', this._mousemoveHandler);
+                this.surface.element.on('mouseleave' + NS, this._surfaceLeaveHandler);
+                this.element.on('click' + NS, '.k-tooltip-button', proxy(this._hideClick, this));
+            },
+            destroy: function () {
+                var popup = this.popup;
+                this.surface.unbind('click', this._showHandler);
+                this.surface.unbind('mouseenter', this._showHandler);
+                this.surface.unbind('mouseleave', this._mouseleaveHandler);
+                this.surface.unbind('mousemove', this._mousemoveHandler);
+                this.surface.element.off('mouseleave' + NS, this._surfaceLeaveHandler);
+                this.element.off('click' + NS);
+                if (popup) {
+                    popup.destroy();
+                    delete this.popup;
+                }
+                clearTimeout(this._timeout);
+                delete this.popup;
+                delete this.element;
+                delete this.content;
+                delete this.surface;
+            },
+            _tooltipOptions: function (options) {
+                options = options || {};
+                return {
+                    position: options.position,
+                    showOn: options.showOn,
+                    offset: options.offset,
+                    autoHide: options.autoHide,
+                    width: options.width,
+                    height: options.height,
+                    content: options.content,
+                    shared: options.shared,
+                    hideDelay: options.hideDelay,
+                    showAfter: options.showAfter
+                };
+            },
+            _tooltipShape: function (shape) {
+                while (shape && !shape.options.tooltip) {
+                    shape = shape.parent;
+                }
+                return shape;
+            },
+            _updateContent: function (target, shape, options) {
+                var content = options.content;
+                if (kendo.isFunction(content)) {
+                    content = content({
+                        element: shape,
+                        target: target
+                    });
+                }
+                if (content) {
+                    this.content.html(content);
+                    return true;
+                }
+            },
+            _position: function (shape, options, elementSize, event) {
+                var position = options.position;
+                var tooltipOffset = options.offset || 0;
+                var surface = this.surface;
+                var offset = surface._elementOffset();
+                var size = surface.getSize();
+                var surfaceOffset = surface._offset;
+                var bbox = shape.bbox();
+                var width = elementSize.width;
+                var height = elementSize.height;
+                var left = 0, top = 0;
+                bbox.origin.translate(offset.left, offset.top);
+                if (surfaceOffset) {
+                    bbox.origin.translate(-surfaceOffset.x, -surfaceOffset.y);
+                }
+                if (position == 'cursor' && event) {
+                    var coord = eventCoordinates(event);
+                    left = coord.x - width / 2;
+                    top = coord.y - height - tooltipOffset;
+                } else if (position == 'left') {
+                    left = bbox.origin.x - width - tooltipOffset;
+                    top = bbox.center().y - height / 2;
+                } else if (position == 'right') {
+                    left = bbox.bottomRight().x + tooltipOffset;
+                    top = bbox.center().y - height / 2;
+                } else if (position == 'bottom') {
+                    left = bbox.center().x - width / 2;
+                    top = bbox.bottomRight().y + tooltipOffset;
+                } else {
+                    left = bbox.center().x - width / 2;
+                    top = bbox.origin.y - height - tooltipOffset;
+                }
+                return {
+                    left: limitValue(left, offset.left, offset.left + size.width),
+                    top: limitValue(top, offset.top, offset.top + size.height)
+                };
+            },
+            show: function (shape, options) {
+                this._show(shape, shape, deepExtend({}, this.options, this._tooltipOptions(shape.options.tooltip), options));
+            },
+            hide: function () {
+                var current = this._current;
+                delete this._current;
+                clearTimeout(this._showTimeout);
+                if (this.popup.visible() && current && !this.surface.trigger('tooltipClose', {
+                        element: current.shape,
+                        target: current.target,
+                        popup: this.popup
+                    })) {
+                    this.popup.close();
+                }
+            },
+            _hideClick: function (e) {
+                e.preventDefault();
+                this.hide();
+            },
+            _show: function (target, shape, options, event, delay) {
+                var current = this._current;
+                clearTimeout(this._timeout);
+                if (current && (current.shape === shape && options.shared || current.target === target)) {
+                    return;
+                }
+                clearTimeout(this._showTimeout);
+                if (!this.surface.trigger('tooltipOpen', {
+                        element: shape,
+                        target: target,
+                        popup: this.popup
+                    }) && this._updateContent(target, shape, options)) {
+                    this._autoHide(options);
+                    var elementSize = this._measure(options);
+                    var popup = this.popup;
+                    if (popup.visible()) {
+                        popup.close(true);
+                    }
+                    this._current = {
+                        options: options,
+                        elementSize: elementSize,
+                        shape: shape,
+                        target: target,
+                        position: this._position(options.shared ? shape : target, options, elementSize, event)
+                    };
+                    if (delay) {
+                        this._showTimeout = setTimeout(this._openPopupHandler, options.showAfter || 0);
+                    } else {
+                        this._openPopup();
+                    }
+                }
+            },
+            _openPopup: function () {
+                var current = this._current;
+                var position = current.position;
+                this.popup.open(position.left, position.top);
+            },
+            _autoHide: function (options) {
+                if (options.autoHide && this._closeButton) {
+                    this.element.removeClass('k-tooltip-closable');
+                    this._closeButton.remove();
+                    delete this._closeButton;
+                }
+                if (!options.autoHide && !this._closeButton) {
+                    this.element.addClass('k-tooltip-closable');
+                    this._closeButton = $(TOOLTIP_CLOSE_TEMPLATE).prependTo(this.element);
+                }
+            },
+            _showEvent: function (e) {
+                var shape = this._tooltipShape(e.element);
+                if (shape) {
+                    var options = deepExtend({}, this.options, this._tooltipOptions(shape.options.tooltip));
+                    if (options && options.showOn == e.type) {
+                        this._show(e.element, shape, options, e.originalEvent, true);
+                    }
+                }
+            },
+            _measure: function (options) {
+                var width, height;
+                this.element.css({
+                    width: 'auto',
+                    height: 'auto'
+                });
+                var visible = this.popup.visible();
+                if (!visible) {
+                    this.popup.wrapper.show();
+                }
+                this.element.css({
+                    width: defined(options.width) ? options.width : 'auto',
+                    height: defined(options.height) ? options.height : 'auto'
+                });
+                width = this.element.outerWidth();
+                height = this.element.outerHeight();
+                if (!visible) {
+                    this.popup.wrapper.hide();
+                }
+                return {
+                    width: width,
+                    height: height
+                };
+            },
+            _mouseleave: function (e) {
+                if (!this._popupRelatedTarget(e.originalEvent)) {
+                    var tooltip = this;
+                    var current = tooltip._current;
+                    if (current && current.options.autoHide) {
+                        tooltip._timeout = setTimeout(function () {
+                            clearTimeout(tooltip._showTimeout);
+                            tooltip.hide();
+                        }, current.options.hideDelay || 0);
+                    }
+                }
+            },
+            _mousemove: function (e) {
+                var current = this._current;
+                if (current && e.element) {
+                    var options = current.options;
+                    if (options.position == 'cursor') {
+                        var position = this._position(e.element, options, current.elementSize, e.originalEvent);
+                        current.position = position;
+                        this.popup.wrapper.css({
+                            left: position.left,
+                            top: position.top
+                        });
+                    }
+                }
+            },
+            _surfaceLeave: function (e) {
+                if (!this._popupRelatedTarget(e)) {
+                    clearTimeout(this._showTimeout);
+                    this.hide();
+                }
+            },
+            _popupRelatedTarget: function (e) {
+                return e.relatedTarget && $(e.relatedTarget).closest(this.popup.wrapper).length;
+            }
+        });
+        function eventCoordinates(event) {
+            var x, y;
+            if (event.touch) {
+                x = event.x.location;
+                y = event.y.location;
+            } else {
+                x = event.pageX || event.clientX || 0;
+                y = event.pageY || event.clientY || 0;
+            }
+            return {
+                x: x,
+                y: y
+            };
+        }
         deepExtend(kendo, {
             drawing: {
                 DASH_ARRAYS: {
@@ -1622,7 +2171,8 @@
                 BaseNode: BaseNode,
                 OptionsStore: OptionsStore,
                 Surface: Surface,
-                SurfaceFactory: SurfaceFactory
+                SurfaceFactory: SurfaceFactory,
+                SurfaceTooltip: SurfaceTooltip
             }
         });
         kendo.dataviz.drawing = kendo.drawing;
@@ -1634,8 +2184,9 @@
     define('drawing/mixins', ['drawing/core'], f);
 }(function () {
     (function () {
-        var kendo = window.kendo, deepExtend = kendo.deepExtend, defined = kendo.util.defined;
+        var kendo = window.kendo, deepExtend = kendo.deepExtend, defined = kendo.util.defined, g = kendo.geometry;
         var GRADIENT = 'gradient';
+        var IDENTITY_MATRIX_HASH = g.Matrix.IDENTITY.toString();
         var Paintable = {
             extend: function (proto) {
                 proto.fill = this.fill;
@@ -1689,10 +2240,38 @@
                 };
             }
         };
+        var Measurable = {
+            extend: function (proto) {
+                proto.bbox = this.bbox;
+                proto.geometryChange = this.geometryChange;
+            },
+            bbox: function (transformation) {
+                var combinedMatrix = g.toMatrix(this.currentTransform(transformation));
+                var matrixHash = combinedMatrix ? combinedMatrix.toString() : IDENTITY_MATRIX_HASH;
+                var bbox;
+                if (this._bboxCache && this._matrixHash == matrixHash) {
+                    bbox = this._bboxCache.clone();
+                } else {
+                    bbox = this._bbox(combinedMatrix);
+                    this._bboxCache = bbox ? bbox.clone() : null;
+                    this._matrixHash = matrixHash;
+                }
+                var strokeWidth = this.options.get('stroke.width');
+                if (strokeWidth && bbox) {
+                    bbox.expand(strokeWidth / 2);
+                }
+                return bbox;
+            },
+            geometryChange: function () {
+                delete this._bboxCache;
+                this.trigger('geometryChange', { element: this });
+            }
+        };
         deepExtend(kendo.drawing, {
             mixins: {
                 Paintable: Paintable,
-                Traversable: Traversable
+                Traversable: Traversable,
+                Measurable: Measurable
             }
         });
     }());
@@ -1796,6 +2375,24 @@
                     var clip = this.clip();
                     return clip ? g.Rect.intersect(box, clip.bbox(transformation)) : box;
                 }
+            },
+            containsPoint: function (point, parentTransform) {
+                if (this.visible()) {
+                    var transform = this.currentTransform(parentTransform);
+                    if (transform) {
+                        point = point.transformCopy(transform.matrix().invert());
+                    }
+                    return this._hasFill() && this._containsPoint(point) || this._isOnPath && this._hasStroke() && this._isOnPath(point);
+                }
+                return false;
+            },
+            _hasFill: function () {
+                var fill = this.options.fill;
+                return fill && !util.isTransparent(fill.color);
+            },
+            _hasStroke: function () {
+                var stroke = this.options.stroke;
+                return stroke && stroke.width > 0 && !util.isTransparent(stroke.color);
             },
             _clippedBBox: function (transformation) {
                 return this.bbox(transformation);
@@ -1959,6 +2556,18 @@
             currentTransform: function (transformation) {
                 return Element.fn.currentTransform.call(this, transformation) || null;
             },
+            containsPoint: function (point, parentTransform) {
+                if (this.visible()) {
+                    var children = this.children;
+                    var transform = this.currentTransform(parentTransform);
+                    for (var idx = 0; idx < children.length; idx++) {
+                        if (children[idx].containsPoint(point, transform)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            },
             _reparent: function (elements, newParent) {
                 for (var i = 0; i < elements.length; i++) {
                     var child = elements[i];
@@ -2010,6 +2619,9 @@
             },
             rawBBox: function () {
                 return this.rect().bbox();
+            },
+            _containsPoint: function (point) {
+                return this.rect().containsPoint(point);
             }
         });
         drawing.mixins.Paintable.extend(Text.fn);
@@ -2023,20 +2635,21 @@
                     this.stroke('#000');
                 }
             },
-            bbox: function (transformation) {
-                var combinedMatrix = toMatrix(this.currentTransform(transformation));
-                var rect = this._geometry.bbox(combinedMatrix);
-                var strokeWidth = this.options.get('stroke.width');
-                if (strokeWidth) {
-                    expandRect(rect, strokeWidth / 2);
-                }
-                return rect;
+            _bbox: function (matrix) {
+                return this._geometry.bbox(matrix);
             },
             rawBBox: function () {
                 return this._geometry.bbox();
+            },
+            _containsPoint: function (point) {
+                return this.geometry().containsPoint(point);
+            },
+            _isOnPath: function (point) {
+                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
             }
         });
         drawing.mixins.Paintable.extend(Circle.fn);
+        drawing.mixins.Measurable.extend(Circle.fn);
         defineGeometryAccessors(Circle.fn, ['geometry']);
         var Arc = Element.extend({
             nodeType: 'Arc',
@@ -2047,14 +2660,8 @@
                     this.stroke('#000');
                 }
             },
-            bbox: function (transformation) {
-                var combinedMatrix = toMatrix(this.currentTransform(transformation));
-                var rect = this.geometry().bbox(combinedMatrix);
-                var strokeWidth = this.options.get('stroke.width');
-                if (strokeWidth) {
-                    expandRect(rect, strokeWidth / 2);
-                }
-                return rect;
+            _bbox: function (matrix) {
+                return this._geometry.bbox(matrix);
             },
             rawBBox: function () {
                 return this.geometry().bbox();
@@ -2069,9 +2676,16 @@
                     }
                 }
                 return path;
+            },
+            _containsPoint: function (point) {
+                return this.geometry().containsPoint(point);
+            },
+            _isOnPath: function (point) {
+                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
             }
         });
         drawing.mixins.Paintable.extend(Arc.fn);
+        drawing.mixins.Measurable.extend(Arc.fn);
         defineGeometryAccessors(Arc.fn, ['geometry']);
         var GeometryElementsArray = ElementsArray.extend({
             _change: function () {
@@ -2155,6 +2769,74 @@
                     min: min,
                     max: max
                 };
+            },
+            _intersectionsTo: function (segment, point) {
+                var intersectionsCount;
+                if (this.controlOut() && segment.controlIn()) {
+                    intersectionsCount = g.curveIntersectionsCount([
+                        this.anchor(),
+                        this.controlOut(),
+                        segment.controlIn(),
+                        segment.anchor()
+                    ], point, this.bboxTo(segment));
+                } else {
+                    intersectionsCount = g.lineIntersectionsCount(this.anchor(), segment.anchor(), point);
+                }
+                return intersectionsCount;
+            },
+            _isOnCurveTo: function (segment, point, width, endSegment) {
+                var bbox = this.bboxTo(segment).expand(width, width);
+                if (bbox.containsPoint(point)) {
+                    var p1 = this.anchor();
+                    var p2 = this.controlOut();
+                    var p3 = segment.controlIn();
+                    var p4 = segment.anchor();
+                    if (endSegment == 'start' && p1.distanceTo(point) <= width) {
+                        return !g.isOutOfEndPoint(p1, p2, point);
+                    } else if (endSegment == 'end' && p4.distanceTo(point) <= width) {
+                        return !g.isOutOfEndPoint(p4, p3, point);
+                    }
+                    var hasRootsInRange = g.hasRootsInRange;
+                    var points = [
+                        p1,
+                        p2,
+                        p3,
+                        p4
+                    ];
+                    if (hasRootsInRange(points, point, 'x', 'y', width) || hasRootsInRange(points, point, 'y', 'x', width)) {
+                        return true;
+                    }
+                    var rotation = g.transform().rotate(45, point);
+                    var rotatedPoints = [
+                        p1.transformCopy(rotation),
+                        p2.transformCopy(rotation),
+                        p3.transformCopy(rotation),
+                        p4.transformCopy(rotation)
+                    ];
+                    return hasRootsInRange(rotatedPoints, point, 'x', 'y', width) || hasRootsInRange(rotatedPoints, point, 'y', 'x', width);
+                }
+            },
+            _isOnLineTo: function (segment, point, width) {
+                var p1 = this.anchor();
+                var p2 = segment.anchor();
+                var angle = util.deg(math.atan2(p2.y - p1.y, p2.x - p1.x));
+                var rect = new g.Rect([
+                    p1.x,
+                    p1.y - width / 2
+                ], [
+                    p1.distanceTo(p2),
+                    width
+                ]);
+                return rect.containsPoint(point.transformCopy(g.transform().rotate(-angle, p1)));
+            },
+            _isOnPathTo: function (segment, point, width, endSegment) {
+                var isOnPath;
+                if (this.controlOut() && segment.controlIn()) {
+                    isOnPath = this._isOnCurveTo(segment, point, width / 2, endSegment);
+                } else {
+                    isOnPath = this._isOnLineTo(segment, point, width);
+                }
+                return isOnPath;
             }
         });
         definePointAccessors(Segment.fn, [
@@ -2239,17 +2921,42 @@
                 this.geometryChange();
                 return this;
             },
-            bbox: function (transformation) {
-                var combinedMatrix = toMatrix(this.currentTransform(transformation));
-                var boundingBox = this._bbox(combinedMatrix);
-                var strokeWidth = this.options.get('stroke.width');
-                if (strokeWidth) {
-                    expandRect(boundingBox, strokeWidth / 2);
-                }
-                return boundingBox;
-            },
             rawBBox: function () {
                 return this._bbox();
+            },
+            _containsPoint: function (point) {
+                var segments = this.segments;
+                var length = segments.length;
+                var intersectionsCount = 0;
+                var previous, current;
+                for (var idx = 1; idx < length; idx++) {
+                    previous = segments[idx - 1];
+                    current = segments[idx];
+                    intersectionsCount += previous._intersectionsTo(current, point);
+                }
+                if (this.options.closed || !segments[0].anchor().equals(segments[length - 1].anchor())) {
+                    intersectionsCount += g.lineIntersectionsCount(segments[0].anchor(), segments[length - 1].anchor(), point);
+                }
+                return intersectionsCount % 2 !== 0;
+            },
+            _isOnPath: function (point, width) {
+                var segments = this.segments;
+                var length = segments.length;
+                width = width || this.options.stroke.width;
+                if (length > 1) {
+                    if (segments[0]._isOnPathTo(segments[1], point, width, 'start')) {
+                        return true;
+                    }
+                    for (var idx = 2; idx <= length - 2; idx++) {
+                        if (segments[idx - 1]._isOnPathTo(segments[idx], point, width)) {
+                            return true;
+                        }
+                    }
+                    if (segments[length - 2]._isOnPathTo(segments[length - 1], point, width, 'end')) {
+                        return true;
+                    }
+                }
+                return false;
             },
             _bbox: function (matrix) {
                 var segments = this.segments;
@@ -2272,6 +2979,7 @@
             }
         });
         drawing.mixins.Paintable.extend(Path.fn);
+        drawing.mixins.Measurable.extend(Path.fn);
         Path.fromRect = function (rect, options) {
             return new Path(options).moveTo(rect.topLeft()).lineTo(rect.topRight()).lineTo(rect.bottomRight()).lineTo(rect.bottomLeft()).close();
         };
@@ -2345,17 +3053,37 @@
                 }
                 return this;
             },
-            bbox: function (transformation) {
-                return elementsBoundingBox(this.paths, true, this.currentTransform(transformation));
+            _bbox: function (matrix) {
+                return elementsBoundingBox(this.paths, true, matrix);
             },
             rawBBox: function () {
                 return elementsBoundingBox(this.paths, false);
+            },
+            _containsPoint: function (point) {
+                var paths = this.paths;
+                for (var idx = 0; idx < paths.length; idx++) {
+                    if (paths[idx]._containsPoint(point)) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            _isOnPath: function (point) {
+                var paths = this.paths;
+                var width = this.options.stroke.width;
+                for (var idx = 0; idx < paths.length; idx++) {
+                    if (paths[idx]._isOnPath(point, width)) {
+                        return true;
+                    }
+                }
+                return false;
             },
             _clippedBBox: function (transformation) {
                 return elementsClippedBoundingBox(this.paths, this.currentTransform(transformation));
             }
         });
         drawing.mixins.Paintable.extend(MultiPath.fn);
+        drawing.mixins.Measurable.extend(MultiPath.fn);
         var Image = Element.extend({
             nodeType: 'Image',
             init: function (src, rect, options) {
@@ -2377,6 +3105,12 @@
             },
             rawBBox: function () {
                 return this._rect.bbox();
+            },
+            _containsPoint: function (point) {
+                return this._rect.containsPoint(point);
+            },
+            _hasFill: function () {
+                return this.src();
             }
         });
         defineGeometryAccessors(Image.fn, ['rect']);
@@ -2510,20 +3244,21 @@
                     this.stroke('#000');
                 }
             },
-            bbox: function (transformation) {
-                var combinedMatrix = toMatrix(this.currentTransform(transformation));
-                var rect = this._geometry.bbox(combinedMatrix);
-                var strokeWidth = this.options.get('stroke.width');
-                if (strokeWidth) {
-                    expandRect(rect, strokeWidth / 2);
-                }
-                return rect;
+            _bbox: function (matrix) {
+                return this._geometry.bbox(matrix);
             },
             rawBBox: function () {
                 return this._geometry.bbox();
+            },
+            _containsPoint: function (point) {
+                return this._geometry.containsPoint(point);
+            },
+            _isOnPath: function (point) {
+                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
             }
         });
         drawing.mixins.Paintable.extend(Rect.fn);
+        drawing.mixins.Measurable.extend(Rect.fn);
         defineGeometryAccessors(Rect.fn, ['geometry']);
         var Layout = Group.extend({
             init: function (rect, options) {
@@ -2706,12 +3441,6 @@
                 }
             }
             return boundingBox;
-        }
-        function expandRect(rect, value) {
-            rect.origin.x -= value;
-            rect.origin.y -= value;
-            rect.size.width += value * 2;
-            rect.size.height += value * 2;
         }
         function defineGeometryAccessors(fn, names) {
             for (var i = 0; i < names.length; i++) {
@@ -3165,6 +3894,274 @@
     (a3 || a2)();
 }));
 (function (f, define) {
+    define('drawing/search', ['drawing/shapes'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo, drawing = kendo.drawing, geometry = kendo.geometry, Class = kendo.Class, Rect = geometry.Rect, deepExtend = kendo.deepExtend, isArray = $.isArray, inArray = $.inArray, math = Math, LEVEL_STEP = 10000, MAX_LEVEL = 75;
+        var QuadRoot = Class.extend({
+            init: function () {
+                this.shapes = [];
+            },
+            _add: function (shape, bbox) {
+                this.shapes.push({
+                    bbox: bbox,
+                    shape: shape
+                });
+                shape._quadNode = this;
+            },
+            pointShapes: function (point) {
+                var shapes = this.shapes;
+                var length = shapes.length;
+                var result = [];
+                for (var idx = 0; idx < length; idx++) {
+                    if (shapes[idx].bbox.containsPoint(point)) {
+                        result.push(shapes[idx].shape);
+                    }
+                }
+                return result;
+            },
+            insert: function (shape, bbox) {
+                this._add(shape, bbox);
+            },
+            remove: function (shape) {
+                var shapes = this.shapes;
+                var length = shapes.length;
+                for (var idx = 0; idx < length; idx++) {
+                    if (shapes[idx].shape === shape) {
+                        shapes.splice(idx, 1);
+                        break;
+                    }
+                }
+            }
+        });
+        var QuadNode = QuadRoot.extend({
+            init: function (rect) {
+                QuadRoot.fn.init.call(this);
+                this.children = [];
+                this.rect = rect;
+            },
+            inBounds: function (rect) {
+                var nodeRect = this.rect;
+                var nodeBottomRight = nodeRect.bottomRight();
+                var bottomRight = rect.bottomRight();
+                var inBounds = nodeRect.origin.x <= rect.origin.x && nodeRect.origin.y <= rect.origin.y && bottomRight.x <= nodeBottomRight.x && bottomRight.y <= nodeBottomRight.y;
+                return inBounds;
+            },
+            pointShapes: function (point) {
+                var children = this.children;
+                var length = children.length;
+                var result = QuadRoot.fn.pointShapes.call(this, point);
+                for (var idx = 0; idx < length; idx++) {
+                    result = result.concat(children[idx].pointShapes(point));
+                }
+                return result;
+            },
+            insert: function (shape, bbox) {
+                var inserted = false;
+                var children = this.children;
+                var length = children.length;
+                if (this.inBounds(bbox)) {
+                    if (!length && this.shapes.length < 4) {
+                        this._add(shape, bbox);
+                    } else {
+                        if (!length) {
+                            this._initChildren();
+                        }
+                        for (var idx = 0; idx < children.length; idx++) {
+                            if (children[idx].insert(shape, bbox)) {
+                                inserted = true;
+                                break;
+                            }
+                        }
+                        if (!inserted) {
+                            this._add(shape, bbox);
+                        }
+                    }
+                    inserted = true;
+                }
+                return inserted;
+            },
+            _initChildren: function () {
+                var rect = this.rect, children = this.children, shapes = this.shapes, center = rect.center(), halfWidth = rect.width() / 2, halfHeight = rect.height() / 2, childIdx, shapeIdx;
+                children.push(new QuadNode(new Rect(rect.origin.x, rect.origin.y, halfWidth, halfHeight)), new QuadNode(new Rect(center.x, rect.origin.y, halfWidth, halfHeight)), new QuadNode(new Rect(rect.origin.x, center.y, halfWidth, halfHeight)), new QuadNode(new Rect(center.x, center.y, halfWidth, halfHeight)));
+                for (shapeIdx = shapes.length - 1; shapeIdx >= 0; shapeIdx--) {
+                    for (childIdx = 0; childIdx < children.length; childIdx++) {
+                        if (children[childIdx].insert(shapes[shapeIdx].shape, shapes[shapeIdx].bbox)) {
+                            shapes.splice(shapeIdx, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+        var ShapesQuadTree = Class.extend({
+            ROOT_SIZE: 1000,
+            init: function () {
+                this.initRoots();
+            },
+            initRoots: function () {
+                this.rootMap = {};
+                this.root = new QuadRoot();
+                this.rootElements = [];
+            },
+            clear: function () {
+                var that = this;
+                var rootElements = that.rootElements;
+                for (var idx = 0; idx < rootElements.length; idx++) {
+                    this.remove(rootElements[idx]);
+                }
+                this.initRoots();
+            },
+            pointShape: function (point) {
+                var size = this.ROOT_SIZE;
+                var result = this.root.pointShapes(point);
+                var sectorRoot = (this.rootMap[math.floor(point.x / size)] || {})[math.floor(point.y / size)];
+                if (sectorRoot) {
+                    result = result.concat(sectorRoot.pointShapes(point));
+                }
+                this.assignZindex(result);
+                result.sort(zIndexComparer);
+                for (var idx = 0; idx < result.length; idx++) {
+                    if (result[idx].containsPoint(point)) {
+                        return result[idx];
+                    }
+                }
+            },
+            assignZindex: function (elements) {
+                var element, levelWeight, zIndex, parents;
+                for (var idx = 0; idx < elements.length; idx++) {
+                    element = elements[idx];
+                    zIndex = 0;
+                    levelWeight = math.pow(LEVEL_STEP, MAX_LEVEL);
+                    parents = [];
+                    while (element) {
+                        parents.push(element);
+                        element = element.parent;
+                    }
+                    while (parents.length) {
+                        element = parents.pop();
+                        zIndex += (inArray(element, element.parent ? element.parent.children : this.rootElements) + 1) * levelWeight;
+                        levelWeight /= LEVEL_STEP;
+                    }
+                    elements[idx]._zIndex = zIndex;
+                }
+            },
+            optionsChange: function (e) {
+                if (e.field == 'transform' || e.field == 'stroke.width') {
+                    this.bboxChange(e.element);
+                }
+            },
+            geometryChange: function (e) {
+                this.bboxChange(e.element);
+            },
+            bboxChange: function (element) {
+                if (element.nodeType === 'Group') {
+                    for (var idx = 0; idx < element.children.length; idx++) {
+                        this.bboxChange(element.children[idx]);
+                    }
+                } else if (element._quadNode) {
+                    element._quadNode.remove(element);
+                    this._insertShape(element);
+                }
+            },
+            add: function (elements) {
+                var elementsArray = isArray(elements) ? elements.slice(0) : [elements];
+                this.rootElements.push.apply(this.rootElements, elementsArray);
+                this._insert(elementsArray);
+            },
+            childrenChange: function (e) {
+                if (e.action == 'remove') {
+                    for (var idx = 0; idx < e.items.length; idx++) {
+                        this.remove(e.items[idx]);
+                    }
+                } else {
+                    this._insert(Array.prototype.slice.call(e.items, 0));
+                }
+            },
+            _insert: function (elements) {
+                var element;
+                while (elements.length > 0) {
+                    element = elements.pop();
+                    element.addObserver(this);
+                    if (element.nodeType == 'Group') {
+                        elements.push.apply(elements, element.children);
+                    } else {
+                        this._insertShape(element);
+                    }
+                }
+            },
+            _insertShape: function (shape) {
+                var bbox = shape.bbox();
+                var rootSize = this.ROOT_SIZE;
+                var sectors = this.getSectors(bbox);
+                var x = sectors[0][0];
+                var y = sectors[1][0];
+                if (this.inRoot(sectors)) {
+                    this.root.insert(shape, bbox);
+                } else {
+                    if (!this.rootMap[x]) {
+                        this.rootMap[x] = {};
+                    }
+                    if (!this.rootMap[x][y]) {
+                        this.rootMap[x][y] = new QuadNode(new Rect([
+                            x * rootSize,
+                            y * rootSize
+                        ], [
+                            rootSize,
+                            rootSize
+                        ]));
+                    }
+                    this.rootMap[x][y].insert(shape, bbox);
+                }
+            },
+            remove: function (element) {
+                element.removeObserver(this);
+                if (element.nodeType == 'Group') {
+                    var children = element.children;
+                    for (var idx = 0; idx < children.length; idx++) {
+                        this.remove(children[idx]);
+                    }
+                } else if (element._quadNode) {
+                    element._quadNode.remove(element);
+                    delete element._quadNode;
+                }
+            },
+            inRoot: function (sectors) {
+                return sectors[0].length > 1 || sectors[1].length > 1;
+            },
+            getSectors: function (rect) {
+                var rootSize = this.ROOT_SIZE;
+                var bottomRight = rect.bottomRight();
+                var bottomX = math.floor(bottomRight.x / rootSize);
+                var bottomY = math.floor(bottomRight.y / rootSize);
+                var sectors = [
+                    [],
+                    []
+                ];
+                for (var x = math.floor(rect.origin.x / rootSize); x <= bottomX; x++) {
+                    sectors[0].push(x);
+                }
+                for (var y = math.floor(rect.origin.y / rootSize); y <= bottomY; y++) {
+                    sectors[1].push(y);
+                }
+                return sectors;
+            }
+        });
+        function zIndexComparer(x1, x2) {
+            if (x1._zIndex < x2._zIndex) {
+                return 1;
+            }
+            if (x1._zIndex > x2._zIndex) {
+                return -1;
+            }
+            return 0;
+        }
+        deepExtend(drawing, { ShapesQuadTree: ShapesQuadTree });
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
     define('drawing/svg', [
         'drawing/shapes',
         'util/main'
@@ -3184,6 +4181,7 @@
                 this.element.on('click' + NS, this._click);
                 this.element.on('mouseover' + NS, this._mouseenter);
                 this.element.on('mouseout' + NS, this._mouseleave);
+                this.element.on('mousemove' + NS, this._mousemove);
                 this.resize();
             },
             type: 'svg',
@@ -4145,13 +5143,13 @@
 }));
 (function (f, define) {
     define('drawing/canvas', [
-        'drawing/shapes',
+        'drawing/search',
         'kendo.color'
     ], f);
 }(function () {
     (function ($) {
-        var doc = document, kendo = window.kendo, deepExtend = kendo.deepExtend, util = kendo.util, defined = util.defined, isTransparent = util.isTransparent, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, g = kendo.geometry, d = kendo.drawing, BaseNode = d.BaseNode;
-        var BUTT = 'butt', DASH_ARRAYS = d.DASH_ARRAYS, FRAME_DELAY = 1000 / 60, SOLID = 'solid';
+        var doc = document, kendo = window.kendo, deepExtend = kendo.deepExtend, util = kendo.util, defined = util.defined, isTransparent = util.isTransparent, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, g = kendo.geometry, d = kendo.drawing, BaseNode = d.BaseNode, proxy = $.proxy;
+        var BUTT = 'butt', DASH_ARRAYS = d.DASH_ARRAYS, FRAME_DELAY = 1000 / 60, SOLID = 'solid', NS = '.kendo';
         var Surface = d.Surface.extend({
             init: function (element, options) {
                 d.Surface.fn.init.call(this, element, options);
@@ -4168,15 +5166,33 @@
                     this._root.destroy();
                     this._root = null;
                 }
+                if (this._searchTree) {
+                    this._searchTree.clear();
+                    delete this._searchTree;
+                }
+                this.element.off(NS);
             },
             type: 'canvas',
             draw: function (element) {
                 d.Surface.fn.draw.call(this, element);
                 this._root.load([element], undefined, this.options.cors);
+                if (this._searchTree) {
+                    this._searchTree.add([element]);
+                }
             },
             clear: function () {
                 d.Surface.fn.clear.call(this);
                 this._root.clear();
+                if (this._searchTree) {
+                    this._searchTree.clear();
+                }
+            },
+            eventTarget: function (e) {
+                if (this._searchTree) {
+                    var point = this._surfacePoint(e);
+                    var shape = this._searchTree.pointShape(point);
+                    return shape;
+                }
             },
             image: function () {
                 var root = this._root;
@@ -4201,12 +5217,73 @@
                 });
                 return defer.promise();
             },
+            suspendTracking: function () {
+                d.Surface.fn.suspendTracking.call(this);
+                if (this._searchTree) {
+                    this._searchTree.clear();
+                    delete this._searchTree;
+                }
+            },
+            resumeTracking: function () {
+                d.Surface.fn.resumeTracking.call(this);
+                if (!this._searchTree) {
+                    this._searchTree = new d.ShapesQuadTree();
+                    var childNodes = this._root.childNodes;
+                    var rootElements = [];
+                    for (var idx = 0; idx < childNodes.length; idx++) {
+                        rootElements.push(childNodes[idx].srcElement);
+                    }
+                    this._searchTree.add(rootElements);
+                }
+            },
             _resize: function () {
                 this._rootElement.width = this._size.width;
                 this._rootElement.height = this._size.height;
                 this._root.invalidate();
             },
-            _template: renderTemplate('<canvas style=\'width: 100%; height: 100%;\'></canvas>')
+            _template: renderTemplate('<canvas style=\'width: 100%; height: 100%;\'></canvas>'),
+            _enableTracking: function () {
+                this._searchTree = new d.ShapesQuadTree();
+                this._mouseTrackHandler = proxy(this._trackMouse, this);
+                this.element.on('click' + NS, this._mouseTrackHandler);
+                this.element.on('mousemove' + NS, this._mouseTrackHandler);
+                d.Surface.fn._enableTracking.call(this);
+            },
+            _trackMouse: function (e) {
+                if (this._suspendedTracking) {
+                    return;
+                }
+                var shape = this.eventTarget(e);
+                if (e.type != 'click') {
+                    var currentShape = this._currentShape;
+                    if (currentShape && currentShape !== shape) {
+                        this.trigger('mouseleave', {
+                            element: currentShape,
+                            originalEvent: e,
+                            type: 'mouseleave'
+                        });
+                    }
+                    if (shape && currentShape !== shape) {
+                        this.trigger('mouseenter', {
+                            element: shape,
+                            originalEvent: e,
+                            type: 'mouseenter'
+                        });
+                    }
+                    this.trigger('mousemove', {
+                        element: shape,
+                        originalEvent: e,
+                        type: 'mousemove'
+                    });
+                    this._currentShape = shape;
+                } else if (shape) {
+                    this.trigger('click', {
+                        element: shape,
+                        originalEvent: e,
+                        type: 'click'
+                    });
+                }
+            }
         });
         var Node = BaseNode.extend({
             init: function (srcElement) {
@@ -4321,7 +5398,7 @@
                 GroupNode.fn.init.call(this);
                 this.canvas = canvas;
                 this.ctx = canvas.getContext('2d');
-                var invalidateHandler = $.proxy(this._invalidate, this);
+                var invalidateHandler = proxy(this._invalidate, this);
                 this.invalidate = kendo.throttle(function () {
                     kendo.animationFrame(invalidateHandler);
                 }, FRAME_DELAY);
@@ -4513,8 +5590,8 @@
         var ImageNode = PathNode.extend({
             init: function (srcElement, cors) {
                 PathNode.fn.init.call(this, srcElement);
-                this.onLoad = $.proxy(this.onLoad, this);
-                this.onError = $.proxy(this.onError, this);
+                this.onLoad = proxy(this.onLoad, this);
+                this.onError = proxy(this.onError, this);
                 this.loading = $.Deferred();
                 var img = this.img = new Image();
                 if (cors && !/^data:/i.test(srcElement.src())) {
@@ -4662,6 +5739,7 @@
                 this.element.on('click' + NS, this._click);
                 this.element.on('mouseover' + NS, this._mouseenter);
                 this.element.on('mouseout' + NS, this._mouseleave);
+                this.element.on('mousemove' + NS, this._mousemove);
             },
             type: 'vml',
             destroy: function () {
@@ -5804,6 +6882,24 @@
                 return this._pdfRect;
             }
         });
+        function getXY(thing) {
+            if (typeof thing == 'number') {
+                return {
+                    x: thing,
+                    y: thing
+                };
+            }
+            if (Array.isArray(thing)) {
+                return {
+                    x: thing[0],
+                    y: thing[1]
+                };
+            }
+            return {
+                x: thing.x,
+                y: thing.y
+            };
+        }
         function drawDOM(element, options) {
             if (!options) {
                 options = {};
@@ -5819,16 +6915,17 @@
             if (kendo.pdf) {
                 kendo.pdf.defineFont(getFontFaces(element.ownerDocument));
             }
+            var scale = getXY(options.scale || 1);
             function doOne(element) {
                 var group = new drawing.Group();
                 var pos = element.getBoundingClientRect();
                 setTransform(group, [
-                    1,
+                    scale.x,
                     0,
                     0,
-                    1,
-                    -pos.left,
-                    -pos.top
+                    scale.y,
+                    -pos.left * scale.x,
+                    -pos.top * scale.y
                 ]);
                 nodeInfo._clipbox = false;
                 nodeInfo._matrix = geo.Matrix.unit();
@@ -5864,10 +6961,21 @@
                             bottom: 0
                         };
                     }
+                    if (pageWidth) {
+                        pageWidth /= scale.x;
+                    }
+                    if (pageHeight) {
+                        pageHeight /= scale.y;
+                    }
+                    margin.left /= scale.x;
+                    margin.right /= scale.x;
+                    margin.top /= scale.y;
+                    margin.bottom /= scale.y;
                     var group = new drawing.Group({
                         pdf: {
                             multiPage: true,
-                            paperSize: hasPaperSize ? paperOptions.paperSize : 'auto'
+                            paperSize: hasPaperSize ? paperOptions.paperSize : 'auto',
+                            _ignoreMargin: true
                         }
                     });
                     handlePageBreaks(function (x) {
@@ -5950,7 +7058,7 @@
                 var template = makeTemplate(options.template);
                 var doc = element.ownerDocument;
                 var pages = [];
-                var copy = cloneNodes(element);
+                var copy = options._destructive ? element : cloneNodes(element);
                 var container = doc.createElement('KENDO-PDF-DOCUMENT');
                 var adjust = 0;
                 $(copy).find('tfoot').each(function () {
@@ -5976,8 +7084,8 @@
                     });
                     $(copy).css({ overflow: 'hidden' });
                 }
-                container.appendChild(copy);
                 element.parentNode.insertBefore(container, element);
+                container.appendChild(copy);
                 if (options.beforePageBreak) {
                     setTimeout(function () {
                         options.beforePageBreak(container, doPageBreak);
@@ -6021,6 +7129,12 @@
                         });
                     }
                 }
+                function keepTogether(jqel) {
+                    if (options.keepTogether && jqel.is(options.keepTogether) && jqel.height() <= pageHeight - adjust) {
+                        return true;
+                    }
+                    return jqel.data('kendoChart') || /^(?:img|tr|thead|th|tfoot|iframe|svg|object|canvas|input|textarea|select|video|h[1-6])/i.test(jqel[0].tagName);
+                }
                 function splitElement(element) {
                     var style = getComputedStyle(element);
                     var bottomPadding = parseFloat(getPropertyValue(style, 'padding-bottom'));
@@ -6047,7 +7161,7 @@
                             if (fall == 1) {
                                 breakAtElement(el);
                             } else if (fall) {
-                                if (jqel.data('kendoChart') || /^(?:img|tr|iframe|svg|object|canvas|input|textarea|select|video|h[1-6])/i.test(el.tagName)) {
+                                if (keepTogether(jqel)) {
                                     breakAtElement(el);
                                 } else {
                                     splitElement(el);
@@ -6081,15 +7195,34 @@
                     if (el.nodeType == 1 && el !== copy && firstInParent(el)) {
                         return breakAtElement(el.parentNode);
                     }
-                    var colgroup = $(el).closest('table').find('colgroup');
+                    var table, colgroup, thead, grid, gridHead;
+                    table = $(el).closest('table');
+                    colgroup = table.find('colgroup:first');
+                    if (options.repeatHeaders) {
+                        thead = table.find('thead:first');
+                        grid = $(el).closest('.k-grid[data-role="grid"]');
+                        gridHead = grid.find('.k-grid-header:first');
+                    }
                     var page = makePage();
                     var range = doc.createRange();
                     range.setStartBefore(copy);
                     range.setEndBefore(el);
                     page.appendChild(range.extractContents());
                     copy.parentNode.insertBefore(page, copy);
-                    if (colgroup[0]) {
-                        colgroup.clone().prependTo($(el).closest('table'));
+                    if (table[0]) {
+                        table = $(el).closest('table');
+                        if (options.repeatHeaders && thead[0]) {
+                            thead.clone().prependTo(table);
+                        }
+                        if (colgroup[0]) {
+                            colgroup.clone().prependTo(table);
+                        }
+                    }
+                    if (options.repeatHeaders && grid[0]) {
+                        grid = $(el).closest('.k-grid[data-role="grid"]');
+                        if (gridHead[0]) {
+                            gridHead.clone().prependTo(grid);
+                        }
                     }
                 }
                 function makePage() {
@@ -7749,7 +8882,9 @@
             p.insertBefore(el, element);
             el.scrollLeft = element.scrollLeft;
             el.scrollTop = element.scrollTop;
+            element.style.display = 'none';
             renderContents(el, group);
+            element.style.display = '';
             p.removeChild(el);
         }
         function renderContents(element, group) {
@@ -8204,6 +9339,7 @@
         'drawing/mixins',
         'drawing/shapes',
         'drawing/parser',
+        'drawing/search',
         'drawing/svg',
         'drawing/canvas',
         'drawing/vml',

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -34,7 +34,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, setTime = kendo.date.setTime, SchedulerView = ui.SchedulerView, extend = $.extend, proxy = $.proxy, getDate = kendo.date.getDate, MS_PER_MINUTE = kendo.date.MS_PER_MINUTE, MS_PER_DAY = kendo.date.MS_PER_DAY, getMilliseconds = kendo.date.getMilliseconds, NS = '.kendoMultiDayView';
+        var kendo = window.kendo, ui = kendo.ui, setTime = kendo.date.setTime, SchedulerView = ui.SchedulerView, extend = $.extend, proxy = $.proxy, getDate = kendo.date.getDate, MS_PER_MINUTE = kendo.date.MS_PER_MINUTE, MS_PER_DAY = kendo.date.MS_PER_DAY, CURRENT_TIME_MARKER_CLASS = 'k-current-time', CURRENT_TIME_MARKER_ARROW_CLASS = 'k-current-time-arrow', BORDER_SIZE_COEFF = 0.8666, getMilliseconds = kendo.date.getMilliseconds, NS = '.kendoMultiDayView';
         var DAY_VIEW_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t} - {1:t}", start, end)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template k-event-time">#:kendo.format("{0:t} - {1:t}", start, end)#</div>' + '<div class="k-event-template">${title}</div>' + '</div>'), DAY_VIEW_ALL_DAY_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t}", start)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">${title}</div>' + '</div>'), DATA_HEADER_TEMPLATE = kendo.template('<span class=\'k-link k-nav-day\'>#=kendo.toString(date, \'ddd M/dd\')#</span>'), ALLDAY_EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color#; border-color: #=resources[0].color#"' + 'class="k-event#=inverseColor ? " k-event-inverse" : ""#" ' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-w"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-exception"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-refresh"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-si-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-e"></span>' + '#}#' + '</span>' + '#if(resizable && !singleDay && !data.tail && !data.middle){#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '#if(resizable && !singleDay && !data.head && !data.middle){#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#" ' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event#=inverseColor ? " k-event-inverse" : ""#"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.isException()) {#' + '<span class="k-icon k-i-exception"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-refresh"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-si-close"></span></a>' + '#}#' + '</span>' + '<span class="k-event-top-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-n"></span>' + '# } #' + '</span>' + '<span class="k-event-bottom-actions">' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-s"></span>' + '# } #' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-n"></span>' + '# } #' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-s"></span>' + '# } #' + '</div>';
         function toInvariantTime(date) {
             var staticDate = new Date(1980, 1, 1, 0, 0, 0);
@@ -112,8 +112,11 @@
                         currentTime = kendo.timezone.convert(currentTime, currentTime.getTimezoneOffset(), timezoneOffset);
                     }
                 }
-                this.times.find('.k-current-time').remove();
+                this.times.find('.' + CURRENT_TIME_MARKER_CLASS).remove();
+                this.content.find('.' + CURRENT_TIME_MARKER_CLASS).remove();
                 var groupsCount = !options.group || options.group.orientation == 'horizontal' ? 1 : this.groups.length;
+                var firstTimesCell = this.times.find('tr:first th:first');
+                var lastTimesCell = this.times.find('tr:first th:last');
                 for (var groupIndex = 0; groupIndex < groupsCount; groupIndex++) {
                     var currentGroup = this.groups[groupIndex];
                     var utcCurrentTime = kendo.date.toUtcTime(currentTime);
@@ -124,9 +127,21 @@
                     var collection = ranges[0].collection;
                     var slotElement = collection.slotByStartDate(currentTime);
                     if (slotElement) {
-                        var element = $('<div class=\'k-current-time\'></div>');
-                        element.appendTo(this.times).css({
-                            top: Math.round(ranges[0].innerRect(currentTime, new Date(currentTime.getTime() + 1), false).top),
+                        var elementHtml = '<div class=\'' + CURRENT_TIME_MARKER_CLASS + '\'></div>';
+                        var timesTableMarker = $(elementHtml).prependTo(this.times);
+                        var markerTopPosition = Math.round(ranges[0].innerRect(currentTime, new Date(currentTime.getTime() + 1), false).top);
+                        var timesTableMarkerCss = {};
+                        if (this._isRtl) {
+                            timesTableMarkerCss.right = firstTimesCell.position().left + firstTimesCell.outerHeight() - lastTimesCell.outerHeight();
+                            timesTableMarker.addClass(CURRENT_TIME_MARKER_ARROW_CLASS + '-left');
+                        } else {
+                            timesTableMarkerCss.left = lastTimesCell.position().left;
+                            timesTableMarker.addClass(CURRENT_TIME_MARKER_ARROW_CLASS + '-right');
+                        }
+                        timesTableMarkerCss.top = markerTopPosition - timesTableMarker.outerWidth() * BORDER_SIZE_COEFF / 2;
+                        timesTableMarker.css(timesTableMarkerCss);
+                        $(elementHtml).prependTo(this.content).css({
+                            top: markerTopPosition,
                             height: '1px',
                             right: '1px',
                             left: 0

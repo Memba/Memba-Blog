@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -305,9 +305,6 @@
                 }
             },
             _selectionChange: function () {
-                if (!browser.msie) {
-                    kendo.ui.editor.Dom.ensureTrailingBreaks(this.body);
-                }
                 this._selectionStarted = false;
                 this.saveSelection();
                 this.trigger('select', {});
@@ -505,18 +502,26 @@
                                 editor.selectRange(range);
                             }
                         }
-                        var toolName = editor.keyboard.toolFromShortcut(editor.toolbar.tools, e);
-                        if (toolName) {
+                        var tools = editor.toolbar.tools;
+                        var toolName = editor.keyboard.toolFromShortcut(tools, e);
+                        var toolOptions = toolName ? tools[toolName].options : {};
+                        if (toolName && !toolOptions.keyPressCommand) {
                             e.preventDefault();
                             if (!/^(undo|redo)$/.test(toolName)) {
                                 editor.keyboard.endTyping(true);
                             }
                             editor.trigger('keydown', e);
                             editor.exec(toolName);
+                            editor._runPostContentKeyCommands(e);
                             return false;
                         }
                         editor.keyboard.clearTimeout();
                         editor.keyboard.keydown(e);
+                    },
+                    'keypress': function (e) {
+                        setTimeout(function () {
+                            editor._runPostContentKeyCommands(e);
+                        }, 0);
                     },
                     'keyup': function (e) {
                         var selectionCodes = [
@@ -587,6 +592,22 @@
                     }, 1);
                 }
             },
+            _runPostContentKeyCommands: function (e) {
+                var range = this.getRange();
+                var tools = this.keyboard.toolsFromShortcut(this.toolbar.tools, e);
+                for (var i = 0; i < tools.length; i++) {
+                    var tool = tools[i];
+                    var o = tool.options;
+                    if (!o.keyPressCommand) {
+                        continue;
+                    }
+                    var cmd = new o.command({ range: range });
+                    if (cmd.changesContent()) {
+                        this.keyboard.endTyping(true);
+                        this.exec(tool.name);
+                    }
+                }
+            },
             refresh: function () {
                 var that = this;
                 if (that.textarea) {
@@ -612,10 +633,22 @@
                 encoded: true,
                 domain: null,
                 resizable: false,
+                deserialization: { custom: null },
                 serialization: {
                     entities: true,
                     semantic: true,
                     scripts: false
+                },
+                pasteCleanup: {
+                    all: false,
+                    css: false,
+                    custom: null,
+                    keepNewLines: false,
+                    msAllFormatting: false,
+                    msConvertLists: true,
+                    msTags: true,
+                    none: false,
+                    span: false
                 },
                 stylesheets: [],
                 dialogOptions: {
@@ -760,17 +793,14 @@
                 return false;
             },
             value: function (html) {
-                var body = this.body, editorNS = kendo.ui.editor, currentHtml = editorNS.Serializer.domToXhtml(body, this.options.serialization);
+                var body = this.body, editorNS = kendo.ui.editor, options = this.options, currentHtml = editorNS.Serializer.domToXhtml(body, options.serialization);
                 if (html === undefined) {
                     return currentHtml;
                 }
                 if (html == currentHtml) {
                     return;
                 }
-                editorNS.Serializer.htmlToDom(html, body);
-                if (!browser.msie) {
-                    kendo.ui.editor.Dom.ensureTrailingBreaks(this.body);
-                }
+                editorNS.Serializer.htmlToDom(html, body, options.deserialization);
                 this.selectionRestorePoint = null;
                 this.update();
                 this.toolbar.refreshTools();
@@ -948,13 +978,9 @@
         });
         EditorUtils.registerTool('separator', new Tool({ template: new ToolTemplate({ template: EditorUtils.separatorTemplate }) }));
         var bomFill = browser.msie && browser.version < 9 ? '\uFEFF' : '';
-        var emptyElementContent = '<br class="k-br" />';
-        if (browser.msie) {
-            if (browser.version < 10) {
-                emptyElementContent = '\uFEFF';
-            } else if (browser.version < 11) {
-                emptyElementContent = ' ';
-            }
+        var emptyElementContent = '\uFEFF';
+        if (browser.msie && browser.version == 10) {
+            emptyElementContent = ' ';
         }
         extend(kendo.ui, {
             editor: {
@@ -1415,6 +1441,11 @@
             stripBom: function (text) {
                 return (text || '').replace(bom, '');
             },
+            stripBomNode: function (node) {
+                if (node && node.nodeType === 3 && node.nodeValue === '\uFEFF') {
+                    node.parentNode.removeChild(node);
+                }
+            },
             insignificant: function (node) {
                 var attr = node.attributes;
                 return node.className == 'k-marker' || Dom.is(node, 'br') && (node.className == 'k-br' || attr._moz_dirty || attr._moz_editor_bogus_node);
@@ -1675,6 +1706,12 @@
                     return Dom.getEffectiveBackground(element.parent());
                 }
             },
+            innerText: function (node) {
+                var text = node.innerHTML;
+                text = text.replace(/<!--(.|\s)*?-->/gi, '');
+                text = text.replace(/<\/?[^>]+?\/?>/gm, '');
+                return text;
+            },
             removeClass: function (node, classNames) {
                 var className = ' ' + node.className + ' ', classes = classNames.split(' '), i, len;
                 for (i = 0, len = classes.length; i < len; i++) {
@@ -1823,7 +1860,7 @@
         var quoteRe = /"/g;
         var brRe = /<br[^>]*>/i;
         var pixelRe = /^\d+(\.\d*)?(px)?$/i;
-        var emptyPRe = /<p><\/p>/i;
+        var emptyPRe = /<p>(?:&nbsp;)?<\/p>/i;
         var cssDeclaration = /(\*?[-#\/\*\\\w]+(?:\[[0-9a-z_-]+\])?)\s*:\s*((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^\)]*?\)|[^};])+)/g;
         var sizzleAttr = /^sizzle-\d+/i;
         var scriptAttr = /^k-script-/i;
@@ -1832,6 +1869,7 @@
         div.innerHTML = ' <hr>';
         var supportsLeadingWhitespace = div.firstChild.nodeType === 3;
         div = null;
+        var isFunction = $.isFunction;
         var Serializer = {
             toEditableHtml: function (html) {
                 var br = '<br class="k-br">';
@@ -1841,7 +1879,7 @@
                 }).replace(/(<\/?img[^>]*>)[\r\n\v\f\t ]+/gi, '$1').replace(/^<(table|blockquote)/i, br + '<$1').replace(/^[\s]*(&nbsp;|\u00a0)/i, '$1').replace(/<\/(table|blockquote)>$/i, '</$1>' + br);
             },
             _fillEmptyElements: function (body) {
-                $(body).find('p').each(function () {
+                $(body).find('p,td').each(function () {
                     var p = $(this);
                     if (/^\s*$/g.test(p.text()) && !p.find('img,input').length) {
                         var node = this;
@@ -1884,17 +1922,21 @@
                     }
                 });
             },
-            htmlToDom: function (html, root) {
+            htmlToDom: function (html, root, options) {
                 var browser = kendo.support.browser;
                 var msie = browser.msie;
                 var legacyIE = msie && browser.version < 9;
                 var originalSrc = 'originalsrc';
                 var originalHref = 'originalhref';
+                var o = options || {};
                 html = Serializer.toEditableHtml(html);
                 if (legacyIE) {
                     html = '<br/>' + html;
                     html = html.replace(/href\s*=\s*(?:'|")?([^'">\s]*)(?:'|")?/, originalHref + '="$1"');
                     html = html.replace(/src\s*=\s*(?:'|")?([^'">\s]*)(?:'|")?/, originalSrc + '="$1"');
+                }
+                if (isFunction(o.custom)) {
+                    html = o.custom(html) || html;
                 }
                 root.innerHTML = html;
                 if (legacyIE) {
@@ -2197,14 +2239,23 @@
                 function text(node) {
                     return node.nodeValue.replace(/\ufeff/g, '');
                 }
+                function isEmptyBomNode(node) {
+                    if (node.nodeValue === '\uFEFF') {
+                        do {
+                            node = node.parentNode;
+                            if (dom.is(node, 'td') || node.childNodes.length !== 1) {
+                                return false;
+                            }
+                        } while (!dom.isBlock(node));
+                        return true;
+                    }
+                    return false;
+                }
                 function child(node, skip, skipEncoding) {
                     var nodeType = node.nodeType, tagName, mapper, parent, value, previous;
                     if (nodeType == 1) {
                         tagName = dom.name(node);
                         if (!tagName || dom.insignificant(node)) {
-                            return;
-                        }
-                        if (dom.isInline(node) && node.childNodes.length == 1 && node.firstChild.nodeType == 3 && !text(node.firstChild)) {
                             return;
                         }
                         if (!options.scripts && (tagName == 'script' || tagName == 'k:script')) {
@@ -2232,6 +2283,10 @@
                             result.push('>');
                         }
                     } else if (nodeType == 3) {
+                        if (isEmptyBomNode(node)) {
+                            result.push('&nbsp;');
+                            return;
+                        }
                         value = text(node);
                         if (!skip && supportsLeadingWhitespace) {
                             parent = node.parentNode;
@@ -2266,11 +2321,19 @@
                     var textChild = childrenCount && root.firstChild.nodeType == 3;
                     return textChild && (childrenCount == 1 || childrenCount == 2 && dom.insignificant(root.lastChild));
                 }
+                function runCustom() {
+                    if ($.isFunction(options.custom)) {
+                        result = options.custom(result) || result;
+                    }
+                }
                 if (textOnly(root)) {
-                    return dom.encode(text(root.firstChild).replace(/[\r\n\v\f\t ]+/, ' '), options);
+                    result = dom.encode(text(root.firstChild).replace(/[\r\n\v\f\t ]+/, ' '), options);
+                    runCustom();
+                    return result;
                 }
                 children(root);
                 result = result.join('');
+                runCustom();
                 if (result.replace(brRe, '').replace(emptyPRe, '') === '') {
                     return '';
                 }
@@ -3573,6 +3636,24 @@
                     }
                 }
             },
+            toolsFromShortcut: function (tools, e) {
+                var key = String.fromCharCode(e.keyCode), toolName, o, matchesKey, found = [];
+                var matchKey = function (toolKey) {
+                    return toolKey == key || toolKey == e.keyCode;
+                };
+                for (toolName in tools) {
+                    o = $.extend({
+                        ctrl: false,
+                        alt: false,
+                        shift: false
+                    }, tools[toolName].options);
+                    matchesKey = $.isArray(o.key) ? $.grep(o.key, matchKey).length > 0 : matchKey(o.key);
+                    if (matchesKey && o.ctrl == e.ctrlKey && o.alt == e.altKey && o.shift == e.shiftKey) {
+                        found.push(tools[toolName]);
+                    }
+                }
+                return found;
+            },
             isTypingKey: function (e) {
                 var keyCode = e.keyCode;
                 return this.isCharacter(keyCode) && !e.ctrlKey && !e.altKey || keyCode == 32 || keyCode == 13 || keyCode == 8 || keyCode == 46 && !e.shiftKey && !e.ctrlKey && !e.altKey;
@@ -3627,11 +3708,16 @@
         var Clipboard = Class.extend({
             init: function (editor) {
                 this.editor = editor;
+                var pasteCleanup = editor.options.pasteCleanup;
                 this.cleaners = [
-                    new ScriptCleaner(),
-                    new TabCleaner(),
-                    new MSWordFormatCleaner(),
-                    new WebkitFormatCleaner()
+                    new ScriptCleaner(pasteCleanup),
+                    new TabCleaner(pasteCleanup),
+                    new MSWordFormatCleaner(pasteCleanup),
+                    new WebkitFormatCleaner(pasteCleanup),
+                    new HtmlTagsCleaner(pasteCleanup),
+                    new HtmlAttrCleaner(pasteCleanup),
+                    new HtmlContentCleaner(pasteCleanup),
+                    new CustomCleaner(pasteCleanup)
                 ];
             },
             htmlToFragment: function (html) {
@@ -3872,8 +3958,12 @@
             }
         });
         var Cleaner = Class.extend({
-            clean: function (html) {
-                var that = this, replacements = that.replacements, i, l;
+            init: function (options) {
+                this.options = options || {};
+                this.replacements = [];
+            },
+            clean: function (html, customReplacements) {
+                var that = this, replacements = customReplacements || that.replacements, i, l;
                 for (i = 0, l = replacements.length; i < l; i += 2) {
                     html = html.replace(replacements[i], replacements[i + 1]);
                 }
@@ -3881,18 +3971,20 @@
             }
         });
         var ScriptCleaner = Cleaner.extend({
-            init: function () {
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
                 this.replacements = [
                     /<(\/?)script([^>]*)>/i,
                     '<$1telerik:script$2>'
                 ];
             },
             applicable: function (html) {
-                return /<script[^>]*>/i.test(html);
+                return !this.options.none && /<script[^>]*>/i.test(html);
             }
         });
         var TabCleaner = Cleaner.extend({
-            init: function () {
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
                 var replacement = ' ';
                 this.replacements = [
                     /<span\s+class="Apple-tab-span"[^>]*>\s*<\/span>/gi,
@@ -3908,14 +4000,23 @@
             }
         });
         var MSWordFormatCleaner = Cleaner.extend({
-            init: function () {
-                this.replacements = [
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
+                this.junkReplacements = [
                     /<\?xml[^>]*>/gi,
                     '',
                     /<!--(.|\n)*?-->/g,
                     '',
                     /&quot;/g,
                     '\'',
+                    /<o:p>&nbsp;<\/o:p>/gi,
+                    '&nbsp;',
+                    /<\/?(meta|link|style|o:|v:|x:)[^>]*>((?:.|\n)*?<\/(meta|link|style|o:|v:|x:)[^>]*>)?/gi,
+                    '',
+                    /<\/o>/g,
+                    ''
+                ];
+                this.replacements = this.junkReplacements.concat([
                     /(?:<br>&nbsp;[\s\r\n]+|<br>)*(<\/?(h[1-6]|hr|p|div|table|tbody|thead|tfoot|th|tr|td|li|ol|ul|caption|address|pre|form|blockquote|dl|dt|dd|dir|fieldset)[^>]*>)(?:<br>&nbsp;[\s\r\n]+|<br>)*/g,
                     '$1',
                     /<br><br>/g,
@@ -3944,19 +4045,13 @@
                     this.convertFontMatch,
                     /<(\/?)i(\s[^>]*)?>/gi,
                     '<$1em$2>',
-                    /<o:p>&nbsp;<\/o:p>/gi,
-                    '&nbsp;',
-                    /<\/?(meta|link|style|o:|v:|x:)[^>]*>((?:.|\n)*?<\/(meta|link|style|o:|v:|x:)[^>]*>)?/gi,
-                    '',
-                    /<\/o>/g,
-                    '',
                     /style=(["|'])\s*\1/g,
                     '',
                     /(<br[^>]*>)?\n/g,
                     function ($0, $1) {
                         return $1 ? $0 : ' ';
                     }
-                ];
+                ]);
             },
             convertFontMatch: function (match, closing, args) {
                 var faceRe = /face=['"]([^'"]+)['"]/i;
@@ -3981,17 +4076,31 @@
                     return a;
                 });
             },
-            listType: function (html) {
+            listType: function (p, listData) {
+                var html = p.innerHTML;
+                var text = dom.innerText(p);
                 var startingSymbol;
-                if (/^(<span [^>]*texhtml[^>]*>)?<span [^>]*(Symbol|Wingdings)[^>]*>/i.test(html)) {
+                var matchSymbol = html.match(/^(?:<span [^>]*texhtml[^>]*>)?<span [^>]*(?:Symbol|Wingdings)[^>]*>([^<]+)/i);
+                var symbol = matchSymbol && matchSymbol[1];
+                var isNumber = /^[a-z\d]/i.test(symbol);
+                var trimStartText = function (text) {
+                    return text.replace(/^(?:&nbsp;|[\u00a0\n\r\s])+/, '');
+                };
+                if (matchSymbol) {
                     startingSymbol = true;
                 }
                 html = html.replace(/<\/?\w+[^>]*>/g, '').replace(/&nbsp;/g, '\xA0');
-                if (!startingSymbol && /^[\u2022\u00b7\u00a7\u00d8o]\u00a0+/.test(html) || startingSymbol && /^.\u00a0+/.test(html)) {
-                    return 'ul';
+                if (!startingSymbol && /^[\u2022\u00b7\u00a7\u00d8o]\u00a0+/.test(html) || startingSymbol && /^.\u00a0+/.test(html) || symbol && !isNumber && listData) {
+                    return {
+                        tag: 'ul',
+                        style: this._guessUnorderedListStyle(trimStartText(text))
+                    };
                 }
-                if (/^\s*\w+[\.\)]\u00a0{2,}/.test(html)) {
-                    return 'ol';
+                if (/^\s*\w+[\.\)][\u00a0 ]{2,}/.test(html)) {
+                    return {
+                        tag: 'ol',
+                        style: this._guessOrderedListStyle(trimStartText(text))
+                    };
                 }
             },
             _convertToLi: function (p) {
@@ -4001,7 +4110,7 @@
                 } else {
                     dom.remove(p.firstChild);
                     if (p.firstChild.nodeType == 3) {
-                        if (/^[ivx]+\.$/i.test(p.firstChild.nodeValue)) {
+                        if (/^[ivxlcdm]+\.$/i.test(p.firstChild.nodeValue)) {
                             dom.remove(p.firstChild);
                         }
                     }
@@ -4013,55 +4122,77 @@
                 dom.remove(p);
                 return dom.create(document, 'li', { innerHTML: content });
             },
+            _guessUnorderedListStyle: function (symbol) {
+                if (/^[\u2022\u00b7\u00FC\u00D8\u002dv-]/.test(symbol)) {
+                    return null;
+                } else if (/^o/.test(symbol)) {
+                    return 'circle';
+                } else {
+                    return 'square';
+                }
+            },
+            _guessOrderedListStyle: function (symbol) {
+                var listType = null;
+                if (!/^\d/.test(symbol)) {
+                    listType = (/^[a-z]/.test(symbol) ? 'lower-' : 'upper-') + (/^[ivxlcdm]/i.test(symbol) ? 'roman' : 'alpha');
+                }
+                return listType;
+            },
+            extractListLevels: function (html) {
+                var msoListRegExp = /style=['"]?[^'"]*?mso-list:\s?[a-zA-Z]+(\d+)\s[a-zA-Z]+(\d+)\s(\w+)/gi;
+                html = html.replace(msoListRegExp, function (match, list, level) {
+                    return kendo.format('data-list="{0}" data-level="{1}" {2}', list, level, match);
+                });
+                return html;
+            },
             lists: function (placeholder) {
-                var blockChildren = $(dom.blockElements.join(','), placeholder), lastMargin = -1, lastType, name, levels = {
-                        'ul': {},
-                        'ol': {}
-                    }, li = placeholder, i, p, type, margin, list, key, child;
+                var blockChildren = $(placeholder).find(dom.blockElements.join(',')), lastMargin = -1, name, levels = {}, li = placeholder, rootMargin, listContainer, i, p, type, margin, list, listData;
                 for (i = 0; i < blockChildren.length; i++) {
                     p = blockChildren[i];
-                    type = this.listType(p.innerHTML);
+                    listData = $(p).data();
+                    var listIndex = listData.list;
                     name = dom.name(p);
                     if (name == 'td') {
                         continue;
                     }
+                    var listType = this.listType(p, listData);
+                    type = listType && listType.tag;
                     if (!type || name != 'p') {
                         if (!p.innerHTML) {
                             dom.remove(p);
                         } else {
-                            levels = {
-                                'ul': {},
-                                'ol': {}
-                            };
-                            li = placeholder;
                             lastMargin = -1;
+                            li = placeholder;
                         }
                         continue;
                     }
                     margin = parseFloat(p.style.marginLeft || 0);
-                    list = levels[type][margin];
+                    if (rootMargin === undefined) {
+                        rootMargin = margin;
+                    }
+                    var levelType = type + listIndex;
+                    if (!levels[margin]) {
+                        levels[margin] = {};
+                    }
+                    list = levels[margin][levelType];
                     if (margin > lastMargin || !list) {
-                        list = dom.create(document, type);
-                        if (li == placeholder) {
-                            dom.insertBefore(list, p);
+                        list = dom.create(document, type, { style: { listStyleType: listType.style } });
+                        if (li == placeholder || margin <= lastMargin) {
+                            if (listContainer && rootMargin !== margin) {
+                                listContainer.appendChild(list);
+                            } else {
+                                dom.insertBefore(list, p);
+                            }
+                            levels[margin] = {};
                         } else {
+                            listContainer = li;
                             li.appendChild(list);
                         }
-                        levels[type][margin] = list;
-                    }
-                    if (lastType != type) {
-                        for (key in levels) {
-                            for (child in levels[key]) {
-                                if ($.contains(list, levels[key][child])) {
-                                    delete levels[key][child];
-                                }
-                            }
-                        }
+                        levels[margin][levelType] = list;
                     }
                     li = this._convertToLi(p);
                     list.appendChild(li);
                     lastMargin = margin;
-                    lastType = type;
                 }
             },
             removeAttributes: function (element) {
@@ -4155,20 +4286,39 @@
                     dom.changeTag(titles[i], 'h1');
                 }
             },
+            removeFormatting: function (placeholder) {
+                $(placeholder).find('*').css({
+                    fontSize: '',
+                    fontFamily: ''
+                });
+            },
             clean: function (html) {
                 var that = this, placeholder;
-                html = Cleaner.fn.clean.call(that, html);
-                html = that.stripEmptyAnchors(html);
-                placeholder = dom.create(document, 'div', { innerHTML: html });
-                that.headers(placeholder);
-                that.lists(placeholder);
-                that.tables(placeholder);
-                html = placeholder.innerHTML.replace(/(<[^>]*)\s+class="?[^"\s>]*"?/gi, '$1');
+                var filters = this.options;
+                if (filters.none) {
+                    html = Cleaner.fn.clean.call(that, html, this.junkReplacements);
+                    html = that.stripEmptyAnchors(html);
+                } else {
+                    html = this.extractListLevels(html);
+                    html = Cleaner.fn.clean.call(that, html);
+                    html = that.stripEmptyAnchors(html);
+                    placeholder = dom.create(document, 'div', { innerHTML: html });
+                    that.headers(placeholder);
+                    if (filters.msConvertLists) {
+                        that.lists(placeholder);
+                    }
+                    that.tables(placeholder);
+                    if (filters.msAllFormatting) {
+                        that.removeFormatting(placeholder);
+                    }
+                    html = placeholder.innerHTML.replace(/(<[^>]*)\s+class="?[^"\s>]*"?/gi, '$1');
+                }
                 return html;
             }
         });
         var WebkitFormatCleaner = Cleaner.extend({
-            init: function () {
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
                 this.replacements = [
                     /\s+class="Apple-style-span[^"]*"/gi,
                     '',
@@ -4180,6 +4330,202 @@
             },
             applicable: function (html) {
                 return /class="?Apple-style-span|style="[^"]*-webkit-nbsp-mode/i.test(html);
+            }
+        });
+        var DomCleaner = Cleaner.extend({
+            clean: function (html) {
+                var container = dom.create(document, 'div', { innerHTML: html });
+                container = this.cleanDom(container);
+                return container.innerHTML;
+            },
+            cleanDom: function (container) {
+                return container;
+            }
+        });
+        var HtmlTagsCleaner = DomCleaner.extend({
+            cleanDom: function (container) {
+                var tags = this.collectTags();
+                $(container).find(tags).each(function () {
+                    dom.unwrap(this);
+                });
+                return container;
+            },
+            collectTags: function () {
+                if (this.options.span) {
+                    return 'span';
+                }
+            },
+            applicable: function () {
+                return this.options.span;
+            }
+        });
+        var HtmlAttrCleaner = DomCleaner.extend({
+            cleanDom: function (container) {
+                var attributes = this.collectAttr();
+                var nodes = $(container).find('[' + attributes.join('],[') + ']');
+                nodes.removeAttr(attributes.join(' '));
+                return container;
+            },
+            collectAttr: function () {
+                if (this.options.css) {
+                    return [
+                        'class',
+                        'style'
+                    ];
+                }
+                return [];
+            },
+            applicable: function () {
+                return this.options.css;
+            }
+        });
+        var TextContainer = function () {
+            this.text = '';
+            this.add = function (text) {
+                this.text += text;
+            };
+        };
+        var HtmlTextLines = Class.extend({
+            init: function (separators) {
+                this.separators = separators || {
+                    text: ' ',
+                    line: '<br/>'
+                };
+                this.lines = [];
+                this.inlineBlockText = [];
+                this.resetLine();
+            },
+            appendText: function (text) {
+                if (text.nodeType === 3) {
+                    text = text.nodeValue;
+                }
+                this.textContainer.add(text);
+            },
+            appendInlineBlockText: function (text) {
+                this.inlineBlockText.push(text);
+            },
+            flashInlineBlockText: function () {
+                if (this.inlineBlockText.length) {
+                    this.appendText(this.inlineBlockText.join(' '));
+                    this.inlineBlockText = [];
+                }
+            },
+            endLine: function () {
+                this.flashInlineBlockText();
+                this.resetLine();
+            },
+            html: function () {
+                var separators = this.separators;
+                var result = '';
+                var lines = this.lines;
+                this.flashInlineBlockText();
+                for (var i = 0, il = lines.length, il1 = il - 1; i < il; i++) {
+                    var line = lines[i];
+                    for (var j = 0, jl = line.length, jl1 = jl - 1; j < jl; j++) {
+                        var text = line[j].text;
+                        result += text;
+                        if (j !== jl1) {
+                            result += separators.text;
+                        }
+                    }
+                    if (i !== il1) {
+                        result += separators.line;
+                    }
+                }
+                return result;
+            },
+            resetLine: function () {
+                this.textContainer = new TextContainer();
+                this.line = [];
+                this.line.push(this.textContainer);
+                this.lines.push(this.line);
+            }
+        });
+        var DomEnumerator = Class.extend({
+            init: function (callback) {
+                this.callback = callback;
+            },
+            enumerate: function (node) {
+                if (!node) {
+                    return;
+                }
+                var preventDown = this.callback(node);
+                var child = node.firstChild;
+                if (!preventDown && child) {
+                    this.enumerate(child);
+                }
+                this.enumerate(node.nextSibling);
+            }
+        });
+        var HtmlContentCleaner = Cleaner.extend({
+            init: function (options) {
+                Cleaner.fn.init.call(this, options);
+                this.hasText = false;
+                this.enumerator = new DomEnumerator($.proxy(this.buildText, this));
+            },
+            clean: function (html) {
+                var container = dom.create(document, 'div', { innerHTML: html });
+                return this.cleanDom(container);
+            },
+            cleanDom: function (container) {
+                this.separators = this.getDefaultSeparators();
+                this.htmlLines = new HtmlTextLines(this.separators);
+                this.enumerator.enumerate(container.firstChild);
+                this.hasText = false;
+                return this.htmlLines.html();
+            },
+            buildText: function (node) {
+                if (dom.isDataNode(node)) {
+                    if (dom.isEmptyspace(node)) {
+                        return;
+                    }
+                    this.htmlLines.appendText(node.nodeValue.replace('\n', this.separators.line));
+                    this.hasText = true;
+                } else if (dom.isBlock(node) && this.hasText) {
+                    var action = this.actions[dom.name(node)] || this.actions.block;
+                    return action(this, node);
+                }
+            },
+            applicable: function () {
+                var o = this.options;
+                return o.all || o.keepNewLines;
+            },
+            getDefaultSeparators: function () {
+                if (this.options.all) {
+                    return {
+                        text: ' ',
+                        line: ' '
+                    };
+                } else {
+                    return {
+                        text: ' ',
+                        line: '<br/>'
+                    };
+                }
+            },
+            actions: {
+                ul: $.noop,
+                ol: $.noop,
+                table: $.noop,
+                thead: $.noop,
+                tbody: $.noop,
+                td: function (cleaner, node) {
+                    var tdCleaner = new HtmlContentCleaner({ all: true });
+                    var cellText = tdCleaner.cleanDom(node);
+                    cleaner.htmlLines.appendInlineBlockText(cellText);
+                    return true;
+                },
+                block: function (cleaner) {
+                    cleaner.htmlLines.endLine();
+                }
+            }
+        });
+        var CustomCleaner = Cleaner.extend({
+            clean: function (html) {
+                return this.options.custom(html);
+            },
+            applicable: function () {
+                return typeof this.options.custom === 'function';
             }
         });
         var PrintCommand = Command.extend({
@@ -4221,9 +4567,15 @@
             Keyboard: Keyboard,
             Clipboard: Clipboard,
             Cleaner: Cleaner,
+            ScriptCleaner: ScriptCleaner,
             TabCleaner: TabCleaner,
             MSWordFormatCleaner: MSWordFormatCleaner,
             WebkitFormatCleaner: WebkitFormatCleaner,
+            HtmlTagsCleaner: HtmlTagsCleaner,
+            HtmlAttrCleaner: HtmlAttrCleaner,
+            HtmlContentCleaner: HtmlContentCleaner,
+            HtmlTextLines: HtmlTextLines,
+            CustomCleaner: CustomCleaner,
             PrintCommand: PrintCommand,
             ExportPdfCommand: ExportPdfCommand
         });
@@ -4354,7 +4706,7 @@
                     if (formatNode) {
                         dom.attr(formatNode, this.attributes);
                     } else {
-                        while (!dom.isBlock(node.parentNode) && node.parentNode.childNodes.length == 1) {
+                        while (!dom.isBlock(node.parentNode) && node.parentNode.childNodes.length == 1 && node.parentNode.contentEditable !== 'true') {
                             node = node.parentNode;
                         }
                         formatNode = this.wrap(node);
@@ -5170,6 +5522,8 @@
                 var range = this.getRange(), doc = RangeUtils.documentFromRange(range), parent, previous, next, emptyParagraphContent = editorNS.emptyElementContent, paragraph, marker, li, heading, rng, shouldTrim = this.shouldTrim(range);
                 range.deleteContents();
                 marker = this._insertMarker(doc, range);
+                dom.stripBomNode(marker.previousSibling);
+                dom.stripBomNode(marker.nextSibling);
                 li = dom.closestEditableOfType(marker, ['li']);
                 heading = dom.closestEditableOfType(marker, 'h1,h2,h3,h4,h5,h6'.split(','));
                 if (li) {
@@ -5638,7 +5992,10 @@
     define('editor/link', ['editor/lists'], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InlineFormatter = Editor.InlineFormatter, InlineFormatFinder = Editor.InlineFormatFinder, textNodes = RangeUtils.textNodes, registerTool = Editor.EditorUtils.registerTool;
+        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InlineFormatter = Editor.InlineFormatter, InlineFormatFinder = Editor.InlineFormatFinder, textNodes = RangeUtils.textNodes, registerTool = Editor.EditorUtils.registerTool, keys = kendo.keys;
+        var HTTP_PROTOCOL = 'http://';
+        var protocolRegExp = /^\w*:\/\//;
+        var endLinkCharsRegExp = /[\w\/\$\-_\*\?]/i;
         var LinkFormatFinder = Class.extend({
             findSuitable: function (sourceNode) {
                 return dom.parentOfType(sourceNode, ['a']);
@@ -5748,7 +6105,7 @@
                 var href = $('#k-editor-link-url', element).val();
                 var title, text, target;
                 var textInput = $('#k-editor-link-text', element);
-                if (href && href != 'http://') {
+                if (href && href != HTTP_PROTOCOL) {
                     if (href.indexOf('@') > 0 && !/^(\w+:)|(\/\/)/i.test(href)) {
                         href = 'mailto:' + href;
                     }
@@ -5784,7 +6141,7 @@
                 if (anchor) {
                     return anchor.getAttribute('href', 2);
                 }
-                return 'http://';
+                return HTTP_PROTOCOL;
             },
             linkText: function (nodes) {
                 var text = '';
@@ -5798,6 +6155,53 @@
                 var range = this.lockRange(true);
                 this.formatter.apply(range, this.attributes);
                 this.releaseRange(range);
+            }
+        });
+        var AutoLinkCommand = Command.extend({
+            init: function (options) {
+                Command.fn.init.call(this, options);
+                this.formatter = new LinkFormatter();
+            },
+            exec: function () {
+                var detectedLink = this.detectLink();
+                if (!detectedLink) {
+                    return;
+                }
+                var range = this.getRange();
+                var linkMarker = new kendo.ui.editor.Marker();
+                var linkRange = range.cloneRange();
+                linkRange.setStart(detectedLink.start.node, detectedLink.start.offset);
+                linkRange.setEnd(detectedLink.end.node, detectedLink.end.offset);
+                range = this.lockRange();
+                linkMarker.add(linkRange);
+                this.formatter.apply(linkRange, { href: this._ensureWebProtocol(detectedLink.text) });
+                linkMarker.remove(linkRange);
+                this.releaseRange(range);
+            },
+            detectLink: function () {
+                var range = this.getRange();
+                var traverser = new LeftDomTextTraverser({
+                    node: range.startContainer,
+                    offset: range.startOffset,
+                    cancelAtNode: function (node) {
+                        return node && dom.name(node) === 'a';
+                    }
+                });
+                var detection = new DomTextLinkDetection(traverser);
+                return detection.detectLink();
+            },
+            changesContent: function () {
+                return !!this.detectLink();
+            },
+            _ensureWebProtocol: function (linkText) {
+                var hasProtocol = this._hasProtocolPrefix(linkText);
+                return hasProtocol ? linkText : this._prefixWithWebProtocol(linkText);
+            },
+            _hasProtocolPrefix: function (linkText) {
+                return protocolRegExp.test(linkText);
+            },
+            _prefixWithWebProtocol: function (linkText) {
+                return HTTP_PROTOCOL + linkText;
             }
         });
         var UnlinkTool = Tool.extend({
@@ -5814,12 +6218,197 @@
                 ui.toggleClass('k-state-disabled', !this.finder.isFormatted(nodes)).removeClass('k-state-hover');
             }
         });
+        var DomTextLinkDetection = Class.extend({
+            init: function (traverser) {
+                this.traverser = traverser;
+                this.start = DomPos();
+                this.end = DomPos();
+                this.text = '';
+            },
+            detectLink: function () {
+                var node = this.traverser.node;
+                var offset = this.traverser.offset;
+                if (dom.isDataNode(node)) {
+                    var text = node.data.substring(0, offset);
+                    if (/\s{2}$/.test(dom.stripBom(text))) {
+                        return;
+                    }
+                } else if (offset === 0) {
+                    var p = dom.closestEditableOfType(node, dom.blockElements);
+                    if (p && p.previousSibling) {
+                        this.traverser.init({ node: p.previousSibling });
+                    }
+                }
+                this.traverser.traverse($.proxy(this._detectEnd, this));
+                if (!this.end.blank()) {
+                    this.traverser = this.traverser.clone(this.end);
+                    this.traverser.traverse($.proxy(this._detectStart, this));
+                    if (!this._isLinkDetected()) {
+                        var puntuationOptions = this.traverser.extendOptions(this.start);
+                        var puntuationTraverser = new RightDomTextTraverser(puntuationOptions);
+                        puntuationTraverser.traverse($.proxy(this._skipStartPuntuation, this));
+                        if (!this._isLinkDetected()) {
+                            this.start = DomPos();
+                        }
+                    }
+                }
+                if (this.start.blank()) {
+                    return null;
+                } else {
+                    return {
+                        start: this.start,
+                        end: this.end,
+                        text: this.text
+                    };
+                }
+            },
+            _isLinkDetected: function () {
+                return protocolRegExp.test(this.text) || /^w{3}\./i.test(this.text);
+            },
+            _detectEnd: function (text, node) {
+                var i = lastIndexOfRegExp(text, endLinkCharsRegExp);
+                if (i > -1) {
+                    this.end.node = node;
+                    this.end.offset = i + 1;
+                    return false;
+                }
+            },
+            _detectStart: function (text, node) {
+                var i = lastIndexOfRegExp(text, /\s/);
+                var ii = i + 1;
+                this.text = text.substring(ii) + this.text;
+                this.start.node = node;
+                this.start.offset = ii;
+                if (i > -1) {
+                    return false;
+                }
+            },
+            _skipStartPuntuation: function (text, node, offset) {
+                var i = indexOfRegExp(text, /\w/);
+                var ii = i;
+                if (i === -1) {
+                    ii = text.length;
+                }
+                this.text = this.text.substring(ii);
+                this.start.node = node;
+                this.start.offset = ii + (offset | 0);
+                if (i > -1) {
+                    return false;
+                }
+            }
+        });
+        function lastIndexOfRegExp(str, search) {
+            var i = str.length;
+            while (i-- && !search.test(str[i])) {
+            }
+            return i;
+        }
+        function indexOfRegExp(str, search) {
+            var r = search.exec(str);
+            return r ? r.index : -1;
+        }
+        var DomPos = function () {
+            return {
+                node: null,
+                offset: null,
+                blank: function () {
+                    return this.node === null && this.offset === null;
+                }
+            };
+        };
+        var DomTextTraverser = Class.extend({
+            init: function (options) {
+                this.node = options.node;
+                this.offset = options.offset === undefined ? dom.isDataNode(this.node) && this.node.length || 0 : options.offset;
+                this.cancelAtNode = options.cancelAtNode || this.cancelAtNode || $.noop;
+            },
+            traverse: function (callback) {
+                if (!callback) {
+                    return;
+                }
+                this.cancel = false;
+                this._traverse(callback, this.node, this.offset);
+            },
+            _traverse: function (callback, node, offset) {
+                if (!node || this.cancel) {
+                    return;
+                }
+                if (node.nodeType === 3) {
+                    var text = node.data;
+                    if (offset !== undefined) {
+                        text = this.subText(text, offset);
+                    }
+                    this.cancel = callback(text, node, offset) === false;
+                } else {
+                    var edgeNode = this.edgeNode(node);
+                    this.cancel = this.cancel || this.cancelAtNode(edgeNode);
+                    return this._traverse(callback, edgeNode);
+                }
+                var next = this.next(node);
+                if (!next) {
+                    var parent = node.parentNode;
+                    while (!next && dom.isInline(parent)) {
+                        next = this.next(parent);
+                        parent = parent.parentNode;
+                    }
+                }
+                this.cancel = this.cancel || this.cancelAtNode(next);
+                this._traverse(callback, next);
+            },
+            extendOptions: function (o) {
+                return $.extend({
+                    node: this.node,
+                    offset: this.offset,
+                    cancelAtNode: this.cancelAtNode
+                }, o || {});
+            },
+            edgeNode: function (node) {
+            },
+            next: function (node) {
+            },
+            subText: function (text, offset) {
+            }
+        });
+        var LeftDomTextTraverser = DomTextTraverser.extend({
+            subText: function (text, splitIndex) {
+                return text.substring(0, splitIndex);
+            },
+            next: function (node) {
+                return node.previousSibling;
+            },
+            edgeNode: function (node) {
+                return node.lastChild;
+            },
+            clone: function (options) {
+                var o = this.extendOptions(options);
+                return new LeftDomTextTraverser(o);
+            }
+        });
+        var RightDomTextTraverser = DomTextTraverser.extend({
+            subText: function (text, splitIndex) {
+                return text.substring(splitIndex);
+            },
+            next: function (node) {
+                return node.nextSibling;
+            },
+            edgeNode: function (node) {
+                return node.firstChild;
+            },
+            clone: function (options) {
+                var o = this.extendOptions(options);
+                return new RightDomTextTraverser(o);
+            }
+        });
         extend(kendo.ui.editor, {
             LinkFormatFinder: LinkFormatFinder,
             LinkFormatter: LinkFormatter,
             UnlinkCommand: UnlinkCommand,
             LinkCommand: LinkCommand,
-            UnlinkTool: UnlinkTool
+            AutoLinkCommand: AutoLinkCommand,
+            UnlinkTool: UnlinkTool,
+            DomTextLinkDetection: DomTextLinkDetection,
+            LeftDomTextTraverser: LeftDomTextTraverser,
+            RightDomTextTraverser: RightDomTextTraverser
         });
         registerTool('createLink', new Tool({
             key: 'K',
@@ -5838,6 +6427,14 @@
                 template: EditorUtils.buttonTemplate,
                 title: 'Remove Link'
             })
+        }));
+        registerTool('autoLink', new Tool({
+            key: [
+                keys.ENTER,
+                keys.SPACEBAR
+            ],
+            keyPressCommand: true,
+            command: AutoLinkCommand
         }));
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -6963,7 +7560,8 @@
                 'insertLineBreak',
                 'insertParagraph',
                 'redo',
-                'undo'
+                'undo',
+                'autoLink'
             ],
             tools: {},
             isCustomTool: function (toolName) {

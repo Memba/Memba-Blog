@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -589,10 +589,12 @@
                 return this;
             },
             optionsChange: function (e) {
+                e = e || {};
+                e.element = this;
                 this.trigger('optionsChange', e);
             },
-            geometryChange: function (e) {
-                this.trigger('geometryChange', e);
+            geometryChange: function () {
+                this.trigger('geometryChange', { element: this });
             },
             suspend: function () {
                 this._suspended = (this._suspended || 0) + 1;
@@ -2076,7 +2078,7 @@
                     if (th.hasClass('k-group-cell') || th.hasClass('k-hierarchy-cell')) {
                         return;
                     }
-                    var clientX = e.clientX, winScrollLeft = $(window).scrollLeft(), position = th.offset().left + (!isRtl ? this.offsetWidth : 0);
+                    var clientX = e.clientX / parseFloat(document.documentElement.style.zoom || document.body.style.zoom || 1), winScrollLeft = $(window).scrollLeft(), position = th.offset().left + (!isRtl ? this.offsetWidth : 0);
                     if (clientX + winScrollLeft > position - indicatorWidth && clientX + winScrollLeft < position + indicatorWidth) {
                         that._createResizeHandle(th.closest('div'), th);
                     } else if (that.resizeHandle) {
@@ -6204,9 +6206,89 @@
         }
         if (kendo.PDFMixin) {
             kendo.PDFMixin.extend(Grid.prototype);
-            Grid.prototype._drawPDF = function (progress) {
-                var result = new $.Deferred();
+            Grid.prototype._drawPDF_autoPageBreak = function (progress) {
                 var grid = this;
+                var result = new $.Deferred();
+                var dataSource = grid.dataSource;
+                var allPages = grid.options.pdf.allPages;
+                var origBody = grid.wrapper.find('.k-grid-content tbody');
+                var cont = $('<div>').css({
+                    position: 'absolute',
+                    left: -10000,
+                    top: -10000
+                });
+                var clone = grid.wrapper.clone().css({
+                    height: 'auto',
+                    width: 'auto'
+                }).appendTo(cont);
+                clone.find('.k-grid-content').css({
+                    height: 'auto',
+                    width: 'auto',
+                    overflow: 'visible'
+                });
+                clone.find('.k-grid-pager, .k-grid-toolbar, .k-grouping-header').remove();
+                clone.find('.k-grid-header').css({ paddingRight: 0 });
+                this._initPDFProgress(progress);
+                var body = clone.find('.k-grid-content tbody').empty();
+                var startingPage = dataSource.page();
+                function resolve() {
+                    if (allPages && startingPage !== undefined) {
+                        dataSource.unbind('change', renderPage);
+                        dataSource.one('change', draw);
+                        dataSource.page(startingPage);
+                    } else {
+                        grid.refresh();
+                        draw();
+                    }
+                }
+                function draw() {
+                    cont.appendTo(document.body);
+                    var options = $.extend({}, grid.options.pdf, {
+                        _destructive: true,
+                        progress: function (p) {
+                            progress.notify({
+                                pageNumber: p.pageNum,
+                                progress: 0.5 + p.pageNum / p.totalPages / 2
+                            });
+                        }
+                    });
+                    kendo.drawing.drawDOM(clone, options).then(function (group) {
+                        cont.remove();
+                        result.resolve(group);
+                    }).fail(function (err) {
+                        result.reject(err);
+                    });
+                }
+                function renderPage() {
+                    var pageNum = dataSource.page();
+                    var totalPages = allPages ? dataSource.totalPages() : 1;
+                    body.append(origBody.find('tr'));
+                    var args = {
+                        pageNumber: pageNum,
+                        progress: pageNum / totalPages / 2,
+                        totalPages: totalPages
+                    };
+                    progress.notify(args);
+                    if (pageNum < totalPages) {
+                        dataSource.page(pageNum + 1);
+                    } else {
+                        resolve();
+                    }
+                }
+                if (allPages) {
+                    dataSource.bind('change', renderPage);
+                    dataSource.page(1);
+                } else {
+                    renderPage();
+                }
+                return result.promise();
+            };
+            Grid.prototype._drawPDF = function (progress) {
+                var grid = this;
+                if (grid.options.pdf.paperSize && grid.options.pdf.paperSize != 'auto') {
+                    return grid._drawPDF_autoPageBreak(progress);
+                }
+                var result = new $.Deferred();
                 var dataSource = grid.dataSource;
                 var allPages = grid.options.pdf.allPages;
                 this._initPDFProgress(progress);

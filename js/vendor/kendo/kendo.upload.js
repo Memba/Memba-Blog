@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -88,7 +88,8 @@
                 async: {
                     removeVerb: 'POST',
                     autoUpload: true,
-                    withCredentials: true
+                    withCredentials: true,
+                    accept: '*/*; q=0.5; application/json'
                 },
                 localization: {
                     'select': 'Select files...',
@@ -862,6 +863,10 @@
                 }, false);
                 xhr.open('POST', url, true);
                 xhr.withCredentials = this.upload.options.async.withCredentials;
+                var accept = this.upload.options.async.accept;
+                if (accept) {
+                    xhr.setRequestHeader('Accept', accept);
+                }
                 xhr.send(data);
             },
             createFormData: function () {

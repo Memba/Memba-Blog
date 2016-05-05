@@ -625,6 +625,11 @@ form.k-filter-menu .k-textbox
     margin-right: 0;
 }
 
+.k-filter-menu .k-filter-selected-items {
+    font-weight: bold;
+    margin: .5em;
+}
+
 .k-multicheck-wrap
 {
     overflow: auto;
@@ -936,6 +941,10 @@ html .k-grid-edit-row .k-tooltip
     border-width: 0;
 }
 
+.k-column-menu .k-calendar .k-link {
+    white-space: normal;
+}
+
 .k-columns-item .k-group
 {
     max-height: 200px;
@@ -1032,7 +1041,7 @@ html .k-grid-edit-row .k-tooltip
         
         .k-pager-numbers,
         .k-grid .k-pager-numbers {
-            position: relative;
+            position: absolute;
             left: 4.8em;             
             display: inline-flex;
             flex-direction: column-reverse;
@@ -1049,6 +1058,7 @@ html .k-grid-edit-row .k-tooltip
 
         .km-pane-wrapper .k-pager-numbers,
         .km-pane-wrapper .k-grid .k-pager-numbers {
+            position: relative;
             left: 50%;
             transform: translate(-50%, -100%);
             -webkit-transform: translate(-50%, -100%);

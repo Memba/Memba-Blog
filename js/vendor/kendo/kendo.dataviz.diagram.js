@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -589,10 +589,12 @@
                 return this;
             },
             optionsChange: function (e) {
+                e = e || {};
+                e.element = this;
                 this.trigger('optionsChange', e);
             },
-            geometryChange: function (e) {
-                this.trigger('geometryChange', e);
+            geometryChange: function () {
+                this.trigger('geometryChange', { element: this });
             },
             suspend: function () {
                 this._suspended = (this._suspended || 0) + 1;
@@ -3554,7 +3556,16 @@
             _font: function () {
                 var options = this.options;
                 if (options.fontFamily && defined(options.fontSize)) {
-                    options.font = options.fontSize + 'px ' + options.fontFamily;
+                    var fontOptions = [];
+                    if (options.fontStyle) {
+                        fontOptions.push(options.fontStyle);
+                    }
+                    if (options.fontWeight) {
+                        fontOptions.push(options.fontWeight);
+                    }
+                    fontOptions.push(options.fontSize + (isNumber(options.fontSize) ? 'px' : ''));
+                    fontOptions.push(options.fontFamily);
+                    options.font = fontOptions.join(' ');
                 } else {
                     delete options.font;
                 }
@@ -3568,10 +3579,12 @@
                     var textOptions = this.options;
                     options = this._textColor(options);
                     VisualBase.fn.redraw.call(this, options);
-                    if (options.fontFamily || defined(options.fontSize)) {
+                    if (options.fontFamily || defined(options.fontSize) || options.fontStyle || options.fontWeight) {
                         deepExtend(textOptions, {
                             fontFamily: options.fontFamily,
-                            fontSize: options.fontSize
+                            fontSize: options.fontSize,
+                            fontStyle: options.fontStyle,
+                            fontWeight: options.fontWeight
                         });
                         this._font();
                         this.drawingElement.options.set('font', textOptions.font);
@@ -4416,17 +4429,11 @@
                 north: 'n-resize',
                 rowresize: 'row-resize',
                 colresize: 'col-resize'
-            }, HIT_TEST_DISTANCE = 10, AUTO = 'Auto', TOP = 'Top', RIGHT = 'Right', LEFT = 'Left', BOTTOM = 'Bottom', DEFAULT_SNAP_SIZE = 10, DEFAULT_SNAP_ANGLE = 10, DRAG_START = 'dragStart', DRAG = 'drag', DRAG_END = 'dragEnd', ITEMROTATE = 'itemRotate', ITEMBOUNDSCHANGE = 'itemBoundsChange', MIN_SNAP_SIZE = 5, MIN_SNAP_ANGLE = 5, MOUSE_ENTER = 'mouseEnter', MOUSE_LEAVE = 'mouseLeave', ZOOM_START = 'zoomStart', ZOOM_END = 'zoomEnd', SCROLL_MIN = -20000, SCROLL_MAX = 20000, FRICTION = 0.9, FRICTION_MOBILE = 0.93, VELOCITY_MULTIPLIER = 5, TRANSPARENT = 'transparent', PAN = 'pan', ROTATED = 'rotated';
+            }, HIT_TEST_DISTANCE = 10, AUTO = 'Auto', TOP = 'Top', RIGHT = 'Right', LEFT = 'Left', BOTTOM = 'Bottom', DEFAULT_SNAP_SIZE = 10, DEFAULT_SNAP_ANGLE = 10, DRAG_START = 'dragStart', DRAG = 'drag', DRAG_END = 'dragEnd', ITEMROTATE = 'itemRotate', ITEMBOUNDSCHANGE = 'itemBoundsChange', MIN_SNAP_SIZE = 5, MIN_SNAP_ANGLE = 5, MOUSE_ENTER = 'mouseEnter', MOUSE_LEAVE = 'mouseLeave', ZOOM_START = 'zoomStart', ZOOM_END = 'zoomEnd', SCROLL_MIN = -20000, SCROLL_MAX = 20000, FRICTION = 0.9, FRICTION_MOBILE = 0.93, VELOCITY_MULTIPLIER = 5, TRANSPARENT = 'transparent', PAN = 'pan', ROTATED = 'rotated', SOURCE = 'source', TARGET = 'target', HANDLE_NAMES = {
+                '-1': SOURCE,
+                '1': TARGET
+            };
         diagram.Cursors = Cursors;
-        function selectSingle(item, meta) {
-            if (item.isSelected) {
-                if (meta.ctrlKey) {
-                    item.select(false);
-                }
-            } else {
-                item.diagram.select(item, { addToSelection: meta.ctrlKey });
-            }
-        }
         var PositionAdapter = kendo.Class.extend({
             init: function (layoutState) {
                 this.layoutState = layoutState;
@@ -4857,16 +4864,6 @@
                 return Cursors.arrow;
             }
         });
-        function noMeta(meta) {
-            return meta.ctrlKey === false && meta.altKey === false && meta.shiftKey === false;
-        }
-        function tryActivateSelection(options, meta) {
-            var enabled = options !== false;
-            if (options.key && options.key != 'none') {
-                enabled = meta[options.key + 'Key'];
-            }
-            return enabled;
-        }
         var ScrollerTool = EmptyTool.extend({
             init: function (toolService) {
                 var tool = this;
@@ -4897,9 +4894,9 @@
                 var enabled = meta.ctrlKey;
                 if (defined(options.key)) {
                     if (!options.key || options.key == 'none') {
-                        enabled = noMeta(meta);
+                        enabled = noMeta(meta) && !defined(toolService.hoveredItem);
                     } else {
-                        enabled = meta[options.key + 'Key'] && !(meta.ctrlKey && defined(toolService.hoveredItem));
+                        enabled = meta[options.key + 'Key'];
                     }
                 }
                 return options !== false && enabled && !defined(toolService.hoveredAdorner) && !defined(toolService._hoveredConnector);
@@ -4935,11 +4932,9 @@
                 return true;
             },
             start: function (p, meta) {
-                var toolService = this.toolService, diagram = toolService.diagram, hoveredItem = toolService.hoveredItem, selectable = diagram.options.selectable;
+                var toolService = this.toolService, diagram = toolService.diagram, hoveredItem = toolService.hoveredItem;
                 if (hoveredItem) {
-                    if (tryActivateSelection(selectable, meta)) {
-                        selectSingle(hoveredItem, meta);
-                    }
+                    toolService.selectSingle(hoveredItem, meta);
                     if (hoveredItem.adorner) {
                         this.adorner = hoveredItem.adorner;
                         this.handle = this.adorner._hitTest(p);
@@ -4974,8 +4969,8 @@
                     }
                 }
             },
-            end: function (p, meta) {
-                var diagram = this.toolService.diagram, service = this.toolService, adorner = this.adorner, unit;
+            end: function () {
+                var diagram = this.toolService.diagram, adorner = this.adorner, unit;
                 if (adorner) {
                     if (!adorner.isDragHandle(this.handle) || !diagram.trigger(DRAG_END, {
                             shapes: adorner.shapes,
@@ -4988,13 +4983,6 @@
                     } else {
                         adorner.cancel();
                     }
-                }
-                if (service.hoveredItem) {
-                    this.toolService.triggerClick({
-                        item: service.hoveredItem,
-                        point: p,
-                        meta: meta
-                    });
                 }
                 this.adorner = undefined;
                 this.handle = undefined;
@@ -5009,7 +4997,15 @@
             },
             tryActivate: function (p, meta) {
                 var toolService = this.toolService;
-                var enabled = tryActivateSelection(toolService.diagram.options.selectable, meta);
+                var selectable = toolService.diagram.options.selectable;
+                var enabled = selectable && selectable.multiple !== false;
+                if (enabled) {
+                    if (selectable.key && selectable.key != 'none') {
+                        enabled = meta[selectable.key + 'Key'];
+                    } else {
+                        enabled = noMeta(meta);
+                    }
+                }
                 return enabled && !defined(toolService.hoveredItem) && !defined(toolService.hoveredAdorner);
             },
             start: function (p) {
@@ -5045,17 +5041,18 @@
                 return this.toolService._hoveredConnector;
             },
             start: function (p, meta) {
-                var diagram = this.toolService.diagram, connector = this.toolService._hoveredConnector, connection = diagram._createConnection({}, connector._c, p);
+                var toolService = this.toolService, diagram = toolService.diagram, connector = toolService._hoveredConnector, connection = diagram._createConnection({}, connector._c, p);
                 if (canDrag(connection) && !diagram.trigger(DRAG_START, {
                         shapes: [],
-                        connections: [connection]
+                        connections: [connection],
+                        connectionHandle: TARGET
                     }) && diagram._addConnection(connection)) {
-                    this.toolService._connectionManipulation(connection, connector._c.shape, true);
-                    this.toolService._removeHover();
-                    selectSingle(this.toolService.activeConnection, meta);
+                    toolService._connectionManipulation(connection, connector._c.shape, true);
+                    toolService._removeHover();
+                    toolService.selectSingle(toolService.activeConnection, meta);
                 } else {
                     connection.source(null);
-                    this.toolService.end(p);
+                    toolService.end(p);
                 }
             },
             move: function (p) {
@@ -5064,7 +5061,8 @@
                 connection.target(p);
                 toolService.diagram.trigger(DRAG, {
                     shapes: [],
-                    connections: [connection]
+                    connections: [connection],
+                    connectionHandle: TARGET
                 });
                 return true;
             },
@@ -5083,7 +5081,8 @@
                 connection.target(target);
                 if (!d.trigger(DRAG_END, {
                         shapes: [],
-                        connections: [connection]
+                        connections: [connection],
+                        connectionHandle: TARGET
                     })) {
                     connection.updateModel();
                     d._syncConnectionChanges();
@@ -5103,25 +5102,33 @@
                 this.type = 'ConnectionTool';
             },
             tryActivate: function (p, meta) {
-                var toolService = this.toolService, diagram = toolService.diagram, selectable = diagram.options.selectable, item = toolService.hoveredItem, isActive = tryActivateSelection(selectable, meta) && item && item.path && !(item.isSelected && meta.ctrlKey);
+                var toolService = this.toolService, diagram = toolService.diagram, selectable = diagram.options.selectable, item = toolService.hoveredItem, isActive = selectable !== false && item && item.path && !(item.isSelected && meta.ctrlKey);
                 if (isActive) {
                     this._c = item;
                 }
                 return isActive;
             },
             start: function (p, meta) {
+                var toolService = this.toolService;
                 var connection = this._c;
-                selectSingle(connection, meta);
+                toolService.selectSingle(connection, meta);
                 var adorner = connection.adorner;
-                if (canDrag(connection) && adorner && !this.toolService.diagram.trigger(DRAG_START, {
+                var handle, name;
+                if (adorner) {
+                    handle = adorner._hitTest(p);
+                    name = HANDLE_NAMES[handle];
+                }
+                if (canDrag(connection) && adorner && !toolService.diagram.trigger(DRAG_START, {
                         shapes: [],
-                        connections: [connection]
+                        connections: [connection],
+                        connectionHandle: name
                     })) {
-                    this.handle = adorner._hitTest(p);
+                    this.handle = handle;
+                    this.handleName = name;
                     adorner.start(p);
                 } else {
-                    this.toolService.startPoint = p;
-                    this.toolService.end(p);
+                    toolService.startPoint = p;
+                    toolService.end(p);
                 }
             },
             move: function (p) {
@@ -5130,27 +5137,24 @@
                     adorner.move(this.handle, p);
                     this.toolService.diagram.trigger(DRAG, {
                         shapes: [],
-                        connections: [this._c]
+                        connections: [this._c],
+                        connectionHandle: this.handleName
                     });
                     return true;
                 }
             },
-            end: function (p, meta) {
+            end: function (p) {
                 var connection = this._c;
                 var adorner = connection.adorner;
                 var toolService = this.toolService;
                 var diagram = toolService.diagram;
                 if (adorner) {
-                    toolService.triggerClick({
-                        item: connection,
-                        point: p,
-                        meta: meta
-                    });
                     if (canDrag(connection)) {
                         var unit = adorner.stop(p);
                         if (!diagram.trigger(DRAG_END, {
                                 shapes: [],
-                                connections: [connection]
+                                connections: [connection],
+                                connectionHandle: this.handleName
                             })) {
                             diagram.undoRedoService.add(unit, false);
                             connection.updateModel();
@@ -5190,6 +5194,7 @@
                 this.activeTool.start(p, meta);
                 this._updateCursor(p);
                 this.diagram.focus();
+                this.diagram.canvas.surface.suspendTracking();
                 this.startPoint = p;
                 return true;
             },
@@ -5210,6 +5215,7 @@
                 if (this.activeTool) {
                     this.activeTool.end(p, meta);
                 }
+                this.diagram.canvas.surface.resumeTracking();
                 this.activeTool = undefined;
                 this._updateCursor(p);
                 return true;
@@ -5290,9 +5296,12 @@
                 tool.toolService = this;
                 this.tools[index] = tool;
             },
-            triggerClick: function (data) {
-                if (this.startPoint.equals(data.point)) {
-                    this.diagram.trigger('click', data);
+            selectSingle: function (item, meta) {
+                var diagram = this.diagram;
+                var selectable = diagram.options.selectable;
+                if (selectable && !item.isSelected && item.options.selectable !== false) {
+                    var addToSelection = meta.ctrlKey && selectable.multiple !== false;
+                    diagram.select(item, { addToSelection: addToSelection });
                 }
             },
             _discardNewConnection: function () {
@@ -6383,6 +6392,9 @@
                     return connector;
                 }
             }
+        }
+        function noMeta(meta) {
+            return meta.ctrlKey === false && meta.altKey === false && meta.shiftKey === false;
         }
         deepExtend(diagram, {
             CompositeUnit: CompositeUnit,
@@ -9351,10 +9363,6 @@
                 var modelOptions = filterShapeDataItem(model || this.dataItem);
                 this.options = deepExtend({}, this.options, modelOptions);
                 this.redrawVisual();
-                if (this.options.content) {
-                    this._template();
-                    this.content(this.options.content);
-                }
             },
             updateOptionsFromModel: function (model, field) {
                 if (this.diagram && this.diagram._isEditable) {
@@ -9367,10 +9375,10 @@
                                 'height'
                             ])) {
                             if (this.options.visual) {
-                                this.redrawVisual();
+                                this._redrawVisual();
                             } else if (modelOptions.type) {
                                 this.options = deepExtend({}, this.options, modelOptions);
-                                this.redrawVisual();
+                                this._redrawVisual();
                             }
                             if (this.options.content) {
                                 this._template();
@@ -9386,12 +9394,19 @@
                     }
                 }
             },
-            redrawVisual: function () {
+            _redrawVisual: function () {
                 this.visual.clear();
                 this._contentVisual = null;
                 this.options.dataItem = this.dataItem;
                 this.createShapeVisual();
                 this.updateBounds();
+            },
+            redrawVisual: function () {
+                this._redrawVisual();
+                if (this.options.content) {
+                    this._template();
+                    this.content(this.options.content);
+                }
             },
             updateModel: function (syncChanges) {
                 var diagram = this.diagram;
@@ -10460,6 +10475,7 @@
                 that._initElements();
                 that._extendLayoutOptions(that.options);
                 that._initDefaults(userOptions);
+                that._interactionDefaults();
                 that._initCanvas();
                 that.mainLayer = new Group({ id: 'main-layer' });
                 that.canvas.append(that.mainLayer);
@@ -10508,7 +10524,7 @@
                     },
                     remove: true
                 },
-                pannable: { key: 'ctrl' },
+                pannable: {},
                 selectable: { key: 'none' },
                 tooltip: {
                     enabled: true,
@@ -10723,6 +10739,18 @@
                     options.shapeDefaults.connectors = userShapeDefaults.connectors;
                 }
             },
+            _interactionDefaults: function () {
+                var options = this.options;
+                var selectable = options.selectable;
+                var pannable = options.pannable;
+                var mobile = kendo.support.mobileOS;
+                if (selectable && !defined(selectable.multiple)) {
+                    options.selectable = deepExtend({ multiple: mobile ? false : true }, options.selectable);
+                }
+                if (pannable && !defined(pannable.key)) {
+                    options.pannable = deepExtend({ key: mobile ? 'none' : 'ctrl' }, options.pannable);
+                }
+            },
             _initCanvas: function () {
                 var canvasContainer = $('<div class=\'k-layer\'></div>').appendTo(this.scrollable)[0];
                 var viewPort = this.viewport();
@@ -10734,59 +10762,118 @@
             _createHandlers: function () {
                 var that = this;
                 var element = that.element;
-                element.on(MOUSEWHEEL_NS, proxy(that._wheel, that));
-                if (!kendo.support.touch && !kendo.support.mobileOS) {
-                    that.toolService = new ToolService(that);
-                    this.scroller.wrapper.on('mousemove' + NS, proxy(that._mouseMove, that)).on('mouseup' + NS, proxy(that._mouseUp, that)).on('mousedown' + NS, proxy(that._mouseDown, that)).on('mouseover' + NS, proxy(that._mouseover, that)).on('mouseout' + NS, proxy(that._mouseout, that));
-                    element.on('keydown' + NS, proxy(that._keydown, that));
-                } else {
-                    that._userEvents = new kendo.UserEvents(element, {
-                        multiTouch: true,
-                        tap: proxy(that._tap, that)
-                    });
-                    that._userEvents.bind([
-                        'gesturestart',
-                        'gesturechange',
-                        'gestureend'
-                    ], {
-                        gesturestart: proxy(that._gestureStart, that),
-                        gesturechange: proxy(that._gestureChange, that),
-                        gestureend: proxy(that._gestureEnd, that)
-                    });
-                    that.toolService = new ToolService(that);
-                    if (that.options.pannable !== false) {
-                        that.scroller.enable();
-                    }
-                }
+                element.on(MOUSEWHEEL_NS, proxy(that._wheel, that)).on('keydown' + NS, proxy(that._keydown, that));
+                that._userEvents = new kendo.UserEvents(this.scrollable, {
+                    multiTouch: true,
+                    fastTap: true,
+                    tap: proxy(that._tap, that),
+                    start: proxy(that._dragStart, that),
+                    move: proxy(that._drag, that),
+                    end: proxy(that._dragEnd, that),
+                    gesturestart: proxy(that._gestureStart, that),
+                    gesturechange: proxy(that._gestureChange, that),
+                    gestureend: proxy(that._gestureEnd, that)
+                });
+                that.toolService = new ToolService(that);
+                this.scrollable.on('mouseover' + NS, proxy(that._mouseover, that)).on('mouseout' + NS, proxy(that._mouseout, that)).on('mousemove' + NS, proxy(that._mouseMove, that));
                 this._syncHandler = proxy(that._syncChanges, that);
                 that._resizeHandler = proxy(that.resize, that, false);
                 kendo.onResize(that._resizeHandler);
                 this.bind(ZOOM_START, proxy(that._destroyToolBar, that));
                 this.bind(PAN, proxy(that._destroyToolBar, that));
             },
-            _tap: function (e) {
-                var toolService = this.toolService;
-                var p = this._caculateMobilePosition(e);
-                toolService._updateHoveredItem(p);
-                if (toolService.hoveredItem) {
-                    var item = toolService.hoveredItem;
-                    if (this.options.selectable !== false) {
-                        this._destroyToolBar();
-                        if (item.isSelected) {
-                            item.select(false);
-                        } else {
-                            this.select(item, { addToSelection: true });
-                        }
-                        this._createToolBar();
-                    }
-                    this.trigger('click', {
-                        item: item,
-                        point: p
-                    });
+            _dragStart: function (e) {
+                this._pauseMouseHandlers = true;
+                var point = this._eventPositions(e, true);
+                var event = e.event;
+                if (this.toolService.start(point, this._meta(event))) {
+                    this._destroyToolBar();
+                    event.preventDefault();
                 }
             },
-            _caculateMobilePosition: function (e) {
-                return this.documentToModel(Point(e.x.location, e.y.location));
+            _drag: function (e) {
+                var p = this._eventPositions(e);
+                var event = e.event;
+                if (this.toolService.move(p, this._meta(event))) {
+                    event.preventDefault();
+                }
+            },
+            _dragEnd: function (e) {
+                this._pauseMouseHandlers = false;
+                var p = this._eventPositions(e);
+                var event = e.event;
+                if (this.toolService.end(p, this._meta(event))) {
+                    this._createToolBar();
+                    event.preventDefault();
+                }
+            },
+            _mouseMove: function (e) {
+                if (!this._pauseMouseHandlers && e.which === 0) {
+                    var p = this._eventPositions(e);
+                    this.toolService._updateHoveredItem(p);
+                    this.toolService._updateCursor(p);
+                }
+            },
+            _tap: function (e) {
+                var toolService = this.toolService;
+                var selectable = this.options.selectable;
+                var point = this._eventPositions(e);
+                toolService._updateHoveredItem(point);
+                if (toolService.hoveredItem) {
+                    var item = toolService.hoveredItem;
+                    this.trigger('click', {
+                        item: item,
+                        point: point
+                    });
+                    if (selectable && item.options.selectable !== false) {
+                        var multiple = selectable.multiple !== false;
+                        var ctrlPressed = kendo.support.mobileOS || this._meta(e.event).ctrlKey;
+                        if (item.isSelected) {
+                            if (ctrlPressed) {
+                                this._destroyToolBar();
+                                item.select(false);
+                            } else {
+                                this._createToolBar();
+                            }
+                        } else {
+                            this._destroyToolBar();
+                            this.select(item, { addToSelection: multiple && ctrlPressed });
+                            this._createToolBar();
+                        }
+                    }
+                } else if (selectable) {
+                    this._destroyToolBar();
+                    this.deselect();
+                }
+            },
+            _keydown: function (e) {
+                if (this.toolService.keyDown(e.keyCode, this._meta(e))) {
+                    e.preventDefault();
+                }
+            },
+            _wheel: function (e) {
+                var delta = mwDelta(e), p = this._eventPositions(e), meta = deepExtend(this._meta(e), { delta: delta });
+                if (this.toolService.wheel(p, meta)) {
+                    e.preventDefault();
+                }
+            },
+            _meta: function (e) {
+                return {
+                    ctrlKey: e.ctrlKey,
+                    metaKey: e.metaKey,
+                    altKey: e.altKey,
+                    shiftKey: e.shiftKey
+                };
+            },
+            _eventPositions: function (e, start) {
+                var point;
+                if (e.touch) {
+                    var field = start ? 'startLocation' : 'location';
+                    point = new Point(e.x[field], e.y[field]);
+                } else {
+                    point = new Point(e.pageX, e.pageY);
+                }
+                return this.documentToModel(point);
             },
             _gestureStart: function (e) {
                 this._destroyToolBar();
@@ -10890,6 +10977,7 @@
                 }
             },
             _findConnectionTarget: function (options) {
+                options = options || {};
                 var diagram = this;
                 var shapeId = isString(options) ? options : options.shapeId || options.id;
                 var target;
@@ -11345,6 +11433,7 @@
                         options.zoom = zoom;
                     }
                     this._panTransform();
+                    this.canvas.surface.hideTooltip();
                     this._updateAdorners();
                 }
                 return this._zoom;
@@ -11593,6 +11682,44 @@
                 });
                 return found;
             },
+            getShapeByModelId: function (id) {
+                var shape;
+                if (this._isEditable) {
+                    shape = this._dataMap[id];
+                } else {
+                    shape = Utils.first(this.shapes, function (shape) {
+                        return (shape.dataItem || {}).id === id;
+                    });
+                }
+                return shape;
+            },
+            getShapeByModelUid: function (uid) {
+                var shape;
+                if (this._isEditable) {
+                    shape = Utils.first(this.shapes, function (shape) {
+                        return (shape.dataItem || {}).uid === uid;
+                    });
+                } else {
+                    shape = this._dataMap[uid];
+                }
+                return shape;
+            },
+            getConnectionByModelId: function (id) {
+                var connection;
+                if (this.connectionsDataSource) {
+                    connection = Utils.first(this.connections, function (connection) {
+                        return (connection.dataItem || {}).id === id;
+                    });
+                }
+                return connection;
+            },
+            getConnectionByModelUid: function (uid) {
+                var connection;
+                if (this.connectionsDataSource) {
+                    connection = this._connectionsDataMap[uid];
+                }
+                return connection;
+            },
             _extendLayoutOptions: function (options) {
                 if (options.layout) {
                     options.layout = deepExtend(diagram.LayoutBase.fn.defaultOptions || {}, options.layout);
@@ -11818,6 +11945,11 @@
             _refreshSource: function (e) {
                 var that = this, node = e.node, action = e.action, items = e.items, options = that.options, idx, dataBound;
                 if (e.field) {
+                    for (idx = 0; idx < items.length; idx++) {
+                        if (this._dataMap[items[idx].uid]) {
+                            this._dataMap[items[idx].uid].redrawVisual();
+                        }
+                    }
                     return;
                 }
                 if (action == 'remove') {
@@ -11843,25 +11975,11 @@
                     this._bindingRoots = false;
                 }
             },
-            _mouseDown: function (e) {
-                var p = this._calculatePosition(e);
-                if (e.which == 1 && this.toolService.start(p, this._meta(e))) {
-                    this._destroyToolBar();
-                    e.preventDefault();
-                }
-            },
             _addItem: function (item) {
                 if (item instanceof Shape) {
                     this.addShape(item);
                 } else if (item instanceof Connection) {
                     this.addConnection(item);
-                }
-            },
-            _mouseUp: function (e) {
-                var p = this._calculatePosition(e);
-                if (e.which == 1 && this.toolService.end(p, this._meta(e))) {
-                    this._createToolBar();
-                    e.preventDefault();
                 }
             },
             _createToolBar: function () {
@@ -11919,38 +12037,6 @@
             _toolBarClick: function (e) {
                 this.trigger('toolBarClick', e);
                 this._destroyToolBar();
-            },
-            _mouseMove: function (e) {
-                if (this.pauseMouseHandlers) {
-                    return;
-                }
-                var p = this._calculatePosition(e);
-                if ((e.which === 0 || e.which == 1) && this.toolService.move(p, this._meta(e))) {
-                    e.preventDefault();
-                }
-            },
-            _keydown: function (e) {
-                if (this.toolService.keyDown(e.keyCode, this._meta(e))) {
-                    e.preventDefault();
-                }
-            },
-            _wheel: function (e) {
-                var delta = mwDelta(e), p = this._calculatePosition(e), meta = deepExtend(this._meta(e), { delta: delta });
-                if (this.toolService.wheel(p, meta)) {
-                    e.preventDefault();
-                }
-            },
-            _meta: function (e) {
-                return {
-                    ctrlKey: e.ctrlKey,
-                    metaKey: e.metaKey,
-                    altKey: e.altKey,
-                    shiftKey: e.shiftKey
-                };
-            },
-            _calculatePosition: function (e) {
-                var pointEvent = e.pageX === undefined ? e.originalEvent : e, point = new Point(pointEvent.pageX, pointEvent.pageY), offset = this.documentToModel(point);
-                return offset;
             },
             _normalizePointZoom: function (point) {
                 return point.times(1 / this.zoom());
@@ -12200,6 +12286,9 @@
             _treeDataSource: function () {
                 var that = this, options = that.options, dataSource = options.dataSource;
                 dataSource = isArray(dataSource) ? { data: dataSource } : dataSource;
+                if (dataSource instanceof kendo.data.DataSource && !(dataSource instanceof kendo.data.HierarchicalDataSource)) {
+                    throw new Error('Incorrect DataSource type. If a single dataSource instance is set to the diagram then it should be a HierarchicalDataSource. You should set only the options instead of an instance or a HierarchicalDataSource instance or supply connectionsDataSource as well.');
+                }
                 if (!dataSource.fields) {
                     dataSource.fields = [
                         { field: 'text' },

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -589,10 +589,12 @@
                 return this;
             },
             optionsChange: function (e) {
+                e = e || {};
+                e.element = this;
                 this.trigger('optionsChange', e);
             },
-            geometryChange: function (e) {
-                this.trigger('geometryChange', e);
+            geometryChange: function () {
+                this.trigger('geometryChange', { element: this });
             },
             suspend: function () {
                 this._suspended = (this._suspended || 0) + 1;
@@ -1738,7 +1740,7 @@
             click: function (widget, e) {
                 var label = this;
                 widget.trigger(AXIS_LABEL_CLICK, {
-                    element: $(e.target),
+                    element: eventTargetElement(e),
                     value: label.value,
                     text: label.text,
                     index: label.index,
@@ -1974,7 +1976,7 @@
                 for (i = 0; i < items.length; i++) {
                     item = deepExtend({}, notes, items[i]);
                     item.value = axis.parseNoteValue(item.value);
-                    note = new Note(item.value, item.label.text, null, null, null, item);
+                    note = new Note(item.value, item.label.text, item, null, null, item);
                     if (note.options.visible) {
                         if (defined(note.options.position)) {
                             if (options.vertical && !inArray(note.options.position, [
@@ -2023,9 +2025,10 @@
             createTicks: function (lineGroup) {
                 var axis = this, options = axis.options, lineBox = axis.lineBox(), mirror = options.labels.mirror, majorUnit = options.majorTicks.visible ? options.majorUnit : 0, tickLineOptions = { vertical: options.vertical };
                 function render(tickPositions, tickOptions, skipUnit) {
-                    var i, count = tickPositions.length;
+                    var count = tickPositions.length;
+                    var step = math.max(1, tickOptions.step);
                     if (tickOptions.visible) {
-                        for (i = tickOptions.skip; i < count; i += tickOptions.step) {
+                        for (var i = tickOptions.skip; i < count; i += step) {
                             if (defined(skipUnit) && i % skipUnit === 0) {
                                 continue;
                             }
@@ -2127,9 +2130,10 @@
                     }, pos, majorTicks = [];
                 var container = this.gridLinesVisual();
                 function render(tickPositions, gridLine, skipUnit) {
-                    var count = tickPositions.length, i;
+                    var count = tickPositions.length;
+                    var step = math.max(1, gridLine.step);
                     if (gridLine.visible) {
-                        for (i = gridLine.skip; i < count; i += gridLine.step) {
+                        for (var i = gridLine.skip; i < count; i += step) {
                             pos = round(tickPositions[i]);
                             if (!inArray(pos, majorTicks)) {
                                 if (i % skipUnit !== 0 && (!axisLineVisible || linePos !== pos)) {
@@ -2576,7 +2580,7 @@
             eventArgs: function (e) {
                 var note = this, options = note.options;
                 return {
-                    element: $(e.target),
+                    element: eventTargetElement(e),
                     text: defined(options.label) ? options.label.text : '',
                     dataItem: note.dataItem,
                     series: note.series,
@@ -3668,6 +3672,11 @@
             var bottomRight = rect.bottomRight();
             return new Box2D(origin.x, origin.y, bottomRight.x, bottomRight.y);
         }
+        function eventTargetElement(e) {
+            e = e || {};
+            var element = $(e.touch ? e.touch.initialTouch : e.target);
+            return element;
+        }
         decodeEntities._element = document.createElement('span');
         deepExtend(kendo.dataviz, {
             AXIS_LABEL_CLICK: AXIS_LABEL_CLICK,
@@ -3706,6 +3715,7 @@
             boxDiff: boxDiff,
             dateComparer: dateComparer,
             decodeEntities: decodeEntities,
+            eventTargetElement: eventTargetElement,
             getSpacing: getSpacing,
             inArray: inArray,
             interpolateValue: interpolateValue,

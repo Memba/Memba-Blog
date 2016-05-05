@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -589,10 +589,12 @@
                 return this;
             },
             optionsChange: function (e) {
+                e = e || {};
+                e.element = this;
                 this.trigger('optionsChange', e);
             },
-            geometryChange: function (e) {
-                this.trigger('geometryChange', e);
+            geometryChange: function () {
+                this.trigger('geometryChange', { element: this });
             },
             suspend: function () {
                 this._suspended = (this._suspended || 0) + 1;
@@ -662,8 +664,8 @@
         ]
     };
     (function ($, undefined) {
-        var each = $.each, isArray = $.isArray, isPlainObject = $.isPlainObject, map = $.map, math = Math, noop = $.noop, extend = $.extend, proxy = $.proxy, kendo = window.kendo, Class = kendo.Class, Observable = kendo.Observable, DataSource = kendo.data.DataSource, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, getter = kendo.getter, isFn = kendo.isFunction, template = kendo.template, dataviz = kendo.dataviz, Axis = dataviz.Axis, AxisLabel = dataviz.AxisLabel, Box2D = dataviz.Box2D, BoxElement = dataviz.BoxElement, ChartElement = dataviz.ChartElement, Color = kendo.drawing.Color, CurveProcessor = dataviz.CurveProcessor, FloatElement = dataviz.FloatElement, Note = dataviz.Note, LogarithmicAxis = dataviz.LogarithmicAxis, NumericAxis = dataviz.NumericAxis, Point2D = dataviz.Point2D, RootElement = dataviz.RootElement, Ring = dataviz.Ring, ShapeElement = dataviz.ShapeElement, ShapeBuilder = dataviz.ShapeBuilder, TextBox = dataviz.TextBox, Title = dataviz.Title, alignPathToPixel = dataviz.alignPathToPixel, autoFormat = dataviz.autoFormat, dateComparer = dataviz.dateComparer, getSpacing = dataviz.getSpacing, inArray = dataviz.inArray, interpolate = dataviz.interpolateValue, mwDelta = dataviz.mwDelta, round = dataviz.round, util = kendo.util, append = util.append, defined = util.defined, last = util.last, limitValue = util.limitValue, sparseArrayLimits = util.sparseArrayLimits, sparseArrayMin = util.sparseArrayMin, sparseArrayMax = util.sparseArrayMax, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, geom = dataviz.geometry, draw = dataviz.drawing;
-        var NS = '.kendoChart', ABOVE = 'above', AREA = 'area', AUTO = 'auto', FIT = 'fit', AXIS_LABEL_CLICK = dataviz.AXIS_LABEL_CLICK, BAR = 'bar', BAR_ALIGN_MIN_WIDTH = 6, BAR_BORDER_BRIGHTNESS = 0.8, BELOW = 'below', BLACK = '#000', BOTH = 'both', BOTTOM = 'bottom', BOX_PLOT = 'boxPlot', BUBBLE = 'bubble', BULLET = 'bullet', CANDLESTICK = 'candlestick', CATEGORY = 'category', CENTER = 'center', CHANGE = 'change', CIRCLE = 'circle', CONTEXTMENU_NS = 'contextmenu' + NS, CLIP = dataviz.CLIP, COLOR = 'color', COLUMN = 'column', COORD_PRECISION = dataviz.COORD_PRECISION, CROSS = 'cross', CSS_PREFIX = 'k-', CUSTOM = 'custom', DATABOUND = 'dataBound', DATE = 'date', DAYS = 'days', DEFAULT_FONT = dataviz.DEFAULT_FONT, DEFAULT_HEIGHT = dataviz.DEFAULT_HEIGHT, DEFAULT_PRECISION = dataviz.DEFAULT_PRECISION, DEFAULT_WIDTH = dataviz.DEFAULT_WIDTH, DEFAULT_ERROR_BAR_WIDTH = 4, DONUT = 'donut', DONUT_SECTOR_ANIM_DELAY = 50, DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', ERROR_LOW_FIELD = 'errorLow', ERROR_HIGH_FIELD = 'errorHigh', X_ERROR_LOW_FIELD = 'xErrorLow', X_ERROR_HIGH_FIELD = 'xErrorHigh', Y_ERROR_LOW_FIELD = 'yErrorLow', Y_ERROR_HIGH_FIELD = 'yErrorHigh', FADEIN = 'fadeIn', FIRST = 'first', FROM = 'from', FUNNEL = 'funnel', GLASS = 'glass', HORIZONTAL = 'horizontal', HORIZONTAL_WATERFALL = 'horizontalWaterfall', HOURS = 'hours', INITIAL_ANIMATION_DURATION = dataviz.INITIAL_ANIMATION_DURATION, INSIDE_BASE = 'insideBase', INSIDE_END = 'insideEnd', INTERPOLATE = 'interpolate', LEAVE = 'leave', LEFT = 'left', LEGEND_ITEM_CLICK = 'legendItemClick', LEGEND_ITEM_HOVER = 'legendItemHover', LINE = 'line', LINE_MARKER_SIZE = 8, LINEAR = 'linear', LOGARITHMIC = 'log', MAX = 'max', MAX_EXPAND_DEPTH = 5, MAX_VALUE = Number.MAX_VALUE, MIN = 'min', MIN_VALUE = -Number.MAX_VALUE, MINUTES = 'minutes', MONTHS = 'months', MOUSELEAVE_NS = 'mouseleave' + NS, MOUSEMOVE_TRACKING = 'mousemove.tracking', MOUSEOVER_NS = 'mouseover' + NS, MOUSEOUT_NS = 'mouseout' + NS, MOUSEMOVE_NS = 'mousemove' + NS, MOUSEMOVE_DELAY = 20, MOUSEWHEEL_DELAY = 150, MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, NOTE_CLICK = dataviz.NOTE_CLICK, NOTE_HOVER = dataviz.NOTE_HOVER, NOTE_TEXT = 'noteText', OBJECT = 'object', OHLC = 'ohlc', OUTSIDE_END = 'outsideEnd', PIE = 'pie', PIE_SECTOR_ANIM_DELAY = 70, PLOT_AREA_CLICK = 'plotAreaClick', POINTER = 'pointer', RANGE_BAR = 'rangeBar', RANGE_COLUMN = 'rangeColumn', RENDER = 'render', RIGHT = 'right', ROUNDED_BEVEL = 'roundedBevel', ROUNDED_GLASS = 'roundedGlass', SCATTER = 'scatter', SCATTER_LINE = 'scatterLine', SECONDS = 'seconds', SELECT_START = 'selectStart', SELECT = 'select', SELECT_END = 'selectEnd', SERIES_CLICK = 'seriesClick', SERIES_HOVER = 'seriesHover', START_SCALE = 0.001, STEP = 'step', SMOOTH = 'smooth', STD_ERR = 'stderr', STD_DEV = 'stddev', STRING = 'string', SUMMARY_FIELD = 'summary', TIME_PER_SECOND = 1000, TIME_PER_MINUTE = 60 * TIME_PER_SECOND, TIME_PER_HOUR = 60 * TIME_PER_MINUTE, TIME_PER_DAY = 24 * TIME_PER_HOUR, TIME_PER_WEEK = 7 * TIME_PER_DAY, TIME_PER_MONTH = 31 * TIME_PER_DAY, TIME_PER_YEAR = 365 * TIME_PER_DAY, TIME_PER_UNIT = {
+        var each = $.each, isArray = $.isArray, isPlainObject = $.isPlainObject, map = $.map, math = Math, noop = $.noop, extend = $.extend, proxy = $.proxy, kendo = window.kendo, Class = kendo.Class, Observable = kendo.Observable, DataSource = kendo.data.DataSource, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, getter = kendo.getter, isFn = kendo.isFunction, template = kendo.template, dataviz = kendo.dataviz, Axis = dataviz.Axis, AxisLabel = dataviz.AxisLabel, Box2D = dataviz.Box2D, BoxElement = dataviz.BoxElement, ChartElement = dataviz.ChartElement, Color = kendo.drawing.Color, CurveProcessor = dataviz.CurveProcessor, FloatElement = dataviz.FloatElement, Note = dataviz.Note, LogarithmicAxis = dataviz.LogarithmicAxis, NumericAxis = dataviz.NumericAxis, Point2D = dataviz.Point2D, RootElement = dataviz.RootElement, Ring = dataviz.Ring, ShapeElement = dataviz.ShapeElement, ShapeBuilder = dataviz.ShapeBuilder, TextBox = dataviz.TextBox, Title = dataviz.Title, alignPathToPixel = dataviz.alignPathToPixel, autoFormat = dataviz.autoFormat, dateComparer = dataviz.dateComparer, eventTargetElement = dataviz.eventTargetElement, getSpacing = dataviz.getSpacing, inArray = dataviz.inArray, interpolate = dataviz.interpolateValue, mwDelta = dataviz.mwDelta, round = dataviz.round, util = kendo.util, append = util.append, defined = util.defined, last = util.last, limitValue = util.limitValue, sparseArrayLimits = util.sparseArrayLimits, sparseArrayMin = util.sparseArrayMin, sparseArrayMax = util.sparseArrayMax, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, geom = dataviz.geometry, draw = dataviz.drawing;
+        var NS = '.kendoChart', ABOVE = 'above', AREA = 'area', AUTO = 'auto', FIT = 'fit', AXIS_LABEL_CLICK = dataviz.AXIS_LABEL_CLICK, BAR = 'bar', BAR_ALIGN_MIN_WIDTH = 6, BAR_BORDER_BRIGHTNESS = 0.8, BELOW = 'below', BLACK = '#000', BOTH = 'both', BOTTOM = 'bottom', BOX_PLOT = 'boxPlot', BUBBLE = 'bubble', BULLET = 'bullet', CANDLESTICK = 'candlestick', CATEGORY = 'category', CENTER = 'center', CHANGE = 'change', CIRCLE = 'circle', CONTEXTMENU_NS = 'contextmenu' + NS, CLIP = dataviz.CLIP, COLOR = 'color', COLUMN = 'column', COORD_PRECISION = dataviz.COORD_PRECISION, CROSS = 'cross', CSS_PREFIX = 'k-', CUSTOM = 'custom', DATABOUND = 'dataBound', DATE = 'date', DAYS = 'days', DEFAULT_FONT = dataviz.DEFAULT_FONT, DEFAULT_HEIGHT = dataviz.DEFAULT_HEIGHT, DEFAULT_PRECISION = dataviz.DEFAULT_PRECISION, DEFAULT_WIDTH = dataviz.DEFAULT_WIDTH, DEFAULT_ERROR_BAR_WIDTH = 4, DONUT = 'donut', DONUT_SECTOR_ANIM_DELAY = 50, DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', ERROR_LOW_FIELD = 'errorLow', ERROR_HIGH_FIELD = 'errorHigh', X_ERROR_LOW_FIELD = 'xErrorLow', X_ERROR_HIGH_FIELD = 'xErrorHigh', Y_ERROR_LOW_FIELD = 'yErrorLow', Y_ERROR_HIGH_FIELD = 'yErrorHigh', FADEIN = 'fadeIn', FIRST = 'first', FROM = 'from', FUNNEL = 'funnel', GLASS = 'glass', HORIZONTAL = 'horizontal', HORIZONTAL_WATERFALL = 'horizontalWaterfall', HOURS = 'hours', INITIAL_ANIMATION_DURATION = dataviz.INITIAL_ANIMATION_DURATION, INSIDE_BASE = 'insideBase', INSIDE_END = 'insideEnd', INTERPOLATE = 'interpolate', LEAVE = 'leave', LEFT = 'left', LEGEND_ITEM_CLICK = 'legendItemClick', LEGEND_ITEM_HOVER = 'legendItemHover', LINE = 'line', LINE_MARKER_SIZE = 8, LINEAR = 'linear', LOGARITHMIC = 'log', MAX = 'max', MAX_EXPAND_DEPTH = 5, MAX_VALUE = Number.MAX_VALUE, MIN = 'min', MIN_VALUE = -Number.MAX_VALUE, MINUTES = 'minutes', MONTHS = 'months', MOUSELEAVE_NS = 'mouseleave' + NS, MOUSEMOVE_TRACKING = 'mousemove.tracking', MOUSEMOVE_NS = 'mousemove' + NS, MOUSEMOVE_DELAY = 20, MOUSEWHEEL_DELAY = 150, MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, NOTE_CLICK = dataviz.NOTE_CLICK, NOTE_HOVER = dataviz.NOTE_HOVER, NOTE_TEXT = 'noteText', OBJECT = 'object', OHLC = 'ohlc', OUTSIDE_END = 'outsideEnd', PIE = 'pie', PIE_SECTOR_ANIM_DELAY = 70, PLOT_AREA_CLICK = 'plotAreaClick', PLOT_AREA_HOVER = 'plotAreaHover', POINTER = 'pointer', RANGE_BAR = 'rangeBar', RANGE_COLUMN = 'rangeColumn', RENDER = 'render', RIGHT = 'right', ROUNDED_BEVEL = 'roundedBevel', ROUNDED_GLASS = 'roundedGlass', SCATTER = 'scatter', SCATTER_LINE = 'scatterLine', SECONDS = 'seconds', SELECT_START = 'selectStart', SELECT = 'select', SELECT_END = 'selectEnd', SERIES_CLICK = 'seriesClick', SERIES_HOVER = 'seriesHover', START_SCALE = 0.001, STEP = 'step', SMOOTH = 'smooth', STD_ERR = 'stderr', STD_DEV = 'stddev', STRING = 'string', SUMMARY_FIELD = 'summary', TIME_PER_SECOND = 1000, TIME_PER_MINUTE = 60 * TIME_PER_SECOND, TIME_PER_HOUR = 60 * TIME_PER_MINUTE, TIME_PER_DAY = 24 * TIME_PER_HOUR, TIME_PER_WEEK = 7 * TIME_PER_DAY, TIME_PER_MONTH = 31 * TIME_PER_DAY, TIME_PER_YEAR = 365 * TIME_PER_DAY, TIME_PER_UNIT = {
                 'years': TIME_PER_YEAR,
                 'months': TIME_PER_MONTH,
                 'weeks': TIME_PER_WEEK,
@@ -671,7 +673,7 @@
                 'hours': TIME_PER_HOUR,
                 'minutes': TIME_PER_MINUTE,
                 'seconds': TIME_PER_SECOND
-            }, TO = 'to', TOP = 'top', TOOLTIP_ANIMATION_DURATION = 150, TOOLTIP_OFFSET = 5, TOOLTIP_SHOW_DELAY = 100, TOOLTIP_HIDE_DELAY = 100, TOOLTIP_INVERSE = 'chart-tooltip-inverse', VALUE = 'value', VERTICAL_AREA = 'verticalArea', VERTICAL_BULLET = 'verticalBullet', VERTICAL_LINE = 'verticalLine', WATERFALL = 'waterfall', WEEKS = 'weeks', WHITE = '#fff', X = 'x', Y = 'y', YEARS = 'years', ZERO = 'zero', ZOOM_ACCELERATION = 3, ZOOM_START = 'zoomStart', ZOOM = 'zoom', ZOOM_END = 'zoomEnd', BASE_UNITS = [
+            }, TO = 'to', TOP = 'top', TOOLTIP_ANIMATION_DURATION = 150, TOOLTIP_OFFSET = 5, TOOLTIP_SHOW_DELAY = 100, TOOLTIP_HIDE_DELAY = 100, TOOLTIP_INVERSE = 'chart-tooltip-inverse', VALUE = 'value', VERTICAL_AREA = 'verticalArea', VERTICAL_BOX_PLOT = 'verticalBoxPlot', VERTICAL_BULLET = 'verticalBullet', VERTICAL_LINE = 'verticalLine', WATERFALL = 'waterfall', WEEKS = 'weeks', WHITE = '#fff', X = 'x', Y = 'y', YEARS = 'years', ZERO = 'zero', ZOOM_ACCELERATION = 3, ZOOM_START = 'zoomStart', ZOOM = 'zoom', ZOOM_END = 'zoomEnd', BASE_UNITS = [
                 SECONDS,
                 MINUTES,
                 HOURS,
@@ -685,6 +687,7 @@
                 OHLC,
                 CANDLESTICK,
                 BOX_PLOT,
+                VERTICAL_BOX_PLOT,
                 BULLET,
                 RANGE_COLUMN,
                 RANGE_BAR,
@@ -773,6 +776,7 @@
                 LEGEND_ITEM_CLICK,
                 LEGEND_ITEM_HOVER,
                 PLOT_AREA_CLICK,
+                PLOT_AREA_HOVER,
                 DRAG_START,
                 DRAG,
                 DRAG_END,
@@ -858,23 +862,27 @@
                     }
                 }
             },
-            toggleHighlight: function (show, options) {
+            toggleHighlight: function (show, filter) {
                 var plotArea = this._plotArea;
                 var highlight = this._highlight;
                 var firstSeries = (plotArea.srcSeries || plotArea.series || [])[0];
                 var seriesName, categoryName, points;
-                if (isPlainObject(options)) {
-                    seriesName = options.series;
-                    categoryName = options.category;
+                if (kendo.isFunction(filter)) {
+                    points = plotArea.filterPoints(filter);
                 } else {
-                    seriesName = categoryName = options;
-                }
-                if (firstSeries.type === DONUT) {
-                    points = pointByCategoryName(plotArea.pointsBySeriesName(seriesName), categoryName);
-                } else if (firstSeries.type === PIE || firstSeries.type === FUNNEL) {
-                    points = pointByCategoryName((plotArea.charts[0] || {}).points, categoryName);
-                } else {
-                    points = plotArea.pointsBySeriesName(seriesName);
+                    if (isPlainObject(filter)) {
+                        seriesName = filter.series;
+                        categoryName = filter.category;
+                    } else {
+                        seriesName = categoryName = filter;
+                    }
+                    if (firstSeries.type === DONUT) {
+                        points = pointByCategoryName(plotArea.pointsBySeriesName(seriesName), categoryName);
+                    } else if (firstSeries.type === PIE || firstSeries.type === FUNNEL) {
+                        points = pointByCategoryName((plotArea.charts[0] || {}).points, categoryName);
+                    } else {
+                        points = plotArea.pointsBySeriesName(seriesName);
+                    }
                 }
                 if (points) {
                     for (var idx = 0; idx < points.length; idx++) {
@@ -1066,10 +1074,10 @@
                 return this.trigger(SELECT_END, e);
             },
             _attachEvents: function () {
-                var chart = this, element = chart.element;
+                var chart = this, element = chart.element, surface = chart.surface;
+                surface.bind('mouseenter', proxy(chart._mouseover, chart));
+                surface.bind('mouseleave', proxy(chart._mouseout, chart));
                 element.on(CONTEXTMENU_NS, proxy(chart._click, chart));
-                element.on(MOUSEOVER_NS, proxy(chart._mouseover, chart));
-                element.on(MOUSEOUT_NS, proxy(chart._mouseout, chart));
                 element.on(MOUSEWHEEL_NS, proxy(chart._mousewheel, chart));
                 element.on(MOUSELEAVE_NS, proxy(chart._mouseleave, chart));
                 chart._mousemove = kendo.throttle(proxy(chart._mousemove, chart), MOUSEMOVE_DELAY);
@@ -1079,20 +1087,67 @@
                 if (kendo.UserEvents) {
                     chart._userEvents = new kendo.UserEvents(element, {
                         global: true,
-                        filter: ':not(.k-selector)',
-                        multiTouch: false,
+                        multiTouch: true,
                         fastTap: true,
                         tap: proxy(chart._tap, chart),
                         start: proxy(chart._start, chart),
                         move: proxy(chart._move, chart),
-                        end: proxy(chart._end, chart)
+                        end: proxy(chart._end, chart),
+                        gesturestart: proxy(chart._gesturestart, chart),
+                        gesturechange: proxy(chart._gesturechange, chart),
+                        gestureend: proxy(chart._gestureend, chart)
                     });
                 }
             },
+            _gesturestart: function (e) {
+                if (this._mousewheelZoom) {
+                    this._gestureDistance = e.distance;
+                    this._unsetActivePoint();
+                    this.surface.suspendTracking();
+                }
+            },
+            _gestureend: function () {
+                if (this._zooming) {
+                    if (this.surface) {
+                        this.surface.resumeTracking();
+                    }
+                    this._zooming = false;
+                    this.trigger(ZOOM_END, {});
+                }
+            },
+            _gesturechange: function (e) {
+                var chart = this;
+                var mousewheelZoom = chart._mousewheelZoom;
+                if (mousewheelZoom) {
+                    e.preventDefault();
+                    var previousGestureDistance = chart._gestureDistance;
+                    var scaleDelta = -e.distance / previousGestureDistance + 1;
+                    if (math.abs(scaleDelta) >= 0.1) {
+                        scaleDelta = math.round(scaleDelta * 10);
+                        chart._gestureDistance = e.distance;
+                        var args = {
+                            delta: scaleDelta,
+                            axisRanges: axisRanges(chart._plotArea.axes),
+                            originalEvent: e
+                        };
+                        if (chart._zooming || !chart.trigger(ZOOM_START, args)) {
+                            if (!chart._zooming) {
+                                chart._zooming = true;
+                            }
+                            var ranges = args.axisRanges = mousewheelZoom.updateRanges(scaleDelta);
+                            if (ranges && !chart.trigger(ZOOM, args)) {
+                                mousewheelZoom.zoom();
+                            }
+                        }
+                    }
+                }
+            },
             _mouseout: function (e) {
-                var chart = this, element = chart._getChartElement(e);
-                if (element && element.leave) {
-                    element.leave(chart, e);
+                if (e.element) {
+                    var element = this._drawingChartElement(e.element, e);
+                    if (element && element.leave) {
+                        element.leave(this, e.originalEvent);
+                    }
                 }
             },
             _start: function (e) {
@@ -1100,8 +1155,9 @@
                 if (defined(events[DRAG_START] || events[DRAG] || events[DRAG_END])) {
                     chart._startNavigation(e, DRAG_START);
                 }
-                if (chart._pannable) {
-                    chart._pannable.start(e);
+                if (chart._pannable && chart._pannable.start(e)) {
+                    this.surface.suspendTracking();
+                    this._unsetActivePoint();
                 }
                 if (chart._zoomSelection) {
                     if (chart._zoomSelection.start(e)) {
@@ -1162,8 +1218,8 @@
                         });
                     }
                 }
-                if (this._pannable) {
-                    this._pannable.end(e);
+                if (this._pannable && this._pannable.end(e)) {
+                    this.surface.resumeTracking();
                 }
             },
             _mousewheel: function (e) {
@@ -1174,13 +1230,27 @@
                         axisRanges: axisRanges(this._plotArea.axes),
                         originalEvent: e
                     };
-                    if (!chart.trigger(ZOOM_START, args)) {
+                    if (chart._zooming || !chart.trigger(ZOOM_START, args)) {
                         e.preventDefault();
+                        if (!chart._zooming) {
+                            chart._unsetActivePoint();
+                            chart.surface.suspendTracking();
+                            chart._zooming = true;
+                        }
+                        if (chart._mwTimeout) {
+                            clearTimeout(chart._mwTimeout);
+                        }
                         args.axisRanges = ranges = mousewheelZoom.updateRanges(delta);
                         if (ranges && !chart.trigger(ZOOM, args)) {
                             mousewheelZoom.zoom();
-                            chart.trigger(ZOOM_END, args);
                         }
+                        chart._mwTimeout = setTimeout(function () {
+                            chart.trigger(ZOOM_END, args);
+                            chart._zooming = false;
+                            if (chart.surface) {
+                                chart.surface.resumeTracking();
+                            }
+                        }, MOUSEWHEEL_DELAY);
                     }
                 } else {
                     if (!state) {
@@ -1256,9 +1326,11 @@
             },
             _getChartElement: function (e, match) {
                 var element = this.surface.eventTarget(e);
-                if (!element) {
-                    return;
+                if (element) {
+                    return this._drawingChartElement(element, e, match);
                 }
+            },
+            _drawingChartElement: function (element, e, match) {
                 var chartElement;
                 while (element && !chartElement) {
                     chartElement = element.chartElement;
@@ -1283,31 +1355,34 @@
                 return new Point2D(clientX - offset.left - paddingLeft + win.scrollLeft(), clientY - offset.top - paddingTop + win.scrollTop());
             },
             _tap: function (e) {
-                var chart = this, element = chart._getChartElement(e);
+                var chart = this, drawingElement = chart.surface.eventTarget(e), element = chart._drawingChartElement(drawingElement, e);
                 if (chart._activePoint === element) {
-                    chart._click(e);
+                    chart._propagateClick(element, e);
                 } else {
-                    if (!chart._startHover(e)) {
+                    if (!chart._startHover(drawingElement, e)) {
                         chart._unsetActivePoint();
                     }
-                    chart._click(e);
+                    chart._propagateClick(element, e);
                 }
             },
             _click: function (e) {
                 var chart = this, element = chart._getChartElement(e);
+                chart._propagateClick(element, e);
+            },
+            _propagateClick: function (element, e) {
                 while (element) {
                     if (element.click) {
-                        element.click(chart, e);
+                        element.click(this, e);
                     }
                     element = element.parent;
                 }
             },
-            _startHover: function (e) {
-                var chart = this, element = chart._getChartElement(e), tooltip = chart._tooltip, highlight = chart._highlight, tooltipOptions = chart.options.tooltip, point;
-                if (chart._suppressHover || !highlight || highlight.isHighlighted(element) || chart._sharedTooltip()) {
+            _startHover: function (element, e) {
+                var chart = this, chartElement = chart._drawingChartElement(element, e), tooltip = chart._tooltip, highlight = chart._highlight, tooltipOptions = chart.options.tooltip, point;
+                if (chart._suppressHover || !highlight || highlight.isHighlighted(chartElement) || chart._sharedTooltip()) {
                     return;
                 }
-                point = chart._getChartElement(e, function (element) {
+                point = chart._drawingChartElement(element, e, function (element) {
                     return element.hover;
                 });
                 if (point && !point.hover(chart, e)) {
@@ -1322,7 +1397,7 @@
             },
             _mouseover: function (e) {
                 var chart = this;
-                if (chart._startHover(e)) {
+                if (chart._startHover(e.element, e.originalEvent)) {
                     $(document).on(MOUSEMOVE_TRACKING, proxy(chart._mouseMoveTracking, chart));
                 }
             },
@@ -1349,6 +1424,7 @@
             _mousemove: function (e) {
                 var coords = this._eventCoordinates(e);
                 this._trackCrosshairs(coords);
+                this._plotArea.hover(this, e);
                 if (this._sharedTooltip()) {
                     this._trackSharedTooltip(coords, e);
                 }
@@ -1589,7 +1665,8 @@
             },
             _shouldAttachMouseMove: function () {
                 var chart = this;
-                return chart._plotArea.crosshairs.length || chart._tooltip && chart._sharedTooltip();
+                var events = chart._events;
+                return chart._plotArea.crosshairs.length || chart._tooltip && chart._sharedTooltip() || defined(events[PLOT_AREA_HOVER]);
             },
             setOptions: function (options) {
                 var chart = this, dataSource = options.dataSource;
@@ -1930,7 +2007,7 @@
             eventArgs: function (e) {
                 var options = this.options;
                 return {
-                    element: $(e.target),
+                    element: eventTargetElement(e),
                     text: options.text,
                     series: options.series,
                     seriesIndex: options.series.index,
@@ -3114,7 +3191,7 @@
                     dataItem: this.dataItem,
                     runningTotal: this.runningTotal,
                     total: this.total,
-                    element: $((e || {}).target),
+                    element: eventTargetElement(e),
                     originalEvent: e,
                     point: this
                 };
@@ -4246,6 +4323,9 @@
                             vAlign: TOP,
                             align: RIGHT
                         });
+                        bullet.target.value = this.value;
+                        bullet.target.dataItem = this.dataItem;
+                        bullet.target.series = this.series;
                         bullet.append(bullet.target);
                     }
                     bullet.createNote();
@@ -5581,6 +5661,7 @@
                 this.value = value;
             },
             options: {
+                vertical: true,
                 border: { _brightness: 0.8 },
                 line: { width: 2 },
                 overlay: { gradient: GLASS },
@@ -5674,7 +5755,12 @@
                 alignPathToPixel(body);
                 container.append(body);
                 if (hasGradientOverlay(options)) {
-                    container.append(this.createGradientOverlay(body, { baseColor: this.color }, deepExtend({}, options.overlay)));
+                    container.append(this.createGradientOverlay(body, { baseColor: this.color }, deepExtend({
+                        end: !options.vertical ? [
+                            0,
+                            1
+                        ] : undefined
+                    }, options.overlay)));
                 }
             },
             createLines: function (container, options) {
@@ -5821,6 +5907,7 @@
                 if (kendo.isFunction(series.color)) {
                     color = pointOptions.color;
                 }
+                pointOptions.vertical = !chart.options.invertAxes;
                 var point = new pointType(value, pointOptions);
                 point.color = color;
                 return point;
@@ -5945,6 +6032,9 @@
                 categoryPoints.push(point);
             },
             pointType: function () {
+                if (this.options.invertAxes) {
+                    return VerticalBoxPlot;
+                }
                 return BoxPlot;
             },
             splitValue: function (value) {
@@ -6040,29 +6130,45 @@
                 }
             },
             reflow: function (box) {
-                var point = this, options = point.options, chart = point.owner, value = point.value, valueAxis = chart.seriesValueAxis(options), mid, whiskerSlot, boxSlot, medianSlot, meanSlot;
-                boxSlot = valueAxis.getSlot(value.q1, value.q3);
-                point.boxSlot = boxSlot;
-                whiskerSlot = valueAxis.getSlot(value.lower, value.upper);
-                medianSlot = valueAxis.getSlot(value.median);
-                boxSlot.x1 = whiskerSlot.x1 = box.x1;
-                boxSlot.x2 = whiskerSlot.x2 = box.x2;
+                var point = this, options = point.options, chart = point.owner, value = point.value, valueAxis = chart.seriesValueAxis(options), whiskerSlot, boxSlot, medianSlot, meanSlot;
+                point.boxSlot = boxSlot = valueAxis.getSlot(value.q1, value.q3);
                 point.realBody = boxSlot;
+                point.reflowBoxSlot(box);
+                point.whiskerSlot = whiskerSlot = valueAxis.getSlot(value.lower, value.upper);
+                point.reflowWhiskerSlot(box);
+                medianSlot = valueAxis.getSlot(value.median);
                 if (value.mean) {
                     meanSlot = valueAxis.getSlot(value.mean);
-                    point.meanPoints = [[
-                            [
-                                box.x1,
-                                meanSlot.y1
-                            ],
-                            [
-                                box.x2,
-                                meanSlot.y1
-                            ]
-                        ]];
+                    point.meanPoints = point.calcMeanPoints(box, meanSlot);
                 }
-                mid = whiskerSlot.center().x;
-                point.whiskerPoints = [
+                point.whiskerPoints = point.calcWhiskerPoints(boxSlot, whiskerSlot);
+                point.medianPoints = point.calcMedianPoints(box, medianSlot);
+                point.box = whiskerSlot.clone().wrap(boxSlot);
+                point.reflowNote();
+            },
+            reflowBoxSlot: function (box) {
+                this.boxSlot.x1 = box.x1;
+                this.boxSlot.x2 = box.x2;
+            },
+            reflowWhiskerSlot: function (box) {
+                this.whiskerSlot.x1 = box.x1;
+                this.whiskerSlot.x2 = box.x2;
+            },
+            calcMeanPoints: function (box, meanSlot) {
+                return [[
+                        [
+                            box.x1,
+                            meanSlot.y1
+                        ],
+                        [
+                            box.x2,
+                            meanSlot.y1
+                        ]
+                    ]];
+            },
+            calcWhiskerPoints: function (boxSlot, whiskerSlot) {
+                var mid = whiskerSlot.center().x;
+                return [
                     [
                         [
                             mid - 5,
@@ -6100,7 +6206,9 @@
                         ]
                     ]
                 ];
-                point.medianPoints = [[
+            },
+            calcMedianPoints: function (box, medianSlot) {
+                return [[
                         [
                             box.x1,
                             medianSlot.y1
@@ -6110,8 +6218,6 @@
                             medianSlot.y1
                         ]
                     ]];
-                point.box = whiskerSlot.clone().wrap(boxSlot);
-                point.reflowNote();
             },
             renderOutliers: function (options) {
                 var point = this, markers = options.markers || {}, value = point.value, outliers = value.outliers || [], outerFence = math.abs(value.q3 - value.q1) * 3, markersBorder, shape, outlierValue, i;
@@ -6148,10 +6254,15 @@
             },
             reflowOutliers: function (outliers) {
                 var valueAxis = this.owner.seriesValueAxis(this.options);
-                var centerX = this.box.center().x;
+                var center = this.box.center();
                 for (var i = 0; i < outliers.length; i++) {
                     var outlierValue = outliers[i].value;
-                    var markerBox = valueAxis.getSlot(outlierValue).move(centerX);
+                    var markerBox = valueAxis.getSlot(outlierValue);
+                    if (this.options.vertical) {
+                        markerBox.move(center.x);
+                    } else {
+                        markerBox.move(undefined, center.y);
+                    }
                     this.box = this.box.wrap(markerBox);
                     outliers[i].reflow(markerBox);
                 }
@@ -6180,6 +6291,81 @@
             }
         });
         deepExtend(BoxPlot.fn, PointEventsMixin);
+        var VerticalBoxPlot = BoxPlot.extend({
+            reflowBoxSlot: function (box) {
+                this.boxSlot.y1 = box.y1;
+                this.boxSlot.y2 = box.y2;
+            },
+            reflowWhiskerSlot: function (box) {
+                this.whiskerSlot.y1 = box.y1;
+                this.whiskerSlot.y2 = box.y2;
+            },
+            calcMeanPoints: function (box, meanSlot) {
+                return [[
+                        [
+                            meanSlot.x1,
+                            box.y1
+                        ],
+                        [
+                            meanSlot.x1,
+                            box.y2
+                        ]
+                    ]];
+            },
+            calcWhiskerPoints: function (boxSlot, whiskerSlot) {
+                var mid = whiskerSlot.center().y;
+                return [
+                    [
+                        [
+                            whiskerSlot.x1,
+                            mid - 5
+                        ],
+                        [
+                            whiskerSlot.x1,
+                            mid + 5
+                        ],
+                        [
+                            whiskerSlot.x1,
+                            mid
+                        ],
+                        [
+                            boxSlot.x1,
+                            mid
+                        ]
+                    ],
+                    [
+                        [
+                            whiskerSlot.x2,
+                            mid - 5
+                        ],
+                        [
+                            whiskerSlot.x2,
+                            mid + 5
+                        ],
+                        [
+                            whiskerSlot.x2,
+                            mid
+                        ],
+                        [
+                            boxSlot.x2,
+                            mid
+                        ]
+                    ]
+                ];
+            },
+            calcMedianPoints: function (box, medianSlot) {
+                return [[
+                        [
+                            medianSlot.x1,
+                            box.y1
+                        ],
+                        [
+                            medianSlot.x1,
+                            box.y2
+                        ]
+                    ]];
+            }
+        });
         var PieSegment = ChartElement.extend({
             init: function (value, sector, options) {
                 var segment = this;
@@ -7200,9 +7386,17 @@
                 }
             },
             createPanes: function () {
-                var plotArea = this, panes = [], paneOptions = plotArea.options.panes || [], i, panesLength = math.max(paneOptions.length, 1), currentPane;
+                var plotArea = this, defaults = { title: { color: (plotArea.options.title || {}).color } }, panes = [], paneOptions = plotArea.options.panes || [], i, panesLength = math.max(paneOptions.length, 1), currentPane;
+                function setTitle(options, defaults) {
+                    if (typeof options.title === 'string') {
+                        options.title = { text: options.title };
+                    }
+                    options.title = deepExtend({}, defaults.title, options.title);
+                }
                 for (i = 0; i < panesLength; i++) {
-                    currentPane = new Pane(paneOptions[i]);
+                    var options = paneOptions[i] || {};
+                    setTitle(options, defaults);
+                    currentPane = new Pane(options);
                     currentPane.paneIndex = i;
                     panes.push(currentPane);
                     plotArea.append(currentPane);
@@ -7709,13 +7903,18 @@
                 return result;
             },
             pointsBySeriesName: function (name) {
+                return this.filterPoints(function (point) {
+                    return point.series.name === name;
+                });
+            },
+            filterPoints: function (callback) {
                 var charts = this.charts, result = [], points, point, i, j, chart;
                 for (i = 0; i < charts.length; i++) {
                     chart = charts[i];
                     points = chart.points;
                     for (j = 0; j < points.length; j++) {
                         point = points[j];
-                        if (point && point.series.name === name) {
+                        if (point && callback(point)) {
                             result.push(point);
                         }
                     }
@@ -7745,7 +7944,8 @@
                         VERTICAL_LINE,
                         VERTICAL_AREA,
                         RANGE_BAR,
-                        HORIZONTAL_WATERFALL
+                        HORIZONTAL_WATERFALL,
+                        VERTICAL_BOX_PLOT
                     ]);
                     for (var i = 0; i < series.length; i++) {
                         var stack = series[i].stack;
@@ -7820,7 +8020,10 @@
                     VERTICAL_BULLET
                 ]), pane);
                 this.createCandlestickChart(filterSeriesByType(series, CANDLESTICK), pane);
-                this.createBoxPlotChart(filterSeriesByType(series, BOX_PLOT), pane);
+                this.createBoxPlotChart(filterSeriesByType(series, [
+                    BOX_PLOT,
+                    VERTICAL_BOX_PLOT
+                ]), pane);
                 this.createOHLCChart(filterSeriesByType(series, OHLC), pane);
                 this.createWaterfallChart(filterSeriesByType(series, [
                     WATERFALL,
@@ -8263,7 +8466,13 @@
                     plotArea.axisY = primaryAxis;
                 }
             },
+            hover: function (chart, e) {
+                this._dispatchEvent(chart, e, PLOT_AREA_HOVER);
+            },
             click: function (chart, e) {
+                this._dispatchEvent(chart, e, PLOT_AREA_CLICK);
+            },
+            _dispatchEvent: function (chart, e, eventType) {
                 var plotArea = this, coords = chart._eventCoordinates(e), point = new Point2D(coords.x, coords.y), pane = plotArea.pointPane(point), allAxes, i, axis, categories = [], values = [];
                 if (!pane) {
                     return;
@@ -8281,8 +8490,8 @@
                     appendIfNotNull(categories, plotArea.categoryAxis.getCategory(point));
                 }
                 if (categories.length > 0 && values.length > 0) {
-                    chart.trigger(PLOT_AREA_CLICK, {
-                        element: $(e.target),
+                    chart.trigger(eventType, {
+                        element: eventTargetElement(e),
                         originalEvent: e,
                         category: singleItemOrArray(categories),
                         value: singleItemOrArray(values)
@@ -8492,7 +8701,7 @@
                 }
                 if (xValues.length > 0 && yValues.length > 0) {
                     chart.trigger(PLOT_AREA_CLICK, {
-                        element: $(e.target),
+                        element: eventTargetElement(e),
                         originalEvent: e,
                         x: singleItemOrArray(xValues),
                         y: singleItemOrArray(yValues)
@@ -9426,6 +9635,7 @@
             },
             start: function (e) {
                 this._active = acceptKey(e.event, this.options.key);
+                return this._active;
             },
             move: function (e) {
                 if (this._active) {
@@ -9437,7 +9647,9 @@
                 }
             },
             end: function () {
+                var active = this._active;
                 this._active = false;
+                return active;
             },
             pan: function () {
                 var plotArea = this.plotArea;
@@ -10324,6 +10536,7 @@
             BULLET,
             VERTICAL_BULLET,
             BOX_PLOT,
+            VERTICAL_BOX_PLOT,
             RANGE_COLUMN,
             RANGE_BAR,
             WATERFALL,
@@ -10445,7 +10658,10 @@
             downColor: FIRST,
             noteText: FIRST
         });
-        SeriesBinder.current.register([BOX_PLOT], [
+        SeriesBinder.current.register([
+            BOX_PLOT,
+            VERTICAL_BOX_PLOT
+        ], [
             'lower',
             'q1',
             'median',
@@ -10458,7 +10674,10 @@
             COLOR,
             NOTE_TEXT
         ]);
-        DefaultAggregates.current.register([BOX_PLOT], {
+        DefaultAggregates.current.register([
+            BOX_PLOT,
+            VERTICAL_BOX_PLOT
+        ], {
             lower: MAX,
             q1: MAX,
             median: MAX,

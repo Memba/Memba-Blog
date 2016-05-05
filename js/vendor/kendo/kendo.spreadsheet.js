@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -909,10 +909,12 @@
                 return this;
             },
             optionsChange: function (e) {
+                e = e || {};
+                e.element = this;
                 this.trigger('optionsChange', e);
             },
-            geometryChange: function (e) {
-                this.trigger('geometryChange', e);
+            geometryChange: function () {
+                this.trigger('geometryChange', { element: this });
             },
             suspend: function () {
                 this._suspended = (this._suspended || 0) + 1;
@@ -959,9 +961,12 @@
             },
             range: function (range) {
                 if (range !== undefined) {
-                    this._range = range;
+                    this._setRange(range);
                 }
                 return this._range;
+            },
+            _setRange: function (range) {
+                this._range = range;
             },
             redo: function () {
                 this.exec();
@@ -981,14 +986,19 @@
             }
         });
         var PropertyChangeCommand = kendo.spreadsheet.PropertyChangeCommand = Command.extend({
+            _setRange: function (range) {
+                Command.prototype._setRange.call(this, range.skipHiddenCells());
+            },
             init: function (options) {
                 Command.fn.init.call(this, options);
                 this._value = options.value;
             },
             exec: function () {
                 var range = this.range();
-                this.getState();
-                range[this._property](this._value);
+                if (range.enable()) {
+                    this.getState();
+                    range[this._property](this._value);
+                }
             }
         });
         kendo.spreadsheet.ClearContentCommand = Command.extend({
@@ -1016,6 +1026,7 @@
                 var value = this._value;
                 this.getState();
                 try {
+                    range.link(null);
                     range.input(value);
                     var validationState = range._getValidationState();
                     if (validationState) {
@@ -1255,21 +1266,29 @@
                 this._clipboard.menuInvoked = true;
                 if (!status.canPaste) {
                     if (status.menuInvoked) {
-                        return { reason: 'useKeyboard' };
+                        return {
+                            reason: 'error',
+                            type: 'useKeyboard'
+                        };
                     }
                     if (status.pasteOnMerged) {
-                        return { reason: 'modifyMerged' };
+                        return {
+                            reason: 'error',
+                            type: 'modifyMerged'
+                        };
                     }
                     if (status.overflow) {
-                        return { reason: 'overflow' };
+                        return {
+                            reason: 'error',
+                            type: 'overflow'
+                        };
                     }
-                    return {};
+                    return { reason: 'error' };
                 }
                 this.getState();
                 this._clipboard.paste();
                 var range = this._workbook.activeSheet().range(this._clipboard.pasteRef());
                 range._adjustRowHeight();
-                return {};
             }
         });
         kendo.spreadsheet.AdjustRowHeightCommand = Command.extend({
@@ -1286,7 +1305,10 @@
                     this._workbook._view.clipboard.focus().select();
                     document.execCommand('paste');
                 } else {
-                    return { reason: 'useKeyboard' };
+                    return {
+                        reason: 'error',
+                        type: 'useKeyboard'
+                    };
                 }
             }
         });
@@ -1301,9 +1323,15 @@
                 this._clipboard.menuInvoked = true;
                 if (!status.canCopy) {
                     if (status.menuInvoked) {
-                        return { reason: 'useKeyboard' };
+                        return {
+                            reason: 'error',
+                            type: 'useKeyboard'
+                        };
                     } else if (status.multiSelection) {
-                        return { reason: 'unsupportedSelection' };
+                        return {
+                            reason: 'error',
+                            type: 'unsupportedSelection'
+                        };
                     }
                     return;
                 }
@@ -1325,7 +1353,10 @@
                     clipboard.trigger('copy');
                     $(textarea).remove();
                 } else {
-                    return { reason: 'useKeyboard' };
+                    return {
+                        reason: 'error',
+                        type: 'useKeyboard'
+                    };
                 }
             }
         });
@@ -1350,7 +1381,17 @@
             },
             exec: function () {
                 this.getState();
-                this.range().fillFrom(this._origin);
+                try {
+                    this.range().fillFrom(this._origin);
+                } catch (ex) {
+                    if (ex instanceof kendo.spreadsheet.Range.FillError) {
+                        return {
+                            reason: 'error',
+                            body: ex + ''
+                        };
+                    }
+                    throw ex;
+                }
             }
         });
         kendo.spreadsheet.ToolbarCutCommand = Command.extend({
@@ -1367,7 +1408,10 @@
                     clipboard.trigger('cut');
                     $(textarea).remove();
                 } else {
-                    return { reason: 'useKeyboard' };
+                    return {
+                        reason: 'error',
+                        type: 'useKeyboard'
+                    };
                 }
             }
         });
@@ -1682,7 +1726,7 @@
             init: function (element, options) {
                 Widget.call(this, element, options);
                 element = this.element;
-                element.addClass(FormulaInput.classNames.wrapper).attr('contenteditable', true).attr('spellcheck', false);
+                element.addClass(FormulaInput.classNames.wrapper).attr('contenteditable', true).attr('spellcheck', false).css('white-space', 'pre');
                 if (this.options.autoScale) {
                     element.on('input', this.scale.bind(this));
                 }
@@ -1956,7 +2000,7 @@
                 computedStyles.whiteSpace = 'pre';
                 computedStyles.top = -3333;
                 computedStyles.left = -3333;
-                this._span = $('<span/>').css(computedStyles).insertAfter(this.element);
+                this._span = $('<span style=\'white-space: pre\'/>').css(computedStyles).insertAfter(this.element);
             },
             _tooltip: function () {
                 this._cellTooltip = $('<div class="k-widget k-tooltip" style="position:absolute; display:none">A1</div>').insertAfter(this.element);
@@ -2156,14 +2200,18 @@
             },
             scale: function () {
                 var element = this.element;
-                var width;
+                var width, height;
                 if (!this._span) {
                     this._textContainer();
                 }
                 this._span.html(element.html());
                 width = this._span.width() + this.options.scalePadding;
+                height = this._span.height();
                 if (width > element.width()) {
                     element.width(width);
+                }
+                if (height > element.height()) {
+                    element.height(height);
                 }
             },
             _value: function (value) {
@@ -2171,7 +2219,7 @@
             },
             value: function (value) {
                 if (value === undefined) {
-                    return this.element.text();
+                    return this.element[0].innerText;
                 }
                 this._value(value);
                 this._syntaxHighlight();
@@ -2192,12 +2240,15 @@
                     return;
                 }
                 if (!/^=/.test(value)) {
-                    if (this.element.html() != value) {
+                    if (this._staticTokens.length || this._highlightedRefs.length) {
+                        this._staticTokens = [];
+                        this._highlightedRefs = [];
                         this.element.text(value);
                     }
                     if (this.popup) {
                         this.popup.close();
                     }
+                    return;
                 } else {
                     tokens = kendo.spreadsheet.calc.tokenize(value, this.row(), this.col());
                     tokens.forEach(function (tok) {
@@ -2272,6 +2323,14 @@
                 this.popup.destroy();
                 this.popup = null;
                 Widget.fn.destroy.call(this);
+            },
+            insertNewline: function () {
+                var val = this.value();
+                var pos = this.getPos();
+                var eof = pos.end == val.length;
+                val = val.substr(0, pos.begin) + (eof ? '\n\n' : '\n' + val.substr(pos.end));
+                this.value(val);
+                this.setPos(pos.begin + 1);
             }
         });
         function isOpenParen(ch) {
@@ -2401,6 +2460,9 @@
             handleEvent: function (e, name) {
                 var eventKey = '';
                 e.mod = Mac ? e.metaKey : e.ctrlKey;
+                if (e.altKey) {
+                    eventKey += 'alt+';
+                }
                 if (e.shiftKey) {
                     eventKey += 'shift+';
                 }
@@ -3039,6 +3101,13 @@
                     value: null,
                     sortable: false,
                     serializable: true
+                },
+                {
+                    property: Property,
+                    name: 'link',
+                    value: null,
+                    sortable: false,
+                    serializable: true
                 }
             ],
             init: function (cellCount) {
@@ -3362,6 +3431,7 @@
         print: function (trow, tcol) {
             var col = this.col, row = this.row, rel = this.rel, abs;
             if (trow == null) {
+                var sheet = this.hasSheet() ? displaySheet(this.sheet) + '!' : '';
                 if (isFinite(col)) {
                     col = rel & 1 ? 'C[' + col + ']' : 'C' + (col + 1);
                 } else {
@@ -3372,7 +3442,7 @@
                 } else {
                     row = '';
                 }
-                return row + col;
+                return sheet + row + col;
             } else {
                 abs = this.absolute(trow, tcol);
                 return abs.valid() ? displayRef(this._hasSheet && this.sheet, abs.row, abs.col, rel) : '#REF!';
@@ -3746,7 +3816,10 @@
     var UnionRef = Ref.extend({
         init: function UnionRef(refs) {
             this.refs = refs;
-            this.length = this.refs.length;
+            this.length = refs.length;
+        },
+        clone: function () {
+            return new UnionRef(this.refs.slice());
         },
         intersect: function (ref) {
             var a = [];
@@ -4555,7 +4628,6 @@
             return;
         }
         var $ = kendo.jQuery;
-        var RangeRef = kendo.spreadsheet.RangeRef;
         var CellRef = kendo.spreadsheet.CellRef;
         var Clipboard = kendo.Class.extend({
             init: function (workbook) {
@@ -4611,7 +4683,7 @@
             intersectsMerged: function () {
                 var sheet = this.workbook.activeSheet();
                 var state = this.parse(this._external);
-                this.origin = this.stateRangeRef(state);
+                this.origin = getSourceRef(state);
                 var ref = this.pasteRef();
                 return !ref.eq(sheet.unionWithMerged(ref));
             },
@@ -4633,21 +4705,6 @@
                 var colDelta = originActiveCell.col - destination.col;
                 return this.origin.relative(rowDelta, colDelta, 3);
             },
-            stateRangeRef: function (state) {
-                var rows = [];
-                var cols = [];
-                for (var key in state) {
-                    if (key === 'mergedCells' || key === 'ref') {
-                        continue;
-                    }
-                    var address = key.split(',');
-                    rows.push(address[0]);
-                    cols.push(address[1]);
-                }
-                var topLeft = new CellRef(Math.min.apply(null, rows), Math.min.apply(null, cols));
-                var bottomRight = new CellRef(Math.max.apply(null, rows), Math.max.apply(null, cols));
-                return new RangeRef(topLeft, bottomRight);
-            },
             destroy: function () {
                 document.body.removeChild(this.iframe);
             },
@@ -4658,10 +4715,11 @@
                     state = this.contents;
                 } else {
                     state = this.parse(this._external);
-                    this.origin = this.stateRangeRef(state);
+                    this.origin = getSourceRef(state);
+                    sheet.range(this.pasteRef()).clear();
                 }
                 var pasteRef = this.pasteRef();
-                sheet.range(pasteRef).clear().setState(state);
+                sheet.range(pasteRef).setState(state, true);
                 sheet.triggerChange({
                     recalc: true,
                     ref: pasteRef
@@ -4675,10 +4733,7 @@
                 }
             },
             parse: function (data) {
-                var state = {
-                    ref: new CellRef(0, 0, 0),
-                    mergedCells: []
-                };
+                var state = newState();
                 if (data.html) {
                     var doc = this.iframe.contentWindow.document;
                     doc.open();
@@ -4686,94 +4741,15 @@
                     doc.close();
                     var table = $(doc).find('table:first');
                     if (table.length) {
-                        state = this._parseHTML(table.find('tbody:first'));
+                        state = parseHTML(table.find('tbody:first'));
+                    } else if (!data.plain) {
+                        var element = $(doc.body).find(':not(style)');
+                        setStateData(state, 0, 0, cellState(element.text()));
                     } else {
-                        if (!data.plain) {
-                            var element = $(doc.body).find(':not(style)');
-                            state['0,0'] = this._cellState(element.text());
-                        } else {
-                            state = this._parseTSV(data.plain);
-                        }
+                        state = parseTSV(data.plain);
                     }
                 } else {
-                    state = this._parseTSV(data.plain);
-                }
-                return state;
-            },
-            _parseHTML: function (tbody) {
-                var that = this;
-                var state = {
-                    ref: new CellRef(0, 0, 0),
-                    mergedCells: []
-                };
-                tbody.find('tr').each(function (rowIndex, tr) {
-                    $(tr).find('td').each(function (colIndex, td) {
-                        var rowspan = parseInt($(td).attr('rowspan'), 10) - 1 || 0;
-                        var colspan = parseInt($(td).attr('colspan'), 10) - 1 || 0;
-                        var blankCell = '<td/>';
-                        var ci;
-                        if (rowspan) {
-                            var endRow = rowIndex + rowspan;
-                            for (var ri = rowIndex; ri <= endRow; ri++) {
-                                var row = tbody.find('tr').eq(ri);
-                                if (ri > rowIndex) {
-                                    blankCell = '<td class=\'rowspan\'></td>';
-                                    if (colIndex === 0) {
-                                        row.find('td').eq(colIndex).after(blankCell);
-                                    } else {
-                                        var last = Math.min(row.find('td').length, colIndex);
-                                        row.find('td').eq(last - 1).after(blankCell);
-                                    }
-                                }
-                                if (colspan) {
-                                    for (ci = colIndex; ci < colspan + colIndex; ci++) {
-                                        blankCell = '<td class=\'rowspan colspan\'></td>';
-                                        row.find('td').eq(ci).after(blankCell);
-                                    }
-                                }
-                            }
-                        } else {
-                            if (colspan) {
-                                for (ci = colIndex; ci < colspan + colIndex; ci++) {
-                                    blankCell = '<td class=\'colspan\'></td>';
-                                    $(tr).find('td').eq(ci).after(blankCell);
-                                }
-                            }
-                        }
-                    });
-                });
-                tbody.find('tr').each(function (rowIndex, tr) {
-                    $(tr).find('td').each(function (colIndex, td) {
-                        var key = rowIndex + ',' + colIndex;
-                        var rowspan = parseInt($(td).attr('rowspan'), 10) - 1 || 0;
-                        var colspan = parseInt($(td).attr('colspan'), 10) - 1 || 0;
-                        var cellState = that._cellState($(td));
-                        state[key] = cellState;
-                        if (rowspan || colspan) {
-                            var startCol = String.fromCharCode(65 + colIndex);
-                            var endCol = String.fromCharCode(65 + colIndex + colspan);
-                            var address = startCol + (rowIndex + 1) + ':' + endCol + (rowIndex + 1 + rowspan);
-                            state.mergedCells.push(address);
-                        }
-                    });
-                });
-                return state;
-            },
-            _parseTSV: function (data) {
-                var state = {
-                    ref: new CellRef(0, 0, 0),
-                    mergedCells: []
-                };
-                if (data.indexOf('\t') === -1 && data.indexOf('\n') == -1) {
-                    state['0,0'] = { value: data };
-                } else {
-                    var rows = data.split('\n');
-                    for (var ri = 0; ri < rows.length; ri++) {
-                        var cols = rows[ri].split('\t');
-                        for (var ci = 0; ci < cols.length; ci++) {
-                            state[ri + ',' + ci] = { value: cols[ci] };
-                        }
-                    }
+                    state = parseTSV(data.plain);
                 }
                 return state;
             },
@@ -4787,78 +4763,156 @@
                     return true;
                 }
                 return false;
-            },
-            _cellState: function (element) {
-                var styles = window.getComputedStyle(element[0]);
-                var text = element.text();
-                var borders = this._borderObject(styles);
-                var state = {
-                    value: text === '' ? null : text,
-                    borderBottom: borders.borderBottom,
-                    borderRight: borders.borderRight,
-                    borderLeft: borders.borderLeft,
-                    borderTop: borders.borderTop,
-                    fontSize: parseInt(styles['font-size'], 10)
-                };
-                if (styles['background-color'] !== 'rgb(0, 0, 0)' && styles['background-color'] !== 'rgba(0, 0, 0, 0)') {
-                    state.background = styles['background-color'];
-                }
-                if (styles.color !== 'rgb(0, 0, 0)' && styles.color !== 'rgba(0, 0, 0, 0)') {
-                    state.color = styles.color;
-                }
-                if (styles['text-decoration'] == 'underline') {
-                    state.underline = true;
-                }
-                if (styles['font-style'] == 'italic') {
-                    state.italic = true;
-                }
-                if (styles['font-weight'] == 'bold') {
-                    state.bold = true;
-                }
-                if (this._strippedStyle(styles['text-align']) !== 'right') {
-                    state.textAlign = this._strippedStyle(styles['text-align']);
-                }
-                if (styles['vertical-align'] !== 'middle') {
-                    state.verticalAlign = styles['vertical-align'];
-                }
-                if (styles['word-wrap'] !== 'normal') {
-                    state.wrap = true;
-                }
-                return state;
-            },
-            _strippedStyle: function (style) {
-                var prefixes = [
-                    '-ms-',
-                    '-moz-',
-                    '-webkit-'
-                ];
-                prefixes.forEach(function (prefix) {
-                    style = style.replace(prefix, '');
-                });
-                return style;
-            },
-            _borderObject: function (styles) {
-                var borderObject = {};
-                var borders = [
-                    'borderBottom',
-                    'borderRight',
-                    'borderLeft',
-                    'borderTop'
-                ];
-                borders.forEach(function (key) {
-                    if (styles[key + 'Style'] == 'none') {
-                        borderObject[key] = null;
-                        return;
-                    }
-                    borderObject[key] = {
-                        size: 1,
-                        color: styles[key + 'Color']
-                    };
-                });
-                return borderObject;
             }
         });
         kendo.spreadsheet.Clipboard = Clipboard;
+        function newState() {
+            var ref = new CellRef(0, 0, 0);
+            return {
+                ref: ref,
+                mergedCells: [],
+                data: [],
+                foreign: true,
+                origRef: ref.toRangeRef()
+            };
+        }
+        function setStateData(state, row, col, value) {
+            var data = state.data || (state.data = []);
+            if (!data[row]) {
+                data[row] = [];
+            }
+            data[row][col] = value;
+            var br = state.origRef.bottomRight;
+            br.row = Math.max(br.row, row);
+            br.col = Math.max(br.col, col);
+        }
+        function getSourceRef(state) {
+            return state.origRef;
+        }
+        function stripStyle(style) {
+            return style.replace(/^-(?:ms|moz|webkit)-/, '');
+        }
+        function borderObject(styles) {
+            var obj = {};
+            [
+                'borderBottom',
+                'borderRight',
+                'borderLeft',
+                'borderTop'
+            ].forEach(function (key) {
+                obj[key] = styles[key + 'Style'] == 'none' ? null : {
+                    size: 1,
+                    color: styles[key + 'Color']
+                };
+            });
+            return obj;
+        }
+        function cellState(element) {
+            var styles = window.getComputedStyle(element[0]);
+            var text = element.text();
+            var borders = borderObject(styles);
+            var state = {
+                value: text === '' ? null : text,
+                borderBottom: borders.borderBottom,
+                borderRight: borders.borderRight,
+                borderLeft: borders.borderLeft,
+                borderTop: borders.borderTop,
+                fontSize: parseInt(styles['font-size'], 10)
+            };
+            if (styles['background-color'] !== 'rgb(0, 0, 0)' && styles['background-color'] !== 'rgba(0, 0, 0, 0)') {
+                state.background = styles['background-color'];
+            }
+            if (styles.color !== 'rgb(0, 0, 0)' && styles.color !== 'rgba(0, 0, 0, 0)') {
+                state.color = styles.color;
+            }
+            if (styles['text-decoration'] == 'underline') {
+                state.underline = true;
+            }
+            if (styles['font-style'] == 'italic') {
+                state.italic = true;
+            }
+            if (styles['font-weight'] == 'bold') {
+                state.bold = true;
+            }
+            if (stripStyle(styles['text-align']) !== 'right') {
+                state.textAlign = stripStyle(styles['text-align']);
+            }
+            if (styles['vertical-align'] !== 'middle') {
+                state.verticalAlign = styles['vertical-align'];
+            }
+            if (styles['word-wrap'] !== 'normal') {
+                state.wrap = true;
+            }
+            return state;
+        }
+        function parseHTML(tbody) {
+            var state = newState();
+            tbody.find('tr').each(function (rowIndex, tr) {
+                $(tr).find('td').each(function (colIndex, td) {
+                    var rowspan = parseInt($(td).attr('rowspan'), 10) - 1 || 0;
+                    var colspan = parseInt($(td).attr('colspan'), 10) - 1 || 0;
+                    var blankCell = '<td/>';
+                    var ci;
+                    if (rowspan) {
+                        var endRow = rowIndex + rowspan;
+                        for (var ri = rowIndex; ri <= endRow; ri++) {
+                            var row = tbody.find('tr').eq(ri);
+                            if (ri > rowIndex) {
+                                blankCell = '<td class=\'rowspan\'></td>';
+                                if (colIndex === 0) {
+                                    row.find('td').eq(colIndex).after(blankCell);
+                                } else {
+                                    var last = Math.min(row.find('td').length, colIndex);
+                                    row.find('td').eq(last - 1).after(blankCell);
+                                }
+                            }
+                            if (colspan) {
+                                for (ci = colIndex; ci < colspan + colIndex; ci++) {
+                                    blankCell = '<td class=\'rowspan colspan\'></td>';
+                                    row.find('td').eq(ci).after(blankCell);
+                                }
+                            }
+                        }
+                    } else {
+                        if (colspan) {
+                            for (ci = colIndex; ci < colspan + colIndex; ci++) {
+                                blankCell = '<td class=\'colspan\'></td>';
+                                $(tr).find('td').eq(ci).after(blankCell);
+                            }
+                        }
+                    }
+                });
+            });
+            tbody.find('tr').each(function (rowIndex, tr) {
+                $(tr).find('td').each(function (colIndex, td) {
+                    var rowspan = parseInt($(td).attr('rowspan'), 10) - 1 || 0;
+                    var colspan = parseInt($(td).attr('colspan'), 10) - 1 || 0;
+                    setStateData(state, rowIndex, colIndex, cellState($(td)));
+                    if (rowspan || colspan) {
+                        var startCol = String.fromCharCode(65 + colIndex);
+                        var endCol = String.fromCharCode(65 + colIndex + colspan);
+                        var address = startCol + (rowIndex + 1) + ':' + endCol + (rowIndex + 1 + rowspan);
+                        state.mergedCells.push(address);
+                    }
+                });
+            });
+            return state;
+        }
+        function parseTSV(data) {
+            var state = newState();
+            if (data.indexOf('\t') === -1 && data.indexOf('\n') == -1) {
+                setStateData(state, 0, 0, { value: data });
+            } else {
+                var rows = data.split('\n');
+                for (var ri = 0; ri < rows.length; ri++) {
+                    var cols = rows[ri].split('\t');
+                    for (var ci = 0; ci < cols.length; ci++) {
+                        setStateData(state, ri, ci, { value: cols[ci] });
+                    }
+                }
+            }
+            return state;
+        }
     }(kendo));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -4875,7 +4929,9 @@
         }
         var $ = kendo.jQuery;
         var UnionRef = kendo.spreadsheet.UnionRef;
-        var styles = [
+        var CellRef = kendo.spreadsheet.CellRef;
+        var RangeRef = kendo.spreadsheet.RangeRef;
+        var PROPERTIES = [
             'color',
             'fontFamily',
             'underline',
@@ -4883,7 +4939,9 @@
             'bold',
             'textAlign',
             'verticalAlign',
-            'background'
+            'background',
+            'format',
+            'link'
         ];
         var borders = {
             borderTop: {
@@ -4920,22 +4978,48 @@
                 this._sheet = sheet;
                 this._ref = ref;
             },
+            clone: function () {
+                return new Range(this._ref.clone(), this._sheet);
+            },
+            skipHiddenCells: function () {
+                var refs = [];
+                var self = this, sheet = self._sheet;
+                var skipHiddenRows = sheet.isHiddenRow.bind(sheet);
+                var skipHiddenCols = sheet.isHiddenColumn.bind(sheet);
+                self._ref.forEach(function add(ref) {
+                    if (ref instanceof UnionRef) {
+                        ref.forEach(add);
+                    } else {
+                        ref = self._normalize(ref.toRangeRef());
+                        var tl = ref.topLeft, br = ref.bottomRight;
+                        var rows = partition(tl.row, br.row, skipHiddenRows);
+                        var cols = partition(tl.col, br.col, skipHiddenCols);
+                        for (var i = 0; i < rows.length; ++i) {
+                            for (var j = 0; j < cols.length; ++j) {
+                                refs.push(new RangeRef(new CellRef(rows[i].begin, cols[j].begin), new CellRef(rows[i].end, cols[j].end)));
+                            }
+                        }
+                    }
+                });
+                return sheet.range(refs.length > 1 ? new UnionRef(refs) : refs[0]);
+            },
             _normalize: function (ref) {
                 return this._sheet._grid.normalize(ref);
             },
             _set: function (name, value, noTrigger) {
-                var sheet = this._sheet;
-                this._ref.forEach(function (ref) {
+                var self = this;
+                var sheet = self._sheet;
+                self._ref.forEach(function (ref) {
                     sheet._set(ref.toRangeRef(), name, value);
                 });
                 if (!noTrigger) {
                     sheet.triggerChange({
                         recalc: name == 'formula' || name == 'value' || name == 'validation',
                         value: value,
-                        ref: this._ref
+                        ref: self._ref
                     });
                 }
-                return this;
+                return self;
             },
             _get: function (name) {
                 return this._sheet._get(this._ref.toRangeRef(), name);
@@ -5073,7 +5157,7 @@
             enable: function (value) {
                 if (value === undefined) {
                     value = true;
-                    this._sheet.forEach(this._ref.toRangeRef(), function (_, _, data) {
+                    this._sheet.forEach(this._ref.toRangeRef(), function (_, __, data) {
                         if (data.enable === false) {
                             value = false;
                         }
@@ -5081,9 +5165,6 @@
                     return value;
                 }
                 this._property('enable', value);
-            },
-            format: function (value) {
-                return this._property('format', value);
             },
             formula: function (value) {
                 if (value === undefined) {
@@ -5247,10 +5328,9 @@
                         this.validation(null);
                     }
                     if (clearAll || options && options.formatOnly === true) {
-                        styles.forEach(function (x) {
+                        PROPERTIES.forEach(function (x) {
                             this[x](null);
                         }.bind(this));
-                        this.format(null);
                         this.unmerge();
                     }
                 }.bind(this), reason);
@@ -5375,7 +5455,12 @@
                 return mergedCells;
             },
             getState: function (propertyName) {
-                var state = { ref: this._ref.first() };
+                var topLeft = this._ref.first();
+                var state = {
+                    ref: topLeft,
+                    data: [],
+                    origRef: this._ref
+                };
                 var properties;
                 if (!propertyName) {
                     properties = kendo.spreadsheet.ALL_PROPERTIES;
@@ -5395,15 +5480,22 @@
                 } else {
                     properties = [propertyName];
                 }
+                var data = state.data;
                 this.forEachCell(function (row, col, cell) {
-                    var cellState = state[row + ',' + col] = {};
+                    var cellState = {};
+                    var dr = row - topLeft.row;
+                    var dc = col - topLeft.col;
+                    if (!data[dr]) {
+                        data[dr] = [];
+                    }
+                    data[dr][dc] = cellState;
                     properties.forEach(function (property) {
                         cellState[property] = cell[property] || null;
                     });
                 });
                 return state;
             },
-            setState: function (state) {
+            setState: function (state, isPaste) {
                 var sheet = this._sheet;
                 var origin = this._ref.first();
                 var rowDelta = state.ref.row - origin.row;
@@ -5412,17 +5504,30 @@
                     if (state.mergedCells) {
                         this.unmerge();
                     }
-                    this.forEachCell(function (row, col) {
-                        var cellState = state[row + rowDelta + ',' + (col + colDelta)];
-                        var range = sheet.range(row, col);
-                        for (var property in cellState) {
-                            if (property != 'value') {
-                                range._set(property, cellState[property]);
+                    var row = origin.row;
+                    state.data.forEach(function (data, dr) {
+                        if (isPaste && sheet.isHiddenRow(state.ref.row + dr)) {
+                            return;
+                        }
+                        var col = origin.col;
+                        data.forEach(function (cellState, dc) {
+                            if (isPaste && sheet.isHiddenColumn(state.ref.col + dc)) {
+                                return;
                             }
-                        }
-                        if (!cellState.formula) {
-                            range._set('value', cellState.value);
-                        }
+                            var range = isPaste ? sheet.range(row, col) : sheet.range(origin.row + dr, origin.col + dc);
+                            if (range.enable()) {
+                                for (var property in cellState) {
+                                    if (property != 'value') {
+                                        range._set(property, cellState[property]);
+                                    }
+                                }
+                                if (!cellState.formula) {
+                                    range._set('value', cellState.value);
+                                }
+                            }
+                            col++;
+                        });
+                        row++;
                     });
                     if (state.mergedCells) {
                         state.mergedCells.forEach(function (merged) {
@@ -5440,6 +5545,9 @@
                     mergedCells.push(sheet.range(state.mergedCells[i]));
                 }
                 this.forEachRow(function (row) {
+                    if (row.topLeft().row >= row.sheet()._rows._count) {
+                        return;
+                    }
                     var maxHeight = row.sheet().rowHeight(row.topLeft().row);
                     row.forEachCell(function (rowIndex, colIndex, cell) {
                         var cellRange = sheet.range(rowIndex, colIndex);
@@ -5508,7 +5616,27 @@
                 this._sheet.draw(this, options, callback);
             }
         });
-        $.each(styles, function (i, property) {
+        function partition(begin, end, predicate) {
+            while (begin <= end && predicate(begin)) {
+                begin++;
+            }
+            if (begin > end) {
+                return [];
+            }
+            for (var i = begin + 1; i <= end; ++i) {
+                if (predicate(i)) {
+                    return [{
+                            begin: begin,
+                            end: i - 1
+                        }].concat(partition(i + 1, end, predicate));
+                }
+            }
+            return [{
+                    begin: begin,
+                    end: end
+                }];
+        }
+        $.each(PROPERTIES, function (i, property) {
             Range.prototype[property] = function (value) {
                 return this._property(property, value);
             };
@@ -6307,7 +6435,7 @@
                 return '((typeof ' + force() + ' == \'number\' || typeof $' + name + ' == \'boolean\') && (($' + name + ' |= 0 ) > 0) ? true : ((err = \'NUM\'), false))';
             }
             if (type == 'string') {
-                return '((typeof ' + force() + ' == \'string\' || typeof $' + name + ' == \'boolean\' || typeof $' + name + ' == \'number\') ? ($' + name + ' += \'\', true) : ($' + name + ' === undefined ? ($' + name + ' = \'\', true) : false))';
+                return '((typeof ' + force() + ' == \'string\' || typeof $' + name + ' == \'boolean\' || typeof $' + name + ' == \'number\') ? ($' + name + ' += \'\', true) : false)';
             }
             if (type == 'boolean') {
                 return '(typeof ' + force() + ' == \'boolean\')';
@@ -7310,7 +7438,7 @@
             },
             activeCell: function (ref) {
                 if (ref) {
-                    this.originalActiveCell = ref;
+                    this.originalActiveCell = ref.first();
                     this._activeCell = this._sheet.unionWithMerged(ref.toRangeRef());
                     this._sheet.focus(ref);
                     this._sheet.triggerChange({
@@ -7345,8 +7473,11 @@
             }
         });
         var Sheet = kendo.Observable.extend({
-            init: function (rowCount, columnCount, rowHeight, columnWidth, headerHeight, headerWidth) {
+            init: function () {
                 kendo.Observable.prototype.init.call(this);
+                this._reinit.apply(this, arguments);
+            },
+            _reinit: function (rowCount, columnCount, rowHeight, columnWidth, headerHeight, headerWidth) {
                 var cellCount = rowCount * columnCount - 1;
                 this._rows = new kendo.spreadsheet.Axis(rowCount, rowHeight);
                 this._columns = new kendo.spreadsheet.Axis(columnCount, columnWidth);
@@ -7355,6 +7486,7 @@
                 this._frozenColumns = 0;
                 this._suspendChanges = false;
                 this._filter = null;
+                this._showGridLines = true;
                 this._grid = new kendo.spreadsheet.Grid(this._rows, this._columns, rowCount, columnCount, headerHeight, headerWidth);
                 this._sheetRef = this._grid.normalize(kendo.spreadsheet.SHEETREF);
                 this._properties = new kendo.spreadsheet.PropertyBag(cellCount);
@@ -7362,7 +7494,6 @@
                 this._viewSelection = new Selection(this);
                 this._editSelection = new Selection(this);
                 this._formulaSelections = [];
-                this.options = { showGridLines: true };
             },
             _selectionState: function () {
                 return this._inEdit ? this._editSelection : this._viewSelection;
@@ -7427,6 +7558,7 @@
                     sheet: this,
                     columns: columns
                 });
+                this.dataSource = this.dataSourceBinder.dataSource;
             },
             hideColumn: function (columnIndex) {
                 return this._property(this._columns.hide.bind(this._columns), columnIndex, { layout: true });
@@ -7450,7 +7582,7 @@
             _adjustReferences: function (operation, start, delta, mergedCells) {
                 this._mergedCells = mergedCells.reduce(function (a, ref) {
                     ref = ref.adjust(null, null, null, null, operation == 'row', start, delta);
-                    if (ref !== kendo.spreadsheet.NULLREF) {
+                    if (ref instanceof RangeRef) {
                         a.push(ref);
                     }
                     return a;
@@ -7638,6 +7770,9 @@
             frozenColumns: function (value) {
                 return this._field('_frozenColumns', value, { layout: true });
             },
+            showGridLines: function (value) {
+                return this._field('_showGridLines', value, { layout: true });
+            },
             _ref: function (row, column, numRows, numColumns) {
                 var ref = null;
                 if (row instanceof kendo.spreadsheet.Ref) {
@@ -7800,13 +7935,13 @@
                     var dest = this._autoFillDest;
                     var origin = this._autoFillOrigin;
                     if (this._autoFillPunch) {
-                        this._workbook.execute({
+                        this.trigger('commandRequest', {
                             command: 'ClearContentCommand',
                             options: { operatingRange: this.range(this._autoFillPunch) }
                         });
                     } else {
                         if (!dest.eq(origin)) {
-                            this._workbook.execute({
+                            this.trigger('commandRequest', {
                                 command: 'AutoFillCommand',
                                 options: {
                                     operatingRange: this.range(dest),
@@ -7963,9 +8098,16 @@
                 var rows = this._rows.toJSON('height', positions);
                 var columns = this._columns.toJSON('width', {});
                 var viewSelection = this._viewSelection;
+                var hyperlinks = [];
                 this.forEach(kendo.spreadsheet.SHEETREF, function (row, col, cell) {
                     if (Object.keys(cell).length === 0) {
                         return;
+                    }
+                    if (cell.link) {
+                        hyperlinks.push({
+                            ref: kendo.spreadsheet.Ref.display(null, row, col),
+                            target: cell.link
+                        });
                     }
                     var position = positions[row];
                     if (position === undefined) {
@@ -8012,9 +8154,11 @@
                     activeCell: viewSelection.activeCell().toString(),
                     frozenRows: this.frozenRows(),
                     frozenColumns: this.frozenColumns(),
+                    showGridLines: this.showGridLines(),
                     mergedCells: this._mergedCells.map(function (ref) {
                         return ref.toString();
-                    })
+                    }),
+                    hyperlinks: hyperlinks
                 };
                 if (this._sort) {
                     json.sort = {
@@ -8116,7 +8260,12 @@
                             this._refreshFilter();
                         }
                     }
+                    if (json.showGridLines !== undefined) {
+                        this._showGridLines = json.showGridLines;
+                    }
                 });
+                this._rows._refresh();
+                this._columns._refresh();
             },
             formula: function (ref) {
                 return this._properties.get('formula', this._grid.cellRefIndex(ref));
@@ -9544,7 +9693,7 @@
             return '!;(){}[]'.indexOf(ch) >= 0;
         }
         function isWhitespace(ch) {
-            return ' \t\n\xA0'.indexOf(ch) >= 0;
+            return ' \t\n\xA0\u200B'.indexOf(ch) >= 0;
         }
         function readNumber() {
             var has_dot = false;
@@ -10084,9 +10233,13 @@
         'sheetViews',
         'sheetView'
     ];
-    function readWorkbook(zip, workbook, deferred) {
+    var SEL_HYPERLINK = [
+        'hyperlinks',
+        'hyperlink'
+    ];
+    function readWorkbook(zip, workbook, progress) {
         var strings = readStrings(zip);
-        var relationships = readRelationships(zip, 'workbook.xml');
+        var relationships = readRelationships(zip, '_rels/workbook.xml');
         var theme = readTheme(zip, relationships.byType.theme[0]);
         var styles = readStyles(zip, theme);
         var items = [];
@@ -10126,13 +10279,22 @@
                 }
             }
         });
-        loadSheets(items, workbook, deferred).then(function () {
+        var loading = new $.Deferred();
+        loading.progress(function (args) {
+            if (progress) {
+                progress.notify(args);
+            }
+        }).then(function () {
             var sheets = workbook.sheets();
             recalcSheets(sheets);
             workbook.activeSheet(sheets[activeSheet]);
+            if (progress) {
+                progress.resolve();
+            }
         });
+        loadSheets(items, workbook, loading);
     }
-    function loadSheets(items, workbook, deferred) {
+    function loadSheets(items, workbook, progress) {
         var ready = new $.Deferred().resolve();
         for (var i = 0; i < items.length; i++) {
             (function (entry, i) {
@@ -10140,25 +10302,20 @@
                     var sheet = workbook.insertSheet(entry.options);
                     sheet.suspendChanges(true);
                     var promise = queueSheet(sheet, entry);
-                    if (deferred) {
-                        var args = {
-                            sheet: sheet,
-                            progress: i / (items.length - 1)
-                        };
-                        promise.then(function () {
-                            deferred.notify(args);
-                        });
-                    }
+                    var args = {
+                        sheet: sheet,
+                        progress: i / (items.length - 1)
+                    };
+                    promise.then(function () {
+                        progress.notify(args);
+                    });
                     return promise;
                 });
             }(items[i], i));
         }
-        if (deferred) {
-            ready.then(function () {
-                deferred.resolve();
-            });
-        }
-        return ready;
+        ready.then(function () {
+            progress.resolve();
+        });
     }
     function queueSheet(sheet, ctx) {
         var deferred = new $.Deferred();
@@ -10212,6 +10369,8 @@
         var ref, type, value, formula, formulaRange;
         var nCols = sheet._columns._count;
         var prevCellRef = null;
+        var relsFile = file.replace(/worksheets\//, 'worksheets/_rels/');
+        var relationships = readRelationships(zip, relsFile);
         parse(zip, 'xl/' + file, {
             enter: function (tag, attrs) {
                 if (this.is(SEL_CELL)) {
@@ -10268,7 +10427,13 @@
                         }
                     }
                 } else if (this.is(SEL_SHEET_VIEW)) {
-                    sheet.options.showGridLines = bool(attrs.showGridLines, true);
+                    sheet.showGridLines(bool(attrs.showGridLines, true));
+                } else if (this.is(SEL_HYPERLINK)) {
+                    var relId = attrs['r:id'];
+                    var target = relationships.byId[relId];
+                    if (target) {
+                        sheet.range(attrs.ref).link(target);
+                    }
                 }
             },
             leave: function (tag) {
@@ -10481,7 +10646,7 @@
             byId: {},
             byType: { theme: [] }
         };
-        parse(zip, 'xl/_rels/' + file + '.rels', {
+        parse(zip, 'xl/' + file + '.rels', {
             enter: function (tag, attrs) {
                 if (tag == 'Relationship') {
                     map.byId[attrs.Id] = attrs.Target;
@@ -10835,6 +11000,9 @@
             _sheetChange: function (e) {
                 this.trigger('change', e);
             },
+            _sheetCommandRequest: function (e) {
+                this.trigger('commandRequest', e);
+            },
             _inputForRef: function (ref) {
                 return new kendo.spreadsheet.Range(ref, this._sheet).input();
             },
@@ -10922,6 +11090,7 @@
                 sheet._workbook = this;
                 sheet._name(sheetName);
                 sheet.bind('change', this._sheetChange.bind(this));
+                sheet.bind('commandRequest', this._sheetCommandRequest.bind(this));
                 sheets.splice(insertIndex, 0, sheet);
                 if (options.data) {
                     sheet.fromJSON(options.data);
@@ -10999,22 +11168,37 @@
                     }
                 }
             },
+            _clearSheets: function () {
+                for (var i = 0; i < this._sheets.length; i++) {
+                    this._sheets[i].unbind();
+                }
+                this._sheets = [];
+                this._sheetsSearchCache = {};
+            },
             fromJSON: function (json) {
                 if (json.sheets) {
+                    this._clearSheets();
                     for (var idx = 0; idx < json.sheets.length; idx++) {
-                        var sheet = this.sheetByIndex(idx);
-                        if (!sheet) {
-                            sheet = this.insertSheet();
-                        }
-                        sheet.fromJSON(json.sheets[idx]);
-                        var dataSource = json.sheets[idx].dataSource;
-                        if (dataSource) {
-                            sheet.setDataSource(dataSource);
+                        var data = json.sheets[idx];
+                        var args = sheetParamsFromJSON(data);
+                        var sheet = this.insertSheet({
+                            rows: args.rowCount,
+                            columns: args.columnCount,
+                            rowHeight: args.rowHeight,
+                            columnWidth: args.columnWidth,
+                            headerHeight: args.headerHeight,
+                            headerWidth: args.headerWidth,
+                            data: data
+                        });
+                        if (data.dataSource) {
+                            sheet.setDataSource(data.dataSource);
                         }
                     }
                 }
                 if (json.activeSheet) {
                     this.activeSheet(this.sheetByName(json.activeSheet));
+                } else {
+                    this.activeSheet(this._sheets[0]);
                 }
             },
             toJSON: function () {
@@ -11036,11 +11220,7 @@
                     promise: promise
                 };
                 if (file && !this.trigger('excelImport', args)) {
-                    for (var i = 0; i < this._sheets.length; i++) {
-                        this._sheets[i].unbind();
-                    }
-                    this._sheets = [];
-                    this._sheetsSearchCache = {};
+                    this._clearSheets();
                     kendo.spreadsheet.readExcel(file, this, deferred);
                 } else {
                     deferred.reject();
@@ -11108,6 +11288,38 @@
             },
             options: {}
         });
+        function sheetParamsFromJSON(data) {
+            function or(v, def) {
+                return v !== undefined ? v : def;
+            }
+            var rowCount = or(data.rowCount, 200), columnCount = or(data.columnCount, 50), rowHeight = or(data.rowHeight, 20), columnWidth = or(data.columnWidth, 64), headerHeight = or(data.headerHeight, 20), headerWidth = or(data.headerWidth, 32);
+            if (data.rows !== undefined) {
+                for (var i = 0; i < data.rows.length; ++i) {
+                    var row = data.rows[i];
+                    var ri = or(row.index, i);
+                    if (ri >= rowCount) {
+                        rowCount = ri + 1;
+                    }
+                    if (row.cells) {
+                        for (var j = 0; j < row.cells.length; ++j) {
+                            var cell = row.cells[j];
+                            var ci = or(cell.index, j);
+                            if (ci >= columnCount) {
+                                columnCount = ci + 1;
+                            }
+                        }
+                    }
+                }
+            }
+            return {
+                rowCount: rowCount,
+                columnCount: columnCount,
+                rowHeight: rowHeight,
+                columnWidth: columnWidth,
+                headerHeight: headerHeight,
+                headerWidth: headerWidth
+            };
+        }
         kendo.spreadsheet.Workbook = Workbook;
         if (kendo.PDFMixin) {
             kendo.PDFMixin.extend(Workbook.prototype);
@@ -11355,6 +11567,7 @@
         var EDITOR_EVENTS = {
             'esc': 'onEditorEsc',
             'enter': 'onEditorBlur',
+            'alt+enter': 'insertNewline',
             'shift+enter': 'onEditorBlur',
             'tab': 'onEditorBlur',
             'shift+tab': 'onEditorBlur'
@@ -11562,6 +11775,7 @@
             workbook: function (workbook) {
                 this._workbook = workbook;
                 this.clipboard = workbook.clipboard();
+                workbook.bind('commandRequest', this.onCommandRequest.bind(this));
             },
             refresh: function () {
                 var editor = this.editor;
@@ -12034,6 +12248,10 @@
                 this.editor.deactivate();
                 this.clipboardElement.focus();
             },
+            insertNewline: function (e) {
+                e.preventDefault();
+                this.editor.insertNewline();
+            },
             onEditorBlur: function (_, action) {
                 if (this.editor.isFiltered()) {
                     return;
@@ -12165,7 +12383,36 @@
                 value.color || '#000'
             ].join(' ');
         }
+        function asURL(link) {
+            if (!/:\/\//.test(link)) {
+                link = 'http://' + link;
+            }
+            return link;
+        }
         function drawCell(collection, cell, cls, hBorders, vBorders, showGrid) {
+            function maybeLink(el) {
+                var link = cell.link;
+                if (!link) {
+                    if (typeof cell.value == 'object') {
+                        link = cell.value.link;
+                    }
+                }
+                if (link) {
+                    var style = { textDecoration: 'none' };
+                    if (cell.color) {
+                        style.color = cell.color;
+                    }
+                    if (cell.underline) {
+                        style.textDecoration = 'underline';
+                    }
+                    return kendo.dom.element('a', {
+                        href: asURL(link),
+                        style: style,
+                        target: '_blank'
+                    }, [el]);
+                }
+                return el;
+            }
             if (!cls && !kendo.spreadsheet.draw.shouldDrawCell(cell)) {
                 return;
             }
@@ -12292,7 +12539,9 @@
             }
             var verticalAlign = cell.verticalAlign || 'bottom';
             if (verticalAlign && data) {
-                data = kendo.dom.element('div', { className: 'k-vertical-align-' + verticalAlign }, [data]);
+                data = kendo.dom.element('div', { className: 'k-vertical-align-' + verticalAlign }, [maybeLink(data)]);
+            } else {
+                data = maybeLink(data);
             }
             var children = data ? [data] : [];
             var properties = { style: style };
@@ -12765,16 +13014,20 @@
             },
             showError: function (options) {
                 var errorMessages = VIEW_MESAGES.errors;
-                this.openDialog('message', {
-                    title: options.title || 'Error',
-                    text: options.body ? options.body : errorMessages[options.type],
-                    activate: function () {
-                        this.dialog().element.find('.k-button').focus();
-                    },
-                    close: function () {
-                        this.editor.focusLastActive();
-                    }.bind(this)
-                });
+                if (kendo.spreadsheet.dialogs.registered(options.type)) {
+                    this.openDialog(options.type);
+                } else {
+                    this.openDialog('message', {
+                        title: options.title || 'Error',
+                        text: options.body ? options.body : errorMessages[options.type],
+                        activate: function () {
+                            this.dialog().element.find('.k-button').focus();
+                        },
+                        close: function () {
+                            this.editor.focusLastActive();
+                        }.bind(this)
+                    });
+                }
             },
             destroy: function () {
                 this._dialogs.forEach(function (dialog) {
@@ -13079,7 +13332,7 @@
                 });
                 var rect = this._currentRect;
                 var layout = kendo.spreadsheet.draw.doLayout(this._sheet, view.ref, { forScreen: true }), prev;
-                var showGridLines = this._sheet.options.showGridLines;
+                var showGridLines = this._sheet._showGridLines;
                 if (showGridLines) {
                     prev = null;
                     layout.xCoords.forEach(function (x) {
@@ -17971,7 +18224,7 @@
                 'logical',
                 [
                     'null',
-                    'false'
+                    false
                 ]
             ]
         ]
@@ -18583,6 +18836,32 @@
             '*value',
             'anyvalue'
         ]]);
+    function Hyperlink(link, text) {
+        this.link = link;
+        this.text = text;
+    }
+    Hyperlink.prototype.toString = function () {
+        return this.text;
+    };
+    defineFunction('hyperlink', function (link, text) {
+        return new Hyperlink(link, text);
+    }).args([
+        [
+            '*link',
+            'string'
+        ],
+        [
+            '*text',
+            [
+                'or',
+                'string',
+                [
+                    'null',
+                    '$link'
+                ]
+            ]
+        ]
+    ]);
     defineFunction('iferror', function (value, valueIfError) {
         return value instanceof CalcError ? valueIfError : value;
     }).args([
@@ -22445,7 +22724,8 @@
             textColor: 'Text Color',
             textWrap: 'Wrap text',
             underline: 'Underline',
-            validation: 'Data validation...'
+            validation: 'Data validation...',
+            hyperlink: 'Link'
         };
         var defaultTools = {
             home: [
@@ -22461,6 +22741,7 @@
                     'italic',
                     'underline'
                 ],
+                'hyperlink',
                 'backgroundColor',
                 'textColor',
                 'borders',
@@ -22618,6 +22899,13 @@
                 type: 'dialog',
                 dialogName: 'formatCells',
                 overflow: 'never'
+            },
+            hyperlink: {
+                type: 'dialog',
+                dialogName: 'hyperlink',
+                iconClass: 'hyperlink',
+                overflow: 'never',
+                text: ''
             },
             addColumnLeft: {
                 type: 'button',
@@ -23799,12 +24087,23 @@
                     forPaste: 'for paste'
                 }
             },
-            unsupportedSelectionDialog: { errorMessage: 'That action cannot be performed on multiple selection.' }
+            unsupportedSelectionDialog: { errorMessage: 'That action cannot be performed on multiple selection.' },
+            linkDialog: {
+                title: 'Hyperlink',
+                labels: {
+                    text: 'Text',
+                    url: 'Address',
+                    removeLink: 'Remove link'
+                }
+            }
         };
         var registry = {};
         kendo.spreadsheet.dialogs = {
             register: function (name, dialogClass) {
                 registry[name] = dialogClass;
+            },
+            registered: function (name) {
+                return !!registry[name];
             },
             create: function (name, options) {
                 var dialogClass = registry[name];
@@ -23828,7 +24127,6 @@
                     this._dialog = $('<div class=\'k-spreadsheet-window k-action-window\' />').addClass(this.options.className || '').append(kendo.template(this.options.template)({ messages: kendo.spreadsheet.messages.dialogs || MESSAGES })).appendTo(document.body).kendoWindow({
                         scrollable: false,
                         resizable: false,
-                        maximizable: false,
                         modal: true,
                         visible: false,
                         width: this.options.width || 320,
@@ -24972,6 +25270,40 @@
         kendo.spreadsheet.dialogs.register('useKeyboard', UseKeyboardDialog);
         var UnsupportedSelectionDialog = MessageDialog.extend({ options: { messageId: 'unsupportedSelectionDialog.errorMessage' } });
         kendo.spreadsheet.dialogs.register('unsupportedSelection', UnsupportedSelectionDialog);
+        var HyperlinkDialog = SpreadsheetDialog.extend({
+            options: {
+                template: '<div class=\'k-edit-label\'><label>#: messages.linkDialog.labels.url #:</label></div>' + '<div class=\'k-edit-field\'><input class=\'k-textbox\' data-bind=\'value: url\' /></div>' + '<div class=\'k-action-buttons\'>' + ('<button style=\'float: left\' class=\'k-button\' data-bind=\'click: remove\'>#= messages.linkDialog.labels.removeLink #</button>' + '<button class=\'k-button k-primary\' data-bind=\'click: apply\'>#= messages.okText #</button>' + '<button class=\'k-button\' data-bind=\'click: cancel\'>#= messages.cancel #</button>') + '</div>',
+                title: MESSAGES.linkDialog.title
+            },
+            open: function (range) {
+                var self = this;
+                SpreadsheetDialog.fn.open.apply(self, arguments);
+                var element = self.dialog().element;
+                var model = kendo.observable({
+                    url: range.link(),
+                    apply: function () {
+                        if (!/\S/.test(model.url)) {
+                            model.url = null;
+                        }
+                        self.trigger('action', {
+                            command: 'PropertyChangeCommand',
+                            options: {
+                                property: 'link',
+                                value: model.url
+                            }
+                        });
+                        self.close();
+                    },
+                    remove: function () {
+                        model.url = null;
+                        model.apply();
+                    },
+                    cancel: self.close.bind(self)
+                });
+                kendo.bind(element, model);
+            }
+        });
+        kendo.spreadsheet.dialogs.register('hyperlink', HyperlinkDialog);
     }(window.kendo));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -24994,6 +25326,7 @@
                 this._sheet();
                 this._dataSource();
                 this._header();
+                this._boundRowsCount = 0;
                 this.dataSource.fetch();
             },
             _sheet: function () {
@@ -25051,6 +25384,7 @@
                             valueIndex++;
                         }
                     });
+                    this._boundRowsCount = dataSource.view().length;
                     this._skipRebind = false;
                 }
             },
@@ -25088,12 +25422,15 @@
                     return kendo.getter(column.field);
                 });
                 this.sheet.batch(function () {
-                    for (var idx = 0, length = data.length; idx < length; idx++) {
+                    var length = Math.max(data.length, this._boundRowsCount);
+                    for (var idx = 0; idx < length; idx++) {
                         for (var getterIdx = 0; getterIdx < getters.length; getterIdx++) {
-                            this.sheet.range(idx + 1, getterIdx).value(getters[getterIdx](data[idx]));
+                            var value = data[idx] ? getters[getterIdx](data[idx]) : null;
+                            this.sheet.range(idx + 1, getterIdx).value(value);
                         }
                     }
                 }.bind(this));
+                this._boundRowsCount = data.length;
             },
             destroy: function () {
                 this.dataSource.unbind('change', this._changeHandler);
@@ -25822,6 +26159,10 @@
                 this._value = value;
                 this.barInput.value(value);
                 this.cellInput.value(value);
+            },
+            insertNewline: function () {
+                this.activeEditor().insertNewline();
+                this.scale();
             }
         });
         function notEqual(oldRect, newRect) {
@@ -25848,6 +26189,13 @@
     var Formula = runtime.Formula;
     var MSG_INCOMPATIBLE = 'Incompatible ranges in fillFrom';
     var MSG_NO_DIRECTION = 'Cannot determine fill direction';
+    var MSG_READ_ONLY = 'Destination range contains disabled cells';
+    var FillError = Range.FillError = function (msg) {
+        this.msg = msg;
+    };
+    FillError.prototype.toString = function () {
+        return this.msg;
+    };
     Range.prototype._previewFillFrom = function (srcRange, direction) {
         var destRange = this, sheet = destRange._sheet;
         if (typeof srcRange == 'string') {
@@ -25868,7 +26216,7 @@
                     dest.topLeft.col += src.width();
                     direction = 1;
                 } else {
-                    throw new Error(MSG_INCOMPATIBLE);
+                    throw new FillError(MSG_INCOMPATIBLE);
                 }
             } else if (src.bottomRight.eq(dest.bottomRight)) {
                 if (src.width() == dest.width()) {
@@ -25878,10 +26226,10 @@
                     dest.bottomRight.col -= src.width();
                     direction = 3;
                 } else {
-                    throw new Error(MSG_INCOMPATIBLE);
+                    throw new FillError(MSG_INCOMPATIBLE);
                 }
             } else {
-                throw new Error(MSG_INCOMPATIBLE);
+                throw new FillError(MSG_INCOMPATIBLE);
             }
             return sheet.range(dest)._previewFillFrom(srcRange, direction);
         }
@@ -25891,13 +26239,13 @@
             } else if (src.topLeft.row == dest.topLeft.row) {
                 direction = src.topLeft.col < dest.topLeft.col ? 1 : 3;
             } else {
-                throw new Error(MSG_NO_DIRECTION);
+                throw new FillError(MSG_NO_DIRECTION);
             }
         }
         var horizontal = direction & 1;
         var descending = direction & 2;
         if (horizontal && src.height() != dest.height() || !horizontal && src.width() != dest.width()) {
-            throw new Error(MSG_INCOMPATIBLE);
+            throw new FillError(MSG_INCOMPATIBLE);
         }
         var data = srcRange._properties(), n;
         if (!horizontal) {
@@ -25928,6 +26276,9 @@
     };
     Range.prototype.fillFrom = function (srcRange, direction) {
         var x = this._previewFillFrom(srcRange, direction);
+        if (!x.dest.enable()) {
+            throw new FillError(MSG_READ_ONLY);
+        }
         x.dest._properties(x.props);
         return x.dest;
     };

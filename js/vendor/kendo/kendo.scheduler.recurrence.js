@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -724,7 +724,7 @@
         function parseExceptions(exceptions, zone) {
             var idx = 0, length, date, dates = [];
             if (exceptions) {
-                exceptions = exceptions.split(';');
+                exceptions = exceptions.split(exceptions.indexOf(';') !== -1 ? ';' : ',');
                 length = exceptions.length;
                 for (; idx < length; idx++) {
                     date = parseUTCDate(exceptions[idx], zone);
@@ -754,7 +754,7 @@
                 date = kendo.timezone.convert(date, zone || date.getTimezoneOffset(), 'Etc/UTC');
                 result[idx] = kendo.toString(date, RECURRENCE_DATE_FORMAT);
             }
-            return result.join(';') + ';';
+            return result.join(',');
         }
         function startPeriodByFreq(start, rule) {
             var date = new Date(start);

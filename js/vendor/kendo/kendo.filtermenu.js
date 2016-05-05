@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -364,6 +364,9 @@
             },
             _reset: function () {
                 this.clear();
+                if (this.options.search) {
+                    this.container.find('label').parent().show();
+                }
                 this._closeForm();
             },
             _closeForm: function () {
@@ -512,6 +515,7 @@
             };
         }
         var DataSource = kendo.data.DataSource;
+        var multiCkeckMobileTemplate = '<div data-#=ns#role="view" data-#=ns#init-widgets="false" class="k-grid-filter-menu">' + '<div data-#=ns#role="header" class="k-header">' + '<button class="k-button k-cancel">#=messages.cancel#</button>' + '#=title#' + '<button type="submit" class="k-button k-submit">#=messages.filter#</button>' + '</div>' + '<form class="k-filter-menu k-mobile-list">' + '#if(search){#' + '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'#=messages.search#\'/>' + '<span class=\'k-icon k-font-icon k-i-search\' />' + '</div>' + '#}#' + '<ul class="k-multicheck-wrap"></ul>' + '</li><li class="k-button-container">' + '#if(messages.selectedItemsFormat){#<div class=\'k-filter-selected-items\'></div>#}#' + '<button type="reset" class="k-button">#=messages.clear#</button>' + '</li></ul>' + '</form>' + '</div>';
         var FilterMultiCheck = Widget.extend({
             init: function (element, options) {
                 Widget.fn.init.call(this, element, options);
@@ -538,7 +542,9 @@
                 if (this.model && this.model.fields) {
                     field = this.model.fields[this.field];
                     if (field) {
-                        if (field.parse) {
+                        if (field.type == 'number') {
+                            this._parse = parseFloat;
+                        } else if (field.parse) {
                             this._parse = proxy(field.parse, field);
                         }
                         this.type = field.type || 'string';
@@ -623,49 +629,74 @@
                 if (ignoreCase) {
                     searchString = searchString.toLowerCase();
                 }
-                for (var i = this.options.checkAll ? 1 : 0; i < labels.length; i++) {
+                var i = 0;
+                if (this.options.checkAll && labels.length) {
+                    labels[0].parentNode.style.display = searchString ? 'none' : '';
+                    i++;
+                }
+                while (i < labels.length) {
                     var label = labels[i];
                     var labelText = label.textContent || label.innerText;
                     if (ignoreCase) {
                         labelText = labelText.toLowerCase();
                     }
-                    label.style.display = labelText.indexOf(searchString) >= 0 ? '' : 'none';
+                    label.parentNode.style.display = labelText.indexOf(searchString) >= 0 ? '' : 'none';
+                    i++;
                 }
+            },
+            _activate: function () {
+                this.form.find(':kendoFocusable:first').focus();
             },
             _createForm: function () {
                 var options = this.options;
                 var html = '';
-                if (!this._isMobile && options.search) {
-                    html += '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'' + options.messages.search + '\'/>' + '<span class=\'k-icon k-font-icon k-i-search\' />' + '</div>';
-                }
-                html += '<ul class=\'k-reset k-multicheck-wrap\'></ul><button type=\'submit\' class=\'k-button k-primary\'>' + options.messages.filter + '</button>';
-                html += '<button type=\'reset\' class=\'k-button\'>' + options.messages.clear + '</button>';
-                this.form = $('<form class="k-filter-menu"/>').html(html);
-                this.container = this.form.find('.k-multicheck-wrap');
-                if (options.search) {
-                    this.searchTextBox = this.form.find('.k-textbox > input');
-                    this.searchTextBox.on('input', proxy(this._input, this));
+                if (!this._isMobile) {
+                    if (options.search) {
+                        html += '<div class=\'k-textbox k-space-right\'>' + '<input placeholder=\'' + options.messages.search + '\'/>' + '<span class=\'k-icon k-font-icon k-i-search\' />' + '</div>';
+                    }
+                    html += '<ul class=\'k-reset k-multicheck-wrap\'></ul>';
+                    if (options.messages.selectedItemsFormat) {
+                        html += '<div class=\'k-filter-selected-items\'>' + kendo.format(options.messages.selectedItemsFormat, 0) + '</div>';
+                    }
+                    html += '<button type=\'submit\' class=\'k-button k-primary\'>' + options.messages.filter + '</button>';
+                    html += '<button type=\'reset\' class=\'k-button\'>' + options.messages.clear + '</button>';
+                    this.form = $('<form class="k-filter-menu"/>').html(html);
+                    this.container = this.form.find('.k-multicheck-wrap');
                 }
                 if (this._isMobile) {
-                    this.view = this.pane.append(this.form.addClass('k-mobile-list').wrap('<div/>').parent().html());
-                    var element = this.view.element;
-                    this.form = element.find('form');
-                    this.container = element.find('.k-multicheck-wrap');
                     var that = this;
-                    element.on('click', '.k-primary', function (e) {
+                    that.form = $('<div />').html(kendo.template(multiCkeckMobileTemplate)({
+                        field: that.field,
+                        title: options.title || that.field,
+                        ns: kendo.ns,
+                        messages: options.messages,
+                        search: options.search
+                    }));
+                    that.view = that.pane.append(that.form.html());
+                    that.form = that.view.element.find('form');
+                    var element = this.view.element;
+                    this.container = element.find('.k-multicheck-wrap');
+                    element.on('click', '.k-submit', function (e) {
                         that.form.submit();
                         e.preventDefault();
-                    }).on('click', '[type=reset]', function (e) {
-                        that._reset();
+                    }).on('click', '.k-cancel', function (e) {
+                        that._closeForm();
                         e.preventDefault();
                     });
                 } else {
                     if (!options.appendToElement) {
-                        this.popup = this.form.kendoPopup({ anchor: this._link }).data(POPUP);
+                        this.popup = this.form.kendoPopup({
+                            anchor: this._link,
+                            activate: proxy(this._activate, this)
+                        }).data(POPUP);
                     } else {
                         this.popup = this.element.closest('.k-popup').data(POPUP);
                         this.element.append(this.form);
                     }
+                }
+                if (options.search) {
+                    this.searchTextBox = this.form.find('.k-textbox > input');
+                    this.searchTextBox.on('input', proxy(this._input, this));
                 }
             },
             createCheckAllItem: function () {
@@ -681,6 +712,9 @@
                 this.checkBoxAll.on(CHANGE + multiCheckNS, this.checkAllHandler);
             },
             updateCheckAllState: function () {
+                if (this.options.messages.selectedItemsFormat) {
+                    this.form.find('.k-filter-selected-items').text(kendo.format(this.options.messages.selectedItemsFormat, this.container.find(':checked:not(.k-check-all)').length));
+                }
                 if (this.checkBoxAll) {
                     var state = this.container.find(':checkbox:not(.k-check-all)').length == this.container.find(':checked:not(.k-check-all)').length;
                     this.checkBoxAll.prop('checked', state);
@@ -736,8 +770,8 @@
                 var itemsHtml = kendo.render(template, data);
                 if (options.checkAll) {
                     this.createCheckAllItem();
-                    this.container.on(CHANGE + multiCheckNS, ':checkbox', proxy(this.updateCheckAllState, this));
                 }
+                this.container.on(CHANGE + multiCheckNS, ':checkbox', proxy(this.updateCheckAllState, this));
                 this.container.append(itemsHtml);
             },
             checkAll: function () {
@@ -860,7 +894,9 @@
                     checkAll: 'Select All',
                     clear: 'Clear',
                     filter: 'Filter',
-                    search: 'Search'
+                    search: 'Search',
+                    cancel: 'Cancel',
+                    selectedItemsFormat: '{0} items selected'
                 },
                 forceUnique: true,
                 animations: {
