@@ -83,6 +83,18 @@ module.exports = function (grunt) {
                 },
                 src: ['test/node/**/*.js']
             }
+        },
+        uglify: {
+            build: {
+                options: {
+                    banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                    sourceMap: true,
+                    sourceMapName: 'webapp/public/assets/workerlib.bundle.js.map'
+                },
+                files: {
+                    'webapp/public/assets/workerlib.bundle.js': ['js/kidoju.data.workerlib.js']
+                }
+            }
         }
     });
 
@@ -93,6 +105,7 @@ module.exports = function (grunt) {
 
     // Build
     grunt.loadNpmTasks('grunt-webpack');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
 
     // Tests
     grunt.loadNpmTasks('grunt-mocha');
@@ -100,7 +113,7 @@ module.exports = function (grunt) {
 
     // Commands
     grunt.registerTask('lint', ['jscs', 'jshint', 'kendo_lint']);
-    grunt.registerTask('build', ['webpack:build']);
+    grunt.registerTask('build', ['webpack:build', 'uglify:build']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 

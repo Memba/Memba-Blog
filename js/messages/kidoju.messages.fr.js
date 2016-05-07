@@ -208,24 +208,26 @@
 
             if (data && data.Page) {
                 data.Page.prototype.messages = {
-                    emptyPage: 'La page {0} est vide.',
-                    minConnectors: 'Il faut au moins {0} connecteurs pour faire une question en page {1}.',
-                    // TODO ERROR dropZone without draggables
-                    // TODO WARNING page without multimedia element
-                    missingLabel: 'Une étiquette manque en page {0}.',
-                    missingQuestion: 'Une question manque en page {0}.',
-                    missingInstructions: 'Les instructions manquent en page {0}.',
+                    emptyPage: 'La page {0} ne doit pas être vide.',
+                    minConnectors: 'Au moins {0} connecteurs sont nécessaires pour faire une question en page {1}.',
+                    missingDraggable: 'Des labels et images déplaçables sont requis pour la/les zone(s) de dépôt en page {0}.',
+                    missingDropZone: 'Une zone de dépôt est requise pour les labels et images déplaçables en page {0}.',
+                    missingLabel: 'Une étiquette est recommandée en page {0}.',
+                    missingMultimedia: 'Un élément multimédia (image, audio, vidéo) est recommandé en page {0}.',
+                    missingQuestion: 'Une question est recommandé en page {0}.',
+                    missingInstructions: 'Des instructions sont recommandées en page {0}.',
                     missingExplanations: 'Les explications manquent en page {0}.'
-                }
+                };
             }
 
             if (data && data.Stream) {
                 data.Stream.prototype.messages = {
-                    minPages: 'Il vous faut au moins {0} pages pour pouvoir publier.',
-                    minQuestions: 'Il vous faut au moins {0} questions pour pouvoir publier.',
+                    duplicateNames: 'Supprimez les composants utilisant le même nom `{0}` en pages {1}',
+                    minPages: 'Il faut au moins {0} pages pour pouvoir publier.',
+                    minQuestions: 'Il faut au moins {0} questions pour pouvoir publier.',
                     typeVariety: 'On recommande l\'usage d\'au moins {0} types de questions (choix multiple, réponse simple, connecteurs ou autre).',
-                    qtyVariety: '{0:p0} des questions sont du type {1}. On recommande plus de variété.'
-                }
+                    qtyVariety: 'On recommande plus de variété quand {0:p0} des questions sont du type {1}.'
+                };
             }
 
             // if (kidoju.Tool instanceof Function) {
@@ -241,6 +243,14 @@
                     dialogs: {
                         ok: { text: 'OK' },
                         cancel: { text: 'Annuler' }
+                    },
+                    messages: {
+                        missingDropValue: 'Une {0} en page {1} nécessite une valeur à glisser dans une zone de dépôt.',
+                        missingDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une description.',
+                        missingSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution.',
+                        missingValidation: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation.',
+                        invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro.',
+                        invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d\'omission ou zéro.'
                     }
                 });
             }
