@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="<%- language %>">
 <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# article: http://ogp.me/ns/article#">
     <title><%= title %></title>
     <%// meta data %>
@@ -53,6 +51,7 @@
     <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
     <script src="<%= url.join(config.uris.webpack.root, 'init.bundle.js') + '?v=' + config.application.version %>"></script>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js" integrity="sha256-7LkWEzqTdpEfELxcZZlS6wAx5Ff13zZ83lYO2/ujj7g=" crossorigin="anonymous"></script>
     <style>
         html,body{
             width:100%;
@@ -69,17 +68,3 @@
         }
     </style>
 </head>
-<body>
-
-<% // Google Tag Manager %>
-<% include gtm.ejs %>
-<% // End Google Tag Manager %>
-
-<% // preload progress image - SEE http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui %>
-<div class="k-content k-loading-image hidden-print"></div>
-
-<% // hidden trace id for logging %>
-<input id="trace" type="hidden" value="<%- trace %>">
-
-<% // notifications %>
-<div id="notification" class="hidden-print"></div>

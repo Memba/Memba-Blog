@@ -1,7 +1,14 @@
 <% // Blog posting page %>
+<!DOCTYPE html>
+<html lang="<%- language %>">
 
-<% // page header %>
-<% include header.ejs %>
+<% // html head %>
+<% include head.ejs %>
+
+<body>
+
+<% // common requirements %>
+<% include common.ejs %>
 
 <% // navigation bar %>
 <% include navbar.ejs %>
@@ -56,8 +63,11 @@
     </div>
 </main>
 
-<script src="https://code.jquery.com/jquery-1.11.3.min.js" integrity="sha256-7LkWEzqTdpEfELxcZZlS6wAx5Ff13zZ83lYO2/ujj7g=" crossorigin="anonymous"></script>
+<% // footer with language and theme %>
+<% include footer.ejs %>
+
 <script src="<%= url.join(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
 <script src="<%= url.join(config.uris.webpack.root, 'post.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
 
-<% include footer.ejs %>
+</body>
+</html>
