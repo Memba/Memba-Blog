@@ -38,7 +38,7 @@
     "moment": "^2.13.0",
     "nconf": "^0.8.4",
     "node-uuid": "^1.4.7",
-    "qs": "^6.1.0",
+    "qs": "^6.2.0",
     "request": "^2.72.0"
   },
   "devDependencies": {
@@ -55,7 +55,7 @@
     "grunt-mocha-test": "^0.12.7",
     "grunt-webpack": "^1.0.11",
     "json-loader": "^0.5.4",
-    "less": "^2.6.1",
+    "less": "^2.7.0",
     "less-loader": "^2.2.3",
     "loader-utils": "^0.2.14",
     "mocha": "^2.4.5",
