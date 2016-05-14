@@ -153,6 +153,10 @@
         if (ui.Stage) {
             options = ui.Stage.prototype.options;
             options.messages = $.extend(true, options.messages, {
+                contextMenu: {
+                    delete: 'Delete',
+                    duplicate: 'Duplicate'
+                },
                 noPage: 'Please add or select a page'
             });
         }
@@ -246,12 +250,12 @@
                         cancel: { text: 'Cancel' }
                     },
                     messages: {
-                        missingDropValue: 'A {0} on page {1} requires a drop value.',
-                        missingDescription: 'A {0} named `{1}` on page {2} requires a description.',
-                        missingSolution: 'A {0} named `{1}` on page {2} requires a solution.',
-                        missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula.',
-                        invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero.',
-                        invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero.'
+                        missingDropValue: 'A {0} on page {1} requires a drop value in test logic.',
+                        missingDescription: 'A {0} named `{1}` on page {2} requires a question in test logic.',
+                        missingSolution: 'A {0} named `{1}` on page {2} requires a solution in test logic.',
+                        missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula in test logic.',
+                        invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
+                        invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.'
                     }
                 });
             }
@@ -281,7 +285,7 @@
                     // Properties
                     properties = tools.chargrid.constructor.prototype.attributes;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -302,7 +306,7 @@
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -319,7 +323,7 @@
                     // Properties
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -338,7 +342,7 @@
                     // Properties
                     properties = tools.dropzone.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -398,7 +402,7 @@
                     // Properties
                     properties = tools.quiz.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -415,7 +419,7 @@
                     // Properties
                     properties = tools.textbox.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
