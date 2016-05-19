@@ -20,7 +20,7 @@
 
     (function ($, undefined) {
 
-        var app = window.app;
+        var app = window.app = window.app || {};
         var kendo = window.kendo;
         var logger = new window.Logger('app.theme');
         var STRING = 'string';

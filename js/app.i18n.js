@@ -24,6 +24,7 @@
         var logger = new window.Logger('app.i18n');
         var cultures = app.cultures = app.cultures || {};
         var LOADED = 'i18n.loaded';
+        var UNDEFINED = 'undefined';
         var STRING = 'string';
         var ARRAY = 'array';
 
@@ -70,8 +71,9 @@
              */
             locale: function (locale) {
                 if (typeof locale === STRING) {
-                    assert.type(ARRAY, app.locales, '`app.locales` is expected to be an array');
-                    assert.enum(app.locales, locale, '`locale` is expected to be on of `app.locales`');
+                    assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+                    assert.enum(app.locales, locale, kendo.format(assert.messages.enum.default, 'locale', app.locales));
+                    assert.ok($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED, 'This is not the way to change locale in phonegap/cordova');
                     var href = app.uris.webapp.locale.replace('{0}', locale);
                     if (window.top === window.self) {
                         window.location.assign(href);
@@ -80,7 +82,11 @@
                         window.top.location.assign(href);
                     }
                 } else if (locale === undefined) {
-                    return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
+                    if ($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED) {
+                        return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
+                    } else {
+                        return 'en'; // Phonegap
+                    }
                 } else {
                     throw new TypeError('Bad locale: ' + locale);
                 }
@@ -113,8 +119,11 @@
          */
         $(document)
             .on(LOADED, function () {
-                $('body>div.k-loading-image').fadeOut();
+                if ($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED) {
+                    $('body>div.k-loading-image').fadeOut();
+                }
             });
+
 
     }(window.jQuery));
 
