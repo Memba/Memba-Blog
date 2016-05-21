@@ -25,7 +25,7 @@ fi
 cd "$(dirname "$0")"
 
 # delete assets
-rm -f ./webapp/public/assets/*
+rm -f ./webapp/public/build/*
 
 # rebuild
 grunt build

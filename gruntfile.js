@@ -89,10 +89,10 @@ module.exports = function (grunt) {
                 options: {
                     banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
                     sourceMap: true,
-                    sourceMapName: 'webapp/public/assets/workerlib.bundle.js.map'
+                    sourceMapName: 'webapp/public/build/workerlib.bundle.js.map'
                 },
                 files: {
-                    'webapp/public/assets/workerlib.bundle.js': ['js/kidoju.data.workerlib.js']
+                    'webapp/public/build/workerlib.bundle.js': ['js/kidoju.data.workerlib.js']
                 }
             }
         }

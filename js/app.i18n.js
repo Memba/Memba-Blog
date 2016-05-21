@@ -40,8 +40,9 @@
              */
             load: function (locale) {
 
+                // Note: assume kendo is not yet loaded
                 assert.type(ARRAY, app.locales, '`app.locales` is expected to be an array');
-                assert.enum(app.locales, locale, '`locale` is expected to be on of `app.locales`');
+                assert.enum(app.locales, locale, '`locale` is expected to be one of ' + app.locales.toString());
 
                 var dfd = $.Deferred();
 
@@ -63,6 +64,9 @@
                 return dfd.promise();
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Get/set locale
              * Value set by the server on the html element of the page base on the url
@@ -70,10 +74,14 @@
              * @returns {string|string}
              */
             locale: function (locale) {
+                /* jshint maxcomplexity: 8 */
                 if (typeof locale === STRING) {
-                    assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
-                    assert.enum(app.locales, locale, kendo.format(assert.messages.enum.default, 'locale', app.locales));
+
+                    // Note: assume kendo is not yet loaded
+                    assert.type(ARRAY, app.locales, '`app.locales` is expected to be an array');
+                    assert.enum(app.locales, locale, '`locale` is expected to be one of ' + app.locales.toString());
                     assert.ok($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED, 'This is not the way to change locale in phonegap/cordova');
+
                     var href = app.uris.webapp.locale.replace('{0}', locale);
                     if (window.top === window.self) {
                         window.location.assign(href);
@@ -81,16 +89,21 @@
                         // This is an embedded player
                         window.top.location.assign(href);
                     }
+
                 } else if (locale === undefined) {
+
                     if ($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED) {
                         return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
                     } else {
                         return 'en'; // Phonegap
                     }
+
                 } else {
                     throw new TypeError('Bad locale: ' + locale);
                 }
             }
+
+            /* jshint +W074 */
 
         };
 

@@ -32,7 +32,7 @@
             "root": "http://localhost:3000"
         },
         "webpack": {
-            "root": "http://localhost:3000/assets/"
+            "root": "http://localhost:3000/build/"
         }
     }
 }

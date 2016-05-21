@@ -32,7 +32,7 @@
             "root": "http://www.memba.com"
         },
         "webpack": {
-            "root": "http://www.memba.com/assets/"
+            "root": "http://www.memba.com/build/"
         }
     }
 }

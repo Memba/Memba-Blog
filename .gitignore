@@ -15,6 +15,9 @@ coverage/
 # Ignore Node files
 node_modules/
 
+# Ignore cordova
+.cordova/
+
 # Ignore Grunt Files
 validation-status.json
 validation-report.json

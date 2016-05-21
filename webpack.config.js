@@ -86,7 +86,7 @@ module.exports = {
     output: {
         // Unfortunately it is not possible to specialize output directories
         // See https://github.com/webpack/webpack/issues/882
-        path: path.join(__dirname, '/webapp/public/assets'),
+        path: path.join(__dirname, '/webapp/public/build'),
         publicPath: config.get('uris:webpack:root'),
         filename: '[name].bundle.js?v=' + pkg.version,
         chunkFilename: '[name].chunk.js?v=' + pkg.version
