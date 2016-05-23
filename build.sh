@@ -24,8 +24,9 @@ fi
 # first change directory to script directory
 cd "$(dirname "$0")"
 
-# delete assets
+# delete build
 rm -f ./webapp/public/build/*
+rm -f ./www/build/*
 
 # rebuild
 grunt build
