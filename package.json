@@ -58,7 +58,7 @@
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "loader-utils": "^0.2.15",
-    "mocha": "^2.4.5",
+    "mocha": "^2.5.1",
     "node-libs-browser": "^1.0.0",
     "phantomjs-prebuilt": "^2.1.7",
     "style-loader": "^0.13.1",
