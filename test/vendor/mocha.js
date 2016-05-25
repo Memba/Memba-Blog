@@ -776,7 +776,7 @@ module.exports = function(suite) {
   });
 };
 
-},{"../suite":37,"../test":38,"./common":9,"escape-string-regexp":48}],9:[function(require,module,exports){
+},{"../suite":37,"../test":38,"./common":9,"escape-string-regexp":49}],9:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1028,7 +1028,7 @@ module.exports = function(suite) {
   });
 };
 
-},{"../suite":37,"../test":38,"./common":9,"escape-string-regexp":48}],13:[function(require,module,exports){
+},{"../suite":37,"../test":38,"./common":9,"escape-string-regexp":49}],13:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1136,7 +1136,7 @@ module.exports = function(suite) {
   });
 };
 
-},{"../suite":37,"../test":38,"./common":9,"escape-string-regexp":48}],14:[function(require,module,exports){
+},{"../suite":37,"../test":38,"./common":9,"escape-string-regexp":49}],14:[function(require,module,exports){
 (function (process,global,__dirname){
 /*!
  * mocha
@@ -1643,7 +1643,7 @@ Mocha.prototype.run = function(fn) {
 };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},"/lib")
-},{"./context":6,"./hook":7,"./interfaces":11,"./reporters":22,"./runnable":35,"./runner":36,"./suite":37,"./test":38,"./utils":39,"_process":58,"escape-string-regexp":48,"growl":50,"path":43}],15:[function(require,module,exports){
+},{"./context":6,"./hook":7,"./interfaces":11,"./reporters":22,"./runnable":35,"./runner":36,"./suite":37,"./test":38,"./utils":39,"_process":58,"escape-string-regexp":49,"growl":51,"path":43}],15:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -2281,7 +2281,7 @@ function sameType(a, b) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../ms":15,"../utils":39,"_process":58,"diff":47,"supports-color":43,"tty":5}],18:[function(require,module,exports){
+},{"../ms":15,"../utils":39,"_process":58,"diff":48,"supports-color":43,"tty":5}],18:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2559,7 +2559,8 @@ function HTML(runner) {
   }
 
   // pass toggle
-  on(passesLink, 'click', function() {
+  on(passesLink, 'click', function(evt) {
+    evt.preventDefault();
     unhide();
     var name = (/pass/).test(report.className) ? '' : ' pass';
     report.className = report.className.replace(/fail|pass/g, '') + name;
@@ -2569,7 +2570,8 @@ function HTML(runner) {
   });
 
   // failure toggle
-  on(failuresLink, 'click', function() {
+  on(failuresLink, 'click', function(evt) {
+    evt.preventDefault();
     unhide();
     var name = (/fail/).test(report.className) ? '' : ' fail';
     report.className = report.className.replace(/fail|pass/g, '') + name;
@@ -2607,16 +2609,70 @@ function HTML(runner) {
     stack.shift();
   });
 
-  runner.on('fail', function(test) {
-    // For type = 'test' its possible that the test failed due to multiple
-    // done() calls. So report the issue here.
-    if (test.type === 'hook'
-      || test.type === 'test') {
-      runner.emit('test end', test);
-    }
+  runner.on('pass', function(test) {
+    var url = self.testURL(test);
+    var markup = '<li class="test pass %e"><h2>%e<span class="duration">%ems</span> '
+      + '<a href="%s" class="replay">‣</a></h2></li>';
+    var el = fragment(markup, test.speed, test.title, test.duration, url);
+    self.addCodeToggle(el, test.body);
+    appendToStack(el);
+    updateStats();
   });
 
-  runner.on('test end', function(test) {
+  runner.on('fail', function(test) {
+    var el = fragment('<li class="test fail"><h2>%e <a href="%e" class="replay">‣</a></h2></li>',
+      test.title, self.testURL(test));
+    var stackString; // Note: Includes leading newline
+    var message = test.err.toString();
+
+    // <=IE7 stringifies to [Object Error]. Since it can be overloaded, we
+    // check for the result of the stringifying.
+    if (message === '[object Error]') {
+      message = test.err.message;
+    }
+
+    if (test.err.stack) {
+      var indexOfMessage = test.err.stack.indexOf(test.err.message);
+      if (indexOfMessage === -1) {
+        stackString = test.err.stack;
+      } else {
+        stackString = test.err.stack.substr(test.err.message.length + indexOfMessage);
+      }
+    } else if (test.err.sourceURL && test.err.line !== undefined) {
+      // Safari doesn't give you a stack. Let's at least provide a source line.
+      stackString = '\n(' + test.err.sourceURL + ':' + test.err.line + ')';
+    }
+
+    stackString = stackString || '';
+
+    if (test.err.htmlMessage && stackString) {
+      el.appendChild(fragment('<div class="html-error">%s\n<pre class="error">%e</pre></div>',
+        test.err.htmlMessage, stackString));
+    } else if (test.err.htmlMessage) {
+      el.appendChild(fragment('<div class="html-error">%s</div>', test.err.htmlMessage));
+    } else {
+      el.appendChild(fragment('<pre class="error">%e%e</pre>', message, stackString));
+    }
+
+    self.addCodeToggle(el, test.body);
+    appendToStack(el);
+    updateStats();
+  });
+
+  runner.on('pending', function(test) {
+    var el = fragment('<li class="test pass pending"><h2>%e</h2></li>', test.title);
+    appendToStack(el);
+    updateStats();
+  });
+
+  function appendToStack(el) {
+    // Don't call .appendChild if #mocha-report was already .shift()'ed off the stack.
+    if (stack[0]) {
+      stack[0].appendChild(el);
+    }
+  }
+
+  function updateStats() {
     // TODO: add to stats
     var percent = stats.tests / this.total * 100 | 0;
     if (progress) {
@@ -2628,67 +2684,7 @@ function HTML(runner) {
     text(passes, stats.passes);
     text(failures, stats.failures);
     text(duration, (ms / 1000).toFixed(2));
-
-    // test
-    var el;
-    if (test.state === 'passed') {
-      var url = self.testURL(test);
-      el = fragment('<li class="test pass %e"><h2>%e<span class="duration">%ems</span> <a href="%s" class="replay">‣</a></h2></li>', test.speed, test.title, test.duration, url);
-    } else if (test.isPending()) {
-      el = fragment('<li class="test pass pending"><h2>%e</h2></li>', test.title);
-    } else {
-      el = fragment('<li class="test fail"><h2>%e <a href="%e" class="replay">‣</a></h2></li>', test.title, self.testURL(test));
-      var stackString; // Note: Includes leading newline
-      var message = test.err.toString();
-
-      // <=IE7 stringifies to [Object Error]. Since it can be overloaded, we
-      // check for the result of the stringifying.
-      if (message === '[object Error]') {
-        message = test.err.message;
-      }
-
-      if (test.err.stack) {
-        var indexOfMessage = test.err.stack.indexOf(test.err.message);
-        if (indexOfMessage === -1) {
-          stackString = test.err.stack;
-        } else {
-          stackString = test.err.stack.substr(test.err.message.length + indexOfMessage);
-        }
-      } else if (test.err.sourceURL && test.err.line !== undefined) {
-        // Safari doesn't give you a stack. Let's at least provide a source line.
-        stackString = '\n(' + test.err.sourceURL + ':' + test.err.line + ')';
-      }
-
-      stackString = stackString || '';
-
-      if (test.err.htmlMessage && stackString) {
-        el.appendChild(fragment('<div class="html-error">%s\n<pre class="error">%e</pre></div>', test.err.htmlMessage, stackString));
-      } else if (test.err.htmlMessage) {
-        el.appendChild(fragment('<div class="html-error">%s</div>', test.err.htmlMessage));
-      } else {
-        el.appendChild(fragment('<pre class="error">%e%e</pre>', message, stackString));
-      }
-    }
-
-    // toggle code
-    // TODO: defer
-    if (!test.isPending()) {
-      var h2 = el.getElementsByTagName('h2')[0];
-
-      on(h2, 'click', function() {
-        pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
-      });
-
-      var pre = fragment('<pre><code>%e</code></pre>', utils.clean(test.body));
-      el.appendChild(pre);
-      pre.style.display = 'none';
-    }
-
-    // Don't call .appendChild if #mocha-report was already .shift()'ed off the stack.
-    if (stack[0]) {
-      stack[0].appendChild(el);
-    }
-  });
+  }
 }
 
 /**
@@ -2724,6 +2720,24 @@ HTML.prototype.suiteURL = function(suite) {
  */
 HTML.prototype.testURL = function(test) {
   return makeUrl(test.fullTitle());
+};
+
+/**
+ * Adds code toggle functionality for the provided test's list element.
+ *
+ * @param {HTMLLIElement} el
+ * @param {string} contents
+ */
+HTML.prototype.addCodeToggle = function(el, contents) {
+  var h2 = el.getElementsByTagName('h2')[0];
+
+  on(h2, 'click', function() {
+    pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
+  });
+
+  var pre = fragment('<pre><code>%e</code></pre>', utils.clean(contents));
+  el.appendChild(pre);
+  pre.style.display = 'none';
 };
 
 /**
@@ -2808,7 +2822,7 @@ function on(el, event, fn) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../browser/progress":4,"../utils":39,"./base":17,"escape-string-regexp":48}],22:[function(require,module,exports){
+},{"../browser/progress":4,"../utils":39,"./base":17,"escape-string-regexp":49}],22:[function(require,module,exports){
 // Alias exports to a their normalized format Mocha#reporter to prevent a need
 // for dynamic (try/catch) requires, which Browserify doesn't handle.
 exports.Base = exports.base = require('./base');
@@ -4091,7 +4105,7 @@ XUnit.prototype.test = function(test) {
 
   if (test.state === 'failed') {
     var err = test.err;
-    this.write(tag('testcase', attrs, false, tag('failure', {}, false, cdata(escape(err.message) + '\n' + err.stack))));
+    this.write(tag('testcase', attrs, false, tag('failure', {}, false, escape(err.message) + '\n' + escape(err.stack))));
   } else if (test.isPending()) {
     this.write(tag('testcase', attrs, false, tag('skipped', {}, true)));
   } else {
@@ -4124,14 +4138,6 @@ function tag(name, attrs, close, content) {
     tag += content + '</' + name + end;
   }
   return tag;
-}
-
-/**
- * Return cdata escaped CDATA `str`.
- */
-
-function cdata(str) {
-  return '<![CDATA[' + escape(str) + ']]>';
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
@@ -6597,7 +6603,7 @@ exports.stackTraceFilter = function() {
 };
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":58,"buffer":45,"debug":2,"fs":43,"glob":43,"path":43,"to-iso-string":71,"util":74}],40:[function(require,module,exports){
+},{"_process":58,"buffer":45,"debug":2,"fs":43,"glob":43,"path":43,"to-iso-string":72,"util":75}],40:[function(require,module,exports){
 'use strict'
 
 exports.toByteArray = toByteArray
@@ -6739,7 +6745,7 @@ BrowserStdout.prototype._write = function(chunks, encoding, cb) {
 }
 
 }).call(this,require('_process'))
-},{"_process":58,"stream":69,"util":74}],43:[function(require,module,exports){
+},{"_process":58,"stream":59,"util":75}],43:[function(require,module,exports){
 arguments[4][41][0].apply(exports,arguments)
 },{"dup":41}],44:[function(require,module,exports){
 (function (global){
@@ -8568,7 +8574,14 @@ function isnan (val) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"base64-js":40,"ieee754":51,"isarray":54}],46:[function(require,module,exports){
+},{"base64-js":40,"ieee754":52,"isarray":46}],46:[function(require,module,exports){
+var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+},{}],47:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -8679,7 +8692,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":53}],47:[function(require,module,exports){
+},{"../../is-buffer/index.js":54}],48:[function(require,module,exports){
 /* See LICENSE file for terms of use */
 
 /*
@@ -9300,7 +9313,7 @@ function objectToString(o) {
   }
 }(this));
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
@@ -9313,7 +9326,7 @@ module.exports = function (str) {
 	return str.replace(matchOperatorsRe,  '\\$&');
 };
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9613,7 +9626,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 (function (process){
 // Growl - Copyright TJ Holowaychuk <tj@vision-media.ca> (MIT Licensed)
 
@@ -9907,7 +9920,7 @@ function growl(msg, options, fn) {
 };
 
 }).call(this,require('_process'))
-},{"_process":58,"child_process":43,"fs":43,"os":56,"path":43}],51:[function(require,module,exports){
+},{"_process":58,"child_process":43,"fs":43,"os":56,"path":43}],52:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -9993,7 +10006,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -10018,7 +10031,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 /**
  * Determine if an object is Buffer
  *
@@ -10036,13 +10049,6 @@ module.exports = function (obj) {
       obj.constructor.isBuffer(obj))
     ))
 }
-
-},{}],54:[function(require,module,exports){
-var toString = {}.toString;
-
-module.exports = Array.isArray || function (arr) {
-  return toString.call(arr) == '[object Array]';
-};
 
 },{}],55:[function(require,module,exports){
 (function (process){
@@ -10337,9 +10343,140 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],59:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+module.exports = Stream;
+
+var EE = require('events').EventEmitter;
+var inherits = require('inherits');
+
+inherits(Stream, EE);
+Stream.Readable = require('readable-stream/readable.js');
+Stream.Writable = require('readable-stream/writable.js');
+Stream.Duplex = require('readable-stream/duplex.js');
+Stream.Transform = require('readable-stream/transform.js');
+Stream.PassThrough = require('readable-stream/passthrough.js');
+
+// Backwards-compat with node 0.4.x
+Stream.Stream = Stream;
+
+
+
+// old-style streams.  Note that the pipe method (the only relevant
+// part of this class) is overridden in the Readable class.
+
+function Stream() {
+  EE.call(this);
+}
+
+Stream.prototype.pipe = function(dest, options) {
+  var source = this;
+
+  function ondata(chunk) {
+    if (dest.writable) {
+      if (false === dest.write(chunk) && source.pause) {
+        source.pause();
+      }
+    }
+  }
+
+  source.on('data', ondata);
+
+  function ondrain() {
+    if (source.readable && source.resume) {
+      source.resume();
+    }
+  }
+
+  dest.on('drain', ondrain);
+
+  // If the 'end' option is not supplied, dest.end() will be called when
+  // source gets the 'end' or 'close' events.  Only dest.end() once.
+  if (!dest._isStdio && (!options || options.end !== false)) {
+    source.on('end', onend);
+    source.on('close', onclose);
+  }
+
+  var didOnEnd = false;
+  function onend() {
+    if (didOnEnd) return;
+    didOnEnd = true;
+
+    dest.end();
+  }
+
+
+  function onclose() {
+    if (didOnEnd) return;
+    didOnEnd = true;
+
+    if (typeof dest.destroy === 'function') dest.destroy();
+  }
+
+  // don't leave dangling pipes when there are errors.
+  function onerror(er) {
+    cleanup();
+    if (EE.listenerCount(this, 'error') === 0) {
+      throw er; // Unhandled stream error in pipe.
+    }
+  }
+
+  source.on('error', onerror);
+  dest.on('error', onerror);
+
+  // remove all the event listeners that were added.
+  function cleanup() {
+    source.removeListener('data', ondata);
+    dest.removeListener('drain', ondrain);
+
+    source.removeListener('end', onend);
+    source.removeListener('close', onclose);
+
+    source.removeListener('error', onerror);
+    dest.removeListener('error', onerror);
+
+    source.removeListener('end', cleanup);
+    source.removeListener('close', cleanup);
+
+    dest.removeListener('close', cleanup);
+  }
+
+  source.on('end', cleanup);
+  source.on('close', cleanup);
+
+  dest.on('close', cleanup);
+
+  dest.emit('pipe', source);
+
+  // Allow for unix-like usage: A.pipe(B).pipe(C)
+  return dest;
+};
+
+},{"events":50,"inherits":53,"readable-stream/duplex.js":61,"readable-stream/passthrough.js":67,"readable-stream/readable.js":68,"readable-stream/transform.js":69,"readable-stream/writable.js":70}],60:[function(require,module,exports){
+arguments[4][46][0].apply(exports,arguments)
+},{"dup":46}],61:[function(require,module,exports){
 module.exports = require("./lib/_stream_duplex.js")
 
-},{"./lib/_stream_duplex.js":60}],60:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":62}],62:[function(require,module,exports){
 // a duplex stream is just a stream that is both readable and writable.
 // Since JS doesn't have multiple prototypal inheritance, this class
 // prototypally inherits from Readable, and then parasitically from
@@ -10415,7 +10552,7 @@ function forEach(xs, f) {
     f(xs[i], i);
   }
 }
-},{"./_stream_readable":62,"./_stream_writable":64,"core-util-is":46,"inherits":52,"process-nextick-args":57}],61:[function(require,module,exports){
+},{"./_stream_readable":64,"./_stream_writable":66,"core-util-is":47,"inherits":53,"process-nextick-args":57}],63:[function(require,module,exports){
 // a passthrough stream.
 // basically just the most minimal sort of Transform stream.
 // Every written chunk gets output as-is.
@@ -10442,7 +10579,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":63,"core-util-is":46,"inherits":52}],62:[function(require,module,exports){
+},{"./_stream_transform":65,"core-util-is":47,"inherits":53}],64:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -11338,7 +11475,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'))
-},{"./_stream_duplex":60,"_process":58,"buffer":45,"buffer-shims":44,"core-util-is":46,"events":49,"inherits":52,"isarray":54,"process-nextick-args":57,"string_decoder/":70,"util":41}],63:[function(require,module,exports){
+},{"./_stream_duplex":62,"_process":58,"buffer":45,"buffer-shims":44,"core-util-is":47,"events":50,"inherits":53,"isarray":60,"process-nextick-args":57,"string_decoder/":71,"util":41}],65:[function(require,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -11519,7 +11656,7 @@ function done(stream, er) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":60,"core-util-is":46,"inherits":52}],64:[function(require,module,exports){
+},{"./_stream_duplex":62,"core-util-is":47,"inherits":53}],66:[function(require,module,exports){
 (function (process){
 // A bit simpler than readable streams.
 // Implement an async ._write(chunk, encoding, cb), and it'll handle all
@@ -12048,10 +12185,10 @@ function CorkedRequest(state) {
   };
 }
 }).call(this,require('_process'))
-},{"./_stream_duplex":60,"_process":58,"buffer":45,"buffer-shims":44,"core-util-is":46,"events":49,"inherits":52,"process-nextick-args":57,"util-deprecate":72}],65:[function(require,module,exports){
+},{"./_stream_duplex":62,"_process":58,"buffer":45,"buffer-shims":44,"core-util-is":47,"events":50,"inherits":53,"process-nextick-args":57,"util-deprecate":73}],67:[function(require,module,exports){
 module.exports = require("./lib/_stream_passthrough.js")
 
-},{"./lib/_stream_passthrough.js":61}],66:[function(require,module,exports){
+},{"./lib/_stream_passthrough.js":63}],68:[function(require,module,exports){
 (function (process){
 var Stream = (function (){
   try {
@@ -12071,142 +12208,13 @@ if (!process.browser && process.env.READABLE_STREAM === 'disable' && Stream) {
 }
 
 }).call(this,require('_process'))
-},{"./lib/_stream_duplex.js":60,"./lib/_stream_passthrough.js":61,"./lib/_stream_readable.js":62,"./lib/_stream_transform.js":63,"./lib/_stream_writable.js":64,"_process":58}],67:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":62,"./lib/_stream_passthrough.js":63,"./lib/_stream_readable.js":64,"./lib/_stream_transform.js":65,"./lib/_stream_writable.js":66,"_process":58}],69:[function(require,module,exports){
 module.exports = require("./lib/_stream_transform.js")
 
-},{"./lib/_stream_transform.js":63}],68:[function(require,module,exports){
+},{"./lib/_stream_transform.js":65}],70:[function(require,module,exports){
 module.exports = require("./lib/_stream_writable.js")
 
-},{"./lib/_stream_writable.js":64}],69:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-module.exports = Stream;
-
-var EE = require('events').EventEmitter;
-var inherits = require('inherits');
-
-inherits(Stream, EE);
-Stream.Readable = require('readable-stream/readable.js');
-Stream.Writable = require('readable-stream/writable.js');
-Stream.Duplex = require('readable-stream/duplex.js');
-Stream.Transform = require('readable-stream/transform.js');
-Stream.PassThrough = require('readable-stream/passthrough.js');
-
-// Backwards-compat with node 0.4.x
-Stream.Stream = Stream;
-
-
-
-// old-style streams.  Note that the pipe method (the only relevant
-// part of this class) is overridden in the Readable class.
-
-function Stream() {
-  EE.call(this);
-}
-
-Stream.prototype.pipe = function(dest, options) {
-  var source = this;
-
-  function ondata(chunk) {
-    if (dest.writable) {
-      if (false === dest.write(chunk) && source.pause) {
-        source.pause();
-      }
-    }
-  }
-
-  source.on('data', ondata);
-
-  function ondrain() {
-    if (source.readable && source.resume) {
-      source.resume();
-    }
-  }
-
-  dest.on('drain', ondrain);
-
-  // If the 'end' option is not supplied, dest.end() will be called when
-  // source gets the 'end' or 'close' events.  Only dest.end() once.
-  if (!dest._isStdio && (!options || options.end !== false)) {
-    source.on('end', onend);
-    source.on('close', onclose);
-  }
-
-  var didOnEnd = false;
-  function onend() {
-    if (didOnEnd) return;
-    didOnEnd = true;
-
-    dest.end();
-  }
-
-
-  function onclose() {
-    if (didOnEnd) return;
-    didOnEnd = true;
-
-    if (typeof dest.destroy === 'function') dest.destroy();
-  }
-
-  // don't leave dangling pipes when there are errors.
-  function onerror(er) {
-    cleanup();
-    if (EE.listenerCount(this, 'error') === 0) {
-      throw er; // Unhandled stream error in pipe.
-    }
-  }
-
-  source.on('error', onerror);
-  dest.on('error', onerror);
-
-  // remove all the event listeners that were added.
-  function cleanup() {
-    source.removeListener('data', ondata);
-    dest.removeListener('drain', ondrain);
-
-    source.removeListener('end', onend);
-    source.removeListener('close', onclose);
-
-    source.removeListener('error', onerror);
-    dest.removeListener('error', onerror);
-
-    source.removeListener('end', cleanup);
-    source.removeListener('close', cleanup);
-
-    dest.removeListener('close', cleanup);
-  }
-
-  source.on('end', cleanup);
-  source.on('close', cleanup);
-
-  dest.on('close', cleanup);
-
-  dest.emit('pipe', source);
-
-  // Allow for unix-like usage: A.pipe(B).pipe(C)
-  return dest;
-};
-
-},{"events":49,"inherits":52,"readable-stream/duplex.js":59,"readable-stream/passthrough.js":65,"readable-stream/readable.js":66,"readable-stream/transform.js":67,"readable-stream/writable.js":68}],70:[function(require,module,exports){
+},{"./lib/_stream_writable.js":66}],71:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -12429,7 +12437,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":45}],71:[function(require,module,exports){
+},{"buffer":45}],72:[function(require,module,exports){
 
 /**
  * Expose `toIsoString`.
@@ -12470,7 +12478,7 @@ function pad (number) {
   var n = number.toString();
   return n.length === 1 ? '0' + n : n;
 }
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 (function (global){
 
 /**
@@ -12541,14 +12549,14 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],74:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -13138,4 +13146,4 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":73,"_process":58,"inherits":52}]},{},[1]);
+},{"./support/isBuffer":74,"_process":58,"inherits":53}]},{},[1]);
