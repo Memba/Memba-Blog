@@ -44,8 +44,8 @@ router.route(config.get('uris:webapp:ping'))
     .get(pingRoute.getOK);
 
 // Logger
-router.route(config.get('uris:webapp:logger'))
-    .get(loggerRoute.createLogEntry);
+// router.route(config.get('uris:webapp:logger'))
+//    .get(loggerRoute.createLogEntry);
 
 // Home
 router.route(config.get('uris:webapp:home'))
