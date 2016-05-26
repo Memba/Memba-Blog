@@ -53,7 +53,7 @@ module.exports = {
                 function (callback) {
                     menuModel.getMenu(language, callback);
                 },
-                // get blog post
+                // get blog post(s)
                 function (callback) {
                     /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                     // The following won't work is original protocol is https, and nodeJS server is hosted in http behind a proxy
