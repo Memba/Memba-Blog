@@ -189,7 +189,15 @@ function mongoQuery(data, query) {
     /* jshint +W074 */
     /* jshint +W073 */
 
-    return results;
+    return results.sort(function (a, b) {
+        if (a.creation_date < b.creation_date) {
+            return 1;
+        }
+        if (a.creation_date > b.creation_date) {
+            return -1;
+        }
+        return 0;
+    });
 }
 
 
