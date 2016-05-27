@@ -10,11 +10,11 @@
     <% // Facebook %>
     <meta property="fb:app_id" content="<%= config.facebook.clientID %>" />
     <% // Open graph protocol - https://developers.facebook.com/docs/sharing/webmasters#markup %>
+    <meta property="og:title" content="<%= title %>" />
     <meta property="og:description" content="<%= description %>" />
     <meta property="og:image" content="<%= image %>" />
     <meta property="og:site_name" content="<%= config.application.siteName %>" />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="<%= title %>" />
     <% if (typeof site_url === 'string' ) { %>
     <meta property="og:url" content="<%= site_url %>" />
     <link rel="canonical" href="<%= site_url %>" />
