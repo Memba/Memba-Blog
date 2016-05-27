@@ -20,11 +20,8 @@
     <link rel="canonical" href="<%= site_url %>" />
     <% } %>
     <% // Twitter card - https://dev.twitter.com/cards/markup %>
-    <meta property="twitter:card" content="summary">
-    <meta property="twitter:description" content="<%= description %>">
-    <meta property="twitter:image" content="<%= image %>">
+    <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:site" content="@<%= config.twitter.account %>">
-    <meta property="twitter:title" content="<%= title %>">
     <% // Favicon and apple touch icons %>
     <link rel="shortcut icon" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'favicon.ico')) %>">
     <link rel="apple-touch-icon" sizes="57x57" href="<%= url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-57x57.png')) %>">
