@@ -3,6 +3,7 @@
         "name": "Memba.Blog",
         "siteName": "Memba"
     },
+    "head" : "<meta name=\"p:domain_verify\" content=\"e22eb7259d53835583e22d6bf7a0f52e\"/>",
     "home": {
         "author": "Memba Sarl",
         "title": "Memba",
@@ -18,6 +19,15 @@
         }
     },
     "locales": [ "en", "fr" ],
+    "db": {
+        "index": "../cache/%s.json"
+    },
+    "github": {
+        "menu": "menu.json",
+        "pages": "pages",
+        "posts": "posts",
+        "markdown": "%s.md"
+    },
     "uris" : {
         "cdn": {
             "root":  "https://cdn.kidoju.com",

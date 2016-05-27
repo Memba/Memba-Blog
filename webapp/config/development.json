@@ -15,17 +15,10 @@
     "twitter": {
         "account": "memba"
     },
-    "db": {
-        "index": "../cache/%s.json"
-    },
     "github": {
         "repository": "Memba/Memba-Blog-TestData",
         "branch": "master",
-        "language": "memba/%s/",
-        "menu": "menu.json",
-        "pages": "pages",
-        "posts": "posts",
-        "markdown": "%s.md"
+        "language": "memba/%s/"
     },
     "uris" : {
         "webapp": {
