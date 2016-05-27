@@ -190,12 +190,14 @@ function mongoQuery(data, query) {
     /* jshint +W073 */
 
     return results.sort(function (a, b) {
+        /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
         if (a.creation_date < b.creation_date) {
             return 1;
         }
         if (a.creation_date > b.creation_date) {
             return -1;
         }
+        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
         return 0;
     });
 }
