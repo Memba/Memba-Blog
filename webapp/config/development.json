@@ -1,24 +1,24 @@
 {
     "debug": true,
-    "level": 0,
     "express": {
         "port"  : 3000
     },
-    "logentries": {
-        "browser": {
-            "token": "e78bac0b-377a-49e2-ad91-20bb4ec7cedc"
-        }
-    },
     "facebook": {
         "clientID": "765158596920529"
-    },
-    "twitter": {
-        "account": "memba"
     },
     "github": {
         "repository": "Memba/Memba-Blog-TestData",
         "branch": "master",
         "language": "memba/%s/"
+    },
+    "level": 0,
+    "logentries": {
+        "browser": {
+            "token": "e78bac0b-377a-49e2-ad91-20bb4ec7cedc"
+        }
+    },
+    "twitter": {
+        "account": "memba"
     },
     "uris" : {
         "webapp": {

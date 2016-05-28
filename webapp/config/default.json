@@ -3,6 +3,15 @@
         "name": "Memba.Blog",
         "siteName": "Memba"
     },
+    "db": {
+        "index": "../cache/%s.json"
+    },
+    "github": {
+        "menu": "menu.json",
+        "pages": "pages",
+        "posts": "posts",
+        "markdown": "%s.md"
+    },
     "head" : "<meta name=\"p:domain_verify\" content=\"e22eb7259d53835583e22d6bf7a0f52e\"/>",
     "home": {
         "author": "Memba Sarl",
@@ -18,16 +27,8 @@
             "text": "Version française de notre site."
         }
     },
+    "images": ["http://www.memba.com/build/9e0bdff4970e28b99fd7c45d700c20fa.jpg"],
     "locales": [ "en", "fr" ],
-    "db": {
-        "index": "../cache/%s.json"
-    },
-    "github": {
-        "menu": "menu.json",
-        "pages": "pages",
-        "posts": "posts",
-        "markdown": "%s.md"
-    },
     "uris" : {
         "cdn": {
             "root":  "https://cdn.kidoju.com",
