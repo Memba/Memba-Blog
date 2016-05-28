@@ -36,11 +36,6 @@ module.exports = {
         }
         // Now we have an ApplicationError
 
-        // Ensure a trace id that we can track in the browser
-        if (typeof res.getLocale === 'function' && typeof res.__ === 'function' && typeof req.trace === 'undefined') {
-            req.trace = utils.uuid();
-        }
-
         // Log the error
         var entry = {
             module: 'middleware/error',
@@ -58,7 +53,12 @@ module.exports = {
 
         if (typeof res.getLocale === 'function' && typeof res.__ === 'function') {
 
-            /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+            var config = res.locals.config;
+            var format = res.locals.format;
+            var url = res.locals.url;
+
+            // Create a trace that we can track in the browser
+            req.trace = utils.uuid();
 
             var language = res.getLocale();
 
@@ -74,18 +74,20 @@ module.exports = {
                 .render('error', {
                     author: res.__('meta.author'),
                     description: error.message,
-                    icon: res.__('error.icon'),
-                    image: '', // <--------------------------------------------------------- TODO
+                    icon: url.join(config.uris.cdn.root, format(config.uris.cdn.icons, res.__('error.icon'))),
+                    image: config.images[Math.floor(config.images.length * Math.random())],
                     keywords: res.__('meta.keywords'),
                     language: language,
                     menu: [], // Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
                     results: [], // trick header into displaying robots noindex directive
+                    /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
                     site_url: false, // trick header into not displaying a canonical link since we have a robots noindex directive
+                    /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                     title: error.title,
                     trace: req.trace
                 });
 
-            /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
+
 
         } else {
 
