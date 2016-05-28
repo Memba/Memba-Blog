@@ -51,11 +51,11 @@ if (config.production) {
 /* jshint -W074 */
 
 /**
- * Process entry.request if existing
+ * Capture entry.request if existing
  * @param entry
  * @returns {*}
  */
-function process(entry) {
+function capture(entry) {
     if (typeof entry === 'string') {
         entry = { message: entry };
     } else if (entry instanceof Error) {
@@ -76,6 +76,9 @@ function process(entry) {
         } else {
             entry.stack = entry.error.stack;
         }
+    }
+    if (process.env.HOSTNAME) {
+        entry.host = process.env.HOSTNAME;
     }
     if (entry.request) {
         var request = entry.request;
@@ -109,8 +112,8 @@ function process(entry) {
 * @param label
 */
 function print(entry, label) {
-    /* jshint maxstatements: 41 */
-    /* jshint maxcomplexity: 28 */
+    /* jshint maxstatements: 44 */
+    /* jshint maxcomplexity: 30 */
     var message = label;
     var first = true;
     if (entry.message) {
@@ -157,6 +160,10 @@ function print(entry, label) {
         message += (first ? prefix : separator) + 'trace' + eq + qt + entry.trace + qt;
         first = false;
     }
+    if (entry.host) {
+        message += (first ? prefix : separator) + 'host' + eq + qt + entry.host + qt;
+        first = false;
+    }
     if (entry.ip) {
         message += (first ? prefix : separator) + 'ip' + eq + qt + entry.ip + qt;
         first = false;
@@ -199,7 +206,7 @@ module.exports = exports = {
         if (exports.level > levels.debug) {
             return false;
         }
-        print(process(entry), labels.debug);
+        print(capture(entry), labels.debug);
         return true;
     },
 
@@ -212,7 +219,7 @@ module.exports = exports = {
         if (exports.level > levels.info) {
             return false;
         }
-        print(process(entry), labels.info);
+        print(capture(entry), labels.info);
         return true;
     },
 
@@ -225,7 +232,7 @@ module.exports = exports = {
         if (exports.level > levels.warn) {
             return false;
         }
-        print(process(entry), labels.warn);
+        print(capture(entry), labels.warn);
         return true;
     },
 
@@ -238,7 +245,7 @@ module.exports = exports = {
         if (exports.level > levels.error) {
             return false;
         }
-        print(process(entry), labels.error);
+        print(capture(entry), labels.error);
         return true;
     },
 
@@ -251,7 +258,7 @@ module.exports = exports = {
         if (exports.level > levels.critical) {
             return false;
         }
-        print(process(entry), labels.critical);
+        print(capture(entry), labels.critical);
         return true;
     }
 
