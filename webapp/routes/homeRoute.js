@@ -51,7 +51,7 @@ module.exports = {
                     .render('home', {
                         author: config.home.author,
                         description: config.home.description,
-                        image: url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')),
+                        image: config.images[config.images.length * Math.random()],
                         keywords: config.home.keywords,
                         language: language,
                         menu: data,
