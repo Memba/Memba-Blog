@@ -25,6 +25,6 @@ set NODE_ENV=test
 GOTO BUILD
 :BUILD
 DEL webapp\public\build /S /Q
-DEL www\build /S /Q
+IF EXIST www DEL www\build /S /Q
 grunt build
 :DONE

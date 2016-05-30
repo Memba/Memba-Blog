@@ -55,9 +55,11 @@ module.exports = function (grunt) {
             // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
             options: webpackConfig,
             build: {
+                cache: false,
                 plugins: webpackConfig.plugins.concat(
                     new webpack.optimize.DedupePlugin(),
                     new webpack.optimize.UglifyJsPlugin()
+                    // new webpack.optimize.AggressiveMergingPlugin() // Note: merges app.culture.fr.chunk.js
                 )
             }
         },

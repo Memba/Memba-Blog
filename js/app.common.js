@@ -22,8 +22,11 @@ if (typeof(require) === 'function') {
 (function (f, define) {
     'use strict';
     define([
+        './vendor/kendo/kendo.core',
+        './vendor/kendo/kendo.data',
         './vendor/kendo/kendo.binder',
-        // './vendor/kendo/kendo.button',
+        './vendor/kendo/kendo.popup',
+        './vendor/kendo/kendo.list',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.notification',
         './window.assert',
@@ -129,6 +132,7 @@ if (typeof(require) === 'function') {
             .on(LOADED, function () { // LOADED occurs after $(document).ready
 
                 kendo.init('body'); // , kendo.mobile.ui);
+
                 controller.initViewModel();
                 controller.initNotifications();
                 kendo.bind('footer', viewModel);

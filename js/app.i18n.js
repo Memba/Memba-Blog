@@ -110,11 +110,10 @@
         /**
          * Load page locale (read from html tag)
          */
-        var locale = i18n.locale();
-        i18n.load(locale)
-            .then(function () {
-                $(document).ready(function () {
-
+        $(document).ready(function () {
+            var locale = i18n.locale();
+            i18n.load(locale)
+                .then(function () {
                     // Log readiness
                     logger.info({
                         message: locale + ' locale loaded',
@@ -133,7 +132,7 @@
         $(document)
             .on(LOADED, function () {
                 if ($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED) {
-                    $('body>div.k-loading-image').fadeOut();
+                    setTimeout(function () { $('body>div.k-loading-image').fadeOut(); }, 200);
                 }
             });
 

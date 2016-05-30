@@ -26,7 +26,7 @@ cd "$(dirname "$0")"
 
 # delete build
 rm -f ./webapp/public/build/*
-rm -f ./www/build/*
+if [ -d ./www/build ]; then rm -f ./www/build/*; fi
 
 # rebuild
 grunt build
