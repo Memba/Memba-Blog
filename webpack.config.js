@@ -139,9 +139,9 @@ module.exports = {
     },
     plugins: [
         definePlugin,
-        // dedupePlugin,
         commonsChunkPlugin,
         bannerPlugin
+        // dedupePlugin,
         // sourceMapDevToolPlugin
     ]
 };
