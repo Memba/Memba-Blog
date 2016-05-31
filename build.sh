@@ -10,6 +10,10 @@ then
     exit
 fi
 
+# first change directory to script directory
+cd "$(dirname "$0")"
+
+# then set environment variable
 if [ "$1" == "d" ] || [ "$1" == "dev" ] || [ "$1" == "development" ]
 then
     export NODE_ENV="development"
@@ -21,12 +25,9 @@ then
     export NODE_ENV="production"
 fi
 
-# first change directory to script directory
-cd "$(dirname "$0")"
-
-# delete build
+# and delete previous build
 rm -f ./webapp/public/build/*
 if [ -d ./www/build ]; then rm -f ./www/build/*; fi
 
-# rebuild
+# finally rebuild
 grunt build

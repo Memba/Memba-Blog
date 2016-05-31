@@ -19,7 +19,7 @@
 
     (function ($, undefined) {
 
-        var app = window.app;
+        var app = window.app = window.app || {};
         var assert = window.assert;
         var logger = new window.Logger('app.i18n');
         var cultures = app.cultures = app.cultures || {};
