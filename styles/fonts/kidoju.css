@@ -6,6 +6,7 @@
     font-style: normal;
 }
 .kf {
+    font-family: "kidoju";
     display: inline-block;
     vertical-align: middle;
     line-height: 1;
@@ -17,9 +18,6 @@
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-.kf:before {
-    font-family: "kidoju";
 }
 .kf-add:before {
     content: "\f101";
