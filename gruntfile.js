@@ -47,9 +47,12 @@ module.exports = function (grunt) {
                 jshintrc: true
             }
         },
+        /*
+        // Kendo Lint is now obsolete
         kendo_lint: {
             files: ['src/js/app*.js']
         },
+        */
         // TODO: lint html too
         webpack: {
             // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
@@ -103,7 +106,7 @@ module.exports = function (grunt) {
     // Lint
     grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-kendo-lint');
+    // grunt.loadNpmTasks('grunt-kendo-lint');
 
     // Build
     grunt.loadNpmTasks('grunt-webpack');
@@ -114,7 +117,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-mocha-test');
 
     // Commands
-    grunt.registerTask('lint', ['jscs', 'jshint', 'kendo_lint']);
+    grunt.registerTask('lint', ['jscs', 'jshint']); //, 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
