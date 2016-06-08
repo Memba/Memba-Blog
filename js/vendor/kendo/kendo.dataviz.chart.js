@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1297,8 +1297,9 @@
                     }
                 }
                 if (!inAxis && plotArea.backgroundBox().containsPoint(coords)) {
+                    var ranges = axisRanges(axes);
                     prevented = chart.trigger(chartEvent, {
-                        axisRanges: axisRanges(axes),
+                        axisRanges: ranges,
                         originalEvent: e
                     });
                     if (prevented) {
@@ -1307,6 +1308,7 @@
                         chart._suppressHover = true;
                         chart._unsetActivePoint();
                         chart._navState = {
+                            axisRanges: ranges,
                             pane: pane,
                             axes: axes
                         };
@@ -4934,6 +4936,9 @@
                             break;
                         }
                         plotValue += this.plotValue(other);
+                        if (this.options.isStacked100) {
+                            plotValue = math.min(plotValue, 1);
+                        }
                     }
                 }
                 return [
@@ -7327,18 +7332,23 @@
             },
             stackRoot: returnSelf,
             unclipLabels: function () {
-                var container = this, charts = container.children, clipBox = container.clipBox, points, point, i, j, length;
+                var container = this, charts = container.children, clipBox = container.clipBox, points, point, i, j, length, label, note;
                 for (i = 0; i < charts.length; i++) {
                     points = charts[i].points || {};
                     length = points.length;
                     for (j = 0; j < length; j++) {
                         point = points[j];
-                        if (point && point.label && point.label.options.visible) {
-                            if (point.overlapsBox(clipBox)) {
-                                if (point.label.alignToClipBox) {
-                                    point.label.alignToClipBox(clipBox);
+                        if (point && point.overlapsBox && point.overlapsBox(clipBox)) {
+                            label = point.label;
+                            note = point.note;
+                            if (label && label.options.visible) {
+                                if (label.alignToClipBox) {
+                                    label.alignToClipBox(clipBox);
                                 }
-                                point.label.options.noclip = true;
+                                label.options.noclip = true;
+                            }
+                            if (note && note.options.visible) {
+                                note.options.noclip = true;
                             }
                         }
                     }
@@ -7931,6 +7941,14 @@
                 }
             }
         });
+        var PlotAreaEventsMixin = {
+            hover: function (chart, e) {
+                this._dispatchEvent(chart, e, PLOT_AREA_HOVER);
+            },
+            click: function (chart, e) {
+                this._dispatchEvent(chart, e, PLOT_AREA_CLICK);
+            }
+        };
         var CategoricalPlotArea = PlotAreaBase.extend({
             init: function (series, options) {
                 var plotArea = this;
@@ -8466,12 +8484,6 @@
                     plotArea.axisY = primaryAxis;
                 }
             },
-            hover: function (chart, e) {
-                this._dispatchEvent(chart, e, PLOT_AREA_HOVER);
-            },
-            click: function (chart, e) {
-                this._dispatchEvent(chart, e, PLOT_AREA_CLICK);
-            },
             _dispatchEvent: function (chart, e, eventType) {
                 var plotArea = this, coords = chart._eventCoordinates(e), point = new Point2D(coords.x, coords.y), pane = plotArea.pointPane(point), allAxes, i, axis, categories = [], values = [];
                 if (!pane) {
@@ -8512,6 +8524,7 @@
                 deepExtend(axesOptions[axis.axisIndex], options);
             }
         });
+        deepExtend(CategoricalPlotArea.fn, PlotAreaEventsMixin);
         var AxisGroupRangeTracker = Class.extend({
             init: function () {
                 var tracker = this;
@@ -8689,7 +8702,7 @@
                 plotArea.axisX = plotArea.axisX || xAxes[0];
                 plotArea.axisY = plotArea.axisY || yAxes[0];
             },
-            click: function (chart, e) {
+            _dispatchEvent: function (chart, e, eventType) {
                 var plotArea = this, coords = chart._eventCoordinates(e), point = new Point2D(coords.x, coords.y), allAxes = plotArea.axes, i, length = allAxes.length, axis, xValues = [], yValues = [], currentValue, values;
                 for (i = 0; i < length; i++) {
                     axis = allAxes[i];
@@ -8700,7 +8713,7 @@
                     }
                 }
                 if (xValues.length > 0 && yValues.length > 0) {
-                    chart.trigger(PLOT_AREA_CLICK, {
+                    chart.trigger(eventType, {
                         element: eventTargetElement(e),
                         originalEvent: e,
                         x: singleItemOrArray(xValues),
@@ -8716,6 +8729,7 @@
                 deepExtend(axisOptions, options);
             }
         });
+        deepExtend(XYPlotArea.fn, PlotAreaEventsMixin);
         var PiePlotArea = PlotAreaBase.extend({
             render: function () {
                 var plotArea = this, series = plotArea.series;
@@ -9417,7 +9431,9 @@
                 }
                 clearTimeout(that._mwTimeout);
                 that._state = null;
-                that.wrapper.remove();
+                if (that.wrapper) {
+                    that.wrapper.remove();
+                }
             },
             _rangeEventArgs: function (range) {
                 var that = this;
@@ -9544,22 +9560,20 @@
                 }
             },
             _index: function (value) {
-                var that = this, categoryAxis = that.categoryAxis, categories = categoryAxis.options.categories, index = value;
+                var index = value;
                 if (value instanceof Date) {
-                    index = lteDateIndex(value, categories);
-                    if (!categoryAxis.options.justified && value > last(categories)) {
-                        index += 1;
-                    }
+                    index = this.categoryAxis.categoryIndex(value);
                 }
                 return index;
             },
             _value: function (index) {
-                var that = this, categoryAxis = this.categoryAxis, categories = categoryAxis.options.categories, value = index;
-                if (that._dateAxis) {
+                var categories = this.categoryAxis.options.categories;
+                var value = index;
+                if (this._dateAxis) {
                     if (index > categories.length - 1) {
-                        value = that.options.max;
+                        value = this.options.max;
                     } else {
-                        value = categories[index];
+                        value = categories[math.ceil(index)];
                     }
                 }
                 return value;
@@ -10766,6 +10780,7 @@
             PiePlotArea: PiePlotArea,
             PieSegment: PieSegment,
             PlotAreaBase: PlotAreaBase,
+            PlotAreaEventsMixin: PlotAreaEventsMixin,
             PlotAreaFactory: PlotAreaFactory,
             PointEventsMixin: PointEventsMixin,
             RangeBar: RangeBar,

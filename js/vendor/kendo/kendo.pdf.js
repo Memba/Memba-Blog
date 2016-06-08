@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -4036,7 +4036,7 @@
         function exportPDF(group, options) {
             var defer = $.Deferred();
             for (var i in options) {
-                if (i == 'margin' && group.options.pdf._ignoreMargin) {
+                if (i == 'margin' && group.options.pdf && group.options.pdf._ignoreMargin) {
                     continue;
                 }
                 group.options.set('pdf.' + i, options[i]);

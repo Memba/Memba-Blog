@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -119,6 +119,9 @@
                 var lastTimesCell = this.times.find('tr:first th:last');
                 for (var groupIndex = 0; groupIndex < groupsCount; groupIndex++) {
                     var currentGroup = this.groups[groupIndex];
+                    if (!currentGroup) {
+                        return;
+                    }
                     var utcCurrentTime = kendo.date.toUtcTime(currentTime);
                     var ranges = currentGroup.timeSlotRanges(utcCurrentTime, utcCurrentTime + 1);
                     if (ranges.length === 0) {

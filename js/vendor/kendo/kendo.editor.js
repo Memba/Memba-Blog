@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -765,6 +765,7 @@
             },
             destroy: function () {
                 Widget.fn.destroy.call(this);
+                this._endTyping(true);
                 this._deregisterHandlers();
                 clearTimeout(this._spellCorrectTimeout);
                 this._focusOutside();
@@ -883,7 +884,7 @@
                 if (!name) {
                     throw new Error('kendoEditor.exec(): `name` parameter cannot be empty');
                 }
-                if (that.body.getAttribute('contenteditable') !== 'true' && name !== 'print') {
+                if (that.body.getAttribute('contenteditable') !== 'true' && name !== 'print' && name !== 'pdf') {
                     return false;
                 }
                 name = name.toLowerCase();
@@ -4287,9 +4288,14 @@
                 }
             },
             removeFormatting: function (placeholder) {
-                $(placeholder).find('*').css({
-                    fontSize: '',
-                    fontFamily: ''
+                $(placeholder).find('*').each(function () {
+                    $(this).css({
+                        fontSize: '',
+                        fontFamily: ''
+                    });
+                    if (!this.getAttribute('style') && !this.style.cssText) {
+                        this.removeAttribute('style');
+                    }
                 });
             },
             clean: function (html) {

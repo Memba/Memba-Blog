@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -4059,8 +4059,10 @@
                     for (var idx = 0; idx < element.children.length; idx++) {
                         this.bboxChange(element.children[idx]);
                     }
-                } else if (element._quadNode) {
-                    element._quadNode.remove(element);
+                } else {
+                    if (element._quadNode) {
+                        element._quadNode.remove(element);
+                    }
                     this._insertShape(element);
                 }
             },
@@ -4092,26 +4094,28 @@
             },
             _insertShape: function (shape) {
                 var bbox = shape.bbox();
-                var rootSize = this.ROOT_SIZE;
-                var sectors = this.getSectors(bbox);
-                var x = sectors[0][0];
-                var y = sectors[1][0];
-                if (this.inRoot(sectors)) {
-                    this.root.insert(shape, bbox);
-                } else {
-                    if (!this.rootMap[x]) {
-                        this.rootMap[x] = {};
+                if (bbox) {
+                    var rootSize = this.ROOT_SIZE;
+                    var sectors = this.getSectors(bbox);
+                    var x = sectors[0][0];
+                    var y = sectors[1][0];
+                    if (this.inRoot(sectors)) {
+                        this.root.insert(shape, bbox);
+                    } else {
+                        if (!this.rootMap[x]) {
+                            this.rootMap[x] = {};
+                        }
+                        if (!this.rootMap[x][y]) {
+                            this.rootMap[x][y] = new QuadNode(new Rect([
+                                x * rootSize,
+                                y * rootSize
+                            ], [
+                                rootSize,
+                                rootSize
+                            ]));
+                        }
+                        this.rootMap[x][y].insert(shape, bbox);
                     }
-                    if (!this.rootMap[x][y]) {
-                        this.rootMap[x][y] = new QuadNode(new Rect([
-                            x * rootSize,
-                            y * rootSize
-                        ], [
-                            rootSize,
-                            rootSize
-                        ]));
-                    }
-                    this.rootMap[x][y].insert(shape, bbox);
                 }
             },
             remove: function (element) {
@@ -6946,12 +6950,16 @@
             cacheImages(element, function () {
                 var forceBreak = options && options.forcePageBreak;
                 var hasPaperSize = options && options.paperSize && options.paperSize != 'auto';
-                var paperOptions = hasPaperSize && kendo.pdf.getPaperOptions(function (key, def) {
+                var paperOptions = kendo.pdf.getPaperOptions(function (key, def) {
+                    if (key == 'paperSize') {
+                        return hasPaperSize ? options[key] : 'A4';
+                    }
                     return key in options ? options[key] : def;
                 });
                 var pageWidth = hasPaperSize && paperOptions.paperSize[0];
                 var pageHeight = hasPaperSize && paperOptions.paperSize[1];
                 var margin = options.margin && paperOptions.margin;
+                var hasMargin = !!margin;
                 if (forceBreak || pageHeight) {
                     if (!margin) {
                         margin = {
@@ -6975,7 +6983,7 @@
                         pdf: {
                             multiPage: true,
                             paperSize: hasPaperSize ? paperOptions.paperSize : 'auto',
-                            _ignoreMargin: true
+                            _ignoreMargin: hasMargin
                         }
                     });
                     handlePageBreaks(function (x) {
@@ -7201,7 +7209,9 @@
                     if (options.repeatHeaders) {
                         thead = table.find('thead:first');
                         grid = $(el).closest('.k-grid[data-role="grid"]');
-                        gridHead = grid.find('.k-grid-header:first');
+                        if (grid[0] && grid[0].querySelector('.k-auto-scrollable')) {
+                            gridHead = grid.find('.k-grid-header:first');
+                        }
                     }
                     var page = makePage();
                     var range = doc.createRange();
@@ -7218,7 +7228,7 @@
                             colgroup.clone().prependTo(table);
                         }
                     }
-                    if (options.repeatHeaders && grid[0]) {
+                    if (options.repeatHeaders && gridHead && gridHead[0]) {
                         grid = $(el).closest('.k-grid[data-role="grid"]');
                         if (gridHead[0]) {
                             gridHead.clone().prependTo(grid);
@@ -7777,24 +7787,6 @@
                 });
                 style[prop] = value;
             }
-        }
-        function actuallyGetRangeBoundingRect(range) {
-            if (browser.msie || browser.chrome) {
-                var a = range.getClientRects(), box, count = 0;
-                if (a.length <= 3) {
-                    for (var i = 0; i < a.length; ++i) {
-                        if (a[i].width <= 1) {
-                            count++;
-                        } else {
-                            box = a[i];
-                        }
-                    }
-                    if (count == a.length - 1) {
-                        return box;
-                    }
-                }
-            }
-            return range.getBoundingClientRect();
         }
         function getBorder(style, side) {
             side = 'border-' + side;
@@ -8993,12 +8985,37 @@
             if (estimateLineLength === 0) {
                 estimateLineLength = 500;
             }
+            var prevLineBottom = null;
             while (!doChunk()) {
             }
             if (browser.msie && textOverflow == 'ellipsis') {
                 element.style.textOverflow = saveTextOverflow;
             }
             return;
+            function actuallyGetRangeBoundingRect(range) {
+                if (browser.msie || browser.chrome) {
+                    var rectangles = range.getClientRects(), box = {
+                            top: +Infinity,
+                            right: -Infinity,
+                            bottom: -Infinity,
+                            left: +Infinity
+                        };
+                    for (var i = 0; i < rectangles.length; ++i) {
+                        var b = rectangles[i];
+                        if (b.width <= 1 || b.bottom === prevLineBottom) {
+                            continue;
+                        }
+                        box.left = Math.min(b.left, box.left);
+                        box.top = Math.min(b.top, box.top);
+                        box.right = Math.max(b.right, box.right);
+                        box.bottom = Math.max(b.bottom, box.bottom);
+                    }
+                    box.width = box.right - box.left;
+                    box.height = box.bottom - box.top;
+                    return box;
+                }
+                return range.getBoundingClientRect();
+            }
             function doChunk() {
                 var origStart = start;
                 var box, pos = text.substr(start).search(/\S/);
@@ -9014,7 +9031,7 @@
                     pos = text.substr(start).search(/\s/);
                     if (pos >= 0) {
                         range.setEnd(node, start + pos);
-                        var r = range.getBoundingClientRect();
+                        var r = actuallyGetRangeBoundingRect(range);
                         if (r.bottom == box.bottom) {
                             box = r;
                             found = true;
@@ -9049,7 +9066,7 @@
                     }
                     if (pos > 0) {
                         range.setEnd(node, range.startOffset + pos);
-                        box = range.getBoundingClientRect();
+                        box = actuallyGetRangeBoundingRect(range);
                     }
                 }
                 if (browser.msie) {
@@ -9074,6 +9091,9 @@
                         var indent = '        '.substr(0, 8 - (cc + pos) % 8);
                         str = str.substr(0, pos) + indent + str.substr(pos + 1);
                     }
+                }
+                if (!found) {
+                    prevLineBottom = box.bottom;
                 }
                 drawText(str, box);
             }

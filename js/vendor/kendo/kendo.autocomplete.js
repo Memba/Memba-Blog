@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -300,7 +300,6 @@
                 var length = data.length;
                 var isActive = that.element[0] === activeElement();
                 var action;
-                that._angularItems('compile');
                 that._resizePopup();
                 popup.position();
                 if (length) {

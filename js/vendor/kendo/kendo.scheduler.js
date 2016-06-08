@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2182,7 +2182,7 @@
                 });
                 wrapper.on('focus' + NS, function () {
                     if (!that._selection) {
-                        that._createSelection(that.wrapper.find('.k-scheduler-content').find('td:first'));
+                        that._selectFirstSlot();
                     }
                     that._select();
                 });
@@ -2195,12 +2195,18 @@
                     that._shiftKey = e.shiftKey;
                 });
             },
+            _selectFirstSlot: function () {
+                this._createSelection(this.wrapper.find('.k-scheduler-content').find('td:first'));
+            },
             _select: function () {
                 var that = this;
                 var view = that.view();
                 var wrapper = that.wrapper;
                 var current = view.current();
                 var selection = that._selection;
+                if (!selection) {
+                    return;
+                }
                 if (current) {
                     current.removeAttribute('id');
                     current.removeAttribute('aria-label');
@@ -2289,6 +2295,11 @@
                 var that = this, key = e.keyCode, view = that.view(), editable = view.options.editable, selection = that._selection, shiftKey = e.shiftKey;
                 that._ctrlKey = e.ctrlKey;
                 that._shiftKey = e.shiftKey;
+                if (!selection) {
+                    that._selectFirstSlot();
+                    that._select();
+                    return;
+                }
                 if (key === keys.TAB) {
                     if (view.moveToEvent(selection, shiftKey)) {
                         that._select();
@@ -2345,7 +2356,7 @@
                 this._updateSelection(slot, uid);
                 this._adjustSelectedDate();
             },
-            _updateSelection: function (dataItem, events) {
+            _updateSelection: function (dataItem, events, groupIndex) {
                 var selection = this._selection;
                 if (dataItem && selection) {
                     var view = this.view();
@@ -2367,6 +2378,9 @@
                     } else {
                         selection.isAllDay = dataItem.isAllDay;
                     }
+                    if (groupIndex !== null && groupIndex !== undefined) {
+                        selection.groupIndex = groupIndex;
+                    }
                     selection.index = dataItem.index;
                     if (this._ctrlKey) {
                         selection.events = selection.events.concat(events || []);
@@ -2387,6 +2401,7 @@
                 min: new Date(1900, 0, 1),
                 max: new Date(2099, 11, 31),
                 toolbar: null,
+                footer: {},
                 messages: {
                     today: 'Today',
                     pdf: 'Export to PDF',
@@ -2502,7 +2517,13 @@
                 }
             },
             items: function () {
-                return this.wrapper.find('.k-scheduler-content').children('.k-event, .k-task');
+                var content = this.wrapper.find('.k-scheduler-content');
+                var view = this.view();
+                if (view && view.options.name === 'agenda') {
+                    return content.find('.k-task');
+                } else {
+                    return content.find('.k-event').add(this.wrapper.find('.k-scheduler-header-wrap').find('.k-scheduler-header-all-day').siblings());
+                }
             },
             _movable: function () {
                 var startSlot;
@@ -2635,7 +2656,7 @@
                                         end: end
                                     }, updatedEventOptions, endResources);
                                 }
-                                that._updateEvent(null, event, eventOptions);
+                                that._updateEvent(null, event, eventOptions, endSlot.groupIndex);
                             }
                             e.currentTarget.removeClass('k-event-active');
                             this.cancelHold();
@@ -2817,7 +2838,7 @@
                     }
                 });
             },
-            _updateEvent: function (dir, event, eventInfo) {
+            _updateEvent: function (dir, event, eventInfo, groupIndex) {
                 var that = this;
                 var updateEvent = function (event, callback) {
                     try {
@@ -2831,7 +2852,7 @@
                         if (callback) {
                             callback();
                         }
-                        that._updateSelection(event);
+                        that._updateSelection(event, [event.uid], groupIndex);
                         that.dataSource.sync();
                     }
                 };
@@ -3666,7 +3687,7 @@
                 if (!that.popup) {
                     that.popup = new Popup(html, {
                         anchor: target,
-                        activate: function () {
+                        open: function () {
                             if (!that.calendar) {
                                 that.calendar = new Calendar(this.element.find('.k-scheduler-calendar'), {
                                     change: function () {

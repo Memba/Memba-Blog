@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -334,18 +334,18 @@
             _readData: function (newData) {
                 var data = this.data();
                 newData = DataSource.fn._readData.call(this, newData);
-                this._concat(newData, data);
+                this._replaceData(data.toJSON().concat(newData), data);
                 if (newData instanceof ObservableArray) {
                     return newData;
                 }
                 return data;
             },
-            _concat: function (source, target) {
-                var targetLength = target.length;
-                for (var i = 0; i < source.length; i++) {
-                    target[targetLength++] = source[i];
+            _replaceData: function (source, target) {
+                var sourceLength = source.length;
+                for (var i = 0; i < sourceLength; i++) {
+                    target[i] = source[i];
                 }
-                target.length = targetLength;
+                target.length = sourceLength;
             },
             _readAggregates: function (data) {
                 var result = extend(this._aggregateResult, this.reader.aggregates(data));
@@ -1409,8 +1409,9 @@
                 options = options || {};
                 var messages = this.options.messages;
                 var data = this.dataSource.rootNodes();
+                var uidAttr = kendo.attr('uid');
                 var selected = this.select().removeClass('k-state-selected').map(function (_, row) {
-                    return $(row).attr(kendo.attr('uid'));
+                    return $(row).attr(uidAttr);
                 });
                 this._absoluteIndex = 0;
                 this._angularItems('cleanup');
@@ -1455,6 +1456,9 @@
                     this._angularItems('compile');
                     this._angularFooters('compile');
                 });
+                this.items().filter(function () {
+                    return $.inArray($(this).attr(uidAttr), selected) >= 0;
+                }).addClass('k-state-selected');
                 this._adjustRowsHeight();
             },
             _adjustRowsHeight: function () {
@@ -1479,6 +1483,11 @@
                     }
                     if (rows[idx].style.height) {
                         rows[idx].style.height = lockedRows[idx].style.height = '';
+                    }
+                }
+                for (idx = 0; idx < length; idx++) {
+                    if (!lockedRows[idx]) {
+                        break;
                     }
                     var offsetHeight1 = rows[idx].offsetHeight;
                     var offsetHeight2 = lockedRows[idx].offsetHeight;

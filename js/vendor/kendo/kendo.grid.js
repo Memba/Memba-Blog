@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -799,7 +799,6 @@
                 var scrollbar = this.verticalScrollbar, scrollTop = scrollbar.scrollTop(), delta = kendo.wheelDeltaY(e);
                 if (delta && !(delta > 0 && scrollTop === 0) && !(delta < 0 && scrollTop + scrollbar[0].clientHeight == scrollbar[0].scrollHeight)) {
                     e.preventDefault();
-                    $(e.currentTarget).one('wheel' + NS, false);
                     this.verticalScrollbar.scrollTop(scrollTop + -delta);
                 }
             },
@@ -2078,7 +2077,10 @@
                     if (th.hasClass('k-group-cell') || th.hasClass('k-hierarchy-cell')) {
                         return;
                     }
-                    var clientX = e.clientX / parseFloat(document.documentElement.style.zoom || document.body.style.zoom || 1), winScrollLeft = $(window).scrollLeft(), position = th.offset().left + (!isRtl ? this.offsetWidth : 0);
+                    function getPageZoomStyle() {
+                        return parseFloat($(document.documentElement).css('zoom') || 1) * parseFloat($(document.body).css('zoom') || 1);
+                    }
+                    var clientX = e.clientX / getPageZoomStyle(), winScrollLeft = $(window).scrollLeft(), position = th.offset().left + (!isRtl ? this.offsetWidth : 0);
                     if (clientX + winScrollLeft > position - indicatorWidth && clientX + winScrollLeft < position + indicatorWidth) {
                         that._createResizeHandle(th.closest('div'), th);
                     } else if (that.resizeHandle) {
@@ -2241,10 +2243,23 @@
                     if (that._draggableInstance) {
                         that._draggableInstance.destroy();
                     }
+                    var header = that.wrapper.children('.k-grid-header');
                     that._draggableInstance = that.wrapper.kendoDraggable({
                         group: kendo.guid(),
                         autoScroll: true,
                         filter: that.content ? '.k-grid-header:first ' + HEADERCELLS : 'table:first>.k-grid-header ' + HEADERCELLS,
+                        dragstart: function () {
+                            header.children('.k-grid-header-wrap').unbind('scroll' + NS + 'scrolling').bind('scroll' + NS + 'scrolling', function (e) {
+                                if (that.virtualScrollable) {
+                                    that.content.find('>.k-virtual-scrollable-wrap').scrollLeft(this.scrollLeft);
+                                } else {
+                                    that.scrollables.not(e.currentTarget).scrollLeft(this.scrollLeft);
+                                }
+                            });
+                        },
+                        dragend: function () {
+                            header.children('.k-grid-header-wrap').unbind('scroll' + NS + 'scrolling');
+                        },
                         drag: function () {
                             that._hideResizeHandle();
                         },
@@ -4017,7 +4032,7 @@
                 return false;
             },
             _handleEnterKey: function (current, currentTable, target) {
-                var editable = this.options.editable;
+                var editable = this.options.editable && this.options.editable.update !== false;
                 var container = target.closest('[role=gridcell]');
                 if (!target.is('table') && !$.contains(current[0], target[0])) {
                     current = container;
@@ -4195,7 +4210,7 @@
                 return next;
             },
             _handleEditing: function (current, next, table) {
-                var that = this, active = $(activeElement()), mode = that._editMode(), isIE = browser.msie, oldIE = isIE && browser.version < 9, editContainer = that._editContainer, focusable, isEdited;
+                var that = this, active = $(activeElement()), mode = that._editMode(), isIE = browser.msie, oldIE = isIE && browser.version < 9, editContainer = that._editContainer, focusable, editable = that.options.editable && that.options.editable.update !== false, isEdited;
                 table = $(table);
                 if (mode == 'incell') {
                     isEdited = current.hasClass('k-edit-cell');
@@ -4244,6 +4259,9 @@
                     document.body.focus();
                 }
                 focusTable(table, true);
+                if (!editable) {
+                    return;
+                }
                 if (!isEdited && !next || next) {
                     if (mode == 'incell') {
                         that.editCell(that.current());
@@ -4343,7 +4361,7 @@
                             }
                         });
                     } else {
-                        that.scrollables.unbind('scroll' + NS).bind('scroll' + NS, function (e) {
+                        that.content.unbind('scroll' + NS).bind('scroll' + NS, function (e) {
                             that.scrollables.not(e.currentTarget).scrollLeft(this.scrollLeft);
                             if (that.lockedContent && e.currentTarget == that.content[0]) {
                                 that.lockedContent[0].scrollTop = this.scrollTop;
@@ -5548,7 +5566,6 @@
                 var scrollTop = content.scrollTop(), delta = kendo.wheelDeltaY(e);
                 if (delta) {
                     e.preventDefault();
-                    $(e.currentTarget).one('wheel' + NS, false);
                     content.scrollTop(scrollTop + -delta);
                 }
             },
@@ -6177,6 +6194,11 @@
                     }
                     if (rows[idx].style.height) {
                         rows[idx].style.height = rows2[idx].style.height = '';
+                    }
+                }
+                for (idx = 0; idx < length; idx++) {
+                    if (!rows2[idx]) {
+                        break;
                     }
                     var offsetHeight1 = rows[idx].offsetHeight;
                     var offsetHeight2 = rows2[idx].offsetHeight;

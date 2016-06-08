@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -42,7 +42,9 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "gt": "Est postérieur",
     "lte": "Est antérieur ou égal à",
     "lt": "Est antérieur",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nul",
+    "isnotnull": "N’est pas nul"
   },
   "number": {
     "eq": "Est égal à",
@@ -50,7 +52,9 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "gt": "Est supérieur à",
     "lte": "Est inférieur ou égal à",
     "lt": "Est inférieur à",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nul",
+    "isnotnull": "N’est pas nul"
   },
   "string": {
     "endswith": "Se termine par",
@@ -58,11 +62,17 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "neq": "N’est pas égal à",
     "startswith": "Commence par",
     "contains": "Contient",
-    "doesnotcontain": "Ne contient pas"
+    "doesnotcontain": "Ne contient pas",
+    "isnull": "est nul",
+    "isnotnull": "c nul",
+    "isempty": "Est vide",
+    "isnotempty": "N’est pas vide"
   },
   "enums": {
     "eq": "Est égal à",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nul",
+    "isnotnull": "N’est pas nul"
   }
 });
 }
@@ -78,7 +88,9 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "gt": "Est postérieur",
     "lte": "Est antérieur ou égal à",
     "lt": "Est antérieur",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nul",
+    "isnotnull": "N’est pas nul"
   },
   "number": {
     "eq": "Est égal à",
@@ -86,7 +98,9 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "gt": "Est supérieur à",
     "lte": "Est inférieur ou égal à",
     "lt": "Est inférieur à",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nul",
+    "isnotnull": "N’est pas nul"
   },
   "string": {
     "endswith": "Se termine par",
@@ -94,11 +108,17 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.operators,{
     "neq": "N’est pas égal à",
     "startswith": "Commence par",
     "contains": "Contient",
-    "doesnotcontain": "Ne contient pas"
+    "doesnotcontain": "Ne contient pas",
+    "isnull": "est nul",
+    "isnotnull": "c nul" ,
+    "isempty": "Est vide",
+    "isnotempty": "N’est pas vide"
   },
   "enums": {
     "eq": "Est égal à",
-    "neq": "N’est pas égal à"
+    "neq": "N’est pas égal à",
+    "isnull": "Est nul",
+    "isnotnull": "N’est pas nul"
   }
 });
 }

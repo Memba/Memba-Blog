@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -680,6 +680,15 @@
                 this.index = index;
                 this.isDaySlot = false;
             },
+            refresh: function () {
+                var element = this.element;
+                this.clientWidth = element.clientWidth;
+                this.clientHeight = element.clientHeight;
+                this.offsetWidth = element.offsetWidth;
+                this.offsetHeight = element.offsetHeight;
+                this.offsetTop = element.offsetTop;
+                this.offsetLeft = element.offsetLeft;
+            },
             startDate: function () {
                 return kendo.timezone.toLocalDate(this.start);
             },
@@ -703,15 +712,6 @@
             init: function (element, start, end, groupIndex, collectionIndex, index, isHorizontal) {
                 Slot.fn.init.apply(this, arguments);
                 this.isHorizontal = isHorizontal ? true : false;
-            },
-            refresh: function () {
-                var element = this.element;
-                this.clientWidth = element.clientWidth;
-                this.clientHeight = element.clientHeight;
-                this.offsetWidth = element.offsetWidth;
-                this.offsetHeight = element.offsetHeight;
-                this.offsetTop = element.offsetTop;
-                this.offsetLeft = element.offsetLeft;
             },
             offsetX: function (rtl, offset) {
                 if (rtl) {
@@ -781,10 +781,6 @@
                     this.firstChildHeight = 3;
                     this.firstChildTop = 0;
                 }
-            },
-            refresh: function () {
-                this.clientHeight = this.element.clientHeight;
-                this.offsetTop = this.element.offsetTop;
             },
             startDate: function () {
                 var date = new Date(this.start);
@@ -942,6 +938,8 @@
                 } else {
                     if (!group.daySlotCollectionCount()) {
                         selection.isAllDay = false;
+                    } else if (!group.timeSlotCollectionCount()) {
+                        selection.isAllDay = true;
                     }
                 }
                 if (!this.groups[selection.groupIndex]) {

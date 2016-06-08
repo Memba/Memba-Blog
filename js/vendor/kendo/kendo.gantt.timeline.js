@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2077,17 +2077,19 @@
                             that.view()._removeTaskTooltip();
                         }
                     });
-                    this.touch.bind('tap', function (e) {
-                        var element = e.touch.target;
-                        var task = that._taskByUid($(element).attr('data-uid'));
-                        var currentPosition = e.touch.x.client;
-                        if (that.view()._taskTooltip) {
+                    if (this.touch) {
+                        this.touch.bind('tap', function (e) {
+                            var element = e.touch.target;
+                            var task = that._taskByUid($(element).attr('data-uid'));
+                            var currentPosition = e.touch.x.client;
+                            if (that.view()._taskTooltip) {
+                                that.view()._removeTaskTooltip();
+                            }
+                            that.view()._createTaskTooltip(task, element, currentPosition);
+                        }).bind('doubletap', function () {
                             that.view()._removeTaskTooltip();
-                        }
-                        that.view()._createTaskTooltip(task, element, currentPosition);
-                    }).bind('doubletap', function () {
-                        that.view()._removeTaskTooltip();
-                    });
+                        });
+                    }
                 }
             }
         });

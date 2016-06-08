@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.504 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -9179,15 +9179,15 @@
         function isAutoConnector(connector) {
             return connector.options.name.toLowerCase() === AUTO.toLowerCase();
         }
-        function closestConnector(point, shape) {
-            var minimumDistance = MAXINT, resCtr, ctrs = shape.connectors;
-            for (var i = 0; i < ctrs.length; i++) {
-                var ctr = ctrs[i];
-                if (!isAutoConnector(ctr)) {
-                    var dist = point.distanceTo(ctr.position());
+        function closestConnector(point, connectors) {
+            var minimumDistance = MAXINT, resCtr, connector;
+            for (var i = 0; i < connectors.length; i++) {
+                connector = connectors[i];
+                if (!isAutoConnector(connector)) {
+                    var dist = point.distanceTo(connector.position());
                     if (dist < minimumDistance) {
                         minimumDistance = dist;
-                        resCtr = ctr;
+                        resCtr = connector;
                     }
                 }
             }
@@ -9617,7 +9617,7 @@
                         }
                     }
                 } else if (nameOrPoint instanceof Point) {
-                    return closestConnector(nameOrPoint, this);
+                    return closestConnector(nameOrPoint, this.connectors);
                 } else {
                     return this.connectors.length ? this.connectors[0] : null;
                 }
@@ -10246,44 +10246,40 @@
                 }
             },
             _resolveConnectors: function () {
-                var connection = this, sourcePoint, targetPoint, source = connection.source(), target = connection.target(), autoSourceShape, autoTargetShape;
+                var connection = this, sourcePoint, targetPoint, sourceConnectors, targetConnectors, source = connection.source(), target = connection.target();
                 if (source instanceof Point) {
                     sourcePoint = source;
                 } else if (source instanceof Connector) {
                     if (isAutoConnector(source)) {
-                        autoSourceShape = source.shape;
+                        sourceConnectors = source.shape.connectors;
                     } else {
-                        connection._resolvedSourceConnector = source;
-                        sourcePoint = source.position();
+                        sourceConnectors = [source];
                     }
                 }
                 if (target instanceof Point) {
                     targetPoint = target;
                 } else if (target instanceof Connector) {
                     if (isAutoConnector(target)) {
-                        autoTargetShape = target.shape;
+                        targetConnectors = target.shape.connectors;
                     } else {
-                        connection._resolvedTargetConnector = target;
-                        targetPoint = target.position();
+                        targetConnectors = [target];
                     }
                 }
                 if (sourcePoint) {
-                    if (autoTargetShape) {
-                        connection._resolvedTargetConnector = closestConnector(sourcePoint, autoTargetShape);
+                    if (targetConnectors) {
+                        connection._resolvedTargetConnector = closestConnector(sourcePoint, targetConnectors);
                     }
-                } else if (autoSourceShape) {
+                } else if (sourceConnectors) {
                     if (targetPoint) {
-                        connection._resolvedSourceConnector = closestConnector(targetPoint, autoSourceShape);
-                    } else if (autoTargetShape) {
-                        this._resolveAutoConnectors(autoSourceShape, autoTargetShape);
+                        connection._resolvedSourceConnector = closestConnector(targetPoint, sourceConnectors);
+                    } else if (targetConnectors) {
+                        this._resolveAutoConnectors(sourceConnectors, targetConnectors);
                     }
                 }
             },
-            _resolveAutoConnectors: function (autoSourceShape, autoTargetShape) {
+            _resolveAutoConnectors: function (sourceConnectors, targetConnectors) {
                 var minNonConflict = MAXINT;
                 var minDist = MAXINT;
-                var sourceConnectors = autoSourceShape.connectors;
-                var targetConnectors;
                 var minNonConflictSource, minNonConflictTarget;
                 var sourcePoint, targetPoint;
                 var minSource, minTarget;
@@ -10294,7 +10290,6 @@
                     sourceConnector = sourceConnectors[sourceIdx];
                     if (!isAutoConnector(sourceConnector)) {
                         sourcePoint = sourceConnector.position();
-                        targetConnectors = autoTargetShape.connectors;
                         for (targetIdx = 0; targetIdx < targetConnectors.length; targetIdx++) {
                             targetConnector = targetConnectors[targetIdx];
                             if (!isAutoConnector(targetConnector)) {
@@ -10808,7 +10803,7 @@
                 }
             },
             _mouseMove: function (e) {
-                if (!this._pauseMouseHandlers && e.which === 0) {
+                if (!this._pauseMouseHandlers && (e.which === 0 || e.which === 1)) {
                     var p = this._eventPositions(e);
                     this.toolService._updateHoveredItem(p);
                     this.toolService._updateCursor(p);
@@ -10818,6 +10813,7 @@
                 var toolService = this.toolService;
                 var selectable = this.options.selectable;
                 var point = this._eventPositions(e);
+                var focused = this.focus();
                 toolService._updateHoveredItem(point);
                 if (toolService.hoveredItem) {
                     var item = toolService.hoveredItem;
@@ -10833,12 +10829,12 @@
                                 this._destroyToolBar();
                                 item.select(false);
                             } else {
-                                this._createToolBar();
+                                this._createToolBar(focused);
                             }
                         } else {
                             this._destroyToolBar();
                             this.select(item, { addToSelection: multiple && ctrlPressed });
-                            this._createToolBar();
+                            this._createToolBar(focused);
                         }
                     }
                 } else if (selectable) {
@@ -11049,6 +11045,7 @@
                     for (i = 0; i < containers.length; i++) {
                         containers[i].scrollTop = offsets[i];
                     }
+                    return true;
                 }
             },
             load: function (options) {
@@ -11982,7 +11979,7 @@
                     this.addConnection(item);
                 }
             },
-            _createToolBar: function () {
+            _createToolBar: function (preventClosing) {
                 var diagram = this.toolService.diagram;
                 if (!this.singleToolBar && diagram.select().length === 1) {
                     var element = diagram.select()[0];
@@ -12027,6 +12024,9 @@
                                 point = this.viewToDocument(point);
                                 point = Point(math.max(point.x, 0), math.max(point.y, 0));
                                 this.singleToolBar.showAt(point);
+                                if (preventClosing) {
+                                    this.singleToolBar._popup.one('close', preventDefault);
+                                }
                             } else {
                                 this._destroyToolBar();
                             }
@@ -13177,6 +13177,9 @@
             if (bbox.origin.x !== 0 || bbox.origin.y !== 0) {
                 visual.position(-bbox.origin.x, -bbox.origin.y);
             }
+        }
+        function preventDefault(e) {
+            e.preventDefault();
         }
         dataviz.ui.plugin(Diagram);
         deepExtend(diagram, {

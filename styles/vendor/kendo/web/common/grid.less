@@ -1031,6 +1031,7 @@ html .k-grid-edit-row .k-tooltip
         .k-pager-wrap
         {
             overflow: visible;
+            min-height: 2.1em;
         }
         
         .k-pager-wrap .k-pager-nav,
@@ -1047,6 +1048,11 @@ html .k-grid-edit-row .k-tooltip
             flex-direction: column-reverse;
             overflow: visible;
             height: auto;
+        }
+        
+        .k-pager-numbers:first-child,
+        .k-grid .k-pager-numbers:first-child { // move left when previousNext: false
+            left: .2em;
         }
 
         .k-pager-numbers.k-state-expanded,
@@ -1077,6 +1083,12 @@ html .k-grid-edit-row .k-tooltip
             left: auto;
             right: 4.8em;
             width: 4.5em
+        }
+        
+        .k-rtl .k-pager-numbers:first-child,
+        .k-rtl .k-grid .k-pager-numbers:first-child { // move right when previousNext: false
+            left: auto;
+            right: .2em;
         }
 
         .k-rtl .km-pane-wrapper .k-pager-numbers,
