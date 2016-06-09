@@ -123,7 +123,7 @@
                     // trigger event for client localization of page
                     $(document).trigger(LOADED);
                 });
-            });
+        });
 
         /**
          * Wait until locale is loaded to localize and hide preload
