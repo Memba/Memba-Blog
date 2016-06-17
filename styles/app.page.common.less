@@ -130,7 +130,7 @@ label {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        img {
+        & > img {
             border: 0;
             height: 64px;
             width: 64px;
@@ -139,11 +139,15 @@ label {
     }
 }
 @media (max-width: 768px) {
-    h1 {
-        font-size: 28px;
-        img {
-            height: 48px;
-            width: 48px;
+    .page-header {
+        h1 {
+            & > img {
+                height: 48px;
+                width: 48px;
+            }
+            & > span {
+                font-size: 28px;
+            }
         }
     }
 }

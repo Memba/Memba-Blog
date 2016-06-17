@@ -59,7 +59,12 @@
                     if (!$.isArray(matches)) {
                         localStorage.setItem(THEME, theme);
                     }
-                    $(document.documentElement).removeClass('k-' + oldTheme).addClass('k-' + theme);
+                    if (app.mobile && kendo.mobile && kendo.mobile.Application &&
+                        app.mobile.application instanceof kendo.mobile.Application) {
+                        app.mobile.application.skin(theme);
+                    } else {
+                        $(document.documentElement).removeClass('k-' + oldTheme).addClass('k-' + theme);
+                    }
                     app.theme.updateCharts(theme);
                     logger.debug({
                         message: 'theme changed to ' + theme,
