@@ -10,7 +10,8 @@
 var fs = require('fs');
 var paths = require('path');
 var util = require('util');
-var async = require('async');
+// var async = require('async');
+var eachSeries = require('async/eachSeries');
 var i18n = require('i18n');
 var config = require('../config');
 var convert = require('./convert');
@@ -193,7 +194,8 @@ module.exports = {
             if (!error && Array.isArray(entries)) {
                 var index = [];
                 // TODO prefer async.each but http://stackoverflow.com/questions/19576601/github-api-issue-with-file-upload
-                async.eachSeries(
+                // async.eachSeries(
+                eachSeries(
                     entries,
                     function (entry, eachCallback) {
                         // Only process markedown files

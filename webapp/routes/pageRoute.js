@@ -8,7 +8,8 @@
 'use strict';
 
 var assert = require('assert');
-var async = require('async');
+// var async = require('async');
+var parallel = require('async/parallel');
 var qs = require('qs');
 var ApplicationError = require('../lib/error');
 var convert = require('../lib/convert');
@@ -46,7 +47,8 @@ module.exports = {
         var language = req.params.language;
         assert.equal(language, res.getLocale(), format('i18n locale is not `{0}`', language));
 
-        async.parallel(
+        // async.parallel(
+        parallel(
             [
                 // get menu
                 function (callback) {
