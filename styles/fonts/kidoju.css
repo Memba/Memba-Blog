@@ -59,7 +59,7 @@
     content: "\f10a";
 }
 .kf-settings:before {
-    content: "\e20f";
+    content: "\e0da";
 }
 .kf-google:before {
     content: "\f10b";
@@ -68,7 +68,7 @@
     content: "\e305";
 }
 .kf-home:before {
-    content: "\e212";
+    content: "\e0dd";
 }
 .kf-support:before {
     content: "\f10c";
@@ -83,7 +83,7 @@
     content: "\f10f";
 }
 .kf-search:before {
-    content: "\e21e";
+    content: "\e0e9";
 }
 .kf-report:before {
     content: "\f110";
