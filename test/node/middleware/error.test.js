@@ -8,6 +8,9 @@
 'use strict';
 
 var expect = require('chai').expect;
+var util = require('util');
+var url = require('url');
+var config = require('../../../webapp/config');
 
 var ApplicationError;
 try {
@@ -30,6 +33,12 @@ function Response(options) {
     if (options && options.html) {
         this.getLocale = function () { return locale; };
         this.__ = function () { return whatever; };
+        // Make nconf configurations available to our EJS templates
+        this.locals = {
+            config: config.get(),
+            format: util.format,
+            url: { join: url.resolve }
+        };
     }
 }
 Response.prototype.status = function (status) {
