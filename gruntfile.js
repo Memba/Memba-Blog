@@ -54,18 +54,6 @@ module.exports = function (grunt) {
         },
         */
         // TODO: lint html too
-        webpack: {
-            // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
-            options: webpackConfig,
-            build: {
-                cache: false,
-                plugins: webpackConfig.plugins.concat(
-                    new webpack.optimize.DedupePlugin(),
-                    new webpack.optimize.UglifyJsPlugin()
-                    // new webpack.optimize.AggressiveMergingPlugin() // Note: merges app.culture.fr.chunk.js
-                )
-            }
-        },
         mocha: {
             browser: { // In browser (phantomJS) unit tests
                 options: {
@@ -104,6 +92,18 @@ module.exports = function (grunt) {
         webdriver: { // Selenium functional tests
             local: {
                 configFile: './wdio.conf.js'
+            }
+        },
+        webpack: {
+            // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
+            options: webpackConfig,
+            build: {
+                cache: false,
+                plugins: webpackConfig.plugins.concat(
+                    new webpack.optimize.DedupePlugin(),
+                    new webpack.optimize.UglifyJsPlugin()
+                    // new webpack.optimize.AggressiveMergingPlugin() // Note: merges app.culture.fr.chunk.js
+                )
             }
         }
     });
