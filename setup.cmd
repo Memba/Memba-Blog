@@ -17,5 +17,8 @@ REM mocha command in terminal mode
 npm install -g mocha
 REM nodemon to run webapp while debugging browser code
 npm install -g nodemon
+REM selenium
+npm install selenium-standalone
+selenium-standalone install
 REM install all local modules in package.json
 npm install
