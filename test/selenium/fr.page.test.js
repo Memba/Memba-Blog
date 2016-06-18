@@ -33,7 +33,7 @@ describe('French pages', function () {
 
         it('it should find and navigate support', function () {
             browser.logger.info(browser.getUrl());
-            browser.click('nav.navbar a[href="/fr/"]');
+            browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', '') + '"]');
             expect(browser.getUrl()).to.equal(webapp.index);
             expect(browser.getAttribute('html', 'lang')).to.equal('fr');
             expect(browser.getText('div.page-header span')).to.equal('Support');
@@ -42,7 +42,7 @@ describe('French pages', function () {
         it('it should find and navigate faqs', function () {
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a.dropdown-toggle');
-            browser.click('nav.navbar a[href="/fr/faqs"]');
+            browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', 'faqs') + '"]');
             expect(browser.getUrl()).to.equal(webapp.faqs);
             expect(browser.getAttribute('html', 'lang')).to.equal('fr');
             expect(browser.getText('div.page-header span')).to.equal('Questions fréquentes');
@@ -51,7 +51,7 @@ describe('French pages', function () {
         it('it should find and navigate privacy', function () {
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a.dropdown-toggle');
-            browser.click('nav.navbar a[href="/fr/privacy"]');
+            browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', 'privacy') + '"]');
             expect(browser.getUrl()).to.equal(webapp.privacy);
             expect(browser.getAttribute('html', 'lang')).to.equal('fr');
             expect(browser.getText('div.page-header span')).to.equal('Confidentialité des données');
@@ -60,7 +60,7 @@ describe('French pages', function () {
         it('it should find and navigate terms', function () {
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a.dropdown-toggle');
-            browser.click('nav.navbar a[href="/fr/terms"]');
+            browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', 'terms') + '"]');
             expect(browser.getUrl()).to.equal(webapp.terms);
             expect(browser.getAttribute('html', 'lang')).to.equal('fr');
             expect(browser.getText('div.page-header span')).to.equal('Conditions d\'utilisation');
