@@ -176,6 +176,11 @@ REM ------------------------------------------------------------
 REM Tests
 REM ------------------------------------------------------------
 
+REM Copy ./test/node/comon.js files
+ATTRIB -R .\test\node\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\common.js .\test\node /Y
+ATTRIB +R .\test\node\common.js
+
 REM Copy ./test/node/lib files
 ATTRIB -R .\test\node\lib\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\error.test.js .\test\node\lib /Y
