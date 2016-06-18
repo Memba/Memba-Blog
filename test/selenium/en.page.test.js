@@ -8,8 +8,8 @@
 'use strict';
 
 var expect = require('chai').expect;
-
 var util = require('util');
+
 var server = require('../../webapp/server'); // Start the web application
 var config = require('../../webapp/config');
 var url = require('../../webapp/lib/url');
@@ -76,10 +76,9 @@ describe('English pages', function () {
 
     });
 
-    /*
     after(function () {
-        browser.end();
+        // browser.end();
+        server.close();
     });
-    */
 
 });
