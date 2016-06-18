@@ -11,6 +11,7 @@ Thumbs.db
 # Ignore Webstorm files
 .idea/
 coverage/
+errorShots/
 
 # Ignore Node files
 node_modules/

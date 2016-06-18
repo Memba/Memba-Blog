@@ -78,7 +78,7 @@ module.exports = function (grunt) {
                 src: ['test/browser/**/*.html']
             }
         },
-        mochaTest: { // In node (Zombie) unit tests
+        mochaTest: { // In node unit tests
             node: {
                 options: {
                     quiet: false,
@@ -100,6 +100,11 @@ module.exports = function (grunt) {
                     'webapp/public/build/workerlib.bundle.js': ['js/kidoju.data.workerlib.js']
                 }
             }
+        },
+        webdriver: { // Selenium functional tests
+            local: {
+                configFile: './wdio.conf.js'
+            }
         }
     });
 
@@ -115,11 +120,12 @@ module.exports = function (grunt) {
     // Tests
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
+    grunt.loadNpmTasks('grunt-webdriver');
 
     // Commands
     grunt.registerTask('lint', ['jscs', 'jshint']); // , 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build']);
-    grunt.registerTask('test', ['mocha', 'mochaTest']);
+    grunt.registerTask('test', ['mocha', 'mochaTest', 'webdriver']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 
 };

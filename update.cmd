@@ -51,6 +51,11 @@ ATTRIB -R .\watch.cmd
 COPY ..\..\Kidoju\Kidoju.Webapp\watch.cmd .\ /Y
 ATTRIB +R .\watch.cmd
 
+REM wdio.conf.js
+ATTRIB -R .\wdio.conf.js
+COPY ..\..\Kidoju\Kidoju.Webapp\wdio.conf.js .\ /Y
+ATTRIB +R .\wdio.conf.js
+
 REM webpack
 REM ATTRIB -R .\webpack.config.js
 REM COPY ..\..\Kidoju\Kidoju.Webapp\webpack.config.js .\ /Y
