@@ -59,10 +59,11 @@
                     if (!$.isArray(matches)) {
                         localStorage.setItem(THEME, theme);
                     }
+                    // if (window.device && window.device.cordova) { // Phonegap
                     if (app.mobile && kendo.mobile && kendo.mobile.Application &&
                         app.mobile.application instanceof kendo.mobile.Application) {
                         app.mobile.application.skin(theme);
-                    } else {
+                    } else { // Web application
                         $(document.documentElement).removeClass('k-' + oldTheme).addClass('k-' + theme);
                     }
                     app.theme.updateCharts(theme);

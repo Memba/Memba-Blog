@@ -24,6 +24,7 @@
         var logger = new window.Logger('app.i18n');
         var cultures = app.cultures = app.cultures || {};
         var LOADED = 'i18n.loaded';
+        var LANGUAGE = 'language';
         var UNDEFINED = 'undefined';
         var STRING = 'string';
         var ARRAY = 'array';
@@ -92,10 +93,12 @@
 
                 } else if (locale === undefined) {
 
-                    if ($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED) {
+                    // if (window.device && window.device.cordova) { // Phonegap
+                    if (app.mobile && kendo.mobile && kendo.mobile.Application &&
+                        app.mobile.application instanceof kendo.mobile.Application) {
+                        return window.localStorage.getItem(LANGUAGE) || 'en';
+                    } else { // Web application
                         return document.getElementsByTagName('html')[0].getAttribute('lang') || 'en';
-                    } else {
-                        return 'en'; // Phonegap
                     }
 
                 } else {
