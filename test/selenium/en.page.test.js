@@ -10,7 +10,6 @@
 var expect = require('chai').expect;
 var util = require('util');
 
-var server = require('../../webapp/server'); // Start the web application
 var config = require('../../webapp/config');
 var url = require('../../webapp/lib/url');
 var webapp = {
@@ -74,11 +73,6 @@ describe('English pages', function () {
             expect(browser.getText('div.page-header span')).to.equal('Terms of Use');
         });
 
-    });
-
-    after(function () {
-        // browser.end();
-        server.close();
     });
 
 });

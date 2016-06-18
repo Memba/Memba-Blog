@@ -86,8 +86,6 @@ var i18n = require('i18n');
 var path = require('path');
 var config = require('./config');
 var pkg = require('../package.json');
-var router;
-var port;
 var server;
 
 logger.info({
@@ -122,7 +120,9 @@ config.load(function (error/*, store*/) {
     i18n.configure({
         locales: config.get('locales'), // ['en', 'fr'],
         directory: path.join(__dirname, 'locales'),
-        objectNotation: true // Use hierarchies in locales.json files
+        objectNotation: true, // Use hierarchies in locales.json files
+        updateFiles: false,
+        syncFiles: false
     });
     // Use __() in templates
     app.use(i18n.init);
@@ -143,14 +143,14 @@ config.load(function (error/*, store*/) {
     );
 
     // Routing
-    router = require('./routes');
+    var router = require('./routes');
     app.use(router);
 
     // Configure expressJS and launch server
-    port = process.env.PORT || config.get('express:port');
+    var port = process.env.PORT || config.get('express:port');
     app.set('port', port);
     app.set('trust proxy', 'uniquelocal');
-    server = http.createServer(app).listen(port);
+    server = app.listen(port);
 
     // Logging
     logger.info({
