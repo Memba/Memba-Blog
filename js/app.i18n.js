@@ -20,6 +20,7 @@
     (function ($, undefined) {
 
         var app = window.app = window.app || {};
+        var kendo = window.kendo;
         var assert = window.assert;
         var logger = new window.Logger('app.i18n');
         var cultures = app.cultures = app.cultures || {};
