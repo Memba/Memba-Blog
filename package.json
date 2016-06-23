@@ -64,9 +64,9 @@
     "style-loader": "^0.13.1",
     "supertest": "^1.2.0",
     "url-loader": "^0.5.7",
-    "wdio-mocha-framework": "^0.3.2",
+    "wdio-mocha-framework": "^0.3.4",
     "wdio-selenium-standalone-service": "0.0.5",
-    "webdriverio": "^4.0.9",
+    "webdriverio": "^4.1.0",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
   },
