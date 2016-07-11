@@ -71,6 +71,9 @@
     "webpack-dev-server": "^1.14.1"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=0.10"
+  },
+  "config": {
+    "msvs_version": "2015"
   }
 }
