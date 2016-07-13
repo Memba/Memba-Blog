@@ -23,7 +23,7 @@
     "start": "forever --minUptime 5000 --spinSleepTime 10000 webapp/server.js"
   },
   "dependencies": {
-    "async": "^2.0.0-rc.6",
+    "async": "^2.0.0",
     "body-parser": "^1.15.2",
     "chokidar": "^1.6.0",
     "cors": "^2.7.1",
