@@ -182,6 +182,9 @@ function mongoQuery(data, query) {
                     include = include && (indexEntry[prop] === criterion);
                 }
             }
+            if (!include) {
+                break;
+            }
         }
         return include;
     });
