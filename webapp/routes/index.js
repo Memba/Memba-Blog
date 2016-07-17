@@ -26,6 +26,9 @@ var sitemapRoute = require('./sitemapRoute');
 var pageRoute = require('./pageRoute');
 var postRoute = require('./postRoute');
 
+// Make config values, including paths to images, available to our templates
+router.use(locals);
+
 // Validate parameters
 router.param('language', params.validateLanguage);
 router.param('year', params.validateYear);
@@ -36,16 +39,13 @@ router.param('month', params.validateMonth);
 // ATTENTION! we have exceptions for ping, feeds, sitemaps and hook
 router.use(extension);
 
-// Make config values, including paths to images, available to our templates
-router.use(locals);
-
-// Ping
+// heartbeat
 router.route(config.get('uris:webapp:ping'))
-    .get(pingRoute.getOK);
+    .get(pingRoute.get);
 
 // Logger
-// router.route(config.get('uris:webapp:logger'))
-//    .get(loggerRoute.createLogEntry);
+router.route(config.get('uris:webapp:logger'))
+    .post(loggerRoute.createEntry);
 
 // Home
 router.route(config.get('uris:webapp:home'))
@@ -71,7 +71,7 @@ router.route(util.format(config.get('uris:webapp:posts'), ':language', ':year?',
 router.route(util.format(config.get('uris:webapp:pages'), ':language', ':slug?'))
     .get(pageRoute.getHtmlPage);
 
-// Anything not found
+// Anything not found or erroneous
 router.use(notFound.handler);
 router.use(error.handler);
 
