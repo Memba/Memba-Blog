@@ -247,7 +247,7 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware 
 ATTRIB +R .\webapp\middleware\params.js
 
 REM Copy ./webapp/routes files
-ATTRIB -R .\webapp\views\*.*
+ATTRIB -R .\webapp\routes\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\loggerRoute.js .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\loggerRoute.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\pingRoute.js .\webapp\routes /Y
