@@ -28,6 +28,9 @@ var SITEMAP_END = '</urlset>';
 
 module.exports = {
 
+    /* Blocks are nested too deeply. */
+    /* jshint -W073 */
+
     /**
      * Return a localized sitemap
      * @see http://www.sitemaps.org/protocol.html
@@ -120,4 +123,6 @@ module.exports = {
             next(exception);
         }
     }
+
+    /* jshint +W073 */
 };

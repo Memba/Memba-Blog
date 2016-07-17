@@ -33,7 +33,7 @@ module.exports = {
                 request: req
             });
 
-            res.json({ping: 'OK'});
+            res.json({ ping: 'OK' });
 
         } catch (exception) {
             next(exception);
