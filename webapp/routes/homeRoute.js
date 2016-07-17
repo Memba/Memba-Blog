@@ -21,51 +21,56 @@ module.exports = {
      */
     getHtmlPage: function (req, res, next) {
 
-        var config = res.locals.config;
-        var format = res.locals.format;
-        var url = res.locals.url;
+        try {
 
-        // Create a trace that we can track in the browser
-        req.trace = utils.uuid();
+            var config = res.locals.config;
+            var format = res.locals.format;
+            var url = res.locals.url;
 
-        // Log the request
-        logger.info({
-            message: 'requesting the home page',
-            method: 'getHtmlPage',
-            module: 'routes/homeRoute',
-            request: req
-        });
+            // Create a trace that we can track in the browser
+            req.trace = utils.uuid();
 
-        var language = res.getLocale();
+            // Log the request
+            logger.info({
+                message: 'requesting the home page',
+                method: 'getHtmlPage',
+                module: 'routes/homeRoute',
+                request: req
+            });
 
-        // Get menu with english as default language
-        menuModel.getMenu('en', function (error, data) {
-            if (!error && data) {
-                res
-                    .set({
-                        'Cache-Control': 'private, max-age=43200',
-                        'Content-Language' : language,
-                        'Content-Type': 'text/html; charset=utf-8'
-                    })
-                    .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                    .render('home', {
-                        author: config.home.author,
-                        description: config.home.description,
-                        image: config.images[Math.floor(config.images.length * Math.random())],
-                        keywords: config.home.keywords,
-                        language: language,
-                        menu: data,
-                        results: false, // trick header into not displaying robots noindex directive
-                        trace: req.trace,
-                        /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
-                        site_url: url.join(config.uris.webapp.root, config.uris.webapp.home), // canonical link
-                        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
-                        title: config.home.title
-                    });
-            } else {
-                next(error);
-            }
-        });
+            var language = res.getLocale();
 
+            // Get menu with english as default language
+            menuModel.getMenu('en', function (error, data) {
+                if (!error && data) {
+                    res
+                        .set({
+                            'Cache-Control': 'private, max-age=43200',
+                            'Content-Language': language,
+                            'Content-Type': 'text/html; charset=utf-8'
+                        })
+                        .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                        .render('home', {
+                            author: config.home.author,
+                            description: config.home.description,
+                            image: config.images[Math.floor(config.images.length * Math.random())],
+                            keywords: config.home.keywords,
+                            language: language,
+                            menu: data,
+                            results: false, // trick header into not displaying robots noindex directive
+                            trace: req.trace,
+                            /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
+                            site_url: url.join(config.uris.webapp.root, config.uris.webapp.home), // canonical link
+                            /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
+                            title: config.home.title
+                        });
+                } else {
+                    next(error);
+                }
+            });
+
+        } catch (exception) {
+            next(exception);
+        }
     }
 };

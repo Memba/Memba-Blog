@@ -28,52 +28,57 @@ module.exports = {
      */
     handler: function (req, res, next) {
 
-        // Log the request
-        logger.info({
-            message: 'Github webhook triggered',
-            module: 'routes/hookRoute',
-            method: 'handler',
-            request: req
-        });
+        try {
 
-        // In production only, validate the request
-        // if (process.env.NODE_ENV === 'production') {
-        if (config.environment === 'production') {
-
-            // Check user agent - see https://developer.github.com/webhooks/
-            if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
-                throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
-            }
-
-        }
-
-        // Ignore any calls within 1 minute of a previous call
-        if (Date.now() - timer > 60 * 1000) {
-
-            // Reindex contents and writes json indexes on hard drive
-            locales.forEach(function (locale) {
-                db[locale].reindex();
+            // Log the request
+            logger.info({
+                message: 'Github webhook triggered',
+                module: 'routes/hookRoute',
+                method: 'handler',
+                request: req
             });
 
-            // Give some time for everything to reload
-            // considering we have no idea when the spanned process is done reindexing
-            // and reset the in-memory cache
-            setTimeout(function () {
-                menuModel.resetCache();
-                indexModel.resetCache();
-                logger.info({
-                    message: 'Index and menu cache reset',
-                    module: 'routes/hookRoute',
-                    method: 'handler',
-                    request: req
+            // In production only, validate the request
+            // if (process.env.NODE_ENV === 'production') {
+            if (config.environment === 'production') {
+
+                // Check user agent - see https://developer.github.com/webhooks/
+                if (!/^GitHub-Hookshot\//.test(req.headers['user-agent'])) {
+                    throw new ApplicationError('errors.routes.hookRoute.badAgent', req.headers['user-agent']);
+                }
+
+            }
+
+            // Ignore any calls within 1 minute of a previous call
+            if (Date.now() - timer > 60 * 1000) {
+
+                // Reindex contents and writes json indexes on hard drive
+                locales.forEach(function (locale) {
+                    db[locale].reindex();
                 });
-                timer = Date.now();
-            }, 30 * 1000);
 
+                // Give some time for everything to reload
+                // considering we have no idea when the spanned process is done reindexing
+                // and reset the in-memory cache
+                setTimeout(function () {
+                    menuModel.resetCache();
+                    indexModel.resetCache();
+                    logger.info({
+                        message: 'Index and menu cache reset',
+                        module: 'routes/hookRoute',
+                        method: 'handler',
+                        request: req
+                    });
+                    timer = Date.now();
+                }, 30 * 1000);
+
+            }
+
+            // Close and send the response
+            res.end();
+
+        } catch (exception) {
+            next(exception);
         }
-
-        // Close and send the response
-        res.end();
-
     }
 };
