@@ -246,6 +246,13 @@ ATTRIB +R .\webapp\middleware\notFound.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\params.js
 
+REM Copy ./webapp/routes files
+ATTRIB -R .\webapp\views\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\loggerRoute.js .\webapp\routes /Y
+ATTRIB +R .\webapp\routes\loggerRoute.js
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\pingRoute.js .\webapp\routes /Y
+ATTRIB +R .\webapp\routes\pingRoute.js
+
 REM Copy ./webapp/views files
 ATTRIB -R .\webapp\views\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\views\error.ejs .\webapp\views /Y
