@@ -12,11 +12,6 @@
         "language": "memba/%s/"
     },
     "level": 0,
-    "logentries": {
-        "browser": {
-            "token": "e78bac0b-377a-49e2-ad91-20bb4ec7cedc"
-        }
-    },
     "twitter": {
         "account": "memba"
     },
