@@ -20,7 +20,6 @@
         var FUNCTION = 'function';
         var UNDEFINED = 'undefined';
         var LEVELS = {
-            // See https://github.com/logentries/le_node#log-levels
             DEBUG: { NAME: 'DEBUG', VALUE: 1 },
             INFO: { NAME: 'INFO', VALUE: 2 },
             WARN: { NAME: 'WARN', VALUE: 4 },

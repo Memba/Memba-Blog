@@ -7,9 +7,9 @@
 /* globals require: false, __NODE_ENV__: false */
 
 if (typeof(require) === 'function') {
-    require('./window.assert');
-    require('./window.logger');
-    require('./app.logger.js');
+    // require('./window.assert');
+    // require('./window.logger');
+    // require('./app.logger.js');
     require('./app.config.jsx?env=' + __NODE_ENV__);
     require('./app.support.js');
 }

@@ -20,7 +20,6 @@ var labels = {
     };
 var level = config.get('level') || 0;
 var levels = {
-        // See https://github.com/logentries/le_node#log-levels
         debug: 1,
         info: 2,
         warn: 4,
@@ -38,10 +37,10 @@ if (config.production) {
     prefix = '\t';
     separator = '\t';
 } else {
-    eq = ' = ';
+    eq = ': ';
     qt = '';
-    prefix = '  ';
-    separator = '  |  ';
+    prefix = ' ';
+    separator = '; ';
 }
 
 /* This function has too many statements. */
@@ -56,26 +55,28 @@ if (config.production) {
  * @returns {*}
  */
 function capture(entry) {
-    if (typeof entry === 'string') {
-        entry = { message: entry };
-    } else if (entry instanceof Error) {
-        entry = { error: entry };
-    } else if (!utils.isObject(entry)) {
-        entry = { data: entry };
-    }
-    if (entry.error instanceof Error) {
-        // We need to do that because JSON.stringify(new Error('Oops)) === {} and is not sent to logentries
-        entry.message = entry.error.message;
-        // entry.error.originalError is not necessarily an instance of Error because we use deepExtend
-        // if (entry.error.originalError instanceof Error) {
+    assert.ok(typeof entry === 'object', '`entry` is expected to be an object');
+    if (entry instanceof Error) {
+        // JSON.stringify(new Error('Oops)) === {}
+        // So we need to capture the properties we want
+        entry = {
+            error: entry,
+            message: entry.message
+        };
         if (entry.error.originalError) {
+            // entry.error.originalError is not necessarily an instance of Error because we use deepExtend
+            // if (entry.error.originalError instanceof Error) {
             entry.originalError = entry.error.originalError;
             delete entry.error.originalError;
             entry.originalMessage = entry.originalError.message;
             entry.stack = entry.originalError.stack;
         } else {
-            entry.stack = entry.error.stack;
+            entry.stack = entry.error.stack.split('\n').join(',')
         }
+    }
+    var application = config.get('application:name');
+    if (application) {
+        entry.application = application;
     }
     if (process.env.HOSTNAME) {
         entry.host = process.env.HOSTNAME;
@@ -114,8 +115,17 @@ function capture(entry) {
 function print(entry, label) {
     /* jshint maxstatements: 44 */
     /* jshint maxcomplexity: 30 */
-    var message = label;
+    var message = (isNaN(Date.parse(entry.date)) ? new Date() : new Date(entry.date)).toISOString();
+    message += prefix + label;
     var first = true;
+    if (entry.application) {
+        message += (first ? prefix : separator) + 'application' + eq + qt + entry.application + qt;
+        first = false;
+    }
+    if (entry.host) {
+        message += (first ? prefix : separator) + 'host' + eq + qt + entry.host + qt;
+        first = false;
+    }
     if (entry.message) {
         message += (first ? prefix : separator) + 'message' + eq + qt + entry.message + qt;
         first = false;
@@ -160,10 +170,6 @@ function print(entry, label) {
         message += (first ? prefix : separator) + 'trace' + eq + qt + entry.trace + qt;
         first = false;
     }
-    if (entry.host) {
-        message += (first ? prefix : separator) + 'host' + eq + qt + entry.host + qt;
-        first = false;
-    }
     if (entry.ip) {
         message += (first ? prefix : separator) + 'ip' + eq + qt + entry.ip + qt;
         first = false;
@@ -173,7 +179,7 @@ function print(entry, label) {
         first = false;
     }
     if (entry.stack) {
-        message += '\n' + entry.stack;
+        message += (first ? prefix : separator) + 'stack' + eq + qt + entry.stack.split('\n').join(', ').replace(/\s+/g, ' ') + qt;
     }
     console.log(message);
     /*
@@ -202,7 +208,6 @@ module.exports = exports = {
      * @param entry
      */
     debug: function (entry) {
-        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.debug) {
             return false;
         }
@@ -215,7 +220,6 @@ module.exports = exports = {
      * @param entry
      */
     info: function (entry) {
-        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.info) {
             return false;
         }
@@ -228,7 +232,6 @@ module.exports = exports = {
      * @param entry
      */
     warn: function (entry) {
-        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.warn) {
             return false;
         }
@@ -241,7 +244,6 @@ module.exports = exports = {
      * @param entry
      */
     error: function (entry) {
-        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.error) {
             return false;
         }
@@ -254,12 +256,18 @@ module.exports = exports = {
      * @param entry
      */
     critical: function (entry) {
-        assert.ok(typeof entry !== 'undefined', 'a log entry cannot be undefined');
         if (exports.level > levels.critical) {
             return false;
         }
         print(capture(entry), labels.critical);
         return true;
+    },
+
+    /**
+     * Shortcut for critical
+     */
+    crit: function(entry) {
+        exports.critical(entry);
     }
 
 };

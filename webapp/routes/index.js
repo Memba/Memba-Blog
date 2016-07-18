@@ -7,6 +7,7 @@
 
 'use strict';
 
+var bodyParser = require('body-parser');
 var express = require('express');
 var jsonParser = require('body-parser').json();
 var util = require('util');
@@ -25,6 +26,10 @@ var feedRoute = require('./feedRoute');
 var sitemapRoute = require('./sitemapRoute');
 var pageRoute = require('./pageRoute');
 var postRoute = require('./postRoute');
+
+// Configure router
+router.use(bodyParser.urlencoded({ extended: true })); // parse application/x-www-form-urlencoded - use qs module
+router.use(bodyParser.json()); // parse body for Json - IMPORTANT: after CORS!
 
 // Make config values, including paths to images, available to our templates
 router.use(locals);

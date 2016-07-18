@@ -8,11 +8,7 @@
 
 (function (f, define) {
     'use strict';
-    define([
-        './window.assert',
-        './window.logger',
-        './app.logger'
-    ], f);
+    define([], f);
 })(function () {
 
     'use strict';
@@ -26,8 +22,6 @@
     (function () {
 
         var app = window.app = window.app || {};
-        // var assert = window.assert;
-        var logger = new window.Logger('app.config');
 
         /**
          * application DEBUG mode
@@ -45,13 +39,6 @@
          * application locales
          */
         app.locales = JSON.parse('<%- JSON.stringify(locales) %>');
-
-        /**
-         * Logger token
-         */
-        window.Logger.prototype.level = parseInt('<%- level %>', 10) || 0;
-        app.logger.level = parseInt('<%- level %>', 10) || 0;
-        app.logger.token = '<%- logentries.browser.token %>';
 
         /**
          * Facebook
@@ -104,6 +91,7 @@
             webapp: {
                 home: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.home %>'),
                 locale: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.locale %>'), // redirection when changing locale
+                logger: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.logger %>'),
                 feed:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.feed %>'),
                 sitemap:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.sitemap %>'),
                 pages:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.pages %>'),
@@ -111,9 +99,13 @@
             }
         };
 
-        logger.info({
-            message: 'app configured'
-        });
+
+        /**
+         * Logger configuration
+         */
+        app.logger = app.logger || {};
+        app.logger.level = parseInt('<%- level %>', 10) || 0;
+        app.logger.endPoint = app.uris.webapp.logger;
 
     }());
 

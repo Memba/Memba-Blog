@@ -9,135 +9,112 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/logentries/le.js', // <-- keep first or adapt function (LE)
         './window.assert',
         './window.logger'
     ], f);
-})(function (LE) {
+})(function () {
 
     'use strict';
 
-    // Depending how le.js is loaded
-    // We need `LE` for webpack and `window.LE` for grunt mocha
-    LE = LE || window.LE;
-
-    (function (undefined) {
+    (function ($, undefined) {
 
         var app = window.app = window.app || {};
+        var assert = window.assert;
+        var logger = app.logger = app.logger || {};
         var LEVELS = {
-            // See https://github.com/logentries/le_node#log-levels
             DEBUG: { NAME: 'DEBUG', VALUE: 1 },
             INFO: { NAME: 'INFO', VALUE: 2 },
             WARN: { NAME: 'WARN', VALUE: 4 },
             ERROR: { NAME: 'ERROR', VALUE: 5 },
             CRIT: { NAME: 'CRIT', VALUE: 6 }
         };
-        var DEFAULT = LEVELS.INFO;
-        var logger = app.logger = app.logger || {
-            token: 'e78bac0b-377a-49e2-ad91-20bb4ec7cedc', // Our localhost value (basically junk)
-            level: DEFAULT.VALUE
-        };
+        var RX_LEVELS = new RegExp('^(' + Object.keys(LEVELS).join('|') + ')$', 'i');
 
-        /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
-
-        /**
-         * Intialize LogEntries
-         * @see https://logentries.com/doc/javascript/
-         * @see https://github.com/logentries/le_js
-         */
-        LE.init({
-            token: logger.token,
-            ssl: true,
-            /**
-             * Important: catchall: true is equivalent to setting window.onerror
-             * See https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror
-             */
-            catchall: false, // we have our own global handler in window.logger
-            trace: false, // not as good as our own trace
-            page_info: 'never', // does not work - see https://github.com/logentries/le_js/issues/41
-            print: false // let's print to the console ourselves in window.logger
-        });
-
-        /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
+        // The following are defined in app.config.jsx
+        // logger.level = X
+        // logger.endPoint = http://xxxxxxx
 
         /**
          * IMPORTANT: the following functions are prefixed with underscores
-         * because they should not be called, i.e. always call window.logger
+         * because they should not be called, i.e. always call window.Logger functions
          */
+
+        /**
+         * Generic send
+         * @param entry
+         * @param level
+         * @private
+         */
+        logger._send = function (entry, level, options) {
+            // Note: assert.type discards an entry of type Error, the processing is supposed to be done in windows.Logger
+            assert.type('object', entry, 'A log entry is supposed to be an object');
+            assert.match(RX_LEVELS, level, 'level is supposed to be any of `debug`, `info`, `warn`, `error` or `crit`');
+            var dfd =  $.Deferred();
+            if (logger.level > LEVELS[level.toUpperCase()].VALUE) {
+                // Return false if the ajax call was not made, considering the logging level
+                return dfd.resolve(false);
+            }
+            $.ajax({
+                type: 'POST',
+                url: logger.endPoint || options.endPoint,
+                contentType: 'application/json',
+                // dataType: 'json', // <-- do not set the dataType since the response is always empty
+                data: JSON.stringify($.extend(entry, { date: new Date(), level: level.toLowerCase() }))
+            })
+                .done(function () {
+                    // Return true if the ajax call was successful
+                    return dfd.resolve(true);
+                })
+                .fail(dfd.reject);
+            return dfd.promise();
+        };
 
         /**
          * Log a debug entry
          * @param entry
+         * @param options
          */
-        logger._debug = function (entry) {
-            if (logger.level > LEVELS.DEBUG.VALUE) {
-                return false;
-            }
-            setTimeout(function () {
-                // Note: LE has no debug logging as of June 2015
-                LE.log(entry);
-            }, 0);
-            return true;
+        logger._debug = function (entry, options) {
+            return logger._send(entry, LEVELS.DEBUG.NAME, options);
         };
 
         /**
          * Log an info entry
          * @param entry
+         * @param options
          */
-        logger._info = function (entry) {
-            if (logger.level > LEVELS.INFO.VALUE) {
-                return false;
-            }
-            setTimeout(function () {
-                LE.info(entry);
-            }, 0);
-            return true;
+        logger._info = function (entry, options) {
+            return logger._send(entry, LEVELS.INFO.NAME, options);
         };
 
         /**
          * Log a warn entry
          * @param entry
+         * @param options
          */
-        logger._warn = function (entry) {
-            if (logger.level > LEVELS.WARN.VALUE) {
-                return false;
-            }
-            setTimeout(function () {
-                LE.warn(entry);
-            }, 0);
-            return true;
+        logger._warn = function (entry, options) {
+            return logger._send(entry, LEVELS.WARN.NAME, options);
         };
 
         /**
          * Log an error entry (the application can survive an error entry)
          * @param entry
+         * @param options
          */
-        logger._error = function (entry) {
-            if (logger.level > LEVELS.ERROR.VALUE) {
-                return false;
-            }
-            setTimeout(function () {
-                LE.error(entry);
-            }, 0);
-            return true;
+        logger._error = function (entry, options) {
+            return logger._send(entry, LEVELS.ERROR.NAME, options);
         };
 
         /**
          * Log a critical entry (the application cannot survive a critical entry)
          * @param entry
+         * @param options
          */
-        logger._crit = function (entry) {
-            if (logger.level > LEVELS.CRIT.VALUE) {
-                return false;
-            }
-            setTimeout(function () {
-                // Note: LE has no critical logging as of June 2015
-                LE.error(entry);
-            }, 0);
-            return true;
+        logger._crit = function (entry, options) {
+            return logger._send(entry, LEVELS.CRIT.NAME, options);
         };
 
-    }());
+    }(window.jQuery));
 
     return window.app;
 

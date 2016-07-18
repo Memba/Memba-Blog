@@ -8,15 +8,12 @@
 
 (function (f, define) {
     'use strict';
-    define([
-        './app.logger'
-    ], f);
+    define([], f);
 })(function () {
 
     'use strict';
 
     var app = window.app;
-    var logger = new window.Logger('app.support');
 
     /* This function has too many statements. */
     /* jshint -W071 */
@@ -2003,11 +2000,6 @@
     /* jshint -W071 */
 
     app.support = window.Modernizr;
-
-    logger.info({
-        message: 'browser tested by Modernizr'
-        // method: 'none'
-    });
 
     return window.app;
 
