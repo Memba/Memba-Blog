@@ -24,6 +24,17 @@
         var app = window.app = window.app || {};
 
         /**
+         * Join url bits, adding slashes where required
+         * TODO: This could be improved to account for . and ..
+         */
+        var url = {
+            join: function () {
+                // Actually we first join with slashes, then we replace double or triple slashes, except when preceded by colons like in http://
+                return Array.prototype.slice.call(arguments).join('/').replace(/([^:])[\/]{2,}/g, '$1/');
+            }
+        };
+
+        /**
          * application DEBUG mode
          * @type {boolean}
          */
@@ -72,33 +83,23 @@
         }
 
         /**
-         * Join url bits, adding slashes where required
-         * TODO: This could be improved to account for . and ..
-         */
-        function urljoin() {
-            // Actually we first join with slashes, then we replace double or triple slashes, except when preceded by colons like in http://
-            return Array.prototype.slice.call(arguments).join('/').replace(/([^:])[\/]{2,}/g, '$1/');
-        }
-
-        /**
          * Application URIs
          * See /wepapp/middleware/locals.js
          */
         app.uris = {
             cdn: {
-                icons: urljoin('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))
+                icons: url.join('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))
             },
             webapp: {
-                home: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.home %>'),
-                locale: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.locale %>'), // redirection when changing locale
-                logger: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.logger %>'),
-                feed:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.feed %>'),
-                sitemap:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.sitemap %>'),
-                pages:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.pages %>'),
-                posts:  '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.posts %>')
+                home: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.home %>')),
+                locale: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.locale %>')), // redirection when changing locale
+                logger: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.logger %>')),
+                feed:  url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.feed %>')),
+                sitemap:  url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.sitemap %>')),
+                pages:  url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.pages %>')),
+                posts:  url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.posts %>'))
             }
         };
-
 
         /**
          * Logger configuration
