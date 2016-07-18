@@ -110,7 +110,7 @@ config.load(function (error/*, store*/) {
     app.use(function (req, res, next) {
         if (closingInProgress) {
             res.setHeader('Connection', 'close');
-            res.send(503, 'A webapp server is in the process of restarting');
+            res.status(503).send('A webapp server is in the process of restarting');
         } else {
             return next();
         }
