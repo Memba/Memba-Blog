@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.2.607'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2016.2.714'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -841,16 +841,46 @@
             kendo.toString = toString;
         }());
         (function () {
-            var nonBreakingSpaceRegExp = /\u00A0/g, exponentRegExp = /[eE][\-+]?[0-9]+/, shortTimeZoneRegExp = /[+|\-]\d{1,2}/, longTimeZoneRegExp = /[+|\-]\d{1,2}:?\d{2}/, dateRegExp = /^\/Date\((.*?)\)\/$/, offsetRegExp = /[+-]\d*/, formatsSequence = [
-                    'G',
-                    'g',
-                    'd',
-                    'F',
-                    'D',
-                    'y',
-                    'm',
-                    'T',
-                    't'
+            var nonBreakingSpaceRegExp = /\u00A0/g, exponentRegExp = /[eE][\-+]?[0-9]+/, shortTimeZoneRegExp = /[+|\-]\d{1,2}/, longTimeZoneRegExp = /[+|\-]\d{1,2}:?\d{2}/, dateRegExp = /^\/Date\((.*?)\)\/$/, offsetRegExp = /[+-]\d*/, FORMATS_SEQUENCE = [
+                    [],
+                    [
+                        'G',
+                        'g',
+                        'F'
+                    ],
+                    [
+                        'D',
+                        'd',
+                        'y',
+                        'm',
+                        'T',
+                        't'
+                    ]
+                ], STANDARD_FORMATS = [
+                    [
+                        'yyyy-MM-ddTHH:mm:ss.fffffffzzz',
+                        'yyyy-MM-ddTHH:mm:ss.fffffff',
+                        'yyyy-MM-ddTHH:mm:ss.fffzzz',
+                        'yyyy-MM-ddTHH:mm:ss.fff',
+                        'ddd MMM dd yyyy HH:mm:ss',
+                        'yyyy-MM-ddTHH:mm:sszzz',
+                        'yyyy-MM-ddTHH:mmzzz',
+                        'yyyy-MM-ddTHH:mmzz',
+                        'yyyy-MM-ddTHH:mm:ss',
+                        'yyyy-MM-dd HH:mm:ss',
+                        'yyyy/MM/dd HH:mm:ss'
+                    ],
+                    [
+                        'yyyy-MM-ddTHH:mm',
+                        'yyyy-MM-dd HH:mm',
+                        'yyyy/MM/dd HH:mm'
+                    ],
+                    [
+                        'yyyy/MM/dd',
+                        'yyyy-MM-dd',
+                        'HH:mm:ss',
+                        'HH:mm'
+                    ]
                 ], numberRegExp = {
                     2: /^\d{1,2}/,
                     3: /^\d{1,3}/,
@@ -1118,13 +1148,27 @@
                 offset = parseInt(offset.substr(0, 2), 10) * 60 + parseInt(offset.substring(2), 10);
                 return sign * offset;
             }
+            function getDefaultFormats(culture) {
+                var length = math.max(FORMATS_SEQUENCE.length, STANDARD_FORMATS.length);
+                var patterns = culture.calendar.patterns;
+                var cultureFormats, formatIdx, idx;
+                var formats = [];
+                for (idx = 0; idx < length; idx++) {
+                    cultureFormats = FORMATS_SEQUENCE[idx];
+                    for (formatIdx = 0; formatIdx < cultureFormats.length; formatIdx++) {
+                        formats.push(patterns[cultureFormats[formatIdx]]);
+                    }
+                    formats = formats.concat(STANDARD_FORMATS[idx]);
+                }
+                return formats;
+            }
             kendo.parseDate = function (value, formats, culture) {
                 if (objectToString.call(value) === '[object Date]') {
                     return value;
                 }
                 var idx = 0;
                 var date = null;
-                var length, patterns;
+                var length;
                 var tzoffset;
                 if (value && value.indexOf('/D') === 0) {
                     date = dateRegExp.exec(value);
@@ -1142,33 +1186,7 @@
                 }
                 culture = kendo.getCulture(culture);
                 if (!formats) {
-                    formats = [];
-                    patterns = culture.calendar.patterns;
-                    length = formatsSequence.length;
-                    for (; idx < length; idx++) {
-                        formats[idx] = patterns[formatsSequence[idx]];
-                    }
-                    idx = 0;
-                    formats = formats.concat([
-                        'yyyy/MM/dd HH:mm:ss',
-                        'yyyy/MM/dd HH:mm',
-                        'yyyy/MM/dd',
-                        'ddd MMM dd yyyy HH:mm:ss',
-                        'yyyy-MM-ddTHH:mm:ss.fffffffzzz',
-                        'yyyy-MM-ddTHH:mm:ss.fffzzz',
-                        'yyyy-MM-ddTHH:mm:sszzz',
-                        'yyyy-MM-ddTHH:mm:ss.fffffff',
-                        'yyyy-MM-ddTHH:mm:ss.fff',
-                        'yyyy-MM-ddTHH:mmzzz',
-                        'yyyy-MM-ddTHH:mmzz',
-                        'yyyy-MM-ddTHH:mm:ss',
-                        'yyyy-MM-ddTHH:mm',
-                        'yyyy-MM-dd HH:mm:ss',
-                        'yyyy-MM-dd HH:mm',
-                        'yyyy-MM-dd',
-                        'HH:mm:ss',
-                        'HH:mm'
-                    ]);
+                    formats = getDefaultFormats(culture);
                 }
                 formats = isArray(formats) ? formats : [formats];
                 length = formats.length;
@@ -7743,6 +7761,7 @@
                             that.transport.read({
                                 data: params,
                                 success: function (data) {
+                                    that._ranges = [];
                                     that.success(data, params);
                                     deferred.resolve();
                                 },
@@ -9596,7 +9615,9 @@
                 for (idx = 0; idx < items.length; idx++) {
                     var child = element.children[index];
                     unbindElementTree(child, true);
-                    element.removeChild(child);
+                    if (child.parentNode == element) {
+                        element.removeChild(child);
+                    }
                 }
             },
             render: function () {
@@ -10393,7 +10414,7 @@
             return result;
         }
         function bindElement(element, source, roles, parents) {
-            var role = element.getAttribute('data-' + kendo.ns + 'role'), idx, bind = element.getAttribute('data-' + kendo.ns + 'bind'), children = element.children, childrenCopy = [], deep = true, bindings, options = {}, target;
+            var role = element.getAttribute('data-' + kendo.ns + 'role'), idx, bind = element.getAttribute('data-' + kendo.ns + 'bind'), childrenCopy = [], deep = true, bindings, options = {}, target;
             parents = parents || [source];
             if (role || bind) {
                 unbindElement(element, false);
@@ -10446,6 +10467,7 @@
             if (target) {
                 element.kendoBindingTarget = target;
             }
+            var children = element.children;
             if (deep && children) {
                 for (idx = 0; idx < children.length; idx++) {
                     childrenCopy[idx] = children[idx];
@@ -11167,7 +11189,7 @@
                     if (support.browser.version < 11) {
                         element.css('-ms-touch-action', 'pinch-zoom double-tap-zoom');
                     } else {
-                        element.css('touch-action', 'pan-y');
+                        element.css('touch-action', options.touchAction || 'none');
                     }
                 }
                 if (options.preventDragEvent) {
@@ -11987,13 +12009,13 @@
             _drag: function (e) {
                 e.preventDefault();
                 var cursorElement = this._elementUnderCursor(e);
+                if (this.options.autoScroll && this._cursorElement !== cursorElement) {
+                    this._scrollableParent = findScrollableParent(cursorElement);
+                    this._cursorElement = cursorElement;
+                }
                 this._lastEvent = e;
                 this._processMovement(e, cursorElement);
                 if (this.options.autoScroll) {
-                    if (this._cursorElement !== cursorElement) {
-                        this._scrollableParent = findScrollableParent(cursorElement);
-                        this._cursorElement = cursorElement;
-                    }
                     if (this._scrollableParent[0]) {
                         var velocity = autoScrollVelocity(e.x.location, e.y.location, scrollableViewPort(this._scrollableParent));
                         this._scrollCompenstation = $.extend({}, this.hintOffset);
@@ -12459,6 +12481,7 @@
                         container: element,
                         forcedEnabled: that.options.zoom
                     }), avoidScrolling = this.options.avoidScrolling, userEvents = new kendo.UserEvents(element, {
+                        touchAction: 'pan-y',
                         fastTap: true,
                         allowSelection: true,
                         preventDragEvent: true,
@@ -30225,6 +30248,7 @@
             setOptions: function (options) {
                 var chart = this, dataSource = options.dataSource;
                 options.dataSource = undefined;
+                clearMissingValues(chart._originalOptions, options);
                 chart._originalOptions = deepExtend(chart._originalOptions, options);
                 chart.options = deepExtend({}, chart._originalOptions);
                 chart._sourceSeries = null;
@@ -37953,6 +37977,7 @@
                             stopPropagation: true,
                             multiTouch: true,
                             fastTap: true,
+                            press: proxy(that._press, that),
                             start: proxy(that._start, that),
                             move: proxy(that._move, that),
                             end: proxy(that._end, that),
@@ -38018,6 +38043,16 @@
                     that._state = null;
                 }
             },
+            _press: function (e) {
+                var handle;
+                if (this._state) {
+                    handle = this._state.moveTarget;
+                } else {
+                    var target = $(e.event.target);
+                    handle = target.parents('.k-handle').add(target).first();
+                }
+                handle.addClass('k-handle-active');
+            },
             _move: function (e) {
                 if (!this._state) {
                     return;
@@ -38046,10 +38081,16 @@
                 }
             },
             _end: function () {
-                var that = this, range = that._state.range;
-                delete that._state;
-                that.set(range.from, range.to);
-                that.trigger(SELECT_END, that._rangeEventArgs(range));
+                var range = this._state.range;
+                if (this._state) {
+                    var moveTarget = this._state.moveTarget;
+                    if (moveTarget) {
+                        moveTarget.removeClass('k-handle-active');
+                    }
+                    delete this._state;
+                }
+                this.set(range.from, range.to);
+                this.trigger(SELECT_END, this._rangeEventArgs(range));
             },
             _gesturechange: function (e) {
                 if (!this._state) {
@@ -39088,6 +39129,26 @@
                     state.depth--;
                 }
             });
+        }
+        function clearMissingValues(originalOptions, options) {
+            var fieldValue, originalValue, field, nullValue;
+            for (field in options) {
+                fieldValue = options[field];
+                originalValue = originalOptions[field];
+                if (defined(originalValue)) {
+                    nullValue = fieldValue === null;
+                    if (nullValue || !defined(fieldValue)) {
+                        delete originalOptions[field];
+                        if (nullValue) {
+                            delete options[field];
+                        }
+                    } else if (originalValue && isPlainObject(fieldValue)) {
+                        if (isPlainObject(fieldValue)) {
+                            clearMissingValues(originalValue, fieldValue);
+                        }
+                    }
+                }
+            }
         }
         dataviz.ui.plugin(Chart);
         PlotAreaFactory.current.register(CategoricalPlotArea, [
@@ -60460,7 +60521,7 @@
                         value = null;
                     }
                 }
-                if (!that.options.disableDates(value)) {
+                if (value === null || !that.options.disableDates(value)) {
                     that._value = value;
                 } else if (that._value === undefined) {
                     that._value = null;
@@ -61629,7 +61690,7 @@
                 var that = this, options = that.options, min = options.min, max = options.max, current = that._value, date = parse(value, options.parseFormats, options.culture), isSameType = date === null && current === null || date instanceof Date && current instanceof Date, formattedValue;
                 if (options.disableDates(date)) {
                     date = null;
-                    if (!that._old) {
+                    if (!that._old && !that.element.val()) {
                         value = null;
                     }
                 }
@@ -63178,7 +63239,7 @@
                 return this;
             },
             open: function () {
-                var that = this, wrapper = that.wrapper, options = that.options, showOptions = this._animationOptions('open'), contentElement = wrapper.children(KWINDOWCONTENT), overlay, doc = $(document);
+                var that = this, wrapper = that.wrapper, options = that.options, showOptions = this._animationOptions('open'), contentElement = wrapper.children(KWINDOWCONTENT), overlay, otherModalsVisible, doc = $(document);
                 if (!that.trigger(OPEN)) {
                     if (that._closing) {
                         wrapper.kendoStop(true, true);
@@ -63190,9 +63251,10 @@
                     }
                     options.visible = true;
                     if (options.modal) {
-                        overlay = that._overlay(false);
+                        otherModalsVisible = !!that._modals().length;
+                        overlay = that._overlay(otherModalsVisible);
                         overlay.kendoStop(true, true);
-                        if (showOptions.duration && kendo.effects.Fade) {
+                        if (showOptions.duration && kendo.effects.Fade && !otherModalsVisible) {
                             var overlayFx = kendo.fx(overlay).fadeIn();
                             overlayFx.duration(showOptions.duration || 0);
                             overlayFx.endValue(0.5);
@@ -63399,6 +63461,7 @@
                     that.options.isMaximized = true;
                     that._onDocumentResize();
                 });
+                return this;
             },
             minimize: function () {
                 this._sizingAction('minimize', function () {
@@ -63410,6 +63473,7 @@
                     that.element.hide();
                     that.options.isMinimized = true;
                 });
+                return this;
             },
             pin: function (force) {
                 var that = this, win = $(window), wrapper = that.wrapper, top = parseInt(wrapper.css('top'), 10), left = parseInt(wrapper.css('left'), 10);
@@ -63896,7 +63960,7 @@
                 if (!force) {
                     dataSource.filter(expression);
                 } else {
-                    dataSource.read({ filter: expression });
+                    dataSource.read(dataSource._mergeState({ filter: expression }));
                 }
             },
             _header: function () {
@@ -65697,11 +65761,15 @@
                 }
                 var value = that.listView.value()[0];
                 var optionLabel = that._optionLabelDataItem();
+                var optionLabelValue = optionLabel && that._value(optionLabel);
                 if (value === undefined || value === null) {
                     value = '';
                 }
                 if (optionLabel) {
-                    optionLabel = '<option value="' + that._value(optionLabel) + '">' + that._text(optionLabel) + '</option>';
+                    if (optionLabelValue === undefined || optionLabelValue === null) {
+                        optionLabelValue = '';
+                    }
+                    optionLabel = '<option value="' + optionLabelValue + '">' + that._text(optionLabel) + '</option>';
                 }
                 that._options(data, optionLabel, value);
                 if (value !== List.unifyType(that._accessor(), typeof value)) {
@@ -66232,35 +66300,35 @@
             _textAccessor: function (text) {
                 var dataItem = null;
                 var template = this.valueTemplate;
-                var options = this.options;
-                var optionLabel = options.optionLabel;
+                var optionLabelText = this._optionLabelText();
                 var span = this.span;
-                if (text !== undefined) {
-                    if ($.isPlainObject(text) || text instanceof ObservableObject) {
-                        dataItem = text;
-                    } else if (optionLabel && this._optionLabelText() === text) {
-                        dataItem = optionLabel;
-                        template = this.optionLabelTemplate;
-                    }
-                    if (!dataItem) {
-                        dataItem = this._assignInstance(text, this._accessor());
-                    }
-                    var getElements = function () {
-                        return {
-                            elements: span.get(),
-                            data: [{ dataItem: dataItem }]
-                        };
-                    };
-                    this.angular('cleanup', getElements);
-                    try {
-                        span.html(template(dataItem));
-                    } catch (e) {
-                        span.html('');
-                    }
-                    this.angular('compile', getElements);
-                } else {
+                if (text === undefined) {
                     return span.text();
                 }
+                if ($.isPlainObject(text) || text instanceof ObservableObject) {
+                    dataItem = text;
+                } else if (optionLabelText && optionLabelText === text) {
+                    dataItem = this.options.optionLabel;
+                }
+                if (!dataItem) {
+                    dataItem = this._assignInstance(text, this._accessor());
+                }
+                if (dataItem === optionLabelText || this._text(dataItem) === optionLabelText) {
+                    template = this.optionLabelTemplate;
+                }
+                var getElements = function () {
+                    return {
+                        elements: span.get(),
+                        data: [{ dataItem: dataItem }]
+                    };
+                };
+                this.angular('cleanup', getElements);
+                try {
+                    span.html(template(dataItem));
+                } catch (e) {
+                    span.html('');
+                }
+                this.angular('compile', getElements);
             },
             _preselect: function (value, text) {
                 if (!value && !text) {
@@ -68675,6 +68743,8 @@
                         scroller.scrollTo(pan.x, pan.y);
                         that._updateAdorners();
                     }
+                } else {
+                    return this._pan.times(-1);
                 }
             },
             viewport: function () {
@@ -69894,7 +69964,10 @@
                 }
             },
             edit: function () {
-                this.diagram.edit(this.selectedElements()[0]);
+                var selectedElemens = this.selectedElements();
+                if (selectedElemens.length === 1) {
+                    this.diagram.edit(selectedElemens[0]);
+                }
             },
             rotateClockwise: function (options) {
                 var angle = parseFloat(options.step || 90);
@@ -71623,13 +71696,13 @@
                 return;
             }
             var form = $(widget.element).parents('form');
-            var ngForm = scope[form.attr('name')];
+            var ngForm = kendo.getter(form.attr('name'))(scope);
             var getter = $parse(kNgModel);
             var setter = getter.assign;
             var updating = false;
             var valueIsCollection = kendo.ui.MultiSelect && widget instanceof kendo.ui.MultiSelect;
             var length = function (value) {
-                return valueIsCollection ? value.length : 0;
+                return value && valueIsCollection ? value.length : 0;
             };
             var currentValueLength = length(getter(scope));
             widget.$angular_setLogicValue(getter(scope));
@@ -72889,6 +72962,9 @@
             },
             cancel: function () {
                 this.events.cancel();
+            },
+            destroy: function () {
+                this.events.destroy();
             },
             _triggerTouch: function (type, e) {
                 if (this.trigger(type, {

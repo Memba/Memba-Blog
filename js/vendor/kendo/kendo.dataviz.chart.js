@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1673,6 +1673,7 @@
             setOptions: function (options) {
                 var chart = this, dataSource = options.dataSource;
                 options.dataSource = undefined;
+                clearMissingValues(chart._originalOptions, options);
                 chart._originalOptions = deepExtend(chart._originalOptions, options);
                 chart.options = deepExtend({}, chart._originalOptions);
                 chart._sourceSeries = null;
@@ -9401,6 +9402,7 @@
                             stopPropagation: true,
                             multiTouch: true,
                             fastTap: true,
+                            press: proxy(that._press, that),
                             start: proxy(that._start, that),
                             move: proxy(that._move, that),
                             end: proxy(that._end, that),
@@ -9466,6 +9468,16 @@
                     that._state = null;
                 }
             },
+            _press: function (e) {
+                var handle;
+                if (this._state) {
+                    handle = this._state.moveTarget;
+                } else {
+                    var target = $(e.event.target);
+                    handle = target.parents('.k-handle').add(target).first();
+                }
+                handle.addClass('k-handle-active');
+            },
             _move: function (e) {
                 if (!this._state) {
                     return;
@@ -9494,10 +9506,16 @@
                 }
             },
             _end: function () {
-                var that = this, range = that._state.range;
-                delete that._state;
-                that.set(range.from, range.to);
-                that.trigger(SELECT_END, that._rangeEventArgs(range));
+                var range = this._state.range;
+                if (this._state) {
+                    var moveTarget = this._state.moveTarget;
+                    if (moveTarget) {
+                        moveTarget.removeClass('k-handle-active');
+                    }
+                    delete this._state;
+                }
+                this.set(range.from, range.to);
+                this.trigger(SELECT_END, this._rangeEventArgs(range));
             },
             _gesturechange: function (e) {
                 if (!this._state) {
@@ -10536,6 +10554,26 @@
                     state.depth--;
                 }
             });
+        }
+        function clearMissingValues(originalOptions, options) {
+            var fieldValue, originalValue, field, nullValue;
+            for (field in options) {
+                fieldValue = options[field];
+                originalValue = originalOptions[field];
+                if (defined(originalValue)) {
+                    nullValue = fieldValue === null;
+                    if (nullValue || !defined(fieldValue)) {
+                        delete originalOptions[field];
+                        if (nullValue) {
+                            delete options[field];
+                        }
+                    } else if (originalValue && isPlainObject(fieldValue)) {
+                        if (isPlainObject(fieldValue)) {
+                            clearMissingValues(originalValue, fieldValue);
+                        }
+                    }
+                }
+            }
         }
         dataviz.ui.plugin(Chart);
         PlotAreaFactory.current.register(CategoricalPlotArea, [

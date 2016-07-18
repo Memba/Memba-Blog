@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -108,11 +108,13 @@
                 that._editable();
                 that.calculateDateRange();
                 that._groups();
-                that._currentTime();
+                that._currentTime(true);
             },
             name: 'timeline',
             _currentTimeMarkerUpdater: function () {
-                var currentTime = new Date();
+                this._updateCurrentTimeMarker(new Date());
+            },
+            _updateCurrentTimeMarker: function (currentTime) {
                 var options = this.options;
                 this.datesHeader.find('.' + CURRENT_TIME_MARKER_CLASS).remove();
                 this.content.find('.' + CURRENT_TIME_MARKER_CLASS).remove();
@@ -154,7 +156,7 @@
                         $(elementHtml).prependTo(this.content).css({
                             left: this._adjustLeftPosition(left),
                             width: '1px',
-                            bottom: '1px',
+                            height: this.content[0].scrollHeight - 1,
                             top: 0
                         });
                     }
@@ -166,13 +168,14 @@
                 }
                 return left;
             },
-            _currentTime: function () {
+            _currentTime: function (setUpdateTimer) {
                 var that = this;
                 var markerOptions = that.options.currentTimeMarker;
                 if (markerOptions !== false && markerOptions.updateInterval !== undefined) {
-                    var updateInterval = markerOptions.updateInterval;
                     that._currentTimeMarkerUpdater();
-                    that._currentTimeUpdateTimer = setInterval(proxy(this._currentTimeMarkerUpdater, that), updateInterval);
+                    if (setUpdateTimer) {
+                        that._currentTimeUpdateTimer = setInterval(proxy(this._currentTimeMarkerUpdater, that), markerOptions.updateInterval);
+                    }
                 }
             },
             _editable: function () {
@@ -700,6 +703,7 @@
                 }
                 this._setRowsHeight(eventGroups, eventsByResource.length, maxRowCount);
                 this._positionEvents(eventGroups, eventsByResource.length);
+                this._currentTime(false);
                 this.trigger('activate');
             },
             _positionEvents: function (eventGroups, groupsCount) {

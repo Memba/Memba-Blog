@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1006,9 +1006,7 @@
                     return;
                 }
                 var options = this.options.pdf;
-                var paperSize = options.paperSize;
                 this._drawPDF(progress).then(function (root) {
-                    options.paperSize = 'auto';
                     return kendo.drawing.exportPDF(root, options);
                 }).done(function (dataURI) {
                     kendo.saveAs({
@@ -1017,7 +1015,6 @@
                         proxyURL: options.proxyURL,
                         forceProxy: options.forceProxy
                     });
-                    options.paperSize = paperSize;
                     progress.resolve();
                 }).fail(function (err) {
                     progress.reject(err);
@@ -1025,7 +1022,7 @@
                 return promise;
             };
         }
-    }(window.jQuery));
+    }(window.jQuery || window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
@@ -7913,7 +7910,7 @@
             }
         });
         $.extend(editorNS, { Toolbar: Toolbar });
-    }(window.jQuery));
+    }(window.jQuery || window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -40,6 +40,10 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, isRtl = false, NS = '.kendoGroupable', CHANGE = 'change', indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' + '<a href="\\#" class="k-link">' + '<span class="k-icon k-si-arrow-${(data.dir || "asc") == "asc" ? "n" : "s"}">(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})</span>' + '${data.title ? data.title: data.field}' + '</a>' + '<a class="k-button k-button-icon k-button-bare">' + '<span class="k-icon k-group-delete"></span>' + '</a>' + '</div>', { useWithBlock: false }), hint = function (target) {
+                var title = target.attr(kendo.attr('title'));
+                if (title) {
+                    title = kendo.htmlEncode(title);
+                }
                 return $('<div class="k-header k-drag-clue" />').css({
                     width: target.width(),
                     paddingLeft: target.css('paddingLeft'),
@@ -47,7 +51,7 @@
                     lineHeight: target.height() + 'px',
                     paddingTop: target.css('paddingTop'),
                     paddingBottom: target.css('paddingBottom')
-                }).html(kendo.htmlEncode(target.attr(kendo.attr('title'))) || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-denied" />');
+                }).html(title || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-denied" />');
             }, dropCue = $('<div class="k-grouping-dropclue"/>');
         function dropCueOffsetTop(element) {
             return element.position().top + 3;

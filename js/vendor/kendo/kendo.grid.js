@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2078,7 +2078,15 @@
                         return;
                     }
                     function getPageZoomStyle() {
-                        return parseFloat($(document.documentElement).css('zoom') || 1) * parseFloat($(document.body).css('zoom') || 1);
+                        var docZoom = parseFloat($(document.documentElement).css('zoom'));
+                        if (isNaN(docZoom)) {
+                            docZoom = 1;
+                        }
+                        var bodyZoom = parseFloat($(document.body).css('zoom'));
+                        if (isNaN(bodyZoom)) {
+                            bodyZoom = 1;
+                        }
+                        return docZoom * bodyZoom;
                     }
                     var clientX = e.clientX / getPageZoomStyle(), winScrollLeft = $(window).scrollLeft(), position = th.offset().left + (!isRtl ? this.offsetWidth : 0);
                     if (clientX + winScrollLeft > position - indicatorWidth && clientX + winScrollLeft < position + indicatorWidth) {
@@ -6005,7 +6013,7 @@
                 return this.table[0] === active || $.contains(this.table[0], active) || this._isLocked() && (this.lockedTable[0] === active || $.contains(this.lockedTable[0], active));
             },
             refresh: function (e) {
-                var that = this, data = that.dataSource.view(), navigatable = that.options.navigatable, currentIndex, current = $(that.current()), isCurrentInHeader = false, groups = (that.dataSource.group() || []).length, offsetLeft = that.content && that.content.scrollLeft(), colspan = groups + visibleLeafColumns(visibleColumns(that.columns)).length;
+                var that = this, data = that.dataSource.view(), navigatable = that.options.navigatable, currentIndex, current = $(that.current()), isCurrentInHeader = false, groups = (that.dataSource.group() || []).length, colspan = groups + visibleLeafColumns(visibleColumns(that.columns)).length;
                 if (e && e.action === 'itemchange' && that.editable) {
                     return;
                 }
@@ -6043,7 +6051,7 @@
                 that._footer();
                 that._renderNoRecordsContent();
                 that._setContentHeight();
-                that._setContentWidth(offsetLeft);
+                that._setContentWidth(that.content && that.content.scrollLeft());
                 if (that.lockedTable) {
                     if (that.options.scrollable.virtual) {
                         that.content.find('>.k-virtual-scrollable-wrap').trigger('scroll');

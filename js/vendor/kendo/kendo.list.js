@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -183,7 +183,7 @@
                 if (!force) {
                     dataSource.filter(expression);
                 } else {
-                    dataSource.read({ filter: expression });
+                    dataSource.read(dataSource._mergeState({ filter: expression }));
                 }
             },
             _header: function () {

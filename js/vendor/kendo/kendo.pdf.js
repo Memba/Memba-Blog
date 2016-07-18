@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -3875,25 +3875,28 @@
                         y: fill.end().y
                     };
                 }
+                var stops = fill.stops.elements().map(function (stop) {
+                    var offset = stop.offset();
+                    if (/%$/.test(offset)) {
+                        offset = parseFloat(offset) / 100;
+                    } else {
+                        offset = parseFloat(offset);
+                    }
+                    var color = parseColor(stop.color());
+                    color.a *= stop.opacity();
+                    return {
+                        offset: offset,
+                        color: color
+                    };
+                });
+                stops.unshift(stops[0]);
+                stops.push(stops[stops.length - 1]);
                 var gradient = {
+                    userSpace: fill.userSpace(),
                     type: isRadial ? 'radial' : 'linear',
                     start: start,
                     end: end,
-                    userSpace: fill.userSpace(),
-                    stops: fill.stops.elements().map(function (stop) {
-                        var offset = stop.offset();
-                        if (/%$/.test(offset)) {
-                            offset = parseFloat(offset) / 100;
-                        } else {
-                            offset = parseFloat(offset);
-                        }
-                        var color = parseColor(stop.color());
-                        color.a *= stop.opacity();
-                        return {
-                            offset: offset,
-                            color: color
-                        };
-                    })
+                    stops: stops
                 };
                 var box = element.rawBBox();
                 var tl = box.topLeft(), size = box.getSize();
@@ -4243,7 +4246,7 @@
                     return;
                 }
                 var options = this.options.pdf;
-                options.multiPage = options.allPages;
+                options.multiPage = options.multiPage || options.allPages;
                 this._drawPDF(progress).then(function (root) {
                     return kendo.drawing.exportPDF(root, options);
                 }).done(function (dataURI) {

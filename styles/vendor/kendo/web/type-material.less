@@ -191,8 +191,8 @@
 @primary-disabled-border-color: #eaeaea;
 @primary-disabled-gradient: none;
 @button-hover-text-color: @normal-text-color;
-@button-hover-background-color: contrast(@background, lighten(@background, 17%), darken(@background, 8%), 0.5);
-@button-hover-border-color: contrast(@background, lighten(@background, 17%), darken(@background, 8%), 0.5);
+@button-hover-background-color: contrast(@background, lighten(@background, 23%), darken(@background, 8%), 0.5);
+@button-hover-border-color: contrast(@background, lighten(@background, 23%), darken(@background, 8%), 0.5);
 @button-active-background: contrast(@background, lighten(@background, 23%), darken(@background, 14%), 0.5);
 @button-active-border-color: contrast(@background, lighten(@background, 23%), darken(@background, 14%), 0.5);
 @button-focused-border-color: contrast(@background, lighten(@background, 17%), darken(@background, 14%), 0.5);
@@ -2255,6 +2255,16 @@ html .km-pane-wrapper .km-widget,
     box-shadow: 0 0 0 12px fadeout(@hover-background, 70%);
 }
 
+
+.k-radio:disabled:checked + .k-radio-label:before,
+.k-radio:disabled:checked + .k-radio-label:hover:before {
+    border-color: @radio-disabled-border-color;
+}
+
+.k-radio:disabled:checked + .k-radio-label:active:before {
+    box-shadow: none;
+}
+
 // Retina sprite
 @media only screen and (-webkit-min-device-pixel-ratio: 1.2),
        only screen and (min-device-pixel-ratio: 1.2) {
@@ -2673,7 +2683,7 @@ border-radius: 0;
 
 .k-calendar .k-today.k-state-hover {
     background-color: contrast(@background, darken(@accent, 10%), softlight(@accent, #b9b9b9), .5);
-} 
+}
 
 .k-calendar .k-today:active {
     box-shadow: inset 0 0 0 1px contrast(@background, darken(@accent, 15%), softlight(@accent, #b9b9b9), .5);
@@ -2755,7 +2765,7 @@ border-color: @panelbar-items-border;
         }
 
         &:hover {
-            background-color: @hover-background-color;        
+            background-color: @hover-background-color;
         }
 
         &.k-state-active {
@@ -3450,12 +3460,12 @@ div.k-scheduler-marquee:after {
 }
 
 @media only screen and (max-width: 1024px) {
-    
+
     .k-scheduler-toolbar > ul.k-scheduler-views {
         right: 13px;
         top: 0;
     }
-    
+
     .k-webkit,
     .k-ff,
     .k-ie11,
@@ -3534,7 +3544,7 @@ div.k-scheduler-marquee:after {
         .k-pager-wrap {
             min-height: 2.56em;
         }
-        
+
         .k-pager-wrap .k-pager-nav,
         .k-pager-input {
             display: inline-block;
@@ -3566,7 +3576,7 @@ div.k-scheduler-marquee:after {
         .km-pane-wrapper .k-pager-numbers.k-state-expanded,
         .km-pane-wrapper .k-grid .k-pager-numbers.k-state-expanded {
             -webkit-transform: translate(-50%, -100%);
-            transform: translate(-50%, -100%);           
+            transform: translate(-50%, -100%);
         }
 
         .km-pane-wrapper .k-pager-numbers .k-link,
@@ -3679,7 +3689,7 @@ div.k-scheduler-marquee:after {
         .k-pager-numbers.k-state-expanded li {
             display: inline-block;
         }
-        
+
         .k-gantt-toolbar > ul.k-gantt-views {
             top: 0;
         }

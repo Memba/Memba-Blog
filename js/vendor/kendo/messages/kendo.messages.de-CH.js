@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -392,6 +392,28 @@ $.extend(true, kendo.ui.Pager.prototype.options.messages,{
   "refresh": "Aktualisieren",
   "morePages": "Weitere Seiten"
 });
+}
+
+/* TreeList messages */
+
+if (kendo.ui.TreeList) {
+    kendo.ui.TreeList.prototype.options.messages =
+    $.extend(true, kendo.ui.TreeList.prototype.options.messages, {
+        noRows: "Es sind keine Daten vorhanden",
+        loading: "Lade Daten...",
+        requestFailed: "Laden fehlgeschlagen",
+        retry: "Neu laden",
+        commands: {
+            edit: "Bearbeiten",
+            update: "Aktualisiere",
+            canceledit: "Abbrechen",
+            create: "Neuen Datensatz hinzufügen",
+            createchild: "Kind-Datensatz hinzufügen",
+            destroy: "Löschen",
+            excel: "Als Excel exportieren",
+            pdf: "Als PDF exportieren"
+        }
+    });
 }
 
 /* Upload messages */

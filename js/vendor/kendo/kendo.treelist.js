@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1091,7 +1091,7 @@
                     this._touchScroller.destroy();
                 }
                 this._autoExpandable = null;
-                this._refreshHandler = this._errorHandler = this._progressHandler = null;
+                this._refreshHandler = this._errorHandler = this._progressHandler = this._dataSourceFetchProxy = null;
                 this.thead = this.content = this.tbody = this.table = this.element = this.lockedHeader = this.lockedContent = null;
                 this._statusTree = this._headerTree = this._contentTree = this._lockedHeaderColsTree = this._lockedContentColsTree = this._lockedHeaderTree = this._lockedContentTree = null;
             },
@@ -1192,8 +1192,7 @@
             _attachEvents: function () {
                 var icons = DOT + classNames.iconCollapse + ', .' + classNames.iconExpand + ', .' + classNames.refresh;
                 var retryButton = DOT + classNames.retry;
-                var dataSource = this.dataSource;
-                this.element.on(MOUSEDOWN + NS, icons, proxy(this._toggleChildren, this)).on(CLICK + NS, retryButton, proxy(dataSource.fetch, dataSource)).on(CLICK + NS, '.k-button[data-command]', proxy(this._commandClick, this));
+                this.element.on(MOUSEDOWN + NS, icons, proxy(this._toggleChildren, this)).on(CLICK + NS, retryButton, this._dataSourceFetchProxy).on(CLICK + NS, '.k-button[data-command]', proxy(this._commandClick, this));
             },
             _commandByName: function (name) {
                 var columns = this.columns;
@@ -2168,6 +2167,9 @@
                 ds.bind(CHANGE, this._refreshHandler);
                 ds.bind(ERROR, this._errorHandler);
                 ds.bind(PROGRESS, this._progressHandler);
+                this._dataSourceFetchProxy = proxy(function () {
+                    this.dataSource.fetch();
+                }, this);
             },
             setDataSource: function (dataSource) {
                 this._dataSource(dataSource);

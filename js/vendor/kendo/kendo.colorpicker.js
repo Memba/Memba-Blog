@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.607 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -710,7 +710,11 @@
                             that.wrapper.children('.k-picker-wrap').removeClass('k-state-focused');
                             var color = selector._selectOnHide();
                             if (!color) {
-                                that.wrapper.focus();
+                                setTimeout(function () {
+                                    if (that.wrapper) {
+                                        that.wrapper.focus();
+                                    }
+                                });
                                 that._updateUI(that.color());
                             } else {
                                 that._select(color);
