@@ -41,7 +41,7 @@ if (typeof(require) === 'function') {
             });
 
             // Log page readiness
-            logger.debug({
+            logger.info({
                 message: 'error page initialized in ' + i18n.locale(),
                 method: '$(document).ready'
             });

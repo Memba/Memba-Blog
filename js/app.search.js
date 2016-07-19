@@ -31,7 +31,7 @@ require('../styles/app.page.search.less');
         $(document).ready(function () {
 
             // Log page readiness
-            logger.debug({
+            logger.info({
                 message: 'search page initialized in ' + i18n.locale(),
                 method: '$(document).ready'
             });

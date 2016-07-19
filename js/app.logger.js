@@ -40,12 +40,12 @@
          */
 
         /**
-         * Generic send
+         * Generic log function
          * @param entry
          * @param level
          * @private
          */
-        logger._send = function (entry, level, options) {
+        logger._log = function (entry, level, options) {
             // Note: assert.type discards an entry of type Error, the processing is supposed to be done in windows.Logger
             assert.type('object', entry, 'A log entry is supposed to be an object');
             assert.match(RX_LEVELS, level, 'level is supposed to be any of `debug`, `info`, `warn`, `error` or `crit`');
@@ -75,7 +75,7 @@
          * @param options
          */
         logger._debug = function (entry, options) {
-            return logger._send(entry, LEVELS.DEBUG.NAME, options);
+            return logger._log(entry, LEVELS.DEBUG.NAME, options);
         };
 
         /**
@@ -84,7 +84,7 @@
          * @param options
          */
         logger._info = function (entry, options) {
-            return logger._send(entry, LEVELS.INFO.NAME, options);
+            return logger._log(entry, LEVELS.INFO.NAME, options);
         };
 
         /**
@@ -93,7 +93,7 @@
          * @param options
          */
         logger._warn = function (entry, options) {
-            return logger._send(entry, LEVELS.WARN.NAME, options);
+            return logger._log(entry, LEVELS.WARN.NAME, options);
         };
 
         /**
@@ -102,7 +102,7 @@
          * @param options
          */
         logger._error = function (entry, options) {
-            return logger._send(entry, LEVELS.ERROR.NAME, options);
+            return logger._log(entry, LEVELS.ERROR.NAME, options);
         };
 
         /**
@@ -111,7 +111,7 @@
          * @param options
          */
         logger._crit = function (entry, options) {
-            return logger._send(entry, LEVELS.CRIT.NAME, options);
+            return logger._log(entry, LEVELS.CRIT.NAME, options);
         };
 
     }(window.jQuery));

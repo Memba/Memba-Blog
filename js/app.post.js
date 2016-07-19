@@ -136,7 +136,7 @@ require('../styles/app.page.post.less');
             initSocialButtons();
 
             // Log page readiness
-            logger.debug({
+            logger.info({
                 message: 'post page initialized in ' + i18n.locale(),
                 method: '$(document).ready'
             });
