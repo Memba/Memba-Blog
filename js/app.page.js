@@ -32,7 +32,7 @@ require('../styles/app.page.page.less');
         $(document).ready(function () {
 
             // Log page readiness
-            logger.info({
+            logger.debug({
                 message: 'site page initialized in ' + i18n.locale(),
                 method: '$(document).ready'
             });

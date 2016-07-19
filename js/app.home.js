@@ -31,7 +31,7 @@ require('../styles/app.page.home.less');
         $(document).ready(function () {
 
             // Log page readiness
-            logger.info({
+            logger.debug({
                 message: 'home page initialized in ' + i18n.locale(),
                 method: '$(document).ready'
             });

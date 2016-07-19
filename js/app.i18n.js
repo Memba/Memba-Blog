@@ -119,7 +119,7 @@
             i18n.load(locale)
                 .then(function () {
                     // Log readiness
-                    logger.info({
+                    logger.debug({
                         message: locale + ' locale loaded',
                         method: '$(document).ready'
                     });

@@ -138,7 +138,7 @@ if (typeof(require) === 'function') {
                 kendo.bind('footer', viewModel);
 
                 // Log page readiness
-                logger.info({
+                logger.debug({
                     message: 'common elements initialized in ' + i18n.locale(),
                     method: LOADED
                 });

@@ -77,7 +77,7 @@ require('./vendor/bootstrap/dropdown.js');
                 .on(KEYPRESS, onSearchInputKeyPress);
 
             // Log page readiness
-            logger.info({
+            logger.debug({
                 message: 'Menu initialized in ' + i18n.locale(),
                 method: '$(document).ready'
             });
