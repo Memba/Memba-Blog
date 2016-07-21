@@ -266,7 +266,7 @@ module.exports = exports = {
     /**
      * Shortcut for critical
      */
-    crit: function(entry) {
+    crit: function (entry) {
         exports.critical(entry);
     }
 

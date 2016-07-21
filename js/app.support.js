@@ -53,7 +53,7 @@
      * of control over the experience.
      */
 
-    ;(function(window, document, undefined){
+    ;(function (window, document, undefined) {
         var classes = [];
 
 
@@ -75,17 +75,17 @@
             // Any settings that don't work as separate modules
             // can go in here as configuration.
             _config: {
-                'classPrefix': '',
-                'enableClasses': true,
-                'enableJSClass': true,
-                'usePrefixes': true
+                classPrefix: '',
+                enableClasses: true,
+                enableJSClass: true,
+                usePrefixes: true
             },
 
             // Queue of tests
             _q: [],
 
             // Stub these for people who are listening
-            on: function(test, cb) {
+            on: function (test, cb) {
                 // I don't really think people should do this, but we can
                 // safe guard it a bit.
                 // -- NOTE:: this gets WAY overridden in src/addTest for actual async tests.
@@ -93,24 +93,24 @@
                 // but the code to *disallow* sync tests in the real version of this
                 // function is actually larger than this.
                 var self = this;
-                setTimeout(function() {
+                setTimeout(function () {
                     cb(self[test]);
                 }, 0);
             },
 
-            addTest: function(name, fn, options) {
-                tests.push({name: name, fn: fn, options: options});
+            addTest: function (name, fn, options) {
+                tests.push({ name: name, fn: fn, options: options });
             },
 
-            addAsyncTest: function(fn) {
-                tests.push({name: null, fn: fn});
+            addAsyncTest: function (fn) {
+                tests.push({ name: null, fn: fn });
             }
         };
 
 
 
         // Fake some of Object.create so we can force non test results to be non "own" properties.
-        var Modernizr = function() {};
+        var Modernizr = function () {};
         Modernizr.prototype = ModernizrProto;
 
         // Leak modernizr globally when you `require` it rather than force it here.
@@ -136,7 +136,7 @@
          Detects support for the Blob constructor, for creating file-like objects of immutable, raw data.
          */
 
-        Modernizr.addTest('blobconstructor', function() {
+        Modernizr.addTest('blobconstructor', function () {
             try {
                 return !!new Blob();
             } catch (e) {
@@ -167,7 +167,7 @@
          Detects support for the History API for manipulating the browser session history.
          */
 
-        Modernizr.addTest('history', function() {
+        Modernizr.addTest('history', function () {
             // Issue #733
             // The stock browser on Android 2.2 & 2.3, and 4.0.x returns positive on history support
             // Unfortunately support is really buggy and there is no clean way to detect
@@ -273,7 +273,7 @@
         //   www.quirksmode.org/dom/html5.html
         // But IE8 doesn't support either with local files
 
-        Modernizr.addTest('localstorage', function() {
+        Modernizr.addTest('localstorage', function () {
             var mod = 'modernizr';
             try {
                 localStorage.setItem(mod, mod);
@@ -298,7 +298,7 @@
         // Just FWIW: IE8 Compat mode supports these features completely:
         //   www.quirksmode.org/dom/html5.html
         // But IE8 doesn't support either with local files
-        Modernizr.addTest('sessionstorage', function() {
+        Modernizr.addTest('sessionstorage', function () {
             var mod = 'modernizr';
             try {
                 sessionStorage.setItem(mod, mod);
@@ -333,7 +333,7 @@
 
          */
 
-        Modernizr.addTest('atobbtoa', 'atob' in window && 'btoa' in window, {aliases: ['atob-btoa']});
+        Modernizr.addTest('atobbtoa', 'atob' in window && 'btoa' in window, { aliases: ['atob-btoa'] });
 
         /*!
          {
@@ -374,7 +374,6 @@
         function is(obj, type) {
             return typeof obj === type;
         }
-        ;
 
         /**
          * Run through all tests and detect their support in the current UA.
@@ -445,7 +444,6 @@
                 }
             }
         }
-        ;
 
         /**
          * docElement is a convenience wrapper to grab the root element of the document
@@ -456,7 +454,6 @@
 
         var docElement = document.documentElement;
 
-
         /**
          * A convenience helper to check if the document we are running in is an SVG document
          *
@@ -465,7 +462,6 @@
          */
 
         var isSVG = docElement.nodeName.toLowerCase() === 'svg';
-
 
         /**
          * setClasses takes an array of class names and adds them to the root element
@@ -500,8 +496,6 @@
 
         }
 
-        ;
-
         /**
          * createElement is a convenience wrapper around document.createElement. Since we
          * use createElement all over the place, this allows for (slightly) smaller code
@@ -525,7 +519,6 @@
             }
         }
 
-        ;
         /*!
          {
          "name" : "HTML5 Audio Element",
@@ -550,7 +543,7 @@
         // Note: in some older browsers, "no" was a return value instead of empty string.
         //   It was live in FF3.5.0 and 3.5.1, but fixed in 3.5.2
         //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5
-        Modernizr.addTest('audio', function() {
+        Modernizr.addTest('audio', function () {
             /* jshint -W053 */
             var elem = createElement('audio');
             var bool = false;
@@ -591,7 +584,7 @@
         // On the S60 and BB Storm, getContext exists, but always returns undefined
         // so we actually have to call getContext() to verify
         // github.com/Modernizr/Modernizr/issues/issue/97/
-        Modernizr.addTest('canvas', function() {
+        Modernizr.addTest('canvas', function () {
             var elem = createElement('canvas');
             return !!(elem.getContext && elem.getContext('2d'));
         });
@@ -609,11 +602,11 @@
          Detects support for the text APIs for `<canvas>` elements.
          */
 
-        Modernizr.addTest('canvastext',  function() {
+        Modernizr.addTest('canvastext',  function () {
             if (Modernizr.canvas  === false) {
                 return false;
             }
-            return typeof createElement('canvas').getContext('2d').fillText == 'function';
+            return typeof createElement('canvas').getContext('2d').fillText === 'function';
         });
 
         /*!
@@ -653,7 +646,7 @@
         //   It was live in FF3.5.0 and 3.5.1, but fixed in 3.5.2
         //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5
 
-        Modernizr.addTest('video', function() {
+        Modernizr.addTest('video', function () {
             /* jshint -W053 */
             var elem = createElement('video');
             var bool = false;
@@ -699,10 +692,10 @@
          Detects support for inline SVG in HTML (not within XHTML).
          */
 
-        Modernizr.addTest('inlinesvg', function() {
+        Modernizr.addTest('inlinesvg', function () {
             var div = createElement('div');
             div.innerHTML = '<svg/>';
-            return (typeof SVGRect != 'undefined' && div.firstChild && div.firstChild.namespaceURI) == 'http://www.w3.org/2000/svg';
+            return (typeof SVGRect !== 'undefined' && div.firstChild && div.firstChild.namespaceURI) === 'http://www.w3.org/2000/svg';
         });
 
 
@@ -735,7 +728,7 @@
          *
          */
 
-        var hasEvent = (function() {
+        var hasEvent = (function () {
 
             // Detect whether event support can be detected via `in`. Test on a DOM element
             // using the "blur" event b/c it should always exist. bit.ly/event-detection
@@ -804,7 +797,7 @@
          Detects support for the `hashchange` event, fired when the current location fragment changes.
          */
 
-        Modernizr.addTest('hashchange', function() {
+        Modernizr.addTest('hashchange', function () {
             if (hasEvent('hashchange', window) === false) {
                 return false;
             }
@@ -847,14 +840,12 @@
          * ```
          */
 
-            // we use ['',''] rather than an empty array in order to allow a pattern of .`join()`ing prefixes to test
-            // values in feature detects to continue to work
+        // we use ['',''] rather than an empty array in order to allow a pattern of .`join()`ing prefixes to test
+        // values in feature detects to continue to work
         var prefixes = (ModernizrProto._config.usePrefixes ? ' -webkit- -moz- -o- -ms- '.split(' ') : ['','']);
 
         // expose these for the plugin API. Look in the source for how to join() them against your input
         ModernizrProto._prefixes = prefixes;
-
-
 
         /**
          * hasOwnProp is a shim for hasOwnProperty that is needed for Safari 2.0 support
@@ -867,21 +858,21 @@
          * @returns {boolean}
          */
 
-            // hasOwnProperty shim by kangax needed for Safari 2.0 support
+        // hasOwnProperty shim by kangax needed for Safari 2.0 support
         var hasOwnProp;
 
-        (function() {
+        (function () {
             var _hasOwnProperty = ({}).hasOwnProperty;
             /* istanbul ignore else */
             /* we have no way of testing IE 5.5 or safari 2,
              * so just assume the else gets hit */
             if (!is(_hasOwnProperty, 'undefined') && !is(_hasOwnProperty.call, 'undefined')) {
-                hasOwnProp = function(object, property) {
+                hasOwnProp = function (object, property) {
                     return _hasOwnProperty.call(object, property);
                 };
             }
             else {
-                hasOwnProp = function(object, property) { /* yes, this can give false positives/negatives, but most of the time we don't care about those */
+                hasOwnProp = function (object, property) { /* yes, this can give false positives/negatives, but most of the time we don't care about those */
                     return ((property in object) && is(object.constructor.prototype[property], 'undefined'));
                 };
             }
@@ -907,7 +898,7 @@
          * @example
          *
          * ```js
-         * Modernizr.on('flash', function( result ) {
+         * Modernizr.on('flash', function ( result ) {
    *   if (result) {
    *    // the browser has flash
    *   } else {
@@ -917,7 +908,7 @@
          * ```
          */
 
-        ModernizrProto.on = function(feature, cb) {
+        ModernizrProto.on = function (feature, cb) {
             // Create the list of listeners if it doesn't exist
             if (!this._l[feature]) {
                 this._l[feature] = [];
@@ -929,7 +920,7 @@
             // If it's already been resolved, trigger it on next tick
             if (Modernizr.hasOwnProperty(feature)) {
                 // Next Tick
-                setTimeout(function() {
+                setTimeout(function () {
                     Modernizr._trigger(feature, Modernizr[feature]);
                 }, 0);
             }
@@ -948,7 +939,7 @@
          * result of a feature detection function
          */
 
-        ModernizrProto._trigger = function(feature, res) {
+        ModernizrProto._trigger = function (feature, res) {
             if (!this._l[feature]) {
                 return;
             }
@@ -956,8 +947,9 @@
             var cbs = this._l[feature];
 
             // Force async
-            setTimeout(function() {
-                var i, cb;
+            setTimeout(function () {
+                var i;
+                var cb;
                 for (i = 0; i < cbs.length; i++) {
                     cb = cbs[i];
                     cb(res);
@@ -992,7 +984,7 @@
          * punctuation), and a function you want executed that will return a boolean result
          *
          * ```js
-         * Modernizr.addTest('itsTuesday', function() {
+         * Modernizr.addTest('itsTuesday', function () {
    *  var d = new Date();
    *  return d.getDay() === 2;
    * });
@@ -1024,7 +1016,7 @@
          * ```js
          * var detects = {
    *  'hasjquery': 'jQuery' in window,
-   *  'itstuesday': function() {
+   *  'itstuesday': function () {
    *    var d = new Date();
    *    return d.getDay() === 2;
    *  }
@@ -1039,7 +1031,7 @@
 
         function addTest(feature, test) {
 
-            if (typeof feature == 'object') {
+            if (typeof feature === 'object') {
                 for (var key in feature) {
                     if (hasOwnProp(feature, key)) {
                         addTest(key, feature[ key ]);
@@ -1052,11 +1044,11 @@
                 var last = Modernizr[featureNameSplit[0]];
 
                 // Again, we don't check for parent test existence. Get that right, though.
-                if (featureNameSplit.length == 2) {
+                if (featureNameSplit.length === 2) {
                     last = last[featureNameSplit[1]];
                 }
 
-                if (typeof last != 'undefined') {
+                if (typeof last !== 'undefined') {
                     // we're going to quit if you're trying to overwrite an existing test
                     // if we were to allow it, we'd do this:
                     //   var re = new RegExp("\\b(no-)?" + feature + "\\b");
@@ -1065,10 +1057,10 @@
                     return Modernizr;
                 }
 
-                test = typeof test == 'function' ? test() : test;
+                test = typeof test === 'function' ? test() : test;
 
                 // Set the value (this is the magic, right here).
-                if (featureNameSplit.length == 1) {
+                if (featureNameSplit.length === 1) {
                     Modernizr[featureNameSplit[0]] = test;
                 } else {
                     // cast to a Boolean, if not one already
@@ -1082,7 +1074,7 @@
 
                 // Set a single class (either `feature` or `no-feature`)
                 /* jshint -W041 */
-                setClasses([(!!test && test != false ? '' : 'no-') + featureNameSplit.join('-')]);
+                setClasses([(!!test && test !== false ? '' : 'no-') + featureNameSplit.join('-')]);
                 /* jshint +W041 */
 
                 // Trigger the event
@@ -1093,7 +1085,7 @@
         }
 
         // After all the tests are run, add self to the Modernizr prototype
-        Modernizr._q.push(function() {
+        Modernizr._q.push(function () {
             ModernizrProto.addTest = addTest;
         });
 
@@ -1150,7 +1142,7 @@
          */
 
         // https://github.com/Modernizr/Modernizr/issues/14
-        Modernizr.addAsyncTest(function() {
+        Modernizr.addAsyncTest(function () {
             /* jshint -W053 */
 
             // IE7 throw a mixed content warning on HTTPS for this test, so we'll
@@ -1158,18 +1150,18 @@
             // https://github.com/Modernizr/Modernizr/issues/362
             if (navigator.userAgent.indexOf('MSIE 7.') !== -1) {
                 // Keep the test async
-                setTimeout(function() {
+                setTimeout(function () {
                     addTest('datauri', false);
                 }, 10);
             }
 
             var datauri = new Image();
 
-            datauri.onerror = function() {
+            datauri.onerror = function () {
                 addTest('datauri', false);
             };
-            datauri.onload = function() {
-                if (datauri.width == 1 && datauri.height == 1) {
+            datauri.onload = function () {
+                if (datauri.width === 1 && datauri.height === 1) {
                     testOver32kb();
                 }
                 else {
@@ -1185,15 +1177,15 @@
 
                 var datauriBig = new Image();
 
-                datauriBig.onerror = function() {
+                datauriBig.onerror = function () {
                     addTest('datauri', true);
                     Modernizr.datauri = new Boolean(true);
                     Modernizr.datauri.over32kb = false;
                 };
-                datauriBig.onload = function() {
+                datauriBig.onload = function () {
                     addTest('datauri', true);
                     Modernizr.datauri = new Boolean(true);
-                    Modernizr.datauri.over32kb = (datauriBig.width == 1 && datauriBig.height == 1);
+                    Modernizr.datauri.over32kb = (datauriBig.width === 1 && datauriBig.height === 1);
                 };
 
                 var base64str = 'R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
@@ -1217,11 +1209,10 @@
          */
 
         function cssToDOM(name) {
-            return name.replace(/([a-z])-([a-z])/g, function(str, m1, m2) {
+            return name.replace(/([a-z])-([a-z])/g, function (str, m1, m2) {
                 return m1 + m2.toUpperCase();
             }).replace(/^-/, '');
         }
-        ;
 
         /**
          * getBody returns the body of a document, or an element that can stand in for
@@ -1245,8 +1236,6 @@
 
             return body;
         }
-
-        ;
 
         /**
          * injectElementWithStyles injects an element with style element and some CSS rules
@@ -1296,9 +1285,9 @@
             div.id = mod;
 
             if (body.fake) {
-                //avoid crashing IE8, if background image is used
+                // avoid crashing IE8, if background image is used
                 body.style.background = '';
-                //Safari 5.13/5.1.4 OSX stops loading if ::-webkit-scrollbar is used and scrollbars are visible
+                // Safari 5.13/5.1.4 OSX stops loading if ::-webkit-scrollbar is used and scrollbars are visible
                 body.style.overflow = 'hidden';
                 docOverflow = docElement.style.overflow;
                 docElement.style.overflow = 'hidden';
@@ -1319,8 +1308,6 @@
             return !!ret;
 
         }
-
-        ;
 
         /**
          * testStyles injects an element with style element and some CSS rules
@@ -1343,7 +1330,7 @@
          * that can not be detected by simply checking the [IDL](https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Interface_development_guide/IDL_interface_rules).
          *
          * ```js
-         * Modernizr.testStyles('#modernizr { width: 9px; color: papayawhip; }', function(elem, rule) {
+         * Modernizr.testStyles('#modernizr { width: 9px; color: papayawhip; }', function (elem, rule) {
    *   // elem is the first DOM node in the page (by default #modernizr)
    *   // rule is the first argument you supplied - the CSS rule in string form
    *
@@ -1357,7 +1344,7 @@
          * the first argument to the callback.
          *
          * ```js
-         * Modernizr.testStyles('#modernizr {width: 1px}; #modernizr2 {width: 2px}', function(elem) {
+         * Modernizr.testStyles('#modernizr {width: 1px}; #modernizr2 {width: 2px}', function (elem) {
    *   document.getElementById('modernizr').style.width === '1px'; // true
    *   document.getElementById('modernizr2').style.width === '2px'; // true
    *   elem.firstChild === document.getElementById('modernizr2'); // true
@@ -1371,7 +1358,7 @@
          * them as the fourth argument, as an array of strings
          *
          * ```js
-         * Modernizr.testStyles('#foo {width: 10px}; #bar {height: 20px}', function(elem) {
+         * Modernizr.testStyles('#foo {width: 10px}; #bar {height: 20px}', function (elem) {
    *   elem.firstChild === document.getElementById('foo'); // true
    *   elem.lastChild === document.getElementById('bar'); // true
    * }, 2, ['foo', 'bar']);
@@ -1418,15 +1405,15 @@
          */
 
         // Chrome (desktop) used to lie about its support on this, but that has since been rectified: http://crbug.com/36415
-        Modernizr.addTest('touchevents', function() {
+        Modernizr.addTest('touchevents', function () {
             var bool;
-            if (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
+            if (('ontouchstart' in window) || window.DocumentTouch && document instanceof window.DocumentTouch) {
                 bool = true;
             } else {
                 // include the 'heartz' as a way to have a non matching MQ to help terminate the join
                 // https://git.io/vznFH
                 var query = ['@media (', prefixes.join('touch-enabled),('), 'heartz', ')', '{#modernizr{top:9px;position:absolute}}'].join('');
-                testStyles(query, function(node) {
+                testStyles(query, function (node) {
                     bool = node.offsetTop === 9;
                 });
             }
@@ -1484,7 +1471,7 @@
          *
          */
 
-        var atRule = function(prop) {
+        var atRule = function (prop) {
             var length = prefixes.length;
             var cssrule = window.CSSRule;
             var rule;
@@ -1561,8 +1548,6 @@
             return !!~('' + str).indexOf(substr);
         }
 
-        ;
-
         /**
          * fnBind is a super small [bind](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind) polyfill.
          *
@@ -1574,12 +1559,10 @@
          */
 
         function fnBind(fn, that) {
-            return function() {
+            return function () {
                 return fn.apply(that, arguments);
             };
         }
-
-        ;
 
         /**
          * testDOMProps is a generic DOM property test; if a browser supports
@@ -1617,8 +1600,6 @@
             return false;
         }
 
-        ;
-
         /**
          * Create our "modernizr" element that we do most feature tests on.
          *
@@ -1630,7 +1611,7 @@
         };
 
         // Clean up this element
-        Modernizr._q.push(function() {
+        Modernizr._q.push(function () {
             delete modElem.elem;
         });
 
@@ -1642,7 +1623,7 @@
 
         // kill ref for gc, must happen before mod.elem is removed, so we unshift on to
         // the front of the queue.
-        Modernizr._q.unshift(function() {
+        Modernizr._q.unshift(function () {
             delete mStyle.style;
         });
 
@@ -1659,11 +1640,10 @@
          */
 
         function domToCSS(name) {
-            return name.replace(/([A-Z])/g, function(str, m1) {
+            return name.replace(/([A-Z])/g, function (str, m1) {
                 return '-' + m1.toLowerCase();
             }).replace(/^ms-/, '-ms-');
         }
-        ;
 
         /**
          * nativeTestProps allows for us to use native feature detection functionality if available.
@@ -1698,13 +1678,12 @@
                     conditionText.push('(' + domToCSS(props[i]) + ':' + value + ')');
                 }
                 conditionText = conditionText.join(' or ');
-                return injectElementWithStyles('@supports (' + conditionText + ') { #modernizr { position: absolute; } }', function(node) {
-                    return getComputedStyle(node, null).position == 'absolute';
+                return injectElementWithStyles('@supports (' + conditionText + ') { #modernizr { position: absolute; } }', function (node) {
+                    return getComputedStyle(node, null).position === 'absolute';
                 });
             }
             return undefined;
         }
-        ;
 
         // testProps is a generic CSS / DOM property test.
 
@@ -1731,7 +1710,11 @@
             }
 
             // Otherwise do it properly
-            var afterInit, i, propsLength, prop, before;
+            var afterInit;
+            var i;
+            var propsLength;
+            var prop;
+            var before;
 
             // If we don't have a style element, that means we're running async or after
             // the core tests, so we'll need to create our own elements to use
@@ -1781,24 +1764,22 @@
                         // supported. If `value` is empty string, it'll fail here (because
                         // it hasn't changed), which matches how browsers have implemented
                         // CSS.supports()
-                        if (mStyle.style[prop] != before) {
+                        if (mStyle.style[prop] !== before) {
                             cleanElems();
-                            return prefixed == 'pfx' ? prop : true;
+                            return prefixed === 'pfx' ? prop : true;
                         }
                     }
                     // Otherwise just return true, or the property name if this is a
                     // `prefixed()` call
                     else {
                         cleanElems();
-                        return prefixed == 'pfx' ? prop : true;
+                        return prefixed === 'pfx' ? prop : true;
                     }
                 }
             }
             cleanElems();
             return false;
         }
-
-        ;
 
         /**
          * testPropsAll tests a list of DOM properties we want to check against.
@@ -1816,8 +1797,8 @@
          */
         function testPropsAll(prop, prefixed, elem, value, skipValueTest) {
 
-            var ucProp = prop.charAt(0).toUpperCase() + prop.slice(1),
-                props = (prop + ' ' + cssomPrefixes.join(ucProp + ' ') + ucProp).split(' ');
+            var ucProp = prop.charAt(0).toUpperCase() + prop.slice(1);
+            var props = (prop + ' ' + cssomPrefixes.join(ucProp + ' ') + ucProp).split(' ');
 
             // did they call .prefixed('boxSizing') or are we just testing a prop?
             if (is(prefixed, 'string') || is(prefixed, 'undefined')) {
@@ -1836,8 +1817,6 @@
         // Note that the property names must be provided in the camelCase variant.
         // Modernizr.testAllProps('boxSizing')
         ModernizrProto.testAllProps = testPropsAll;
-
-
 
         /**
          * testAllProps determines whether a given CSS property is supported in the browser
@@ -1890,7 +1869,7 @@
          }
          !*/
 
-        Modernizr.addTest('csstransforms', function() {
+        Modernizr.addTest('csstransforms', function () {
             // Android < 3.0 is buggy, so we sniff and blacklist
             // http://git.io/hHzL7w
             return navigator.userAgent.indexOf('Android 2.') === -1 &&
@@ -1934,7 +1913,7 @@
          * ```js
          * var rAF = prefixed('requestAnimationFrame', window);
          *
-         * raf(function() {
+         * raf(function () {
    *  renderFunction();
    * })
          * ```
@@ -1963,12 +1942,12 @@
          * If you want a similar lookup, but in kebab-case, you can use [prefixedCSS](#modernizr-prefixedcss).
          */
 
-        var prefixed = ModernizrProto.prefixed = function(prop, obj, elem) {
+        var prefixed = ModernizrProto.prefixed = function (prop, obj, elem) {
             if (prop.indexOf('@') === 0) {
                 return atRule(prop);
             }
 
-            if (prop.indexOf('-') != -1) {
+            if (prop.indexOf('-') !== -1) {
                 // Convert kebab-case to camelCase
                 prop = cssToDOM(prop);
             }
