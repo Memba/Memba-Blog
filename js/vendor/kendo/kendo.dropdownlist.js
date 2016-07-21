@@ -1,25 +1,25 @@
-/** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
- *                                                                                                                                                                                                      
- * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
- * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
-                                                                                                                                                                                                       
+/**
+ * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)
+ * Copyright 2016 Telerik AD. All rights reserved.
+ *
+ * Kendo UI commercial licenses may be obtained at
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 */
 (function (f, define) {
@@ -907,8 +907,11 @@
                 if (!dataItem) {
                     dataItem = this._assignInstance(text, this._accessor());
                 }
-                if (dataItem === optionLabelText || this._text(dataItem) === optionLabelText) {
-                    template = this.optionLabelTemplate;
+                if (this.options.optionLabel) {
+                    // see https://github.com/telerik/kendo-ui-core/issues/1972
+                    if (dataItem === optionLabelText || this._text(dataItem) === optionLabelText) {
+                        template = this.optionLabelTemplate;
+                    }
                 }
                 var getElements = function () {
                     return {

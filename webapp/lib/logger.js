@@ -57,12 +57,12 @@ if (config.production) {
 function capture(entry) {
     assert.ok(typeof entry === 'object', '`entry` is expected to be an object');
     if (entry instanceof Error) {
-        // JSON.stringify(new Error('Oops)) === {}
-        // So we need to capture the properties we want
-        entry = {
-            error: entry,
-            message: entry.message
-        };
+        entry = { error: entry };
+    }
+    // JSON.stringify(new Error('Oops)) === {}
+    // So we need to capture the properties we want
+    if (entry.error instanceof Error) {
+        entry.message = entry.message || entry.error.message;
         if (entry.error.originalError) {
             // entry.error.originalError is not necessarily an instance of Error because we use deepExtend
             // if (entry.error.originalError instanceof Error) {
@@ -71,7 +71,7 @@ function capture(entry) {
             entry.originalMessage = entry.originalError.message;
             entry.stack = entry.originalError.stack;
         } else {
-            entry.stack = entry.error.stack.split('\n').join(',')
+            entry.stack = entry.error.stack;
         }
     }
     var application = config.get('application:name');
@@ -113,8 +113,8 @@ function capture(entry) {
 * @param label
 */
 function print(entry, label) {
-    /* jshint maxstatements: 44 */
-    /* jshint maxcomplexity: 30 */
+    /* jshint maxstatements: 48 */
+    /* jshint maxcomplexity: 34 */
     var message = (isNaN(Date.parse(entry.date)) ? new Date() : new Date(entry.date)).toISOString();
     message += prefix + label;
     var first = true;
