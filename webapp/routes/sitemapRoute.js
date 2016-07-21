@@ -28,9 +28,6 @@ var SITEMAP_END = '</urlset>';
 
 module.exports = {
 
-    /* Blocks are nested too deeply. */
-    /* jshint -W073 */
-
     /**
      * Return a localized sitemap
      * @see http://www.sitemaps.org/protocol.html
@@ -41,88 +38,82 @@ module.exports = {
      */
     getXmlSitemap: function (req, res, next) {
 
-        try {
+        // var config = res.locals.config;
+        var format = res.locals.format;
+        // var url = res.locals.url;
 
-            // var config = res.locals.config;
-            var format = res.locals.format;
-            // var url = res.locals.url;
+        // Create a trace that we can track in the browser
+        // req.trace = utils.uuid();
 
-            // Create a trace that we can track in the browser
-            // req.trace = utils.uuid();
+        // Log the request
+        logger.info({
+            message: 'requesting a sitemap',
+            module: 'routes/sitemapRoute',
+            method: 'getXmlSitemap',
+            request: req
+        });
 
-            // Log the request
-            logger.info({
-                message: 'requesting a sitemap',
-                module: 'routes/sitemapRoute',
-                method: 'getXmlSitemap',
-                request: req
+        var language = req.params.language;
+
+        if (language) {
+
+            indexModel.getIndex(req.params.language, function (error, indexEntries) {
+                if (!error && Array.isArray(indexEntries)) {
+
+                    var sitemap = XML_HEAD + SITEMAP_BEGIN;
+
+                    for (var i = 0; i < indexEntries.length; i++) {
+                        /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
+                        var loc = indexEntries[i].site_url;
+                        var lastmod = indexEntries[i].creation_date;
+                        var changefreq = 'monthly';
+                        var priority = '1.0';
+                        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
+                        sitemap += util.format(SITEMAP_ITEM, loc, lastmod, changefreq, priority);
+                    }
+
+                    sitemap += SITEMAP_END;
+
+                    res
+                        .set({
+                            'Cache-Control': 'private, max-age=43200',
+                            'Content-Language' : language,
+                            'Content-Type': 'application/xml; charset=utf-8'
+                        })
+                        .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                        .send(sitemap);
+                } else {
+                    next(error);
+                }
             });
 
-            var language = req.params.language;
+        } else {
 
-            if (language) {
+            var locales = res.locals.getLocales();
+            // TODO compare with config?
 
-                indexModel.getIndex(req.params.language, function (error, indexEntries) {
-                    if (!error && Array.isArray(indexEntries)) {
+            var index = XML_HEAD + INDEX_BEGIN;
 
-                        var sitemap = XML_HEAD + SITEMAP_BEGIN;
-
-                        for (var i = 0; i < indexEntries.length; i++) {
-                            /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
-                            var loc = indexEntries[i].site_url;
-                            var lastmod = indexEntries[i].creation_date;
-                            var changefreq = 'monthly';
-                            var priority = '1.0';
-                            /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
-                            sitemap += util.format(SITEMAP_ITEM, loc, lastmod, changefreq, priority);
-                        }
-
-                        sitemap += SITEMAP_END;
-
-                        res
-                            .set({
-                                'Cache-Control': 'private, max-age=43200',
-                                'Content-Language': language,
-                                'Content-Type': 'application/xml; charset=utf-8'
-                            })
-                            .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                            .send(sitemap);
-                    } else {
-                        next(error);
-                    }
-                });
-
-            } else {
-
-                var locales = res.locals.getLocales();
-                // TODO compare with config?
-
-                var index = XML_HEAD + INDEX_BEGIN;
-
-                if (Array.isArray(locales)) {
-                    // Iterate over locales
-                    for (var i = 0; i < locales.length; i++) {
-                        var loc = url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:sitemap'), locales[i]));
-                        index += util.format(INDEX_ITEM, loc);
-                    }
+            if (Array.isArray(locales)) {
+                // Iterate over locales
+                for (var i = 0; i < locales.length; i++) {
+                    var loc = url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:sitemap'), locales[i]));
+                    index += util.format(INDEX_ITEM, loc);
                 }
+            }
 
-                index += INDEX_END;
+            index += INDEX_END;
 
-                // Send the index
-                res.set({
+            // Send the index
+            res.set({
                     'Content-Type': 'application/xml; charset=utf-8'
                     // 'Cache-Control': 'max-age=3600, public'
                 })
-                    .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
-                    .send(index);
+                .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                .send(index);
 
-            }
-
-        } catch (exception) {
-            next(exception);
         }
+
     }
 
-    /* jshint +W073 */
 };

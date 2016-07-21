@@ -26,16 +26,13 @@ module.exports = {
      */
     createEntry: function (req, res, next) {
 
-        try {
-            // Assert body (after being parsed by body-parser)
-            var body = req.body;
-            assert.ok(utils.isObject(body), 'request should have a body that is an object');
+        // Assert body (after being parsed by body-parser)
+        var body = req.body;
 
-            // Check for minimal requirements
-            assert.ok(typeof body.date === 'string', 'body should have a date');
-            assert.ok(RX_LEVEL.test(body.level), 'body should have a level that is any of `debug`, `info`, `warn`, `error` or `crit`'); // Note: no default level
-            assert.ok(typeof body.message === 'string', 'body should have a message');
-            // We could also check that we have either (i) module + method, or (ii) error stack
+        if (utils.isObject(body) &&
+            typeof body.date === 'string' &&
+            RX_LEVEL.test(body.level) &&
+            typeof body.message === 'string') { // We could also check that we have either (i) module + method, or (ii) error stack
 
             // Read the trace from headers
             req.trace = req.headers['x-trace-id'];
@@ -47,16 +44,9 @@ module.exports = {
             // Return ok
             res.status(httpStatus.created).end();
 
-        } catch (exception) {
-
-            if (DEBUG) {
-                next(exception);
-
-            } else {
-                // Be silent about exceptions: we do not want to pollute our logs with failed attempts to log
-                // res.status(httpStatus.badRequest).end();
-                res.status(httpStatus.created).end();
-            }
         }
+
+        // Return ok in all circumstances
+        res.status(httpStatus.created).end();
     }
 };

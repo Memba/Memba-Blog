@@ -19,25 +19,18 @@ module.exports = {
      * Get handler
      * @param req
      * @param res
-     * @param next
      */
-    get: function (req, res, next) {
+    get: function (req, res) {
 
-        try {
+        // Log the request
+        logger.info({
+            message: 'get a ping',
+            method: 'get',
+            module: 'routes/pingRoute',
+            request: req
+        });
 
-            // Log the request
-            logger.info({
-                message: 'get a ping',
-                method: 'get',
-                module: 'routes/pingRoute',
-                request: req
-            });
-
-            res.json({ ping: 'OK' });
-
-        } catch (exception) {
-            next(exception);
-        }
+        res.json({ ping: 'OK' });
 
     }
 };
