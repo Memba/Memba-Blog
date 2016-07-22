@@ -20,30 +20,36 @@ if (typeof(require) === 'function') {
  * The following prevents links from opening in a new safari window
  * Source: https://gist.github.com/irae/1042167
  */
-(function(document,navigator,standalone) {
+(function (document,navigator,standalone) {
+
+    'use strict';
+
     // prevents links from apps from opening in mobile safari
     // this javascript must be the first script in your <head>
     if ((standalone in navigator) && navigator[standalone]) {
-        var curnode, location=document.location, stop=/^(a|html)$/i;
-        document.addEventListener('click', function(e) {
-            curnode=e.target;
+        var curnode;
+        var chref;
+        var location = document.location;
+        var stop = /^(a|html)$/i;
+        document.addEventListener('click', function (e) {
+            curnode = e.target;
             while (!(stop).test(curnode.nodeName)) {
-                curnode=curnode.parentNode;
+                curnode = curnode.parentNode;
             }
             // Conditions to do this only on links to your own app
             // if you want all links, use if('href' in curnode) instead.
-            if(
+            if (
                 'href' in curnode && // is a link
-                (chref=curnode.href).replace(location.href,'').indexOf('#') && // is not an anchor
-                (	!(/^[a-z\+\.\-]+:/i).test(chref) ||                       // either does not have a proper scheme (relative links)
-                chref.indexOf(location.protocol+'//'+location.host)===0 ) // or is in the same protocol and domain
+                (chref = curnode.href).replace(location.href, '').indexOf('#') && // is not an anchor
+                (!(/^[a-z\+\.\-]+:/i).test(chref) ||                       // either does not have a proper scheme (relative links)
+                chref.indexOf(location.protocol + '//' + location.host) === 0) // or is in the same protocol and domain
             ) {
                 e.preventDefault();
                 location.href = curnode.href;
             }
-        },false);
+        }, false);
     }
-})(document,window.navigator,'standalone');
+})(document, window.navigator, 'standalone');
 
 // TODO Consider javascript disabled
 // TODO use app.support to display a message for older browsers
