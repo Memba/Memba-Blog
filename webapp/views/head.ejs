@@ -32,6 +32,8 @@
     <link rel="apple-touch-icon" sizes="144x144" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-144x144.png')) %>">
     <link rel="apple-touch-icon" sizes="152x152" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')) %>">
     <link rel="apple-touch-icon" sizes="180x180" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-180x180.png')) %>">
+    <% // Other apple meta tags %>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <% // Robots: do not index/archive search pages %>
     <% if (Array.isArray(results)) { %>
     <meta name="robots" content="noindex, noarchive">
