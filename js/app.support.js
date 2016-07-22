@@ -54,11 +54,9 @@
      */
 
     ;(function (window, document, undefined) {
+
         var classes = [];
-
-
         var tests = [];
-
 
         /**
          *
@@ -67,7 +65,6 @@
          * @class
          * @access public
          */
-
         var ModernizrProto = {
             // The current version, dummy
             _version: '3.3.1',
@@ -117,19 +114,18 @@
         // Overwrite name so constructor name is nicer :D
         Modernizr = new Modernizr();
 
-
         /*!
          {
-         "name": "Blob constructor",
-         "property": "blobconstructor",
-         "aliases": ["blob-constructor"],
-         "builderAliases": ["blob_constructor"],
-         "caniuse": "blobbuilder",
-         "notes": [{
-         "name": "W3C spec",
-         "href": "https://w3c.github.io/FileAPI/#constructorBlob"
-         }],
-         "polyfills": ["blobjs"]
+             "name": "Blob constructor",
+             "property": "blobconstructor",
+             "aliases": ["blob-constructor"],
+             "builderAliases": ["blob_constructor"],
+             "caniuse": "blobbuilder",
+             "notes": [{
+                 "name": "W3C spec",
+                 "href": "https://w3c.github.io/FileAPI/#constructorBlob"
+             }],
+             "polyfills": ["blobjs"]
          }
          !*/
         /* DOC
@@ -148,19 +144,19 @@
 
         /*!
          {
-         "name": "History API",
-         "property": "history",
-         "caniuse": "history",
-         "tags": ["history"],
-         "authors": ["Hay Kranen", "Alexander Farkas"],
-         "notes": [{
-         "name": "W3C Spec",
-         "href": "https://www.w3.org/TR/html51/browsers.html#the-history-interface"
-         }, {
-         "name": "MDN documentation",
-         "href": "https://developer.mozilla.org/en-US/docs/Web/API/window.history"
-         }],
-         "polyfills": ["historyjs", "html5historyapi"]
+             "name": "History API",
+             "property": "history",
+             "caniuse": "history",
+             "tags": ["history"],
+             "authors": ["Hay Kranen", "Alexander Farkas"],
+             "notes": [{
+                 "name": "W3C Spec",
+                 "href": "https://www.w3.org/TR/html51/browsers.html#the-history-interface"
+             }, {
+                 "name": "MDN documentation",
+                 "href": "https://developer.mozilla.org/en-US/docs/Web/API/window.history"
+             }],
+             "polyfills": ["historyjs", "html5historyapi"]
          }
          !*/
         /* DOC
@@ -190,20 +186,20 @@
 
         /*!
          {
-         "name": "SVG",
-         "property": "svg",
-         "caniuse": "svg",
-         "tags": ["svg"],
-         "authors": ["Erik Dahlstrom"],
-         "polyfills": [
-         "svgweb",
-         "raphael",
-         "amplesdk",
-         "canvg",
-         "svg-boilerplate",
-         "sie",
-         "dojogfx",
-         "fabricjs"
+             "name": "SVG",
+             "property": "svg",
+             "caniuse": "svg",
+             "tags": ["svg"],
+             "authors": ["Erik Dahlstrom"],
+             "polyfills": [
+             "svgweb",
+             "raphael",
+             "amplesdk",
+             "canvg",
+             "svg-boilerplate",
+             "sie",
+             "dojogfx",
+             "fabricjs"
          ]
          }
          !*/
@@ -215,16 +211,16 @@
 
         /*!
          {
-         "name": "File API",
-         "property": "filereader",
-         "caniuse": "fileapi",
-         "notes": [{
-         "name": "W3C Working Draft",
-         "href": "https://www.w3.org/TR/FileAPI/"
-         }],
-         "tags": ["file"],
-         "builderAliases": ["file_api"],
-         "knownBugs": ["Will fail in Safari 5 due to its lack of support for the standards defined FileReader object"]
+             "name": "File API",
+             "property": "filereader",
+             "caniuse": "fileapi",
+             "notes": [{
+                 "name": "W3C Working Draft",
+                 "href": "https://www.w3.org/TR/FileAPI/"
+             }],
+             "tags": ["file"],
+             "builderAliases": ["file_api"],
+             "knownBugs": ["Will fail in Safari 5 due to its lack of support for the standards defined FileReader object"]
          }
          !*/
         /* DOC
@@ -239,19 +235,19 @@
 
         /*!
          {
-         "name": "Local Storage",
-         "property": "localstorage",
-         "caniuse": "namevalue-storage",
-         "tags": ["storage"],
-         "knownBugs": [],
-         "notes": [],
-         "warnings": [],
-         "polyfills": [
-         "joshuabell-polyfill",
-         "cupcake",
-         "storagepolyfill",
-         "amplifyjs",
-         "yui-cacheoffline"
+             "name": "Local Storage",
+             "property": "localstorage",
+             "caniuse": "namevalue-storage",
+             "tags": ["storage"],
+             "knownBugs": [],
+             "notes": [],
+             "warnings": [],
+             "polyfills": [
+             "joshuabell-polyfill",
+             "cupcake",
+             "storagepolyfill",
+             "amplifyjs",
+             "yui-cacheoffline"
          ]
          }
          !*/
@@ -286,10 +282,10 @@
 
         /*!
          {
-         "name": "Session Storage",
-         "property": "sessionstorage",
-         "tags": ["storage"],
-         "polyfills": ["joshuabell-polyfill", "cupcake", "sessionstorage"]
+             "name": "Session Storage",
+             "property": "sessionstorage",
+             "tags": ["storage"],
+             "polyfills": ["joshuabell-polyfill", "cupcake", "sessionstorage"]
          }
          !*/
 
@@ -311,20 +307,20 @@
 
         /*!
          {
-         "name": "Base 64 encoding/decoding",
-         "property": ["atobbtoa"],
-         "builderAliases": ["atob-btoa"],
-         "caniuse" : "atob-btoa",
-         "tags": ["atob", "base64", "WindowBase64", "btoa"],
-         "authors": ["Christian Ulbrich"],
-         "notes": [{
-         "name": "WindowBase64",
-         "href": "https://www.w3.org/TR/html5/webappapis.html#windowbase64"
-         }, {
-         "name": "MDN documentation",
-         "href": "https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/atob"
-         }],
-         "polyfills": ["base64js"]
+             "name": "Base 64 encoding/decoding",
+             "property": ["atobbtoa"],
+             "builderAliases": ["atob-btoa"],
+             "caniuse" : "atob-btoa",
+             "tags": ["atob", "base64", "WindowBase64", "btoa"],
+             "authors": ["Christian Ulbrich"],
+             "notes": [{
+                 "name": "WindowBase64",
+                 "href": "https://www.w3.org/TR/html5/webappapis.html#windowbase64"
+             }, {
+                 "name": "MDN documentation",
+                 "href": "https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/atob"
+             }],
+             "polyfills": ["base64js"]
          }
          !*/
         /* DOC
@@ -337,21 +333,21 @@
 
         /*!
          {
-         "name": "Web Workers",
-         "property": "webworkers",
-         "caniuse" : "webworkers",
-         "tags": ["performance", "workers"],
-         "notes": [{
-         "name": "W3C Reference",
-         "href": "https://www.w3.org/TR/workers/"
-         }, {
-         "name": "HTML5 Rocks article",
-         "href": "http://www.html5rocks.com/en/tutorials/workers/basics/"
-         }, {
-         "name": "MDN documentation",
-         "href": "https://developer.mozilla.org/en-US/docs/Web/Guide/Performance/Using_web_workers"
-         }],
-         "polyfills": ["fakeworker", "html5shims"]
+             "name": "Web Workers",
+             "property": "webworkers",
+             "caniuse" : "webworkers",
+             "tags": ["performance", "workers"],
+             "notes": [{
+                 "name": "W3C Reference",
+                 "href": "https://www.w3.org/TR/workers/"
+             }, {
+                 "name": "HTML5 Rocks article",
+                 "href": "http://www.html5rocks.com/en/tutorials/workers/basics/"
+             }, {
+                 "name": "MDN documentation",
+                 "href": "https://developer.mozilla.org/en-US/docs/Web/Guide/Performance/Using_web_workers"
+             }],
+             "polyfills": ["fakeworker", "html5shims"]
          }
          !*/
         /* DOC
@@ -521,9 +517,9 @@
 
         /*!
          {
-         "name" : "HTML5 Audio Element",
-         "property": "audio",
-         "tags" : ["html5", "audio", "media"]
+             "name" : "HTML5 Audio Element",
+             "property": "audio",
+             "tags" : ["html5", "audio", "media"]
          }
          !*/
         /* DOC
@@ -570,11 +566,11 @@
 
         /*!
          {
-         "name": "Canvas",
-         "property": "canvas",
-         "caniuse": "canvas",
-         "tags": ["canvas", "graphics"],
-         "polyfills": ["flashcanvas", "excanvas", "slcanvas", "fxcanvas"]
+             "name": "Canvas",
+             "property": "canvas",
+             "caniuse": "canvas",
+             "tags": ["canvas", "graphics"],
+             "polyfills": ["flashcanvas", "excanvas", "slcanvas", "fxcanvas"]
          }
          !*/
         /* DOC
@@ -591,11 +587,11 @@
 
         /*!
          {
-         "name": "Canvas text",
-         "property": "canvastext",
-         "caniuse": "canvas-text",
-         "tags": ["canvas", "graphics"],
-         "polyfills": ["canvastext"]
+             "name": "Canvas text",
+             "property": "canvastext",
+             "caniuse": "canvas-text",
+             "tags": ["canvas", "graphics"],
+             "polyfills": ["canvastext"]
          }
          !*/
         /* DOC
@@ -611,21 +607,21 @@
 
         /*!
          {
-         "name": "HTML5 Video",
-         "property": "video",
-         "caniuse": "video",
-         "tags": ["html5"],
-         "knownBugs": [
-         "Without QuickTime, `Modernizr.video.h264` will be `undefined`; https://github.com/Modernizr/Modernizr/issues/546"
-         ],
-         "polyfills": [
-         "html5media",
-         "mediaelementjs",
-         "sublimevideo",
-         "videojs",
-         "leanbackplayer",
-         "videoforeverybody"
-         ]
+             "name": "HTML5 Video",
+             "property": "video",
+             "caniuse": "video",
+             "tags": ["html5"],
+             "knownBugs": [
+                "Without QuickTime, `Modernizr.video.h264` will be `undefined`; https://github.com/Modernizr/Modernizr/issues/546"
+             ],
+             "polyfills": [
+                 "html5media",
+                 "mediaelementjs",
+                 "sublimevideo",
+                 "videojs",
+                 "leanbackplayer",
+                 "videoforeverybody"
+             ]
          }
          !*/
         /* DOC
@@ -673,19 +669,19 @@
 
         /*!
          {
-         "name": "Inline SVG",
-         "property": "inlinesvg",
-         "caniuse": "svg-html5",
-         "tags": ["svg"],
-         "notes": [{
-         "name": "Test page",
-         "href": "https://paulirish.com/demo/inline-svg"
-         }, {
-         "name": "Test page and results",
-         "href": "https://codepen.io/eltonmesquita/full/GgXbvo/"
-         }],
-         "polyfills": ["inline-svg-polyfill"],
-         "knownBugs": ["False negative on some Chromia browsers."]
+             "name": "Inline SVG",
+             "property": "inlinesvg",
+             "caniuse": "svg-html5",
+             "tags": ["svg"],
+             "notes": [{
+                 "name": "Test page",
+                 "href": "https://paulirish.com/demo/inline-svg"
+             }, {
+                 "name": "Test page and results",
+                 "href": "https://codepen.io/eltonmesquita/full/GgXbvo/"
+             }],
+             "polyfills": ["inline-svg-polyfill"],
+             "knownBugs": ["False negative on some Chromia browsers."]
          }
          !*/
         /* DOC
@@ -776,23 +772,24 @@
 
         /*!
          {
-         "name": "Hashchange event",
-         "property": "hashchange",
-         "caniuse": "hashchange",
-         "tags": ["history"],
-         "notes": [{
-         "name": "MDN documentation",
-         "href": "https://developer.mozilla.org/en-US/docs/Web/API/window.onhashchange"
-         }],
-         "polyfills": [
-         "jquery-hashchange",
-         "moo-historymanager",
-         "jquery-ajaxy",
-         "hasher",
-         "shistory"
-         ]
+             "name": "Hashchange event",
+             "property": "hashchange",
+             "caniuse": "hashchange",
+             "tags": ["history"],
+             "notes": [{
+                 "name": "MDN documentation",
+                 "href": "https://developer.mozilla.org/en-US/docs/Web/API/window.onhashchange"
+             }],
+             "polyfills": [
+                 "jquery-hashchange",
+                 "moo-historymanager",
+                 "jquery-ajaxy",
+                 "hasher",
+                 "shistory"
+             ]
          }
          !*/
+
         /* DOC
          Detects support for the `hashchange` event, fired when the current location fragment changes.
          */
@@ -878,9 +875,6 @@
             }
         })();
 
-
-
-
         // _l tracks listeners for async tests, as well as tests that execute after the initial run
         ModernizrProto._l = {};
 
@@ -899,15 +893,14 @@
          *
          * ```js
          * Modernizr.on('flash', function ( result ) {
-   *   if (result) {
-   *    // the browser has flash
-   *   } else {
-   *     // the browser does not have flash
-   *   }
-   * });
+         *     if (result) {
+         *         // the browser has flash
+         *     } else {
+         *         // the browser does not have flash
+         *     }
+         * });
          * ```
          */
-
         ModernizrProto.on = function (feature, cb) {
             // Create the list of listeners if it doesn't exist
             if (!this._l[feature]) {
@@ -938,7 +931,6 @@
          * @param {function|boolean} [res] - A feature detection function, or the boolean =
          * result of a feature detection function
          */
-
         ModernizrProto._trigger = function (feature, res) {
             if (!this._l[feature]) {
                 return;
@@ -985,9 +977,9 @@
          *
          * ```js
          * Modernizr.addTest('itsTuesday', function () {
-   *  var d = new Date();
-   *  return d.getDay() === 2;
-   * });
+         *     var d = new Date();
+         *     return d.getDay() === 2;
+         * });
          * ```
          *
          * When the above is run, it will set Modernizr.itstuesday to `true` when it is tuesday,
@@ -1015,12 +1007,12 @@
          *
          * ```js
          * var detects = {
-   *  'hasjquery': 'jQuery' in window,
-   *  'itstuesday': function () {
-   *    var d = new Date();
-   *    return d.getDay() === 2;
-   *  }
-   * }
+         *  'hasjquery': 'jQuery' in window,
+         *  'itstuesday': function () {
+         *    var d = new Date();
+         *    return d.getDay() === 2;
+         *  }
+         * }
          *
          * Modernizr.addTest(detects);
          * ```
@@ -1028,7 +1020,6 @@
          * There is really no difference between the first methods and this one, it is
          * just a convenience to let you write more readable code.
          */
-
         function addTest(feature, test) {
 
             if (typeof feature === 'object') {
@@ -1093,14 +1084,14 @@
 
         /*!
          {
-         "name": "SVG as an <img> tag source",
-         "property": "svgasimg",
-         "caniuse" : "svg-img",
-         "tags": ["svg"],
-         "authors": ["Chris Coyier"],
-         "notes": [{
-         "name": "HTML5 Spec",
-         "href": "http://www.w3.org/TR/html5/embedded-content-0.html#the-img-element"
+             "name": "SVG as an <img> tag source",
+             "property": "svgasimg",
+             "caniuse" : "svg-img",
+             "tags": ["svg"],
+             "authors": ["Chris Coyier"],
+             "notes": [{
+             "name": "HTML5 Spec",
+             "href": "http://www.w3.org/TR/html5/embedded-content-0.html#the-img-element"
          }]
          }
          !*/
@@ -1119,17 +1110,17 @@
 
         /*!
          {
-         "name": "Data URI",
-         "property": "datauri",
-         "caniuse": "datauri",
-         "tags": ["url"],
-         "builderAliases": ["url_data_uri"],
-         "async": true,
-         "notes": [{
-         "name": "Wikipedia article",
-         "href": "https://en.wikipedia.org/wiki/Data_URI_scheme"
-         }],
-         "warnings": ["Support in Internet Explorer 8 is limited to images and linked resources like CSS files, not HTML files"]
+             "name": "Data URI",
+             "property": "datauri",
+             "caniuse": "datauri",
+             "tags": ["url"],
+             "builderAliases": ["url_data_uri"],
+             "async": true,
+             "notes": [{
+                 "name": "Wikipedia article",
+                 "href": "https://en.wikipedia.org/wiki/Data_URI_scheme"
+             }],
+             "warnings": ["Support in Internet Explorer 8 is limited to images and linked resources like CSS files, not HTML files"]
          }
          !*/
         /* DOC
@@ -1331,11 +1322,11 @@
          *
          * ```js
          * Modernizr.testStyles('#modernizr { width: 9px; color: papayawhip; }', function (elem, rule) {
-   *   // elem is the first DOM node in the page (by default #modernizr)
-   *   // rule is the first argument you supplied - the CSS rule in string form
-   *
-   *   addTest('widthworks', elem.style.width === '9px')
-   * });
+         *   // elem is the first DOM node in the page (by default #modernizr)
+         *   // rule is the first argument you supplied - the CSS rule in string form
+         *
+         *   addTest('widthworks', elem.style.width === '9px')
+         * });
          * ```
          *
          * If your test requires multiple nodes, you can include a third argument
@@ -1345,10 +1336,10 @@
          *
          * ```js
          * Modernizr.testStyles('#modernizr {width: 1px}; #modernizr2 {width: 2px}', function (elem) {
-   *   document.getElementById('modernizr').style.width === '1px'; // true
-   *   document.getElementById('modernizr2').style.width === '2px'; // true
-   *   elem.firstChild === document.getElementById('modernizr2'); // true
-   * }, 1);
+         *   document.getElementById('modernizr').style.width === '1px'; // true
+         *   document.getElementById('modernizr2').style.width === '2px'; // true
+         *   elem.firstChild === document.getElementById('modernizr2'); // true
+         * }, 1);
          * ```
          *
          * By default, all of the additional elements have an ID of `modernizr[n]`, where
@@ -1359,9 +1350,9 @@
          *
          * ```js
          * Modernizr.testStyles('#foo {width: 10px}; #bar {height: 20px}', function (elem) {
-   *   elem.firstChild === document.getElementById('foo'); // true
-   *   elem.lastChild === document.getElementById('bar'); // true
-   * }, 2, ['foo', 'bar']);
+         *   elem.firstChild === document.getElementById('foo'); // true
+         *   elem.lastChild === document.getElementById('bar'); // true
+         * }, 2, ['foo', 'bar']);
          * ```
          *
          */
@@ -1370,21 +1361,21 @@
 
         /*!
          {
-         "name": "Touch Events",
-         "property": "touchevents",
-         "caniuse" : "touch",
-         "tags": ["media", "attribute"],
-         "notes": [{
-         "name": "Touch Events spec",
-         "href": "https://www.w3.org/TR/2013/WD-touch-events-20130124/"
-         }],
-         "warnings": [
-         "Indicates if the browser supports the Touch Events spec, and does not necessarily reflect a touchscreen device"
-         ],
-         "knownBugs": [
-         "False-positive on some configurations of Nokia N900",
-         "False-positive on some BlackBerry 6.0 builds – https://github.com/Modernizr/Modernizr/issues/372#issuecomment-3112695"
-         ]
+             "name": "Touch Events",
+             "property": "touchevents",
+             "caniuse" : "touch",
+             "tags": ["media", "attribute"],
+             "notes": [{
+                 "name": "Touch Events spec",
+                 "href": "https://www.w3.org/TR/2013/WD-touch-events-20130124/"
+             }],
+             "warnings": [
+                 "Indicates if the browser supports the Touch Events spec, and does not necessarily reflect a touchscreen device"
+             ],
+             "knownBugs": [
+                 "False-positive on some configurations of Nokia N900",
+                 "False-positive on some BlackBerry 6.0 builds – https://github.com/Modernizr/Modernizr/issues/372#issuecomment-3112695"
+             ]
          }
          !*/
         /* DOC
@@ -1462,11 +1453,11 @@
          *  var keyframes = Modernizr.atRule('@keyframes');
          *
          *  if (keyframes) {
-   *    // keyframes are supported
-   *    // could be `@-webkit-keyframes` or `@keyframes`
-   *  } else {
-   *    // keyframes === `false`
-   *  }
+         *    // keyframes are supported
+         *    // could be `@-webkit-keyframes` or `@keyframes`
+         *  } else {
+         *    // keyframes === `false`
+         *  }
          * ```
          *
          */
@@ -1528,11 +1519,8 @@
          * Modernizr._domPrefixes === [ "Moz", "O", "ms", "Webkit" ];
          * ```
          */
-
         var domPrefixes = (ModernizrProto._config.usePrefixes ? omPrefixes.toLowerCase().split(' ') : []);
         ModernizrProto._domPrefixes = domPrefixes;
-
-
 
         /**
          * contains checks to see if a string contains another string
@@ -1543,7 +1531,6 @@
          * @param {string} substr - The substring we want to search the first string for
          * @returns {boolean}
          */
-
         function contains(str, substr) {
             return !!~('' + str).indexOf(substr);
         }
@@ -1557,7 +1544,6 @@
          * @param {object} that - the `this` you want to call the function with
          * @returns {function} The wrapped version of the supplied function
          */
-
         function fnBind(fn, that) {
             return function () {
                 return fn.apply(that, arguments);
@@ -1605,7 +1591,6 @@
          *
          * @access private
          */
-
         var modElem = {
             elem: createElement('modernizr')
         };
@@ -1614,8 +1599,6 @@
         Modernizr._q.push(function () {
             delete modElem.elem;
         });
-
-
 
         var mStyle = {
             style: modElem.elem.style
@@ -1627,8 +1610,6 @@
             delete mStyle.style;
         });
 
-
-
         /**
          * domToCSS takes a camelCase string and converts it to kebab-case
          * e.g. boxSizing -> box-sizing
@@ -1638,7 +1619,6 @@
          * @param {string} name - String name of camelCase prop we want to convert
          * @returns {string} The kebab-case version of the supplied name
          */
-
         function domToCSS(name) {
             return name.replace(/([A-Z])/g, function (str, m1) {
                 return '-' + m1.toLowerCase();
@@ -1655,7 +1635,6 @@
          * @param {string} value - A string representing the value we want to check via @supports
          * @returns {boolean|undefined} A boolean when @supports exists, undefined otherwise
          */
-
         // Accepts a list of property names and a single value
         // Returns `undefined` if native detection not available
         function nativeTestProps(props, value) {
@@ -1862,10 +1841,10 @@
 
         /*!
          {
-         "name": "CSS Transforms",
-         "property": "csstransforms",
-         "caniuse": "transforms2d",
-         "tags": ["css"]
+             "name": "CSS Transforms",
+             "property": "csstransforms",
+             "caniuse": "transforms2d",
+             "tags": ["css"]
          }
          !*/
 
@@ -1914,8 +1893,8 @@
          * var rAF = prefixed('requestAnimationFrame', window);
          *
          * raf(function () {
-   *  renderFunction();
-   * })
+         *  renderFunction();
+         * })
          * ```
          *
          * Note that this will return _the actual function_ - not the name of the function.
@@ -1931,17 +1910,16 @@
          * end event to bind to, you might do something like...
          * ```js
          * var transEndEventNames = {
-   *     'WebkitTransition' : 'webkitTransitionEnd', * Saf 6, Android Browser
-   *     'MozTransition'    : 'transitionend',       * only for FF < 15
-   *     'transition'       : 'transitionend'        * IE10, Opera, Chrome, FF 15+, Saf 7+
-   * };
+         *     'WebkitTransition' : 'webkitTransitionEnd', * Saf 6, Android Browser
+         *     'MozTransition'    : 'transitionend',       * only for FF < 15
+         *     'transition'       : 'transitionend'        * IE10, Opera, Chrome, FF 15+, Saf 7+
+         * };
          *
          * var transEndEventName = transEndEventNames[ Modernizr.prefixed('transition') ];
          * ```
          *
          * If you want a similar lookup, but in kebab-case, you can use [prefixedCSS](#modernizr-prefixedcss).
          */
-
         var prefixed = ModernizrProto.prefixed = function (prop, obj, elem) {
             if (prop.indexOf('@') === 0) {
                 return atRule(prop);
@@ -1962,17 +1940,18 @@
 
         /*!
          {
-         "name": "Blob URLs",
-         "property": "bloburls",
-         "caniuse": "bloburls",
-         "notes": [{
-         "name": "W3C Working Draft",
-         "href": "https://www.w3.org/TR/FileAPI/#creating-revoking"
-         }],
-         "tags": ["file", "url"],
-         "authors": ["Ron Waldon (@jokeyrhyme)"]
+             "name": "Blob URLs",
+             "property": "bloburls",
+             "caniuse": "bloburls",
+             "notes": [{
+                 "name": "W3C Working Draft",
+                 "href": "https://www.w3.org/TR/FileAPI/#creating-revoking"
+             }],
+             "tags": ["file", "url"],
+             "authors": ["Ron Waldon (@jokeyrhyme)"]
          }
          !*/
+
         /* DOC
          Detects support for creating Blob URLs
          */
