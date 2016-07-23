@@ -7,11 +7,17 @@
 @import "app.template.less";
 
 .k-flat {
+    // Search glyphicon
+    .navbar {
+        .form-control-feedback {
+            color: @normal-text-color;
+        }
+    }
     // ColorPicker
     .k-flatcolorpicker {
         // text input color
         input.k-color-value {
-            color: @base;
+            color: @normal-text-color;
         }
     }
 }
