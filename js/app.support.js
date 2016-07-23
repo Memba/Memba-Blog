@@ -31,7 +31,7 @@
 
     /*!
      * modernizr v3.3.1
-     * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-hashchange-history-inlinesvg-localstorage-sessionstorage-svg-svgasimg-touchevents-video-webworkers-setclasses-dontmin
+     * Build https://modernizr.com/download?-atobbtoa-audio-blobconstructor-bloburls-canvas-canvastext-csstransforms-datauri-filereader-flexbox-hashchange-history-inlinesvg-localstorage-sessionstorage-svg-svgasimg-touchevents-video-webworkers-setclasses-dontmin
      *
      * Copyright (c)
      *  Faruk Ates
@@ -1838,6 +1838,26 @@
             return testPropsAll(prop, undefined, undefined, value, skipValueTest);
         }
         ModernizrProto.testAllProps = testAllProps;
+
+        /*!
+         {
+             "name": "Flexbox",
+             "property": "flexbox",
+             "caniuse": "flexbox",
+             "tags": ["css"],
+             "notes": [{
+                 "name": "The _new_ flexbox",
+                 "href": "http://dev.w3.org/csswg/css3-flexbox"
+             }],
+             "warnings": [
+                "A `true` result for this detect does not imply that the `flex-wrap` property is supported; see the `flexwrap` detect."
+             ]
+         }
+         !*/
+        /* DOC
+         Detects support for the Flexible Box Layout model, a.k.a. Flexbox, which allows easy manipulation of layout order and sizing within a container.
+         */
+        Modernizr.addTest('flexbox', testAllProps('flexBasis', '1px', true));
 
         /*!
          {
