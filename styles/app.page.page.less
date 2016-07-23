@@ -27,6 +27,29 @@
 }
 
 /*********************************************
+ * Small screens
+ ********************************************/
+
+@media (max-height: 500px) {
+    header.hidden-print {
+        display:none !important;
+    }
+    #page-wrapper {
+        top: 0;
+        bottom: 0;
+        .container {
+            //article content
+            article {
+                margin-top: 0;
+            }
+        }
+    }
+    footer.hidden-print {
+        display:none !important;
+    }
+}
+
+/*********************************************
  * Printing
  ********************************************/
 

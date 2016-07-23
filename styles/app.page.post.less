@@ -53,9 +53,24 @@
 }
 
 /*********************************************
+ * Small screens
+ ********************************************/
+@media (max-height: 500px) {
+    header.hidden-print {
+        display:none !important;
+    }
+    #post-wrapper {
+        top: 0;
+        bottom: 0;
+    }
+    footer.hidden-print {
+        display:none !important;
+    }
+}
+
+/*********************************************
  * Printing
  ********************************************/
-
 // See http://getbootstrap.com/css/#responsive-utilities-print
 @media print {
     //Reposition content for hiding header, footer and toolbar
