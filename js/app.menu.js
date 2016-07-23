@@ -31,14 +31,15 @@ require('./vendor/bootstrap/dropdown.js');
         var BLUR = 'blur';
         var FOCUS = 'focus';
         var KEYPRESS = 'keypress';
-        var searchInputWidth;
+        var SEARCH_INPUT = '#navbar-search-input';
+        var ACTIVE_CLASS = 'k-state-active';
 
         /**
          * Event handler triggered when the search input loses focus
          * @param e
          */
         function onSearchInputBlur(e) {
-            $(e.currentTarget).width(searchInputWidth);
+            $(e.currentTarget).removeClass(ACTIVE_CLASS);
         }
 
         /**
@@ -46,7 +47,7 @@ require('./vendor/bootstrap/dropdown.js');
          * @param e
          */
         function onSearchInputFocus(e) {
-            $(e.currentTarget).width(400);
+            $(e.currentTarget).addClass(ACTIVE_CLASS);
         }
 
         /**
@@ -67,11 +68,8 @@ require('./vendor/bootstrap/dropdown.js');
          * Initialization code to execute when document is ready
          */
         $(document).ready(function () {
-            var searchInput =  $('#navbar-search-input');
-            searchInputWidth = searchInput.width();
-
             // Search input event handlers
-            searchInput
+            $(SEARCH_INPUT)
                 .on(BLUR, onSearchInputBlur)
                 .on(FOCUS, onSearchInputFocus)
                 .on(KEYPRESS, onSearchInputKeyPress);
