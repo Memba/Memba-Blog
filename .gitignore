@@ -12,6 +12,7 @@ Thumbs.db
 .idea/
 coverage/
 errorShots/
+logs/
 
 # Ignore Node files
 node_modules/
