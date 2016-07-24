@@ -7,6 +7,7 @@
 html {
     position: relative;
     min-height: 100%;
+    overflow: hidden;
 }
 body {
     margin-bottom: @footerHeight; /* Margin bottom = footer height */
@@ -122,34 +123,90 @@ label {
     }
 }
 
-
 /*********************************************
  * Main styles
  *********************************************/
+// Home button
+.k-toolbar {
+    a.k-button.home-button {
+        img.k-image {
+            margin-right: 0; // The home button does not have text
+        }
+    }
+}
 // Page headings (see Twitter Bootstrap)
 .page-header {
     margin: 20px 0 20px;
-    h1 {
+    h1, h2 {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         & > img {
             border: 0;
+            vertical-align: sub;
+        }
+    }
+    h1 {
+        & > img {
             height: 64px;
             width: 64px;
-            vertical-align: sub;
+        }
+    }
+    h2 {
+        & > img {
+            height: 57px;
+            width: 57px;
         }
     }
 }
 @media (max-width: 768px) {
     .page-header {
+        margin: 10px 0 10px;
+        border-bottom: 0;
         h1 {
+            margin: 10px 0 0;
             & > img {
                 height: 48px;
                 width: 48px;
             }
             & > span {
-                font-size: 28px;
+                font-size: 30px;
+            }
+        }
+        h2 {
+            margin: 5px 0 0;
+            & > img {
+                height: 32px;
+                width: 32px;
+            }
+            & > span {
+                font-size: 24px;
+            }
+        }
+    }
+}
+@media (max-height: 450px) {
+    .page-header {
+        margin: 5px 0 5px;
+        border-bottom: 0;
+        h1 {
+            margin: 5px 0 0;
+            & > img {
+                height: 32px;
+                width: 32px;
+            }
+            & > span {
+                font-size: 24px;
+            }
+        }
+        h2 {
+            margin: 0;
+            & > img {
+                height: 24px;
+                width: 24px;
+            }
+            & > span {
+                font-size: 20px;
             }
         }
     }
@@ -207,7 +264,7 @@ label {
 }
 
 //---------------------------------------------
-//Panels
+// Draggable/Sortable panels
 .panel {
     .panel-heading {
         padding-top: 0.4em;
