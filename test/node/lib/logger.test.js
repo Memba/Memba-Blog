@@ -37,11 +37,12 @@ describe('lib/logger', function () {
         });
 
         it('DEBUG should log', function () {
-            expect(logger.debug('simple message')).to.be.true;
+            expect(logger.debug({ message: 'simple message' })).to.be.true;
         });
 
         it('INFO should log', function () {
-            expect(logger.info({ message: 'simple message' })).to.be.true;
+            // despite an unexpected property
+            expect(logger.info({ message: 'simple message', dummy: 'not displayed' })).to.be.true;
         });
 
         it('WARN should log', function () {

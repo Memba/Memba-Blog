@@ -187,6 +187,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\error.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\error.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\logger.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\logger.test.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\slack.test.js .\test\node\lib /Y
+ATTRIB +R .\test\node\lib\slack.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\url.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\url.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\utils.test.js .\test\node\lib /Y
@@ -230,6 +232,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\httpStatus.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\httpStatus.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\logger.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\logger.js
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\slack.js .\webapp\lib /Y
+ATTRIB +R .\webapp\lib\slack.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\url.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\url.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\utils.js .\webapp\lib /Y

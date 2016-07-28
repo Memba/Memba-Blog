@@ -9,15 +9,11 @@
 
 var assert = require('assert');
 var config = require('../config');
+var slack = require('./slack');
 var utils = require('./utils');
+
 var environment = config.environment || 'production';
-var labels = {
-        debug: '[DEBUG]',
-        info: '[INFO] ',
-        warn: '[WARN] ',
-        error: '[ERROR]',
-        critical: '[CRIT] '
-    };
+var RX_LEVELS = /^(debug|info|warn|error|crit)$/i;
 var level = config.get('level') || 0;
 var levels = {
         debug: 1,
@@ -32,10 +28,10 @@ var prefix;
 var separator;
 
 if (config.production) {
-    eq = '=';
-    qt = '"';
-    prefix = '\t';
-    separator = '\t';
+    eq = ': ';
+    qt = '';
+    prefix = ' ';
+    separator = '; ';
 } else {
     eq = ': ';
     qt = '';
@@ -50,15 +46,20 @@ if (config.production) {
 /* jshint -W074 */
 
 /**
- * Capture entry.request if existing
+ * Enhance log entry with request data
  * @param entry
+ * @param level
  * @returns {*}
  */
-function capture(entry) {
+function enhance(entry, level) {
+    // assert.ok(utils.isObject(entry), '`entry` is expected to be an object');
     assert.ok(typeof entry === 'object', '`entry` is expected to be an object');
+    assert.ok(typeof level === 'string', '`level` is expected to be a string');
+    assert.ok(RX_LEVELS.test(level), '`level` is expected to be any of `debug`, `info`, `warn`, `error` or `crit`');
     if (entry instanceof Error) {
         entry = { error: entry };
     }
+    entry.level = level.toLowerCase();
     // JSON.stringify(new Error('Oops)) === {}
     // So we need to capture the properties we want
     if (entry.error instanceof Error) {
@@ -108,15 +109,14 @@ function capture(entry) {
 
 /**
 * Print a log entry to the console
-* Note: we have discarded pretty solutions because they do not print well in Webstorm console
+* Note: we have discarded coloured solutions because they do not print well in Webstorm console
 * @param entry
-* @param label
 */
-function print(entry, label) {
-    /* jshint maxstatements: 48 */
-    /* jshint maxcomplexity: 34 */
+function print(entry) {
+    /* jshint maxstatements: 49 */
+    /* jshint maxcomplexity: 35 */
     var message = (isNaN(Date.parse(entry.date)) ? new Date() : new Date(entry.date)).toISOString();
-    message += prefix + label;
+    message += prefix + '[' + entry.level.toUpperCase() + ']' + (entry.level.length === 4 ? '' : ' ');
     var first = true;
     if (entry.application) {
         message += (first ? prefix : separator) + 'application' + eq + qt + entry.application + qt;
@@ -190,6 +190,7 @@ function print(entry, label) {
         console.error(entry.originalError);
     }
     */
+    return message;
 }
 
 /* jshint +W074 */
@@ -211,7 +212,7 @@ module.exports = exports = {
         if (exports.level > levels.debug) {
             return false;
         }
-        print(capture(entry), labels.debug);
+        print(enhance(entry, 'debug'));
         return true;
     },
 
@@ -223,7 +224,7 @@ module.exports = exports = {
         if (exports.level > levels.info) {
             return false;
         }
-        print(capture(entry), labels.info);
+        print(enhance(entry, 'info'));
         return true;
     },
 
@@ -235,7 +236,7 @@ module.exports = exports = {
         if (exports.level > levels.warn) {
             return false;
         }
-        print(capture(entry), labels.warn);
+        print(enhance(entry, 'warn'));
         return true;
     },
 
@@ -247,7 +248,7 @@ module.exports = exports = {
         if (exports.level > levels.error) {
             return false;
         }
-        print(capture(entry), labels.error);
+        print(enhance(entry, 'error'));
         return true;
     },
 
@@ -259,7 +260,9 @@ module.exports = exports = {
         if (exports.level > levels.critical) {
             return false;
         }
-        print(capture(entry), labels.critical);
+        var enhanced = enhance(entry, 'crit');
+        print(enhanced);
+        slack.notify(enhanced); // no callback
         return true;
     },
 
