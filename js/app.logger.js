@@ -30,7 +30,7 @@
         };
         var RX_LEVELS = new RegExp('^(' + Object.keys(LEVELS).join('|') + ')$', 'i');
 
-        // The following are defined in app.config.jsx
+        // The following need to be defined in app.config.jsx
         // logger.level = X
         // logger.endPoint = http://xxxxxxx
 
@@ -50,7 +50,7 @@
             assert.type('object', entry, 'A log entry is supposed to be an object');
             assert.match(RX_LEVELS, level, 'level is supposed to be any of `debug`, `info`, `warn`, `error` or `crit`');
             var dfd =  $.Deferred();
-            if (logger.level > LEVELS[level.toUpperCase()].VALUE) {
+            if ((logger.level || 0) > LEVELS[level.toUpperCase()].VALUE) {
                 // Return false if the ajax call was not made, considering the logging level
                 return dfd.resolve(false);
             }
