@@ -10,13 +10,19 @@
 var expect = require('chai').expect;
 var util = require('util');
 var url = require('url');
-var config = require('../../../webapp/config');
 
 var ApplicationError;
 try {
     ApplicationError = require('../../../webapp/lib/error');
 } catch (exception) {
     ApplicationError = require('../../../api/lib/error');
+}
+
+var config;
+try {
+    config = require('../../../webapp/config');
+} catch (exception) {
+    config = require('../../../api/config');
 }
 
 var error;
