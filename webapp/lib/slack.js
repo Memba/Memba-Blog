@@ -27,6 +27,9 @@ var COLORS = {
 
 module.exports = exports = {
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     /* This function's cyclomatic complexity is too high. */
     /* jshint -W074 */
 
@@ -38,7 +41,8 @@ module.exports = exports = {
      * @param callback
      */
     notify: function (entry, callback) {
-        /* jshint maxcomplexity: 9 */
+        /* jshint maxcomplexity: 11 */
+        /* jshint maxstatements: 28 */
 
         assert.ok(utils.isObject(entry), '`entry` is expected to be an object');
         assert.ok(typeof entry.message === 'string', '`entry` is expected to have a string property named `message`');
@@ -144,5 +148,6 @@ module.exports = exports = {
     }
 
     /* jshint +W074 */
+    /* jshint +W071 */
 
 };
