@@ -116,7 +116,7 @@ function print(entry) {
     /* jshint maxstatements: 49 */
     /* jshint maxcomplexity: 35 */
     var message = (isNaN(Date.parse(entry.date)) ? new Date() : new Date(entry.date)).toISOString();
-    message += prefix + '[' + entry.level.toUpperCase() + ']' + (entry.level.length === 4 ? '' : ' ');
+    message += prefix + '[' + entry.level.toUpperCase() + ']' + (entry.level.length > 4 ? '' : ' ');
     var first = true;
     if (entry.application) {
         message += (first ? prefix : separator) + 'application' + eq + qt + entry.application + qt;
