@@ -16,6 +16,8 @@
 
 var path = require('path');
 var util = require('util');
+
+var autoprefixer = require('autoprefixer');
 var webpack = require('webpack');
 var config = require('./webapp/config');
 
@@ -110,16 +112,16 @@ module.exports = {
             },
             {
                 test: /app\.theme\.[a-z0-9]+\.less$/,
-                loader: 'bundle?name=[name]!style/useable!css!less?compress'
+                loader: 'bundle?name=[name]!style/useable!css!postcss!less?compress'
             },
             {
                 test: /\.less$/,
                 exclude: /app\.theme\.[a-z0-9]+\.less$/,
-                loader: 'style!css!less?compress'
+                loader: 'style!css!postcss!less?compress'
             },
             {
                 test: /\.css$/,
-                loader: 'style!css'
+                loader: 'style!css!postcss'
             },
             {
                 test: /\.(gif|png|jpe?g)$/,
@@ -136,6 +138,9 @@ module.exports = {
                 loader: 'file'
             }
         ]
+    },
+    postcss: function () {
+        return [autoprefixer];
     },
     plugins: [
         definePlugin,
