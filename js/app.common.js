@@ -131,7 +131,8 @@ if (typeof(require) === 'function') {
         $(document)
             .on(LOADED, function () { // LOADED occurs after $(document).ready
 
-                kendo.init('body'); // , kendo.mobile.ui);
+                // Init using kendo ui and kendo mobile ui (scollers)
+                kendo.init('body', kendo.ui, kendo.mobile.ui);
 
                 controller.initViewModel();
                 controller.initNotifications();
