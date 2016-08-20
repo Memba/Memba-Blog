@@ -2,7 +2,7 @@
 # built on debian 8 "jessie" (current stable release)
 # see https://registry.hub.docker.com/_/node/
 # see also https://github.com/joyent/docker-node/blob/master/0.12/Dockerfile
-FROM node:6.3
+FROM node:6.4
 
 # Maintained by Jacques L. Chereau
 MAINTAINER jlchereau
