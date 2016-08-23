@@ -89,7 +89,15 @@ module.exports = exports = {
             fields.push ({
                 title: 'Host',
                 value: entry.host,
-                short: false
+                short: true
+            });
+        }
+
+        if (entry.ip) {
+            fields.push ({
+                title: 'Ip',
+                value: entry.ip,
+                short: true
             });
         }
 
@@ -106,6 +114,30 @@ module.exports = exports = {
                 title: 'Method',
                 value: entry.method,
                 short: true
+            });
+        }
+
+        if (entry.agent) {
+            fields.push ({
+                title: 'Agent',
+                value: entry.agent,
+                short: false
+            });
+        }
+
+        if (entry.url) {
+            fields.push ({
+                title: 'Url',
+                value: entry.url,
+                short: false
+            });
+        }
+
+        if (entry.query) {
+            fields.push ({
+                title: 'Query',
+                value: JSON.stringify(entry.query),
+                short: false
             });
         }
 
