@@ -41,8 +41,8 @@ module.exports = exports = {
      * @param callback
      */
     notify: function (entry, callback) {
-        /* jshint maxcomplexity: 11 */
-        /* jshint maxstatements: 28 */
+        /* jshint maxcomplexity: 15 */
+        /* jshint maxstatements: 36 */
 
         assert.ok(utils.isObject(entry), '`entry` is expected to be an object');
         assert.ok(typeof entry.message === 'string', '`entry` is expected to have a string property named `message`');
