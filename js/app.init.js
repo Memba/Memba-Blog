@@ -63,6 +63,7 @@ if (typeof(require) === 'function') {
 
     'use strict';
 
+    var app = window.app;
     var location = window.location;
     // Note: jQuery, kendo and app.i18n are not yet loaded
     var lang = window.document.getElementsByTagName('html')[0].getAttribute('lang');
