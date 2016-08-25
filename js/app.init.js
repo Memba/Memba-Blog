@@ -16,17 +16,21 @@ if (typeof(require) === 'function') {
 
 /**
  * The application has <meta name="apple-mobile-web-app-capable" content="yes">
- * so to run the app ull screen when pinned to IOS home screen
+ * so to run the app full screen when pinned to IOS home screen
  * The following prevents links from opening in a new safari window
  * Source: https://gist.github.com/irae/1042167
  */
-(function (document,navigator,standalone) {
+(function () {
 
     'use strict';
 
+    var document = window.document;
+    var navigator = window.navigator;
+    var STANDALONE = 'standalone';
+
     // prevents links from apps from opening in mobile safari
     // this javascript must be the first script in your <head>
-    if ((standalone in navigator) && navigator[standalone]) {
+    if ((STANDALONE in navigator) && navigator[STANDALONE]) {
         var curnode;
         var chref;
         var location = document.location;
@@ -49,7 +53,48 @@ if (typeof(require) === 'function') {
             }
         }, false);
     }
-})(document, window.navigator, 'standalone');
 
-// TODO Consider javascript disabled
-// TODO use app.support to display a message for older browsers
+} ());
+
+/**
+ * Check browser features and redirect to error page if any essential feature is missing
+ */
+(function () {
+
+    'use strict';
+
+    var location = window.location;
+    // Note: jQuery, kendo and app.i18n are not yet loaded
+    var lang = window.document.getElementsByTagName('html')[0].getAttribute('lang');
+    var errorUrl = app.uris.webapp.error.replace('{0}', lang);
+
+    // Make sure we are not yet on the error page
+    if (location.href.substr(0, errorUrl.length) !== errorUrl) {
+
+        // Check browser features
+        // TODO consider testing javascript enabled
+        var support = app.support;
+        var supported = support.atobbtoa &&
+            support.audio && (support.audio.mp3 || support.audio.ogg) &&
+            support.blobconstructor &&
+            support.bloburls &&
+            support.canvas && support.canvastext &&
+            support.csstransforms &&
+            // support.datauri &&
+            support.filereader &&
+            support.flexbox &&
+            support.hashchange &&
+            support.history &&
+            support.localstorage && support.sessionstorage &&
+            support.svg && support.inlinesvg && support.svgasimg &&
+            // support.touchevents &&
+            support.video && (support.video.h264 || support.video.ogg || support.video.webm) &&
+            support.webworkers;
+
+        // If any feature is missing, redirect to error page with error code 1000
+        if (!supported) {
+            location.assign(errorUrl + '?code=1000');
+        }
+    }
+
+} ());

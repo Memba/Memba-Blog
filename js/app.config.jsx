@@ -91,6 +91,7 @@
                 icons: url.join('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))
             },
             webapp: {
+                error: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.error %>')),
                 home: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.home %>')),
                 locale: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.locale %>')), // redirection when changing locale
                 logger: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.logger %>')),

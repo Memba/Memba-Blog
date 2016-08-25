@@ -238,7 +238,12 @@
 				"status": 500,
 				"title": "500 - Generic Error",
 				"message": "We are sorry, there has been an unknown error."
-			}
+			},
+            "1000": {
+                "status": 500,
+                "title": "1000 - Disable private mode or upgrade your browser",
+                "message": "This web site requires recent browser features including (but not limited to) audio and video, blobs, canvas, css transforms, file api, local and session storage, scalable vector graphics and web workers."
+            }
 		},
 		"mongoose": {
 			"validation": {

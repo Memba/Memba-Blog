@@ -238,6 +238,11 @@
                 "status": 500,
                 "title": "500 - Erreur Inconnue",
                 "message": "Il y a eu une erreur inconnue. Si nous arrivons à la reproduire, nous la corrigerons avec amour et attention."
+            },
+            "1000": {
+                "status": 500,
+                "title": "1000 - Désactivez le mode privé ou mettez à jour votre navigateur",
+                "message": "This web site utilise les fonctionnalités des navigateurs récents, notamment (mais pas seulement) l’audio et la vidéo, les blobs, les canvas, les transformations css, les api de fichiers, le stockage local et de session, les graphiques vectoriels (SVG) et les « web workers »."
             }
         },
         "mongoose": {
