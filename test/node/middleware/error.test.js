@@ -110,7 +110,7 @@ describe('middleware/error', function () {
 
         it('report an uncaught error', function () {
             var err = new Error('Oops!');
-            var req = {};
+            var req = { method: 'GET' };
             var res = new Response({ html: true });
             error.handler(err, req, res);
             expect(res._data).to.have.property('author');
@@ -127,7 +127,7 @@ describe('middleware/error', function () {
 
         it('report not found', function () {
             var err = new ApplicationError(404);
-            var req = {};
+            var req = { method: 'GET' };
             var res = new Response({ html: true });
             error.handler(err, req, res);
             expect(res._data).to.have.property('author');

@@ -27,9 +27,15 @@ module.exports = {
         assert.ok(err instanceof Error);
 
         // Note: We want an ApplicationError to get all the properties we need for display and logging
-        var error = err;
+        var error;
         var critical = false;
-        if (!(err instanceof ApplicationError)) {
+        if (err instanceof ApplicationError) {
+            error = err;
+        } else if (err instanceof SyntaxError && err.body && err.status === 400) {
+            error = new ApplicationError(err);
+            // This is a body-parser error and considering all the people that may try to post garbage
+            // we do not want to treat as critical and restart the server or this would allow a DOS attack
+        } else {
             error = new ApplicationError(err);
             // Since this is not an ApplicationError, it is an unexpected exception that we need to fix
             critical = true;
@@ -46,12 +52,13 @@ module.exports = {
         if (critical) {
             logger.critical(entry);
         } else if (entry.error && entry.error.status === 404) {
-            logger.warn(entry); // not found
+            logger.warn(entry); // 404 page not found
         } else {
             logger.error(entry);
         }
 
-        if (typeof res.getLocale === 'function' && typeof res.__ === 'function') {
+        // If requesting a web page
+        if (req.method === 'GET' && typeof res.getLocale === 'function' && typeof res.__ === 'function') {
 
             var config = res.locals.config;
             var format = res.locals.format;
@@ -87,9 +94,7 @@ module.exports = {
                     trace: req.trace
                 });
 
-
-
-        } else {
+        } else { // This is not a web page request
 
             // Return json error message for api server
             res

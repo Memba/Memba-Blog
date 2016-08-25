@@ -35,7 +35,7 @@ try {
  * @constructor
  */
 function ApplicationError(error) {
-    /* jshint maxcomplexity: 7 */
+    /* jshint maxcomplexity: 8 */
     Error.call(this);
     /* jshint -W059 */
     /* jshint -W030 */
@@ -49,8 +49,8 @@ function ApplicationError(error) {
         // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
         utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
     } else if (error instanceof Error) {
-        // Any other error is an internal server error
-        this.i18n = 'errors.http.' + httpStatus.internalServerError;
+        // Any other error is an internal server error unless there is an error.status
+        this.i18n = 'errors.http.' + (typeof error.status === 'number' ? error.status : httpStatus.internalServerError);
         // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
         utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
     } else if (utils.isObject(error)) {
