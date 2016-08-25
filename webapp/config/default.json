@@ -35,6 +35,7 @@
             "icons": "/images/o_collection/svg/office/%s.svg"
         },
         "webapp": {
+            "error": "/%s/error",
             "feed": "/%s/rss.xml",
             "home": "/",
             "hook": "/hook",

@@ -18,14 +18,15 @@ var extension = require('../middleware/extension');
 var locals = require('../middleware/locals');
 var notFound = require('../middleware/notFound');
 var params = require('../middleware/params');
-var pingRoute = require('./pingRoute');
-var loggerRoute = require('./loggerRoute');
+var errorRoute = require('./errorRoute');
+var feedRoute = require('./feedRoute');
 var homeRoute = require('./homeRoute');
 var hookRoute = require('./hookRoute');
-var feedRoute = require('./feedRoute');
-var sitemapRoute = require('./sitemapRoute');
+var loggerRoute = require('./loggerRoute');
 var pageRoute = require('./pageRoute');
+var pingRoute = require('./pingRoute');
 var postRoute = require('./postRoute');
+var sitemapRoute = require('./sitemapRoute');
 
 // Configure router
 router.use(bodyParser.urlencoded({ extended: true })); // parse application/x-www-form-urlencoded - use qs module
@@ -51,6 +52,10 @@ router.route(config.get('uris:webapp:ping'))
 // Logger
 router.route(config.get('uris:webapp:logger'))
     .post(loggerRoute.createEntry);
+
+// Error page
+router.route(util.format(config.get('uris:webapp:error'), ':language'))
+    .get(errorRoute.getHtmlPage);
 
 // Home
 router.route(config.get('uris:webapp:home'))
