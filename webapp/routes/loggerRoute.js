@@ -40,10 +40,6 @@ module.exports = {
             // Log the request
             body.request = req;
             logger[body.level.toLowerCase()](body);
-
-            // Return ok
-            res.status(httpStatus.created).end();
-
         }
 
         // Return ok in all circumstances
