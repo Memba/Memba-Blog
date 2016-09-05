@@ -101,7 +101,12 @@ module.exports = function (grunt) {
                 cache: false,
                 plugins: webpackConfig.plugins.concat(
                     new webpack.optimize.DedupePlugin(),
-                    new webpack.optimize.UglifyJsPlugin()
+                    new webpack.optimize.UglifyJsPlugin({
+                        compressor: {
+                            screw_ie8: true,
+                            warnings: false
+                        }
+                    })
                     // new webpack.optimize.AggressiveMergingPlugin() // Note: merges app.culture.fr.chunk.js
                 )
             }
