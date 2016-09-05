@@ -22,6 +22,7 @@
 
         var app = window.app = window.app || {};
         var kendo = window.kendo;
+        var localStorage = window.localStorage;
         var logger = new window.Logger('app.theme');
         var STRING = 'string';
         var FUNCTION = 'function';
@@ -39,7 +40,7 @@
              */
             load: function (theme) {
                 var dfd = $.Deferred();
-                var oldTheme = localStorage.getItem(THEME);
+                var oldTheme = localStorage && localStorage.getItem(THEME);
                 var loader;
                 if (ALL.indexOf(theme) === -1) {
                     theme = DEFAULT;
@@ -56,7 +57,7 @@
                 loader = require('../styles/app.theme.' + theme + '.less');
                 loader(function (style) {
                     style.use();
-                    if (!$.isArray(matches)) {
+                    if (localStorage && !$.isArray(matches)) {
                         localStorage.setItem(THEME, theme);
                     }
                     // if (window.device && window.device.cordova) { // Phonegap
@@ -129,7 +130,7 @@
                     if ($.isArray(matches) && matches.length === 2 && $.type(matches[1] === STRING)) {
                         return matches[1].trim().toLowerCase();
                     } else {
-                        theme = localStorage.getItem(THEME);
+                        theme = localStorage && localStorage.getItem(THEME);
                         return ($.type(theme) === STRING) ? theme : DEFAULT;
                     }
                 } else {
