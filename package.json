@@ -42,7 +42,7 @@
     "request": "^2.74.0"
   },
   "devDependencies": {
-    "autoprefixer": "^6.4.0",
+    "autoprefixer": "^6.4.1",
     "bundle-loader": "^0.5.4",
     "chai": "^3.5.0",
     "css-loader": "^0.24.0",
@@ -62,15 +62,16 @@
     "mocha": "^3.0.2",
     "node-libs-browser": "^1.0.0",
     "phantomjs-prebuilt": "^2.1.12",
-    "postcss-loader": "^0.11.0",
+    "postcss-loader": "^0.11.1",
+    "selenium-standalone": "^5.6.2",
     "style-loader": "^0.13.1",
     "supertest": "^2.0.0",
     "url-loader": "^0.5.7",
     "wdio-mocha-framework": "^0.4.0",
     "wdio-selenium-standalone-service": "0.0.6",
-    "webdriverio": "^4.2.8",
+    "webdriverio": "^4.2.11",
     "webpack": "^1.13.2",
-    "webpack-dev-server": "^1.15.0"
+    "webpack-dev-server": "^1.15.1"
   },
   "engines": {
     "node": ">=0.10"
