@@ -11,9 +11,6 @@ var assert = require('assert');
 var request = require('request');
 var config = require('../config');
 var utils = require('./utils');
-var channel = config.get('slack:channel');
-var webhook = config.get('slack:webhook');
-var disabled = config.get('slack:disabled');
 
 var RX_LEVELS = /^(debug|info|warn|error|crit)$/i;
 var COLORS = {
@@ -48,6 +45,11 @@ module.exports = exports = {
         assert.ok(typeof entry.message === 'string', '`entry` is expected to have a string property named `message`');
         assert.ok(RX_LEVELS.test(entry.level), '`entry` is expected to have a string property named `level`');
         // Note: if callback is not a function, it is discarded
+
+        // In production mode, downloading config from aws being asynchronous, these are not available in the header
+        var channel = config.get('slack:channel');
+        var webhook = config.get('slack:webhook');
+        var disabled = config.get('slack:disabled');
 
         assert.ok(typeof webhook === 'string', '`slack:webhook` is not configured');
         assert.ok(typeof channel === 'string', '`slack:channel` is not configured');

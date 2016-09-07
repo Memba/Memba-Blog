@@ -22,7 +22,6 @@
 
         var app = window.app = window.app || {};
         var kendo = window.kendo;
-        var localStorage = window.localStorage;
         var logger = new window.Logger('app.theme');
         var STRING = 'string';
         var FUNCTION = 'function';
@@ -31,6 +30,10 @@
         // Note: app.i18n is not yet loaded, so we need a duplicated list
         var ALL = ['black', 'blueopal', 'bootstrap', 'default', 'fiori', 'flat', 'highcontrast', 'material', 'materialblack',
             'metro', 'metroblack', 'moonlight', 'nova', 'office365', 'silver', 'uniform'];
+
+        var localStorage; // = window.localStorage;
+        // The following is necessary when localStorage is explicitly disabled in browser settings
+        try { localStorage = window.localStorage; } catch (ex) {}
 
         app.theme = {
 
