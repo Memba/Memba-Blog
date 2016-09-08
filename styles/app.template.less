@@ -172,7 +172,7 @@
 html, body, body>div.k-loading-image{
     background-color: @content-background-color;
 }
-a, .caption {
+a {
     color: @widget-text-color;
 }
 a:hover {
@@ -257,6 +257,22 @@ h1, h2, h3, h4, h5, h6 {
                 border-color: @drop-down-border-color;
                 .box-shadow(@focused-shadow);
             }
+        }
+    }
+}
+@media (max-width: 767px) {
+    .navbar-inverse {
+        .navbar-nav {
+            .open {
+                .dropdown-menu {
+                    >li {
+                        >a {
+                            color: @drop-down-text-color;
+                        }
+                    }
+                }
+            }
+
         }
     }
 }
@@ -417,5 +433,11 @@ form {
 footer {
     border-top: solid 1px @widget-border-color;
     .header();
+}
+
+//---------------------------------------------
+// Bootstrap
+.thumbnail .caption {
+    color: @widget-text-color !important;
 }
 
