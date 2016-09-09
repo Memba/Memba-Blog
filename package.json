@@ -26,7 +26,7 @@
     "async": "^2.0.1",
     "body-parser": "^1.15.2",
     "chokidar": "^1.6.0",
-    "cors": "^2.8.0",
+    "cors": "^2.8.1",
     "deep-extend": "^0.4.1",
     "ejs": "^2.5.2",
     "express": "^4.14.0",
