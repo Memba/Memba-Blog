@@ -61,7 +61,13 @@
                 loader(function (style) {
                     style.use();
                     if (localStorage && !$.isArray(matches)) {
-                        localStorage.setItem(THEME, theme);
+                        try {
+                            localStorage.setItem(THEME, theme);
+                        } catch (exception) {
+                            if (!(exception instanceof QuotaExceededError)) {
+                                throw exception;
+                            }
+                        }
                     }
                     // if (window.device && window.device.cordova) { // Phonegap
                     if (app.mobile && kendo.mobile && kendo.mobile.Application &&
