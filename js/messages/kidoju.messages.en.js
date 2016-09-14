@@ -292,6 +292,20 @@
                     attributes.ogg.title = 'OGG File';
                 }
 
+                if (tools.chart instanceof Tool) {
+                    // Description
+                    tools.chart.constructor.prototype.description = 'Chart';
+                    // Attributes
+                    attributes = tools.chart.constructor.prototype.attributes;
+                    attributes.type.title = 'Type';
+                    attributes.title.title = 'Title';
+                    attributes.categories.title = 'Categories';
+                    attributes.values.title = 'Values';
+                    attributes.legend.title = 'Legend';
+                    attributes.data.title = 'Data';
+                    attributes.style.title = 'Style';
+                }
+
                 if (tools.chargrid instanceof Tool) {
                     // Description
                     tools.chargrid.constructor.prototype.description = 'Character Grid';
@@ -409,7 +423,7 @@
 
                 if (tools.mathexpression instanceof Tool) {
                     // Description
-                    tools.mathexpression.constructor.prototype.description = 'Math Expression';
+                    tools.mathexpression.constructor.prototype.description = 'Mathematic Expression';
                     // Attributes
                     attributes = tools.mathexpression.constructor.prototype.attributes;
                     attributes.formula.title = 'Formula';
@@ -430,6 +444,34 @@
                     attributes.selectedStyle.title = 'Select. Style';
                     // Properties
                     properties = tools.quiz.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.description.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                }
+
+                if (tools.table instanceof Tool) {
+                    // Description
+                    tools.table.constructor.prototype.description = 'Static Table';
+                    // Attributes
+                    attributes = tools.table.constructor.prototype.attributes;
+                    attributes.columns.title = 'Columns';
+                    attributes.rows.title = 'Rows';
+                    attributes.data.title = 'Data';
+                    attributes.style.title = 'Style';
+                }
+
+                if (tools.textarea instanceof Tool) {
+                    // Description
+                    tools.textarea.constructor.prototype.description = 'TextArea';
+                    // Attributes
+                    attributes = tools.textarea.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    // Properties
+                    properties = tools.textarea.constructor.prototype.properties;
                     properties.name.title = 'Name';
                     properties.description.title = 'Question';
                     properties.solution.title = 'Solution';

@@ -292,6 +292,20 @@
                     attributes.ogg.title = 'Fichier OGG';
                 }
 
+                if (tools.chart instanceof Tool) {
+                    // Description
+                    tools.chart.constructor.prototype.description = 'Diagramme';
+                    // Attributes
+                    attributes = tools.chart.constructor.prototype.attributes;
+                    attributes.type.title = 'Type';
+                    attributes.title.title = 'Titre';
+                    attributes.categories.title = 'Catégories';
+                    attributes.values.title = 'Valeurs';
+                    attributes.legend.title = 'Légende';
+                    attributes.data.title = 'Données';
+                    attributes.style.title = 'Style';
+                }
+
                 if (tools.chargrid instanceof Tool) {
                     // Description
                     tools.chargrid.constructor.prototype.description = 'Character Grid';
@@ -430,6 +444,34 @@
                     attributes.selectedStyle.title = 'Style Sélection';
                     // Properties
                     properties = tools.quiz.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
+                }
+
+                if (tools.table instanceof Tool) {
+                    // Description
+                    tools.table.constructor.prototype.description = 'Table Statique';
+                    // Attributes
+                    attributes = tools.table.constructor.prototype.attributes;
+                    attributes.columns.title = 'Colonnes';
+                    attributes.rows.title = 'Lignes';
+                    attributes.data.title = 'Données';
+                    attributes.style.title = 'Style';
+                }
+
+                if (tools.textarea instanceof Tool) {
+                    // Description
+                    tools.textarea.constructor.prototype.description = 'Aire de Texte';
+                    // Attributes
+                    attributes = tools.textarea.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    // Properties
+                    properties = tools.textarea.constructor.prototype.properties;
                     properties.name.title = 'Nom';
                     properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
