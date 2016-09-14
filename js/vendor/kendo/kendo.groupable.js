@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, isRtl = false, NS = '.kendoGroupable', CHANGE = 'change', indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' + '<a href="\\#" class="k-link">' + '<span class="k-icon k-si-arrow-${(data.dir || "asc") == "asc" ? "n" : "s"}">(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})</span>' + '${data.title ? data.title: data.field}' + '</a>' + '<a class="k-button k-button-icon k-button-bare">' + '<span class="k-icon k-group-delete"></span>' + '</a>' + '</div>', { useWithBlock: false }), hint = function (target) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, isRtl = false, NS = '.kendoGroupable', CHANGE = 'change', indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' + '<a href="\\#" class="k-link">' + '<span class="k-icon k-i-sarrow-${(data.dir || "asc") == "asc" ? "n" : "s"}">(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})</span>' + '${data.title ? data.title: data.field}' + '</a>' + '<a class="k-button k-button-icon k-button-bare">' + '<span class="k-icon k-i-group-delete"></span>' + '</a>' + '</div>', { useWithBlock: false }), hint = function (target) {
                 var title = target.attr(kendo.attr('title'));
                 if (title) {
                     title = kendo.htmlEncode(title);
@@ -51,7 +51,7 @@
                     lineHeight: target.height() + 'px',
                     paddingTop: target.css('paddingTop'),
                     paddingBottom: target.css('paddingBottom')
-                }).html(title || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-denied" />');
+                }).html(title || target.attr(kendo.attr('field'))).prepend('<span class="k-icon k-drag-status k-i-denied" />');
             }, dropCue = $('<div class="k-grouping-dropclue"/>');
         function dropCueOffsetTop(element) {
             return element.position().top + 3;
@@ -71,12 +71,12 @@
                     group: draggable.options.group,
                     dragenter: function (e) {
                         if (that._canDrag(e.draggable.currentTarget)) {
-                            e.draggable.hint.find('.k-drag-status').removeClass('k-denied').addClass('k-add');
+                            e.draggable.hint.find('.k-drag-status').removeClass('k-i-denied').addClass('k-i-add');
                             dropCue.css('top', dropCueOffsetTop(that.groupContainer)).css(horizontalCuePosition, 0).appendTo(that.groupContainer);
                         }
                     },
                     dragleave: function (e) {
-                        e.draggable.hint.find('.k-drag-status').removeClass('k-add').addClass('k-denied');
+                        e.draggable.hint.find('.k-drag-status').removeClass('k-i-add').addClass('k-i-denied');
                         dropCue.remove();
                     },
                     drop: function (e) {
@@ -111,7 +111,7 @@
                             top: dropCueOffsetTop(that.groupContainer),
                             left: left
                         }).appendTo(that.groupContainer);
-                        this.hint.find('.k-drag-status').removeClass('k-denied').addClass('k-add');
+                        this.hint.find('.k-drag-status').removeClass('k-i-denied').addClass('k-i-add');
                     },
                     dragend: function () {
                         that._dragEnd(this);
@@ -197,6 +197,7 @@
                 }
                 that.groupContainer = that.element = that.draggable = null;
             },
+            events: ['change'],
             options: {
                 name: 'Groupable',
                 filter: 'th',
@@ -252,7 +253,12 @@
             _change: function () {
                 var that = this;
                 if (that.dataSource) {
-                    that.dataSource.group(that.descriptors());
+                    var descriptors = that.descriptors();
+                    if (that.trigger('change', { groups: descriptors })) {
+                        that.refresh();
+                        return;
+                    }
+                    that.dataSource.group(descriptors);
                 }
             },
             _dropCuePosition: function (position) {

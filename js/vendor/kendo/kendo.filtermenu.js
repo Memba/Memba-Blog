@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -104,7 +104,7 @@
                 if (!options.appendToElement) {
                     link = element.addClass('k-with-icon k-filterable').find('.k-grid-filter');
                     if (!link[0]) {
-                        link = element.prepend('<a class="k-grid-filter" href="#"><span class="k-icon k-filter">' + options.messages.filter + '</span></a>').find('.k-grid-filter');
+                        link = element.prepend('<a class="k-grid-filter" href="#"><span class="k-icon k-i-filter">' + options.messages.filter + '</span></a>').find('.k-grid-filter');
                     }
                     link.attr('tabindex', -1).on('click' + NS, proxy(that._click, that));
                 }
@@ -238,12 +238,14 @@
                         filters: [],
                         logic: 'and'
                     };
+                var defaultFilters = [that._defaultFilter()];
+                var defaultOperator = that._defaultFilter().operator;
+                if (that.options.extra || defaultOperator !== 'isnull' && defaultOperator !== 'isnotnull') {
+                    defaultFilters.push(that._defaultFilter());
+                }
                 that.filterModel = kendo.observable({
                     logic: 'and',
-                    filters: [
-                        that._defaultFilter(),
-                        that._defaultFilter()
-                    ]
+                    filters: defaultFilters
                 });
                 if (that.form) {
                     kendo.bind(that.form.children().first(), that.filterModel);
@@ -337,6 +339,16 @@
                 return result;
             },
             filter: function (expression) {
+                var filters = this._stripFilters(expression.filters);
+                if (filters.length && this.trigger('change', {
+                        filter: {
+                            logic: expression.logic,
+                            filters: filters
+                        },
+                        field: this.field
+                    })) {
+                    return;
+                }
                 expression = this._merge(expression);
                 if (expression.filters.length) {
                     this.dataSource.filter(expression);
@@ -344,6 +356,12 @@
             },
             clear: function () {
                 var that = this, expression = that.dataSource.filter() || { filters: [] };
+                if (this.trigger('change', {
+                        filter: null,
+                        field: that.field
+                    })) {
+                    return;
+                }
                 expression.filters = $.grep(expression.filters, function (filter) {
                     if (filter.filters) {
                         filter.filters = clearFilter(filter.filters, that.field);
@@ -405,7 +423,10 @@
                     this.popup.close();
                 }
             },
-            events: [INIT],
+            events: [
+                INIT,
+                'change'
+            ],
             options: {
                 name: 'FilterMenu',
                 extra: true,
@@ -562,7 +583,7 @@
                 var element = this.element;
                 var link = element.addClass('k-with-icon k-filterable').find('.k-grid-filter');
                 if (!link[0]) {
-                    link = element.prepend('<a class="k-grid-filter" href="#"><span class="k-icon k-filter"/></a>').find('.k-grid-filter');
+                    link = element.prepend('<a class="k-grid-filter" href="#"><span class="k-icon k-i-filter"/></a>').find('.k-grid-filter');
                 }
                 this._link = link.attr('tabindex', -1).on('click' + NS, proxy(this._click, this));
             },
@@ -811,6 +832,12 @@
                         field: that.field
                     };
                 });
+                if (expression.filters.length && this.trigger('change', {
+                        filter: expression,
+                        field: that.field
+                    })) {
+                    return;
+                }
                 expression = this._merge(expression);
                 if (expression.filters.length) {
                     this.dataSource.filter(expression);
@@ -906,7 +933,8 @@
             },
             events: [
                 INIT,
-                REFRESH
+                REFRESH,
+                'change'
             ]
         });
         $.extend(FilterMultiCheck.fn, {

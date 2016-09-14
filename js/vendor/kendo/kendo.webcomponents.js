@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -159,6 +159,9 @@
                 }
             });
             prototype.bindEvents = function () {
+                if (widget.prototype.events.indexOf('init') < 0) {
+                    widget.prototype.events.push('init');
+                }
                 widget.prototype.events.forEach(function (eventName) {
                     this.widget.bind(eventName, eventHandler.bind(this, eventName));
                     if (this.hasAttribute(EVENT_PREFIX + eventName)) {
@@ -181,6 +184,7 @@
                     expose(that, obj);
                 } while (obj = Object.getPrototypeOf(obj));
                 this.bindEvents();
+                that.widget.trigger('init');
             };
             prototype.detachedCallback = function () {
                 kendo.destroy(this.element);

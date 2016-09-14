@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -317,6 +317,39 @@
                 return output;
             }).join('');
         }
+        function mergeSort(a, cmp) {
+            if (a.length < 2) {
+                return a.slice();
+            }
+            function merge(a, b) {
+                var r = [], ai = 0, bi = 0, i = 0;
+                while (ai < a.length && bi < b.length) {
+                    if (cmp(a[ai], b[bi]) <= 0) {
+                        r[i++] = a[ai++];
+                    } else {
+                        r[i++] = b[bi++];
+                    }
+                }
+                if (ai < a.length) {
+                    r.push.apply(r, a.slice(ai));
+                }
+                if (bi < b.length) {
+                    r.push.apply(r, b.slice(bi));
+                }
+                return r;
+            }
+            return function sort(a) {
+                if (a.length <= 1) {
+                    return a;
+                }
+                var m = Math.floor(a.length / 2);
+                var left = a.slice(0, m);
+                var right = a.slice(m);
+                left = sort(left);
+                right = sort(right);
+                return merge(left, right);
+            }(a);
+        }
         deepExtend(kendo, {
             util: {
                 MAX_NUM: MAX_NUM,
@@ -352,7 +385,8 @@
                 arabicToRoman: arabicToRoman,
                 memoize: memoize,
                 ucs2encode: ucs2encode,
-                ucs2decode: ucs2decode
+                ucs2decode: ucs2decode,
+                mergeSort: mergeSort
             }
         });
         kendo.drawing.util = kendo.util;
@@ -637,7 +671,7 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, util = kendo.util, append = util.append, defined = util.defined, last = util.last, valueOrDefault = util.valueOrDefault, dataviz = kendo.dataviz, geom = dataviz.geometry, draw = dataviz.drawing, measureText = draw.util.measureText, Class = kendo.Class, template = kendo.template, noop = $.noop, indexOf = $.inArray, isPlainObject = $.isPlainObject, trim = $.trim, math = Math, deepExtend = kendo.deepExtend;
-        var AXIS_LABEL_CLICK = 'axisLabelClick', BLACK = '#000', BOTTOM = 'bottom', CENTER = 'center', COORD_PRECISION = 3, CLIP = 'clip', CIRCLE = 'circle', CROSS = 'cross', DEFAULT_FONT = '12px sans-serif', DEFAULT_HEIGHT = 400, DEFAULT_ICON_SIZE = 7, DEFAULT_PRECISION = 10, DEFAULT_WIDTH = 600, DEG_TO_RAD = math.PI / 180, FORMAT_REGEX = /\{\d+:?/, HEIGHT = 'height', COORDINATE_LIMIT = 100000, INITIAL_ANIMATION_DURATION = 600, INSIDE = 'inside', LEFT = 'left', LINEAR = 'linear', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, NONE = 'none', NOTE_CLICK = 'noteClick', NOTE_HOVER = 'noteHover', OUTSIDE = 'outside', RADIAL = 'radial', RIGHT = 'right', TOP = 'top', TRIANGLE = 'triangle', WIDTH = 'width', WHITE = '#fff', X = 'x', Y = 'y', ZERO_THRESHOLD = 0.2;
+        var AXIS_LABEL_CLICK = 'axisLabelClick', BLACK = '#000', BOTTOM = 'bottom', CENTER = 'center', COORD_PRECISION = 3, CLIP = 'clip', CIRCLE = 'circle', CROSS = 'cross', DEFAULT_FONT = '12px sans-serif', DEFAULT_HEIGHT = 400, DEFAULT_ICON_SIZE = 7, DEFAULT_PRECISION = 10, DEFAULT_WIDTH = 600, DEG_TO_RAD = math.PI / 180, FORMAT_REGEX = /\{\d+:?/, HEIGHT = 'height', VML_COORDINATE_LIMIT = 100000, INITIAL_ANIMATION_DURATION = 600, INSIDE = 'inside', LEFT = 'left', LINEAR = 'linear', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, NONE = 'none', NOTE_CLICK = 'noteClick', NOTE_HOVER = 'noteHover', OUTSIDE = 'outside', RADIAL = 'radial', RIGHT = 'right', TOP = 'top', TRIANGLE = 'triangle', WIDTH = 'width', WHITE = '#fff', X = 'x', Y = 'y', ZERO_THRESHOLD = 0.2;
         function getSpacing(value, defaultSpacing) {
             var spacing = {
                 top: 0,
@@ -1174,6 +1208,7 @@
                             dataItem: that.dataItem,
                             category: that.category,
                             value: that.value,
+                            stackValue: that.stackValue,
                             percentage: that.percentage,
                             runningTotal: that.runningTotal,
                             total: that.total
@@ -2341,6 +2376,12 @@
                     min: from,
                     max: to
                 };
+            },
+            valueRange: function () {
+                return {
+                    min: this.seriesMin,
+                    max: this.seriesMax
+                };
             }
         });
         var Note = BoxElement.extend({
@@ -2685,6 +2726,8 @@
         var NumericAxis = Axis.extend({
             init: function (seriesMin, seriesMax, options) {
                 var axis = this, defaultOptions = axis.initDefaults(seriesMin, seriesMax, options);
+                this.seriesMin = seriesMin;
+                this.seriesMax = seriesMax;
                 Axis.fn.init.call(axis, defaultOptions);
             },
             startValue: function () {
@@ -2830,8 +2873,8 @@
                     p1 = math.min(a, b) - options.min;
                     p2 = math.max(a, b) - options.min;
                 }
-                slotBox[valueAxis + 1] = math.max(math.min(lineStart + step * (reverse ? p2 : p1), COORDINATE_LIMIT), -COORDINATE_LIMIT);
-                slotBox[valueAxis + 2] = math.max(math.min(lineStart + step * (reverse ? p1 : p2), COORDINATE_LIMIT), -COORDINATE_LIMIT);
+                slotBox[valueAxis + 1] = limitCoordinate(lineStart + step * (reverse ? p2 : p1));
+                slotBox[valueAxis + 2] = limitCoordinate(lineStart + step * (reverse ? p1 : p2));
                 return slotBox;
             },
             getValue: function (point) {
@@ -2902,6 +2945,8 @@
         var LogarithmicAxis = Axis.extend({
             init: function (seriesMin, seriesMax, options) {
                 this.options = this._initOptions(seriesMin, seriesMax, options);
+                this.seriesMin = seriesMin;
+                this.seriesMax = seriesMax;
                 Axis.fn.init.call(this, options);
             },
             startValue: function () {
@@ -3677,6 +3722,12 @@
             e = e || {};
             var element = $(e.touch ? e.touch.initialTouch : e.target);
             return element;
+        }
+        function limitCoordinate(value) {
+            if (kendo.support.vml) {
+                value = math.max(math.min(value, VML_COORDINATE_LIMIT), -VML_COORDINATE_LIMIT);
+            }
+            return value;
         }
         decodeEntities._element = document.createElement('span');
         deepExtend(kendo.dataviz, {

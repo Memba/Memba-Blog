@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.2.714'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2016.3.914'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -805,7 +805,7 @@
                 value = Math.round(+(value[0] + 'e' + (value[1] ? +value[1] + precision : precision)));
                 value = value.toString().split('e');
                 value = +(value[0] + 'e' + (value[1] ? +value[1] - precision : -precision));
-                return value.toFixed(precision);
+                return value.toFixed(Math.min(precision, 20));
             };
             var toString = function (value, fmt, culture) {
                 if (fmt) {
@@ -1733,9 +1733,14 @@
                 type = 'offset';
             }
             var result = element[type]();
+            if (support.mobileOS.android) {
+                result.top -= window.scrollY;
+                result.left -= window.scrollX;
+            }
             if (support.browser.msie && (support.pointers || support.msPointers) && !positioned) {
-                result.top -= window.pageYOffset - document.documentElement.scrollTop;
-                result.left -= window.pageXOffset - document.documentElement.scrollLeft;
+                var sign = support.isRtl(element) ? 1 : -1;
+                result.top -= window.pageYOffset + sign * document.documentElement.scrollTop;
+                result.left -= window.pageXOffset + sign * document.documentElement.scrollLeft;
             }
             return result;
         }
@@ -4735,7 +4740,10 @@
                     return;
                 }
                 if (!silent) {
-                    if (this.trigger(CHANGE, { url: to })) {
+                    if (this.trigger(CHANGE, {
+                            url: to,
+                            decode: false
+                        })) {
                         return;
                     }
                 }
@@ -4805,23 +4813,25 @@
                 this.route = route;
                 this._callback = callback;
             },
-            callback: function (url, back) {
+            callback: function (url, back, decode) {
                 var params, idx = 0, length, queryStringParams = kendo.parseQueryStringParams(url);
                 queryStringParams._back = back;
                 url = stripUrl(url);
                 params = this.route.exec(url).slice(1);
                 length = params.length;
-                for (; idx < length; idx++) {
-                    if (typeof params[idx] !== 'undefined') {
-                        params[idx] = decodeURIComponent(params[idx]);
+                if (decode) {
+                    for (; idx < length; idx++) {
+                        if (typeof params[idx] !== 'undefined') {
+                            params[idx] = decodeURIComponent(params[idx]);
+                        }
                     }
                 }
                 params.push(queryStringParams);
                 this._callback.apply(null, params);
             },
-            worksWith: function (url, back) {
+            worksWith: function (url, back, decode) {
                 if (this.route.test(stripUrl(url))) {
-                    this.callback(url, back);
+                    this.callback(url, back, decode);
                     return true;
                 } else {
                     return false;
@@ -4900,6 +4910,7 @@
             },
             _urlChanged: function (e) {
                 var url = e.url;
+                var decode = typeof e.decode === 'undefined';
                 var back = e.backButtonPressed;
                 if (!url) {
                     url = '/';
@@ -4915,7 +4926,7 @@
                 var idx = 0, routes = this.routes, route, length = routes.length;
                 for (; idx < length; idx++) {
                     route = routes[idx];
-                    if (route.worksWith(url, back)) {
+                    if (route.worksWith(url, back, decode)) {
                         return;
                     }
                 }
@@ -5025,6 +5036,7 @@
                         } else if (type === 'date') {
                             if (useOdataFour) {
                                 format = '{1:yyyy-MM-ddTHH:mm:ss+00:00}';
+                                value = kendo.timezone.apply(value, 'Etc/UTC');
                             } else {
                                 format = 'datetime\'{1:yyyy-MM-ddTHH:mm:ss}\'';
                             }
@@ -9791,7 +9803,11 @@
                             } else {
                                 value = option.text;
                             }
-                            values.push(this._parseValue(value, this.dataType()));
+                            if (field) {
+                                values.push(value);
+                            } else {
+                                values.push(this._parseValue(value, this.dataType()));
+                            }
                         }
                     }
                     if (field) {
@@ -9801,7 +9817,7 @@
                         }
                         for (valueIndex = 0; valueIndex < values.length; valueIndex++) {
                             for (idx = 0, length = source.length; idx < length; idx++) {
-                                var sourceValue = this._parseValue(source[idx].get(field), this.dataType());
+                                var sourceValue = source[idx].get(field);
                                 var match = String(sourceValue) === values[valueIndex];
                                 if (match) {
                                     values[valueIndex] = source[idx];
@@ -10961,7 +10977,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, support = kendo.support, document = window.document, Class = kendo.Class, Observable = kendo.Observable, now = $.now, extend = $.extend, OS = support.mobileOS, invalidZeroEvents = OS && OS.android, DEFAULT_MIN_HOLD = 800, DEFAULT_THRESHOLD = support.browser.msie ? 5 : 0, PRESS = 'press', HOLD = 'hold', SELECT = 'select', START = 'start', MOVE = 'move', END = 'end', CANCEL = 'cancel', TAP = 'tap', RELEASE = 'release', GESTURESTART = 'gesturestart', GESTURECHANGE = 'gesturechange', GESTUREEND = 'gestureend', GESTURETAP = 'gesturetap';
+        var kendo = window.kendo, support = kendo.support, Class = kendo.Class, Observable = kendo.Observable, now = $.now, extend = $.extend, OS = support.mobileOS, invalidZeroEvents = OS && OS.android, DEFAULT_MIN_HOLD = 800, DEFAULT_THRESHOLD = support.browser.msie ? 5 : 0, PRESS = 'press', HOLD = 'hold', SELECT = 'select', START = 'start', MOVE = 'move', END = 'end', CANCEL = 'cancel', TAP = 'tap', RELEASE = 'release', GESTURESTART = 'gesturestart', GESTURECHANGE = 'gesturechange', GESTUREEND = 'gestureend', GESTURETAP = 'gesturetap';
         var THRESHOLD = {
             'api': 0,
             'touch': 0,
@@ -11176,7 +11192,7 @@
                 Observable.fn.init.call(that);
                 extend(that, {
                     element: element,
-                    surface: options.global && ENABLE_GLOBAL_SURFACE ? $(document.documentElement) : $(options.surface || element),
+                    surface: options.global && ENABLE_GLOBAL_SURFACE ? $(element[0].ownerDocument.documentElement) : $(options.surface || element),
                     stopPropagation: options.stopPropagation,
                     pressed: false
                 });
@@ -12791,6 +12807,9 @@
                 'line-height'
             ];
         function contains(container, target) {
+            if (!container || !target) {
+                return false;
+            }
             return container === target || $.contains(container, target);
         }
         var Popup = Widget.extend({
@@ -13033,6 +13052,9 @@
                     that.element.kendoStop(true);
                     wrap.css({ overflow: HIDDEN });
                     that.element.kendoAnimate(animation);
+                    if (skipEffects) {
+                        that._animationClose();
+                    }
                 }
             },
             _trigger: function (ev) {
@@ -13103,9 +13125,22 @@
                 });
             },
             _position: function (fixed) {
-                var that = this, element = that.element, wrapper = that.wrapper, options = that.options, viewport = $(options.viewport), viewportOffset = viewport.offset(), anchor = $(options.anchor), origins = options.origin.toLowerCase().split(' '), positions = options.position.toLowerCase().split(' '), collisions = that.collisions, zoomLevel = support.zoomLevel(), siblingContainer, parents, parentZIndex, zIndex = 10002, isWindow = !!(viewport[0] == window && window.innerWidth && zoomLevel <= 1.02), idx = 0, docEl = document.documentElement, length, viewportWidth, viewportHeight;
-                viewportWidth = isWindow ? window.innerWidth : viewport.width();
-                viewportHeight = isWindow ? window.innerHeight : viewport.height();
+                var that = this, element = that.element, wrapper = that.wrapper, options = that.options, viewport = $(options.viewport), zoomLevel = support.zoomLevel(), isWindow = !!(viewport[0] == window && window.innerWidth && zoomLevel <= 1.02), anchor = $(options.anchor), origins = options.origin.toLowerCase().split(' '), positions = options.position.toLowerCase().split(' '), collisions = that.collisions, siblingContainer, parents, parentZIndex, zIndex = 10002, idx = 0, docEl = document.documentElement, length, viewportOffset, viewportWidth, viewportHeight;
+                if (options.viewport === window) {
+                    viewportOffset = {
+                        top: window.pageYOffset || document.documentElement.scrollTop || 0,
+                        left: window.pageXOffset || document.documentElement.scrollLeft || 0
+                    };
+                } else {
+                    viewportOffset = viewport.offset();
+                }
+                if (isWindow) {
+                    viewportWidth = window.innerWidth;
+                    viewportHeight = window.innerHeight;
+                } else {
+                    viewportWidth = viewport.width();
+                    viewportHeight = viewport.height();
+                }
                 if (isWindow && docEl.scrollHeight - docEl.clientHeight > 0) {
                     viewportWidth -= kendo.support.scrollbar();
                 }
@@ -13138,13 +13173,8 @@
                     pos = getOffset(wrapper, POSITION, true);
                     offset = getOffset(wrapper);
                 }
-                if (viewport[0] === window) {
-                    offset.top -= window.pageYOffset || document.documentElement.scrollTop || 0;
-                    offset.left -= window.pageXOffset || document.documentElement.scrollLeft || 0;
-                } else {
-                    offset.top -= viewportOffset.top;
-                    offset.left -= viewportOffset.left;
-                }
+                offset.top -= viewportOffset.top;
+                offset.left -= viewportOffset.left;
                 if (!that.wrapper.data(LOCATION)) {
                     wrapper.data(LOCATION, extend({}, pos));
                 }
@@ -14409,6 +14439,39 @@
                 return output;
             }).join('');
         }
+        function mergeSort(a, cmp) {
+            if (a.length < 2) {
+                return a.slice();
+            }
+            function merge(a, b) {
+                var r = [], ai = 0, bi = 0, i = 0;
+                while (ai < a.length && bi < b.length) {
+                    if (cmp(a[ai], b[bi]) <= 0) {
+                        r[i++] = a[ai++];
+                    } else {
+                        r[i++] = b[bi++];
+                    }
+                }
+                if (ai < a.length) {
+                    r.push.apply(r, a.slice(ai));
+                }
+                if (bi < b.length) {
+                    r.push.apply(r, b.slice(bi));
+                }
+                return r;
+            }
+            return function sort(a) {
+                if (a.length <= 1) {
+                    return a;
+                }
+                var m = Math.floor(a.length / 2);
+                var left = a.slice(0, m);
+                var right = a.slice(m);
+                left = sort(left);
+                right = sort(right);
+                return merge(left, right);
+            }(a);
+        }
         deepExtend(kendo, {
             util: {
                 MAX_NUM: MAX_NUM,
@@ -14444,7 +14507,8 @@
                 arabicToRoman: arabicToRoman,
                 memoize: memoize,
                 ucs2encode: ucs2encode,
-                ucs2decode: ucs2decode
+                ucs2decode: ucs2decode,
+                mergeSort: mergeSort
             }
         });
         kendo.drawing.util = kendo.util;
@@ -15757,7 +15821,9 @@
                 };
             },
             _enableTracking: function () {
-                this._tooltip = new SurfaceTooltip(this, this.options.tooltip || {});
+                if (kendo.ui.Popup) {
+                    this._tooltip = new SurfaceTooltip(this, this.options.tooltip || {});
+                }
             },
             _elementOffset: function () {
                 var element = this.element;
@@ -18051,12 +18117,11 @@
             insert: function (shape, bbox) {
                 var inserted = false;
                 var children = this.children;
-                var length = children.length;
                 if (this.inBounds(bbox)) {
-                    if (!length && this.shapes.length < 4) {
+                    if (this.shapes.length < 4) {
                         this._add(shape, bbox);
                     } else {
-                        if (!length) {
+                        if (!children.length) {
                             this._initChildren();
                         }
                         for (var idx = 0; idx < children.length; idx++) {
@@ -18074,16 +18139,32 @@
                 return inserted;
             },
             _initChildren: function () {
-                var rect = this.rect, children = this.children, shapes = this.shapes, center = rect.center(), halfWidth = rect.width() / 2, halfHeight = rect.height() / 2, childIdx, shapeIdx;
-                children.push(new QuadNode(new Rect(rect.origin.x, rect.origin.y, halfWidth, halfHeight)), new QuadNode(new Rect(center.x, rect.origin.y, halfWidth, halfHeight)), new QuadNode(new Rect(rect.origin.x, center.y, halfWidth, halfHeight)), new QuadNode(new Rect(center.x, center.y, halfWidth, halfHeight)));
-                for (shapeIdx = shapes.length - 1; shapeIdx >= 0; shapeIdx--) {
-                    for (childIdx = 0; childIdx < children.length; childIdx++) {
-                        if (children[childIdx].insert(shapes[shapeIdx].shape, shapes[shapeIdx].bbox)) {
-                            shapes.splice(shapeIdx, 1);
-                            break;
-                        }
-                    }
-                }
+                var rect = this.rect, children = this.children, center = rect.center(), halfWidth = rect.width() / 2, halfHeight = rect.height() / 2;
+                children.push(new QuadNode(new Rect([
+                    rect.origin.x,
+                    rect.origin.y
+                ], [
+                    halfWidth,
+                    halfHeight
+                ])), new QuadNode(new Rect([
+                    center.x,
+                    rect.origin.y
+                ], [
+                    halfWidth,
+                    halfHeight
+                ])), new QuadNode(new Rect([
+                    rect.origin.x,
+                    center.y
+                ], [
+                    halfWidth,
+                    halfHeight
+                ])), new QuadNode(new Rect([
+                    center.x,
+                    center.y
+                ], [
+                    halfWidth,
+                    halfHeight
+                ])));
             }
         });
         var ShapesQuadTree = Class.extend({
@@ -18252,7 +18333,10 @@
             }
             return 0;
         }
-        deepExtend(drawing, { ShapesQuadTree: ShapesQuadTree });
+        deepExtend(drawing, {
+            ShapesQuadTree: ShapesQuadTree,
+            QuadNode: QuadNode
+        });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -19763,6 +19847,7 @@
                 height: options.height
             }).appendTo(document.body);
             var surface = new Surface(container, options);
+            surface.suspendTracking();
             surface.draw(group);
             var promise = surface.image();
             promise.always(function () {
@@ -20961,6 +21046,7 @@
         var slice = Array.prototype.slice;
         var browser = kendo.support.browser;
         var romanNumeral = kendo.util.arabicToRoman;
+        var mergeSort = kendo.util.mergeSort;
         var KENDO_PSEUDO_ELEMENT = 'KENDO-PSEUDO-ELEMENT';
         var IMAGE_CACHE = {};
         var nodeInfo = {};
@@ -21083,8 +21169,10 @@
                             var canceled = false, pageNum = 0;
                             (function next() {
                                 if (pageNum < x.pages.length) {
-                                    group.append(doOne(x.pages[pageNum]));
+                                    var page = doOne(x.pages[pageNum]);
+                                    group.append(page);
                                     options.progress({
+                                        page: page,
                                         pageNum: ++pageNum,
                                         totalPages: x.pages.length,
                                         cancel: function () {
@@ -21862,7 +21950,19 @@
             return window.getComputedStyle(element, pseudoElt || null);
         }
         function getPropertyValue(style, prop) {
-            return style.getPropertyValue(prop) || browser.webkit && style.getPropertyValue('-webkit-' + prop) || browser.mozilla && style.getPropertyValue('-moz-' + prop) || browser.opera && style.getPropertyValue('-o-' + prop) || browser.msie && style.getPropertyValue('-ms-' + prop);
+            var val = style.getPropertyValue(prop);
+            if (val == null || val === '') {
+                if (browser.webkit) {
+                    val = style.getPropertyValue('-webkit-' + prop);
+                } else if (browser.mozilla) {
+                    val = style.getPropertyValue('-moz-' + prop);
+                } else if (browser.opera) {
+                    val = style.getPropertyValue('-o-' + prop);
+                } else if (browser.msie) {
+                    val = style.getPropertyValue('-ms-' + prop);
+                }
+            }
+            return val;
         }
         function pleaseSetPropertyValue(style, prop, value, important) {
             style.setProperty(prop, value, important);
@@ -23018,16 +23118,16 @@
                         break;
                     }
                 }
-                blocks.sort(zIndexSort).forEach(function (el) {
+                mergeSort(blocks, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
-                floats.sort(zIndexSort).forEach(function (el) {
+                mergeSort(floats, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
-                inline.sort(zIndexSort).forEach(function (el) {
+                mergeSort(inline, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
-                positioned.sort(zIndexSort).forEach(function (el) {
+                mergeSort(positioned, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
             }
@@ -23466,7 +23566,8 @@
         description: 'The Kendo UI low-level drawing API',
         depends: [
             'core',
-            'color'
+            'color',
+            'popup'
         ]
     };
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -23491,7 +23592,7 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, util = kendo.util, append = util.append, defined = util.defined, last = util.last, valueOrDefault = util.valueOrDefault, dataviz = kendo.dataviz, geom = dataviz.geometry, draw = dataviz.drawing, measureText = draw.util.measureText, Class = kendo.Class, template = kendo.template, noop = $.noop, indexOf = $.inArray, isPlainObject = $.isPlainObject, trim = $.trim, math = Math, deepExtend = kendo.deepExtend;
-        var AXIS_LABEL_CLICK = 'axisLabelClick', BLACK = '#000', BOTTOM = 'bottom', CENTER = 'center', COORD_PRECISION = 3, CLIP = 'clip', CIRCLE = 'circle', CROSS = 'cross', DEFAULT_FONT = '12px sans-serif', DEFAULT_HEIGHT = 400, DEFAULT_ICON_SIZE = 7, DEFAULT_PRECISION = 10, DEFAULT_WIDTH = 600, DEG_TO_RAD = math.PI / 180, FORMAT_REGEX = /\{\d+:?/, HEIGHT = 'height', COORDINATE_LIMIT = 100000, INITIAL_ANIMATION_DURATION = 600, INSIDE = 'inside', LEFT = 'left', LINEAR = 'linear', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, NONE = 'none', NOTE_CLICK = 'noteClick', NOTE_HOVER = 'noteHover', OUTSIDE = 'outside', RADIAL = 'radial', RIGHT = 'right', TOP = 'top', TRIANGLE = 'triangle', WIDTH = 'width', WHITE = '#fff', X = 'x', Y = 'y', ZERO_THRESHOLD = 0.2;
+        var AXIS_LABEL_CLICK = 'axisLabelClick', BLACK = '#000', BOTTOM = 'bottom', CENTER = 'center', COORD_PRECISION = 3, CLIP = 'clip', CIRCLE = 'circle', CROSS = 'cross', DEFAULT_FONT = '12px sans-serif', DEFAULT_HEIGHT = 400, DEFAULT_ICON_SIZE = 7, DEFAULT_PRECISION = 10, DEFAULT_WIDTH = 600, DEG_TO_RAD = math.PI / 180, FORMAT_REGEX = /\{\d+:?/, HEIGHT = 'height', VML_COORDINATE_LIMIT = 100000, INITIAL_ANIMATION_DURATION = 600, INSIDE = 'inside', LEFT = 'left', LINEAR = 'linear', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, NONE = 'none', NOTE_CLICK = 'noteClick', NOTE_HOVER = 'noteHover', OUTSIDE = 'outside', RADIAL = 'radial', RIGHT = 'right', TOP = 'top', TRIANGLE = 'triangle', WIDTH = 'width', WHITE = '#fff', X = 'x', Y = 'y', ZERO_THRESHOLD = 0.2;
         function getSpacing(value, defaultSpacing) {
             var spacing = {
                 top: 0,
@@ -24028,6 +24129,7 @@
                             dataItem: that.dataItem,
                             category: that.category,
                             value: that.value,
+                            stackValue: that.stackValue,
                             percentage: that.percentage,
                             runningTotal: that.runningTotal,
                             total: that.total
@@ -25195,6 +25297,12 @@
                     min: from,
                     max: to
                 };
+            },
+            valueRange: function () {
+                return {
+                    min: this.seriesMin,
+                    max: this.seriesMax
+                };
             }
         });
         var Note = BoxElement.extend({
@@ -25539,6 +25647,8 @@
         var NumericAxis = Axis.extend({
             init: function (seriesMin, seriesMax, options) {
                 var axis = this, defaultOptions = axis.initDefaults(seriesMin, seriesMax, options);
+                this.seriesMin = seriesMin;
+                this.seriesMax = seriesMax;
                 Axis.fn.init.call(axis, defaultOptions);
             },
             startValue: function () {
@@ -25684,8 +25794,8 @@
                     p1 = math.min(a, b) - options.min;
                     p2 = math.max(a, b) - options.min;
                 }
-                slotBox[valueAxis + 1] = math.max(math.min(lineStart + step * (reverse ? p2 : p1), COORDINATE_LIMIT), -COORDINATE_LIMIT);
-                slotBox[valueAxis + 2] = math.max(math.min(lineStart + step * (reverse ? p1 : p2), COORDINATE_LIMIT), -COORDINATE_LIMIT);
+                slotBox[valueAxis + 1] = limitCoordinate(lineStart + step * (reverse ? p2 : p1));
+                slotBox[valueAxis + 2] = limitCoordinate(lineStart + step * (reverse ? p1 : p2));
                 return slotBox;
             },
             getValue: function (point) {
@@ -25756,6 +25866,8 @@
         var LogarithmicAxis = Axis.extend({
             init: function (seriesMin, seriesMax, options) {
                 this.options = this._initOptions(seriesMin, seriesMax, options);
+                this.seriesMin = seriesMin;
+                this.seriesMax = seriesMax;
                 Axis.fn.init.call(this, options);
             },
             startValue: function () {
@@ -26531,6 +26643,12 @@
             e = e || {};
             var element = $(e.touch ? e.touch.initialTouch : e.target);
             return element;
+        }
+        function limitCoordinate(value) {
+            if (kendo.support.vml) {
+                value = math.max(math.min(value, VML_COORDINATE_LIMIT), -VML_COORDINATE_LIMIT);
+            }
+            return value;
         }
         decodeEntities._element = document.createElement('span');
         deepExtend(kendo.dataviz, {
@@ -29240,15 +29358,17 @@
     };
     (function ($, undefined) {
         var each = $.each, isArray = $.isArray, isPlainObject = $.isPlainObject, map = $.map, math = Math, noop = $.noop, extend = $.extend, proxy = $.proxy, kendo = window.kendo, Class = kendo.Class, Observable = kendo.Observable, DataSource = kendo.data.DataSource, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, getter = kendo.getter, isFn = kendo.isFunction, template = kendo.template, dataviz = kendo.dataviz, Axis = dataviz.Axis, AxisLabel = dataviz.AxisLabel, Box2D = dataviz.Box2D, BoxElement = dataviz.BoxElement, ChartElement = dataviz.ChartElement, Color = kendo.drawing.Color, CurveProcessor = dataviz.CurveProcessor, FloatElement = dataviz.FloatElement, Note = dataviz.Note, LogarithmicAxis = dataviz.LogarithmicAxis, NumericAxis = dataviz.NumericAxis, Point2D = dataviz.Point2D, RootElement = dataviz.RootElement, Ring = dataviz.Ring, ShapeElement = dataviz.ShapeElement, ShapeBuilder = dataviz.ShapeBuilder, TextBox = dataviz.TextBox, Title = dataviz.Title, alignPathToPixel = dataviz.alignPathToPixel, autoFormat = dataviz.autoFormat, dateComparer = dataviz.dateComparer, eventTargetElement = dataviz.eventTargetElement, getSpacing = dataviz.getSpacing, inArray = dataviz.inArray, interpolate = dataviz.interpolateValue, mwDelta = dataviz.mwDelta, round = dataviz.round, util = kendo.util, append = util.append, defined = util.defined, last = util.last, limitValue = util.limitValue, sparseArrayLimits = util.sparseArrayLimits, sparseArrayMin = util.sparseArrayMin, sparseArrayMax = util.sparseArrayMax, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, geom = dataviz.geometry, draw = dataviz.drawing;
-        var NS = '.kendoChart', ABOVE = 'above', AREA = 'area', AUTO = 'auto', FIT = 'fit', AXIS_LABEL_CLICK = dataviz.AXIS_LABEL_CLICK, BAR = 'bar', BAR_ALIGN_MIN_WIDTH = 6, BAR_BORDER_BRIGHTNESS = 0.8, BELOW = 'below', BLACK = '#000', BOTH = 'both', BOTTOM = 'bottom', BOX_PLOT = 'boxPlot', BUBBLE = 'bubble', BULLET = 'bullet', CANDLESTICK = 'candlestick', CATEGORY = 'category', CENTER = 'center', CHANGE = 'change', CIRCLE = 'circle', CONTEXTMENU_NS = 'contextmenu' + NS, CLIP = dataviz.CLIP, COLOR = 'color', COLUMN = 'column', COORD_PRECISION = dataviz.COORD_PRECISION, CROSS = 'cross', CSS_PREFIX = 'k-', CUSTOM = 'custom', DATABOUND = 'dataBound', DATE = 'date', DAYS = 'days', DEFAULT_FONT = dataviz.DEFAULT_FONT, DEFAULT_HEIGHT = dataviz.DEFAULT_HEIGHT, DEFAULT_PRECISION = dataviz.DEFAULT_PRECISION, DEFAULT_WIDTH = dataviz.DEFAULT_WIDTH, DEFAULT_ERROR_BAR_WIDTH = 4, DONUT = 'donut', DONUT_SECTOR_ANIM_DELAY = 50, DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', ERROR_LOW_FIELD = 'errorLow', ERROR_HIGH_FIELD = 'errorHigh', X_ERROR_LOW_FIELD = 'xErrorLow', X_ERROR_HIGH_FIELD = 'xErrorHigh', Y_ERROR_LOW_FIELD = 'yErrorLow', Y_ERROR_HIGH_FIELD = 'yErrorHigh', FADEIN = 'fadeIn', FIRST = 'first', FROM = 'from', FUNNEL = 'funnel', GLASS = 'glass', HORIZONTAL = 'horizontal', HORIZONTAL_WATERFALL = 'horizontalWaterfall', HOURS = 'hours', INITIAL_ANIMATION_DURATION = dataviz.INITIAL_ANIMATION_DURATION, INSIDE_BASE = 'insideBase', INSIDE_END = 'insideEnd', INTERPOLATE = 'interpolate', LEAVE = 'leave', LEFT = 'left', LEGEND_ITEM_CLICK = 'legendItemClick', LEGEND_ITEM_HOVER = 'legendItemHover', LINE = 'line', LINE_MARKER_SIZE = 8, LINEAR = 'linear', LOGARITHMIC = 'log', MAX = 'max', MAX_EXPAND_DEPTH = 5, MAX_VALUE = Number.MAX_VALUE, MIN = 'min', MIN_VALUE = -Number.MAX_VALUE, MINUTES = 'minutes', MONTHS = 'months', MOUSELEAVE_NS = 'mouseleave' + NS, MOUSEMOVE_TRACKING = 'mousemove.tracking', MOUSEMOVE_NS = 'mousemove' + NS, MOUSEMOVE_DELAY = 20, MOUSEWHEEL_DELAY = 150, MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, NOTE_CLICK = dataviz.NOTE_CLICK, NOTE_HOVER = dataviz.NOTE_HOVER, NOTE_TEXT = 'noteText', OBJECT = 'object', OHLC = 'ohlc', OUTSIDE_END = 'outsideEnd', PIE = 'pie', PIE_SECTOR_ANIM_DELAY = 70, PLOT_AREA_CLICK = 'plotAreaClick', PLOT_AREA_HOVER = 'plotAreaHover', POINTER = 'pointer', RANGE_BAR = 'rangeBar', RANGE_COLUMN = 'rangeColumn', RENDER = 'render', RIGHT = 'right', ROUNDED_BEVEL = 'roundedBevel', ROUNDED_GLASS = 'roundedGlass', SCATTER = 'scatter', SCATTER_LINE = 'scatterLine', SECONDS = 'seconds', SELECT_START = 'selectStart', SELECT = 'select', SELECT_END = 'selectEnd', SERIES_CLICK = 'seriesClick', SERIES_HOVER = 'seriesHover', START_SCALE = 0.001, STEP = 'step', SMOOTH = 'smooth', STD_ERR = 'stderr', STD_DEV = 'stddev', STRING = 'string', SUMMARY_FIELD = 'summary', TIME_PER_SECOND = 1000, TIME_PER_MINUTE = 60 * TIME_PER_SECOND, TIME_PER_HOUR = 60 * TIME_PER_MINUTE, TIME_PER_DAY = 24 * TIME_PER_HOUR, TIME_PER_WEEK = 7 * TIME_PER_DAY, TIME_PER_MONTH = 31 * TIME_PER_DAY, TIME_PER_YEAR = 365 * TIME_PER_DAY, TIME_PER_UNIT = {
+        var NS = '.kendoChart', ABOVE = 'above', AREA = 'area', AUTO = 'auto', FIT = 'fit', AXIS_LABEL_CLICK = dataviz.AXIS_LABEL_CLICK, BAR = 'bar', BAR_ALIGN_MIN_WIDTH = 6, BAR_BORDER_BRIGHTNESS = 0.8, BELOW = 'below', BLACK = '#000', BOTH = 'both', BOTTOM = 'bottom', BOX_PLOT = 'boxPlot', BUBBLE = 'bubble', BULLET = 'bullet', CANDLESTICK = 'candlestick', CATEGORY = 'category', CENTER = 'center', CHANGE = 'change', CIRCLE = 'circle', CONTEXTMENU_NS = 'contextmenu' + NS, CLIP = dataviz.CLIP, COLOR = 'color', COLUMN = 'column', COORD_PRECISION = dataviz.COORD_PRECISION, CROSS = 'cross', CSS_PREFIX = 'k-', CUSTOM = 'custom', DATABOUND = 'dataBound', DATE = 'date', DAYS = 'days', DEFAULT_FONT = dataviz.DEFAULT_FONT, DEFAULT_HEIGHT = dataviz.DEFAULT_HEIGHT, DEFAULT_PRECISION = dataviz.DEFAULT_PRECISION, DEFAULT_WIDTH = dataviz.DEFAULT_WIDTH, DEFAULT_ERROR_BAR_WIDTH = 4, DONUT = 'donut', DONUT_SECTOR_ANIM_DELAY = 50, DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', ERROR_LOW_FIELD = 'errorLow', ERROR_HIGH_FIELD = 'errorHigh', X_ERROR_LOW_FIELD = 'xErrorLow', X_ERROR_HIGH_FIELD = 'xErrorHigh', Y_ERROR_LOW_FIELD = 'yErrorLow', Y_ERROR_HIGH_FIELD = 'yErrorHigh', FADEIN = 'fadeIn', FIRST = 'first', FROM = 'from', FUNNEL = 'funnel', GLASS = 'glass', HORIZONTAL = 'horizontal', HORIZONTAL_WATERFALL = 'horizontalWaterfall', HOURS = 'hours', INITIAL_ANIMATION_DURATION = dataviz.INITIAL_ANIMATION_DURATION, INSIDE_BASE = 'insideBase', INSIDE_END = 'insideEnd', INTERPOLATE = 'interpolate', LEAVE = 'leave', LEFT = 'left', LEGEND_ITEM_CLICK = 'legendItemClick', LEGEND_ITEM_HOVER = 'legendItemHover', LINE = 'line', LINE_MARKER_SIZE = 8, LINEAR = 'linear', LOGARITHMIC = 'log', MAX = 'max', MAX_EXPAND_DEPTH = 5, MAX_VALUE = Number.MAX_VALUE, MIN = 'min', MIN_VALUE = -Number.MAX_VALUE, MINUTES = 'minutes', MONTHS = 'months', MOUSELEAVE_NS = 'mouseleave' + NS, MOUSEMOVE_TRACKING = 'mousemove.tracking', MOUSEMOVE_NS = 'mousemove' + NS, MOUSEMOVE_DELAY = 20, MOUSEWHEEL_DELAY = 150, MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, NOTE_CLICK = dataviz.NOTE_CLICK, NOTE_HOVER = dataviz.NOTE_HOVER, NOTE_TEXT = 'noteText', OBJECT = 'object', OHLC = 'ohlc', OUTSIDE_END = 'outsideEnd', PIE = 'pie', PIE_SECTOR_ANIM_DELAY = 70, PLOT_AREA_CLICK = 'plotAreaClick', PLOT_AREA_HOVER = 'plotAreaHover', POINTER = 'pointer', RANGE_BAR = 'rangeBar', RANGE_COLUMN = 'rangeColumn', RENDER = 'render', RIGHT = 'right', ROUNDED_BEVEL = 'roundedBevel', ROUNDED_GLASS = 'roundedGlass', SCATTER = 'scatter', SCATTER_LINE = 'scatterLine', SECONDS = 'seconds', MILLISECONDS = 'milliseconds', SELECT_START = 'selectStart', SELECT = 'select', SELECT_END = 'selectEnd', SERIES_CLICK = 'seriesClick', SERIES_HOVER = 'seriesHover', START_SCALE = 0.001, STEP = 'step', SMOOTH = 'smooth', STD_ERR = 'stderr', STD_DEV = 'stddev', STRING = 'string', SUMMARY_FIELD = 'summary', TIME_PER_MILLISECOND = 1, TIME_PER_SECOND = 1000 * TIME_PER_MILLISECOND, TIME_PER_MINUTE = 60 * TIME_PER_SECOND, TIME_PER_HOUR = 60 * TIME_PER_MINUTE, TIME_PER_DAY = 24 * TIME_PER_HOUR, TIME_PER_WEEK = 7 * TIME_PER_DAY, TIME_PER_MONTH = 31 * TIME_PER_DAY, TIME_PER_YEAR = 365 * TIME_PER_DAY, TIME_PER_UNIT = {
                 'years': TIME_PER_YEAR,
                 'months': TIME_PER_MONTH,
                 'weeks': TIME_PER_WEEK,
                 'days': TIME_PER_DAY,
                 'hours': TIME_PER_HOUR,
                 'minutes': TIME_PER_MINUTE,
-                'seconds': TIME_PER_SECOND
+                'seconds': TIME_PER_SECOND,
+                'milliseconds': TIME_PER_MILLISECOND
             }, TO = 'to', TOP = 'top', TOOLTIP_ANIMATION_DURATION = 150, TOOLTIP_OFFSET = 5, TOOLTIP_SHOW_DELAY = 100, TOOLTIP_HIDE_DELAY = 100, TOOLTIP_INVERSE = 'chart-tooltip-inverse', VALUE = 'value', VERTICAL_AREA = 'verticalArea', VERTICAL_BOX_PLOT = 'verticalBoxPlot', VERTICAL_BULLET = 'verticalBullet', VERTICAL_LINE = 'verticalLine', WATERFALL = 'waterfall', WEEKS = 'weeks', WHITE = '#fff', X = 'x', Y = 'y', YEARS = 'years', ZERO = 'zero', ZOOM_ACCELERATION = 3, ZOOM_START = 'zoomStart', ZOOM = 'zoom', ZOOM_END = 'zoomEnd', BASE_UNITS = [
+                MILLISECONDS,
                 SECONDS,
                 MINUTES,
                 HOURS,
@@ -29270,6 +29390,7 @@
                 HORIZONTAL_WATERFALL
             ];
         var DateLabelFormats = {
+            milliseconds: 'HH:mm:ss.fff',
             seconds: 'HH:mm:ss',
             minutes: 'HH:mm',
             hours: 'HH:mm',
@@ -29437,9 +29558,65 @@
                     }
                 }
             },
+            findAxisByName: function (name) {
+                return this.getAxis(name);
+            },
+            plotArea: function () {
+                return new ChartPlotArea(this._plotArea);
+            },
+            findPaneByName: function (name) {
+                var panes = this._plotArea.panes;
+                for (var idx = 0; idx < panes.length; idx++) {
+                    if (panes[idx].options.name === name) {
+                        return new ChartPane(this, panes[idx]);
+                    }
+                }
+            },
+            findPaneByIndex: function (idx) {
+                var panes = this._plotArea.panes;
+                if (panes[idx]) {
+                    return new ChartPane(this, panes[idx]);
+                }
+            },
+            findSeries: function (callback) {
+                var plotArea = this._plotArea;
+                var series = plotArea.srcSeries || plotArea.series;
+                for (var idx = 0; idx < series.length; idx++) {
+                    if (callback(series[idx])) {
+                        return new ChartSeries(this, series[idx]);
+                    }
+                }
+            },
+            findSeriesByName: function (name) {
+                return this._createSeries({ name: name });
+            },
+            findSeriesByIndex: function (index) {
+                return this._createSeries({ index: index });
+            },
+            _createSeries: function (options) {
+                var seriesOptions = this._seriesOptions(options);
+                if (seriesOptions) {
+                    return new ChartSeries(this, seriesOptions);
+                }
+            },
+            _seriesOptions: function (options) {
+                var plotArea = this._plotArea;
+                var series = plotArea.srcSeries || plotArea.series;
+                var seriesOptions;
+                if (defined(options.index)) {
+                    seriesOptions = series[options.index];
+                } else if (defined(options.name)) {
+                    for (var idx = 0; idx < series.length; idx++) {
+                        if (series[idx].name === options.name) {
+                            seriesOptions = series[idx];
+                            break;
+                        }
+                    }
+                }
+                return seriesOptions;
+            },
             toggleHighlight: function (show, filter) {
                 var plotArea = this._plotArea;
-                var highlight = this._highlight;
                 var firstSeries = (plotArea.srcSeries || plotArea.series || [])[0];
                 var seriesName, categoryName, points;
                 if (kendo.isFunction(filter)) {
@@ -29460,10 +29637,39 @@
                     }
                 }
                 if (points) {
-                    for (var idx = 0; idx < points.length; idx++) {
-                        highlight.togglePointHighlight(points[idx], show);
-                    }
+                    this._togglePointsHighlight(show, points);
                 }
+            },
+            _togglePointsHighlight: function (show, points) {
+                var highlight = this._highlight;
+                for (var idx = 0; idx < points.length; idx++) {
+                    highlight.togglePointHighlight(points[idx], show);
+                }
+            },
+            showTooltip: function (filter) {
+                var shared = this._sharedTooltip();
+                var tooltip = this._tooltip;
+                var plotArea = this._plotArea;
+                var point, categoryIndex;
+                if (kendo.isFunction(filter)) {
+                    point = plotArea.findPoint(filter);
+                    if (point && shared) {
+                        categoryIndex = point.categoryIx;
+                    }
+                } else if (shared && defined(filter)) {
+                    categoryIndex = plotArea.categoryAxis.categoryIndex(filter);
+                }
+                if (shared) {
+                    if (categoryIndex >= 0) {
+                        var points = this._plotArea.pointsByCategoryIndex(categoryIndex);
+                        tooltip.showAt(points);
+                    }
+                } else if (point) {
+                    tooltip.show(point);
+                }
+            },
+            hideTooltip: function () {
+                this._tooltip.hide();
             },
             _initSurface: function () {
                 var surface = this.surface;
@@ -29726,9 +29932,12 @@
                 }
             },
             _start: function (e) {
-                var chart = this, events = chart._events;
+                var chart = this, events = chart._events, coords = chart._eventCoordinates(e);
+                if (!chart._plotArea.backgroundContainsPoint(coords)) {
+                    return;
+                }
                 if (defined(events[DRAG_START] || events[DRAG] || events[DRAG_END])) {
-                    chart._startNavigation(e, DRAG_START);
+                    chart._startNavigation(e, coords, DRAG_START);
                 }
                 if (chart._pannable && chart._pannable.start(e)) {
                     this.surface.suspendTracking();
@@ -29779,7 +29988,16 @@
                 }
             },
             _end: function (e) {
-                this._endNavigation(e, DRAG_END);
+                var pannable = this._pannable;
+                if (pannable && pannable.end(e)) {
+                    this.surface.resumeTracking();
+                    this.trigger(DRAG_END, {
+                        axisRanges: axisRanges(this._plotArea.axes),
+                        originalEvent: e
+                    });
+                } else {
+                    this._endNavigation(e, DRAG_END);
+                }
                 if (this._zoomSelection) {
                     var ranges = this._zoomSelection.end(e);
                     if (ranges && !this.trigger(ZOOM, {
@@ -29793,12 +30011,12 @@
                         });
                     }
                 }
-                if (this._pannable && this._pannable.end(e)) {
-                    this.surface.resumeTracking();
-                }
             },
             _mousewheel: function (e) {
-                var chart = this, origEvent = e.originalEvent, prevented, delta = mwDelta(e), totalDelta, state = chart._navState, axes, i, currentAxis, axisName, ranges = {}, mousewheelZoom = chart._mousewheelZoom;
+                var chart = this, origEvent = e.originalEvent, prevented, delta = mwDelta(e), totalDelta, state = chart._navState, axes, i, currentAxis, axisName, ranges = {}, mousewheelZoom = chart._mousewheelZoom, coords = chart._eventCoordinates(origEvent);
+                if (!chart._plotArea.backgroundContainsPoint(coords)) {
+                    return;
+                }
                 if (mousewheelZoom) {
                     var args = {
                         delta: delta,
@@ -29829,7 +30047,7 @@
                     }
                 } else {
                     if (!state) {
-                        prevented = chart._startNavigation(origEvent, ZOOM_START);
+                        prevented = chart._startNavigation(origEvent, coords, ZOOM_START);
                         if (!prevented) {
                             state = chart._navState;
                         }
@@ -29859,35 +30077,26 @@
                     }
                 }
             },
-            _startNavigation: function (e, chartEvent) {
-                var chart = this, coords = chart._eventCoordinates(e), plotArea = chart._model._plotArea, pane = plotArea.findPointPane(coords), axes = plotArea.axes.slice(0), i, currentAxis, inAxis = false, prevented;
+            _startNavigation: function (e, coords, chartEvent) {
+                var chart = this, plotArea = chart._model._plotArea, pane = plotArea.findPointPane(coords), axes = plotArea.axes.slice(0), prevented;
                 if (!pane) {
                     return;
                 }
-                for (i = 0; i < axes.length; i++) {
-                    currentAxis = axes[i];
-                    if (currentAxis.box.containsPoint(coords)) {
-                        inAxis = true;
-                        break;
-                    }
-                }
-                if (!inAxis && plotArea.backgroundBox().containsPoint(coords)) {
-                    var ranges = axisRanges(axes);
-                    prevented = chart.trigger(chartEvent, {
+                var ranges = axisRanges(axes);
+                prevented = chart.trigger(chartEvent, {
+                    axisRanges: ranges,
+                    originalEvent: e
+                });
+                if (prevented) {
+                    chart._userEvents.cancel();
+                } else {
+                    chart._suppressHover = true;
+                    chart._unsetActivePoint();
+                    chart._navState = {
                         axisRanges: ranges,
-                        originalEvent: e
-                    });
-                    if (prevented) {
-                        chart._userEvents.cancel();
-                    } else {
-                        chart._suppressHover = true;
-                        chart._unsetActivePoint();
-                        chart._navState = {
-                            axisRanges: ranges,
-                            pane: pane,
-                            axes: axes
-                        };
-                    }
+                        pane: pane,
+                        axes: axes
+                    };
                 }
             },
             _endNavigation: function (e, chartEvent) {
@@ -29960,7 +30169,7 @@
                     return;
                 }
                 point = chart._drawingChartElement(element, e, function (element) {
-                    return element.hover;
+                    return element.hover && !(element instanceof PlotAreaBase);
                 });
                 if (point && !point.hover(chart, e)) {
                     chart._activePoint = point;
@@ -30001,7 +30210,9 @@
             _mousemove: function (e) {
                 var coords = this._eventCoordinates(e);
                 this._trackCrosshairs(coords);
-                this._plotArea.hover(this, e);
+                if (this._plotArea.hover) {
+                    this._plotArea.hover(this, e);
+                }
                 if (this._sharedTooltip()) {
                     this._trackSharedTooltip(coords, e);
                 }
@@ -30060,12 +30271,13 @@
                     highlight.hide();
                 }
             },
-            _onDataChanged: function () {
+            _onDataChanged: function (e) {
                 var chart = this, options = chart.options, series = chart._sourceSeries || options.series, seriesIx, seriesLength = series.length, data = chart.dataSource.view(), grouped = (chart.dataSource.group() || []).length > 0, processedSeries = [], currentSeries;
                 for (seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
                     currentSeries = series[seriesIx];
                     if (chart._isBindable(currentSeries) && grouped) {
                         append(processedSeries, groupSeries(currentSeries, data));
+                        this._applyGroupVisibleState(processedSeries, e);
                     } else {
                         processedSeries.push(currentSeries || []);
                     }
@@ -30077,6 +30289,26 @@
                 chart._bindCategories();
                 chart._hasData = true;
                 chart._deferRedraw();
+            },
+            _applyGroupVisibleState: function (processedSeries, e) {
+                if (e && e.action) {
+                    var visibleState = this._groupVisibleState = this._groupVisibleState || {};
+                    for (var idx = 0; idx < processedSeries.length; idx++) {
+                        if (visibleState[processedSeries[idx]._groupValue] === false) {
+                            processedSeries[idx].visible = false;
+                        }
+                    }
+                } else {
+                    delete this._groupVisibleState;
+                }
+            },
+            _saveGroupVisibleState: function (series) {
+                if (defined(series._groupValue)) {
+                    if (!this._groupVisibleState) {
+                        this._groupVisibleState = {};
+                    }
+                    this._groupVisibleState[series._groupValue] = series.visible;
+                }
             },
             _deferRedraw: function () {
                 var chart = this;
@@ -30199,13 +30431,13 @@
                 return result;
             },
             _legendItemClick: function (seriesIndex, pointIndex) {
-                var chart = this, plotArea = chart._plotArea, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex], originalSeries = (chart._sourceSeries || [])[seriesIndex] || currentSeries, transitionsState, visible, point;
+                var chart = this, plotArea = chart._plotArea, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex], visible, point;
                 if (inArray(currentSeries.type, [
                         PIE,
                         DONUT,
                         FUNNEL
                     ])) {
-                    point = originalSeries.data[pointIndex];
+                    point = currentSeries.data[pointIndex];
                     if (!defined(point.visible)) {
                         visible = false;
                     } else {
@@ -30213,31 +30445,36 @@
                     }
                     point.visible = visible;
                 } else {
-                    visible = !originalSeries.visible;
-                    originalSeries.visible = visible;
-                    currentSeries.visible = visible;
+                    currentSeries.visible = !currentSeries.visible;
+                    this._saveGroupVisibleState(currentSeries);
                 }
-                if (chart.options.transitions) {
-                    chart.options.transitions = false;
+                this._noTransitionsRedraw();
+            },
+            _noTransitionsRedraw: function () {
+                var options = this.options;
+                var transitionsState;
+                if (options.transitions) {
+                    options.transitions = false;
                     transitionsState = true;
                 }
-                chart.redraw();
+                this.redraw();
                 if (transitionsState) {
-                    chart.options.transitions = true;
+                    options.transitions = true;
                 }
             },
             _legendItemHover: function (seriesIndex, pointIndex) {
-                var chart = this, plotArea = chart._plotArea, highlight = chart._highlight, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex], index, items;
+                var chart = this, plotArea = chart._plotArea, highlight = chart._highlight, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex], items;
                 if (inArray(currentSeries.type, [
                         PIE,
                         DONUT,
                         FUNNEL
                     ])) {
-                    index = pointIndex;
+                    items = plotArea.findPoint(function (point) {
+                        return point.series.index === seriesIndex && point.index === pointIndex;
+                    });
                 } else {
-                    index = seriesIndex;
+                    items = plotArea.pointsBySeriesIndex(seriesIndex);
                 }
-                items = plotArea.pointsBySeriesIndex(index);
                 highlight.show(items);
             },
             _shouldAttachMouseMove: function () {
@@ -30304,6 +30541,15 @@
                 }
                 if (chart._zoomSelection) {
                     chart._zoomSelection.destroy();
+                    delete chart._zoomSelection;
+                }
+                if (chart._pannable) {
+                    chart._pannable.destroy();
+                    delete chart._pannable;
+                }
+                if (chart._mousewheelZoom) {
+                    chart._mousewheelZoom.destroy();
+                    delete chart._mousewheelZoom;
                 }
             }
         });
@@ -30990,6 +31236,15 @@
                 slotBox[valueAxis + 2] = reverse ? p1 : p2;
                 return slotBox;
             },
+            slot: function (from, to, limit) {
+                if (typeof from === 'string') {
+                    from = this.categoryIndex(from);
+                }
+                if (typeof to === 'string') {
+                    to = this.categoryIndex(to);
+                }
+                return Axis.fn.slot.call(this, from, to, limit);
+            },
             pointCategoryIndex: function (point) {
                 var axis = this, options = axis.options, reverse = options.reverse, justified = options.justified, valueAxis = options.vertical ? Y : X, lineBox = axis.lineBox(), range = axis.rangeIndices(), startValue = reverse ? range.max : range.min, scale = this.getScale(), lineStart = lineBox[valueAxis + 1], lineEnd = lineBox[valueAxis + 2], pos = point[valueAxis];
                 if (pos < lineStart || pos > lineEnd) {
@@ -31098,6 +31353,9 @@
                     min: math.min(min, max),
                     max: math.max(min, max)
                 };
+            },
+            valueRange: function () {
+                return this.range();
             }
         });
         var DateCategoryAxis = CategoryAxis.extend({
@@ -31132,6 +31390,11 @@
                 type: DATE,
                 labels: { dateFormats: DateLabelFormats },
                 autoBaseUnitSteps: {
+                    milliseconds: [
+                        1,
+                        10,
+                        100
+                    ],
                     seconds: [
                         1,
                         2,
@@ -31379,7 +31642,7 @@
                     var maxDiff = last(autoBaseUnitSteps[baseUnit]) * maxDateGroups * TIME_PER_UNIT[baseUnit];
                     var rangeDiff = dateDiff(rangeMax, rangeMin);
                     var ticks;
-                    if (diff < TIME_PER_UNIT[baseUnit] && baseUnit !== SECONDS) {
+                    if (diff < TIME_PER_UNIT[baseUnit] && baseUnit !== MILLISECONDS) {
                         baseUnit = BASE_UNITS[baseUnitIndex - 1];
                         autoBaseUnitStep = last(autoBaseUnitSteps[baseUnit]);
                         ticks = (rangeDiff - (maxDateGroups - 1) * autoBaseUnitStep * TIME_PER_UNIT[baseUnit]) / 2;
@@ -31408,7 +31671,7 @@
                 }
                 min = toDate(limitValue(min, totalLimits.min, totalLimits.max));
                 max = toDate(limitValue(max, totalLimits.min, totalLimits.max));
-                if (dateDiff(max, min) > 0) {
+                if (min && max && dateDiff(max, min) > 0) {
                     return {
                         min: min,
                         max: max,
@@ -31541,6 +31804,14 @@
                     b = axis.categoryIndex(b);
                 }
                 return CategoryAxis.fn.getSlot.call(axis, a, b, limit);
+            },
+            valueRange: function () {
+                var options = this.options;
+                var range = this._categoryRange(options.srcCategories || options.categories);
+                return {
+                    min: toDate(range.min),
+                    max: toDate(range.max)
+                };
             }
         });
         var DateValueAxis = Axis.extend({
@@ -31552,7 +31823,9 @@
                     max: toDate(options.max),
                     axisCrossingValue: toDate(options.axisCrossingValues || options.axisCrossingValue)
                 });
-                options = axis.applyDefaults(toDate(seriesMin), toDate(seriesMax), options);
+                this.seriesMin = toDate(seriesMin);
+                this.seriesMax = toDate(seriesMax);
+                options = axis.applyDefaults(this.seriesMin, this.seriesMax, options);
                 Axis.fn.init.call(axis, options);
             },
             options: {
@@ -31764,6 +32037,7 @@
                 return {
                     value: this.value,
                     percentage: this.percentage,
+                    stackValue: this.stackValue,
                     category: this.category,
                     series: this.series,
                     dataItem: this.dataItem,
@@ -31828,6 +32102,7 @@
                             category: this.category,
                             value: this.value,
                             percentage: this.percentage,
+                            stackValue: this.stackValue,
                             runningTotal: this.runningTotal,
                             total: this.total,
                             series: this.series
@@ -31874,6 +32149,7 @@
                             sender: bar.getChart(),
                             series: bar.series,
                             percentage: bar.percentage,
+                            stackValue: this.stackValue,
                             runningTotal: bar.runningTotal,
                             total: bar.total,
                             rect: box.toRect(),
@@ -32428,6 +32704,7 @@
                         if (valueSlot) {
                             var pointSlot = chart.pointSlot(categorySlot, valueSlot);
                             point.aboveAxis = chart.aboveAxis(point, valueAxis);
+                            point.stackValue = plotRange[1];
                             if (chart.options.isStacked100) {
                                 point.percentage = chart.plotValue(point);
                             }
@@ -33125,6 +33402,7 @@
                             category: point.category,
                             value: point.value,
                             percentage: point.percentage,
+                            stackValue: this.stackValue,
                             series: point.series
                         });
                     } else if (labels.format) {
@@ -35415,7 +35693,7 @@
                 }
             },
             createVisual: function () {
-                var chart = this, options = chart.options, connectors = options.connectors, points = chart.points, connectorLine, count = points.length, space = 4, sector, angle, segment, seriesIx, label, i;
+                var chart = this, options = chart.options, connectors = options.connectors, points = chart.points, connectorLine, count = points.length, space = 4, connectorsColor, sector, angle, segment, seriesIx, label, i;
                 ChartElement.fn.createVisual.call(this);
                 this._connectorLines = [];
                 for (i = 0; i < count; i++) {
@@ -35424,10 +35702,11 @@
                     angle = sector.middle();
                     label = segment.label;
                     seriesIx = { seriesId: segment.seriesIx };
+                    connectorsColor = (segment.options.connectors || {}).color || connectors.color;
                     if (label) {
                         connectorLine = new draw.Path({
                             stroke: {
-                                color: connectors.color,
+                                color: connectorsColor,
                                 width: connectors.width
                             },
                             animation: {
@@ -35866,6 +36145,29 @@
                 this.visual.append(this.content.visual);
                 this.renderComplete();
             },
+            chartsBox: function () {
+                var axes = this.axes, length = axes.length, chartsBox = new Box2D(), axisValueField, lineBox, axis, idx;
+                for (idx = 0; idx < length; idx++) {
+                    axis = axes[idx];
+                    axisValueField = axis.options.vertical ? Y : X;
+                    lineBox = axis.lineBox();
+                    chartsBox[axisValueField + 1] = lineBox[axisValueField + 1];
+                    chartsBox[axisValueField + 2] = lineBox[axisValueField + 2];
+                }
+                if (chartsBox.x2 === 0) {
+                    var allAxes = this.parent.axes;
+                    length = allAxes.length;
+                    for (idx = 0; idx < length; idx++) {
+                        axis = allAxes[idx];
+                        if (!axis.options.vertical) {
+                            lineBox = axis.lineBox();
+                            chartsBox.x1 = lineBox.x1;
+                            chartsBox.x2 = lineBox.x2;
+                        }
+                    }
+                }
+                return chartsBox;
+            },
             clipBox: function () {
                 return this.chartContainer.clipBox;
             }
@@ -35886,15 +36188,7 @@
                 return false;
             },
             _clipBox: function () {
-                var container = this, pane = container.pane, axes = pane.axes, length = axes.length, clipBox = pane.box.clone(), axisValueField, idx, lineBox, axis;
-                for (idx = 0; idx < length; idx++) {
-                    axis = axes[idx];
-                    axisValueField = axis.options.vertical ? Y : X;
-                    lineBox = axis.lineBox();
-                    clipBox[axisValueField + 1] = lineBox[axisValueField + 1];
-                    clipBox[axisValueField + 2] = lineBox[axisValueField + 2];
-                }
-                return clipBox;
+                return this.pane.chartsBox();
             },
             createVisual: function () {
                 this.visual = new draw.Group({ zIndex: 0 });
@@ -36203,27 +36497,32 @@
                 axis.reflow(axisBox);
             },
             alignAxes: function (xAxes, yAxes) {
-                var plotArea = this, xAnchor = xAxes[0], yAnchor = yAxes[0], xAnchorCrossings = plotArea.axisCrossingValues(xAnchor, yAxes), yAnchorCrossings = plotArea.axisCrossingValues(yAnchor, xAxes), leftAnchors = {}, rightAnchors = {}, topAnchors = {}, bottomAnchors = {}, pane, paneId, axis, i;
+                var plotArea = this, xAnchor = xAxes[0], yAnchor = yAxes[0], xAnchorCrossings = plotArea.axisCrossingValues(xAnchor, yAxes), yAnchorCrossings = plotArea.axisCrossingValues(yAnchor, xAxes), anchor, anchorCrossings, leftAnchors = {}, rightAnchors = {}, topAnchors = {}, bottomAnchors = {}, pane, paneId, axis, i;
                 for (i = 0; i < yAxes.length; i++) {
                     axis = yAxes[i];
                     pane = axis.pane;
                     paneId = pane.id;
-                    plotArea.alignAxisTo(axis, xAnchor, yAnchorCrossings[i], xAnchorCrossings[i]);
+                    anchor = paneAnchor(xAxes, pane) || xAnchor;
+                    anchorCrossings = xAnchorCrossings;
+                    if (anchor !== xAnchor) {
+                        anchorCrossings = plotArea.axisCrossingValues(anchor, yAxes);
+                    }
+                    plotArea.alignAxisTo(axis, anchor, yAnchorCrossings[i], anchorCrossings[i]);
                     if (axis.options._overlap) {
                         continue;
                     }
-                    if (round(axis.lineBox().x1) === round(xAnchor.lineBox().x1)) {
+                    if (round(axis.lineBox().x1) === round(anchor.lineBox().x1)) {
                         if (leftAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(leftAnchors[paneId].box, LEFT).translate(-axis.options.margin, 0));
                         }
                         leftAnchors[paneId] = axis;
                     }
-                    if (round(axis.lineBox().x2) === round(xAnchor.lineBox().x2)) {
+                    if (round(axis.lineBox().x2) === round(anchor.lineBox().x2)) {
                         if (!axis._mirrored) {
                             axis.options.labels.mirror = !axis.options.labels.mirror;
                             axis._mirrored = true;
                         }
-                        plotArea.alignAxisTo(axis, xAnchor, yAnchorCrossings[i], xAnchorCrossings[i]);
+                        plotArea.alignAxisTo(axis, anchor, yAnchorCrossings[i], anchorCrossings[i]);
                         if (rightAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(rightAnchors[paneId].box, RIGHT).translate(axis.options.margin, 0));
                         }
@@ -36238,22 +36537,27 @@
                     axis = xAxes[i];
                     pane = axis.pane;
                     paneId = pane.id;
-                    plotArea.alignAxisTo(axis, yAnchor, xAnchorCrossings[i], yAnchorCrossings[i]);
+                    anchor = paneAnchor(yAxes, pane) || yAnchor;
+                    anchorCrossings = yAnchorCrossings;
+                    if (anchor !== yAnchor) {
+                        anchorCrossings = plotArea.axisCrossingValues(anchor, xAxes);
+                    }
+                    plotArea.alignAxisTo(axis, anchor, xAnchorCrossings[i], anchorCrossings[i]);
                     if (axis.options._overlap) {
                         continue;
                     }
-                    if (round(axis.lineBox().y1) === round(yAnchor.lineBox().y1)) {
+                    if (round(axis.lineBox().y1) === round(anchor.lineBox().y1)) {
                         if (!axis._mirrored) {
                             axis.options.labels.mirror = !axis.options.labels.mirror;
                             axis._mirrored = true;
                         }
-                        plotArea.alignAxisTo(axis, yAnchor, xAnchorCrossings[i], yAnchorCrossings[i]);
+                        plotArea.alignAxisTo(axis, anchor, xAnchorCrossings[i], anchorCrossings[i]);
                         if (topAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(topAnchors[paneId].box, TOP).translate(0, -axis.options.margin));
                         }
                         topAnchors[paneId] = axis;
                     }
-                    if (round(axis.lineBox().y2, COORD_PRECISION) === round(yAnchor.lineBox().y2, COORD_PRECISION)) {
+                    if (round(axis.lineBox().y2, COORD_PRECISION) === round(anchor.lineBox().y2, COORD_PRECISION)) {
                         if (bottomAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(bottomAnchors[paneId].box, BOTTOM).translate(0, axis.options.margin));
                         }
@@ -36428,9 +36732,30 @@
                 }
                 return box || plotArea.box;
             },
+            chartsBoxes: function () {
+                var panes = this.panes;
+                var boxes = [];
+                for (var idx = 0; idx < panes.length; idx++) {
+                    boxes.push(panes[idx].chartsBox());
+                }
+                return boxes;
+            },
+            addBackgroundPaths: function (multipath) {
+                var boxes = this.chartsBoxes();
+                for (var idx = 0; idx < boxes.length; idx++) {
+                    multipath.paths.push(draw.Path.fromRect(boxes[idx].toRect()));
+                }
+            },
+            backgroundContainsPoint: function (point) {
+                var boxes = this.chartsBoxes();
+                for (var idx = 0; idx < boxes.length; idx++) {
+                    if (boxes[idx].containsPoint(point)) {
+                        return true;
+                    }
+                }
+            },
             createVisual: function () {
                 ChartElement.fn.createVisual.call(this);
-                var bgBox = this.backgroundBox();
                 var options = this.options.plotArea;
                 var border = options.border || {};
                 var background = options.background;
@@ -36439,7 +36764,7 @@
                     background = WHITE;
                     opacity = 0;
                 }
-                var bg = this._bgVisual = draw.Path.fromRect(bgBox.toRect(), {
+                var bg = this._bgVisual = new draw.MultiPath({
                     fill: {
                         color: background,
                         opacity: opacity
@@ -36451,6 +36776,7 @@
                     },
                     zIndex: -1
                 });
+                this.addBackgroundPaths(bg);
                 this.appendVisual(bg);
             },
             pointsByCategoryIndex: function (categoryIndex) {
@@ -36475,18 +36801,9 @@
                 return result;
             },
             pointsBySeriesIndex: function (seriesIndex) {
-                var charts = this.charts, result = [], points, point, i, j, chart;
-                for (i = 0; i < charts.length; i++) {
-                    chart = charts[i];
-                    points = chart.points;
-                    for (j = 0; j < points.length; j++) {
-                        point = points[j];
-                        if (point && point.options.index === seriesIndex) {
-                            result.push(point);
-                        }
-                    }
-                }
-                return result;
+                return this.filterPoints(function (point) {
+                    return point.series.index === seriesIndex;
+                });
             },
             pointsBySeriesName: function (name) {
                 return this.filterPoints(function (point) {
@@ -36506,6 +36823,19 @@
                     }
                 }
                 return result;
+            },
+            findPoint: function (callback) {
+                var charts = this.charts, points, point, i, j, chart;
+                for (i = 0; i < charts.length; i++) {
+                    chart = charts[i];
+                    points = chart.points;
+                    for (j = 0; j < points.length; j++) {
+                        point = points[j];
+                        if (point && callback(point)) {
+                            return point;
+                        }
+                    }
+                }
             },
             paneByPoint: function (point) {
                 var plotArea = this, panes = plotArea.panes, pane, i;
@@ -36775,12 +37105,9 @@
                 return axis;
             },
             stackableChartOptions: function (firstSeries, pane) {
-                var stack = firstSeries.stack, isStacked100 = stack && stack.type === '100%', clip;
-                if (defined(pane.options.clip)) {
-                    clip = pane.options.clip;
-                } else if (isStacked100) {
-                    clip = false;
-                }
+                var stack = firstSeries.stack;
+                var isStacked100 = stack && stack.type === '100%';
+                var clip = pane.options.clip;
                 return {
                     isStacked: stack,
                     isStacked100: isStacked100,
@@ -37391,6 +37718,7 @@
                         series: point.series,
                         dataItem: point.dataItem,
                         value: point.value,
+                        stackValue: point.stackValue,
                         preventDefault: preventDefault,
                         visual: point.highlightVisual(),
                         show: show
@@ -37646,17 +37974,18 @@
                 categoryFormat: '{0:d}'
             },
             showAt: function (points, coords) {
-                var tooltip = this, options = tooltip.options, plotArea = tooltip.plotArea, axis = plotArea.categoryAxis, index = axis.pointCategoryIndex(coords), category = axis.getCategory(coords), slot = axis.getSlot(index), content;
                 points = $.grep(points, function (p) {
                     var tooltip = p.series.tooltip, excluded = tooltip && tooltip.visible === false;
                     return !excluded;
                 });
                 if (points.length > 0) {
-                    content = tooltip._content(points, category);
-                    tooltip.element.html(content);
-                    tooltip.anchor = tooltip._slotAnchor(coords, slot);
-                    tooltip.setStyle(options, points[0]);
-                    BaseTooltip.fn.show.call(tooltip);
+                    var point = points[0];
+                    var slot = this.plotArea.categoryAxis.getSlot(point.categoryIx);
+                    var content = this._content(points, point.category);
+                    this.element.html(content);
+                    this.anchor = coords ? this._slotAnchor(coords, slot) : this._defaultAnchor(point, slot);
+                    this.setStyle(this.options, point);
+                    BaseTooltip.fn.show.call(this);
                 }
             },
             _slotAnchor: function (point, slot) {
@@ -37666,6 +37995,22 @@
                 } else {
                     anchor = Point2D(slot.center().x, hCenter);
                 }
+                return anchor;
+            },
+            _defaultAnchor: function (point, slot) {
+                var box = point.owner.pane.chartsBox();
+                var vertical = this.plotArea.categoryAxis.options.vertical;
+                var center = box.center();
+                var slotCenter = slot.center();
+                var size = this._measure();
+                var anchor;
+                if (vertical) {
+                    anchor = new Point2D(center.x, slotCenter.y);
+                } else {
+                    anchor = new Point2D(slotCenter.x, center.y);
+                }
+                anchor.x -= size.width / 2;
+                anchor.y -= size.height / 2;
                 return anchor;
             },
             _content: function (points, category) {
@@ -37970,7 +38315,13 @@
                     that.set(that._index(options.from), that._index(options.to));
                     that.bind(that.events, that.options);
                     that.wrapper[0].style.cssText = that.wrapper[0].style.cssText;
-                    that.wrapper.on(MOUSEWHEEL_NS, proxy(that._mousewheel, that));
+                    if (that.options.mousewheel !== false) {
+                        that.wrapper.on(MOUSEWHEEL_NS, proxy(that._mousewheel, that));
+                    } else {
+                        that.wrapper.on(MOUSEWHEEL_NS, function (e) {
+                            e.stopPropagation();
+                        });
+                    }
                     if (kendo.UserEvents) {
                         that.userEvents = new kendo.UserEvents(that.wrapper, {
                             global: true,
@@ -38270,6 +38621,9 @@
                     plotArea.redraw(plotArea.panes);
                 }
             },
+            destroy: function () {
+                delete this.plotArea;
+            },
             _panAxes: function (e, position) {
                 var plotArea = this.plotArea;
                 var delta = -e[position].delta;
@@ -38378,6 +38732,7 @@
             destroy: function () {
                 this._marquee.remove();
                 delete this._marquee;
+                delete this.chart;
             },
             _updateAxisRanges: function (start, end) {
                 var lock = (this.options.lock || '').toLowerCase();
@@ -38469,6 +38824,9 @@
                     }
                     plotArea.redraw(plotArea.panes);
                 }
+            },
+            destroy: function () {
+                delete this.chart;
             }
         });
         var SeriesAggregator = function (series, binder, defaultAggregates) {
@@ -38545,9 +38903,43 @@
                 return values;
             }
         };
+        var ChartPlotArea = Class.extend({
+            init: function (plotArea) {
+                this._plotArea = plotArea;
+                this.visual = plotArea.visual;
+                this.backgroundVisual = plotArea._bgVisual;
+            }
+        });
+        var ChartPane = Class.extend({
+            init: function (chart, pane) {
+                this._chart = chart;
+                this._pane = pane;
+                this.visual = pane.visual;
+                this.chartsVisual = pane.chartContainer.visual;
+                this.name = pane.options.name;
+            },
+            series: function () {
+                var chart = this._chart;
+                var seriesByPane = chart._plotArea.groupSeriesByPane();
+                var series = seriesByPane[this.name || 'default'];
+                var result = [];
+                if (series) {
+                    for (var idx = 0; idx < series.length; idx++) {
+                        result.push(new ChartSeries(chart, series[idx]));
+                    }
+                }
+                return result;
+            }
+        });
         var ChartAxis = Class.extend({
             init: function (axis) {
                 this._axis = axis;
+                this.options = axis.options;
+            },
+            value: function (point) {
+                var axis = this._axis;
+                var value = axis.getCategory ? axis.getCategory(point) : axis.getValue(point);
+                return value;
             },
             slot: function (from, to, limit) {
                 if (!defined(limit)) {
@@ -38557,6 +38949,119 @@
             },
             range: function () {
                 return this._axis.range();
+            },
+            valueRange: function () {
+                return this._axis.valueRange();
+            }
+        });
+        var ChartSeries = Class.extend({
+            init: function (chart, options) {
+                this._chart = chart;
+                this._options = options;
+            },
+            points: function (filter) {
+                var points = this._points;
+                if (!points) {
+                    var series = this._seriesOptions();
+                    var plotArea = this._chart._plotArea;
+                    this._points = points = plotArea.pointsBySeriesIndex(series.index);
+                }
+                if (kendo.isFunction(filter)) {
+                    points = this._filterPoints(points, filter);
+                }
+                return points;
+            },
+            data: function (data) {
+                var series = this._seriesOptions();
+                if (data) {
+                    var chart = this._chart;
+                    var plotArea = chart._plotArea;
+                    series.data = data;
+                    if (series.categoryField) {
+                        var axis = plotArea.seriesCategoryAxis(series);
+                        var options = [].concat(chart.options.categoryAxis);
+                        chart._bindCategoryAxisFromSeries(options[axis.axisIndex], axis.axisIndex);
+                    }
+                    chart._noTransitionsRedraw();
+                    this._clearFields();
+                }
+                return series.data;
+            },
+            findPoint: function (filter) {
+                var points = this.points();
+                for (var idx = 0; idx < points.length; idx++) {
+                    if (filter(points[idx])) {
+                        return points[idx];
+                    }
+                }
+            },
+            toggleHighlight: function (show, elements) {
+                if (!elements) {
+                    elements = this.points();
+                } else if (kendo.isFunction(elements)) {
+                    elements = this.points(elements);
+                } else {
+                    elements = isArray(elements) ? elements : [elements];
+                }
+                this._chart._togglePointsHighlight(show, elements);
+            },
+            toggleVisibility: function (visible, filter) {
+                var chart = this._chart;
+                var seriesOptions = this._seriesOptions();
+                var hasFilter = kendo.isFunction(filter);
+                if (!hasFilter) {
+                    seriesOptions.visible = visible;
+                    chart._saveGroupVisibleState(seriesOptions);
+                } else {
+                    if (inArray(seriesOptions.type, [
+                            PIE,
+                            DONUT,
+                            FUNNEL
+                        ])) {
+                        var data = this._filterData(filter);
+                        for (var idx = 0; idx < data.length; idx++) {
+                            data[idx].visible = visible;
+                        }
+                    } else {
+                        seriesOptions.visible = function (data) {
+                            return filter(data.dataItem) ? visible : true;
+                        };
+                    }
+                }
+                chart._noTransitionsRedraw();
+                this._clearFields();
+            },
+            _filterData: function (filter) {
+                var data = this._seriesOptions().data;
+                var length = data.length;
+                var result = [];
+                for (var idx = 0; idx < length; idx++) {
+                    if (filter(data[idx])) {
+                        result.push(data[idx]);
+                    }
+                }
+                return result;
+            },
+            _filterPoints: function (points, filter) {
+                var result = [];
+                var length = points.length;
+                for (var idx = 0; idx < length; idx++) {
+                    if (filter(points[idx])) {
+                        result.push(points[idx]);
+                    }
+                }
+                return result;
+            },
+            _seriesOptions: function () {
+                var series = this._series;
+                if (!series) {
+                    series = this._series = this._chart._seriesOptions(this._options);
+                }
+                return series;
+            },
+            _clearFields: function () {
+                delete this._points;
+                delete this._series;
             }
         });
         function intersection(a1, a2, b1, b2) {
@@ -38743,7 +39248,9 @@
                     result = new Date(date.getFullYear(), date.getMonth(), date.getDate() + value);
                     kendo.date.adjustDST(result, hours);
                 } else if (unit === HOURS) {
-                    result = addTicks(new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours()), value * TIME_PER_HOUR);
+                    date = new Date(date);
+                    date.setUTCMinutes(0, 0, 0);
+                    result = addTicks(date, value * TIME_PER_HOUR);
                 } else if (unit === MINUTES) {
                     result = addTicks(date, value * TIME_PER_MINUTE);
                     if (result.getSeconds() > 0) {
@@ -38751,8 +39258,10 @@
                     }
                 } else if (unit === SECONDS) {
                     result = addTicks(date, value * TIME_PER_SECOND);
+                } else if (unit === MILLISECONDS) {
+                    result = addTicks(date, value);
                 }
-                if (result.getMilliseconds() > 0) {
+                if (unit !== MILLISECONDS && result.getMilliseconds() > 0) {
                     result.setMilliseconds(0);
                 }
             }
@@ -38785,16 +39294,14 @@
             return addDuration(date, 1, unit, weekStartDay);
         }
         function dateDiff(a, b) {
-            var diff = a.getTime() - b, offsetDiff = a.getTimezoneOffset() - b.getTimezoneOffset();
-            return diff - (offsetDiff * diff > 0 ? offsetDiff * TIME_PER_MINUTE : 0);
+            return a.getTime() - b;
         }
         function absoluteDateDiff(a, b) {
             var diff = a.getTime() - b, offsetDiff = a.getTimezoneOffset() - b.getTimezoneOffset();
             return diff - offsetDiff * TIME_PER_MINUTE;
         }
         function addTicks(date, ticks) {
-            var tzOffsetBefore = date.getTimezoneOffset(), result = new Date(date.getTime() + ticks), tzOffsetDiff = result.getTimezoneOffset() - tzOffsetBefore;
-            return new Date(result.getTime() + (ticks * tzOffsetDiff > 0 ? tzOffsetDiff * TIME_PER_MINUTE : 0));
+            return new Date(date.getTime() + ticks);
         }
         function duration(a, b, unit) {
             var diff;
@@ -38965,6 +39472,7 @@
                     seriesClone.color = undefined;
                 }
                 seriesClone._groupIx = groupIx;
+                seriesClone._groupValue = data[groupIx].value;
                 result.push(seriesClone);
                 if (nameTemplate) {
                     seriesClone.name = nameTemplate({
@@ -39147,6 +39655,14 @@
                             clearMissingValues(originalValue, fieldValue);
                         }
                     }
+                }
+            }
+        }
+        function paneAnchor(axes, pane) {
+            for (var i = 0; i < axes.length; i++) {
+                var anchor = axes[i];
+                if (anchor && anchor.pane === pane) {
+                    return anchor;
                 }
             }
         }
@@ -39366,6 +39882,9 @@
             CategoryAxis: CategoryAxis,
             ChartAxis: ChartAxis,
             ChartContainer: ChartContainer,
+            ChartPane: ChartPane,
+            ChartPlotArea: ChartPlotArea,
+            ChartSeries: ChartSeries,
             ClipAnimation: ClipAnimation,
             ClusterLayout: ClusterLayout,
             Crosshair: Crosshair,
@@ -39951,6 +40470,12 @@
                     start *= -1;
                 }
                 return (theta + start + 360) % 360;
+            },
+            valueRange: function () {
+                return {
+                    min: 0,
+                    max: math.PI * 2
+                };
             },
             range: NumericAxis.fn.range,
             labelsCount: NumericAxis.fn.labelsCount,
@@ -41609,7 +42134,7 @@
                 var pointers = that.pointers;
                 var bboxX = bbox.origin.x;
                 var bboxY = bbox.origin.y;
-                var bbox2D = new dataviz.Box2D(bboxX, bboxX, bboxX + bbox.width(), bboxY + bbox.height());
+                var bbox2D = new dataviz.Box2D(bboxX, bboxY, bboxX + bbox.width(), bboxY + bbox.height());
                 that.scale.reflow(bbox2D);
                 for (var i = 0; i < pointers.length; i++) {
                     pointers[i].reflow();
@@ -47784,7 +48309,7 @@
                     selectStart: $.proxy(navi._selectStart, navi),
                     select: $.proxy(navi._select, navi),
                     selectEnd: $.proxy(navi._selectEnd, navi),
-                    mousewheel: { zoom: 'left' },
+                    mousewheel: util.valueOrDefault(select.mousewheel, { zoom: 'left' }),
                     visible: options.visible
                 });
                 if (options.hint.visible) {
@@ -47811,10 +48336,10 @@
                 if (to > max) {
                     to = max;
                 }
-                this.options.select = {
+                this.options.select = deepExtend({}, select, {
                     from: from,
                     to: to
-                };
+                });
                 this.filterAxes();
             },
             _redrawSelf: function (silent) {
@@ -48013,7 +48538,7 @@
                     months: [1],
                     years: [1]
                 },
-                _overlap: false
+                _overlap: true
             });
             var user = naviOptions.categoryAxis;
             categoryAxes.push(deepExtend({}, base, { maxDateGroups: 200 }, user, {
@@ -59940,7 +60465,7 @@
                     if (item.overflow.options.type === 'button' && item.overflow.options.isChild) {
                         item.overflow.hide();
                         item.overflow.getParentGroup().refresh();
-                    } else if (!item.toolbar.options.hidden) {
+                    } else if (!item.overflow.options.hidden) {
                         item.overflow.hide();
                     }
                 }
@@ -61275,6 +61800,7 @@
             return oldValue === newValue;
         }
         calendar.isEqualDatePart = isEqualDatePart;
+        calendar.isEqualDate = isEqualDate;
         calendar.makeUnselectable = makeUnselectable;
         calendar.restrictValue = restrictValue;
         calendar.isInRange = isInRange;
@@ -61638,7 +62164,7 @@
             _change: function (value) {
                 var that = this, oldValue = that.element.val(), dateChanged;
                 value = that._update(value);
-                dateChanged = +that._old != +value;
+                dateChanged = !kendo.calendar.isEqualDate(that._old, value);
                 var valueUpdated = dateChanged && !that._typing;
                 var textFormatted = oldValue !== that.element.val();
                 if (valueUpdated || textFormatted) {
@@ -61667,7 +62193,7 @@
                 var that = this, element = that.element, icon;
                 icon = element.next('span.k-select');
                 if (!icon[0]) {
-                    icon = $('<span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-calendar">select</span></span>').insertAfter(element);
+                    icon = $('<span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-calendar"></span></span>').insertAfter(element);
                 }
                 that._dateIcon = icon.attr({
                     'role': 'button',
@@ -61708,7 +62234,7 @@
                 }
                 that._value = date;
                 that.dateView.value(date);
-                that.element.val(date ? kendo.toString(date, options.format, options.culture) : value);
+                that.element.val(kendo.toString(date || value, options.format, options.culture));
                 that._updateARIA(date);
                 return date;
             },
@@ -61776,7 +62302,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, caret = kendo.caret, keys = kendo.keys, ui = kendo.ui, Widget = ui.Widget, activeElement = kendo._activeElement, extractFormat = kendo._extractFormat, parse = kendo.parseFloat, placeholderSupported = kendo.support.placeholder, getCulture = kendo.getCulture, round = kendo._round, CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', INPUT = 'k-input', SPIN = 'spin', ns = '.kendoNumericTextBox', TOUCHEND = 'touchend', MOUSELEAVE = 'mouseleave' + ns, HOVEREVENTS = 'mouseenter' + ns + ' ' + MOUSELEAVE, DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', FOCUS = 'focus', POINT = '.', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', INTEGER_REGEXP = /^(-)?(\d*)$/, NULL = null, proxy = $.proxy, extend = $.extend;
+        var kendo = window.kendo, caret = kendo.caret, keys = kendo.keys, ui = kendo.ui, Widget = ui.Widget, activeElement = kendo._activeElement, extractFormat = kendo._extractFormat, parse = kendo.parseFloat, placeholderSupported = kendo.support.placeholder, getCulture = kendo.getCulture, CHANGE = 'change', DISABLED = 'disabled', READONLY = 'readonly', INPUT = 'k-input', SPIN = 'spin', ns = '.kendoNumericTextBox', TOUCHEND = 'touchend', MOUSELEAVE = 'mouseleave' + ns, HOVEREVENTS = 'mouseenter' + ns + ' ' + MOUSELEAVE, DEFAULT = 'k-state-default', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', FOCUS = 'focus', POINT = '.', SELECTED = 'k-state-selected', STATEDISABLED = 'k-state-disabled', ARIA_DISABLED = 'aria-disabled', ARIA_READONLY = 'aria-readonly', INTEGER_REGEXP = /^(-)?(\d*)$/, NULL = null, proxy = $.proxy, extend = $.extend;
         var NumericTextBox = Widget.extend({
             init: function (element, options) {
                 var that = this, isStep = options && options.step !== undefined, min, max, step, value, disabled;
@@ -61785,18 +62311,6 @@
                 element = that.element.on('focusout' + ns, proxy(that._focusout, that)).attr('role', 'spinbutton');
                 options.placeholder = options.placeholder || element.attr('placeholder');
                 that._initialOptions = extend({}, options);
-                that._reset();
-                that._wrapper();
-                that._arrows();
-                that._input();
-                if (!kendo.support.mobileOS) {
-                    that._text.on(FOCUS + ns, proxy(that._click, that));
-                } else {
-                    that._text.on(TOUCHEND + ns + ' ' + FOCUS + ns, function () {
-                        that._toggleText(false);
-                        element.focus();
-                    });
-                }
                 min = that.min(element.attr('min'));
                 max = that.max(element.attr('max'));
                 step = that._parse(element.attr('step'));
@@ -61808,6 +62322,25 @@
                 }
                 if (!isStep && step !== NULL) {
                     options.step = step;
+                }
+                that._reset();
+                that._wrapper();
+                that._arrows();
+                that._input();
+                if (!kendo.support.mobileOS) {
+                    that._text.on(FOCUS + ns, proxy(that._click, that));
+                } else {
+                    that._text.on(TOUCHEND + ns + ' ' + FOCUS + ns, function () {
+                        if (kendo.support.browser.edge) {
+                            that._text.one(FOCUS + ns, function () {
+                                that._toggleText(false);
+                                element.focus();
+                            });
+                        } else {
+                            that._toggleText(false);
+                            element.focus();
+                        }
+                    });
                 }
                 element.attr('aria-valuemin', options.min).attr('aria-valuemax', options.max);
                 options.format = extractFormat(options.format);
@@ -61824,10 +62357,12 @@
             options: {
                 name: 'NumericTextBox',
                 decimals: NULL,
+                restrictDecimals: false,
                 min: NULL,
                 max: NULL,
                 value: NULL,
                 step: 1,
+                round: true,
                 culture: '',
                 format: 'n',
                 spinners: true,
@@ -61930,7 +62465,7 @@
                     }, options = that.options, spinners = options.spinners, element = that.element;
                 arrows = element.siblings('.k-icon');
                 if (!arrows[0]) {
-                    arrows = $(buttonHtml('n', options.upArrowText) + buttonHtml('s', options.downArrowText)).insertAfter(element);
+                    arrows = $(buttonHtml('increase', options.upArrowText) + buttonHtml('decrease', options.downArrowText)).insertAfter(element);
                     arrows.wrapAll('<span class="k-select"/>');
                 }
                 if (!spinners) {
@@ -62008,7 +62543,7 @@
                 return numberFormat;
             },
             _input: function () {
-                var that = this, CLASSNAME = 'k-formatted-value', element = that.element.addClass(INPUT).show()[0], accessKey = element.accessKey, wrapper = that.wrapper, text;
+                var that = this, options = that.options, CLASSNAME = 'k-formatted-value', element = that.element.addClass(INPUT).show()[0], accessKey = element.accessKey, wrapper = that.wrapper, text;
                 text = wrapper.find(POINT + CLASSNAME);
                 if (!text[0]) {
                     text = $('<input type="text"/>').insertBefore(element).addClass(CLASSNAME);
@@ -62021,12 +62556,16 @@
                 text[0].tabIndex = element.tabIndex;
                 text[0].style.cssText = element.style.cssText;
                 text[0].title = element.title;
-                text.prop('placeholder', that.options.placeholder);
+                text.prop('placeholder', options.placeholder);
                 if (accessKey) {
                     text.attr('accesskey', accessKey);
                     element.accessKey = '';
                 }
-                that._text = text.addClass(element.className);
+                that._text = text.addClass(element.className).attr({
+                    'role': 'spinbutton',
+                    'aria-valuemin': options.min,
+                    'aria-valuemax': options.max
+                });
             },
             _keydown: function (e) {
                 var that = this, key = e.keyCode;
@@ -62074,6 +62613,7 @@
                 var that = this;
                 var separator = numberFormat[POINT];
                 var precision = that.options.decimals;
+                var fractionRule = '*';
                 if (separator === POINT) {
                     separator = '\\' + separator;
                 }
@@ -62083,22 +62623,30 @@
                 if (precision === 0) {
                     return INTEGER_REGEXP;
                 }
+                if (that.options.restrictDecimals) {
+                    fractionRule = '{0,' + precision + '}';
+                }
                 if (that._separator !== separator) {
                     that._separator = separator;
-                    that._floatRegExp = new RegExp('^(-)?(((\\d+(' + separator + '\\d*)?)|(' + separator + '\\d*)))?$');
+                    that._floatRegExp = new RegExp('^(-)?(((\\d+(' + separator + '\\d' + fractionRule + ')?)|(' + separator + '\\d' + fractionRule + ')))?$');
                 }
                 return that._floatRegExp;
             },
             _paste: function (e) {
-                var that = this, element = e.target, value = element.value;
+                var that = this;
+                var element = e.target;
+                var value = element.value;
+                var numberFormat = that._format(that.options.format);
                 setTimeout(function () {
-                    if (that._parse(element.value) === NULL) {
+                    var result = that._parse(element.value);
+                    var isValid = that._numericRegex(numberFormat).test(element.value);
+                    if (result === NULL || that._adjust(result) !== result || !isValid) {
                         that._update(value);
                     }
                 });
             },
             _option: function (option, value) {
-                var that = this, options = that.options;
+                var that = this, element = that.element, options = that.options;
                 if (value === undefined) {
                     return options[option];
                 }
@@ -62107,7 +62655,8 @@
                     return;
                 }
                 options[option] = value;
-                that.element.attr('aria-value' + option, value).attr(option, value);
+                element.add(that._text).attr('aria-value' + option, value);
+                element.attr(option, value);
             },
             _spin: function (step, timeout) {
                 var that = this;
@@ -62139,6 +62688,10 @@
             _parse: function (value, culture) {
                 return parse(value, this._culture(culture), this.options.format);
             },
+            _round: function (value, precision) {
+                var rounder = this.options.round ? kendo._round : truncate;
+                return rounder(value, precision);
+            },
             _update: function (value) {
                 var that = this, options = that.options, format = options.format, decimals = options.decimals, culture = that._culture(), numberFormat = that._format(format, culture), isNotNull;
                 if (decimals === NULL) {
@@ -62147,26 +62700,30 @@
                 value = that._parse(value, culture);
                 isNotNull = value !== NULL;
                 if (isNotNull) {
-                    value = parseFloat(round(value, decimals));
+                    value = parseFloat(that._round(value, decimals), 10);
                 }
                 that._value = value = that._adjust(value);
                 that._placeholder(kendo.toString(value, format, culture));
                 if (isNotNull) {
                     value = value.toString();
                     if (value.indexOf('e') !== -1) {
-                        value = round(+value, decimals);
+                        value = that._round(+value, decimals);
                     }
                     value = value.replace(POINT, numberFormat[POINT]);
                 } else {
                     value = '';
                 }
-                that.element.val(value).attr('aria-valuenow', value);
+                that.element.val(value);
+                that.element.add(that._text).attr('aria-valuenow', value);
             },
             _placeholder: function (value) {
-                this._text.val(value);
+                var input = this._text;
+                input.val(value);
                 if (!placeholderSupported && !value) {
-                    this._text.val(this.options.placeholder);
+                    input.val(this.options.placeholder);
                 }
+                input.attr('title', input.attr('title') || input.val());
+                input.attr('aria-title', input.attr('title') || input.val());
             },
             _wrapper: function () {
                 var that = this, element = that.element, DOMElement = element[0], wrapper;
@@ -62194,8 +62751,16 @@
                 }
             }
         });
-        function buttonHtml(className, text) {
-            return '<span unselectable="on" class="k-link"><span unselectable="on" class="k-icon k-i-arrow-' + className + '" title="' + text + '">' + text + '</span></span>';
+        function buttonHtml(direction, text) {
+            var className = 'k-i-arrow-' + (direction === 'increase' ? 'n' : 's');
+            return '<span unselectable="on" class="k-link k-link-' + direction + '" aria-label="' + text + '"><span unselectable="on" class="k-icon ' + className + '"></span></span>';
+        }
+        function truncate(value, precision) {
+            var parts = parseFloat(value, 10).toString().split(POINT);
+            if (parts[1]) {
+                parts[1] = parts[1].substring(0, precision);
+            }
+            return parts.join(POINT);
         }
         ui.plugin(NumericTextBox);
     }(window.kendo.jQuery));
@@ -62214,7 +62779,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', emailRegExp = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', proxy = $.proxy, patternMatcher = function (value, pattern) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', emailRegExp = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', proxy = $.proxy, patternMatcher = function (value, pattern) {
                 if (typeof pattern === 'string') {
                     pattern = new RegExp('^(?:' + pattern + ')$');
                 }
@@ -62296,7 +62861,7 @@
             ],
             options: {
                 name: 'Validator',
-                errorTemplate: '<span class="k-widget k-tooltip k-tooltip-validation">' + '<span class="k-icon k-warning"> </span> #=message#</span>',
+                errorTemplate: '<span class="k-widget k-tooltip k-tooltip-validation">' + '<span class="k-icon k-i-warning"> </span> #=message#</span>',
                 messages: {
                     required: '{0} is required',
                     pattern: '{0} is not valid',
@@ -62545,7 +63110,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, oldIE = kendo.support.browser.msie && kendo.support.browser.version < 9, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-warning"> </span>' + '#=message#<div class="k-callout k-callout-n"></div></div>', CHANGE = 'change';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, oldIE = kendo.support.browser.msie && kendo.support.browser.version < 9, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-i-warning"> </span>' + '#=message#<div class="k-callout k-callout-n"></div></div>', CHANGE = 'change';
         var specialRules = [
             'url',
             'email',
@@ -62774,7 +63339,7 @@
         depends: ['draganddrop']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-minimize,.k-window-actions .k-i-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', isLocalUrl = kendo.isLocalUrl;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-minimize,.k-window-actions .k-i-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', isLocalUrl = kendo.isLocalUrl;
         function defined(x) {
             return typeof x != 'undefined';
         }
@@ -62899,12 +63464,12 @@
                 ];
                 this.title(options.title);
                 for (var i = 0; i < dimensions.length; i++) {
-                    var value = options[dimensions[i]];
-                    if (value && value != Infinity) {
+                    var value = options[dimensions[i]] || '';
+                    if (value != Infinity) {
                         wrapper.css(dimensions[i], value);
                     }
                 }
-                if (maxHeight && maxHeight != Infinity) {
+                if (maxHeight != Infinity) {
                     this.element.css('maxHeight', maxHeight);
                 }
                 if (width) {
@@ -62913,6 +63478,8 @@
                     } else {
                         wrapper.width(constrain(width, options.minWidth, options.maxWidth));
                     }
+                } else {
+                    wrapper.width('');
                 }
                 if (height) {
                     if (height.toString().indexOf('%') > 0) {
@@ -62920,6 +63487,8 @@
                     } else {
                         wrapper.height(constrain(height, options.minHeight, options.maxHeight));
                     }
+                } else {
+                    wrapper.height('');
                 }
                 if (!options.visible) {
                     wrapper.hide();
@@ -63286,6 +63855,7 @@
                     this.element.focus();
                 }
                 this.element.css(OVERFLOW, scrollable ? '' : 'hidden');
+                kendo.resize(this.element.children());
                 this.trigger(ACTIVATE);
             },
             _removeOverlay: function (suppressAnimation) {
@@ -63607,7 +64177,7 @@
             _createWindow: function () {
                 var contentHtml = this.element, options = this.options, iframeSrcAttributes, wrapper, isRtl = kendo.support.isRtl(contentHtml);
                 if (options.scrollable === false) {
-                    contentHtml.attr('style', 'overflow:hidden;');
+                    contentHtml.css('overflow', 'hidden');
                 }
                 wrapper = $(templates.wrapper(options));
                 iframeSrcAttributes = contentHtml.find('iframe:not(.k-content)').map(function () {
@@ -63631,7 +64201,7 @@
         });
         templates = {
             wrapper: template('<div class=\'k-widget k-window\' />'),
-            action: template('<a role=\'button\' href=\'\\#\' class=\'k-window-action k-link\'>' + '<span role=\'presentation\' class=\'k-icon k-i-#= name.toLowerCase() #\'>#= name #</span>' + '</a>'),
+            action: template('<a role=\'button\' href=\'\\#\' class=\'k-window-action k-link\' aria-label=\'#= name #\'>' + '<span class=\'k-icon k-i-#= name.toLowerCase() #\'></span>' + '</a>'),
             titlebar: template('<div class=\'k-window-titlebar k-header\'>&nbsp;' + '<span class=\'k-window-title\'>#= title #</span>' + '<div class=\'k-window-actions\' />' + '</div>'),
             overlay: '<div class=\'k-overlay\' />',
             contentFrame: template('<iframe frameborder=\'0\' title=\'#= title #\' class=\'' + KCONTENTFRAME + '\' ' + 'src=\'#= content.url #\'>' + 'This page requires frames in order to show content' + '</iframe>'),
@@ -63673,12 +64243,12 @@
                 $(BODY).css(CURSOR, e.currentTarget.css(CURSOR));
             },
             drag: function (e) {
-                var that = this, wnd = that.owner, wrapper = wnd.wrapper, options = wnd.options, direction = that.resizeDirection, containerOffset = that.containerOffset, initialPosition = that.initialPosition, initialSize = that.initialSize, newWidth, newHeight, windowBottom, windowRight, x = Math.max(e.x.location, containerOffset.left), y = Math.max(e.y.location, containerOffset.top);
+                var that = this, wnd = that.owner, wrapper = wnd.wrapper, options = wnd.options, direction = that.resizeDirection, containerOffset = that.containerOffset, initialPosition = that.initialPosition, initialSize = that.initialSize, newWidth, newHeight, windowBottom, windowRight, x = Math.max(e.x.location, 0), y = Math.max(e.y.location, 0);
                 if (direction.indexOf('e') >= 0) {
-                    newWidth = x - initialPosition.left;
+                    newWidth = x - initialPosition.left - containerOffset.left;
                     wrapper.width(constrain(newWidth, options.minWidth, options.maxWidth));
                 } else if (direction.indexOf('w') >= 0) {
-                    windowRight = initialPosition.left + initialSize.width;
+                    windowRight = initialPosition.left + initialSize.width + containerOffset.left;
                     newWidth = constrain(windowRight - x, options.minWidth, options.maxWidth);
                     wrapper.css({
                         left: windowRight - newWidth - containerOffset.left,
@@ -63686,10 +64256,10 @@
                     });
                 }
                 if (direction.indexOf('s') >= 0) {
-                    newHeight = y - initialPosition.top - that.elementPadding;
+                    newHeight = y - initialPosition.top - that.elementPadding - containerOffset.top;
                     wrapper.height(constrain(newHeight, options.minHeight, options.maxHeight));
                 } else if (direction.indexOf('n') >= 0) {
-                    windowBottom = initialPosition.top + initialSize.height;
+                    windowBottom = initialPosition.top + initialSize.height + containerOffset.top;
                     newHeight = constrain(windowBottom - y, options.minHeight, options.maxHeight);
                     wrapper.css({
                         top: windowBottom - newHeight - containerOffset.top,
@@ -63816,7 +64386,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-loading', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', WIDTH = 'width', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, isIE8 = browser.msie && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', HIDDENCLASS = 'k-loading-hidden', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', WIDTH = 'width', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, isIE8 = browser.msie && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
                 'ComboBox': 'DropDownList',
                 'DropDownList': 'ComboBox'
             };
@@ -63844,18 +64414,27 @@
                     that.ul.attr(ID, id + '_listbox');
                 }
                 that._header();
+                that._noData();
+                that._footer();
                 that._accessors();
                 that._initValue();
             },
             options: {
                 valuePrimitive: false,
-                headerTemplate: ''
+                footerTemplate: '',
+                headerTemplate: '',
+                noDataTemplate: 'No data found.'
             },
             setOptions: function (options) {
                 Widget.fn.setOptions.call(this, options);
                 if (options && options.enable !== undefined) {
                     options.enabled = options.enable;
                 }
+                this._header();
+                this._noData();
+                this._footer();
+                this._renderFooter();
+                this._renderNoData();
             },
             focus: function () {
                 this._focused.focus();
@@ -63932,6 +64511,33 @@
                 var filter = this.options.filter;
                 return filter && filter !== 'none';
             },
+            _hideClear: function () {
+                var that = this;
+                if (that._clear) {
+                    this._clear.addClass(HIDDENCLASS);
+                }
+            },
+            _showClear: function () {
+                var that = this;
+                if (that._clear) {
+                    this._clear.removeClass(HIDDENCLASS);
+                }
+            },
+            _clearValue: function () {
+                this.listView.value([]);
+                this._clearText();
+                this._accessor('');
+                if (this._isFilterEnabled()) {
+                    this._filter({
+                        word: '',
+                        open: false
+                    });
+                }
+                this._change();
+            },
+            _clearText: function () {
+                this.text('');
+            },
             _clearFilter: function () {
                 if (!this.options.virtual) {
                     this.listView.bound(false);
@@ -63963,23 +64569,81 @@
                     dataSource.read(dataSource._mergeState({ filter: expression }));
                 }
             },
+            _angularElement: function (element, action) {
+                if (!element) {
+                    return;
+                }
+                this.angular(action, function () {
+                    return { elements: element };
+                });
+            },
+            _noData: function () {
+                var noData = $(this.noData);
+                var template = this.options.noDataTemplate;
+                this.angular('cleanup', function () {
+                    return { elements: noData };
+                });
+                kendo.destroy(noData);
+                noData.remove();
+                if (!template) {
+                    this.noData = null;
+                    return;
+                }
+                this.noData = $('<div class="k-nodata" style="display:none"><div></div></div>').appendTo(this.list);
+                this.noDataTemplate = typeof template !== 'function' ? kendo.template(template) : template;
+            },
+            _renderNoData: function () {
+                var noData = this.noData;
+                if (!noData) {
+                    return;
+                }
+                this._angularElement(noData, 'cleanup');
+                noData.children(':first').html(this.noDataTemplate({ instance: this }));
+                this._angularElement(noData, 'compile');
+            },
+            _toggleNoData: function (show) {
+                $(this.noData).toggle(show);
+            },
+            _footer: function () {
+                var footer = $(this.footer);
+                var template = this.options.footerTemplate;
+                this._angularElement(footer, 'cleanup');
+                kendo.destroy(footer);
+                footer.remove();
+                if (!template) {
+                    this.footer = null;
+                    return;
+                }
+                this.footer = $('<div class="k-footer"></div>').appendTo(this.list);
+                this.footerTemplate = typeof template !== 'function' ? kendo.template(template) : template;
+            },
+            _renderFooter: function () {
+                var footer = this.footer;
+                if (!footer) {
+                    return;
+                }
+                this._angularElement(footer, 'cleanup');
+                footer.html(this.footerTemplate({ instance: this }));
+                this._angularElement(footer, 'compile');
+            },
             _header: function () {
-                var that = this;
-                var template = that.options.headerTemplate;
-                var header;
-                if ($.isFunction(template)) {
-                    template = template({});
+                var header = $(this.header);
+                var template = this.options.headerTemplate;
+                this._angularElement(header, 'cleanup');
+                kendo.destroy(header);
+                header.remove();
+                if (!template) {
+                    this.header = null;
+                    return;
                 }
-                if (template) {
-                    that.list.prepend(template);
-                    header = that.ul.prev();
-                    that.header = header[0] ? header : null;
-                    if (that.header) {
-                        that.angular('compile', function () {
-                            return { elements: that.header };
-                        });
-                    }
-                }
+                var headerTemplate = typeof template !== 'function' ? kendo.template(template) : template;
+                header = $(headerTemplate({}));
+                this.header = header[0] ? header : null;
+                this.list.prepend(header);
+                this._angularElement(this.header, 'compile');
+            },
+            _allowOpening: function () {
+                return this.options.noDataTemplate || this.dataSource.flatView().length;
             },
             _initValue: function () {
                 var that = this, value = that.options.value;
@@ -64002,6 +64666,36 @@
             },
             _focus: function (candidate) {
                 return this.listView.focus(candidate);
+            },
+            _filter: function (options) {
+                var that = this;
+                var widgetOptions = that.options;
+                var ignoreCase = widgetOptions.ignoreCase;
+                var field = widgetOptions.dataTextField;
+                var expression = {
+                    value: ignoreCase ? options.word.toLowerCase() : options.word,
+                    field: field,
+                    operator: widgetOptions.filter,
+                    ignoreCase: ignoreCase
+                };
+                that._open = options.open;
+                that._filterSource(expression);
+            },
+            search: function (word) {
+                var options = this.options;
+                word = typeof word === 'string' ? word : this._inputValue();
+                clearTimeout(this._typingTimeout);
+                if (!options.enforceMinLength && !word.length || word.length >= options.minLength) {
+                    this._state = 'filter';
+                    if (!this._isFilterEnabled()) {
+                        this._searchByWord(word);
+                    } else {
+                        this._filter({
+                            word: word,
+                            open: true
+                        });
+                    }
+                }
             },
             current: function (candidate) {
                 return this._focus(candidate);
@@ -64138,7 +64832,8 @@
                 var visible = that.popup.visible();
                 var offsetTop;
                 var popups;
-                if (length) {
+                var footerHeight;
+                if (length || that.options.noDataTemplate) {
                     popups = list.add(list.parent('.k-animation-container')).show();
                     if (!list.is(':visible')) {
                         popups.hide();
@@ -64148,9 +64843,8 @@
                     popups.height(height);
                     if (height !== 'auto') {
                         offsetTop = that._offsetHeight();
-                        if (offsetTop) {
-                            height -= offsetTop;
-                        }
+                        footerHeight = $(that.footer).outerHeight() || 0;
+                        height = height - offsetTop - footerHeight;
                     }
                     that.listView.content.height(height);
                     if (!visible) {
@@ -64176,7 +64870,8 @@
                 }
                 list.css({
                     fontFamily: wrapper.css('font-family'),
-                    width: width
+                    width: this.options.autoWidth ? 'auto' : width,
+                    minWidth: width
                 }).data(WIDTH, width);
                 return true;
             },
@@ -64285,6 +64980,12 @@
             _unbindDataSource: function () {
                 var that = this;
                 that.dataSource.unbind(REQUESTSTART, that._requestStartHandler).unbind(REQUESTEND, that._requestEndHandler).unbind('error', that._errorHandler);
+            },
+            requireValueMapper: function (options, value) {
+                var hasValue = (options.value instanceof Array ? options.value.length : options.value) || (value instanceof Array ? value.length : value);
+                if (hasValue && options.virtual && typeof options.virtual.valueMapper !== 'function') {
+                    throw new Error('ValueMapper is not provided while the value is being set. See http://docs.telerik.com/kendo-ui/controls/editors/combobox/virtualization#the-valuemapper-function');
+                }
             }
         });
         function unifyType(value, type) {
@@ -64350,29 +65051,6 @@
                     that._oldIndex = that.selectedIndex;
                 }
             },
-            search: function (word) {
-                word = typeof word === 'string' ? word : this.text();
-                var that = this;
-                var length = word.length;
-                var options = that.options;
-                var ignoreCase = options.ignoreCase;
-                var field = options.dataTextField;
-                clearTimeout(that._typingTimeout);
-                if (!length || length >= options.minLength) {
-                    that._state = 'filter';
-                    if (!that._isFilterEnabled()) {
-                        that._filter(word);
-                    } else {
-                        that._open = true;
-                        that._filterSource({
-                            value: ignoreCase ? word.toLowerCase() : word,
-                            field: field,
-                            operator: options.filter,
-                            ignoreCase: ignoreCase
-                        });
-                    }
-                }
-            },
             _accessor: function (value, idx) {
                 return this[this._isSelect ? '_accessorSelect' : '_accessorInput'](value, idx);
             },
@@ -64389,38 +65067,22 @@
             },
             _accessorSelect: function (value, idx) {
                 var element = this.element[0];
-                var selectedIndex = element.selectedIndex;
-                var option;
+                var hasValue;
                 if (value === undefined) {
-                    if (selectedIndex > -1) {
-                        option = element.options[selectedIndex];
-                    }
-                    if (option) {
-                        value = option.value;
-                    }
-                    return value || '';
+                    return getSelectedOption(element).value || '';
+                }
+                getSelectedOption(element).selected = false;
+                if (idx === undefined) {
+                    idx = -1;
+                }
+                hasValue = value !== null && value !== '';
+                if (hasValue && idx == -1) {
+                    this._custom(value);
                 } else {
-                    if (selectedIndex > -1) {
-                        element.options[selectedIndex].removeAttribute(SELECTED);
-                        element.options[selectedIndex].selected = false;
-                    }
-                    if (idx === undefined) {
-                        idx = -1;
-                    }
-                    if (value !== null && value !== '' && idx == -1) {
-                        this._custom(value);
+                    if (value) {
+                        element.value = value;
                     } else {
-                        if (value) {
-                            element.value = value;
-                        } else {
-                            element.selectedIndex = idx;
-                        }
-                        if (element.selectedIndex > -1) {
-                            option = element.options[element.selectedIndex];
-                        }
-                        if (option) {
-                            option.setAttribute(SELECTED, SELECTED);
-                        }
+                        element.selectedIndex = idx;
                     }
                 }
             },
@@ -64434,7 +65096,6 @@
                     element.append(custom);
                 }
                 custom.text(value);
-                custom[0].setAttribute(SELECTED, SELECTED);
                 custom[0].selected = true;
             },
             _hideBusy: function () {
@@ -64443,6 +65104,7 @@
                 that._arrow.removeClass(LOADING);
                 that._focused.attr('aria-busy', false);
                 that._busy = null;
+                that._showClear();
             },
             _showBusy: function () {
                 var that = this;
@@ -64454,6 +65116,7 @@
                     if (that._arrow) {
                         that._focused.attr('aria-busy', true);
                         that._arrow.addClass(LOADING);
+                        that._hideClear();
                     }
                 }, 100);
             },
@@ -64498,6 +65161,7 @@
             },
             _move: function (e) {
                 var that = this;
+                var listView = that.listView;
                 var key = e.keyCode;
                 var down = key === keys.DOWN;
                 var dataItem;
@@ -64507,7 +65171,7 @@
                     if (e.altKey) {
                         that.toggle(down);
                     } else {
-                        if (!that.listView.bound()) {
+                        if (!listView.bound()) {
                             if (!that._fetch) {
                                 that.dataSource.one(CHANGE, function () {
                                     that._fetch = false;
@@ -64533,7 +65197,11 @@
                                 }
                             }
                         }
-                        if (that.trigger(SELECT, { item: that._focus() })) {
+                        dataItem = listView.dataItemByIndex(listView.getElementIndex(that._focus()));
+                        if (that.trigger(SELECT, {
+                                dataItem: dataItem,
+                                item: that._focus()
+                            })) {
                             that._focus(current);
                             return;
                         }
@@ -64555,7 +65223,11 @@
                     }
                     var activeFilter = that.filterInput && that.filterInput[0] === activeElement();
                     if (current) {
-                        if (that.trigger(SELECT, { item: current })) {
+                        dataItem = listView.dataItemByIndex(listView.getElementIndex(current));
+                        if (that.trigger(SELECT, {
+                                dataItem: dataItem,
+                                item: current
+                            })) {
                             return;
                         }
                         that._select(current);
@@ -64579,6 +65251,11 @@
                     }
                     that.close();
                     pressed = true;
+                } else if (that.popup.visible() && (key === keys.PAGEDOWN || key === keys.PAGEUP)) {
+                    e.preventDefault();
+                    var direction = key === keys.PAGEDOWN ? 1 : -1;
+                    listView.scrollWith(direction * listView.screenHeight());
+                    pressed = true;
                 }
                 return pressed;
             },
@@ -64596,7 +65273,7 @@
                 }
             },
             _options: function (data, optionLabel, value) {
-                var that = this, element = that.element, length = data.length, options = '', option, dataItem, dataText, dataValue, idx = 0;
+                var that = this, element = that.element, htmlElement = element[0], length = data.length, options = '', option, dataItem, dataText, dataValue, idx = 0;
                 if (optionLabel) {
                     options = optionLabel;
                 }
@@ -64621,9 +65298,15 @@
                 }
                 element.html(options);
                 if (value !== undefined) {
-                    element[0].value = value;
-                    if (element[0].value && !value) {
-                        element[0].selectedIndex = -1;
+                    htmlElement.value = value;
+                    if (htmlElement.value && !value) {
+                        htmlElement.selectedIndex = -1;
+                    }
+                }
+                if (htmlElement.selectedIndex !== -1) {
+                    option = getSelectedOption(htmlElement);
+                    if (option) {
+                        option.setAttribute(SELECTED, SELECTED);
                     }
                 }
             },
@@ -64640,6 +65323,9 @@
             },
             _parentWidget: function () {
                 var name = this.options.name;
+                if (!this.options.cascadeFrom) {
+                    return;
+                }
                 var parentElement = $('#' + this.options.cascadeFrom);
                 var parent = parentElement.data('kendo' + name);
                 if (!parent) {
@@ -64837,11 +65523,20 @@
                 clearTimeout(this._scrollId);
                 Widget.fn.destroy.call(this);
             },
+            dataItemByIndex: function (index) {
+                return this.dataSource.flatView()[index];
+            },
+            screenHeight: function () {
+                return this.content[0].clientHeight;
+            },
             scrollToIndex: function (index) {
                 var item = this.element[0].children[index];
                 if (item) {
                     this.scroll(item);
                 }
+            },
+            scrollWith: function (value) {
+                this.content.scrollTop(this.content.scrollTop() + value);
             },
             scroll: function (item) {
                 if (!item) {
@@ -65141,15 +65836,15 @@
                 }
                 return added;
             },
+            getElementIndex: function (element) {
+                return $(element).data('offset-index');
+            },
             _get: function (candidate) {
                 if (typeof candidate === 'number') {
                     candidate = [candidate];
                 } else if (!isArray(candidate)) {
-                    candidate = $(candidate).data('offset-index');
-                    if (candidate === undefined) {
-                        candidate = -1;
-                    }
-                    candidate = [candidate];
+                    candidate = this.getElementIndex(candidate);
+                    candidate = [candidate !== undefined ? candidate : -1];
                 }
                 return candidate;
             },
@@ -65169,10 +65864,11 @@
             },
             _templates: function () {
                 var template;
+                var options = this.options;
                 var templates = {
-                    template: this.options.template,
-                    groupTemplate: this.options.groupTemplate,
-                    fixedGroupTemplate: this.options.fixedGroupTemplate
+                    template: options.template,
+                    groupTemplate: options.groupTemplate,
+                    fixedGroupTemplate: options.fixedGroupTemplate
                 };
                 for (var key in templates) {
                     template = templates[key];
@@ -65333,7 +66029,7 @@
                 var isItemChange = action === 'itemchange';
                 var result;
                 that.trigger('dataBinding');
-                this._angularItems('cleanup');
+                that._angularItems('cleanup');
                 that._fixedHeader();
                 that._render();
                 that.bound(true);
@@ -65372,6 +66068,10 @@
             }
         });
         ui.plugin(StaticList);
+        function getSelectedOption(select) {
+            var index = select.selectedIndex;
+            return index > -1 ? select.options[index] : {};
+        }
         function mapChangedItems(selected, itemsToMatch) {
             var itemsLength = itemsToMatch.length;
             var selectedLength = selected.length;
@@ -65490,6 +66190,7 @@
                     options.index = index;
                 }
                 that._initialIndex = options.index;
+                that.requireValueMapper(that.options);
                 that._initList();
                 that._cascade();
                 if (options.autoBind) {
@@ -65533,6 +66234,7 @@
                 animation: {},
                 filter: 'none',
                 minLength: 1,
+                enforceMinLength: false,
                 virtual: false,
                 template: null,
                 valueTemplate: null,
@@ -65586,18 +66288,35 @@
                         that.filterInput.val('');
                         that._prev = '';
                     }
-                    that._filterSource();
+                    if (that.filterInput && that.options.minLength !== 1) {
+                        that.refresh();
+                        that.popup.one('activate', that._focusInputHandler);
+                        that.popup.open();
+                        if (that.filterInput) {
+                            that._resizeFilterInput();
+                        }
+                    } else {
+                        that._filterSource();
+                    }
                 } else if (that._allowOpening()) {
                     that.popup.one('activate', that._focusInputHandler);
                     that.popup.open();
+                    if (that.filterInput) {
+                        that._resizeFilterInput();
+                    }
                     that._focusItem();
                 }
             },
             _focusInput: function () {
                 this._focusElement(this.filterInput);
             },
+            _resizeFilterInput: function () {
+                this.filterInput.css('display', 'none');
+                this.filterInput.css('width', this.popup.element.css('width'));
+                this.filterInput.css('display', 'inline-block');
+            },
             _allowOpening: function () {
-                return this.hasOptionLabel() || this.filterInput || this.dataSource.view().length;
+                return this.hasOptionLabel() || this.filterInput || Select.fn._allowOpening.call(this);
             },
             toggle: function (toggle) {
                 this._toggle(toggle, true);
@@ -65669,6 +66388,10 @@
                     return that._textAccessor();
                 }
             },
+            _clearFilter: function () {
+                $(this.filterInput).val('');
+                Select.fn._clearFilter.call(this);
+            },
             value: function (value) {
                 var that = this;
                 var listView = that.listView;
@@ -65677,6 +66400,7 @@
                     value = that._accessor() || that.listView.value()[0];
                     return value === undefined || value === null ? '' : value;
                 }
+                that.requireValueMapper(that.options, value);
                 if (value || !that.hasOptionLabel()) {
                     that._initialIndex = null;
                 }
@@ -65784,6 +66508,9 @@
                 var data = that.dataSource.flatView();
                 var dataItem;
                 that._presetValue = false;
+                that._renderFooter();
+                that._renderNoData();
+                that._toggleNoData(!data.length);
                 that._resizePopup(true);
                 that.popup.position();
                 that._buildOptions(data);
@@ -65834,9 +66561,13 @@
                 var filtered = that._state === STATE_FILTER;
                 var isIFrame = window.self !== window.top;
                 var focusedItem = that._focus();
+                var dataItem = that._getElementDataItem(focusedItem);
                 if (!that._prevent) {
                     clearTimeout(that._typingTimeout);
-                    if (filtered && focusedItem && !that.trigger('select', { item: focusedItem })) {
+                    if (!filtered && focusedItem && !that.trigger('select', {
+                            dataItem: dataItem,
+                            item: focusedItem
+                        })) {
                         that._select(focusedItem, !that.dataSource.view().length);
                     }
                     if (support.mobileOS.ios && isIFrame) {
@@ -65908,6 +66639,9 @@
                 if (altKey && key === keys.UP || key === keys.ESC) {
                     that._focusElement(that.wrapper);
                 }
+                if (that._state === STATE_FILTER && key === keys.ESC) {
+                    that._clearFilter();
+                }
                 if (key === keys.ENTER && that._typingTimeout && that.filterInput && isPopupVisible) {
                     e.preventDefault();
                     return;
@@ -65926,7 +66660,10 @@
                         that._lastItem();
                     }
                     if (handled) {
-                        if (that.trigger('select', { item: that._focus() })) {
+                        if (that.trigger('select', {
+                                dataItem: that._getElementDataItem(that._focus()),
+                                item: that._focus()
+                            })) {
                             that._focus(current);
                             return;
                         }
@@ -65985,7 +66722,10 @@
                 if (idx !== dataLength) {
                     oldFocusedItem = that._focus();
                     that._select(normalizeIndex(startIndex + idx, dataLength));
-                    if (that.trigger('select', { item: that._focus() })) {
+                    if (that.trigger('select', {
+                            dataItem: that._getElementDataItem(that._focus()),
+                            item: that._focus()
+                        })) {
                         that._select(oldFocusedItem);
                     }
                     if (!that.popup.visible()) {
@@ -66021,10 +66761,22 @@
                 Select.fn._popup.call(this);
                 this.popup.one('open', proxy(this._popupOpen, this));
             },
+            _getElementDataItem: function (element) {
+                if (!element || !element[0]) {
+                    return null;
+                }
+                if (element[0] === this.optionLabel[0]) {
+                    return this._optionLabelDataItem();
+                }
+                return this.listView.dataItemByIndex(this.listView.getElementIndex(element));
+            },
             _click: function (e) {
                 var item = e.item || $(e.currentTarget);
                 e.preventDefault();
-                if (this.trigger('select', { item: item })) {
+                if (this.trigger('select', {
+                        dataItem: this._getElementDataItem(item),
+                        item: item
+                    })) {
                     this.close();
                     return;
                 }
@@ -66047,7 +66799,7 @@
                     this._focused = element.focus();
                 }
             },
-            _filter: function (word) {
+            _searchByWord: function (word) {
                 if (word) {
                     var that = this;
                     var ignoreCase = that.options.ignoreCase;
@@ -66059,6 +66811,9 @@
                     });
                 }
             },
+            _inputValue: function () {
+                return this.text();
+            },
             _search: function () {
                 var that = this;
                 var dataSource = that.dataSource;
@@ -66069,6 +66824,7 @@
                         if (that._prev !== value) {
                             that._prev = value;
                             that.search(value);
+                            that._resizeFilterInput();
                         }
                         that._typingTimeout = null;
                     }, that.options.delay);
@@ -66240,9 +66996,10 @@
                     this.filterInput = null;
                 }
                 if (this._isFilterEnabled()) {
-                    icon = '<span unselectable="on" class="k-icon k-i-search">select</span>';
+                    icon = '<span class="k-icon k-i-search"></span>';
                     this.filterInput = $('<input class="k-textbox"/>').attr({
                         placeholder: this.element.attr('placeholder'),
+                        title: this.element.attr('title'),
                         role: 'listbox',
                         'aria-haspopup': true,
                         'aria-expanded': false
@@ -66254,7 +67011,7 @@
                 var that = this, wrapper = that.wrapper, SELECTOR = 'span.k-input', span;
                 span = wrapper.find(SELECTOR);
                 if (!span[0]) {
-                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span unselectable="on" class="k-input">&nbsp;</span><span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-arrow-s">select</span></span></span>').append(that.element);
+                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span unselectable="on" class="k-input">&nbsp;</span><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-s"></span></span></span>').append(that.element);
                     span = wrapper.find(SELECTOR);
                 }
                 that.span = span;
@@ -66269,7 +67026,6 @@
                     wrapper[0].style.cssText = DOMelement.style.cssText;
                     wrapper[0].title = DOMelement.title;
                 }
-                element.hide();
                 that._focused = that.wrapper = wrapper.addClass('k-widget k-dropdown k-header').addClass(DOMelement.className).css('display', '').attr({
                     accesskey: element.attr('accesskey'),
                     unselectable: 'on',
@@ -66277,6 +67033,7 @@
                     'aria-haspopup': true,
                     'aria-expanded': false
                 });
+                element.hide().removeAttr('accesskey');
             },
             _clearSelection: function (parent) {
                 this.select(parent.value() ? 0 : -1);
@@ -66313,8 +67070,13 @@
                 if (!dataItem) {
                     dataItem = this._assignInstance(text, this._accessor());
                 }
-                if (dataItem === optionLabelText || this._text(dataItem) === optionLabelText) {
-                    template = this.optionLabelTemplate;
+                if (this.hasOptionLabel()) {
+                    if (dataItem === optionLabelText || this._text(dataItem) === optionLabelText) {
+                        template = this.optionLabelTemplate;
+                        if (typeof this.options.optionLabel === 'string' && !this.options.optionLabelTemplate) {
+                            dataItem = optionLabelText;
+                        }
+                    }
                 }
                 var getElements = function () {
                     return {
@@ -66419,13 +67181,13 @@
         var defaultButtons = {
             cancel: {
                 text: 'Cancel',
-                imageClass: 'k-cancel',
+                imageClass: 'k-i-cancel',
                 className: 'k-diagram-cancel',
                 iconClass: 'k-icon'
             },
             update: {
                 text: 'Update',
-                imageClass: 'k-update',
+                imageClass: 'k-i-update',
                 className: 'k-diagram-update',
                 iconClass: 'k-icon'
             }
@@ -71677,6 +72439,7 @@
                 };
             };
             widget.first('change', onChange(false));
+            widget.first('spin', onChange(false));
             if (!(kendo.ui.AutoComplete && widget instanceof kendo.ui.AutoComplete)) {
                 widget.first('dataBound', onChange(true));
             }
@@ -71721,7 +72484,7 @@
             } else {
                 scope.$watch(kNgModel, watchHandler);
             }
-            widget.first('change', function () {
+            var changeHandler = function () {
                 updating = true;
                 if (ngForm && ngForm.$pristine) {
                     ngForm.$setDirty();
@@ -71731,7 +72494,9 @@
                     currentValueLength = length(getter(scope));
                 });
                 updating = false;
-            });
+            };
+            widget.first('change', changeHandler);
+            widget.first('spin', changeHandler);
         }
         function destroyWidgetOnScopeDestroy(scope, widget) {
             var deregister = scope.$on('$destroy', function () {
@@ -72204,7 +72969,7 @@
             var options = this.self.options;
             var values = this.self.value().split(options.separator);
             var valuePrimitive = options.valuePrimitive;
-            var data = this.self.dataSource.data();
+            var data = this.self.listView.selectedDataItems();
             var dataItems = [];
             for (var idx = 0, length = data.length; idx < length; idx++) {
                 var item = data[idx];
@@ -72701,6 +73466,9 @@
                 }
             });
             prototype.bindEvents = function () {
+                if (widget.prototype.events.indexOf('init') < 0) {
+                    widget.prototype.events.push('init');
+                }
                 widget.prototype.events.forEach(function (eventName) {
                     this.widget.bind(eventName, eventHandler.bind(this, eventName));
                     if (this.hasAttribute(EVENT_PREFIX + eventName)) {
@@ -72723,6 +73491,7 @@
                     expose(that, obj);
                 } while (obj = Object.getPrototypeOf(obj));
                 this.bindEvents();
+                that.widget.trigger('init');
             };
             prototype.detachedCallback = function () {
                 kendo.destroy(this.element);

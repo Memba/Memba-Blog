@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -42,6 +42,9 @@
                 'line-height'
             ];
         function contains(container, target) {
+            if (!container || !target) {
+                return false;
+            }
             return container === target || $.contains(container, target);
         }
         var Popup = Widget.extend({
@@ -284,6 +287,9 @@
                     that.element.kendoStop(true);
                     wrap.css({ overflow: HIDDEN });
                     that.element.kendoAnimate(animation);
+                    if (skipEffects) {
+                        that._animationClose();
+                    }
                 }
             },
             _trigger: function (ev) {
@@ -354,9 +360,22 @@
                 });
             },
             _position: function (fixed) {
-                var that = this, element = that.element, wrapper = that.wrapper, options = that.options, viewport = $(options.viewport), viewportOffset = viewport.offset(), anchor = $(options.anchor), origins = options.origin.toLowerCase().split(' '), positions = options.position.toLowerCase().split(' '), collisions = that.collisions, zoomLevel = support.zoomLevel(), siblingContainer, parents, parentZIndex, zIndex = 10002, isWindow = !!(viewport[0] == window && window.innerWidth && zoomLevel <= 1.02), idx = 0, docEl = document.documentElement, length, viewportWidth, viewportHeight;
-                viewportWidth = isWindow ? window.innerWidth : viewport.width();
-                viewportHeight = isWindow ? window.innerHeight : viewport.height();
+                var that = this, element = that.element, wrapper = that.wrapper, options = that.options, viewport = $(options.viewport), zoomLevel = support.zoomLevel(), isWindow = !!(viewport[0] == window && window.innerWidth && zoomLevel <= 1.02), anchor = $(options.anchor), origins = options.origin.toLowerCase().split(' '), positions = options.position.toLowerCase().split(' '), collisions = that.collisions, siblingContainer, parents, parentZIndex, zIndex = 10002, idx = 0, docEl = document.documentElement, length, viewportOffset, viewportWidth, viewportHeight;
+                if (options.viewport === window) {
+                    viewportOffset = {
+                        top: window.pageYOffset || document.documentElement.scrollTop || 0,
+                        left: window.pageXOffset || document.documentElement.scrollLeft || 0
+                    };
+                } else {
+                    viewportOffset = viewport.offset();
+                }
+                if (isWindow) {
+                    viewportWidth = window.innerWidth;
+                    viewportHeight = window.innerHeight;
+                } else {
+                    viewportWidth = viewport.width();
+                    viewportHeight = viewport.height();
+                }
                 if (isWindow && docEl.scrollHeight - docEl.clientHeight > 0) {
                     viewportWidth -= kendo.support.scrollbar();
                 }
@@ -389,13 +408,8 @@
                     pos = getOffset(wrapper, POSITION, true);
                     offset = getOffset(wrapper);
                 }
-                if (viewport[0] === window) {
-                    offset.top -= window.pageYOffset || document.documentElement.scrollTop || 0;
-                    offset.left -= window.pageXOffset || document.documentElement.scrollLeft || 0;
-                } else {
-                    offset.top -= viewportOffset.top;
-                    offset.left -= viewportOffset.left;
-                }
+                offset.top -= viewportOffset.top;
+                offset.left -= viewportOffset.left;
                 if (!that.wrapper.data(LOCATION)) {
                     wrapper.data(LOCATION, extend({}, pos));
                 }

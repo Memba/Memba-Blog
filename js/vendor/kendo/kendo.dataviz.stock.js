@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -317,6 +317,39 @@
                 return output;
             }).join('');
         }
+        function mergeSort(a, cmp) {
+            if (a.length < 2) {
+                return a.slice();
+            }
+            function merge(a, b) {
+                var r = [], ai = 0, bi = 0, i = 0;
+                while (ai < a.length && bi < b.length) {
+                    if (cmp(a[ai], b[bi]) <= 0) {
+                        r[i++] = a[ai++];
+                    } else {
+                        r[i++] = b[bi++];
+                    }
+                }
+                if (ai < a.length) {
+                    r.push.apply(r, a.slice(ai));
+                }
+                if (bi < b.length) {
+                    r.push.apply(r, b.slice(bi));
+                }
+                return r;
+            }
+            return function sort(a) {
+                if (a.length <= 1) {
+                    return a;
+                }
+                var m = Math.floor(a.length / 2);
+                var left = a.slice(0, m);
+                var right = a.slice(m);
+                left = sort(left);
+                right = sort(right);
+                return merge(left, right);
+            }(a);
+        }
         deepExtend(kendo, {
             util: {
                 MAX_NUM: MAX_NUM,
@@ -352,7 +385,8 @@
                 arabicToRoman: arabicToRoman,
                 memoize: memoize,
                 ucs2encode: ucs2encode,
-                ucs2decode: ucs2decode
+                ucs2decode: ucs2decode,
+                mergeSort: mergeSort
             }
         });
         kendo.drawing.util = kendo.util;
@@ -857,7 +891,7 @@
                     selectStart: $.proxy(navi._selectStart, navi),
                     select: $.proxy(navi._select, navi),
                     selectEnd: $.proxy(navi._selectEnd, navi),
-                    mousewheel: { zoom: 'left' },
+                    mousewheel: util.valueOrDefault(select.mousewheel, { zoom: 'left' }),
                     visible: options.visible
                 });
                 if (options.hint.visible) {
@@ -884,10 +918,10 @@
                 if (to > max) {
                     to = max;
                 }
-                this.options.select = {
+                this.options.select = deepExtend({}, select, {
                     from: from,
                     to: to
-                };
+                });
                 this.filterAxes();
             },
             _redrawSelf: function (silent) {
@@ -1086,7 +1120,7 @@
                     months: [1],
                     years: [1]
                 },
-                _overlap: false
+                _overlap: true
             });
             var user = naviOptions.categoryAxis;
             categoryAxes.push(deepExtend({}, base, { maxDateGroups: 200 }, user, {

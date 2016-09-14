@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -43,9 +43,9 @@
         function toggleHintClass(hint, denied) {
             hint = $(hint);
             if (denied) {
-                hint.find('.k-drag-status').removeClass('k-add').addClass('k-denied');
+                hint.find('.k-drag-status').removeClass('k-i-add').addClass('k-i-denied');
             } else {
-                hint.find('.k-drag-status').removeClass('k-denied').addClass('k-add');
+                hint.find('.k-drag-status').removeClass('k-i-denied').addClass('k-i-add');
             }
         }
         var Reorderable = Widget.extend({
@@ -136,7 +136,7 @@
                         that._elements = that.element.find(that.draggable.options.filter);
                     },
                     drag: function (e) {
-                        if (!that._dropTarget || this.hint.find('.k-drag-status').hasClass('k-denied')) {
+                        if (!that._dropTarget || this.hint.find('.k-drag-status').hasClass('k-i-denied')) {
                             return;
                         }
                         var dropStartOffset = getOffset(that._dropTarget).left;

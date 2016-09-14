@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -36,9 +36,167 @@
     (function ($) {
         var kendo = window.kendo, ui = kendo.ui, NS = '.kendoAgendaView';
         var EVENT_WRAPPER_FORMAT = '<div class="k-task" title="#:title.replace(/"/g,"\'")#" data-#=kendo.ns#uid="#=uid#">' + '# if (resources[0]) {#' + '<span class="k-scheduler-mark" style="background-color:#=resources[0].color#"></span>' + '# } #' + '# if (data.isException()) { #' + '<span class="k-icon k-i-exception"></span>' + '# } else if (data.isRecurring()) {#' + '<span class="k-icon k-i-refresh"></span>' + '# } #' + '{0}' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-si-close"></span></a>' + '#}#' + '</div>';
+        var AgendaGroupedView = kendo.Class.extend({
+            init: function (view) {
+                this._view = view;
+            },
+            _getColumns: function (groupHeaders, columns) {
+                return groupHeaders.concat(columns);
+            },
+            _getGroupsInDay: function () {
+                return [];
+            },
+            _getSumOfItemsForDate: function () {
+                return 0;
+            },
+            _renderTaskGroupsCells: function (headerCells, groups, taskGroupIndex, taskIndex) {
+                var view = this._view;
+                if (taskGroupIndex === 0 && taskIndex === 0 && groups.length) {
+                    view._renderTaskGroupsCells(headerCells, groups);
+                }
+            },
+            _renderDateCell: function (tableRow, groups, tasks, date, taskGroupIndex, tasksGroups) {
+                var view = this._view;
+                tableRow.push(kendo.format('<td class="k-scheduler-datecolumn{3}{2}" rowspan="{0}">{1}</td>', tasks.length, view._dateTemplate({ date: date }), taskGroupIndex == tasksGroups.length - 1 && !groups.length ? ' k-last' : '', !groups.length ? ' k-first' : ''));
+            },
+            _renderDates: function () {
+                return undefined;
+            },
+            _getParents: function (parentGroups) {
+                return parentGroups.splice(0);
+            },
+            _getGroupsByDate: function () {
+                return undefined;
+            },
+            _renderTaskGroups: function (table, items, parents) {
+                var view = this._view;
+                table.append(view._renderTaskGroups(items, parents));
+            }
+        });
+        var AgendaGroupedByDateView = kendo.Class.extend({
+            init: function (view) {
+                this._view = view;
+            },
+            _getColumns: function (groupHeaders, columns) {
+                var view = this._view;
+                if (view._isMobilePhoneView()) {
+                    return groupHeaders.concat(columns);
+                } else {
+                    var date = columns.slice(0, 1);
+                    var columnsWithoutDate = columns.slice(1);
+                    return date.concat(groupHeaders).concat(columnsWithoutDate);
+                }
+            },
+            _compareDateGroups: function (currentGroup, prevGroup, index) {
+                if (currentGroup[index].text == prevGroup[index].text) {
+                    if (index === 0) {
+                        return true;
+                    } else {
+                        return this._compareDateGroups(currentGroup, prevGroup, index - 1);
+                    }
+                }
+                return false;
+            },
+            _getGroupsInDay: function (tasksGroups, groups) {
+                var groupsInDay = [];
+                var prevGroup = null;
+                for (var tasksGroupIdx = 0; tasksGroupIdx < tasksGroups.length; tasksGroupIdx++) {
+                    for (var itemsIdx = 0; itemsIdx < tasksGroups[tasksGroupIdx].items.length; itemsIdx++) {
+                        var idx = 0;
+                        if (groupsInDay.length === 0) {
+                            for (idx; idx < groups[tasksGroupIdx].length; idx++) {
+                                groupsInDay.push([1]);
+                            }
+                        } else {
+                            for (idx; idx < groups[tasksGroupIdx].length; idx++) {
+                                if (this._compareDateGroups(groups[tasksGroupIdx], prevGroup, idx)) {
+                                    groupsInDay[idx][groupsInDay[idx].length - 1]++;
+                                } else {
+                                    var lastItemValue = groupsInDay[idx][groupsInDay[idx].length - 1] - 1;
+                                    for (var i = 0; i < lastItemValue; i++) {
+                                        groupsInDay[idx].push(0);
+                                    }
+                                    groupsInDay[idx].push(1);
+                                }
+                            }
+                        }
+                        prevGroup = groups[tasksGroupIdx];
+                    }
+                }
+                return groupsInDay;
+            },
+            _getSumOfItemsForDate: function (tasksGroups) {
+                var sumOfItemsForDate = 0;
+                for (var i = 0; i < tasksGroups.length; i++) {
+                    sumOfItemsForDate += tasksGroups[i].items.length;
+                }
+                return sumOfItemsForDate;
+            },
+            _renderTaskGroupsCells: function (headerCells, groups, taskGroupIndex, taskIndex, groupsInDay, sumOfItemsForDate, date, groupsRowSpanIndex) {
+                var view = this._view;
+                var isPhoneView = view._isMobilePhoneView();
+                if (!isPhoneView) {
+                    if (taskGroupIndex === 0 && taskIndex === 0) {
+                        headerCells.push(kendo.format('<td class="k-scheduler-datecolumn k-first" rowspan="{0}">{1}</td>', sumOfItemsForDate, view._dateTemplate({ date: date })));
+                    }
+                    for (var idx = 0; idx < groups[taskGroupIndex].length; idx++) {
+                        if (groupsInDay[idx][groupsRowSpanIndex]) {
+                            headerCells.push(kendo.format('<td class="k-scheduler-groupcolumn" rowspan="{0}">{1}</td>', groupsInDay[idx][groupsRowSpanIndex], view._groupTemplate({ value: groups[taskGroupIndex][idx].text }), groups[taskGroupIndex][idx].className));
+                        }
+                    }
+                } else {
+                    if (taskGroupIndex === 0 && taskIndex === 0 && groups.length) {
+                        view._renderTaskGroupsCells(headerCells, groups);
+                    }
+                }
+            },
+            _renderDateCell: function () {
+                return undefined;
+            },
+            _renderDates: function (table) {
+                var view = this._view;
+                var sortedArray = view._groupsByDate.sort(function (a, b) {
+                    return a.array[0].value.getTime() - b.array[0].value.getTime();
+                });
+                for (var i = 0; i < sortedArray.length; i++) {
+                    table.append(view._renderTaskGroups(sortedArray[i].array, sortedArray[i].groups));
+                }
+            },
+            _getParents: function (parentGroups) {
+                return parentGroups.slice(0);
+            },
+            _getGroupsByDate: function (groups, idx, parents) {
+                var view = this._view;
+                if (groups[idx].items) {
+                    for (var taskGroupIndex = 0; taskGroupIndex < groups[idx].items.length; taskGroupIndex++) {
+                        var date = groups[idx].items[taskGroupIndex].value;
+                        var dateExists = false;
+                        for (var i = 0; i < view._groupsByDate.length; i++) {
+                            if (view._groupsByDate[i].array[0].value.getTime() === date.getTime()) {
+                                dateExists = true;
+                                view._groupsByDate[i].array.push(groups[idx].items[taskGroupIndex]);
+                                view._groupsByDate[i].groups.push(parents);
+                            }
+                        }
+                        if (!dateExists) {
+                            view._groupsByDate.push({
+                                array: [groups[idx].items[taskGroupIndex]],
+                                groups: [parents]
+                            });
+                        }
+                    }
+                }
+            },
+            _renderTaskGroups: function () {
+                return undefined;
+            }
+        });
+        kendo.ui.scheduler.AgendaGroupedView = AgendaGroupedView;
+        kendo.ui.scheduler.AgendaGroupedByDateView = AgendaGroupedByDateView;
         ui.AgendaView = ui.SchedulerView.extend({
             init: function (element, options) {
                 ui.SchedulerView.fn.init.call(this, element, options);
+                this._groupedView = this._getGroupedView();
                 options = this.options;
                 if (options.editable) {
                     options.editable = $.extend({ 'delete': true }, options.editable, {
@@ -55,6 +213,13 @@
                 this._renderLayout(options.date);
             },
             name: 'agenda',
+            _getGroupedView: function () {
+                if (this._isGroupedByDate()) {
+                    return new kendo.ui.scheduler.AgendaGroupedByDateView(this);
+                } else {
+                    return new kendo.ui.scheduler.AgendaGroupedView(this);
+                }
+            },
             _mouseenter: function (e) {
                 $(e.currentTarget).addClass('k-state-hover');
             },
@@ -106,7 +271,7 @@
                             className: 'k-scheduler-groupcolumn'
                         });
                     }
-                    columns = groupHeaders.concat(columns);
+                    columns = this._groupedView._getColumns(groupHeaders, columns);
                 }
                 return { columns: columns };
             },
@@ -160,6 +325,9 @@
                 var editable = this.options.editable;
                 var showDelete = editable && editable.destroy !== false && !this._isMobile();
                 var isPhoneView = this._isMobilePhoneView();
+                var sumOfItemsForDate = this._groupedView._getSumOfItemsForDate(tasksGroups);
+                var groupsInDay = this._groupedView._getGroupsInDay(tasksGroups, groups);
+                var groupsRowSpanIndex = 0;
                 for (var taskGroupIndex = 0; taskGroupIndex < tasksGroups.length; taskGroupIndex++) {
                     var date = tasksGroups[taskGroupIndex].value;
                     var tasks = tasksGroups[taskGroupIndex].items;
@@ -168,17 +336,14 @@
                         var task = tasks[taskIndex];
                         var tableRow = [];
                         var headerCells = !isPhoneView ? tableRow : [];
-                        if (taskGroupIndex === 0 && taskIndex === 0 && groups.length) {
-                            for (var idx = 0; idx < groups.length; idx++) {
-                                headerCells.push(kendo.format('<td class="k-scheduler-groupcolumn{2}" rowspan="{0}">{1}</td>', groups[idx].rowSpan, this._groupTemplate({ value: groups[idx].text }), groups[idx].className));
-                            }
-                        }
+                        this._groupedView._renderTaskGroupsCells(headerCells, groups, taskGroupIndex, taskIndex, groupsInDay, sumOfItemsForDate, date, groupsRowSpanIndex);
+                        groupsRowSpanIndex++;
                         if (taskIndex === 0) {
                             if (isPhoneView) {
                                 headerCells.push(kendo.format('<td class="k-scheduler-datecolumn" colspan="2">{0}</td>', this._dateTemplate({ date: date })));
                                 tableRows.push('<tr role="row" aria-selected="false"' + (today ? ' class="k-today">' : '>') + headerCells.join('') + '</tr>');
                             } else {
-                                tableRow.push(kendo.format('<td class="k-scheduler-datecolumn{3}{2}" rowspan="{0}">{1}</td>', tasks.length, this._dateTemplate({ date: date }), taskGroupIndex == tasksGroups.length - 1 && !groups.length ? ' k-last' : '', !groups.length ? ' k-first' : ''));
+                                this._groupedView._renderDateCell(tableRow, groups, tasks, date, taskGroupIndex, tasksGroups);
                             }
                         }
                         if (task.head) {
@@ -198,6 +363,11 @@
                 }
                 return tableRows.join('');
             },
+            _renderTaskGroupsCells: function (headerCells, groups) {
+                for (var idx = 0; idx < groups.length; idx++) {
+                    headerCells.push(kendo.format('<td class="k-scheduler-groupcolumn{2}" rowspan="{0}">{1}</td>', groups[idx].rowSpan, this._groupTemplate({ value: groups[idx].text }), groups[idx].className));
+                }
+            },
             render: function (events) {
                 var table = this.content.find('table').empty();
                 var groups = [];
@@ -205,7 +375,9 @@
                     var resources = this.groupedResources;
                     if (resources.length) {
                         groups = this._createGroupConfiguration(events, resources, null);
+                        this._groupsByDate = [];
                         this._renderGroups(groups, table, []);
+                        this._groupedView._renderDates(table);
                     } else {
                         groups = this._tasks(events);
                         table.append(this._renderTaskGroups(groups, []));
@@ -230,12 +402,13 @@
             },
             _renderGroups: function (groups, table, parentGroups) {
                 for (var idx = 0, length = groups.length; idx < length; idx++) {
-                    var parents = parentGroups.splice(0);
+                    var parents = this._groupedView._getParents(parentGroups);
                     parents.push(groups[idx]);
+                    this._groupedView._getGroupsByDate(groups, idx, parents);
                     if (groups[idx].groups) {
                         this._renderGroups(groups[idx].groups, table, parents);
                     } else {
-                        table.append(this._renderTaskGroups(groups[idx].items, parents));
+                        this._groupedView._renderTaskGroups(table, groups[idx].items, parents);
                     }
                 }
             },

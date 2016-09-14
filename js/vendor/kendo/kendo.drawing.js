@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -317,6 +317,39 @@
                 return output;
             }).join('');
         }
+        function mergeSort(a, cmp) {
+            if (a.length < 2) {
+                return a.slice();
+            }
+            function merge(a, b) {
+                var r = [], ai = 0, bi = 0, i = 0;
+                while (ai < a.length && bi < b.length) {
+                    if (cmp(a[ai], b[bi]) <= 0) {
+                        r[i++] = a[ai++];
+                    } else {
+                        r[i++] = b[bi++];
+                    }
+                }
+                if (ai < a.length) {
+                    r.push.apply(r, a.slice(ai));
+                }
+                if (bi < b.length) {
+                    r.push.apply(r, b.slice(bi));
+                }
+                return r;
+            }
+            return function sort(a) {
+                if (a.length <= 1) {
+                    return a;
+                }
+                var m = Math.floor(a.length / 2);
+                var left = a.slice(0, m);
+                var right = a.slice(m);
+                left = sort(left);
+                right = sort(right);
+                return merge(left, right);
+            }(a);
+        }
         deepExtend(kendo, {
             util: {
                 MAX_NUM: MAX_NUM,
@@ -352,7 +385,8 @@
                 arabicToRoman: arabicToRoman,
                 memoize: memoize,
                 ucs2encode: ucs2encode,
-                ucs2decode: ucs2decode
+                ucs2decode: ucs2decode,
+                mergeSort: mergeSort
             }
         });
         kendo.drawing.util = kendo.util;
@@ -1665,7 +1699,9 @@
                 };
             },
             _enableTracking: function () {
-                this._tooltip = new SurfaceTooltip(this, this.options.tooltip || {});
+                if (kendo.ui.Popup) {
+                    this._tooltip = new SurfaceTooltip(this, this.options.tooltip || {});
+                }
             },
             _elementOffset: function () {
                 var element = this.element;
@@ -3959,12 +3995,11 @@
             insert: function (shape, bbox) {
                 var inserted = false;
                 var children = this.children;
-                var length = children.length;
                 if (this.inBounds(bbox)) {
-                    if (!length && this.shapes.length < 4) {
+                    if (this.shapes.length < 4) {
                         this._add(shape, bbox);
                     } else {
-                        if (!length) {
+                        if (!children.length) {
                             this._initChildren();
                         }
                         for (var idx = 0; idx < children.length; idx++) {
@@ -3982,16 +4017,32 @@
                 return inserted;
             },
             _initChildren: function () {
-                var rect = this.rect, children = this.children, shapes = this.shapes, center = rect.center(), halfWidth = rect.width() / 2, halfHeight = rect.height() / 2, childIdx, shapeIdx;
-                children.push(new QuadNode(new Rect(rect.origin.x, rect.origin.y, halfWidth, halfHeight)), new QuadNode(new Rect(center.x, rect.origin.y, halfWidth, halfHeight)), new QuadNode(new Rect(rect.origin.x, center.y, halfWidth, halfHeight)), new QuadNode(new Rect(center.x, center.y, halfWidth, halfHeight)));
-                for (shapeIdx = shapes.length - 1; shapeIdx >= 0; shapeIdx--) {
-                    for (childIdx = 0; childIdx < children.length; childIdx++) {
-                        if (children[childIdx].insert(shapes[shapeIdx].shape, shapes[shapeIdx].bbox)) {
-                            shapes.splice(shapeIdx, 1);
-                            break;
-                        }
-                    }
-                }
+                var rect = this.rect, children = this.children, center = rect.center(), halfWidth = rect.width() / 2, halfHeight = rect.height() / 2;
+                children.push(new QuadNode(new Rect([
+                    rect.origin.x,
+                    rect.origin.y
+                ], [
+                    halfWidth,
+                    halfHeight
+                ])), new QuadNode(new Rect([
+                    center.x,
+                    rect.origin.y
+                ], [
+                    halfWidth,
+                    halfHeight
+                ])), new QuadNode(new Rect([
+                    rect.origin.x,
+                    center.y
+                ], [
+                    halfWidth,
+                    halfHeight
+                ])), new QuadNode(new Rect([
+                    center.x,
+                    center.y
+                ], [
+                    halfWidth,
+                    halfHeight
+                ])));
             }
         });
         var ShapesQuadTree = Class.extend({
@@ -4160,7 +4211,10 @@
             }
             return 0;
         }
-        deepExtend(drawing, { ShapesQuadTree: ShapesQuadTree });
+        deepExtend(drawing, {
+            ShapesQuadTree: ShapesQuadTree,
+            QuadNode: QuadNode
+        });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
@@ -5671,6 +5725,7 @@
                 height: options.height
             }).appendTo(document.body);
             var surface = new Surface(container, options);
+            surface.suspendTracking();
             surface.draw(group);
             var promise = surface.image();
             promise.always(function () {
@@ -6869,6 +6924,7 @@
         var slice = Array.prototype.slice;
         var browser = kendo.support.browser;
         var romanNumeral = kendo.util.arabicToRoman;
+        var mergeSort = kendo.util.mergeSort;
         var KENDO_PSEUDO_ELEMENT = 'KENDO-PSEUDO-ELEMENT';
         var IMAGE_CACHE = {};
         var nodeInfo = {};
@@ -6991,8 +7047,10 @@
                             var canceled = false, pageNum = 0;
                             (function next() {
                                 if (pageNum < x.pages.length) {
-                                    group.append(doOne(x.pages[pageNum]));
+                                    var page = doOne(x.pages[pageNum]);
+                                    group.append(page);
                                     options.progress({
+                                        page: page,
                                         pageNum: ++pageNum,
                                         totalPages: x.pages.length,
                                         cancel: function () {
@@ -7770,7 +7828,19 @@
             return window.getComputedStyle(element, pseudoElt || null);
         }
         function getPropertyValue(style, prop) {
-            return style.getPropertyValue(prop) || browser.webkit && style.getPropertyValue('-webkit-' + prop) || browser.mozilla && style.getPropertyValue('-moz-' + prop) || browser.opera && style.getPropertyValue('-o-' + prop) || browser.msie && style.getPropertyValue('-ms-' + prop);
+            var val = style.getPropertyValue(prop);
+            if (val == null || val === '') {
+                if (browser.webkit) {
+                    val = style.getPropertyValue('-webkit-' + prop);
+                } else if (browser.mozilla) {
+                    val = style.getPropertyValue('-moz-' + prop);
+                } else if (browser.opera) {
+                    val = style.getPropertyValue('-o-' + prop);
+                } else if (browser.msie) {
+                    val = style.getPropertyValue('-ms-' + prop);
+                }
+            }
+            return val;
         }
         function pleaseSetPropertyValue(style, prop, value, important) {
             style.setProperty(prop, value, important);
@@ -8926,16 +8996,16 @@
                         break;
                     }
                 }
-                blocks.sort(zIndexSort).forEach(function (el) {
+                mergeSort(blocks, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
-                floats.sort(zIndexSort).forEach(function (el) {
+                mergeSort(floats, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
-                inline.sort(zIndexSort).forEach(function (el) {
+                mergeSort(inline, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
-                positioned.sort(zIndexSort).forEach(function (el) {
+                mergeSort(positioned, zIndexSort).forEach(function (el) {
                     renderElement(el, group);
                 });
             }
@@ -9374,7 +9444,8 @@
         description: 'The Kendo UI low-level drawing API',
         depends: [
             'core',
-            'color'
+            'color',
+            'popup'
         ]
     };
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {

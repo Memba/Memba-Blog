@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -317,6 +317,39 @@
                 return output;
             }).join('');
         }
+        function mergeSort(a, cmp) {
+            if (a.length < 2) {
+                return a.slice();
+            }
+            function merge(a, b) {
+                var r = [], ai = 0, bi = 0, i = 0;
+                while (ai < a.length && bi < b.length) {
+                    if (cmp(a[ai], b[bi]) <= 0) {
+                        r[i++] = a[ai++];
+                    } else {
+                        r[i++] = b[bi++];
+                    }
+                }
+                if (ai < a.length) {
+                    r.push.apply(r, a.slice(ai));
+                }
+                if (bi < b.length) {
+                    r.push.apply(r, b.slice(bi));
+                }
+                return r;
+            }
+            return function sort(a) {
+                if (a.length <= 1) {
+                    return a;
+                }
+                var m = Math.floor(a.length / 2);
+                var left = a.slice(0, m);
+                var right = a.slice(m);
+                left = sort(left);
+                right = sort(right);
+                return merge(left, right);
+            }(a);
+        }
         deepExtend(kendo, {
             util: {
                 MAX_NUM: MAX_NUM,
@@ -352,7 +385,8 @@
                 arabicToRoman: arabicToRoman,
                 memoize: memoize,
                 ucs2encode: ucs2encode,
-                ucs2decode: ucs2decode
+                ucs2decode: ucs2decode,
+                mergeSort: mergeSort
             }
         });
         kendo.drawing.util = kendo.util;
@@ -665,15 +699,17 @@
     };
     (function ($, undefined) {
         var each = $.each, isArray = $.isArray, isPlainObject = $.isPlainObject, map = $.map, math = Math, noop = $.noop, extend = $.extend, proxy = $.proxy, kendo = window.kendo, Class = kendo.Class, Observable = kendo.Observable, DataSource = kendo.data.DataSource, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, getter = kendo.getter, isFn = kendo.isFunction, template = kendo.template, dataviz = kendo.dataviz, Axis = dataviz.Axis, AxisLabel = dataviz.AxisLabel, Box2D = dataviz.Box2D, BoxElement = dataviz.BoxElement, ChartElement = dataviz.ChartElement, Color = kendo.drawing.Color, CurveProcessor = dataviz.CurveProcessor, FloatElement = dataviz.FloatElement, Note = dataviz.Note, LogarithmicAxis = dataviz.LogarithmicAxis, NumericAxis = dataviz.NumericAxis, Point2D = dataviz.Point2D, RootElement = dataviz.RootElement, Ring = dataviz.Ring, ShapeElement = dataviz.ShapeElement, ShapeBuilder = dataviz.ShapeBuilder, TextBox = dataviz.TextBox, Title = dataviz.Title, alignPathToPixel = dataviz.alignPathToPixel, autoFormat = dataviz.autoFormat, dateComparer = dataviz.dateComparer, eventTargetElement = dataviz.eventTargetElement, getSpacing = dataviz.getSpacing, inArray = dataviz.inArray, interpolate = dataviz.interpolateValue, mwDelta = dataviz.mwDelta, round = dataviz.round, util = kendo.util, append = util.append, defined = util.defined, last = util.last, limitValue = util.limitValue, sparseArrayLimits = util.sparseArrayLimits, sparseArrayMin = util.sparseArrayMin, sparseArrayMax = util.sparseArrayMax, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, geom = dataviz.geometry, draw = dataviz.drawing;
-        var NS = '.kendoChart', ABOVE = 'above', AREA = 'area', AUTO = 'auto', FIT = 'fit', AXIS_LABEL_CLICK = dataviz.AXIS_LABEL_CLICK, BAR = 'bar', BAR_ALIGN_MIN_WIDTH = 6, BAR_BORDER_BRIGHTNESS = 0.8, BELOW = 'below', BLACK = '#000', BOTH = 'both', BOTTOM = 'bottom', BOX_PLOT = 'boxPlot', BUBBLE = 'bubble', BULLET = 'bullet', CANDLESTICK = 'candlestick', CATEGORY = 'category', CENTER = 'center', CHANGE = 'change', CIRCLE = 'circle', CONTEXTMENU_NS = 'contextmenu' + NS, CLIP = dataviz.CLIP, COLOR = 'color', COLUMN = 'column', COORD_PRECISION = dataviz.COORD_PRECISION, CROSS = 'cross', CSS_PREFIX = 'k-', CUSTOM = 'custom', DATABOUND = 'dataBound', DATE = 'date', DAYS = 'days', DEFAULT_FONT = dataviz.DEFAULT_FONT, DEFAULT_HEIGHT = dataviz.DEFAULT_HEIGHT, DEFAULT_PRECISION = dataviz.DEFAULT_PRECISION, DEFAULT_WIDTH = dataviz.DEFAULT_WIDTH, DEFAULT_ERROR_BAR_WIDTH = 4, DONUT = 'donut', DONUT_SECTOR_ANIM_DELAY = 50, DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', ERROR_LOW_FIELD = 'errorLow', ERROR_HIGH_FIELD = 'errorHigh', X_ERROR_LOW_FIELD = 'xErrorLow', X_ERROR_HIGH_FIELD = 'xErrorHigh', Y_ERROR_LOW_FIELD = 'yErrorLow', Y_ERROR_HIGH_FIELD = 'yErrorHigh', FADEIN = 'fadeIn', FIRST = 'first', FROM = 'from', FUNNEL = 'funnel', GLASS = 'glass', HORIZONTAL = 'horizontal', HORIZONTAL_WATERFALL = 'horizontalWaterfall', HOURS = 'hours', INITIAL_ANIMATION_DURATION = dataviz.INITIAL_ANIMATION_DURATION, INSIDE_BASE = 'insideBase', INSIDE_END = 'insideEnd', INTERPOLATE = 'interpolate', LEAVE = 'leave', LEFT = 'left', LEGEND_ITEM_CLICK = 'legendItemClick', LEGEND_ITEM_HOVER = 'legendItemHover', LINE = 'line', LINE_MARKER_SIZE = 8, LINEAR = 'linear', LOGARITHMIC = 'log', MAX = 'max', MAX_EXPAND_DEPTH = 5, MAX_VALUE = Number.MAX_VALUE, MIN = 'min', MIN_VALUE = -Number.MAX_VALUE, MINUTES = 'minutes', MONTHS = 'months', MOUSELEAVE_NS = 'mouseleave' + NS, MOUSEMOVE_TRACKING = 'mousemove.tracking', MOUSEMOVE_NS = 'mousemove' + NS, MOUSEMOVE_DELAY = 20, MOUSEWHEEL_DELAY = 150, MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, NOTE_CLICK = dataviz.NOTE_CLICK, NOTE_HOVER = dataviz.NOTE_HOVER, NOTE_TEXT = 'noteText', OBJECT = 'object', OHLC = 'ohlc', OUTSIDE_END = 'outsideEnd', PIE = 'pie', PIE_SECTOR_ANIM_DELAY = 70, PLOT_AREA_CLICK = 'plotAreaClick', PLOT_AREA_HOVER = 'plotAreaHover', POINTER = 'pointer', RANGE_BAR = 'rangeBar', RANGE_COLUMN = 'rangeColumn', RENDER = 'render', RIGHT = 'right', ROUNDED_BEVEL = 'roundedBevel', ROUNDED_GLASS = 'roundedGlass', SCATTER = 'scatter', SCATTER_LINE = 'scatterLine', SECONDS = 'seconds', SELECT_START = 'selectStart', SELECT = 'select', SELECT_END = 'selectEnd', SERIES_CLICK = 'seriesClick', SERIES_HOVER = 'seriesHover', START_SCALE = 0.001, STEP = 'step', SMOOTH = 'smooth', STD_ERR = 'stderr', STD_DEV = 'stddev', STRING = 'string', SUMMARY_FIELD = 'summary', TIME_PER_SECOND = 1000, TIME_PER_MINUTE = 60 * TIME_PER_SECOND, TIME_PER_HOUR = 60 * TIME_PER_MINUTE, TIME_PER_DAY = 24 * TIME_PER_HOUR, TIME_PER_WEEK = 7 * TIME_PER_DAY, TIME_PER_MONTH = 31 * TIME_PER_DAY, TIME_PER_YEAR = 365 * TIME_PER_DAY, TIME_PER_UNIT = {
+        var NS = '.kendoChart', ABOVE = 'above', AREA = 'area', AUTO = 'auto', FIT = 'fit', AXIS_LABEL_CLICK = dataviz.AXIS_LABEL_CLICK, BAR = 'bar', BAR_ALIGN_MIN_WIDTH = 6, BAR_BORDER_BRIGHTNESS = 0.8, BELOW = 'below', BLACK = '#000', BOTH = 'both', BOTTOM = 'bottom', BOX_PLOT = 'boxPlot', BUBBLE = 'bubble', BULLET = 'bullet', CANDLESTICK = 'candlestick', CATEGORY = 'category', CENTER = 'center', CHANGE = 'change', CIRCLE = 'circle', CONTEXTMENU_NS = 'contextmenu' + NS, CLIP = dataviz.CLIP, COLOR = 'color', COLUMN = 'column', COORD_PRECISION = dataviz.COORD_PRECISION, CROSS = 'cross', CSS_PREFIX = 'k-', CUSTOM = 'custom', DATABOUND = 'dataBound', DATE = 'date', DAYS = 'days', DEFAULT_FONT = dataviz.DEFAULT_FONT, DEFAULT_HEIGHT = dataviz.DEFAULT_HEIGHT, DEFAULT_PRECISION = dataviz.DEFAULT_PRECISION, DEFAULT_WIDTH = dataviz.DEFAULT_WIDTH, DEFAULT_ERROR_BAR_WIDTH = 4, DONUT = 'donut', DONUT_SECTOR_ANIM_DELAY = 50, DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', ERROR_LOW_FIELD = 'errorLow', ERROR_HIGH_FIELD = 'errorHigh', X_ERROR_LOW_FIELD = 'xErrorLow', X_ERROR_HIGH_FIELD = 'xErrorHigh', Y_ERROR_LOW_FIELD = 'yErrorLow', Y_ERROR_HIGH_FIELD = 'yErrorHigh', FADEIN = 'fadeIn', FIRST = 'first', FROM = 'from', FUNNEL = 'funnel', GLASS = 'glass', HORIZONTAL = 'horizontal', HORIZONTAL_WATERFALL = 'horizontalWaterfall', HOURS = 'hours', INITIAL_ANIMATION_DURATION = dataviz.INITIAL_ANIMATION_DURATION, INSIDE_BASE = 'insideBase', INSIDE_END = 'insideEnd', INTERPOLATE = 'interpolate', LEAVE = 'leave', LEFT = 'left', LEGEND_ITEM_CLICK = 'legendItemClick', LEGEND_ITEM_HOVER = 'legendItemHover', LINE = 'line', LINE_MARKER_SIZE = 8, LINEAR = 'linear', LOGARITHMIC = 'log', MAX = 'max', MAX_EXPAND_DEPTH = 5, MAX_VALUE = Number.MAX_VALUE, MIN = 'min', MIN_VALUE = -Number.MAX_VALUE, MINUTES = 'minutes', MONTHS = 'months', MOUSELEAVE_NS = 'mouseleave' + NS, MOUSEMOVE_TRACKING = 'mousemove.tracking', MOUSEMOVE_NS = 'mousemove' + NS, MOUSEMOVE_DELAY = 20, MOUSEWHEEL_DELAY = 150, MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, NOTE_CLICK = dataviz.NOTE_CLICK, NOTE_HOVER = dataviz.NOTE_HOVER, NOTE_TEXT = 'noteText', OBJECT = 'object', OHLC = 'ohlc', OUTSIDE_END = 'outsideEnd', PIE = 'pie', PIE_SECTOR_ANIM_DELAY = 70, PLOT_AREA_CLICK = 'plotAreaClick', PLOT_AREA_HOVER = 'plotAreaHover', POINTER = 'pointer', RANGE_BAR = 'rangeBar', RANGE_COLUMN = 'rangeColumn', RENDER = 'render', RIGHT = 'right', ROUNDED_BEVEL = 'roundedBevel', ROUNDED_GLASS = 'roundedGlass', SCATTER = 'scatter', SCATTER_LINE = 'scatterLine', SECONDS = 'seconds', MILLISECONDS = 'milliseconds', SELECT_START = 'selectStart', SELECT = 'select', SELECT_END = 'selectEnd', SERIES_CLICK = 'seriesClick', SERIES_HOVER = 'seriesHover', START_SCALE = 0.001, STEP = 'step', SMOOTH = 'smooth', STD_ERR = 'stderr', STD_DEV = 'stddev', STRING = 'string', SUMMARY_FIELD = 'summary', TIME_PER_MILLISECOND = 1, TIME_PER_SECOND = 1000 * TIME_PER_MILLISECOND, TIME_PER_MINUTE = 60 * TIME_PER_SECOND, TIME_PER_HOUR = 60 * TIME_PER_MINUTE, TIME_PER_DAY = 24 * TIME_PER_HOUR, TIME_PER_WEEK = 7 * TIME_PER_DAY, TIME_PER_MONTH = 31 * TIME_PER_DAY, TIME_PER_YEAR = 365 * TIME_PER_DAY, TIME_PER_UNIT = {
                 'years': TIME_PER_YEAR,
                 'months': TIME_PER_MONTH,
                 'weeks': TIME_PER_WEEK,
                 'days': TIME_PER_DAY,
                 'hours': TIME_PER_HOUR,
                 'minutes': TIME_PER_MINUTE,
-                'seconds': TIME_PER_SECOND
+                'seconds': TIME_PER_SECOND,
+                'milliseconds': TIME_PER_MILLISECOND
             }, TO = 'to', TOP = 'top', TOOLTIP_ANIMATION_DURATION = 150, TOOLTIP_OFFSET = 5, TOOLTIP_SHOW_DELAY = 100, TOOLTIP_HIDE_DELAY = 100, TOOLTIP_INVERSE = 'chart-tooltip-inverse', VALUE = 'value', VERTICAL_AREA = 'verticalArea', VERTICAL_BOX_PLOT = 'verticalBoxPlot', VERTICAL_BULLET = 'verticalBullet', VERTICAL_LINE = 'verticalLine', WATERFALL = 'waterfall', WEEKS = 'weeks', WHITE = '#fff', X = 'x', Y = 'y', YEARS = 'years', ZERO = 'zero', ZOOM_ACCELERATION = 3, ZOOM_START = 'zoomStart', ZOOM = 'zoom', ZOOM_END = 'zoomEnd', BASE_UNITS = [
+                MILLISECONDS,
                 SECONDS,
                 MINUTES,
                 HOURS,
@@ -695,6 +731,7 @@
                 HORIZONTAL_WATERFALL
             ];
         var DateLabelFormats = {
+            milliseconds: 'HH:mm:ss.fff',
             seconds: 'HH:mm:ss',
             minutes: 'HH:mm',
             hours: 'HH:mm',
@@ -862,9 +899,65 @@
                     }
                 }
             },
+            findAxisByName: function (name) {
+                return this.getAxis(name);
+            },
+            plotArea: function () {
+                return new ChartPlotArea(this._plotArea);
+            },
+            findPaneByName: function (name) {
+                var panes = this._plotArea.panes;
+                for (var idx = 0; idx < panes.length; idx++) {
+                    if (panes[idx].options.name === name) {
+                        return new ChartPane(this, panes[idx]);
+                    }
+                }
+            },
+            findPaneByIndex: function (idx) {
+                var panes = this._plotArea.panes;
+                if (panes[idx]) {
+                    return new ChartPane(this, panes[idx]);
+                }
+            },
+            findSeries: function (callback) {
+                var plotArea = this._plotArea;
+                var series = plotArea.srcSeries || plotArea.series;
+                for (var idx = 0; idx < series.length; idx++) {
+                    if (callback(series[idx])) {
+                        return new ChartSeries(this, series[idx]);
+                    }
+                }
+            },
+            findSeriesByName: function (name) {
+                return this._createSeries({ name: name });
+            },
+            findSeriesByIndex: function (index) {
+                return this._createSeries({ index: index });
+            },
+            _createSeries: function (options) {
+                var seriesOptions = this._seriesOptions(options);
+                if (seriesOptions) {
+                    return new ChartSeries(this, seriesOptions);
+                }
+            },
+            _seriesOptions: function (options) {
+                var plotArea = this._plotArea;
+                var series = plotArea.srcSeries || plotArea.series;
+                var seriesOptions;
+                if (defined(options.index)) {
+                    seriesOptions = series[options.index];
+                } else if (defined(options.name)) {
+                    for (var idx = 0; idx < series.length; idx++) {
+                        if (series[idx].name === options.name) {
+                            seriesOptions = series[idx];
+                            break;
+                        }
+                    }
+                }
+                return seriesOptions;
+            },
             toggleHighlight: function (show, filter) {
                 var plotArea = this._plotArea;
-                var highlight = this._highlight;
                 var firstSeries = (plotArea.srcSeries || plotArea.series || [])[0];
                 var seriesName, categoryName, points;
                 if (kendo.isFunction(filter)) {
@@ -885,10 +978,39 @@
                     }
                 }
                 if (points) {
-                    for (var idx = 0; idx < points.length; idx++) {
-                        highlight.togglePointHighlight(points[idx], show);
-                    }
+                    this._togglePointsHighlight(show, points);
                 }
+            },
+            _togglePointsHighlight: function (show, points) {
+                var highlight = this._highlight;
+                for (var idx = 0; idx < points.length; idx++) {
+                    highlight.togglePointHighlight(points[idx], show);
+                }
+            },
+            showTooltip: function (filter) {
+                var shared = this._sharedTooltip();
+                var tooltip = this._tooltip;
+                var plotArea = this._plotArea;
+                var point, categoryIndex;
+                if (kendo.isFunction(filter)) {
+                    point = plotArea.findPoint(filter);
+                    if (point && shared) {
+                        categoryIndex = point.categoryIx;
+                    }
+                } else if (shared && defined(filter)) {
+                    categoryIndex = plotArea.categoryAxis.categoryIndex(filter);
+                }
+                if (shared) {
+                    if (categoryIndex >= 0) {
+                        var points = this._plotArea.pointsByCategoryIndex(categoryIndex);
+                        tooltip.showAt(points);
+                    }
+                } else if (point) {
+                    tooltip.show(point);
+                }
+            },
+            hideTooltip: function () {
+                this._tooltip.hide();
             },
             _initSurface: function () {
                 var surface = this.surface;
@@ -1151,9 +1273,12 @@
                 }
             },
             _start: function (e) {
-                var chart = this, events = chart._events;
+                var chart = this, events = chart._events, coords = chart._eventCoordinates(e);
+                if (!chart._plotArea.backgroundContainsPoint(coords)) {
+                    return;
+                }
                 if (defined(events[DRAG_START] || events[DRAG] || events[DRAG_END])) {
-                    chart._startNavigation(e, DRAG_START);
+                    chart._startNavigation(e, coords, DRAG_START);
                 }
                 if (chart._pannable && chart._pannable.start(e)) {
                     this.surface.suspendTracking();
@@ -1204,7 +1329,16 @@
                 }
             },
             _end: function (e) {
-                this._endNavigation(e, DRAG_END);
+                var pannable = this._pannable;
+                if (pannable && pannable.end(e)) {
+                    this.surface.resumeTracking();
+                    this.trigger(DRAG_END, {
+                        axisRanges: axisRanges(this._plotArea.axes),
+                        originalEvent: e
+                    });
+                } else {
+                    this._endNavigation(e, DRAG_END);
+                }
                 if (this._zoomSelection) {
                     var ranges = this._zoomSelection.end(e);
                     if (ranges && !this.trigger(ZOOM, {
@@ -1218,12 +1352,12 @@
                         });
                     }
                 }
-                if (this._pannable && this._pannable.end(e)) {
-                    this.surface.resumeTracking();
-                }
             },
             _mousewheel: function (e) {
-                var chart = this, origEvent = e.originalEvent, prevented, delta = mwDelta(e), totalDelta, state = chart._navState, axes, i, currentAxis, axisName, ranges = {}, mousewheelZoom = chart._mousewheelZoom;
+                var chart = this, origEvent = e.originalEvent, prevented, delta = mwDelta(e), totalDelta, state = chart._navState, axes, i, currentAxis, axisName, ranges = {}, mousewheelZoom = chart._mousewheelZoom, coords = chart._eventCoordinates(origEvent);
+                if (!chart._plotArea.backgroundContainsPoint(coords)) {
+                    return;
+                }
                 if (mousewheelZoom) {
                     var args = {
                         delta: delta,
@@ -1254,7 +1388,7 @@
                     }
                 } else {
                     if (!state) {
-                        prevented = chart._startNavigation(origEvent, ZOOM_START);
+                        prevented = chart._startNavigation(origEvent, coords, ZOOM_START);
                         if (!prevented) {
                             state = chart._navState;
                         }
@@ -1284,35 +1418,26 @@
                     }
                 }
             },
-            _startNavigation: function (e, chartEvent) {
-                var chart = this, coords = chart._eventCoordinates(e), plotArea = chart._model._plotArea, pane = plotArea.findPointPane(coords), axes = plotArea.axes.slice(0), i, currentAxis, inAxis = false, prevented;
+            _startNavigation: function (e, coords, chartEvent) {
+                var chart = this, plotArea = chart._model._plotArea, pane = plotArea.findPointPane(coords), axes = plotArea.axes.slice(0), prevented;
                 if (!pane) {
                     return;
                 }
-                for (i = 0; i < axes.length; i++) {
-                    currentAxis = axes[i];
-                    if (currentAxis.box.containsPoint(coords)) {
-                        inAxis = true;
-                        break;
-                    }
-                }
-                if (!inAxis && plotArea.backgroundBox().containsPoint(coords)) {
-                    var ranges = axisRanges(axes);
-                    prevented = chart.trigger(chartEvent, {
+                var ranges = axisRanges(axes);
+                prevented = chart.trigger(chartEvent, {
+                    axisRanges: ranges,
+                    originalEvent: e
+                });
+                if (prevented) {
+                    chart._userEvents.cancel();
+                } else {
+                    chart._suppressHover = true;
+                    chart._unsetActivePoint();
+                    chart._navState = {
                         axisRanges: ranges,
-                        originalEvent: e
-                    });
-                    if (prevented) {
-                        chart._userEvents.cancel();
-                    } else {
-                        chart._suppressHover = true;
-                        chart._unsetActivePoint();
-                        chart._navState = {
-                            axisRanges: ranges,
-                            pane: pane,
-                            axes: axes
-                        };
-                    }
+                        pane: pane,
+                        axes: axes
+                    };
                 }
             },
             _endNavigation: function (e, chartEvent) {
@@ -1385,7 +1510,7 @@
                     return;
                 }
                 point = chart._drawingChartElement(element, e, function (element) {
-                    return element.hover;
+                    return element.hover && !(element instanceof PlotAreaBase);
                 });
                 if (point && !point.hover(chart, e)) {
                     chart._activePoint = point;
@@ -1426,7 +1551,9 @@
             _mousemove: function (e) {
                 var coords = this._eventCoordinates(e);
                 this._trackCrosshairs(coords);
-                this._plotArea.hover(this, e);
+                if (this._plotArea.hover) {
+                    this._plotArea.hover(this, e);
+                }
                 if (this._sharedTooltip()) {
                     this._trackSharedTooltip(coords, e);
                 }
@@ -1485,12 +1612,13 @@
                     highlight.hide();
                 }
             },
-            _onDataChanged: function () {
+            _onDataChanged: function (e) {
                 var chart = this, options = chart.options, series = chart._sourceSeries || options.series, seriesIx, seriesLength = series.length, data = chart.dataSource.view(), grouped = (chart.dataSource.group() || []).length > 0, processedSeries = [], currentSeries;
                 for (seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
                     currentSeries = series[seriesIx];
                     if (chart._isBindable(currentSeries) && grouped) {
                         append(processedSeries, groupSeries(currentSeries, data));
+                        this._applyGroupVisibleState(processedSeries, e);
                     } else {
                         processedSeries.push(currentSeries || []);
                     }
@@ -1502,6 +1630,26 @@
                 chart._bindCategories();
                 chart._hasData = true;
                 chart._deferRedraw();
+            },
+            _applyGroupVisibleState: function (processedSeries, e) {
+                if (e && e.action) {
+                    var visibleState = this._groupVisibleState = this._groupVisibleState || {};
+                    for (var idx = 0; idx < processedSeries.length; idx++) {
+                        if (visibleState[processedSeries[idx]._groupValue] === false) {
+                            processedSeries[idx].visible = false;
+                        }
+                    }
+                } else {
+                    delete this._groupVisibleState;
+                }
+            },
+            _saveGroupVisibleState: function (series) {
+                if (defined(series._groupValue)) {
+                    if (!this._groupVisibleState) {
+                        this._groupVisibleState = {};
+                    }
+                    this._groupVisibleState[series._groupValue] = series.visible;
+                }
             },
             _deferRedraw: function () {
                 var chart = this;
@@ -1624,13 +1772,13 @@
                 return result;
             },
             _legendItemClick: function (seriesIndex, pointIndex) {
-                var chart = this, plotArea = chart._plotArea, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex], originalSeries = (chart._sourceSeries || [])[seriesIndex] || currentSeries, transitionsState, visible, point;
+                var chart = this, plotArea = chart._plotArea, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex], visible, point;
                 if (inArray(currentSeries.type, [
                         PIE,
                         DONUT,
                         FUNNEL
                     ])) {
-                    point = originalSeries.data[pointIndex];
+                    point = currentSeries.data[pointIndex];
                     if (!defined(point.visible)) {
                         visible = false;
                     } else {
@@ -1638,31 +1786,36 @@
                     }
                     point.visible = visible;
                 } else {
-                    visible = !originalSeries.visible;
-                    originalSeries.visible = visible;
-                    currentSeries.visible = visible;
+                    currentSeries.visible = !currentSeries.visible;
+                    this._saveGroupVisibleState(currentSeries);
                 }
-                if (chart.options.transitions) {
-                    chart.options.transitions = false;
+                this._noTransitionsRedraw();
+            },
+            _noTransitionsRedraw: function () {
+                var options = this.options;
+                var transitionsState;
+                if (options.transitions) {
+                    options.transitions = false;
                     transitionsState = true;
                 }
-                chart.redraw();
+                this.redraw();
                 if (transitionsState) {
-                    chart.options.transitions = true;
+                    options.transitions = true;
                 }
             },
             _legendItemHover: function (seriesIndex, pointIndex) {
-                var chart = this, plotArea = chart._plotArea, highlight = chart._highlight, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex], index, items;
+                var chart = this, plotArea = chart._plotArea, highlight = chart._highlight, currentSeries = (plotArea.srcSeries || plotArea.series)[seriesIndex], items;
                 if (inArray(currentSeries.type, [
                         PIE,
                         DONUT,
                         FUNNEL
                     ])) {
-                    index = pointIndex;
+                    items = plotArea.findPoint(function (point) {
+                        return point.series.index === seriesIndex && point.index === pointIndex;
+                    });
                 } else {
-                    index = seriesIndex;
+                    items = plotArea.pointsBySeriesIndex(seriesIndex);
                 }
-                items = plotArea.pointsBySeriesIndex(index);
                 highlight.show(items);
             },
             _shouldAttachMouseMove: function () {
@@ -1729,6 +1882,15 @@
                 }
                 if (chart._zoomSelection) {
                     chart._zoomSelection.destroy();
+                    delete chart._zoomSelection;
+                }
+                if (chart._pannable) {
+                    chart._pannable.destroy();
+                    delete chart._pannable;
+                }
+                if (chart._mousewheelZoom) {
+                    chart._mousewheelZoom.destroy();
+                    delete chart._mousewheelZoom;
                 }
             }
         });
@@ -2415,6 +2577,15 @@
                 slotBox[valueAxis + 2] = reverse ? p1 : p2;
                 return slotBox;
             },
+            slot: function (from, to, limit) {
+                if (typeof from === 'string') {
+                    from = this.categoryIndex(from);
+                }
+                if (typeof to === 'string') {
+                    to = this.categoryIndex(to);
+                }
+                return Axis.fn.slot.call(this, from, to, limit);
+            },
             pointCategoryIndex: function (point) {
                 var axis = this, options = axis.options, reverse = options.reverse, justified = options.justified, valueAxis = options.vertical ? Y : X, lineBox = axis.lineBox(), range = axis.rangeIndices(), startValue = reverse ? range.max : range.min, scale = this.getScale(), lineStart = lineBox[valueAxis + 1], lineEnd = lineBox[valueAxis + 2], pos = point[valueAxis];
                 if (pos < lineStart || pos > lineEnd) {
@@ -2523,6 +2694,9 @@
                     min: math.min(min, max),
                     max: math.max(min, max)
                 };
+            },
+            valueRange: function () {
+                return this.range();
             }
         });
         var DateCategoryAxis = CategoryAxis.extend({
@@ -2557,6 +2731,11 @@
                 type: DATE,
                 labels: { dateFormats: DateLabelFormats },
                 autoBaseUnitSteps: {
+                    milliseconds: [
+                        1,
+                        10,
+                        100
+                    ],
                     seconds: [
                         1,
                         2,
@@ -2804,7 +2983,7 @@
                     var maxDiff = last(autoBaseUnitSteps[baseUnit]) * maxDateGroups * TIME_PER_UNIT[baseUnit];
                     var rangeDiff = dateDiff(rangeMax, rangeMin);
                     var ticks;
-                    if (diff < TIME_PER_UNIT[baseUnit] && baseUnit !== SECONDS) {
+                    if (diff < TIME_PER_UNIT[baseUnit] && baseUnit !== MILLISECONDS) {
                         baseUnit = BASE_UNITS[baseUnitIndex - 1];
                         autoBaseUnitStep = last(autoBaseUnitSteps[baseUnit]);
                         ticks = (rangeDiff - (maxDateGroups - 1) * autoBaseUnitStep * TIME_PER_UNIT[baseUnit]) / 2;
@@ -2833,7 +3012,7 @@
                 }
                 min = toDate(limitValue(min, totalLimits.min, totalLimits.max));
                 max = toDate(limitValue(max, totalLimits.min, totalLimits.max));
-                if (dateDiff(max, min) > 0) {
+                if (min && max && dateDiff(max, min) > 0) {
                     return {
                         min: min,
                         max: max,
@@ -2966,6 +3145,14 @@
                     b = axis.categoryIndex(b);
                 }
                 return CategoryAxis.fn.getSlot.call(axis, a, b, limit);
+            },
+            valueRange: function () {
+                var options = this.options;
+                var range = this._categoryRange(options.srcCategories || options.categories);
+                return {
+                    min: toDate(range.min),
+                    max: toDate(range.max)
+                };
             }
         });
         var DateValueAxis = Axis.extend({
@@ -2977,7 +3164,9 @@
                     max: toDate(options.max),
                     axisCrossingValue: toDate(options.axisCrossingValues || options.axisCrossingValue)
                 });
-                options = axis.applyDefaults(toDate(seriesMin), toDate(seriesMax), options);
+                this.seriesMin = toDate(seriesMin);
+                this.seriesMax = toDate(seriesMax);
+                options = axis.applyDefaults(this.seriesMin, this.seriesMax, options);
                 Axis.fn.init.call(axis, options);
             },
             options: {
@@ -3189,6 +3378,7 @@
                 return {
                     value: this.value,
                     percentage: this.percentage,
+                    stackValue: this.stackValue,
                     category: this.category,
                     series: this.series,
                     dataItem: this.dataItem,
@@ -3253,6 +3443,7 @@
                             category: this.category,
                             value: this.value,
                             percentage: this.percentage,
+                            stackValue: this.stackValue,
                             runningTotal: this.runningTotal,
                             total: this.total,
                             series: this.series
@@ -3299,6 +3490,7 @@
                             sender: bar.getChart(),
                             series: bar.series,
                             percentage: bar.percentage,
+                            stackValue: this.stackValue,
                             runningTotal: bar.runningTotal,
                             total: bar.total,
                             rect: box.toRect(),
@@ -3853,6 +4045,7 @@
                         if (valueSlot) {
                             var pointSlot = chart.pointSlot(categorySlot, valueSlot);
                             point.aboveAxis = chart.aboveAxis(point, valueAxis);
+                            point.stackValue = plotRange[1];
                             if (chart.options.isStacked100) {
                                 point.percentage = chart.plotValue(point);
                             }
@@ -4550,6 +4743,7 @@
                             category: point.category,
                             value: point.value,
                             percentage: point.percentage,
+                            stackValue: this.stackValue,
                             series: point.series
                         });
                     } else if (labels.format) {
@@ -6840,7 +7034,7 @@
                 }
             },
             createVisual: function () {
-                var chart = this, options = chart.options, connectors = options.connectors, points = chart.points, connectorLine, count = points.length, space = 4, sector, angle, segment, seriesIx, label, i;
+                var chart = this, options = chart.options, connectors = options.connectors, points = chart.points, connectorLine, count = points.length, space = 4, connectorsColor, sector, angle, segment, seriesIx, label, i;
                 ChartElement.fn.createVisual.call(this);
                 this._connectorLines = [];
                 for (i = 0; i < count; i++) {
@@ -6849,10 +7043,11 @@
                     angle = sector.middle();
                     label = segment.label;
                     seriesIx = { seriesId: segment.seriesIx };
+                    connectorsColor = (segment.options.connectors || {}).color || connectors.color;
                     if (label) {
                         connectorLine = new draw.Path({
                             stroke: {
-                                color: connectors.color,
+                                color: connectorsColor,
                                 width: connectors.width
                             },
                             animation: {
@@ -7291,6 +7486,29 @@
                 this.visual.append(this.content.visual);
                 this.renderComplete();
             },
+            chartsBox: function () {
+                var axes = this.axes, length = axes.length, chartsBox = new Box2D(), axisValueField, lineBox, axis, idx;
+                for (idx = 0; idx < length; idx++) {
+                    axis = axes[idx];
+                    axisValueField = axis.options.vertical ? Y : X;
+                    lineBox = axis.lineBox();
+                    chartsBox[axisValueField + 1] = lineBox[axisValueField + 1];
+                    chartsBox[axisValueField + 2] = lineBox[axisValueField + 2];
+                }
+                if (chartsBox.x2 === 0) {
+                    var allAxes = this.parent.axes;
+                    length = allAxes.length;
+                    for (idx = 0; idx < length; idx++) {
+                        axis = allAxes[idx];
+                        if (!axis.options.vertical) {
+                            lineBox = axis.lineBox();
+                            chartsBox.x1 = lineBox.x1;
+                            chartsBox.x2 = lineBox.x2;
+                        }
+                    }
+                }
+                return chartsBox;
+            },
             clipBox: function () {
                 return this.chartContainer.clipBox;
             }
@@ -7311,15 +7529,7 @@
                 return false;
             },
             _clipBox: function () {
-                var container = this, pane = container.pane, axes = pane.axes, length = axes.length, clipBox = pane.box.clone(), axisValueField, idx, lineBox, axis;
-                for (idx = 0; idx < length; idx++) {
-                    axis = axes[idx];
-                    axisValueField = axis.options.vertical ? Y : X;
-                    lineBox = axis.lineBox();
-                    clipBox[axisValueField + 1] = lineBox[axisValueField + 1];
-                    clipBox[axisValueField + 2] = lineBox[axisValueField + 2];
-                }
-                return clipBox;
+                return this.pane.chartsBox();
             },
             createVisual: function () {
                 this.visual = new draw.Group({ zIndex: 0 });
@@ -7628,27 +7838,32 @@
                 axis.reflow(axisBox);
             },
             alignAxes: function (xAxes, yAxes) {
-                var plotArea = this, xAnchor = xAxes[0], yAnchor = yAxes[0], xAnchorCrossings = plotArea.axisCrossingValues(xAnchor, yAxes), yAnchorCrossings = plotArea.axisCrossingValues(yAnchor, xAxes), leftAnchors = {}, rightAnchors = {}, topAnchors = {}, bottomAnchors = {}, pane, paneId, axis, i;
+                var plotArea = this, xAnchor = xAxes[0], yAnchor = yAxes[0], xAnchorCrossings = plotArea.axisCrossingValues(xAnchor, yAxes), yAnchorCrossings = plotArea.axisCrossingValues(yAnchor, xAxes), anchor, anchorCrossings, leftAnchors = {}, rightAnchors = {}, topAnchors = {}, bottomAnchors = {}, pane, paneId, axis, i;
                 for (i = 0; i < yAxes.length; i++) {
                     axis = yAxes[i];
                     pane = axis.pane;
                     paneId = pane.id;
-                    plotArea.alignAxisTo(axis, xAnchor, yAnchorCrossings[i], xAnchorCrossings[i]);
+                    anchor = paneAnchor(xAxes, pane) || xAnchor;
+                    anchorCrossings = xAnchorCrossings;
+                    if (anchor !== xAnchor) {
+                        anchorCrossings = plotArea.axisCrossingValues(anchor, yAxes);
+                    }
+                    plotArea.alignAxisTo(axis, anchor, yAnchorCrossings[i], anchorCrossings[i]);
                     if (axis.options._overlap) {
                         continue;
                     }
-                    if (round(axis.lineBox().x1) === round(xAnchor.lineBox().x1)) {
+                    if (round(axis.lineBox().x1) === round(anchor.lineBox().x1)) {
                         if (leftAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(leftAnchors[paneId].box, LEFT).translate(-axis.options.margin, 0));
                         }
                         leftAnchors[paneId] = axis;
                     }
-                    if (round(axis.lineBox().x2) === round(xAnchor.lineBox().x2)) {
+                    if (round(axis.lineBox().x2) === round(anchor.lineBox().x2)) {
                         if (!axis._mirrored) {
                             axis.options.labels.mirror = !axis.options.labels.mirror;
                             axis._mirrored = true;
                         }
-                        plotArea.alignAxisTo(axis, xAnchor, yAnchorCrossings[i], xAnchorCrossings[i]);
+                        plotArea.alignAxisTo(axis, anchor, yAnchorCrossings[i], anchorCrossings[i]);
                         if (rightAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(rightAnchors[paneId].box, RIGHT).translate(axis.options.margin, 0));
                         }
@@ -7663,22 +7878,27 @@
                     axis = xAxes[i];
                     pane = axis.pane;
                     paneId = pane.id;
-                    plotArea.alignAxisTo(axis, yAnchor, xAnchorCrossings[i], yAnchorCrossings[i]);
+                    anchor = paneAnchor(yAxes, pane) || yAnchor;
+                    anchorCrossings = yAnchorCrossings;
+                    if (anchor !== yAnchor) {
+                        anchorCrossings = plotArea.axisCrossingValues(anchor, xAxes);
+                    }
+                    plotArea.alignAxisTo(axis, anchor, xAnchorCrossings[i], anchorCrossings[i]);
                     if (axis.options._overlap) {
                         continue;
                     }
-                    if (round(axis.lineBox().y1) === round(yAnchor.lineBox().y1)) {
+                    if (round(axis.lineBox().y1) === round(anchor.lineBox().y1)) {
                         if (!axis._mirrored) {
                             axis.options.labels.mirror = !axis.options.labels.mirror;
                             axis._mirrored = true;
                         }
-                        plotArea.alignAxisTo(axis, yAnchor, xAnchorCrossings[i], yAnchorCrossings[i]);
+                        plotArea.alignAxisTo(axis, anchor, xAnchorCrossings[i], anchorCrossings[i]);
                         if (topAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(topAnchors[paneId].box, TOP).translate(0, -axis.options.margin));
                         }
                         topAnchors[paneId] = axis;
                     }
-                    if (round(axis.lineBox().y2, COORD_PRECISION) === round(yAnchor.lineBox().y2, COORD_PRECISION)) {
+                    if (round(axis.lineBox().y2, COORD_PRECISION) === round(anchor.lineBox().y2, COORD_PRECISION)) {
                         if (bottomAnchors[paneId]) {
                             axis.reflow(axis.box.alignTo(bottomAnchors[paneId].box, BOTTOM).translate(0, axis.options.margin));
                         }
@@ -7853,9 +8073,30 @@
                 }
                 return box || plotArea.box;
             },
+            chartsBoxes: function () {
+                var panes = this.panes;
+                var boxes = [];
+                for (var idx = 0; idx < panes.length; idx++) {
+                    boxes.push(panes[idx].chartsBox());
+                }
+                return boxes;
+            },
+            addBackgroundPaths: function (multipath) {
+                var boxes = this.chartsBoxes();
+                for (var idx = 0; idx < boxes.length; idx++) {
+                    multipath.paths.push(draw.Path.fromRect(boxes[idx].toRect()));
+                }
+            },
+            backgroundContainsPoint: function (point) {
+                var boxes = this.chartsBoxes();
+                for (var idx = 0; idx < boxes.length; idx++) {
+                    if (boxes[idx].containsPoint(point)) {
+                        return true;
+                    }
+                }
+            },
             createVisual: function () {
                 ChartElement.fn.createVisual.call(this);
-                var bgBox = this.backgroundBox();
                 var options = this.options.plotArea;
                 var border = options.border || {};
                 var background = options.background;
@@ -7864,7 +8105,7 @@
                     background = WHITE;
                     opacity = 0;
                 }
-                var bg = this._bgVisual = draw.Path.fromRect(bgBox.toRect(), {
+                var bg = this._bgVisual = new draw.MultiPath({
                     fill: {
                         color: background,
                         opacity: opacity
@@ -7876,6 +8117,7 @@
                     },
                     zIndex: -1
                 });
+                this.addBackgroundPaths(bg);
                 this.appendVisual(bg);
             },
             pointsByCategoryIndex: function (categoryIndex) {
@@ -7900,18 +8142,9 @@
                 return result;
             },
             pointsBySeriesIndex: function (seriesIndex) {
-                var charts = this.charts, result = [], points, point, i, j, chart;
-                for (i = 0; i < charts.length; i++) {
-                    chart = charts[i];
-                    points = chart.points;
-                    for (j = 0; j < points.length; j++) {
-                        point = points[j];
-                        if (point && point.options.index === seriesIndex) {
-                            result.push(point);
-                        }
-                    }
-                }
-                return result;
+                return this.filterPoints(function (point) {
+                    return point.series.index === seriesIndex;
+                });
             },
             pointsBySeriesName: function (name) {
                 return this.filterPoints(function (point) {
@@ -7931,6 +8164,19 @@
                     }
                 }
                 return result;
+            },
+            findPoint: function (callback) {
+                var charts = this.charts, points, point, i, j, chart;
+                for (i = 0; i < charts.length; i++) {
+                    chart = charts[i];
+                    points = chart.points;
+                    for (j = 0; j < points.length; j++) {
+                        point = points[j];
+                        if (point && callback(point)) {
+                            return point;
+                        }
+                    }
+                }
             },
             paneByPoint: function (point) {
                 var plotArea = this, panes = plotArea.panes, pane, i;
@@ -8200,12 +8446,9 @@
                 return axis;
             },
             stackableChartOptions: function (firstSeries, pane) {
-                var stack = firstSeries.stack, isStacked100 = stack && stack.type === '100%', clip;
-                if (defined(pane.options.clip)) {
-                    clip = pane.options.clip;
-                } else if (isStacked100) {
-                    clip = false;
-                }
+                var stack = firstSeries.stack;
+                var isStacked100 = stack && stack.type === '100%';
+                var clip = pane.options.clip;
                 return {
                     isStacked: stack,
                     isStacked100: isStacked100,
@@ -8816,6 +9059,7 @@
                         series: point.series,
                         dataItem: point.dataItem,
                         value: point.value,
+                        stackValue: point.stackValue,
                         preventDefault: preventDefault,
                         visual: point.highlightVisual(),
                         show: show
@@ -9071,17 +9315,18 @@
                 categoryFormat: '{0:d}'
             },
             showAt: function (points, coords) {
-                var tooltip = this, options = tooltip.options, plotArea = tooltip.plotArea, axis = plotArea.categoryAxis, index = axis.pointCategoryIndex(coords), category = axis.getCategory(coords), slot = axis.getSlot(index), content;
                 points = $.grep(points, function (p) {
                     var tooltip = p.series.tooltip, excluded = tooltip && tooltip.visible === false;
                     return !excluded;
                 });
                 if (points.length > 0) {
-                    content = tooltip._content(points, category);
-                    tooltip.element.html(content);
-                    tooltip.anchor = tooltip._slotAnchor(coords, slot);
-                    tooltip.setStyle(options, points[0]);
-                    BaseTooltip.fn.show.call(tooltip);
+                    var point = points[0];
+                    var slot = this.plotArea.categoryAxis.getSlot(point.categoryIx);
+                    var content = this._content(points, point.category);
+                    this.element.html(content);
+                    this.anchor = coords ? this._slotAnchor(coords, slot) : this._defaultAnchor(point, slot);
+                    this.setStyle(this.options, point);
+                    BaseTooltip.fn.show.call(this);
                 }
             },
             _slotAnchor: function (point, slot) {
@@ -9091,6 +9336,22 @@
                 } else {
                     anchor = Point2D(slot.center().x, hCenter);
                 }
+                return anchor;
+            },
+            _defaultAnchor: function (point, slot) {
+                var box = point.owner.pane.chartsBox();
+                var vertical = this.plotArea.categoryAxis.options.vertical;
+                var center = box.center();
+                var slotCenter = slot.center();
+                var size = this._measure();
+                var anchor;
+                if (vertical) {
+                    anchor = new Point2D(center.x, slotCenter.y);
+                } else {
+                    anchor = new Point2D(slotCenter.x, center.y);
+                }
+                anchor.x -= size.width / 2;
+                anchor.y -= size.height / 2;
                 return anchor;
             },
             _content: function (points, category) {
@@ -9395,7 +9656,13 @@
                     that.set(that._index(options.from), that._index(options.to));
                     that.bind(that.events, that.options);
                     that.wrapper[0].style.cssText = that.wrapper[0].style.cssText;
-                    that.wrapper.on(MOUSEWHEEL_NS, proxy(that._mousewheel, that));
+                    if (that.options.mousewheel !== false) {
+                        that.wrapper.on(MOUSEWHEEL_NS, proxy(that._mousewheel, that));
+                    } else {
+                        that.wrapper.on(MOUSEWHEEL_NS, function (e) {
+                            e.stopPropagation();
+                        });
+                    }
                     if (kendo.UserEvents) {
                         that.userEvents = new kendo.UserEvents(that.wrapper, {
                             global: true,
@@ -9695,6 +9962,9 @@
                     plotArea.redraw(plotArea.panes);
                 }
             },
+            destroy: function () {
+                delete this.plotArea;
+            },
             _panAxes: function (e, position) {
                 var plotArea = this.plotArea;
                 var delta = -e[position].delta;
@@ -9803,6 +10073,7 @@
             destroy: function () {
                 this._marquee.remove();
                 delete this._marquee;
+                delete this.chart;
             },
             _updateAxisRanges: function (start, end) {
                 var lock = (this.options.lock || '').toLowerCase();
@@ -9894,6 +10165,9 @@
                     }
                     plotArea.redraw(plotArea.panes);
                 }
+            },
+            destroy: function () {
+                delete this.chart;
             }
         });
         var SeriesAggregator = function (series, binder, defaultAggregates) {
@@ -9970,9 +10244,43 @@
                 return values;
             }
         };
+        var ChartPlotArea = Class.extend({
+            init: function (plotArea) {
+                this._plotArea = plotArea;
+                this.visual = plotArea.visual;
+                this.backgroundVisual = plotArea._bgVisual;
+            }
+        });
+        var ChartPane = Class.extend({
+            init: function (chart, pane) {
+                this._chart = chart;
+                this._pane = pane;
+                this.visual = pane.visual;
+                this.chartsVisual = pane.chartContainer.visual;
+                this.name = pane.options.name;
+            },
+            series: function () {
+                var chart = this._chart;
+                var seriesByPane = chart._plotArea.groupSeriesByPane();
+                var series = seriesByPane[this.name || 'default'];
+                var result = [];
+                if (series) {
+                    for (var idx = 0; idx < series.length; idx++) {
+                        result.push(new ChartSeries(chart, series[idx]));
+                    }
+                }
+                return result;
+            }
+        });
         var ChartAxis = Class.extend({
             init: function (axis) {
                 this._axis = axis;
+                this.options = axis.options;
+            },
+            value: function (point) {
+                var axis = this._axis;
+                var value = axis.getCategory ? axis.getCategory(point) : axis.getValue(point);
+                return value;
             },
             slot: function (from, to, limit) {
                 if (!defined(limit)) {
@@ -9982,6 +10290,119 @@
             },
             range: function () {
                 return this._axis.range();
+            },
+            valueRange: function () {
+                return this._axis.valueRange();
+            }
+        });
+        var ChartSeries = Class.extend({
+            init: function (chart, options) {
+                this._chart = chart;
+                this._options = options;
+            },
+            points: function (filter) {
+                var points = this._points;
+                if (!points) {
+                    var series = this._seriesOptions();
+                    var plotArea = this._chart._plotArea;
+                    this._points = points = plotArea.pointsBySeriesIndex(series.index);
+                }
+                if (kendo.isFunction(filter)) {
+                    points = this._filterPoints(points, filter);
+                }
+                return points;
+            },
+            data: function (data) {
+                var series = this._seriesOptions();
+                if (data) {
+                    var chart = this._chart;
+                    var plotArea = chart._plotArea;
+                    series.data = data;
+                    if (series.categoryField) {
+                        var axis = plotArea.seriesCategoryAxis(series);
+                        var options = [].concat(chart.options.categoryAxis);
+                        chart._bindCategoryAxisFromSeries(options[axis.axisIndex], axis.axisIndex);
+                    }
+                    chart._noTransitionsRedraw();
+                    this._clearFields();
+                }
+                return series.data;
+            },
+            findPoint: function (filter) {
+                var points = this.points();
+                for (var idx = 0; idx < points.length; idx++) {
+                    if (filter(points[idx])) {
+                        return points[idx];
+                    }
+                }
+            },
+            toggleHighlight: function (show, elements) {
+                if (!elements) {
+                    elements = this.points();
+                } else if (kendo.isFunction(elements)) {
+                    elements = this.points(elements);
+                } else {
+                    elements = isArray(elements) ? elements : [elements];
+                }
+                this._chart._togglePointsHighlight(show, elements);
+            },
+            toggleVisibility: function (visible, filter) {
+                var chart = this._chart;
+                var seriesOptions = this._seriesOptions();
+                var hasFilter = kendo.isFunction(filter);
+                if (!hasFilter) {
+                    seriesOptions.visible = visible;
+                    chart._saveGroupVisibleState(seriesOptions);
+                } else {
+                    if (inArray(seriesOptions.type, [
+                            PIE,
+                            DONUT,
+                            FUNNEL
+                        ])) {
+                        var data = this._filterData(filter);
+                        for (var idx = 0; idx < data.length; idx++) {
+                            data[idx].visible = visible;
+                        }
+                    } else {
+                        seriesOptions.visible = function (data) {
+                            return filter(data.dataItem) ? visible : true;
+                        };
+                    }
+                }
+                chart._noTransitionsRedraw();
+                this._clearFields();
+            },
+            _filterData: function (filter) {
+                var data = this._seriesOptions().data;
+                var length = data.length;
+                var result = [];
+                for (var idx = 0; idx < length; idx++) {
+                    if (filter(data[idx])) {
+                        result.push(data[idx]);
+                    }
+                }
+                return result;
+            },
+            _filterPoints: function (points, filter) {
+                var result = [];
+                var length = points.length;
+                for (var idx = 0; idx < length; idx++) {
+                    if (filter(points[idx])) {
+                        result.push(points[idx]);
+                    }
+                }
+                return result;
+            },
+            _seriesOptions: function () {
+                var series = this._series;
+                if (!series) {
+                    series = this._series = this._chart._seriesOptions(this._options);
+                }
+                return series;
+            },
+            _clearFields: function () {
+                delete this._points;
+                delete this._series;
             }
         });
         function intersection(a1, a2, b1, b2) {
@@ -10168,7 +10589,9 @@
                     result = new Date(date.getFullYear(), date.getMonth(), date.getDate() + value);
                     kendo.date.adjustDST(result, hours);
                 } else if (unit === HOURS) {
-                    result = addTicks(new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours()), value * TIME_PER_HOUR);
+                    date = new Date(date);
+                    date.setUTCMinutes(0, 0, 0);
+                    result = addTicks(date, value * TIME_PER_HOUR);
                 } else if (unit === MINUTES) {
                     result = addTicks(date, value * TIME_PER_MINUTE);
                     if (result.getSeconds() > 0) {
@@ -10176,8 +10599,10 @@
                     }
                 } else if (unit === SECONDS) {
                     result = addTicks(date, value * TIME_PER_SECOND);
+                } else if (unit === MILLISECONDS) {
+                    result = addTicks(date, value);
                 }
-                if (result.getMilliseconds() > 0) {
+                if (unit !== MILLISECONDS && result.getMilliseconds() > 0) {
                     result.setMilliseconds(0);
                 }
             }
@@ -10210,16 +10635,14 @@
             return addDuration(date, 1, unit, weekStartDay);
         }
         function dateDiff(a, b) {
-            var diff = a.getTime() - b, offsetDiff = a.getTimezoneOffset() - b.getTimezoneOffset();
-            return diff - (offsetDiff * diff > 0 ? offsetDiff * TIME_PER_MINUTE : 0);
+            return a.getTime() - b;
         }
         function absoluteDateDiff(a, b) {
             var diff = a.getTime() - b, offsetDiff = a.getTimezoneOffset() - b.getTimezoneOffset();
             return diff - offsetDiff * TIME_PER_MINUTE;
         }
         function addTicks(date, ticks) {
-            var tzOffsetBefore = date.getTimezoneOffset(), result = new Date(date.getTime() + ticks), tzOffsetDiff = result.getTimezoneOffset() - tzOffsetBefore;
-            return new Date(result.getTime() + (ticks * tzOffsetDiff > 0 ? tzOffsetDiff * TIME_PER_MINUTE : 0));
+            return new Date(date.getTime() + ticks);
         }
         function duration(a, b, unit) {
             var diff;
@@ -10390,6 +10813,7 @@
                     seriesClone.color = undefined;
                 }
                 seriesClone._groupIx = groupIx;
+                seriesClone._groupValue = data[groupIx].value;
                 result.push(seriesClone);
                 if (nameTemplate) {
                     seriesClone.name = nameTemplate({
@@ -10572,6 +10996,14 @@
                             clearMissingValues(originalValue, fieldValue);
                         }
                     }
+                }
+            }
+        }
+        function paneAnchor(axes, pane) {
+            for (var i = 0; i < axes.length; i++) {
+                var anchor = axes[i];
+                if (anchor && anchor.pane === pane) {
+                    return anchor;
                 }
             }
         }
@@ -10791,6 +11223,9 @@
             CategoryAxis: CategoryAxis,
             ChartAxis: ChartAxis,
             ChartContainer: ChartContainer,
+            ChartPane: ChartPane,
+            ChartPlotArea: ChartPlotArea,
+            ChartSeries: ChartSeries,
             ClipAnimation: ClipAnimation,
             ClusterLayout: ClusterLayout,
             Crosshair: Crosshair,

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -144,16 +144,17 @@
                 }
             },
             _fileUpload: function (e) {
-                var that = this, options = that.options, fileTypes = options.fileTypes, filterRegExp = new RegExp(('(' + fileTypes.split(',').join(')|(') + ')').replace(/\*\./g, '.*.'), 'i'), fileName = e.files[0].name, fileNameField = NAMEFIELD, sizeField = SIZEFIELD, model;
+                var that = this, options = that.options, fileTypes = options.fileTypes, filterRegExp = new RegExp(('(' + fileTypes.split(',').join(')|(') + ')').replace(/\*\./g, '.*.'), 'i'), fileName = e.files[0].name, fileNameField = NAMEFIELD, sizeField = SIZEFIELD, file;
                 if (filterRegExp.test(fileName)) {
                     e.data = { path: that.path() };
-                    model = that._createFile(fileName);
-                    if (!model) {
+                    file = that._createFile(fileName);
+                    if (!file) {
                         e.preventDefault();
                     } else {
-                        model._uploading = true;
+                        file._uploading = true;
                         that.upload.one('success', function (e) {
-                            delete model._uploading;
+                            delete file._uploading;
+                            var model = that._insertFileToList(file);
                             model.set(fileNameField, e.response[that._getFieldName(fileNameField)]);
                             model.set(sizeField, e.response[that._getFieldName(sizeField)]);
                             that._tiles = that.listView.items().filter('[' + kendo.attr('type') + '=f]');
@@ -175,7 +176,7 @@
                     selectable: true,
                     autoBind: false,
                     dataBinding: function (e) {
-                        that.toolbar.find('.k-delete').parent().addClass('k-state-disabled');
+                        that.toolbar.find('.k-i-delete').parent().addClass('k-state-disabled');
                         if (e.action === 'remove' || e.action === 'sync') {
                             e.preventDefault();
                         }
@@ -226,7 +227,7 @@
                 img.hide().on('load' + NS, function () {
                     $(this).prev().remove().end().addClass('k-image').fadeIn();
                 });
-                element.find('.k-loading').after(img);
+                element.find('.k-i-loading').after(img);
                 if (isFunction(thumbnailUrl)) {
                     thumbnailUrl = thumbnailUrl(that.path(), encodeURIComponent(name));
                 } else {
@@ -234,9 +235,9 @@
                         urlJoin = '&';
                     }
                     thumbnailUrl = thumbnailUrl + urlJoin + 'path=' + encodeURIComponent(that.path() + name);
-                    if (dataItem._forceReload) {
+                    if (dataItem._override) {
                         thumbnailUrl += '&_=' + new Date().getTime();
-                        delete dataItem._forceReload;
+                        delete dataItem._override;
                     }
                 }
                 img.attr('src', thumbnailUrl);
@@ -267,12 +268,12 @@
                 var that = this, html = '<li class="k-tile" ' + kendo.attr('uid') + '="#=uid#" ';
                 html += kendo.attr('type') + '="${' + TYPEFIELD + '}">';
                 html += '#if(' + TYPEFIELD + ' == "d") { #';
-                html += '<div class="k-thumb"><span class="k-icon k-folder"></span></div>';
+                html += '<div class="k-thumb"><span class="k-icon k-i-folder"></span></div>';
                 html += '#}else{#';
                 if (that.options.transport && that.options.transport.thumbnailUrl) {
-                    html += '<div class="k-thumb"><span class="k-icon k-loading"></span></div>';
+                    html += '<div class="k-thumb"><span class="k-icon k-i-loading"></span></div>';
                 } else {
-                    html += '<div class="k-thumb"><span class="k-icon k-file"></span></div>';
+                    html += '<div class="k-thumb"><span class="k-icon k-i-file"></span></div>';
                 }
                 html += '#}#';
                 html += '<strong>${' + NAMEFIELD + '}</strong>';

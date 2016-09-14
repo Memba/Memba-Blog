@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -56,8 +56,8 @@ $.extend(true, kendo.ui.ColorPicker.prototype.options.messages,{
 if (kendo.ui.ColumnMenu) {
 kendo.ui.ColumnMenu.prototype.options.messages =
 $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
-  "sortAscending": "Roustoucí",
-  "sortDescending": "Klesající",
+  "sortAscending": "Třídit vzestupně",
+  "sortDescending": "Třídit sestupně",
   "filter": "Filtr",
   "columns": "Sloupce",
   "done": "Hotovo",
@@ -177,7 +177,11 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "startswith": "Začíná na",
     "contains": "Obsahuje",
     "doesnotcontain": "Neobsahuje",
-    "endswith": "Končí na"
+    "endswith": "Končí na",
+    "isnull": "Je null",
+    "isnotnull": "Není null",
+    "isempty": "Je prázdná",
+    "isnotempty": "Není prázdná"
   },
   "date": {
     "eq": "Je rovno",
@@ -185,7 +189,9 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "gt": "Začíná po",
     "gte": "Začíná od",
     "lt": "Končí po",
-    "lte": "Končí do"
+    "lte": "Končí do",
+    "isnull": "Je null",
+    "isnotnull": "Není null"
   },
   "number": {
     "eq": "Je rovno",
@@ -193,11 +199,15 @@ $.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
     "gte": "Je větší nebo rovno",
     "lt": "Je menší než",
     "lte": "Je menší nebo rovno",
-    "neq": "Je různá od"
+    "neq": "Je různá od",
+    "isnull": "Je null",
+    "isnotnull": "Není null"
   },
   "enums": {
     "eq": "Je rovno",
-    "neq": "Je různá od"
+    "neq": "Je různá od",
+    "isnull": "Je null",
+    "isnotnull": "Není null"
   }
 });
 }
@@ -607,5 +617,43 @@ $.extend(true, kendo.ui.Validator.prototype.options.messages,{
   "dateCompare": "Datum konce musí být vyšší než nebo rovno datumu začátku"
 });
 }
+
+/* Dialog */
+
+if (kendo.ui.Dialog) {
+kendo.ui.Dialog.prototype.options.messages =
+$.extend(true, kendo.ui.Dialog.prototype.options.localization,{
+  "close": "Zavřít"
+});
+}
+
+/* Alert */
+
+if (kendo.ui.Alert) {
+kendo.ui.Alert.prototype.options.messages =
+$.extend(true, kendo.ui.Alert.prototype.options.localization,{
+  "okText": "OK"
+});
+}
+
+/* Confirm */
+
+if (kendo.ui.Confirm) {
+kendo.ui.Confirm.prototype.options.messages =
+$.extend(true, kendo.ui.Confirm.prototype.options.localization,{
+  "okText": "OK",
+  "cancel": "Zrušit"
+});
+}
+
+/* Prompt */
+if (kendo.ui.Prompt) {
+kendo.ui.Prompt.prototype.options.messages =
+$.extend(true, kendo.ui.Prompt.prototype.options.localization,{
+  "okText": "OK",
+  "cancel": "Zrušit"
+});
+}
+
 })(window.kendo.jQuery);
 }));

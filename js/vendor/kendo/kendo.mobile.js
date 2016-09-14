@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.2.714'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2016.3.914'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -805,7 +805,7 @@
                 value = Math.round(+(value[0] + 'e' + (value[1] ? +value[1] + precision : precision)));
                 value = value.toString().split('e');
                 value = +(value[0] + 'e' + (value[1] ? +value[1] - precision : -precision));
-                return value.toFixed(precision);
+                return value.toFixed(Math.min(precision, 20));
             };
             var toString = function (value, fmt, culture) {
                 if (fmt) {
@@ -1733,9 +1733,14 @@
                 type = 'offset';
             }
             var result = element[type]();
+            if (support.mobileOS.android) {
+                result.top -= window.scrollY;
+                result.left -= window.scrollX;
+            }
             if (support.browser.msie && (support.pointers || support.msPointers) && !positioned) {
-                result.top -= window.pageYOffset - document.documentElement.scrollTop;
-                result.left -= window.pageXOffset - document.documentElement.scrollLeft;
+                var sign = support.isRtl(element) ? 1 : -1;
+                result.top -= window.pageYOffset + sign * document.documentElement.scrollTop;
+                result.left -= window.pageXOffset + sign * document.documentElement.scrollLeft;
             }
             return result;
         }
@@ -4604,6 +4609,7 @@
                         } else if (type === 'date') {
                             if (useOdataFour) {
                                 format = '{1:yyyy-MM-ddTHH:mm:ss+00:00}';
+                                value = kendo.timezone.apply(value, 'Etc/UTC');
                             } else {
                                 format = 'datetime\'{1:yyyy-MM-ddTHH:mm:ss}\'';
                             }
@@ -9448,7 +9454,11 @@
                             } else {
                                 value = option.text;
                             }
-                            values.push(this._parseValue(value, this.dataType()));
+                            if (field) {
+                                values.push(value);
+                            } else {
+                                values.push(this._parseValue(value, this.dataType()));
+                            }
                         }
                     }
                     if (field) {
@@ -9458,7 +9468,7 @@
                         }
                         for (valueIndex = 0; valueIndex < values.length; valueIndex++) {
                             for (idx = 0, length = source.length; idx < length; idx++) {
-                                var sourceValue = this._parseValue(source[idx].get(field), this.dataType());
+                                var sourceValue = source[idx].get(field);
                                 var match = String(sourceValue) === values[valueIndex];
                                 if (match) {
                                     values[valueIndex] = source[idx];
@@ -10252,7 +10262,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', emailRegExp = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', proxy = $.proxy, patternMatcher = function (value, pattern) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', emailRegExp = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', proxy = $.proxy, patternMatcher = function (value, pattern) {
                 if (typeof pattern === 'string') {
                     pattern = new RegExp('^(?:' + pattern + ')$');
                 }
@@ -10334,7 +10344,7 @@
             ],
             options: {
                 name: 'Validator',
-                errorTemplate: '<span class="k-widget k-tooltip k-tooltip-validation">' + '<span class="k-icon k-warning"> </span> #=message#</span>',
+                errorTemplate: '<span class="k-widget k-tooltip k-tooltip-validation">' + '<span class="k-icon k-i-warning"> </span> #=message#</span>',
                 messages: {
                     required: '{0} is required',
                     pattern: '{0} is not valid',
@@ -10784,7 +10794,10 @@
                     return;
                 }
                 if (!silent) {
-                    if (this.trigger(CHANGE, { url: to })) {
+                    if (this.trigger(CHANGE, {
+                            url: to,
+                            decode: false
+                        })) {
                         return;
                     }
                 }
@@ -10854,23 +10867,25 @@
                 this.route = route;
                 this._callback = callback;
             },
-            callback: function (url, back) {
+            callback: function (url, back, decode) {
                 var params, idx = 0, length, queryStringParams = kendo.parseQueryStringParams(url);
                 queryStringParams._back = back;
                 url = stripUrl(url);
                 params = this.route.exec(url).slice(1);
                 length = params.length;
-                for (; idx < length; idx++) {
-                    if (typeof params[idx] !== 'undefined') {
-                        params[idx] = decodeURIComponent(params[idx]);
+                if (decode) {
+                    for (; idx < length; idx++) {
+                        if (typeof params[idx] !== 'undefined') {
+                            params[idx] = decodeURIComponent(params[idx]);
+                        }
                     }
                 }
                 params.push(queryStringParams);
                 this._callback.apply(null, params);
             },
-            worksWith: function (url, back) {
+            worksWith: function (url, back, decode) {
                 if (this.route.test(stripUrl(url))) {
-                    this.callback(url, back);
+                    this.callback(url, back, decode);
                     return true;
                 } else {
                     return false;
@@ -10949,6 +10964,7 @@
             },
             _urlChanged: function (e) {
                 var url = e.url;
+                var decode = typeof e.decode === 'undefined';
                 var back = e.backButtonPressed;
                 if (!url) {
                     url = '/';
@@ -10964,7 +10980,7 @@
                 var idx = 0, routes = this.routes, route, length = routes.length;
                 for (; idx < length; idx++) {
                     route = routes[idx];
-                    if (route.worksWith(url, back)) {
+                    if (route.worksWith(url, back, decode)) {
                         return;
                     }
                 }
@@ -11282,7 +11298,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, support = kendo.support, document = window.document, Class = kendo.Class, Observable = kendo.Observable, now = $.now, extend = $.extend, OS = support.mobileOS, invalidZeroEvents = OS && OS.android, DEFAULT_MIN_HOLD = 800, DEFAULT_THRESHOLD = support.browser.msie ? 5 : 0, PRESS = 'press', HOLD = 'hold', SELECT = 'select', START = 'start', MOVE = 'move', END = 'end', CANCEL = 'cancel', TAP = 'tap', RELEASE = 'release', GESTURESTART = 'gesturestart', GESTURECHANGE = 'gesturechange', GESTUREEND = 'gestureend', GESTURETAP = 'gesturetap';
+        var kendo = window.kendo, support = kendo.support, Class = kendo.Class, Observable = kendo.Observable, now = $.now, extend = $.extend, OS = support.mobileOS, invalidZeroEvents = OS && OS.android, DEFAULT_MIN_HOLD = 800, DEFAULT_THRESHOLD = support.browser.msie ? 5 : 0, PRESS = 'press', HOLD = 'hold', SELECT = 'select', START = 'start', MOVE = 'move', END = 'end', CANCEL = 'cancel', TAP = 'tap', RELEASE = 'release', GESTURESTART = 'gesturestart', GESTURECHANGE = 'gesturechange', GESTUREEND = 'gestureend', GESTURETAP = 'gesturetap';
         var THRESHOLD = {
             'api': 0,
             'touch': 0,
@@ -11497,7 +11513,7 @@
                 Observable.fn.init.call(that);
                 extend(that, {
                     element: element,
-                    surface: options.global && ENABLE_GLOBAL_SURFACE ? $(document.documentElement) : $(options.surface || element),
+                    surface: options.global && ENABLE_GLOBAL_SURFACE ? $(element[0].ownerDocument.documentElement) : $(options.surface || element),
                     stopPropagation: options.stopPropagation,
                     pressed: false
                 });
@@ -12588,6 +12604,9 @@
                 'line-height'
             ];
         function contains(container, target) {
+            if (!container || !target) {
+                return false;
+            }
             return container === target || $.contains(container, target);
         }
         var Popup = Widget.extend({
@@ -12830,6 +12849,9 @@
                     that.element.kendoStop(true);
                     wrap.css({ overflow: HIDDEN });
                     that.element.kendoAnimate(animation);
+                    if (skipEffects) {
+                        that._animationClose();
+                    }
                 }
             },
             _trigger: function (ev) {
@@ -12900,9 +12922,22 @@
                 });
             },
             _position: function (fixed) {
-                var that = this, element = that.element, wrapper = that.wrapper, options = that.options, viewport = $(options.viewport), viewportOffset = viewport.offset(), anchor = $(options.anchor), origins = options.origin.toLowerCase().split(' '), positions = options.position.toLowerCase().split(' '), collisions = that.collisions, zoomLevel = support.zoomLevel(), siblingContainer, parents, parentZIndex, zIndex = 10002, isWindow = !!(viewport[0] == window && window.innerWidth && zoomLevel <= 1.02), idx = 0, docEl = document.documentElement, length, viewportWidth, viewportHeight;
-                viewportWidth = isWindow ? window.innerWidth : viewport.width();
-                viewportHeight = isWindow ? window.innerHeight : viewport.height();
+                var that = this, element = that.element, wrapper = that.wrapper, options = that.options, viewport = $(options.viewport), zoomLevel = support.zoomLevel(), isWindow = !!(viewport[0] == window && window.innerWidth && zoomLevel <= 1.02), anchor = $(options.anchor), origins = options.origin.toLowerCase().split(' '), positions = options.position.toLowerCase().split(' '), collisions = that.collisions, siblingContainer, parents, parentZIndex, zIndex = 10002, idx = 0, docEl = document.documentElement, length, viewportOffset, viewportWidth, viewportHeight;
+                if (options.viewport === window) {
+                    viewportOffset = {
+                        top: window.pageYOffset || document.documentElement.scrollTop || 0,
+                        left: window.pageXOffset || document.documentElement.scrollLeft || 0
+                    };
+                } else {
+                    viewportOffset = viewport.offset();
+                }
+                if (isWindow) {
+                    viewportWidth = window.innerWidth;
+                    viewportHeight = window.innerHeight;
+                } else {
+                    viewportWidth = viewport.width();
+                    viewportHeight = viewport.height();
+                }
                 if (isWindow && docEl.scrollHeight - docEl.clientHeight > 0) {
                     viewportWidth -= kendo.support.scrollbar();
                 }
@@ -12935,13 +12970,8 @@
                     pos = getOffset(wrapper, POSITION, true);
                     offset = getOffset(wrapper);
                 }
-                if (viewport[0] === window) {
-                    offset.top -= window.pageYOffset || document.documentElement.scrollTop || 0;
-                    offset.left -= window.pageXOffset || document.documentElement.scrollLeft || 0;
-                } else {
-                    offset.top -= viewportOffset.top;
-                    offset.left -= viewportOffset.left;
-                }
+                offset.top -= viewportOffset.top;
+                offset.left -= viewportOffset.left;
                 if (!that.wrapper.data(LOCATION)) {
                     wrapper.data(LOCATION, extend({}, pos));
                 }
@@ -16404,9 +16434,16 @@
                 listView.bind('resize', cacheHeaders);
                 listView.bind(STYLED, cacheHeaders);
                 listView.bind(DATABOUND, cacheHeaders);
-                scroller.bind('scroll', function (e) {
+                this._scrollHandler = function (e) {
                     headerFixer._fixHeader(e);
-                });
+                };
+                scroller.bind('scroll', this._scrollHandler);
+            },
+            destroy: function () {
+                var that = this;
+                if (that.scroller) {
+                    that.scroller.unbind('scroll', that._scrollHandler);
+                }
             },
             _fixHeader: function (e) {
                 if (!this.fixedHeaders) {
@@ -17073,6 +17110,9 @@
                 if (this._itemBinder) {
                     this._itemBinder.destroy();
                 }
+                if (this._headerFixer) {
+                    this._headerFixer.destroy();
+                }
                 this.element.unwrap();
                 delete this.element;
                 delete this.wrapper;
@@ -17133,6 +17173,7 @@
             replace: function (dataItems) {
                 this.options.type = 'flat';
                 this._angularItems('cleanup');
+                kendo.destroy(this.element.children());
                 this.element.empty();
                 this._userEvents.cancel();
                 this._style();
@@ -18679,6 +18720,7 @@
                 };
             };
             widget.first('change', onChange(false));
+            widget.first('spin', onChange(false));
             if (!(kendo.ui.AutoComplete && widget instanceof kendo.ui.AutoComplete)) {
                 widget.first('dataBound', onChange(true));
             }
@@ -18723,7 +18765,7 @@
             } else {
                 scope.$watch(kNgModel, watchHandler);
             }
-            widget.first('change', function () {
+            var changeHandler = function () {
                 updating = true;
                 if (ngForm && ngForm.$pristine) {
                     ngForm.$setDirty();
@@ -18733,7 +18775,9 @@
                     currentValueLength = length(getter(scope));
                 });
                 updating = false;
-            });
+            };
+            widget.first('change', changeHandler);
+            widget.first('spin', changeHandler);
         }
         function destroyWidgetOnScopeDestroy(scope, widget) {
             var deregister = scope.$on('$destroy', function () {
@@ -19206,7 +19250,7 @@
             var options = this.self.options;
             var values = this.self.value().split(options.separator);
             var valuePrimitive = options.valuePrimitive;
-            var data = this.self.dataSource.data();
+            var data = this.self.listView.selectedDataItems();
             var dataItems = [];
             for (var idx = 0, length = data.length; idx < length; idx++) {
                 var item = data[idx];
@@ -19703,6 +19747,9 @@
                 }
             });
             prototype.bindEvents = function () {
+                if (widget.prototype.events.indexOf('init') < 0) {
+                    widget.prototype.events.push('init');
+                }
                 widget.prototype.events.forEach(function (eventName) {
                     this.widget.bind(eventName, eventHandler.bind(this, eventName));
                     if (this.hasAttribute(EVENT_PREFIX + eventName)) {
@@ -19725,6 +19772,7 @@
                     expose(that, obj);
                 } while (obj = Object.getPrototypeOf(obj));
                 this.bindEvents();
+                that.widget.trigger('init');
             };
             prototype.detachedCallback = function () {
                 kendo.destroy(this.element);

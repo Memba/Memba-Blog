@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -941,8 +941,9 @@
                     },
                     members: $.proxy(function (response, restrictions) {
                         var name = restrictions.levelUniqueName || restrictions.memberUniqueName;
-                        var dataGetter = kendo.getter(this.options.schema.data, true);
-                        var data = dataGetter(this.options.data) || this._rawData || [];
+                        var schemaData = this.options.schema.data;
+                        var dataGetter = isFunction(schemaData) ? schemaData : kendo.getter(schemaData, true);
+                        var data = this.options.data && dataGetter(this.options.data) || this._rawData || [];
                         var result = [];
                         var getter;
                         var value;

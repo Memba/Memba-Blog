@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -317,6 +317,39 @@
                 return output;
             }).join('');
         }
+        function mergeSort(a, cmp) {
+            if (a.length < 2) {
+                return a.slice();
+            }
+            function merge(a, b) {
+                var r = [], ai = 0, bi = 0, i = 0;
+                while (ai < a.length && bi < b.length) {
+                    if (cmp(a[ai], b[bi]) <= 0) {
+                        r[i++] = a[ai++];
+                    } else {
+                        r[i++] = b[bi++];
+                    }
+                }
+                if (ai < a.length) {
+                    r.push.apply(r, a.slice(ai));
+                }
+                if (bi < b.length) {
+                    r.push.apply(r, b.slice(bi));
+                }
+                return r;
+            }
+            return function sort(a) {
+                if (a.length <= 1) {
+                    return a;
+                }
+                var m = Math.floor(a.length / 2);
+                var left = a.slice(0, m);
+                var right = a.slice(m);
+                left = sort(left);
+                right = sort(right);
+                return merge(left, right);
+            }(a);
+        }
         deepExtend(kendo, {
             util: {
                 MAX_NUM: MAX_NUM,
@@ -352,7 +385,8 @@
                 arabicToRoman: arabicToRoman,
                 memoize: memoize,
                 ucs2encode: ucs2encode,
-                ucs2decode: ucs2decode
+                ucs2decode: ucs2decode,
+                mergeSort: mergeSort
             }
         });
         kendo.drawing.util = kendo.util;
@@ -687,8 +721,8 @@
         var DOT = '.';
         var TASK_DELETE_CONFIRM = 'Are you sure you want to delete this task?';
         var DEPENDENCY_DELETE_CONFIRM = 'Are you sure you want to delete this dependency?';
-        var TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="#=styles.buttonToggle#"><span class="#=styles.iconToggle#">&nbps;</span></button>');
-        var BUTTON_TEMPLATE = '<button class="#=styles.button# #=className#" ' + '#if (action) {#' + 'data-action="#=action#"' + '#}#' + '><span class="#=iconClass#"></span><span>#=text#</span></button>';
+        var TOGGLE_BUTTON_TEMPLATE = kendo.template('<button class="#=styles.buttonToggle#" type="button"><span class="#=styles.iconToggle#">&nbps;</span></button>');
+        var BUTTON_TEMPLATE = '<button class="#=styles.button# #=className#" type="button" ' + '#if (action) {#' + 'data-action="#=action#"' + '#}#' + '><span class="#=iconClass#"></span><span>#=text#</span></button>';
         var COMMAND_BUTTON_TEMPLATE = '<a class="#=className#" #=attr# href="\\#">#=text#</a>';
         var VIEWBUTTONTEMPLATE = kendo.template('<li class="#=styles.currentView# #=styles.viewButtonDefault#"><a href="\\#" class="#=styles.link#">&nbps;</a></li>');
         var HEADER_VIEWS_TEMPLATE = kendo.template('<ul class="#=styles.viewsWrapper#">' + '#for(var view in views){#' + '<li class="#=styles.viewButtonDefault# #=styles.viewButton#-#= view.toLowerCase() #" data-#=ns#name="#=view#"><a href="\\#" class="#=styles.link#">#=views[view].title#</a></li>' + '#}#' + '</ul>');
@@ -1532,10 +1566,12 @@
                     name: 'cancel',
                     text: messages.cancel
                 });
-                html += this.createButton({
-                    name: 'delete',
-                    text: messages.destroy
-                });
+                if (that.options.editable.destroy !== false) {
+                    html += this.createButton({
+                        name: 'delete',
+                        text: messages.destroy
+                    });
+                }
                 html += '</div></div></div>';
                 var container = this.container = $(html).appendTo(this.element).eq(0).kendoWindow(extend({
                     modal: true,
@@ -2126,10 +2162,11 @@
             },
             _actions: function () {
                 var options = this.options;
+                var editable = options.editable;
                 var actions = options.toolbar;
                 var html = '';
                 if (!isArray(actions)) {
-                    if (options.editable) {
+                    if (editable && editable.create !== false) {
                         actions = ['append'];
                     } else {
                         return html;
@@ -2141,7 +2178,8 @@
                 return html;
             },
             _footer: function () {
-                if (!this.options.editable) {
+                var editable = this.options.editable;
+                if (!editable || editable.create === false) {
                     return;
                 }
                 var ganttStyles = Gantt.styles.toolbar;
@@ -2227,6 +2265,7 @@
                 var actionsSelector = DOT + Gantt.styles.toolbar.actions;
                 var actionMessages = this.options.messages.actions;
                 var timeline = this.timeline;
+                var editable = this.options.editable;
                 var handler = function (e) {
                     var type = e.type;
                     var orderId;
@@ -2255,7 +2294,7 @@
                     }
                     that._createTask(task, orderId);
                 };
-                if (!this.options.editable) {
+                if (!editable || editable.create === false) {
                     return;
                 }
                 this.footerDropDown = new TaskDropDown(this.footer.children(actionsSelector).eq(0), {
@@ -2608,6 +2647,31 @@
             },
             view: function (type) {
                 return this.timeline.view(type);
+            },
+            range: function (range) {
+                var dataSource = this.dataSource;
+                var view = this.view();
+                var timeline = this.timeline;
+                if (range) {
+                    view.options.range = {
+                        start: range.start,
+                        end: range.end
+                    };
+                    timeline._render(dataSource.taskTree());
+                    timeline._renderDependencies(this.dependencies.view());
+                }
+                return {
+                    start: view.start,
+                    end: view.end
+                };
+            },
+            date: function (date) {
+                var view = this.view();
+                if (date) {
+                    view.options.date = date;
+                    view._scrollToDate(date);
+                }
+                return view.options.date;
             },
             dataItem: function (value) {
                 if (!value) {
@@ -3134,7 +3198,8 @@
                     }
                 };
                 var deleteAction = function () {
-                    if (!that.options.editable || that.list.editable) {
+                    var editable = that.options.editable;
+                    if (!editable || editable.destroy === false || that.list.editable) {
                         return;
                     }
                     var selectedTask = that.select();
@@ -3227,7 +3292,7 @@
                     case keys.ENTER:
                         e.preventDefault();
                         if (isCell) {
-                            if (that.options.editable) {
+                            if (that.options.editable && that.options.editable.update !== false) {
                                 that._cachedCurrent = that.current;
                                 that.list._startEditHandler(that.current);
                                 $(this).one('keyup', function (e) {

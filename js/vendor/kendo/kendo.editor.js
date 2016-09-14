@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -80,6 +80,10 @@
 }(function () {
     (function ($, undefined) {
         var kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, os = kendo.support.mobileOS, browser = kendo.support.browser, extend = $.extend, proxy = $.proxy, deepExtend = kendo.deepExtend, keys = kendo.keys;
+        var COLUMN_RESIZING_NS = '.kendoEditorColumnResizing';
+        var ROW_RESIZING_NS = '.kendoEditorRowResizing';
+        var TABLE_RESIZING_NS = '.kendoEditorTableResizing';
+        var SELECT = 'select';
         var ToolTemplate = Class.extend({
             init: function (options) {
                 this.options = options;
@@ -91,7 +95,7 @@
         });
         var EditorUtils = {
             editorWrapperTemplate: '<table cellspacing="4" cellpadding="0" class="k-widget k-editor k-header" role="presentation"><tbody>' + '<tr role="presentation"><td class="k-editor-toolbar-wrap" role="presentation"><ul class="k-editor-toolbar" role="toolbar" /></td></tr>' + '<tr><td class="k-editable-area" /></tr>' + '</tbody></table>',
-            buttonTemplate: '<a href="" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= data.cssClass #"></span><span class="k-tool-text">#= data.title #</span></a>',
+            buttonTemplate: '# var iconCssClass= "k-i-" + kendo.toHyphens(data.cssClass.replace("k-", ""));#' + '<a href="" role="button" class="k-tool"' + '#= data.popup ? " data-popup" : "" #' + ' unselectable="on" title="#= data.title #"><span unselectable="on" class="k-tool-icon #= iconCssClass #"></span><span class="k-tool-text">#= data.title #</span></a>',
             colorPickerTemplate: '<div class="k-colorpicker #= data.cssClass #" />',
             comboBoxTemplate: '<select title="#= data.title #" class="#= data.cssClass #" />',
             dropDownListTemplate: '<span class="k-editor-dropdown"><select title="#= data.title #" class="#= data.cssClass #" /></span>',
@@ -171,6 +175,7 @@
             linkOpenInNewWindow: 'Open link in new window',
             dialogUpdate: 'Update',
             dialogInsert: 'Insert',
+            dialogOk: 'Ok',
             dialogCancel: 'Cancel',
             createTable: 'Create table',
             createTableHint: 'Create a {0} x {1} table',
@@ -179,7 +184,43 @@
             addRowAbove: 'Add row above',
             addRowBelow: 'Add row below',
             deleteRow: 'Delete row',
-            deleteColumn: 'Delete column'
+            deleteColumn: 'Delete column',
+            tableWizard: 'Table Wizard',
+            tableTab: 'Table',
+            cellTab: 'Cell',
+            accessibilityTab: 'Accessibility',
+            caption: 'Caption',
+            summary: 'Summary',
+            width: 'Width',
+            height: 'Height',
+            cellSpacing: 'Cell Spacing',
+            cellPadding: 'Cell Padding',
+            cellMargin: 'Cell Margin',
+            alignment: 'Alignment',
+            background: 'Background',
+            cssClass: 'CSS Class',
+            id: 'ID',
+            border: 'Border',
+            borderStyle: 'Border Style',
+            collapseBorders: 'Collapse borders',
+            wrapText: 'Wrap text',
+            associateCellsWithHeaders: 'Associate cells with headers',
+            alignLeft: 'Align Left',
+            alignCenter: 'Align Center',
+            alignRight: 'Align Right',
+            alignLeftTop: 'Align Left Top',
+            alignCenterTop: 'Align Center Top',
+            alignRightTop: 'Align Right Top',
+            alignLeftMiddle: 'Align Left Middle',
+            alignCenterMiddle: 'Align Center Middle',
+            alignRightMiddle: 'Align Right Middle',
+            alignLeftBottom: 'Align Left Bottom',
+            alignCenterBottom: 'Align Center Bottom',
+            alignRightBottom: 'Align Right Bottom',
+            alignRemove: 'Remove Alignment',
+            columns: 'Columns',
+            rows: 'Rows',
+            selectAllCells: 'Select All Cells'
         };
         var supportedBrowser = !os || os.ios && os.flatVersion >= 500 || !os.ios && typeof document.documentElement.contentEditable != 'undefined';
         var toolGroups = {
@@ -206,6 +247,7 @@
                 'unlink'
             ],
             tables: [
+                'tableWizard',
                 'createTable',
                 'addColumnLeft',
                 'addColumnRight',
@@ -257,10 +299,14 @@
                 }
                 that._resizable();
                 that._initializeContentElement(that);
+                that._initializeColumnResizing();
+                that._initializeRowResizing();
+                that._initializeTableResizing();
                 that.keyboard = new editorNS.Keyboard([
                     new editorNS.BackspaceHandler(that),
                     new editorNS.TypingHandler(that),
-                    new editorNS.SystemHandler(that)
+                    new editorNS.SystemHandler(that),
+                    new editorNS.SelectAllHandler(that)
                 ]);
                 that.clipboard = new editorNS.Clipboard(this);
                 that.undoRedoStack = new kendo.util.UndoRedoStack();
@@ -284,6 +330,7 @@
                         that._mouseup();
                     }
                 });
+                that._initializeImmutables();
                 that.toolbar.resize();
                 kendo.notify(that);
             },
@@ -313,7 +360,7 @@
                 var resizable = this.options.resizable;
                 var isResizable = $.isPlainObject(resizable) ? resizable.content === undefined || resizable.content === true : resizable;
                 if (isResizable && this.textarea) {
-                    $('<div class=\'k-resize-handle\'><span class=\'k-icon k-resize-se\' /></div>').insertAfter(this.textarea);
+                    $('<div class=\'k-resize-handle\'><span class=\'k-icon k-i-resize-se\' /></div>').insertAfter(this.textarea);
                     this.wrapper.kendoResizable(extend({}, this.options.resizable, {
                         start: function (e) {
                             var editor = this.editor = $(e.currentTarget).closest('.k-editor');
@@ -333,6 +380,46 @@
                             this.editor = null;
                         }
                     }));
+                }
+            },
+            _initializeTableResizing: function () {
+                var editor = this;
+                kendo.ui.editor.TableResizing.create(editor);
+                editor.bind(SELECT, proxy(editor._showTableResizeHandles, editor));
+            },
+            _destroyTableResizing: function () {
+                var editor = this;
+                var tableResizing = editor.tableResizing;
+                if (tableResizing) {
+                    tableResizing.destroy();
+                    editor.tableResizing = null;
+                }
+            },
+            _showTableResizeHandles: function () {
+                var editor = this;
+                var tableResizing = editor.tableResizing;
+                if (tableResizing) {
+                    tableResizing.showResizeHandles();
+                }
+            },
+            _initializeColumnResizing: function () {
+                kendo.ui.editor.ColumnResizing.create(this);
+            },
+            _destroyColumnResizing: function () {
+                var editor = this;
+                if (editor.columnResizing) {
+                    editor.columnResizing.destroy();
+                    editor.columnResizing = null;
+                }
+            },
+            _initializeRowResizing: function () {
+                kendo.ui.editor.RowResizing.create(this);
+            },
+            _destroyRowResizing: function () {
+                var editor = this;
+                if (editor.rowResizing) {
+                    editor.rowResizing.destroy();
+                    editor.rowResizing = null;
                 }
             },
             _wrapTextarea: function () {
@@ -366,7 +453,7 @@
                     editor.toolbar.decorateFrom(doc.body);
                 });
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:1px .2em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{table-layout:fixed;width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + 'k\\:script{display:none;}' + '</style>' + domainScript + '<script>(function(d,c){d[c](\'header\'),d[c](\'article\'),d[c](\'nav\'),d[c](\'section\'),d[c](\'footer\');})(document, \'createElement\');</script>' + $.map(stylesheets, function (href) {
+                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge ? 'height:auto;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle {position:absolute; height: 10px; width:10px; cursor:col-resize; z-index: 2;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle{display:table;position:absolute;cursor:row-resize;z-index:100;}' + '.k-row-resize-handle .k-row-resize-marker-wrapper{display:table-cell;height:100%;margin:0;padding:0;vertical-align:middle;}' + '.k-row-resize-handle .k-row-resize-marker-wrapper .k-row-resize-marker{margin:0;padding:0;width:100%;height:2px;background-color:#00b0ff;opacity:0.8;display:none;}' + '.k-table-resize-handle{position:absolute;background-color:#fff;border:1px solid #000;z-index:2;width:5px;height:5px;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + 'k\\:script{display:none;}' + '</style>' + domainScript + '<script>(function(d,c){d[c](\'header\'),d[c](\'article\'),d[c](\'nav\'),d[c](\'section\'),d[c](\'footer\');})(document, \'createElement\');</script>' + $.map(stylesheets, function (href) {
                     return '<link rel=\'stylesheet\' href=\'' + href + '\'>';
                 }).join('') + '</head><body autocorrect=\'off\' contenteditable=\'true\'></body></html>');
                 doc.close();
@@ -393,7 +480,7 @@
                             beforeCorrection = null;
                         });
                         editor._spellCorrectTimeout = setTimeout(function () {
-                            beforeCorrection = new kendo.ui.editor.RestorePoint(editor.getRange());
+                            beforeCorrection = new kendo.ui.editor.RestorePoint(editor.getRange(), editor.body);
                             falseTrigger = false;
                         }, 10);
                     },
@@ -445,20 +532,24 @@
                 var editor = this;
                 var doc;
                 var blurTrigger;
+                var mousedownTrigger;
                 if (editor.textarea) {
                     editor.window = editor._createContentElement(editor.options.stylesheets);
                     doc = editor.document = editor.window.contentDocument || editor.window.document;
                     editor.body = doc.body;
                     blurTrigger = editor.window;
+                    mousedownTrigger = doc;
                     this._registerHandler(doc, 'mouseup', proxy(this._mouseup, this));
                 } else {
                     editor.window = window;
                     doc = editor.document = document;
                     editor.body = editor.element[0];
                     blurTrigger = editor.body;
+                    mousedownTrigger = editor.body;
                     editor.toolbar.decorateFrom(editor.body);
                 }
                 this._registerHandler(blurTrigger, 'blur', proxy(this._blur, this));
+                this._registerHandler(mousedownTrigger, 'mousedown ', proxy(this._mousedown, this));
                 try {
                     doc.execCommand('enableInlineTableEditing', null, false);
                 } catch (e) {
@@ -475,9 +566,6 @@
                 }
                 this._spellCorrect(editor);
                 this._registerHandler(editor.body, {
-                    'dragstart': function (e) {
-                        e.preventDefault();
-                    },
                     'keydown': function (e) {
                         var range;
                         if ((e.keyCode === keys.BACKSPACE || e.keyCode === keys.DELETE) && editor.body.getAttribute('contenteditable') !== 'true') {
@@ -493,11 +581,10 @@
                             var container = range[left ? 'startContainer' : 'endContainer'];
                             var offset = range[left ? 'startOffset' : 'endOffset'];
                             var direction = left ? -1 : 1;
-                            if (left) {
-                                offset -= 1;
-                            }
-                            if (offset + direction > 0 && container.nodeType == 3 && container.nodeValue[offset] == '\uFEFF') {
-                                range.setStart(container, offset + direction);
+                            var next = offset + direction;
+                            var nextChar = left ? next : offset;
+                            if (container.nodeType == 3 && container.nodeValue[nextChar] == '\uFEFF') {
+                                range.setStart(container, next);
                                 range.collapse(true);
                                 editor.selectRange(range);
                             }
@@ -521,38 +608,28 @@
                     'keypress': function (e) {
                         setTimeout(function () {
                             editor._runPostContentKeyCommands(e);
+                            editor._showTableResizeHandles();
                         }, 0);
                     },
                     'keyup': function (e) {
                         var selectionCodes = [
-                            8,
-                            9,
-                            33,
-                            34,
-                            35,
-                            36,
-                            37,
-                            38,
-                            39,
-                            40,
-                            40,
-                            45,
-                            46
+                            keys.BACKSPACE,
+                            keys.TAB,
+                            keys.PAGEUP,
+                            keys.PAGEDOWN,
+                            keys.END,
+                            keys.HOME,
+                            keys.LEFT,
+                            keys.UP,
+                            keys.RIGHT,
+                            keys.DOWN,
+                            keys.INSERT,
+                            keys.DELETE
                         ];
                         if ($.inArray(e.keyCode, selectionCodes) > -1 || e.keyCode == 65 && e.ctrlKey && !e.altKey && !e.shiftKey) {
                             editor._selectionChange();
                         }
                         editor.keyboard.keyup(e);
-                    },
-                    'mousedown': function (e) {
-                        editor._selectionStarted = true;
-                        if (browser.gecko) {
-                            return;
-                        }
-                        var target = $(e.target);
-                        if ((e.which == 2 || e.which == 1 && e.ctrlKey) && target.is('a[href]')) {
-                            window.open(target.attr('href'), '_new');
-                        }
                     },
                     'click': function (e) {
                         var dom = kendo.ui.editor.Dom, range;
@@ -583,6 +660,23 @@
                         }, 10);
                     }
                 });
+            },
+            _initializeImmutables: function () {
+                var that = this, editorNS = kendo.ui.editor;
+                if (that.options.immutables) {
+                    that.immutables = new editorNS.Immutables(that);
+                }
+            },
+            _mousedown: function (e) {
+                var editor = this;
+                editor._selectionStarted = true;
+                if (browser.gecko) {
+                    return;
+                }
+                var target = $(e.target);
+                if ((e.which == 2 || e.which == 1 && e.ctrlKey) && target.is('a[href]')) {
+                    window.open(target.attr('href'), '_new');
+                }
             },
             _mouseup: function () {
                 var that = this;
@@ -764,12 +858,20 @@
                 tools: [].concat.call(['formatting'], toolGroups.basic, toolGroups.alignment, toolGroups.lists, toolGroups.indenting, toolGroups.links, ['insertImage'], toolGroups.tables)
             },
             destroy: function () {
+                var editor = this;
+                var body = $(editor.body);
                 Widget.fn.destroy.call(this);
                 this._endTyping(true);
                 this._deregisterHandlers();
                 clearTimeout(this._spellCorrectTimeout);
                 this._focusOutside();
                 this.toolbar.destroy();
+                editor._destroyTableResizing();
+                body.off(TABLE_RESIZING_NS);
+                editor._destroyRowResizing();
+                body.off(ROW_RESIZING_NS);
+                editor._destroyColumnResizing();
+                body.off(COLUMN_RESIZING_NS);
                 kendo.destroy(this.wrapper);
             },
             _focusOutside: function () {
@@ -810,7 +912,7 @@
                 range = range || this.getRange();
                 var container = range.commonAncestorContainer, body = this.body;
                 if (container == body || $.contains(body, container)) {
-                    this.selectionRestorePoint = new kendo.ui.editor.RestorePoint(range);
+                    this.selectionRestorePoint = new kendo.ui.editor.RestorePoint(range, body);
                 }
             },
             _focusBody: function () {
@@ -903,7 +1005,11 @@
                 if (tool) {
                     range = that.getRange();
                     if (tool.command) {
-                        command = tool.command(extend({ range: range }, params));
+                        command = tool.command(extend({
+                            range: range,
+                            body: that.body,
+                            immutables: !!that.immutables
+                        }, params));
                     }
                     prevented = that.trigger('execute', {
                         name: name,
@@ -980,8 +1086,9 @@
         EditorUtils.registerTool('separator', new Tool({ template: new ToolTemplate({ template: EditorUtils.separatorTemplate }) }));
         var bomFill = browser.msie && browser.version < 9 ? '\uFEFF' : '';
         var emptyElementContent = '\uFEFF';
+        var emptyTableCellContent = emptyElementContent;
         if (browser.msie && browser.version == 10) {
-            emptyElementContent = ' ';
+            emptyTableCellContent = '&nbsp;';
         }
         extend(kendo.ui, {
             editor: {
@@ -990,7 +1097,8 @@
                 Tool: Tool,
                 FormatTool: FormatTool,
                 _bomFill: bomFill,
-                emptyElementContent: emptyElementContent
+                emptyElementContent: emptyElementContent,
+                emptyTableCellContent: emptyTableCellContent
             }
         });
         if (kendo.PDFMixin) {
@@ -1436,17 +1544,23 @@
                     return entity ? '&' + entity + ';' : c;
                 });
             },
+            isBom: function (node) {
+                return node && node.nodeType === 3 && /^[\ufeff]+$/.test(node.nodeValue);
+            },
             stripBom: function (text) {
                 return (text || '').replace(bom, '');
             },
             stripBomNode: function (node) {
-                if (node && node.nodeType === 3 && node.nodeValue === '\uFEFF') {
+                if (Dom.isBom(node)) {
                     node.parentNode.removeChild(node);
                 }
             },
             insignificant: function (node) {
                 var attr = node.attributes;
                 return node.className == 'k-marker' || Dom.is(node, 'br') && (node.className == 'k-br' || attr._moz_dirty || attr._moz_editor_bogus_node);
+            },
+            tableCell: function (node) {
+                return Dom.is(node, 'td') || Dom.is(node, 'th');
             },
             significantNodes: function (nodes) {
                 return $.grep(nodes, function (child) {
@@ -1455,13 +1569,16 @@
                         return false;
                     } else if (Dom.insignificant(child)) {
                         return false;
-                    } else if (child.nodeType == 3 && whitespaceOrBom.test(child.nodeValue)) {
+                    } else if (Dom.emptyTextNode(child)) {
                         return false;
                     } else if (child.nodeType == 1 && !empty[name] && Dom.emptyNode(child)) {
                         return false;
                     }
                     return true;
                 });
+            },
+            emptyTextNode: function (node) {
+                return node && node.nodeType == 3 && whitespaceOrBom.test(node.nodeValue);
             },
             emptyNode: function (node) {
                 return node.nodeType == 1 && !Dom.significantNodes(node.childNodes).length;
@@ -1488,7 +1605,7 @@
                 return result;
             },
             is: function (node, nodeName) {
-                return Dom.name(node) == nodeName;
+                return node && Dom.name(node) == nodeName;
             },
             isMarker: function (node) {
                 return node.className == KMARKER;
@@ -1499,6 +1616,39 @@
             isEmptyspace: function (node) {
                 return emptyspace.test(node.nodeValue);
             },
+            htmlIndentSpace: function (node) {
+                if (!(Dom.isDataNode(node) && Dom.isWhitespace(node))) {
+                    return false;
+                }
+                if (emptyspace.test(node.nodeValue)) {
+                    return true;
+                }
+                var sibling = function (el, direction) {
+                    while (el[direction]) {
+                        el = el[direction];
+                        if (Dom.significantNodes([el]).length > 0) {
+                            return el;
+                        }
+                    }
+                };
+                var parent = node.parentNode;
+                var prev = sibling(node, 'previousSibling');
+                var next = sibling(node, 'nextSibling');
+                if (bom.test(node.nodeValue)) {
+                    return !!(prev || next);
+                }
+                if ($(parent).is('tr,tbody,thead,tfoot,table,ol,ul')) {
+                    return true;
+                }
+                if (Dom.isBlock(parent) || Dom.is(parent, 'body')) {
+                    var isPrevBlock = prev && Dom.isBlock(prev);
+                    var isNextBlock = next && Dom.isBlock(next);
+                    if (!next && isPrevBlock || !prev && isNextBlock || isPrevBlock && isNextBlock) {
+                        return true;
+                    }
+                }
+                return false;
+            },
             isBlock: function (node) {
                 return block[Dom.name(node)];
             },
@@ -1507,6 +1657,10 @@
             },
             isInline: function (node) {
                 return inline[Dom.name(node)];
+            },
+            list: function (node) {
+                var name = node ? Dom.name(node) : '';
+                return name == 'ul' || name == 'ol' || name == 'dl';
             },
             scrollContainer: function (doc) {
                 var wnd = Dom.windowFromDocument(doc), scrollContainer = (wnd.contentWindow || wnd).document || wnd.ownerDocument || wnd;
@@ -1531,8 +1685,23 @@
             persistScrollTop: function (doc) {
                 persistedScrollTop = Dom.scrollContainer(doc).scrollTop;
             },
+            offset: function (target, offsetParent) {
+                var result = {
+                    top: target.offsetTop,
+                    left: target.offsetLeft
+                };
+                var parent = target.offsetParent;
+                while (parent && (!offsetParent || Dom.isAncestorOf(offsetParent, parent))) {
+                    result.top += parent.offsetTop;
+                    result.left += parent.offsetLeft;
+                    parent = parent.offsetParent;
+                }
+                return result;
+            },
             restoreScrollTop: function (doc) {
-                Dom.scrollContainer(doc).scrollTop = persistedScrollTop;
+                if (typeof persistedScrollTop == 'number') {
+                    Dom.scrollContainer(doc).scrollTop = persistedScrollTop;
+                }
             },
             insertAt: function (parent, newElement, position) {
                 parent.insertBefore(newElement, parent.childNodes[position] || null);
@@ -1580,6 +1749,15 @@
             },
             closest: function (node, tag) {
                 while (node && Dom.name(node) != tag) {
+                    node = node.parentNode;
+                }
+                return node;
+            },
+            closestBy: function (node, condition, rootCondition) {
+                while (node && !condition(node)) {
+                    if (rootCondition && rootCondition(node)) {
+                        return null;
+                    }
                     node = node.parentNode;
                 }
                 return node;
@@ -1647,6 +1825,12 @@
                     parent.insertBefore(node.firstChild, node);
                 }
                 parent.removeChild(node);
+            },
+            wrapper: function (node) {
+                var wrapper = Dom.closestBy(node, function (el) {
+                    return el.parentNode && Dom.significantNodes(el.parentNode.childNodes).length > 1;
+                });
+                return $(wrapper).is('body,.k-editor') ? undefined : wrapper;
             },
             create: function (document, tagName, attributes) {
                 return Dom.attr(document.createElement(tagName), attributes);
@@ -1802,13 +1986,19 @@
                 }
             },
             filter: function (tagName, nodes, invert) {
+                var filterFn = function (node) {
+                    return Dom.name(node) == tagName;
+                };
+                return Dom.filterBy(nodes, filterFn, invert);
+            },
+            filterBy: function (nodes, condition, invert) {
                 var i = 0;
                 var len = nodes.length;
                 var result = [];
-                var name;
+                var match;
                 for (; i < len; i++) {
-                    name = Dom.name(nodes[i]);
-                    if (!invert && name == tagName || invert && name != tagName) {
+                    match = condition(nodes[i]);
+                    if (match && !invert || !match && invert) {
                         result.push(nodes[i]);
                     }
                 }
@@ -1863,6 +2053,7 @@
         var sizzleAttr = /^sizzle-\d+/i;
         var scriptAttr = /^k-script-/i;
         var onerrorRe = /\s*onerror\s*=\s*(?:'|")?([^'">\s]*)(?:'|")?/i;
+        var br = '<br class="k-br">';
         var div = document.createElement('div');
         div.innerHTML = ' <hr>';
         var supportsLeadingWhitespace = div.firstChild.nodeType === 3;
@@ -1870,11 +2061,24 @@
         var isFunction = $.isFunction;
         var Serializer = {
             toEditableHtml: function (html) {
-                var br = '<br class="k-br">';
-                html = html || '';
-                return html.replace(/<!\[CDATA\[(.*)?\]\]>/g, '<!--[CDATA[$1]]-->').replace(/<(\/?)script([^>]*)>/gi, '<$1k:script$2>').replace(/<img([^>]*)>/gi, function (match) {
+                return (html || '').replace(/<!\[CDATA\[(.*)?\]\]>/g, '<!--[CDATA[$1]]-->').replace(/<(\/?)script([^>]*)>/gi, '<$1k:script$2>').replace(/<img([^>]*)>/gi, function (match) {
                     return match.replace(onerrorRe, '');
                 }).replace(/(<\/?img[^>]*>)[\r\n\v\f\t ]+/gi, '$1').replace(/^<(table|blockquote)/i, br + '<$1').replace(/^[\s]*(&nbsp;|\u00a0)/i, '$1').replace(/<\/(table|blockquote)>$/i, '</$1>' + br);
+            },
+            _toEditableImmutables: function (body) {
+                var immutable = Editor.Immutables.immutable, emptyTextNode = dom.emptyTextNode, first = body.firstChild, last = body.lastChild;
+                while (emptyTextNode(first)) {
+                    first = first.nextSibling;
+                }
+                while (emptyTextNode(last)) {
+                    last = last.previousSibling;
+                }
+                if (first && immutable(first)) {
+                    $(br).prependTo(body);
+                }
+                if (last && immutable(last)) {
+                    $(br).appendTo(body);
+                }
             },
             _fillEmptyElements: function (body) {
                 $(body).find('p,td').each(function () {
@@ -1885,7 +2089,11 @@
                             node = node.firstChild;
                         }
                         if (node.nodeType == 1 && !dom.empty[dom.name(node)]) {
-                            node.innerHTML = kendo.ui.editor.emptyElementContent;
+                            if (dom.is(node, 'td')) {
+                                node.innerHTML = kendo.ui.editor.emptyTableCellContent;
+                            } else {
+                                node.innerHTML = kendo.ui.editor.emptyElementContent;
+                            }
                         }
                     }
                 });
@@ -1927,6 +2135,7 @@
                 var originalSrc = 'originalsrc';
                 var originalHref = 'originalhref';
                 var o = options || {};
+                var immutables = o.immutables;
                 html = Serializer.toEditableHtml(html);
                 if (legacyIE) {
                     html = '<br/>' + html;
@@ -1937,6 +2146,9 @@
                     html = o.custom(html) || html;
                 }
                 root.innerHTML = html;
+                if (immutables) {
+                    immutables.deserialize(root);
+                }
                 if (legacyIE) {
                     dom.remove(root.firstChild);
                     $(root).find('k\\:script,script,link,img,a').each(function () {
@@ -1957,11 +2169,13 @@
                 Serializer._preventScriptExecution(root);
                 Serializer._fillEmptyElements(root);
                 Serializer._removeSystemElements(root);
+                Serializer._toEditableImmutables(root);
                 $('table', root).addClass('k-table');
                 return root;
             },
             domToXhtml: function (root, options) {
                 var result = [];
+                var immutables = options && options.immutables;
                 function semanticFilter(attributes) {
                     return $.grep(attributes, function (attr) {
                         return attr.name != 'style';
@@ -2251,7 +2465,12 @@
                 }
                 function child(node, skip, skipEncoding) {
                     var nodeType = node.nodeType, tagName, mapper, parent, value, previous;
-                    if (nodeType == 1) {
+                    if ($(node).hasClass('k-table-resize-handle') || $(node).hasClass('k-column-resize-handle') || $(node).hasClass('k-row-resize-handle')) {
+                        return;
+                    }
+                    if (immutables && Editor.Immutables.immutable(node)) {
+                        result.push(immutables.serialize(node));
+                    } else if (nodeType == 1) {
                         tagName = dom.name(node);
                         if (!tagName || dom.insignificant(node)) {
                             return;
@@ -2653,6 +2872,9 @@
                 return !isDataNode(this._current) && (dom.isAncestorOrSelf(this._current, this.range.startContainer) || dom.isAncestorOrSelf(this._current, this.range.endContainer));
             },
             getSubtreeIterator: function () {
+                return new RangeIterator(this.getSubRange());
+            },
+            getSubRange: function () {
                 var that = this, subRange = that.range.cloneRange();
                 subRange.selectNodeContents(that._current);
                 if (dom.isAncestorOrSelf(that._current, that.range.startContainer)) {
@@ -2661,7 +2883,7 @@
                 if (dom.isAncestorOrSelf(that._current, that.range.endContainer)) {
                     subRange.setEnd(that.range.endContainer, that.range.endOffset);
                 }
-                return new RangeIterator(subRange);
+                return subRange;
             }
         });
         var W3CSelection = Class.extend({
@@ -2830,8 +3052,40 @@
                 };
             }
         });
+        var ImmutablesRangeIterator = RangeIterator.extend({
+            hasPartialSubtree: function () {
+                var immutable = Editor.Immutables && Editor.Immutables.immutable;
+                return immutable && !immutable(this._current) && RangeIterator.fn.hasPartialSubtree.call(this);
+            },
+            getSubtreeIterator: function () {
+                return new ImmutablesRangeIterator(this.getSubRange());
+            }
+        });
+        var ImmutablesRangeEnumerator = Class.extend({
+            init: function (range) {
+                this.enumerate = function () {
+                    var nodes = [];
+                    var immutable = Editor.Immutables && Editor.Immutables.immutable;
+                    function visit(node) {
+                        if (immutable && !immutable(node)) {
+                            if (dom.is(node, 'img') || node.nodeType == 3 && (!dom.isEmptyspace(node) || node.nodeValue == '\uFEFF')) {
+                                nodes.push(node);
+                            } else {
+                                node = node.firstChild;
+                                while (node) {
+                                    visit(node);
+                                    node = node.nextSibling;
+                                }
+                            }
+                        }
+                    }
+                    new ImmutablesRangeIterator(range).traverse(visit);
+                    return nodes;
+                };
+            }
+        });
         var RestorePoint = Class.extend({
-            init: function (range, body) {
+            init: function (range, body, options) {
                 var that = this;
                 that.range = range;
                 that.rootNode = RangeUtils.documentFromRange(range);
@@ -2839,11 +3093,18 @@
                 if (dom.name(that.body) != 'body') {
                     that.rootNode = that.body;
                 }
-                that.html = that.body.innerHTML;
                 that.startContainer = that.nodeToPath(range.startContainer);
                 that.endContainer = that.nodeToPath(range.endContainer);
                 that.startOffset = that.offset(range.startContainer, range.startOffset);
                 that.endOffset = that.offset(range.endContainer, range.endOffset);
+                that.immutables = options && options.immutables;
+                if (that.immutables) {
+                    that.serializedImmutables = Editor.Immutables.removeImmutables(that.body);
+                }
+                that.html = that.body.innerHTML;
+                if (that.immutables && !that.serializedImmutables.empty) {
+                    Editor.Immutables.restoreImmutables(that.body, that.serializedImmutables);
+                }
             },
             index: function (node) {
                 var result = 0, lastType = node.nodeType;
@@ -2858,13 +3119,17 @@
             },
             getEditable: function (range) {
                 var root = range.commonAncestorContainer;
-                while (root && (root.nodeType == 3 || root.attributes && !root.attributes.contentEditable)) {
+                while (root && (root.nodeType == 3 || root.attributes && (!root.attributes.contentEditable || root.attributes.contentEditable.nodeValue.toLowerCase() == 'false'))) {
                     root = root.parentNode;
                 }
                 return root;
             },
             restoreHtml: function () {
-                this.body.innerHTML = this.html;
+                var that = this;
+                that.body.innerHTML = that.html;
+                if (that.immutables && !that.serializedImmutables.empty) {
+                    Editor.Immutables.restoreImmutables(that.body, that.serializedImmutables);
+                }
             },
             offset: function (node, value) {
                 if (node.nodeType == 3) {
@@ -2908,10 +3173,12 @@
             },
             addCaret: function (range) {
                 var that = this;
-                that.caret = dom.create(RangeUtils.documentFromRange(range), 'span', { className: 'k-marker' });
-                range.insertNode(that.caret);
-                range.selectNode(that.caret);
-                return that.caret;
+                var caret = that.caret = dom.create(RangeUtils.documentFromRange(range), 'span', { className: 'k-marker' });
+                range.insertNode(caret);
+                dom.stripBomNode(caret.previousSibling);
+                dom.stripBomNode(caret.nextSibling);
+                range.selectNode(caret);
+                return caret;
             },
             removeCaret: function (range) {
                 var that = this, previous = that.caret.previousSibling, startOffset = 0;
@@ -3079,6 +3346,13 @@
             },
             textNodes: function (range) {
                 return new RangeEnumerator(range).enumerate();
+            },
+            editableTextNodes: function (range) {
+                var nodes = [], immutableParent = Editor.Immutables && Editor.Immutables.immutableParent;
+                if (immutableParent && !immutableParent(range.commonAncestorContainer)) {
+                    nodes = new ImmutablesRangeEnumerator(range).enumerate();
+                }
+                return nodes;
             },
             documentFromRange: function (range) {
                 var startContainer = range.startContainer;
@@ -3271,18 +3545,21 @@
     define('editor/system', ['editor/range'], f);
 }(function () {
     (function ($) {
-        var kendo = window.kendo, Class = kendo.Class, editorNS = kendo.ui.editor, EditorUtils = editorNS.EditorUtils, registerTool = EditorUtils.registerTool, dom = editorNS.Dom, Tool = editorNS.Tool, ToolTemplate = editorNS.ToolTemplate, RestorePoint = editorNS.RestorePoint, Marker = editorNS.Marker, extend = $.extend;
+        var kendo = window.kendo, Class = kendo.Class, editorNS = kendo.ui.editor, EditorUtils = editorNS.EditorUtils, RangeUtils = editorNS.RangeUtils, registerTool = EditorUtils.registerTool, dom = editorNS.Dom, Tool = editorNS.Tool, ToolTemplate = editorNS.ToolTemplate, RestorePoint = editorNS.RestorePoint, Marker = editorNS.Marker, browser = kendo.support.browser, br = '<br class="k-br">', extend = $.extend;
         function finishUpdate(editor, startRestorePoint) {
-            var endRestorePoint = editor.selectionRestorePoint = new RestorePoint(editor.getRange());
+            var endRestorePoint = editor.selectionRestorePoint = new RestorePoint(editor.getRange(), editor.body);
             var command = new GenericCommand(startRestorePoint, endRestorePoint);
             command.editor = editor;
             editor.undoRedoStack.push(command);
             return endRestorePoint;
         }
+        function selected(node, range) {
+            return range.startContainer === node && range.endContainer === node && range.startOffset === 0 && range.endOffset == node.childNodes.length;
+        }
         var Command = Class.extend({
             init: function (options) {
                 this.options = options;
-                this.restorePoint = new RestorePoint(options.range);
+                this.restorePoint = new RestorePoint(options.range, options.body, { immutables: options.immutables });
                 this.marker = new Marker();
                 this.formatter = options.formatter;
             },
@@ -3313,6 +3590,15 @@
                 this.formatter.editor = this.editor;
                 this.formatter.toggle(range);
                 this.releaseRange(range);
+            },
+            immutables: function () {
+                return this.editor && this.editor.options.immutables;
+            },
+            expandImmutablesIn: function (range) {
+                if (this.immutables()) {
+                    kendo.ui.editor.Immutables.expandImmutablesIn(range);
+                    this.restorePoint = new RestorePoint(range, this.editor.body);
+                }
             }
         });
         var GenericCommand = Class.extend({
@@ -3376,6 +3662,70 @@
                 selectbox.value(selectbox.options.title);
             }
         });
+        var tableCells = 'td,th,caption';
+        var tableCellsWrappers = 'table,tbody,thead,tfoot,tr';
+        var tableElements = tableCellsWrappers + ',' + tableCells;
+        var inTable = function (range) {
+            return !range.collapsed && $(range.commonAncestorContainer).is(tableCellsWrappers);
+        };
+        var RemoveTableContent = Class.extend({
+            remove: function (range) {
+                var that = this;
+                var marker = new Marker();
+                marker.add(range, false);
+                var nodes = RangeUtils.getAll(range, function (node) {
+                    return $(node).is(tableElements);
+                });
+                var doc = RangeUtils.documentFromRange(range);
+                var start = marker.start;
+                var end = marker.end;
+                var cellsTypes = tableCells.split(',');
+                var startCell = dom.parentOfType(start, cellsTypes);
+                var endCell = dom.parentOfType(end, cellsTypes);
+                that._removeContent(start, startCell, true);
+                that._removeContent(end, endCell, false);
+                $(nodes).each(function (i, node) {
+                    node = $(node);
+                    (node.is(tableCells) ? node : node.find(tableCells)).each(function (j, cell) {
+                        cell.innerHTML = '&#65279;';
+                    });
+                });
+                if (startCell && !start.previousSibling) {
+                    dom.insertBefore(doc.createTextNode('\uFEFF'), start);
+                }
+                if (endCell && !end.nextSibling) {
+                    dom.insertAfter(doc.createTextNode('\uFEFF'), end);
+                }
+                if (startCell) {
+                    range.setStartBefore(start);
+                } else if (nodes[0]) {
+                    startCell = $(nodes[0]);
+                    startCell = startCell.is(tableCells) ? startCell : startCell.find(tableCells).first();
+                    if (startCell.length) {
+                        range.setStart(startCell.get(0), 0);
+                    }
+                }
+                range.collapse(true);
+                dom.remove(start);
+                dom.remove(end);
+            },
+            _removeContent: function (start, top, forwards) {
+                if (top) {
+                    var sibling = forwards ? 'nextSibling' : 'previousSibling', next, getNext = function (node) {
+                            while (node && !node[sibling]) {
+                                node = node.parentNode;
+                            }
+                            return node && $.contains(top, node) ? node[sibling] : null;
+                        };
+                    start = getNext(start);
+                    while (start) {
+                        next = getNext(start);
+                        dom.remove(start);
+                        start = next;
+                    }
+                }
+            }
+        });
         var TypingHandler = Class.extend({
             init: function (editor) {
                 this.editor = editor;
@@ -3389,7 +3739,20 @@
                 }
                 if (!evt.isDefaultPrevented() && isTypingKey && !keyboard.isTypingInProgress()) {
                     var range = editor.getRange();
-                    that.startRestorePoint = new RestorePoint(range);
+                    var body = editor.body;
+                    that.startRestorePoint = new RestorePoint(range, body);
+                    if (inTable(range)) {
+                        var removeTableContent = new RemoveTableContent(editor);
+                        removeTableContent.remove(range);
+                        editor.selectRange(range);
+                    }
+                    if (browser.webkit && !range.collapsed && selected(body, range)) {
+                        body.innerHTML = '';
+                    }
+                    if (editor.immutables && editorNS.Immutables.immutablesContext(range)) {
+                        var backspaceHandler = new editorNS.BackspaceHandler(editor);
+                        backspaceHandler.deleteSelection(range);
+                    }
                     keyboard.startTyping(function () {
                         that.endRestorePoint = finishUpdate(editor, that.startRestorePoint);
                     });
@@ -3414,6 +3777,8 @@
             _addCaret: function (container) {
                 var caret = dom.create(this.editor.document, 'a');
                 dom.insertAt(container, caret, 0);
+                dom.stripBomNode(caret.previousSibling);
+                dom.stripBomNode(caret.nextSibling);
                 return caret;
             },
             _restoreCaret: function (caret) {
@@ -3490,11 +3855,15 @@
                 var ancestor = range.commonAncestorContainer;
                 var table = dom.closest(ancestor, 'table');
                 var emptyParagraphContent = editorNS.emptyElementContent;
+                var editor = this.editor;
                 if (/t(able|body)/i.test(dom.name(ancestor))) {
                     range.selectNode(table);
                 }
                 var marker = new Marker();
                 marker.add(range, false);
+                if (editor.immutables) {
+                    this._handleImmutables(marker);
+                }
                 range.setStartAfter(marker.start);
                 range.setEndBefore(marker.end);
                 var start = range.startContainer;
@@ -3510,7 +3879,7 @@
                     range.setStart(ancestor, 0);
                 }
                 this._join(start, end);
-                dom.insertAfter(this.editor.document.createTextNode('\uFEFF'), marker.start);
+                dom.insertAfter(editor.document.createTextNode('\uFEFF'), marker.start);
                 marker.remove(range);
                 start = range.startContainer;
                 if (dom.name(start) == 'tr') {
@@ -3518,8 +3887,25 @@
                     range.setStart(start, dom.getNodeLength(start));
                 }
                 range.collapse(true);
-                this.editor.selectRange(range);
+                editor.selectRange(range);
                 return true;
+            },
+            _handleImmutables: function (marker) {
+                var immutableParent = editorNS.Immutables.immutableParent;
+                var startImmutable = immutableParent(marker.start);
+                var endImmutable = immutableParent(marker.start);
+                if (startImmutable) {
+                    dom.insertBefore(marker.start, startImmutable);
+                }
+                if (endImmutable) {
+                    dom.insertAfter(marker.end, endImmutable);
+                }
+                if (startImmutable) {
+                    dom.remove(startImmutable);
+                }
+                if (endImmutable && endImmutable.parentNode) {
+                    dom.remove(endImmutable);
+                }
             },
             _root: function (node) {
                 while (node && node.parentNode && dom.name(node.parentNode) != 'body') {
@@ -3538,6 +3924,7 @@
                 dom.removeTrailingBreak(dest);
                 while (src.firstChild) {
                     if (dest.nodeType == 1) {
+                        dest = dom.list(dest) ? dest.children[dest.children.length - 1] : dest;
                         dest.appendChild(src.firstChild);
                     } else {
                         dest.parentNode.appendChild(src.firstChild);
@@ -3547,11 +3934,15 @@
             },
             keydown: function (e) {
                 var method, startRestorePoint;
-                var range = this.editor.getRange();
+                var editor = this.editor;
+                var range = editor.getRange();
                 var keyCode = e.keyCode;
                 var keys = kendo.keys;
                 var backspace = keyCode === keys.BACKSPACE;
                 var del = keyCode == keys.DELETE;
+                if (editor.immutables && editor.immutables.keydown(e, range)) {
+                    return;
+                }
                 if ((backspace || del) && !range.collapsed) {
                     method = '_handleSelection';
                 } else if (backspace) {
@@ -3562,11 +3953,14 @@
                 if (!method) {
                     return;
                 }
-                startRestorePoint = new RestorePoint(range);
+                startRestorePoint = new RestorePoint(range, editor.body);
                 if (this[method](range)) {
                     e.preventDefault();
-                    finishUpdate(this.editor, startRestorePoint);
+                    finishUpdate(editor, startRestorePoint);
                 }
+            },
+            deleteSelection: function (range) {
+                this._handleSelection(range);
             },
             keyup: $.noop
         });
@@ -3590,7 +3984,7 @@
                     if (keyboard.isTypingInProgress()) {
                         keyboard.endTyping(true);
                     }
-                    that.startRestorePoint = new RestorePoint(editor.getRange());
+                    that.startRestorePoint = new RestorePoint(editor.getRange(), editor.body);
                     return true;
                 }
                 if (keyboard.isSystem(e)) {
@@ -3612,6 +4006,42 @@
                 }
                 return false;
             }
+        });
+        var SelectAllHandler = Class.extend({
+            init: function (editor) {
+                this.editor = editor;
+            },
+            keydown: function (e) {
+                if (!browser.webkit || e.isDefaultPrevented() || !(e.ctrlKey && e.keyCode == 65 && !e.altKey && !e.shiftKey)) {
+                    return;
+                }
+                if (this.editor.options.immutables) {
+                    this._toSelectableImmutables();
+                }
+                this._selectEditorBody();
+            },
+            _selectEditorBody: function () {
+                var editor = this.editor;
+                var range = editor.getRange();
+                range.selectNodeContents(editor.body);
+                editor.selectRange(range);
+            },
+            _toSelectableImmutables: function () {
+                var editor = this.editor, body = editor.body, immutable = editorNS.Immutables.immutable, emptyTextNode = dom.emptyTextNode, first = body.firstChild, last = body.lastChild;
+                while (emptyTextNode(first)) {
+                    first = first.nextSibling;
+                }
+                while (emptyTextNode(last)) {
+                    last = last.previousSibling;
+                }
+                if (first && immutable(first)) {
+                    $(br).prependTo(body);
+                }
+                if (last && immutable(last)) {
+                    $(br).appendTo(body);
+                }
+            },
+            keyup: $.noop
         });
         var Keyboard = Class.extend({
             init: function (handlers) {
@@ -3738,7 +4168,7 @@
                 }
                 this._inProgress = true;
                 range = editor.getRange();
-                restorePoint = new RestorePoint(range);
+                restorePoint = new RestorePoint(range, editor.body);
                 dom.persistScrollTop(editor.document);
                 return {
                     range: range,
@@ -3836,13 +4266,19 @@
                     e.preventDefault();
                     return;
                 }
+                this.expandImmutablesIn();
                 this._contentModification(function beforePaste(editor, range) {
                     var clipboardNode = dom.create(editor.document, 'div', {
                         className: 'k-paste-container',
                         innerHTML: '\uFEFF'
                     });
                     var browser = kendo.support.browser;
-                    editor.body.appendChild(clipboardNode);
+                    var body = editor.body;
+                    this._decoreateClipboardNode(clipboardNode, body);
+                    body.appendChild(clipboardNode);
+                    if (browser.webkit) {
+                        this._moveToCaretPosition(clipboardNode, range);
+                    }
                     if (browser.msie && browser.version < 11) {
                         e.preventDefault();
                         var r = editor.createRange();
@@ -3850,9 +4286,9 @@
                         editor.selectRange(r);
                         var textRange = editor.document.body.createTextRange();
                         textRange.moveToElementText(clipboardNode);
-                        $(editor.body).unbind('paste');
+                        $(body).unbind('paste');
                         textRange.execCommand('Paste');
-                        $(editor.body).bind('paste', $.proxy(this.onpaste, this));
+                        $(body).bind('paste', $.proxy(this.onpaste, this));
                     } else {
                         var clipboardRange = editor.createRange();
                         clipboardRange.selectNodeContents(clipboardNode);
@@ -3874,6 +4310,103 @@
                     this._triggerPaste(html, { clean: true });
                 });
             },
+            _decoreateClipboardNode: function (node, body) {
+                if (!browser.msie && !browser.webkit) {
+                    return;
+                }
+                node = $(node);
+                node.css({
+                    borderWidth: '0px',
+                    width: '0px',
+                    height: '0px',
+                    overflow: 'hidden',
+                    margin: '0',
+                    padding: '0'
+                });
+                if (browser.msie) {
+                    var documentElement = $(body.ownerDocument.documentElement);
+                    node.css({
+                        fontVariant: 'normal',
+                        fontWeight: 'normal',
+                        lineSpacing: 'normal',
+                        lineHeight: 'normal',
+                        textDecoration: 'none'
+                    });
+                    var color = documentElement.css('color');
+                    if (color) {
+                        node.css('color', color);
+                    }
+                    var fontFamily = documentElement.css('fontFamily');
+                    if (fontFamily) {
+                        node.css('fontFamily', fontFamily);
+                    }
+                    var fontSize = documentElement.css('fontSize');
+                    if (fontSize) {
+                        node.css('fontSize', fontSize);
+                    }
+                }
+            },
+            _moveToCaretPosition: function (node, range) {
+                var that = this;
+                var body = that.editor.body;
+                var nodeOffset = dom.offset(node, body);
+                var caretOffset = that._caretOffset(range, body);
+                var translateX = caretOffset.left - nodeOffset.left;
+                var translateY = caretOffset.top - nodeOffset.top;
+                var translate = 'translate(' + translateX + 'px,' + translateY + 'px)';
+                $(node).css({
+                    '-webkit-transform': translate,
+                    'transform': translate
+                });
+            },
+            _caretOffset: function (range, body) {
+                var editor = this.editor;
+                var caret = dom.create(editor.document, 'span', { innerHTML: '\uFEFF' });
+                var startContainer = range.startContainer;
+                var rangeChanged;
+                if (range.collapsed) {
+                    var isStartTextNode = dom.isDataNode(startContainer);
+                    if (isStartTextNode && (dom.isBom(startContainer) || range.startOffset === 0)) {
+                        dom.insertBefore(caret, startContainer);
+                    } else if (isStartTextNode && range.startOffset === startContainer.length) {
+                        dom.insertAfter(caret, startContainer);
+                    } else {
+                        range.insertNode(caret);
+                        rangeChanged = true;
+                    }
+                } else {
+                    startContainer = startContainer === body ? startContainer.childNodes[range.startOffset] : startContainer;
+                    dom.insertBefore(caret, startContainer);
+                }
+                var offset = dom.offset(caret, body);
+                var prev = caret.previousSibling;
+                var next = caret.nextSibling;
+                dom.remove(caret);
+                if (rangeChanged && dom.isDataNode(prev) && dom.isDataNode(next) && !dom.isBom(prev) && !dom.isBom(next)) {
+                    var prevLength = prev.length;
+                    next.data = prev.data + next.data;
+                    range.setStart(next, prevLength);
+                    dom.remove(prev);
+                    range.collapse(true);
+                    editor.selectRange(range);
+                }
+                return offset;
+            },
+            expandImmutablesIn: function (range) {
+                var editor = this.editor;
+                if (editor && editor.options.immutables) {
+                    var body = editor.body;
+                    range = range || editor.getRange();
+                    kendo.ui.editor.Immutables.expandImmutablesIn(range);
+                    if (range.startContainer === body && range.startOffset === 0) {
+                        var doc = body.ownerDocument;
+                        var bomNode = doc.createTextNode('\uFEFF');
+                        body.insertBefore(bomNode, body.childNodes[0]);
+                        range.setStartBefore(bomNode);
+                    }
+                    editor.selectRange(range);
+                }
+            },
             splittableParent: function (block, node) {
                 var parentNode, body;
                 if (block) {
@@ -3894,13 +4427,16 @@
             },
             paste: function (html, options) {
                 var editor = this.editor, i, l;
+                this.expandImmutablesIn();
                 options = extend({
                     clean: false,
                     split: true
                 }, options);
-                for (i = 0, l = this.cleaners.length; i < l; i++) {
-                    if (this.cleaners[i].applicable(html)) {
-                        html = this.cleaners[i].clean(html);
+                if (!options.skipCleaners) {
+                    for (i = 0, l = this.cleaners.length; i < l; i++) {
+                        if (this.cleaners[i].applicable(html)) {
+                            html = this.cleaners[i].clean(html);
+                        }
                     }
                 }
                 if (options.clean) {
@@ -4567,6 +5103,7 @@
             TypingHandler: TypingHandler,
             SystemHandler: SystemHandler,
             BackspaceHandler: BackspaceHandler,
+            SelectAllHandler: SelectAllHandler,
             Keyboard: Keyboard,
             Clipboard: Clipboard,
             Cleaner: Cleaner,
@@ -4695,19 +5232,36 @@
                 }
             },
             toggle: function (range) {
-                var nodes = RangeUtils.textNodes(range);
+                var textNodes = this.immutables() ? RangeUtils.editableTextNodes : RangeUtils.textNodes;
+                var nodes = textNodes(range);
                 if (nodes.length > 0) {
                     this.activate(range, nodes);
                 }
             },
+            immutables: function () {
+                return this.editor && this.editor.options.immutables;
+            },
             apply: function (nodes) {
                 var formatNodes = [];
                 var i, l, node, formatNode;
+                var attributes = this.attributes;
+                var styleAttr = attributes ? attributes.style || {} : {};
                 for (i = 0, l = nodes.length; i < l; i++) {
                     node = nodes[i];
                     formatNode = this.finder.findSuitable(node);
                     if (formatNode) {
-                        dom.attr(formatNode, this.attributes);
+                        if (dom.is(formatNode, 'font')) {
+                            if (styleAttr.color) {
+                                formatNode.removeAttribute('color');
+                            }
+                            if (styleAttr.fontName) {
+                                formatNode.removeAttribute('face');
+                            }
+                            if (styleAttr.fontSize) {
+                                formatNode.removeAttribute('size');
+                            }
+                        }
+                        dom.attr(formatNode, attributes);
                     } else {
                         while (!dom.isBlock(node.parentNode) && node.parentNode.childNodes.length == 1 && node.parentNode.contentEditable !== 'true') {
                             node = node.parentNode;
@@ -4864,7 +5418,12 @@
             init: function (options) {
                 Tool.fn.init.call(this, options);
                 this.type = kendo.support.browser.msie || kendo.support.touch ? 'kendoDropDownList' : 'kendoComboBox';
-                this.format = [{ tags: ['span'] }];
+                this.format = [{
+                        tags: [
+                            'span',
+                            'font'
+                        ]
+                    }];
                 this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr);
             },
             command: function (commandArguments) {
@@ -4902,7 +5461,12 @@
         var ColorTool = Tool.extend({
             init: function (options) {
                 Tool.fn.init.call(this, options);
-                this.format = [{ tags: ['span'] }];
+                this.format = [{
+                        tags: [
+                            'span',
+                            'font'
+                        ]
+                    }];
                 this.finder = new GreedyInlineFormatFinder(this.format, options.cssAttr);
             },
             options: { palette: 'websafe' },
@@ -5127,6 +5691,7 @@
                         suitable.push(candidate);
                     }
                 }
+                this._resolveListsItems(suitable);
                 for (i = 0, len = suitable.length; i < len; i++) {
                     if (this.contains(suitable[i], suitable)) {
                         return [suitable[i]];
@@ -5134,13 +5699,32 @@
                 }
                 return suitable;
             },
+            _resolveListsItems: function (nodes) {
+                var i, node, wrapper;
+                for (i = 0; i < nodes.length; i++) {
+                    node = nodes[i];
+                    wrapper = dom.is(node, 'li') ? node : dom.wrapper(node);
+                    wrapper = wrapper && dom.list(wrapper) ? wrapper.children[0] : wrapper;
+                    if (dom.is(wrapper, 'li')) {
+                        node = nodes[i] = wrapper;
+                    }
+                }
+            },
             findFormat: function (sourceNode) {
                 var format = this.format, i, len, node, tags, attributes;
                 var editableParent = dom.editableParent(sourceNode);
+                var immutables = this.options && this.options.immutables;
+                var ImmutablesNS = Editor.Immutables;
                 for (i = 0, len = format.length; i < len; i++) {
                     node = sourceNode;
                     tags = format[i].tags;
                     attributes = format[i].attr;
+                    if (immutables && tags && tags[0] == 'immutable') {
+                        var immutable = ImmutablesNS.immutableParent(node);
+                        if (immutable && dom.attrEquals(immutable, attributes)) {
+                            return node;
+                        }
+                    }
                     while (node && dom.isAncestorOf(editableParent, node)) {
                         if (dom.ofType(node, tags) && dom.attrEquals(node, attributes)) {
                             return node;
@@ -5207,6 +5791,7 @@
                 function attributes(format) {
                     return extend({}, format && format.attr, values);
                 }
+                this._handleImmutables(nodes, true);
                 var images = dom.filter('img', nodes);
                 var imageFormat = EditorUtils.formatByName('img', this.format);
                 var imageAttributes = attributes(imageFormat);
@@ -5228,8 +5813,37 @@
                     this.wrap(format.tags[0], attributes(format), nonImages);
                 }
             },
+            _handleImmutables: function (nodes, applyFormatting) {
+                if (!this.immutables()) {
+                    return;
+                }
+                var immutableFormat = EditorUtils.formatByName('immutable', this.format);
+                if (!immutableFormat) {
+                    return;
+                }
+                var ImmutablesNS = Editor.Immutables;
+                var l = nodes.length - 1;
+                for (var i = l; i >= 0; i--) {
+                    var immutableParent = ImmutablesNS.immutableParent(nodes[i]);
+                    if (!immutableParent) {
+                        continue;
+                    }
+                    if (immutableParent !== nodes[i + 1]) {
+                        if (applyFormatting) {
+                            dom.attr(immutableParent, immutableFormat.attr);
+                        } else {
+                            dom.unstyle(immutableParent, immutableFormat.attr.style);
+                        }
+                    }
+                    nodes.splice(i, 1);
+                }
+            },
+            immutables: function () {
+                return this.editor && this.editor.options.immutables;
+            },
             remove: function (nodes) {
                 var i, l, formatNode, namedFormat, name;
+                this._handleImmutables(nodes, false);
                 for (i = 0, l = nodes.length; i < l; i++) {
                     formatNode = this.finder.findFormat(nodes[i]);
                     if (formatNode) {
@@ -5249,7 +5863,7 @@
                 }
             },
             toggle: function (range) {
-                var that = this, nodes = RangeUtils.nodes(range);
+                var that = this, nodes = dom.filterBy(RangeUtils.nodes(range), dom.htmlIndentSpace, true);
                 if (that.finder.isFormatted(nodes)) {
                     that.remove(nodes);
                 } else {
@@ -5271,24 +5885,32 @@
                 var i, len, list, formatter, range;
                 var element;
                 var tagName;
+                var block;
+                var immutalbeParent;
                 if (blocks.length) {
                     for (i = 0, len = blocks.length; i < len; i++) {
-                        tagName = dom.name(blocks[i]);
-                        if (tagName == 'li') {
-                            list = blocks[i].parentNode;
-                            formatter = new Editor.ListFormatter(list.nodeName.toLowerCase(), formatTag);
-                            range = this.editor.createRange();
-                            range.selectNode(blocks[i]);
-                            formatter.toggle(range);
-                        } else if (formatTag && (tagName == 'td' || blocks[i].attributes.contentEditable)) {
-                            new BlockFormatter(format, this.values).apply(blocks[i].childNodes);
-                        } else {
-                            element = dom.changeTag(blocks[i], formatTag);
-                            dom.attr(element, format[0].attr);
+                        block = blocks[i];
+                        immutalbeParent = this.immutables() && Editor.Immutables.immutableParent(block);
+                        if (!immutalbeParent) {
+                            tagName = dom.name(block);
+                            if (tagName == 'li') {
+                                list = block.parentNode;
+                                formatter = new Editor.ListFormatter(list.nodeName.toLowerCase(), formatTag);
+                                range = this.editor.createRange();
+                                range.selectNode(blocks[i]);
+                                formatter.toggle(range);
+                            } else if (formatTag && (tagName == 'td' || block.attributes.contentEditable)) {
+                                new BlockFormatter(format, this.values).apply(block.childNodes);
+                            } else {
+                                element = dom.changeTag(block, formatTag);
+                                dom.attr(element, format[0].attr);
+                            }
                         }
                     }
                 } else {
-                    new BlockFormatter(format, this.values).apply(nodes);
+                    var blockFormatter = new BlockFormatter(format, this.values);
+                    blockFormatter.editor = this.editor;
+                    blockFormatter.apply(nodes);
                 }
             },
             toggle: function (range) {
@@ -5301,11 +5923,18 @@
                     }
                 }
                 this.apply(nodes);
+            },
+            immutables: function () {
+                return this.editor && this.editor.options.immutables;
             }
         });
         var FormatCommand = Command.extend({
             init: function (options) {
                 options.formatter = options.formatter();
+                var finder = options.formatter.finder;
+                if (finder && EditorUtils.formatByName('immutable', finder.format)) {
+                    finder._initOptions({ immutables: options.immutables });
+                }
                 Command.fn.init.call(this, options);
             }
         });
@@ -5338,6 +5967,17 @@
             },
             {
                 tags: ['img'],
+                attr: {
+                    style: {
+                        'float': 'left',
+                        display: '',
+                        marginLeft: '',
+                        marginRight: ''
+                    }
+                }
+            },
+            {
+                tags: ['immutable'],
                 attr: {
                     style: {
                         'float': 'left',
@@ -5381,6 +6021,17 @@
                 }
             },
             {
+                tags: ['immutable'],
+                attr: {
+                    style: {
+                        display: 'block',
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                        'float': ''
+                    }
+                }
+            },
+            {
                 tags: listElements,
                 attr: {
                     style: {
@@ -5414,6 +6065,17 @@
                 }
             },
             {
+                tags: ['immutable'],
+                attr: {
+                    style: {
+                        'float': 'right',
+                        display: '',
+                        marginLeft: '',
+                        marginRight: ''
+                    }
+                }
+            },
+            {
                 tags: listElements,
                 attr: {
                     style: {
@@ -5437,6 +6099,17 @@
             },
             {
                 tags: ['img'],
+                attr: {
+                    style: {
+                        display: 'block',
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                        'float': ''
+                    }
+                }
+            },
+            {
+                tags: ['immutable'],
                 attr: {
                     style: {
                         display: 'block',
@@ -5522,7 +6195,9 @@
                 return !node;
             },
             exec: function () {
-                var range = this.getRange(), doc = RangeUtils.documentFromRange(range), parent, previous, next, emptyParagraphContent = editorNS.emptyElementContent, paragraph, marker, li, heading, rng, shouldTrim = this.shouldTrim(range);
+                var range = this.getRange(), doc = RangeUtils.documentFromRange(range), parent, previous, next, emptyParagraphContent = editorNS.emptyElementContent, paragraph, marker, li, heading, rng, shouldTrim;
+                this.expandImmutablesIn(range);
+                shouldTrim = this.shouldTrim(range);
                 range.deleteContents();
                 marker = this._insertMarker(doc, range);
                 dom.stripBomNode(marker.previousSibling);
@@ -5532,14 +6207,26 @@
                 if (li) {
                     if (dom.emptyNode(li)) {
                         paragraph = dom.create(doc, 'p');
-                        if (li.nextSibling) {
+                        if (dom.next(li)) {
                             rng = range.cloneRange();
                             rng.selectNode(li);
                             RangeUtils.split(rng, li.parentNode);
                         }
-                        dom.insertAfter(paragraph, li.parentNode);
-                        dom.remove(li.parentNode.childNodes.length == 1 ? li.parentNode : li);
-                        paragraph.innerHTML = emptyParagraphContent;
+                        var br = $('br', li);
+                        if (br.length == 1) {
+                            br.remove();
+                        }
+                        var parentNode = li.parentNode;
+                        var parentChildrenLength = li.parentNode.children.length;
+                        var firstChild = parentChildrenLength > 1 && li.childNodes.length == 1 && li.children[0];
+                        dom.insertAfter(paragraph, parentNode);
+                        dom.remove(parentChildrenLength == 1 ? li.parentNode : li);
+                        if (firstChild && firstChild !== marker) {
+                            paragraph.appendChild(firstChild);
+                            paragraph.appendChild(marker);
+                        } else {
+                            paragraph.innerHTML = emptyParagraphContent;
+                        }
                         next = paragraph;
                     }
                 } else if (heading && this._blankAfter(marker)) {
@@ -5612,6 +6299,7 @@
             },
             exec: function () {
                 var range = this.getRange();
+                this.expandImmutablesIn(range);
                 var br = dom.create(RangeUtils.documentFromRange(range), 'br');
                 var filler;
                 var browser = kendo.support.browser;
@@ -5702,11 +6390,13 @@
                 that.unwrapTag = unwrapTag;
             },
             isList: function (node) {
-                var name = dom.name(node);
-                return name == 'ul' || name == 'ol' || name == 'dl';
+                return dom.list(node);
+            },
+            immutables: function () {
+                return this.editor && !!this.editor.options.immutables;
             },
             wrap: function (list, nodes) {
-                var li = dom.create(list.ownerDocument, 'li'), i, node;
+                var li = dom.create(list.ownerDocument, 'li'), i, node, isImmutable = this.immutables() ? Editor.Immutables.immutable : $.noop;
                 for (i = 0; i < nodes.length; i++) {
                     node = nodes[i];
                     if (dom.is(node, 'li')) {
@@ -5732,7 +6422,9 @@
                     li.appendChild(node);
                     if (dom.isBlock(node)) {
                         list.appendChild(li);
-                        dom.unwrap(node);
+                        if (!isImmutable(node)) {
+                            dom.unwrap(node);
+                        }
                         li = li.cloneNode(false);
                     }
                 }
@@ -5846,7 +6538,7 @@
                         continue;
                     }
                     if (formatNode && this.isList(child)) {
-                        $.each(child.childNodes, pushAncestor);
+                        $.each(child.children, pushAncestor);
                         dom.remove(child);
                     } else {
                         ancestors.push(child);
@@ -5860,36 +6552,39 @@
                     dom.insertBefore(formatNode, ancestors[0]);
                 }
                 this.wrap(formatNode, ancestors);
+                while (dom.isBom(formatNode.nextSibling)) {
+                    dom.remove(formatNode.nextSibling);
+                }
                 if (!dom.is(formatNode, tag)) {
                     dom.changeTag(formatNode, tag);
                 }
                 this.merge(tag, formatNode);
             },
             apply: function (nodes) {
-                var i = 0, sections = [], lastSection, lastNodes, section;
-                do {
-                    section = dom.closestEditable(nodes[i], [
+                var i = 0, sections = [], lastSection, lastNodes, section, node, l = nodes.length, immutableParent = this.immutables() ? Editor.Immutables.immutableParent : $.noop;
+                function addLastSection() {
+                    if (lastSection) {
+                        sections.push({
+                            section: lastSection,
+                            nodes: lastNodes
+                        });
+                    }
+                }
+                for (i = 0; i < l; i++) {
+                    node = immutableParent(nodes[i]) || nodes[i];
+                    section = dom.closestEditable(node, [
                         'td',
                         'body'
                     ]);
                     if (!lastSection || section != lastSection) {
-                        if (lastSection) {
-                            sections.push({
-                                section: lastSection,
-                                nodes: lastNodes
-                            });
-                        }
-                        lastNodes = [nodes[i]];
+                        addLastSection();
+                        lastNodes = [node];
                         lastSection = section;
                     } else {
-                        lastNodes.push(nodes[i]);
+                        lastNodes.push(node);
                     }
-                    i++;
-                } while (i < nodes.length);
-                sections.push({
-                    section: lastSection,
-                    nodes: lastNodes
-                });
+                }
+                addLastSection();
                 for (i = 0; i < sections.length; i++) {
                     this.applyOnSection(sections[i].section, sections[i].nodes);
                 }
@@ -5944,6 +6639,7 @@
                         range.selectNode(text.parentNode);
                     }
                 }
+                nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
                 if (that.finder.isFormatted(nodes)) {
                     that.split(range);
                     that.remove(nodes);
@@ -5995,7 +6691,7 @@
     define('editor/link', ['editor/lists'], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InlineFormatter = Editor.InlineFormatter, InlineFormatFinder = Editor.InlineFormatFinder, textNodes = RangeUtils.textNodes, registerTool = Editor.EditorUtils.registerTool, keys = kendo.keys;
+        var kendo = window.kendo, Class = kendo.Class, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, RangeUtils = Editor.RangeUtils, EditorUtils = Editor.EditorUtils, Command = Editor.Command, Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InlineFormatter = Editor.InlineFormatter, InlineFormatFinder = Editor.InlineFormatFinder, textNodes = RangeUtils.textNodes, editableTextNodes = RangeUtils.editableTextNodes, registerTool = Editor.EditorUtils.registerTool, keys = kendo.keys;
         var HTTP_PROTOCOL = 'http://';
         var protocolRegExp = /^\w*:\/\//;
         var endLinkCharsRegExp = /[\w\/\$\-_\*\?]/i;
@@ -6009,7 +6705,7 @@
                 this.finder = new LinkFormatFinder();
             },
             apply: function (range, attributes) {
-                var nodes = textNodes(range);
+                var nodes = this.immutables ? editableTextNodes(range) : textNodes(range);
                 var markers, doc, formatter, a, parent;
                 if (attributes.innerHTML) {
                     doc = RangeUtils.documentFromRange(range);
@@ -6044,9 +6740,11 @@
         });
         var UnlinkCommand = Command.extend({
             init: function (options) {
+                var that = this;
                 options.formatter = {
                     toggle: function (range) {
-                        new InlineFormatter([{ tags: ['a'] }]).remove(textNodes(range));
+                        var nodes = that.immutables() ? editableTextNodes(range) : textNodes(range);
+                        new InlineFormatter([{ tags: ['a'] }]).remove(nodes);
                     }
                 };
                 this.options = options;
@@ -6055,6 +6753,7 @@
         });
         var LinkCommand = Command.extend({
             init: function (options) {
+                var that;
                 this.options = options;
                 Command.fn.init.call(this, options);
                 this.formatter = new LinkFormatter();
@@ -6063,6 +6762,7 @@
                     this.async = true;
                 } else {
                     this.exec = function () {
+                        this.formatter.immutables = that && that.immutables();
                         this.formatter.apply(options.range, {
                             href: options.url,
                             innerHTML: options.text || options.url,
@@ -6078,6 +6778,7 @@
                 var messages = this.editor.options.messages;
                 this._initialText = '';
                 this._range = this.lockRange(true);
+                this.formatter.immutables = this.immutables();
                 var nodes = textNodes(this._range);
                 var a = nodes.length ? this.formatter.finder.findSuitable(nodes[0]) : null;
                 var img = nodes.length && dom.name(nodes[0]) == 'img';
@@ -6498,6 +7199,7 @@
                         visible: false,
                         resizable: showBrowser
                     };
+                this.expandImmutablesIn(range);
                 function apply(e) {
                     var element = dialog.element, href = element.find(KEDITORFILEURL).val().replace(/ /g, '%20'), innerHTML = element.find(KEDITORFILETITLE).val();
                     that.attributes = {
@@ -6531,12 +7233,13 @@
                 }
                 dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORFILEURL).val(file ? file.getAttribute('href', 2) : 'http://').end().find(KEDITORFILETITLE).val(file ? file.title : '').end().data('kendoWindow');
                 if (showBrowser) {
-                    that._fileBrowser = new kendo.ui.FileBrowser(dialog.element.find('.k-filebrowser'), extend({}, fileBrowser, {
-                        change: function () {
+                    that._fileBrowser = new kendo.ui.FileBrowser(dialog.element.find('.k-filebrowser'), extend({}, fileBrowser));
+                    that._fileBrowser.bind('change', function (ev) {
+                        if (ev.selected.get('type') === 'f') {
                             dialog.element.find(KEDITORFILEURL).val(this.value());
-                        },
-                        apply: apply
-                    }));
+                        }
+                    });
+                    that._fileBrowser.bind('apply', apply);
                 }
                 dialog.center().open();
                 dialog.element.find(KEDITORFILEURL).focus().select();
@@ -6623,6 +7326,7 @@
                         visible: false,
                         resizable: showBrowser
                     };
+                this.expandImmutablesIn(range);
                 function apply(e) {
                     var element = dialog.element, w = parseInt(element.find(KEDITORIMAGEWIDTH).val(), 10), h = parseInt(element.find(KEDITORIMAGEHEIGHT).val(), 10);
                     that.attributes = {
@@ -6664,12 +7368,13 @@
                 }
                 dialog = this.createDialog(that._dialogTemplate(showBrowser), dialogOptions).toggleClass('k-filebrowser-dialog', showBrowser).find('.k-dialog-insert').click(apply).end().find('.k-dialog-close').click(close).end().find('.k-edit-field input').keydown(keyDown).end().find(KEDITORIMAGEURL).val(img ? img.getAttribute('src', 2) : 'http://').end().find(KEDITORIMAGETITLE).val(img ? img.alt : '').end().find(KEDITORIMAGEWIDTH).val(imageWidth).end().find(KEDITORIMAGEHEIGHT).val(imageHeight).end().data('kendoWindow');
                 if (showBrowser) {
-                    this._imageBrowser = new kendo.ui.ImageBrowser(dialog.element.find('.k-imagebrowser'), extend({}, imageBrowser, {
-                        change: function () {
+                    this._imageBrowser = new kendo.ui.ImageBrowser(dialog.element.find('.k-imagebrowser'), extend({}, imageBrowser));
+                    this._imageBrowser.bind('change', function (ev) {
+                        if (ev.selected.get('type') === 'f') {
                             dialog.element.find(KEDITORIMAGEURL).val(this.value());
-                        },
-                        apply: apply
-                    }));
+                        }
+                    });
+                    this._imageBrowser.bind('apply', apply);
                 }
                 dialog.center().open();
                 dialog.element.find(KEDITORIMAGEURL).focus().select();
@@ -6802,7 +7507,9 @@
                 this.finder = new BlockFormatFinder([{ tags: dom.blockElements }]);
             },
             apply: function (nodes) {
+                nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
                 var formatNodes = this.finder.findSuitable(nodes), targets = [], i, len, formatNode, parentList, sibling;
+                formatNodes = this.mapImmutables(formatNodes);
                 if (formatNodes.length) {
                     for (i = 0, len = formatNodes.length; i < len; i++) {
                         if (dom.is(formatNodes[i], 'li')) {
@@ -6857,8 +7564,28 @@
                     formatter.apply(nodes);
                 }
             },
+            mapImmutables: function (nodes) {
+                if (!this.immutables) {
+                    return nodes;
+                } else {
+                    var immutables = [];
+                    return $.map(nodes, function (node) {
+                        var immutable = Editor.Immutables.immutableParent(node);
+                        if (immutable) {
+                            if ($.inArray(immutable, immutables) === -1) {
+                                immutables.push(immutable);
+                            } else {
+                                return null;
+                            }
+                        }
+                        return immutable || node;
+                    });
+                }
+            },
             remove: function (nodes) {
+                nodes = dom.filterBy(nodes, dom.htmlIndentSpace, true);
                 var formatNodes = this.finder.findSuitable(nodes), targetNode, i, len, list, listParent, siblings, formatNode, marginLeft;
+                formatNodes = this.mapImmutables(formatNodes);
                 for (i = 0, len = formatNodes.length; i < len; i++) {
                     formatNode = $(formatNodes[i]);
                     if (formatNode.is('li')) {
@@ -6897,20 +7624,26 @@
         });
         var IndentCommand = Command.extend({
             init: function (options) {
+                var that = this;
                 options.formatter = {
-                    toggle: function (range) {
-                        new IndentFormatter().apply(RangeUtils.nodes(range));
-                    }
+                    toggle: $.proxy(function (range) {
+                        var indentFormatter = new IndentFormatter();
+                        indentFormatter.immutables = this.editor && this.editor.options.immutables;
+                        indentFormatter.apply(RangeUtils.nodes(range));
+                    }, that)
                 };
                 Command.fn.init.call(this, options);
             }
         });
         var OutdentCommand = Command.extend({
             init: function (options) {
+                var that = this;
                 options.formatter = {
-                    toggle: function (range) {
-                        new IndentFormatter().remove(RangeUtils.nodes(range));
-                    }
+                    toggle: $.proxy(function (range) {
+                        var indentFormatter = new IndentFormatter();
+                        indentFormatter.immutables = this.editor && this.editor.options.immutables;
+                        indentFormatter.remove(RangeUtils.nodes(range));
+                    }, that)
                 };
                 Command.fn.init.call(this, options);
             }
@@ -6922,15 +7655,23 @@
             },
             initialize: function (ui, options) {
                 Tool.fn.initialize.call(this, ui, options);
+                $.extend(this.options, { immutables: options.editor && options.editor.options.immutables });
                 ui.addClass('k-state-disabled');
             },
             update: function (ui, nodes) {
-                var suitable = this.finder.findSuitable(nodes), isOutdentable, listParentsCount, i, len;
-                for (i = 0, len = suitable.length; i < len; i++) {
-                    isOutdentable = indent(suitable[i]);
+                var suitableNodes = this.finder.findSuitable(nodes), isOutdentable, listParentsCount, i, len, suitable, immutableParent;
+                for (i = 0, len = suitableNodes.length; i < len; i++) {
+                    suitable = suitableNodes[i];
+                    if (this.options.immutables) {
+                        immutableParent = Editor.Immutables.immutableParent(suitable);
+                        if (immutableParent) {
+                            suitable = immutableParent;
+                        }
+                    }
+                    isOutdentable = indent(suitable);
                     if (!isOutdentable) {
-                        listParentsCount = $(suitable[i]).parents('ul,ol').length;
-                        isOutdentable = dom.is(suitable[i], 'li') && (listParentsCount > 1 || indent(suitable[i].parentNode)) || dom.ofType(suitable[i], [
+                        listParentsCount = $(suitable).parents('ul,ol').length;
+                        isOutdentable = dom.is(suitable, 'li') && (listParentsCount > 1 || indent(suitable.parentNode)) || dom.ofType(suitable, [
                             'ul',
                             'ol'
                         ]) && listParentsCount > 0;
@@ -6981,9 +7722,14 @@
                 cmd.async = true;
             },
             exec: function () {
-                var that = this, editor = that.editor, messages = editor.options.messages, dialog = $(kendo.template(ViewHtmlCommand.template)(messages)).appendTo(document.body), content = ViewHtmlCommand.indent(editor.value()), textarea = '.k-editor-textarea';
+                var that = this, editor = that.editor, options = editor.options, messages = editor.options.messages, dialog = $(kendo.template(ViewHtmlCommand.template)(messages)).appendTo(document.body), textarea = '.k-editor-textarea', content;
+                options.serialization.immutables = editor.immutables;
+                content = ViewHtmlCommand.indent(editor.value());
+                options.serialization.immutables = undefined;
                 function apply(e) {
+                    options.deserialization.immutables = editor.immutables;
                     editor.value(dialog.find(textarea).val());
+                    options.deserialization.immutables = undefined;
                     close(e);
                     if (that.change) {
                         that.change();
@@ -6993,6 +7739,9 @@
                 function close(e) {
                     e.preventDefault();
                     dialog.data('kendoWindow').destroy();
+                    if (editor.immutables) {
+                        editor.immutables.serializedImmutables = {};
+                    }
                     editor.focus();
                 }
                 this.createDialog(dialog, {
@@ -7094,6 +7843,7 @@
                 return item;
             },
             command: function (args) {
+                var that = this;
                 var item = args.value;
                 item = this.toFormattingItem(item);
                 return new Editor.FormatCommand({
@@ -7108,6 +7858,7 @@
                         } else {
                             formatter = new Editor.GreedyBlockFormatter(format);
                         }
+                        formatter.editor = that.editor;
                         return formatter;
                     }
                 });
@@ -7117,6 +7868,7 @@
                 var options = this.options;
                 var toolName = options.name;
                 var that = this;
+                that.editor = editor;
                 ui.width(options.width);
                 ui.kendoSelectBox({
                     dataTextField: 'text',
@@ -7201,7 +7953,10 @@
                     return node;
                 });
                 for (var c = nodes.length - 1; c >= 0; c--) {
-                    this.clean(nodes[c]);
+                    var node = nodes[c];
+                    if (!this.immutableParent(node)) {
+                        this.clean(node);
+                    }
                 }
                 this.releaseRange(range);
             },
@@ -7232,6 +7987,9 @@
                 if ($.inArray(name, this.tagsToClean) > -1) {
                     dom.unwrap(node);
                 }
+            },
+            immutableParent: function (node) {
+                return this.immutables() && Editor.Immutables.immutableParent(node);
             }
         });
         function unwrapListItem(node) {
@@ -7588,7 +8346,7 @@
                             if (!options.name) {
                                 options.name = 'custom';
                             }
-                            options.cssClass = 'k-' + (options.name == 'custom' ? 'i-custom' : options.name);
+                            options.cssClass = 'k-' + options.name;
                             if (!options.template && options.type == 'button') {
                                 options.template = editorNS.EditorUtils.buttonTemplate;
                                 options.title = options.title || options.tooltip;
@@ -7720,8 +8478,12 @@
                 }
             },
             _attachEvents: function () {
-                var that = this, buttons = '[role=button].k-tool', enabledButtons = buttons + ':not(.k-state-disabled)', disabledButtons = buttons + '.k-state-disabled', popupElement = that.overflowPopup ? that.overflowPopup.element : $([]);
-                that.element.add(popupElement).off(NS).on('mouseenter' + NS, enabledButtons, function () {
+                var that = this, popupElement = that.overflowPopup ? that.overflowPopup.element : $([]);
+                that.attachToolsEvents(that.element.add(popupElement));
+            },
+            attachToolsEvents: function (element) {
+                var that = this, buttons = '[role=button].k-tool', enabledButtons = buttons + ':not(.k-state-disabled)', disabledButtons = buttons + '.k-state-disabled';
+                element.off(NS).on('mouseenter' + NS, enabledButtons, function () {
                     $(this).addClass('k-state-hover');
                 }).on('mouseleave' + NS, enabledButtons, function () {
                     $(this).removeClass('k-state-hover');
@@ -7746,7 +8508,7 @@
                     } else if (resizable && (keyCode == keys.UP || keyCode == keys.DOWN)) {
                         focusElement = move(keyCode == keys.DOWN ? 1 : -1, that.overflowPopup.element, true);
                     } else if (keyCode == keys.ESC) {
-                        if (that.overflowPopup.visible()) {
+                        if (that.overflowPopup && that.overflowPopup.visible()) {
                             that.overflowPopup.close();
                         }
                         focusElement = that._editor;
@@ -7792,20 +8554,71 @@
                 var tool = $.grep(className.split(' '), function (x) {
                     return !/^k-(widget|tool|tool-icon|icon|state-hover|header|combobox|dropdown|selectbox|colorpicker)$/i.test(x);
                 });
-                return tool[0] ? tool[0].substring(tool[0].lastIndexOf('-') + 1) : 'custom';
+                if (tool[0]) {
+                    var toolname = tool[0];
+                    if (toolname.indexOf('k-i-') >= 0) {
+                        return kendo.toCamelCase(toolname.substring(toolname.indexOf('k-i-') + 4));
+                    } else {
+                        return toolname.substring(toolname.lastIndexOf('-') + 1);
+                    }
+                }
+                return 'custom';
             },
             refreshTools: function () {
-                var that = this, editor = that._editor, range = editor.getRange(), nodes = kendo.ui.editor.RangeUtils.textNodes(range);
+                var that = this, editorNS = kendo.ui.editor, editor = that._editor, range = editor.getRange(), nodes = editorNS.RangeUtils.textNodes(range), immutables = editor.options.immutables, immutablesContext = that._immutablesContext(range);
+                nodes = editorNS.Dom.filterBy(nodes, editorNS.Dom.htmlIndentSpace, true);
                 if (!nodes.length) {
                     nodes = [range.startContainer];
                 }
                 that.items().each(function () {
                     var tool = that.tools[that._toolName(this)];
-                    if (tool && tool.update) {
-                        tool.update($(this), nodes);
+                    if (tool) {
+                        var ui = $(this);
+                        if (tool.update) {
+                            tool.update(ui, nodes);
+                        }
+                        if (immutables) {
+                            that._updateImmutablesState(tool, ui, immutablesContext);
+                        }
                     }
                 });
                 this.update();
+            },
+            _immutablesContext: function (range) {
+                if (this._editor.options.immutables) {
+                    var editorNS = kendo.ui.editor;
+                    if (range.collapsed) {
+                        return editorNS.Immutables.immutablesContext(range);
+                    } else {
+                        return editorNS.RangeUtils.editableTextNodes(range).length === 0;
+                    }
+                }
+            },
+            _updateImmutablesState: function (tool, ui, immutablesContext) {
+                var name = tool.name;
+                var uiElement = ui;
+                var trackImmutables = tool.options.trackImmutables;
+                if (trackImmutables === undefined) {
+                    trackImmutables = $.inArray(name, editorNS.Immutables.toolsToBeUpdated) > -1;
+                }
+                if (trackImmutables) {
+                    var display = immutablesContext ? 'none' : '';
+                    if (!ui.is('.k-tool')) {
+                        var uiData = ui.data();
+                        for (var key in uiData) {
+                            if (key.match(/^kendo[A-Z][a-zA-Z]*/)) {
+                                var widget = uiData[key];
+                                uiElement = widget.wrapper;
+                                break;
+                            }
+                        }
+                    }
+                    uiElement.css('display', display);
+                    var groupUi = uiElement.closest('li');
+                    if (groupUi.children(':visible').length === 0) {
+                        groupUi.css('display', display);
+                    }
+                }
             },
             update: function () {
                 this.updateGroups();
@@ -7918,14 +8731,27 @@
     define('editor/tables', ['editor/toolbar'], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, Command = Editor.Command, NS = '.kendoEditor', ACTIVESTATE = 'k-state-active', SELECTEDSTATE = 'k-state-selected', Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InsertHtmlCommand = Editor.InsertHtmlCommand, BlockFormatFinder = Editor.BlockFormatFinder, registerTool = Editor.EditorUtils.registerTool;
-        var editableCell = '<td>' + Editor.emptyElementContent + '</td>';
+        var kendo = window.kendo, extend = $.extend, proxy = $.proxy, Editor = kendo.ui.editor, dom = Editor.Dom, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, Command = Editor.Command, NS = 'kendoEditor', ACTIVESTATE = 'k-state-active', SELECTEDSTATE = 'k-state-selected', Tool = Editor.Tool, ToolTemplate = Editor.ToolTemplate, InsertHtmlCommand = Editor.InsertHtmlCommand, BlockFormatFinder = Editor.BlockFormatFinder, registerTool = Editor.EditorUtils.registerTool, getTouches = kendo.getTouches;
+        var template = kendo.template;
+        var columnTemplate = '<td style=\'width:#=width#%;\'>#=content#</td>';
         var tableFormatFinder = new BlockFormatFinder([{ tags: ['table'] }]);
         var TableCommand = InsertHtmlCommand.extend({
+            init: function (options) {
+                var o = $.extend({
+                    postProcess: this.postProcess,
+                    skipCleaners: true
+                }, options || {});
+                InsertHtmlCommand.fn.init.call(this, o);
+            },
             _tableHtml: function (rows, columns) {
                 rows = rows || 1;
                 columns = columns || 1;
-                return '<table class=\'k-table\' data-last>' + new Array(rows + 1).join('<tr>' + new Array(columns + 1).join(editableCell) + '</tr>') + '</table>';
+                var columnHtml = template(columnTemplate)({
+                    width: 100 / columns,
+                    content: Editor.emptyTableCellContent
+                });
+                var rowHeight = 100 / rows;
+                return '<table class=\'k-table\' data-last>' + new Array(rows + 1).join('<tr style=\'height:' + rowHeight + '%;\'>' + new Array(columns + 1).join(columnHtml) + '</tr>') + '</table>';
             },
             postProcess: function (editor, range) {
                 var insertedTable = $('table[data-last]', editor.document).removeAttr('data-last');
@@ -7936,7 +8762,6 @@
             exec: function () {
                 var options = this.options;
                 options.html = this._tableHtml(options.rows, options.columns);
-                options.postProcess = this.postProcess;
                 InsertHtmlCommand.fn.exec.call(this);
             }
         });
@@ -7951,8 +8776,22 @@
                     close: proxy(this._close, this)
                 }).data('kendoPopup');
                 ui.click(proxy(this._toggle, this)).keydown(proxy(this._keydown, this));
-                this._editor = options.editor;
+                var editor = this._editor = options.editor;
                 this._popup = popup;
+                var tableWizard = new Editor.TableWizardTool({
+                    command: Editor.TableWizardCommand,
+                    insertNewTable: true,
+                    template: new ToolTemplate({
+                        template: EditorUtils.buttonTemplate,
+                        title: 'Table Wizard'
+                    })
+                });
+                registerTool('tableWizardInsert', tableWizard);
+                var twTool = $('<div class=\'k-editor-toolbar\'>' + tableWizard.options.template.getHtml() + '</div>');
+                twTool.appendTo(popup.element);
+                if (editor.toolbar) {
+                    editor.toolbar.attachToolsEvents(twTool);
+                }
             },
             popup: function () {
                 return this._popup;
@@ -8013,12 +8852,14 @@
                         col: Math.floor((e.clientX + w.scrollLeft() - start.left) / cellWidth) + 1
                     };
                 }
-                element.on('mousemove' + NS, function (e) {
+                element.autoApplyNS(NS).on('mousemove', function (e) {
                     that._setTableSize(tableFromLocation(e));
-                }).on('mouseleave' + NS, function () {
+                }).on('mouseleave', function () {
                     that._setTableSize();
-                }).on('mouseup' + NS, function (e) {
-                    that._exec(tableFromLocation(e));
+                }).on('down', function (e) {
+                    e.preventDefault();
+                    var touch = getTouches(e)[0];
+                    that._exec(tableFromLocation(touch.location));
                 });
             },
             _valid: function (size) {
@@ -8095,13 +8936,7 @@
             },
             _close: function () {
                 PopupTool.fn._close.call(this);
-                this.popup().element.off(NS);
-            },
-            update: function (ui, nodes) {
-                var isFormatted;
-                PopupTool.fn.update.call(this, ui);
-                isFormatted = tableFormatFinder.isFormatted(nodes);
-                ui.toggleClass('k-state-disabled', isFormatted);
+                this.popup().element.off('.' + NS);
             }
         });
         var InsertRowCommand = Command.extend({
@@ -8110,11 +8945,14 @@
                 while (dom.name(td) != 'td') {
                     td = td.parentNode;
                 }
+                if (this.immutables() && Editor.Immutables.immutableParent(td)) {
+                    return;
+                }
                 row = td.parentNode;
                 cellCount = row.children.length;
                 newRow = row.cloneNode(true);
                 for (var i = 0; i < row.cells.length; i++) {
-                    newRow.cells[i].innerHTML = Editor.emptyElementContent;
+                    newRow.cells[i].innerHTML = Editor.emptyTableCellContent;
                 }
                 if (this.options.position == 'before') {
                     dom.insertBefore(newRow, row);
@@ -8127,11 +8965,14 @@
         var InsertColumnCommand = Command.extend({
             exec: function () {
                 var range = this.lockRange(true), td = dom.closest(range.endContainer, 'td'), table = dom.closest(td, 'table'), columnIndex, i, rows = table.rows, cell, newCell, position = this.options.position;
+                if (this.immutables() && Editor.Immutables.immutableParent(td)) {
+                    return;
+                }
                 columnIndex = dom.findNodeIndex(td, true);
                 for (i = 0; i < rows.length; i++) {
                     cell = rows[i].cells[columnIndex];
                     newCell = cell.cloneNode();
-                    newCell.innerHTML = Editor.emptyElementContent;
+                    newCell.innerHTML = Editor.emptyTableCellContent;
                     if (position == 'before') {
                         dom.insertBefore(newCell, cell);
                     } else {
@@ -8147,7 +8988,11 @@
                 var rows = RangeUtils.mapAll(range, function (node) {
                     return $(node).closest('tr')[0];
                 });
-                var table = dom.closest(rows[0], 'table');
+                var row = rows[0];
+                if (this.immutables() && Editor.Immutables.immutableParent(row)) {
+                    return;
+                }
+                var table = dom.closest(row, 'table');
                 var focusElement;
                 if (table.rows.length <= rows.length) {
                     focusElement = dom.next(table);
@@ -8157,7 +9002,7 @@
                     dom.remove(table);
                 } else {
                     for (var i = 0; i < rows.length; i++) {
-                        var row = rows[i];
+                        row = rows[i];
                         dom.removeTextSiblings(row);
                         focusElement = dom.next(row) || dom.prev(row);
                         focusElement = focusElement.cells[0];
@@ -8174,6 +9019,9 @@
         var DeleteColumnCommand = Command.extend({
             exec: function () {
                 var range = this.lockRange(), td = dom.closest(range.endContainer, 'td'), table = dom.closest(td, 'table'), rows = table.rows, columnIndex = dom.findNodeIndex(td, true), columnCount = rows[0].cells.length, focusElement, i;
+                if (this.immutables() && Editor.Immutables.immutableParent(td)) {
+                    return;
+                }
                 if (columnCount == 1) {
                     focusElement = dom.next(table);
                     if (!focusElement || dom.insignificant(focusElement)) {
@@ -8288,6 +9136,2604 @@
     (a3 || a2)();
 }));
 (function (f, define) {
+    define('editor/resizing/resizing-utils', ['editor/main'], f);
+}(function () {
+    (function (kendo, undefined) {
+        var global = window;
+        var math = global.Math;
+        var min = math.min;
+        var max = math.max;
+        var parseFloat = global.parseFloat;
+        var $ = kendo.jQuery;
+        var extend = $.extend;
+        var Editor = kendo.ui.editor;
+        var CONTENT_EDITABLE = 'contenteditable';
+        var PERCENTAGE = '%';
+        var PIXEL = 'px';
+        var REGEX_NUMBER_IN_PERCENTAGES = /(\d+)(\.?)(\d*)%/;
+        var REGEX_NUMBER_IN_PIXELS = /(\d+)(\.?)(\d*)px/;
+        var STRING = 'string';
+        var UNDEFINED = 'undefined';
+        function constrain(options) {
+            var value = options.value;
+            var lowerBound = options.min;
+            var upperBound = options.max;
+            return max(min(parseFloat(value), parseFloat(upperBound)), parseFloat(lowerBound));
+        }
+        function getScrollBarWidth(element) {
+            if (!$(element).is('body') && element.scrollHeight > element.clientHeight) {
+                return kendo.support.scrollbar();
+            }
+            return 0;
+        }
+        function calculatePercentageRatio(value, total) {
+            if (inPercentages(value)) {
+                return parseFloat(value);
+            } else {
+                return parseFloat(value) / total * 100;
+            }
+        }
+        function inPercentages(value) {
+            return typeof value === STRING && REGEX_NUMBER_IN_PERCENTAGES.test(value);
+        }
+        function inPixels(value) {
+            return typeof value === STRING && REGEX_NUMBER_IN_PIXELS.test(value);
+        }
+        function toPercentages(value) {
+            return parseFloat(value) + PERCENTAGE;
+        }
+        function toPixels(value) {
+            return parseFloat(value) + PIXEL;
+        }
+        function setContentEditable(domElement, enabled) {
+            var element = $(domElement);
+            if (element && typeof element.attr(CONTENT_EDITABLE) !== UNDEFINED) {
+                element.attr(CONTENT_EDITABLE, enabled);
+            }
+        }
+        var ResizingUtils = {
+            constrain: constrain,
+            getScrollBarWidth: getScrollBarWidth,
+            calculatePercentageRatio: calculatePercentageRatio,
+            inPercentages: inPercentages,
+            inPixels: inPixels,
+            setContentEditable: setContentEditable,
+            toPercentages: toPercentages,
+            toPixels: toPixels
+        };
+        extend(Editor, { ResizingUtils: ResizingUtils });
+    }(window.kendo));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/resizing/table-element-resizing', [
+        'editor/main',
+        'kendo.resizable',
+        'editor/resizing/resizing-utils'
+    ], f);
+}(function () {
+    (function (kendo, undefined) {
+        var $ = kendo.jQuery;
+        var extend = $.extend;
+        var noop = $.noop;
+        var proxy = $.proxy;
+        var Editor = kendo.ui.editor;
+        var Class = kendo.Class;
+        var ResizingUtils = Editor.ResizingUtils;
+        var setContentEditable = ResizingUtils.setContentEditable;
+        var MOUSE_DOWN = 'mousedown';
+        var MOUSE_ENTER = 'mouseenter';
+        var MOUSE_LEAVE = 'mouseleave';
+        var MOUSE_MOVE = 'mousemove';
+        var MOUSE_UP = 'mouseup';
+        var COMMA = ',';
+        var DOT = '.';
+        var LAST_CHILD = ':last-child';
+        var TABLE = 'table';
+        var TRUE = 'true';
+        var FALSE = 'false';
+        var TableElementResizing = Class.extend({
+            init: function (element, options) {
+                var that = this;
+                that.options = extend({}, that.options, options);
+                that.options.tags = $.isArray(that.options.tags) ? that.options.tags : [that.options.tags];
+                if ($(element).is(TABLE)) {
+                    that.element = element;
+                    $(element).on(MOUSE_MOVE + that.options.eventNamespace, that.options.tags.join(COMMA), proxy(that.detectElementBorderHovering, that));
+                }
+            },
+            destroy: function () {
+                var that = this;
+                if (that.element) {
+                    $(that.element).off(that.options.eventNamespace);
+                    that.element = null;
+                }
+                that._destroyResizeHandle();
+            },
+            options: {
+                tags: [],
+                min: 0,
+                rootElement: null,
+                eventNamespace: '',
+                rtl: false,
+                handle: {
+                    dataAttribute: '',
+                    height: 0,
+                    width: 0,
+                    classNames: {},
+                    template: ''
+                }
+            },
+            resizingInProgress: function () {
+                var that = this;
+                var resizable = that._resizable;
+                if (resizable) {
+                    return !!resizable.resizing;
+                }
+                return false;
+            },
+            resize: noop,
+            detectElementBorderHovering: function (e) {
+                var that = this;
+                var options = that.options;
+                var handleOptions = options.handle;
+                var tableElement = $(e.currentTarget);
+                var resizeHandle = that.resizeHandle;
+                var rootElement = options.rootElement;
+                var dataAttribute = handleOptions.dataAttribute;
+                if (!that.resizingInProgress()) {
+                    if (!tableElement.is(LAST_CHILD) && that.elementBorderHovered(tableElement, e)) {
+                        if (resizeHandle) {
+                            if (resizeHandle.data(dataAttribute) && resizeHandle.data(dataAttribute) !== tableElement[0]) {
+                                that.showResizeHandle(tableElement, e);
+                            }
+                        } else {
+                            that.showResizeHandle(tableElement, e);
+                        }
+                    } else {
+                        if (resizeHandle) {
+                            setContentEditable(rootElement, TRUE);
+                            that._destroyResizeHandle();
+                        }
+                    }
+                }
+            },
+            elementBorderHovered: noop,
+            showResizeHandle: function (tableElement, e) {
+                var that = this;
+                if (e.buttons !== 0) {
+                    return;
+                }
+                setContentEditable(that.options.rootElement, FALSE);
+                that._initResizeHandle();
+                that.setResizeHandlePosition(tableElement);
+                that.setResizeHandleDimensions();
+                that.setResizeHandleDataAttributes(tableElement[0]);
+                that.attachResizeHandleEventHandlers();
+                that._initResizable(tableElement);
+                that._hideResizeMarker();
+                that.resizeHandle.show();
+            },
+            _initResizeHandle: function () {
+                var that = this;
+                var options = that.options;
+                that._destroyResizeHandle();
+                that.resizeHandle = $(options.handle.template).appendTo(options.rootElement);
+            },
+            setResizeHandlePosition: noop,
+            setResizeHandleDimensions: noop,
+            setResizeHandleDataAttributes: function (tableElement) {
+                var that = this;
+                that.resizeHandle.data(that.options.handle.dataAttribute, tableElement);
+            },
+            attachResizeHandleEventHandlers: function () {
+                var that = this;
+                var options = that.options;
+                var eventNamespace = options.eventNamespace;
+                var markerClass = options.handle.classNames.marker;
+                var resizeHandle = that.resizeHandle;
+                that.resizeHandle.on(MOUSE_DOWN + eventNamespace, function () {
+                    resizeHandle.find(DOT + markerClass).show();
+                }).on(MOUSE_UP + eventNamespace, function () {
+                    resizeHandle.find(DOT + markerClass).hide();
+                });
+            },
+            _hideResizeMarker: function () {
+                var that = this;
+                that.resizeHandle.find(DOT + that.options.handle.classNames.marker).hide();
+            },
+            _destroyResizeHandle: function () {
+                var that = this;
+                if (that.resizeHandle) {
+                    that._destroyResizable();
+                    that.resizeHandle.off(that.options.eventNamespace).remove();
+                    that.resizeHandle = null;
+                }
+            },
+            _initResizable: function (tableElement) {
+                var that = this;
+                if (!that.resizeHandle) {
+                    return;
+                }
+                that._destroyResizable();
+                that._resizable = new kendo.ui.Resizable(tableElement, {
+                    draggableElement: that.resizeHandle[0],
+                    resize: proxy(that.onResize, that),
+                    resizeend: proxy(that.onResizeEnd, that)
+                });
+            },
+            _destroyResizable: function () {
+                var that = this;
+                if (that._resizable) {
+                    that._resizable.destroy();
+                    that._resizable = null;
+                }
+            },
+            onResize: function (e) {
+                this.setResizeHandleDragPosition(e);
+            },
+            setResizeHandleDragPosition: noop,
+            onResizeEnd: function (e) {
+                var that = this;
+                that.resize(e);
+                that._destroyResizeHandle();
+                setContentEditable(that.options.rootElement, TRUE);
+            },
+            _forceResize: function (e) {
+                var resizable = this._resizable;
+                if (resizable && resizable.userEvents) {
+                    resizable.userEvents._end(e);
+                }
+            }
+        });
+        var ResizingFactory = Class.extend({
+            create: function (editor, options) {
+                var that = this;
+                var resizingName = options.name;
+                var NS = options.eventNamespace;
+                $(editor.body).on(MOUSE_ENTER + NS, TABLE, function (e) {
+                    var table = e.currentTarget;
+                    var resizing = editor[resizingName];
+                    e.stopPropagation();
+                    if (resizing) {
+                        if (resizing.element !== table && !resizing.resizingInProgress()) {
+                            that._destroyResizing(editor, options);
+                            that._initResizing(editor, table, options);
+                        }
+                    } else {
+                        that._initResizing(editor, table, options);
+                    }
+                }).on(MOUSE_LEAVE + NS, TABLE, function (e) {
+                    var parentTable;
+                    var resizing = editor[resizingName];
+                    e.stopPropagation();
+                    if (resizing && !resizing.resizingInProgress() && !resizing.resizeHandle) {
+                        parentTable = $(resizing.element).parents(TABLE)[0];
+                        if (parentTable) {
+                            that._destroyResizing(editor, options);
+                            that._initResizing(editor, parentTable, options);
+                        }
+                    }
+                }).on(MOUSE_LEAVE + NS, function () {
+                    var resizing = editor[resizingName];
+                    if (resizing && !resizing.resizingInProgress()) {
+                        that._destroyResizing(editor, options);
+                    }
+                }).on(MOUSE_UP + NS, function (e) {
+                    var resizing = editor[resizingName];
+                    var parentTable;
+                    if (resizing && resizing.resizingInProgress()) {
+                        parentTable = $(e.target).parents(TABLE)[0];
+                        if (parentTable) {
+                            resizing._forceResize(e);
+                            that._destroyResizing(editor, options);
+                            that._initResizing(editor, parentTable, options);
+                        }
+                    }
+                });
+            },
+            _initResizing: function (editor, tableElement, options) {
+                var resizingName = options.name;
+                var resizingType = options.type;
+                editor[resizingName] = new resizingType(tableElement, {
+                    rtl: kendo.support.isRtl(editor.element),
+                    rootElement: editor.body
+                });
+            },
+            _destroyResizing: function (editor, options) {
+                var resizingName = options.name;
+                if (editor[resizingName]) {
+                    editor[resizingName].destroy();
+                    editor[resizingName] = null;
+                }
+            }
+        });
+        ResizingFactory.current = new ResizingFactory();
+        TableElementResizing.create = function (editor, options) {
+            ResizingFactory.current.create(editor, options);
+        };
+        extend(Editor, { TableElementResizing: TableElementResizing });
+    }(window.kendo));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/resizing/column-resizing', [
+        'editor/main',
+        'editor/resizing/resizing-utils',
+        'editor/resizing/table-element-resizing'
+    ], f);
+}(function () {
+    (function (kendo, undefined) {
+        var global = window;
+        var math = global.Math;
+        var abs = math.abs;
+        var $ = kendo.jQuery;
+        var extend = $.extend;
+        var Editor = kendo.ui.editor;
+        var TableElementResizing = Editor.TableElementResizing;
+        var ResizingUtils = Editor.ResizingUtils;
+        var constrain = ResizingUtils.constrain;
+        var calculatePercentageRatio = ResizingUtils.calculatePercentageRatio;
+        var getScrollBarWidth = ResizingUtils.getScrollBarWidth;
+        var inPercentages = ResizingUtils.inPercentages;
+        var toPercentages = ResizingUtils.toPercentages;
+        var toPixels = ResizingUtils.toPixels;
+        var NS = '.kendoEditorColumnResizing';
+        var RESIZE_HANDLE_CLASS = 'k-column-resize-handle';
+        var RESIZE_MARKER_CLASS = 'k-column-resize-marker';
+        var BODY = 'body';
+        var TBODY = 'tbody';
+        var TD = 'td';
+        var TH = 'th';
+        var TR = 'tr';
+        var COMMA = ',';
+        var WIDTH = 'width';
+        var ColumnResizing = TableElementResizing.extend({
+            options: {
+                tags: [
+                    TD,
+                    TH
+                ],
+                min: 20,
+                rootElement: null,
+                eventNamespace: NS,
+                rtl: false,
+                handle: {
+                    dataAttribute: 'column',
+                    width: 10,
+                    height: 0,
+                    classNames: {
+                        handle: RESIZE_HANDLE_CLASS,
+                        marker: RESIZE_MARKER_CLASS
+                    },
+                    template: '<div class="' + RESIZE_HANDLE_CLASS + '" unselectable="on" contenteditable="false">' + '<div class="' + RESIZE_MARKER_CLASS + '"></div>' + '</div>'
+                }
+            },
+            elementBorderHovered: function (column, e) {
+                var that = this;
+                var options = that.options;
+                var handleWidth = options.handle.width;
+                var borderOffset = column.offset().left + (options.rtl ? 0 : column.outerWidth());
+                var mousePosition = e.clientX + $(column[0].ownerDocument).scrollLeft();
+                if (mousePosition > borderOffset - handleWidth && mousePosition < borderOffset + handleWidth) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            setResizeHandlePosition: function (column) {
+                var that = this;
+                var tableBody = $(that.element).children(TBODY);
+                var options = that.options;
+                var rtl = options.rtl;
+                var handleWidth = options.handle.width;
+                var rootElement = $(options.rootElement);
+                var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
+                var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
+                var columnWidthOffset = rtl ? 0 : column.outerWidth();
+                var scrollBarWidth = rtl ? getScrollBarWidth(rootElement[0]) : 0;
+                that.resizeHandle.css({
+                    top: tableBody.position().top + scrollTopOffset,
+                    left: column.position().left + columnWidthOffset + (scrollLeftOffset - scrollBarWidth) - handleWidth / 2,
+                    position: 'absolute'
+                });
+            },
+            setResizeHandleDimensions: function () {
+                var that = this;
+                var tableBody = $(that.element).children(TBODY);
+                that.resizeHandle.css({
+                    width: that.options.handle.width,
+                    height: tableBody.height()
+                });
+            },
+            setResizeHandleDragPosition: function (e) {
+                var that = this;
+                var column = $($(e.currentTarget).data(that.options.handle.dataAttribute));
+                var options = that.options;
+                var handleWidth = options.handle ? options.handle.width : 0;
+                var min = options.min;
+                var rtl = options.rtl;
+                var columnWidth = column.outerWidth();
+                var columnLeftOffset = column.position().left;
+                var adjacentColumnWidth = column.next().outerWidth() || 0;
+                var resizeHandle = $(that.resizeHandle);
+                var rootElement = $(options.rootElement);
+                var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
+                var scrollBarWidth = rtl ? getScrollBarWidth(rootElement[0]) : 0;
+                var handleOffset = constrain({
+                    value: resizeHandle.position().left + (scrollLeftOffset - scrollBarWidth) + e.x.delta,
+                    min: columnLeftOffset + (scrollLeftOffset - scrollBarWidth) - (rtl ? adjacentColumnWidth : 0) + min,
+                    max: columnLeftOffset + columnWidth + (scrollLeftOffset - scrollBarWidth) + (rtl ? 0 : adjacentColumnWidth) - handleWidth - min
+                });
+                resizeHandle.css({ left: handleOffset });
+            },
+            resize: function (e) {
+                var that = this;
+                var column = $($(e.currentTarget).data(that.options.handle.dataAttribute));
+                var options = that.options;
+                var rtlModifier = options.rtl ? -1 : 1;
+                var min = options.min;
+                var initialDeltaX = rtlModifier * e.x.initialDelta;
+                var newWidth;
+                var initialAdjacentColumnWidth;
+                var initialColumnWidth;
+                that._setTableComputedWidth();
+                that._setColumnsComputedWidth();
+                initialColumnWidth = column.outerWidth();
+                initialAdjacentColumnWidth = column.next().outerWidth() || 0;
+                newWidth = constrain({
+                    value: initialColumnWidth + initialDeltaX,
+                    min: min,
+                    max: initialColumnWidth + initialAdjacentColumnWidth - min
+                });
+                that._resizeColumn(column[0], newWidth);
+                that._resizeTopAndBottomColumns(column[0], newWidth);
+                that._resizeAdjacentColumns(column.index(), initialAdjacentColumnWidth, initialColumnWidth, initialColumnWidth - newWidth);
+            },
+            _setTableComputedWidth: function () {
+                var element = this.element;
+                if (element.style[WIDTH] === '') {
+                    element.style[WIDTH] = toPixels($(element).outerWidth());
+                }
+            },
+            _setColumnsComputedWidth: function () {
+                var that = this;
+                var tableBody = $(that.element).children(TBODY);
+                var tableBodyWidth = tableBody.outerWidth();
+                var columns = tableBody.children(TR).children(TD);
+                var length = columns.length;
+                var currentColumnsWidths = columns.map(function () {
+                    return $(this).outerWidth();
+                });
+                var i;
+                for (i = 0; i < length; i++) {
+                    if (inPercentages(columns[i].style[WIDTH])) {
+                        columns[i].style[WIDTH] = toPercentages(calculatePercentageRatio(currentColumnsWidths[i], tableBodyWidth));
+                    } else {
+                        columns[i].style[WIDTH] = toPixels(currentColumnsWidths[i]);
+                    }
+                }
+            },
+            _resizeTopAndBottomColumns: function (column, newWidth) {
+                var that = this;
+                var columnIndex = $(column).index();
+                var topAndBottomColumns = $(that.element).children(TBODY).children(TR).children(that.options.tags.join(COMMA)).filter(function () {
+                    var cell = this;
+                    return $(cell).index() === columnIndex && cell !== column;
+                });
+                var length = topAndBottomColumns.length;
+                var i;
+                for (i = 0; i < length; i++) {
+                    that._resizeColumn(topAndBottomColumns[i], newWidth);
+                }
+            },
+            _resizeColumn: function (column, newWidth) {
+                if (inPercentages(column.style[WIDTH])) {
+                    column.style[WIDTH] = toPercentages(calculatePercentageRatio(newWidth, $(this.element).children(TBODY).outerWidth()));
+                } else {
+                    column.style[WIDTH] = toPixels(newWidth);
+                }
+            },
+            _resizeAdjacentColumns: function (columnIndex, initialAdjacentColumnWidth, initialColumnWidth, deltaWidth) {
+                var that = this;
+                var adjacentColumns = $(that.element).children(TBODY).children(TR).children(that.options.tags.join(COMMA)).filter(function () {
+                    return $(this).index() === columnIndex + 1;
+                });
+                var length = adjacentColumns.length;
+                var i;
+                for (i = 0; i < length; i++) {
+                    that._resizeAdjacentColumn(adjacentColumns[i], initialAdjacentColumnWidth, initialColumnWidth, deltaWidth);
+                }
+            },
+            _resizeAdjacentColumn: function (adjacentColumn, initialAdjacentColumnWidth, initialColumnWidth, deltaWidth) {
+                var that = this;
+                var min = that.options.min;
+                var newWidth;
+                newWidth = constrain({
+                    value: initialAdjacentColumnWidth + deltaWidth,
+                    min: min,
+                    max: abs(initialColumnWidth + initialAdjacentColumnWidth - min)
+                });
+                that._resizeColumn(adjacentColumn, newWidth);
+            }
+        });
+        ColumnResizing.create = function (editor) {
+            TableElementResizing.create(editor, {
+                name: 'columnResizing',
+                type: ColumnResizing,
+                eventNamespace: NS
+            });
+        };
+        extend(Editor, { ColumnResizing: ColumnResizing });
+    }(window.kendo));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/resizing/row-resizing', [
+        'editor/main',
+        'editor/resizing/resizing-utils',
+        'editor/resizing/table-element-resizing'
+    ], f);
+}(function () {
+    (function (kendo, undefined) {
+        var math = window.Math;
+        var abs = math.abs;
+        var $ = kendo.jQuery;
+        var extend = $.extend;
+        var Editor = kendo.ui.editor;
+        var TableElementResizing = Editor.TableElementResizing;
+        var ResizingUtils = Editor.ResizingUtils;
+        var getScrollBarWidth = ResizingUtils.getScrollBarWidth;
+        var constrain = ResizingUtils.constrain;
+        var calculatePercentageRatio = ResizingUtils.calculatePercentageRatio;
+        var inPercentages = ResizingUtils.inPercentages;
+        var toPercentages = ResizingUtils.toPercentages;
+        var toPixels = ResizingUtils.toPixels;
+        var NS = '.kendoEditorRowResizing';
+        var RESIZE_HANDLE_CLASS = 'k-row-resize-handle';
+        var RESIZE_HANDLE_MARKER_WRAPPER_CLASS = 'k-row-resize-marker-wrapper';
+        var RESIZE_MARKER_CLASS = 'k-row-resize-marker';
+        var BODY = 'body';
+        var TR = 'tr';
+        var TBODY = 'tbody';
+        var HEIGHT = 'height';
+        var RowResizing = TableElementResizing.extend({
+            options: {
+                tags: [TR],
+                min: 20,
+                rootElement: null,
+                eventNamespace: NS,
+                rtl: false,
+                handle: {
+                    dataAttribute: 'row',
+                    width: 0,
+                    height: 10,
+                    classNames: {
+                        handle: RESIZE_HANDLE_CLASS,
+                        marker: RESIZE_MARKER_CLASS
+                    },
+                    template: '<div class="' + RESIZE_HANDLE_CLASS + '" unselectable="on" contenteditable="false">' + '<div class="' + RESIZE_HANDLE_MARKER_WRAPPER_CLASS + '">' + '<div class="' + RESIZE_MARKER_CLASS + '"></div>' + '</div>' + '</div>'
+                }
+            },
+            elementBorderHovered: function (tableElement, e) {
+                var that = this;
+                var handleHeight = that.options.handle[HEIGHT];
+                var borderOffset = tableElement.offset().top + tableElement.outerHeight();
+                var mousePosition = e.clientY + $(tableElement[0].ownerDocument).scrollTop();
+                if (mousePosition > borderOffset - handleHeight && mousePosition < borderOffset + handleHeight) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            setResizeHandlePosition: function (row) {
+                var that = this;
+                var options = that.options;
+                var handleHeight = options.handle[HEIGHT];
+                var rowPosition = row.position();
+                var rootElement = $(options.rootElement);
+                var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
+                var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
+                var scrollBarWidth = options.rtl ? getScrollBarWidth(rootElement[0]) : 0;
+                that.resizeHandle.css({
+                    top: rowPosition.top + row.outerHeight() + scrollTopOffset - handleHeight / 2,
+                    left: rowPosition.left + (scrollLeftOffset - scrollBarWidth),
+                    position: 'absolute'
+                });
+            },
+            setResizeHandleDimensions: function () {
+                var that = this;
+                that.resizeHandle.css({
+                    width: $(that.element).children(TBODY).width(),
+                    height: that.options.handle[HEIGHT]
+                });
+            },
+            setResizeHandleDragPosition: function (e) {
+                var that = this;
+                var options = that.options;
+                var min = options.min;
+                var tableBody = $(that.element).children(TBODY);
+                var tableBodyTopOffset = tableBody.position().top;
+                var resizeHandle = $(that.resizeHandle);
+                var row = $(e.currentTarget).data(options.handle.dataAttribute);
+                var rootElement = $(options.rootElement);
+                var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
+                var handleOffset = constrain({
+                    value: resizeHandle.position().top + scrollTopOffset + e.y.delta,
+                    min: $(row).position().top + scrollTopOffset + min,
+                    max: tableBodyTopOffset + tableBody.outerHeight() + scrollTopOffset - options.handle[HEIGHT] - min
+                });
+                resizeHandle.css({ top: handleOffset });
+            },
+            resize: function (e) {
+                var that = this;
+                var options = that.options;
+                var row = $(e.currentTarget).data(options.handle.dataAttribute);
+                var currentRowHeight = $(row).outerHeight();
+                var element = $(that.element);
+                var initialTableHeight = element.outerHeight();
+                var tableBody = element.children(TBODY);
+                var tableBodyHeight = tableBody.height();
+                var initialStyleHeight = row.style[HEIGHT];
+                var newRowHeight = constrain({
+                    value: currentRowHeight + e.y.initialDelta,
+                    min: options.min,
+                    max: abs(tableBodyHeight - options.min)
+                });
+                that._setRowsHeightInPixels();
+                row.style[HEIGHT] = toPixels(newRowHeight);
+                that._setTableHeight(initialTableHeight + (newRowHeight - currentRowHeight));
+                if (inPercentages(initialStyleHeight)) {
+                    that._setRowsHeightInPercentages();
+                }
+            },
+            _setRowsHeightInPixels: function () {
+                var that = this;
+                var rows = $(that.element).children(TBODY).children(TR);
+                var length = rows.length;
+                var currentRowsHeights = rows.map(function () {
+                    return $(this).outerHeight();
+                });
+                var i;
+                for (i = 0; i < length; i++) {
+                    rows[i].style[HEIGHT] = toPixels(currentRowsHeights[i]);
+                }
+            },
+            _setRowsHeightInPercentages: function () {
+                var that = this;
+                var tableBody = $(that.element).children(TBODY);
+                var tableBodyHeight = tableBody.height();
+                var rows = tableBody.children(TR);
+                var length = rows.length;
+                var currentRowsHeights = rows.map(function () {
+                    return $(this).outerHeight();
+                });
+                var i;
+                for (i = 0; i < length; i++) {
+                    rows[i].style[HEIGHT] = toPercentages(calculatePercentageRatio(currentRowsHeights[i], tableBodyHeight));
+                }
+            },
+            _setTableHeight: function (newHeight) {
+                var element = this.element;
+                if (inPercentages(element.style[HEIGHT])) {
+                    element.style[HEIGHT] = toPercentages(calculatePercentageRatio(newHeight, $(element).parent().height()));
+                } else {
+                    element.style[HEIGHT] = toPixels(newHeight);
+                }
+            }
+        });
+        RowResizing.create = function (editor) {
+            TableElementResizing.create(editor, {
+                name: 'rowResizing',
+                type: RowResizing,
+                eventNamespace: NS
+            });
+        };
+        extend(Editor, { RowResizing: RowResizing });
+    }(window.kendo));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/resizing/table-resize-handle', [
+        'editor/main',
+        'kendo.draganddrop',
+        'editor/resizing/resizing-utils'
+    ], f);
+}(function () {
+    (function (kendo, undefined) {
+        var $ = kendo.jQuery;
+        var extend = $.extend;
+        var noop = $.noop;
+        var proxy = $.proxy;
+        var Editor = kendo.ui.editor;
+        var Class = kendo.Class;
+        var Draggable = kendo.ui.Draggable;
+        var Observable = kendo.Observable;
+        var getScrollBarWidth = Editor.ResizingUtils.getScrollBarWidth;
+        var NS = '.kendoEditorTableResizeHandle';
+        var DRAG_START = 'dragStart';
+        var DRAG = 'drag';
+        var DRAG_END = 'dragEnd';
+        var HALF_INSIDE = 'halfInside';
+        var MOUSE_OVER = 'mouseover';
+        var MOUSE_OUT = 'mouseout';
+        var BODY = 'body';
+        var TABLE = 'table';
+        var EAST = 'east';
+        var NORTH = 'north';
+        var NORTHEAST = 'northeast';
+        var NORTHWEST = 'northwest';
+        var SOUTH = 'south';
+        var SOUTHEAST = 'southeast';
+        var SOUTHWEST = 'southwest';
+        var WEST = 'west';
+        var TableResizeHandle = Observable.extend({
+            init: function (options) {
+                var that = this;
+                Observable.fn.init.call(that);
+                that.options = extend({}, that.options, options);
+                that.element = $(that.options.template).appendTo(that.options.appendTo)[0];
+                that._attachEventHandlers();
+                that._addStyles();
+                that._initDraggable();
+                that._initPositioningStrategy();
+                that._initDraggingStrategy();
+                $(that.element).data(TABLE, that.options.resizableElement);
+            },
+            destroy: function () {
+                var that = this;
+                $(that.element).off(NS).remove();
+                that.element = null;
+                that._destroyDraggable();
+                that.unbind();
+            },
+            options: {
+                appendTo: null,
+                direction: SOUTHEAST,
+                resizableElement: null,
+                rtl: false,
+                template: '<div class=\'k-table-resize-handle\' unselectable=\'on\' contenteditable=\'false\'></div>'
+            },
+            events: [
+                DRAG_START,
+                DRAG,
+                DRAG_END,
+                MOUSE_OVER,
+                MOUSE_OUT
+            ],
+            show: function () {
+                this._setPosition();
+            },
+            _setPosition: function () {
+                var that = this;
+                var position = that._positioningStrategy.getPosition();
+                $(that.element).css({
+                    top: position.top,
+                    left: position.left,
+                    position: 'absolute'
+                });
+            },
+            _attachEventHandlers: function () {
+                var that = this;
+                $(that.element).on(MOUSE_OVER + NS, proxy(that._onMouseOver, that)).on(MOUSE_OUT + NS, proxy(that._onMouseOut, that));
+            },
+            _onMouseOver: function () {
+                this.trigger(MOUSE_OVER);
+            },
+            _onMouseOut: function () {
+                this.trigger(MOUSE_OUT);
+            },
+            _addStyles: function () {
+                var that = this;
+                function getDirectionClass(direction) {
+                    return {
+                        'east': 'k-resize-east',
+                        'north': 'k-resize-north',
+                        'northeast': 'k-resize-northeast',
+                        'northwest': 'k-resize-northwest',
+                        'south': 'k-resize-south',
+                        'southeast': 'k-resize-southeast',
+                        'southwest': 'k-resize-southwest',
+                        'west': 'k-resize-west'
+                    }[direction];
+                }
+                $(that.element).addClass(getDirectionClass(that.options.direction));
+            },
+            _initPositioningStrategy: function () {
+                var that = this;
+                var options = that.options;
+                that._positioningStrategy = HandlePositioningStrategy.create({
+                    name: options.direction,
+                    handle: that.element,
+                    resizableElement: options.resizableElement,
+                    rootElement: options.rootElement,
+                    rtl: options.rtl
+                });
+            },
+            _initDraggable: function () {
+                var that = this;
+                var element = that.element;
+                if (that._draggable || !element) {
+                    return;
+                }
+                that._draggable = new Draggable(element, {
+                    dragstart: proxy(that._onDragStart, that),
+                    drag: proxy(that._onDrag, that),
+                    dragend: proxy(that._onDragEnd, that)
+                });
+            },
+            _onDragStart: function () {
+                this.trigger(DRAG_START);
+            },
+            _onDrag: function (e) {
+                var that = this;
+                that.trigger(DRAG, that._draggingStrategy.adjustDragDelta({
+                    deltaX: e.x.delta,
+                    deltaY: e.y.delta,
+                    initialDeltaX: e.x.initialDelta,
+                    initialDeltaY: e.y.initialDelta
+                }));
+            },
+            _onDragEnd: function () {
+                this.trigger(DRAG_END);
+            },
+            _destroyDraggable: function () {
+                var that = this;
+                if (that._draggable) {
+                    that._draggable.destroy();
+                    that._draggable = null;
+                }
+            },
+            _initDraggingStrategy: function () {
+                var that = this;
+                that._draggingStrategy = HandleDraggingStrategy.create({ name: that.options.direction });
+            }
+        });
+        var StrategyFactory = Class.extend({
+            init: function () {
+                this._items = [];
+            },
+            register: function (name, type) {
+                this._items.push({
+                    name: name,
+                    type: type
+                });
+            },
+            create: function (options) {
+                var items = this._items;
+                var itemsLength = items.length;
+                var name = options.name ? options.name.toLowerCase() : '';
+                var match;
+                var item;
+                var i;
+                for (i = 0; i < itemsLength; i++) {
+                    item = items[i];
+                    if (item.name.toLowerCase() === name) {
+                        match = item;
+                        break;
+                    }
+                }
+                if (match) {
+                    return new match.type(options);
+                }
+            }
+        });
+        var PositioningStrategyFactory = StrategyFactory.extend({});
+        PositioningStrategyFactory.current = new PositioningStrategyFactory();
+        var HandlePositioningStrategy = Class.extend({
+            init: function (options) {
+                var that = this;
+                that.options = extend({}, that.options, options);
+            },
+            options: {
+                handle: null,
+                offset: HALF_INSIDE,
+                resizableElement: null,
+                rootElement: null,
+                rtl: false
+            },
+            getPosition: function () {
+                var that = this;
+                var position = that.calculatePosition();
+                var handleOffsetPosition = that.applyHandleOffset(position);
+                var scrollOffsetPosition = that.applyScrollOffset(handleOffsetPosition);
+                return scrollOffsetPosition;
+            },
+            calculatePosition: noop,
+            applyHandleOffset: function (position) {
+                var options = this.options;
+                var handle = $(options.handle);
+                if (options.offset === HALF_INSIDE) {
+                    return {
+                        top: position.top - handle.outerHeight() / 2,
+                        left: position.left - handle.outerWidth() / 2
+                    };
+                }
+                return position;
+            },
+            applyScrollOffset: function (position) {
+                var options = this.options;
+                var rootElement = $(options.rootElement);
+                var scrollBarWidth = options.rtl ? getScrollBarWidth(rootElement[0]) : 0;
+                if (!rootElement.is(BODY)) {
+                    return {
+                        top: position.top + rootElement.scrollTop(),
+                        left: position.left + rootElement.scrollLeft() - scrollBarWidth
+                    };
+                }
+                return position;
+            }
+        });
+        HandlePositioningStrategy.create = function (options) {
+            return PositioningStrategyFactory.current.create(options);
+        };
+        var EastPositioningStrategy = HandlePositioningStrategy.extend({
+            calculatePosition: function () {
+                var resizableElement = $(this.options.resizableElement);
+                var offset = resizableElement.position();
+                return {
+                    top: offset.top + resizableElement.outerHeight() / 2,
+                    left: offset.left + resizableElement.outerWidth()
+                };
+            }
+        });
+        PositioningStrategyFactory.current.register(EAST, EastPositioningStrategy);
+        var NorthPositioningStrategy = HandlePositioningStrategy.extend({
+            calculatePosition: function () {
+                var resizableElement = $(this.options.resizableElement);
+                var offset = resizableElement.position();
+                return {
+                    top: offset.top,
+                    left: offset.left + resizableElement.outerWidth() / 2
+                };
+            }
+        });
+        PositioningStrategyFactory.current.register(NORTH, NorthPositioningStrategy);
+        var NortheastPositioningStrategy = HandlePositioningStrategy.extend({
+            calculatePosition: function () {
+                var resizableElement = $(this.options.resizableElement);
+                var offset = resizableElement.position();
+                return {
+                    top: offset.top,
+                    left: offset.left + resizableElement.outerWidth()
+                };
+            }
+        });
+        PositioningStrategyFactory.current.register(NORTHEAST, NortheastPositioningStrategy);
+        var NorthwestPositioningStrategy = HandlePositioningStrategy.extend({
+            calculatePosition: function () {
+                var resizableElement = $(this.options.resizableElement);
+                var offset = resizableElement.position();
+                return {
+                    top: offset.top,
+                    left: offset.left
+                };
+            }
+        });
+        PositioningStrategyFactory.current.register(NORTHWEST, NorthwestPositioningStrategy);
+        var SouthPositioningStrategy = HandlePositioningStrategy.extend({
+            calculatePosition: function () {
+                var resizableElement = $(this.options.resizableElement);
+                var offset = resizableElement.position();
+                return {
+                    top: offset.top + resizableElement.outerHeight(),
+                    left: offset.left + resizableElement.outerWidth() / 2
+                };
+            }
+        });
+        PositioningStrategyFactory.current.register(SOUTH, SouthPositioningStrategy);
+        var SoutheastPositioningStrategy = HandlePositioningStrategy.extend({
+            calculatePosition: function () {
+                var resizableElement = $(this.options.resizableElement);
+                var offset = resizableElement.position();
+                return {
+                    top: offset.top + resizableElement.outerHeight(),
+                    left: offset.left + resizableElement.outerWidth()
+                };
+            }
+        });
+        PositioningStrategyFactory.current.register(SOUTHEAST, SoutheastPositioningStrategy);
+        var SouthwestPositioningStrategy = HandlePositioningStrategy.extend({
+            calculatePosition: function () {
+                var resizableElement = $(this.options.resizableElement);
+                var offset = resizableElement.position();
+                return {
+                    top: offset.top + resizableElement.outerHeight(),
+                    left: offset.left
+                };
+            }
+        });
+        PositioningStrategyFactory.current.register(SOUTHWEST, SouthwestPositioningStrategy);
+        var WestPositioningStrategy = HandlePositioningStrategy.extend({
+            calculatePosition: function () {
+                var resizableElement = $(this.options.resizableElement);
+                var offset = resizableElement.position();
+                return {
+                    top: offset.top + resizableElement.outerHeight() / 2,
+                    left: offset.left
+                };
+            }
+        });
+        PositioningStrategyFactory.current.register(WEST, WestPositioningStrategy);
+        var DraggingStrategyFactory = StrategyFactory.extend({});
+        DraggingStrategyFactory.current = new DraggingStrategyFactory();
+        var HandleDraggingStrategy = Class.extend({
+            init: function (options) {
+                var that = this;
+                that.options = extend({}, that.options, options);
+            },
+            options: {
+                deltaX: {
+                    adjustment: null,
+                    modifier: null
+                },
+                deltaY: {
+                    adjustment: null,
+                    modifier: null
+                }
+            },
+            adjustDragDelta: function (deltas) {
+                var options = this.options;
+                var xAxisAdjustment = options.deltaX.adjustment * options.deltaX.modifier;
+                var yAxisAdjustment = options.deltaY.adjustment * options.deltaY.modifier;
+                return {
+                    deltaX: deltas.deltaX * xAxisAdjustment,
+                    deltaY: deltas.deltaY * yAxisAdjustment,
+                    initialDeltaX: deltas.initialDeltaX * xAxisAdjustment,
+                    initialDeltaY: deltas.initialDeltaY * yAxisAdjustment
+                };
+            }
+        });
+        HandleDraggingStrategy.create = function (options) {
+            return DraggingStrategyFactory.current.create(options);
+        };
+        var HorizontalDraggingStrategy = HandleDraggingStrategy.extend({
+            options: {
+                deltaX: {
+                    adjustment: 1,
+                    modifier: 1
+                },
+                deltaY: {
+                    adjustment: 0,
+                    modifier: 0
+                }
+            }
+        });
+        var EastDraggingStrategy = HorizontalDraggingStrategy.extend({ options: { deltaX: { modifier: 1 } } });
+        DraggingStrategyFactory.current.register(EAST, EastDraggingStrategy);
+        var WestDraggingStrategy = HorizontalDraggingStrategy.extend({ options: { deltaX: { modifier: -1 } } });
+        DraggingStrategyFactory.current.register(WEST, WestDraggingStrategy);
+        var VerticalDraggingStrategy = HandleDraggingStrategy.extend({
+            options: {
+                deltaX: {
+                    adjustment: 0,
+                    modifier: 0
+                },
+                deltaY: {
+                    adjustment: 1,
+                    modifier: 1
+                }
+            }
+        });
+        var NorthDraggingStrategy = VerticalDraggingStrategy.extend({ options: { deltaY: { modifier: -1 } } });
+        DraggingStrategyFactory.current.register(NORTH, NorthDraggingStrategy);
+        var SouthDraggingStrategy = VerticalDraggingStrategy.extend({ options: { deltaY: { modifier: 1 } } });
+        DraggingStrategyFactory.current.register(SOUTH, SouthDraggingStrategy);
+        var HorizontalAndVerticalDraggingStrategy = HandleDraggingStrategy.extend({
+            options: {
+                deltaX: {
+                    adjustment: 1,
+                    modifier: 1
+                },
+                deltaY: {
+                    adjustment: 1,
+                    modifier: 1
+                }
+            }
+        });
+        var NorthEastDraggingStrategy = HorizontalAndVerticalDraggingStrategy.extend({
+            options: {
+                deltaX: { modifier: 1 },
+                deltaY: { modifier: -1 }
+            }
+        });
+        DraggingStrategyFactory.current.register(NORTHEAST, NorthEastDraggingStrategy);
+        var NorthWestDraggingStrategy = HorizontalAndVerticalDraggingStrategy.extend({
+            options: {
+                deltaX: { modifier: -1 },
+                deltaY: { modifier: -1 }
+            }
+        });
+        DraggingStrategyFactory.current.register(NORTHWEST, NorthWestDraggingStrategy);
+        var SouthEastDraggingStrategy = HorizontalAndVerticalDraggingStrategy.extend({
+            options: {
+                deltaX: { modifier: 1 },
+                deltaY: { modifier: 1 }
+            }
+        });
+        DraggingStrategyFactory.current.register(SOUTHEAST, SouthEastDraggingStrategy);
+        var SouthWestDraggingStrategy = HorizontalAndVerticalDraggingStrategy.extend({
+            options: {
+                deltaX: { modifier: -1 },
+                deltaY: { modifier: 1 }
+            }
+        });
+        DraggingStrategyFactory.current.register(SOUTHWEST, SouthWestDraggingStrategy);
+        extend(Editor, { TableResizeHandle: TableResizeHandle });
+    }(window.kendo));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/resizing/table-resizing', [
+        'editor/main',
+        'editor/resizing/table-resize-handle',
+        'editor/resizing/resizing-utils'
+    ], f);
+}(function () {
+    (function (kendo, undefined) {
+        var global = window;
+        var math = global.Math;
+        var min = math.min;
+        var max = math.max;
+        var $ = kendo.jQuery;
+        var contains = $.contains;
+        var extend = $.extend;
+        var proxy = $.proxy;
+        var browser = kendo.support.browser;
+        var Editor = kendo.ui.editor;
+        var Class = kendo.Class;
+        var TableResizeHandle = Editor.TableResizeHandle;
+        var ResizingUtils = Editor.ResizingUtils;
+        var calculatePercentageRatio = ResizingUtils.calculatePercentageRatio;
+        var constrain = ResizingUtils.constrain;
+        var inPercentages = ResizingUtils.inPercentages;
+        var inPixels = ResizingUtils.inPixels;
+        var toPercentages = ResizingUtils.toPercentages;
+        var toPixels = ResizingUtils.toPixels;
+        var setContentEditable = ResizingUtils.setContentEditable;
+        var NS = '.kendoEditorTableResizing';
+        var TABLE_CLASS = 'k-table';
+        var TABLE_RESIZING_CLASS = 'k-table-resizing';
+        var DRAG_START = 'dragStart';
+        var DRAG = 'drag';
+        var DRAG_END = 'dragEnd';
+        var MOUSE_DOWN = 'mousedown';
+        var MOUSE_OVER = 'mouseover';
+        var MOUSE_OUT = 'mouseout';
+        var COLUMN = 'td';
+        var ROW = 'tr';
+        var TBODY = 'tbody';
+        var TABLE = 'table';
+        var WIDTH = 'width';
+        var HEIGHT = 'height';
+        var EAST = 'east';
+        var NORTH = 'north';
+        var NORTHEAST = 'northeast';
+        var NORTHWEST = 'northwest';
+        var SOUTH = 'south';
+        var SOUTHEAST = 'southeast';
+        var SOUTHWEST = 'southwest';
+        var WEST = 'west';
+        var TRUE = 'true';
+        var FALSE = 'false';
+        function isUndefined(value) {
+            return typeof value === 'undefined';
+        }
+        var TableResizing = Class.extend({
+            init: function (element, options) {
+                var that = this;
+                that.options = extend({}, that.options, options);
+                that.handles = [];
+                if ($(element).is(TABLE)) {
+                    that.element = element;
+                }
+            },
+            destroy: function () {
+                var that = this;
+                $(that.element).off(NS);
+                that.element = null;
+                that._destroyResizeHandles();
+            },
+            options: {
+                appendHandlesTo: null,
+                rtl: false,
+                rootElement: null,
+                minWidth: 10,
+                minHeight: 10,
+                handles: [
+                    { direction: NORTHWEST },
+                    { direction: NORTH },
+                    { direction: NORTHEAST },
+                    { direction: EAST },
+                    { direction: SOUTHEAST },
+                    { direction: SOUTH },
+                    { direction: SOUTHWEST },
+                    { direction: WEST }
+                ]
+            },
+            resize: function (args) {
+                var that = this;
+                var deltas = extend({}, {
+                    deltaX: 0,
+                    deltaY: 0,
+                    initialDeltaX: 0,
+                    initialDeltaY: 0
+                }, args);
+                that._resizeWidth(deltas.deltaX, deltas.initialDeltaX);
+                that._resizeHeight(deltas.deltaY, deltas.initialDeltaY);
+                that.showResizeHandles();
+            },
+            _resizeWidth: function (delta, initialDelta) {
+                var that = this;
+                var element = $(that.element);
+                var styleWidth = element[0].style[WIDTH];
+                var currentWidth = element.outerWidth();
+                var parentWidth = element.parent().width();
+                var maxWidth = that._getMaxDimensionValue(WIDTH);
+                var newWidth;
+                var ratioValue;
+                var ratioTotalValue;
+                var constrainedWidth;
+                if (delta === 0) {
+                    return;
+                }
+                if (isUndefined(that._initialElementWidth)) {
+                    that._initialElementWidth = currentWidth;
+                }
+                constrainedWidth = constrain({
+                    value: that._initialElementWidth + initialDelta,
+                    min: that.options.minWidth,
+                    max: maxWidth
+                });
+                if (inPercentages(styleWidth)) {
+                    if (currentWidth + delta > parentWidth) {
+                        ratioValue = max(constrainedWidth, parentWidth);
+                        ratioTotalValue = min(constrainedWidth, parentWidth);
+                    } else {
+                        ratioValue = min(constrainedWidth, parentWidth);
+                        ratioTotalValue = max(constrainedWidth, parentWidth);
+                    }
+                    newWidth = toPercentages(calculatePercentageRatio(ratioValue, ratioTotalValue));
+                } else {
+                    newWidth = toPixels(constrainedWidth);
+                }
+                that._setColumnsWidth();
+                element[0].style[WIDTH] = newWidth;
+            },
+            _resizeHeight: function (delta, initialDelta) {
+                var that = this;
+                var element = $(that.element);
+                var styleHeight = element[0].style[HEIGHT];
+                var currentHeight = element.outerHeight();
+                var parent = element.parent();
+                var parentHeight = parent.height();
+                var maxHeight = that._getMaxDimensionValue(HEIGHT);
+                var newHeight;
+                var ratioValue;
+                var ratioTotalValue;
+                var constrainedHeight;
+                var minHeight = that.options.minHeight;
+                var hasRowsInPixels = that._hasRowsInPixels();
+                if (delta === 0) {
+                    return;
+                }
+                if (isUndefined(that._initialElementHeight)) {
+                    that._initialElementHeight = currentHeight;
+                }
+                constrainedHeight = constrain({
+                    value: that._initialElementHeight + initialDelta,
+                    min: minHeight,
+                    max: maxHeight
+                });
+                if (hasRowsInPixels && delta < 0) {
+                    that._setRowsHeightInPercentages();
+                }
+                if (inPercentages(styleHeight)) {
+                    if (currentHeight + delta > parentHeight) {
+                        ratioValue = max(constrainedHeight, parentHeight);
+                        ratioTotalValue = min(constrainedHeight, parentHeight);
+                    } else {
+                        ratioValue = min(constrainedHeight, parentHeight);
+                        ratioTotalValue = max(constrainedHeight, parentHeight);
+                    }
+                    newHeight = toPercentages(calculatePercentageRatio(ratioValue, ratioTotalValue));
+                } else {
+                    newHeight = toPixels(constrainedHeight);
+                }
+                element[0].style[HEIGHT] = newHeight;
+                if (hasRowsInPixels && delta < 0) {
+                    that._setRowsHeightInPixels();
+                }
+            },
+            _getMaxDimensionValue: function (dimension) {
+                var that = this;
+                var element = $(that.element);
+                var dimensionLowercase = dimension.toLowerCase();
+                var rtlModifier = that.options.rtl ? -1 : 1;
+                var parent = $(that.element).parent();
+                var parentElement = parent[0];
+                var parentDimension = parent[dimensionLowercase]();
+                var parentScrollOffset = rtlModifier * (dimension === WIDTH ? parent.scrollLeft() : parent.scrollTop());
+                if (parentElement === element.closest(COLUMN)[0]) {
+                    if (parentElement.style[dimensionLowercase] === '' && !inPercentages(that.element.style[dimensionLowercase])) {
+                        return Infinity;
+                    } else {
+                        return parentDimension + parentScrollOffset;
+                    }
+                } else {
+                    return parentDimension + parentScrollOffset;
+                }
+            },
+            _setColumnsWidth: function () {
+                var that = this;
+                var element = $(that.element);
+                var parentElement = element.parent()[0];
+                var parentColumn = element.closest(COLUMN);
+                var columns = parentColumn.closest(ROW).children();
+                var columnsLength = columns.length;
+                var i;
+                function isWidthInPercentages(element) {
+                    var styleWidth = element.style.width;
+                    if (styleWidth !== '') {
+                        return inPercentages(styleWidth) ? true : false;
+                    } else {
+                        return $(element).hasClass(TABLE_CLASS) ? true : false;
+                    }
+                }
+                if (isWidthInPercentages(element[0]) && parentElement === parentColumn[0] && parentElement.style[WIDTH] === '') {
+                    for (i = 0; i < columnsLength; i++) {
+                        columns[i].style[WIDTH] = toPixels($(columns[i]).width());
+                    }
+                }
+            },
+            _hasRowsInPixels: function () {
+                var that = this;
+                var rows = $(that.element).children(TBODY).children(ROW);
+                for (var i = 0; i < rows.length; i++) {
+                    if (rows[i].style.height === '' || inPixels(rows[i].style.height)) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            _setRowsHeightInPercentages: function () {
+                var that = this;
+                var tableBody = $(that.element).children(TBODY);
+                var tableBodyHeight = tableBody.height();
+                var rows = tableBody.children(ROW);
+                var length = rows.length;
+                var currentRowsHeights = rows.map(function () {
+                    return $(this).outerHeight();
+                });
+                var i;
+                for (i = 0; i < length; i++) {
+                    rows[i].style[HEIGHT] = toPercentages(calculatePercentageRatio(currentRowsHeights[i], tableBodyHeight));
+                }
+            },
+            _setRowsHeightInPixels: function () {
+                var that = this;
+                var rows = $(that.element).children(TBODY).children(ROW);
+                var length = rows.length;
+                var currentRowsHeights = rows.map(function () {
+                    return $(this).outerHeight();
+                });
+                var i;
+                for (i = 0; i < length; i++) {
+                    rows[i].style[HEIGHT] = toPixels(currentRowsHeights[i]);
+                }
+            },
+            showResizeHandles: function () {
+                var that = this;
+                that._initResizeHandles();
+                that._showResizeHandles();
+            },
+            _initResizeHandles: function () {
+                var that = this;
+                var handles = that.handles;
+                var options = that.options;
+                var handleOptions = that.options.handles;
+                var length = handleOptions.length;
+                var i;
+                if (handles && handles.length > 0) {
+                    return;
+                }
+                for (i = 0; i < length; i++) {
+                    that.handles.push(new TableResizeHandle(extend({
+                        appendTo: options.appendHandlesTo,
+                        resizableElement: that.element,
+                        rootElement: options.rootElement,
+                        rtl: options.rtl
+                    }, handleOptions[i])));
+                }
+                that._bindToResizeHandlesEvents();
+            },
+            _destroyResizeHandles: function () {
+                var that = this;
+                var length = that.handles ? that.handles.length : 0;
+                for (var i = 0; i < length; i++) {
+                    that.handles[i].destroy();
+                }
+            },
+            _showResizeHandles: function () {
+                var that = this;
+                var handles = that.handles || [];
+                var length = handles.length;
+                var i;
+                for (i = 0; i < length; i++) {
+                    that.handles[i].show();
+                }
+            },
+            _bindToResizeHandlesEvents: function () {
+                var that = this;
+                var handles = that.handles || [];
+                var length = handles.length;
+                var i;
+                var handle;
+                for (i = 0; i < length; i++) {
+                    handle = handles[i];
+                    handle.bind(DRAG_START, proxy(that._onResizeHandleDragStart, that));
+                    handle.bind(DRAG, proxy(that._onResizeHandleDrag, that));
+                    handle.bind(DRAG_END, proxy(that._onResizeHandleDragEnd, that));
+                    handle.bind(MOUSE_OVER, proxy(that._onResizeHandleMouseOver, that));
+                    handle.bind(MOUSE_OUT, proxy(that._onResizeHandleMouseOut, that));
+                }
+            },
+            _onResizeHandleMouseOver: function () {
+                setContentEditable(this.options.rootElement, FALSE);
+            },
+            _onResizeHandleMouseOut: function () {
+                setContentEditable(this.options.rootElement, TRUE);
+            },
+            _onResizeHandleDragStart: function () {
+                var that = this;
+                var element = $(that.element);
+                element.addClass(TABLE_RESIZING_CLASS);
+                that._initialElementHeight = element.outerHeight();
+                that._initialElementWidth = element.outerWidth();
+            },
+            _onResizeHandleDrag: function (e) {
+                this.resize(e);
+            },
+            _onResizeHandleDragEnd: function () {
+                $(this.element).removeClass(TABLE_RESIZING_CLASS);
+            }
+        });
+        var TableResizingFactory = Class.extend({
+            create: function (editor) {
+                var factory = this;
+                $(editor.body).on(MOUSE_DOWN + NS, TABLE, function (e) {
+                    var eventTarget = e.target;
+                    var eventCurrentTarget = e.currentTarget;
+                    var tableResizing = editor.tableResizing;
+                    var element = tableResizing ? tableResizing.element : null;
+                    if (tableResizing) {
+                        if (element && eventCurrentTarget !== element) {
+                            if (contains(eventCurrentTarget, element) && element !== eventTarget && contains(element, eventTarget)) {
+                                return;
+                            } else {
+                                if (element !== eventTarget) {
+                                    editor._destroyTableResizing();
+                                    factory._initResizing(editor, eventCurrentTarget);
+                                }
+                            }
+                        }
+                    } else {
+                        factory._initResizing(editor, eventCurrentTarget);
+                    }
+                    editor._showTableResizeHandles();
+                }).on(MOUSE_DOWN + NS, function (e) {
+                    var tableResizing = editor.tableResizing;
+                    var element = tableResizing ? tableResizing.element : null;
+                    var target = e.target;
+                    var tableData = $(target).data(TABLE);
+                    var tableDataCondition = isUndefined(tableData) || !isUndefined(tableData) && tableData !== element;
+                    if (tableResizing && tableDataCondition && element !== target && !contains(element, target)) {
+                        editor._destroyTableResizing();
+                    }
+                });
+            },
+            _initResizing: function (editor, table) {
+                if (!browser.msie && !browser.mozilla) {
+                    editor.tableResizing = new TableResizing(table, {
+                        appendHandlesTo: editor.body,
+                        rtl: kendo.support.isRtl(editor.element),
+                        rootElement: editor.body
+                    });
+                }
+            }
+        });
+        TableResizingFactory.current = new TableResizingFactory();
+        TableResizing.create = function (editor) {
+            TableResizingFactory.current.create(editor);
+        };
+        extend(Editor, { TableResizing: TableResizing });
+    }(window.kendo));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/immutables', ['editor/tables'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, Class = kendo.Class, Editor = kendo.ui.editor, dom = Editor.Dom, template = kendo.template, RangeUtils = Editor.RangeUtils, complexBlocks = [
+                'ul',
+                'ol',
+                'tbody',
+                'thead',
+                'table'
+            ], toolsToBeUpdated = [
+                'bold',
+                'italic',
+                'underline',
+                'strikethrough',
+                'superscript',
+                'subscript',
+                'forecolor',
+                'backcolor',
+                'fontname',
+                'fontsize',
+                'createlink',
+                'unlink',
+                'autolink',
+                'addcolumnleft',
+                'addcolumnright',
+                'addrowabove',
+                'addrowbelow',
+                'deleterow',
+                'deletecolumn',
+                'mergecells',
+                'formatting',
+                'cleanformatting'
+            ], IMMUTABALE = 'k-immutable', IMMUTABALE_MARKER_SELECTOR = '[' + IMMUTABALE + ']', IMMUTABLE_SELECTOR = '[contenteditable=\'false\']';
+        var rootCondition = function (node) {
+            return $(node).is('body,.k-editor');
+        };
+        var immutable = function (node) {
+            return node.getAttribute && node.getAttribute('contenteditable') == 'false';
+        };
+        var immutableParent = function (node) {
+            return dom.closestBy(node, immutable, rootCondition);
+        };
+        var expandImmutablesIn = function (range) {
+            var startImmutableParent = immutableParent(range.startContainer);
+            var endImmutableParent = immutableParent(range.endContainer);
+            if (startImmutableParent || endImmutableParent) {
+                if (startImmutableParent) {
+                    range.setStartBefore(startImmutableParent);
+                }
+                if (endImmutableParent) {
+                    range.setEndAfter(endImmutableParent);
+                }
+            }
+        };
+        var immutablesContext = function (range) {
+            if (immutableParent(range.commonAncestorContainer)) {
+                return true;
+            } else if (immutableParent(range.startContainer) || immutableParent(range.endContainer)) {
+                var editableNodes = RangeUtils.editableTextNodes(range);
+                if (editableNodes.length === 0) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        var randomId = function (length) {
+            var result = '';
+            var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            for (var i = length || 10; i > 0; --i) {
+                result += chars.charAt(Math.round(Math.random() * (chars.length - 1)));
+            }
+            return result;
+        };
+        var removeImmutables = function (root) {
+            var serializedImmutables = { empty: true }, nodeName, id, serialized;
+            $(root).find(IMMUTABLE_SELECTOR).each(function (i, node) {
+                nodeName = dom.name(node);
+                id = randomId();
+                serialized = '<' + nodeName + ' ' + IMMUTABALE + '=\'' + id + '\'></' + nodeName + '>';
+                serializedImmutables[id] = {
+                    node: node,
+                    style: $(node).attr('style')
+                };
+                serializedImmutables.empty = false;
+                $(node).replaceWith(serialized);
+            });
+            return serializedImmutables;
+        };
+        var restoreImmutables = function (root, serializedImmutables) {
+            var id, immutable;
+            $(root).find(IMMUTABALE_MARKER_SELECTOR).each(function (i, node) {
+                id = node.getAttribute(IMMUTABALE);
+                immutable = serializedImmutables[id];
+                $(node).replaceWith(immutable.node);
+                if (immutable.style != $(immutable.node).attr('style')) {
+                    $(immutable.node).removeAttr('style').attr('style', immutable.style);
+                }
+            });
+        };
+        var deletingKey = function (keyCode) {
+            var keys = kendo.keys;
+            return keyCode === keys.BACKSPACE || keyCode == keys.DELETE;
+        };
+        var updateToolOptions = function (tool) {
+            var options = tool ? tool.options : undefined;
+            if (options && options.finder) {
+                options.finder._initOptions({ immutables: true });
+            }
+        };
+        var Immutables = Class.extend({
+            init: function (editor) {
+                this.editor = editor;
+                this.serializedImmutables = {};
+                this.options = $.extend({}, editor && editor.options && editor.options.immutables);
+                var tools = editor.toolbar.tools;
+                updateToolOptions(tools.justifyLeft);
+                updateToolOptions(tools.justifyCenter);
+                updateToolOptions(tools.justifyRight);
+                updateToolOptions(tools.justifyFull);
+            },
+            serialize: function (node) {
+                var result = this._toHtml(node), id;
+                if (result.indexOf(IMMUTABALE) === -1) {
+                    id = this.randomId();
+                    result = result.replace(/>/, ' ' + IMMUTABALE + '="' + id + '">');
+                } else {
+                    id = result.match(/k-immutable\s*=\s*['"](.*)['"]/)[1];
+                }
+                this.serializedImmutables[id] = node;
+                return result;
+            },
+            _toHtml: function (node) {
+                var serialization = this.options.serialization;
+                var serializationType = typeof serialization;
+                var nodeName;
+                switch (serializationType) {
+                case 'string':
+                    return template(serialization)(node);
+                case 'function':
+                    return serialization(node);
+                default:
+                    nodeName = dom.name(node);
+                    return '<' + nodeName + '></' + nodeName + '>';
+                }
+            },
+            deserialize: function (node) {
+                var that = this;
+                var deserialization = this.options.deserialization;
+                $(IMMUTABALE_MARKER_SELECTOR, node).each(function () {
+                    var id = this.getAttribute(IMMUTABALE);
+                    var immutable = that.serializedImmutables[id];
+                    if (kendo.isFunction(deserialization)) {
+                        deserialization(this, immutable);
+                    }
+                    $(this).replaceWith(immutable);
+                });
+                that.serializedImmutables = {};
+            },
+            randomId: function (length) {
+                return randomId(length);
+            },
+            keydown: function (e, range) {
+                var isDeleting = deletingKey(e.keyCode);
+                var shouldCancelEvent = isDeleting && this._cancelDeleting(e, range) || !isDeleting && this._cancelTyping(e, range);
+                if (shouldCancelEvent) {
+                    e.preventDefault();
+                    return true;
+                }
+            },
+            _cancelTyping: function (e, range) {
+                var editor = this.editor;
+                var keyboard = editor.keyboard;
+                return range.collapsed && !keyboard.typingInProgress && keyboard.isTypingKey(e) && immutablesContext(range);
+            },
+            _cancelDeleting: function (e, range) {
+                var keys = kendo.keys;
+                var backspace = e.keyCode === keys.BACKSPACE;
+                var del = e.keyCode == keys.DELETE;
+                if (!backspace && !del) {
+                    return false;
+                }
+                var cancelDeleting = false;
+                if (range.collapsed) {
+                    if (immutablesContext(range)) {
+                        return true;
+                    }
+                    var immutable = this.nextImmutable(range, del);
+                    if (immutable && backspace) {
+                        var closestSelectionLi = dom.closest(range.commonAncestorContainer, 'li');
+                        if (closestSelectionLi) {
+                            var closestImmutableLi = dom.closest(immutable, 'li');
+                            if (closestImmutableLi && closestImmutableLi !== closestSelectionLi) {
+                                return cancelDeleting;
+                            }
+                        }
+                    }
+                    if (immutable && !dom.tableCell(immutable)) {
+                        if (dom.parentOfType(immutable, complexBlocks) === dom.parentOfType(range.commonAncestorContainer, complexBlocks)) {
+                            while (immutable && immutable.parentNode.childNodes.length == 1) {
+                                immutable = immutable.parentNode;
+                            }
+                            if (dom.tableCell(immutable)) {
+                                return cancelDeleting;
+                            }
+                            this._removeImmutable(immutable, range);
+                        }
+                        cancelDeleting = true;
+                    }
+                }
+                return cancelDeleting;
+            },
+            nextImmutable: function (range, forwards) {
+                var commonContainer = range.commonAncestorContainer;
+                if (dom.isBom(commonContainer) || (forwards && RangeUtils.isEndOf(range, commonContainer) || !forwards && RangeUtils.isStartOf(range, commonContainer))) {
+                    var next = this._nextNode(commonContainer, forwards);
+                    if (next && dom.isBlock(next) && !immutableParent(next)) {
+                        while (next && next.children && next.children[forwards ? 0 : next.children.length - 1]) {
+                            next = next.children[forwards ? 0 : next.children.length - 1];
+                        }
+                    }
+                    return immutableParent(next);
+                }
+            },
+            _removeImmutable: function (immutable, range) {
+                var editor = this.editor;
+                var startRestorePoint = new Editor.RestorePoint(range, editor.body);
+                dom.remove(immutable);
+                Editor._finishUpdate(editor, startRestorePoint);
+            },
+            _nextNode: function (node, forwards) {
+                var sibling = forwards ? 'nextSibling' : 'previousSibling';
+                var current = node, next;
+                while (current && !next) {
+                    next = current[sibling];
+                    if (next && dom.isDataNode(next) && /^\s|[\ufeff]$/.test(next.nodeValue)) {
+                        current = next;
+                        next = current[sibling];
+                    }
+                    if (!next) {
+                        current = current.parentNode;
+                    }
+                }
+                return next;
+            }
+        });
+        Immutables.immutable = immutable;
+        Immutables.immutableParent = immutableParent;
+        Immutables.expandImmutablesIn = expandImmutablesIn;
+        Immutables.immutablesContext = immutablesContext;
+        Immutables.toolsToBeUpdated = toolsToBeUpdated;
+        Immutables.removeImmutables = removeImmutables;
+        Immutables.restoreImmutables = restoreImmutables;
+        Editor.Immutables = Immutables;
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/table-wizard/table-wizard-command', ['editor/tables'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, Editor = kendo.ui.editor, EditorUtils = Editor.EditorUtils, RangeUtils = Editor.RangeUtils, dom = Editor.Dom, registerTool = EditorUtils.registerTool, ToolTemplate = Editor.ToolTemplate, Command = Editor.Command;
+        var tableFormatFinder = new Editor.BlockFormatFinder([{ tags: ['table'] }]);
+        var cellsFormatFinder = new Editor.BlockFormatFinder([{
+                tags: [
+                    'td',
+                    'th'
+                ]
+            }]);
+        var reUnit = /([a-z]+|%)$/i;
+        var TableWizardCommand = Command.extend({
+            exec: function () {
+                var cmd = this;
+                var editor = cmd.editor;
+                var range = cmd.range = cmd.lockRange();
+                var selectedTable = cmd._sourceTable = !cmd.options.insertNewTable ? cmd._selectedTable(range) : undefined;
+                var selectedCells = cmd._selectedTableCells = selectedTable ? cmd._selectedCells(range) : undefined;
+                var options = {
+                    visible: false,
+                    messages: editor.options.messages,
+                    closeCallback: $.proxy(cmd.onDialogClose, cmd),
+                    table: cmd.parseTable(selectedTable, selectedCells),
+                    dialogOptions: editor.options.dialogOptions,
+                    isRtl: kendo.support.isRtl(editor.wrapper)
+                };
+                var dialog = new Editor.TableWizardDialog(options);
+                dialog.open();
+            },
+            onDialogClose: function (data) {
+                var cmd = this;
+                cmd.releaseRange(cmd.range);
+                if (data) {
+                    if (cmd.options.insertNewTable) {
+                        cmd.insertTable(cmd.createNewTable(data));
+                    } else {
+                        cmd.updateTable(data, cmd._sourceTable, cmd._selectedTableCells);
+                    }
+                }
+            },
+            releaseRange: function (range) {
+                var cmd = this;
+                var doc = cmd.editor.document;
+                dom.windowFromDocument(doc).focus();
+                Command.fn.releaseRange.call(cmd, range);
+            },
+            insertTable: function (table) {
+                this.range.insertNode(table);
+            },
+            updateTable: function (data, table, selectedCells) {
+                var cmd = this;
+                var tableRows = $(table.rows).toArray();
+                var tableProp = data.tableProperties;
+                var rows = tableProp.rows;
+                var columns = tableProp.columns;
+                var last = function (collection) {
+                    return collection[collection.length - 1];
+                };
+                while (selectedCells.length > 1) {
+                    selectedCells.pop();
+                }
+                var lastSelectedRow = selectedCells.length ? last(selectedCells).parentNode : last(tableRows);
+                var row, parent;
+                cmd._deleteTableRows(tableRows, tableRows.length - rows);
+                if (tableRows.length < rows) {
+                    var rowIndex = $(lastSelectedRow).index();
+                    var cellsLength = lastSelectedRow.cells.length;
+                    var newRowsCount = rows - tableRows.length;
+                    parent = lastSelectedRow.parentNode;
+                    while (newRowsCount) {
+                        row = parent.insertRow(rowIndex + 1);
+                        cmd._insertCells(cellsLength - row.cells.length, row);
+                        newRowsCount--;
+                    }
+                }
+                if (tableRows[0].cells.length > columns) {
+                    $(tableRows).each(function (i, row) {
+                        while (row.cells.length > columns) {
+                            row.deleteCell(-1);
+                        }
+                    });
+                }
+                if (tableRows[0].cells.length < columns) {
+                    var cellIndex = $(last(selectedCells) || last(lastSelectedRow.cells)).index();
+                    $(tableRows).each(function (i, row) {
+                        cmd._insertCells(columns - row.cells.length, row, cellIndex + 1);
+                    });
+                }
+                cmd._updateTableProperties(table, tableProp);
+                var cellProp = data.cellProperties;
+                (cellProp.selectAllCells ? $(tableRows).children() : $(selectedCells)).each(function (i, cell) {
+                    cmd._updateCellProperties(cell, cellProp);
+                });
+                cmd._updateCaption(table, tableProp);
+                tableProp.cellsWithHeaders = tableProp.cellsWithHeaders || false;
+                if (cmd.cellsWithHeadersAssociated(table) != tableProp.cellsWithHeaders) {
+                    cmd.associateCellsWithHeader(table, tableProp.cellsWithHeaders);
+                }
+            },
+            _isHeadingRow: function (row) {
+                return dom.is(row.parentNode, 'thead') || dom.is(row.cells[0], 'th');
+            },
+            associateCellsWithHeader: function (table, associate) {
+                var timestamp = new Date().getTime();
+                var ids = [];
+                var columns = table.rows[0].cells.length;
+                var index, nextRow, isDataRow;
+                var generateIds = function () {
+                    for (var i = 0; i < columns; i++) {
+                        ids[i] = 'table' + ++timestamp;
+                    }
+                };
+                var modifySellsIds = function (c, cell) {
+                    $(cell)[associate ? 'attr' : 'removeAttr']('id', ids[c]);
+                };
+                var modifyCellsHeadings = function (c, cell) {
+                    $(cell)[associate ? 'attr' : 'removeAttr']('headers', ids[c]);
+                };
+                var isHeadingRow = this._isHeadingRow;
+                $(table.rows).each(function (r, row) {
+                    if (isHeadingRow(row)) {
+                        index = r;
+                        nextRow = table.rows[++index];
+                        isDataRow = nextRow && !isHeadingRow(nextRow);
+                        if (isDataRow) {
+                            generateIds();
+                            $(row.cells).each(modifySellsIds);
+                        }
+                        while (isDataRow) {
+                            $(nextRow.cells).each(modifyCellsHeadings);
+                            nextRow = table.rows[++index];
+                            isDataRow = nextRow && !isHeadingRow(nextRow);
+                        }
+                    }
+                });
+            },
+            cellsWithHeadersAssociated: function (table) {
+                var cells = $(table.rows).children();
+                var isHeadingRow = this._isHeadingRow;
+                var headingIds = [];
+                cells.each(function (c, cell) {
+                    if (cell.id && isHeadingRow(cell.parentNode)) {
+                        headingIds.push(cell.id);
+                    }
+                });
+                var associatedCells = cells.filter(function (c, cell) {
+                    var headersAttr = cell.getAttribute('headers');
+                    return headersAttr && !isHeadingRow(cell.parentNode) && $.inArray(headersAttr, headingIds) > -1;
+                });
+                return !!associatedCells.length;
+            },
+            _insertCells: function (count, row, index) {
+                index = isNaN(index) ? -1 : index;
+                for (var i = 0, cell; i < count; i++) {
+                    cell = row.insertCell(index);
+                    cell.innerHTML = '&nbsp;';
+                }
+            },
+            _deleteTableRows: function (rows, count) {
+                for (var i = 0, row, rowParent; i < count; i++) {
+                    row = rows.pop();
+                    rowParent = row.parentNode;
+                    rowParent.removeChild(row);
+                    if (!rowParent.rows.length) {
+                        dom.remove(rowParent);
+                    }
+                }
+            },
+            createNewTable: function (data) {
+                var cmd = this;
+                var doc = cmd.editor.document;
+                var tableProp = data.tableProperties;
+                var cellProp = data.cellProperties;
+                var cellPropToAll = cellProp.selectAllCells;
+                var table = dom.create(doc, 'table');
+                cmd._updateTableProperties(table, tableProp);
+                cmd._updateCaption(table, tableProp);
+                var tbody = table.createTBody();
+                for (var r = 0, row; r < tableProp.rows; r++) {
+                    row = tbody.insertRow();
+                    for (var c = 0, cell; c < tableProp.columns; c++) {
+                        cell = row.insertCell();
+                        cell.innerHTML = '&nbsp;';
+                        cmd._updateCellProperties(cell, cellPropToAll || r === 0 && c === 0 ? cellProp : {});
+                    }
+                }
+                if (tableProp.cellsWithHeaders) {
+                    cmd.associateCellsWithHeader(table, tableProp.cellsWithHeaders);
+                }
+                return table;
+            },
+            _updateTableProperties: function (table, data) {
+                var style = this._getStylesData(data);
+                dom.attr(table, {
+                    cellSpacing: data.cellSpacing || null,
+                    cellPadding: data.cellPadding || null,
+                    className: data.className || null,
+                    id: data.id || null,
+                    summary: data.summary || null,
+                    style: style || null
+                });
+                $(table).addClass('k-table');
+            },
+            _updateCellProperties: function (cell, data) {
+                var style = this._getStylesData(data);
+                dom.attr(cell, {
+                    style: style || null,
+                    cellMargin: data.cellMargin || null,
+                    cellPadding: data.cellPadding || null,
+                    className: data.className || null,
+                    id: data.id || null
+                });
+            },
+            _updateCaption: function (table, data) {
+                if (table.caption && !data.captionContent) {
+                    table.deleteCaption();
+                } else if (data.captionContent) {
+                    var caption = table.createCaption();
+                    caption.innerHTML = data.captionContent;
+                    var alignment = this._getAlignmentData(data.captionAlignment);
+                    dom.attr(caption, {
+                        style: {
+                            textAlign: alignment.textAlign,
+                            verticalAlign: alignment.verticalAlign
+                        }
+                    });
+                }
+            },
+            _getStylesData: function (data) {
+                var alignment = this._getAlignmentData(data.alignment);
+                var whiteSpace = 'wrapText' in data ? data.wrapText ? '' : 'nowrap' : null;
+                return {
+                    width: data.width ? data.width + data.widthUnit : null,
+                    height: data.height ? data.height + data.heightUnit : null,
+                    textAlign: alignment.textAlign,
+                    verticalAlign: alignment.verticalAlign,
+                    backgroundColor: data.bgColor || null,
+                    borderWidth: data.borderWidth,
+                    borderStyle: data.borderStyle,
+                    borderColor: data.borderColor,
+                    borderCollapse: data.collapseBorders ? 'collapse' : null,
+                    whiteSpace: whiteSpace
+                };
+            },
+            _getAlignmentData: function (alignment) {
+                var textAlign = '';
+                var verticalAlign = textAlign;
+                if (alignment) {
+                    if (alignment.indexOf(' ') != -1) {
+                        var align = alignment.split(' ');
+                        textAlign = align[0];
+                        verticalAlign = align[1];
+                    } else {
+                        textAlign = alignment;
+                    }
+                }
+                return {
+                    textAlign: textAlign,
+                    verticalAlign: verticalAlign
+                };
+            },
+            parseTable: function (table, selectedCells) {
+                if (!table) {
+                    return {
+                        tableProperties: {},
+                        selectedCells: []
+                    };
+                }
+                var cmd = this;
+                var tStyle = table.style;
+                var rows = table.rows;
+                var caption = table.caption;
+                var captionClone = $(caption ? caption.cloneNode(true) : undefined);
+                captionClone.find('.k-marker').remove();
+                var cssClass = table.className;
+                cssClass = cssClass.replace(/^k-table\s|\sk-table$/, '');
+                cssClass = cssClass.replace(/\sk-table\s/, ' ');
+                cssClass = cssClass.replace(/^k-table$/, '');
+                var tableAlignment = cmd._getAlignment(table, true);
+                var captionAlignment = caption ? cmd._getAlignment(caption) : undefined;
+                var cellsWithHeaders = cmd.cellsWithHeadersAssociated(table);
+                var tableJson = {
+                    tableProperties: {
+                        width: tStyle.width || table.width ? parseFloat(tStyle.width || table.width) : null,
+                        height: tStyle.height || table.height ? parseFloat(tStyle.height || table.height) : null,
+                        columns: rows[0] ? rows[0].children.length : 0,
+                        rows: rows.length,
+                        widthUnit: cmd._getUnit(tStyle.width),
+                        heightUnit: cmd._getUnit(tStyle.height),
+                        cellSpacing: table.cellSpacing,
+                        cellPadding: table.cellPadding,
+                        alignment: tableAlignment.textAlign,
+                        bgColor: tStyle.backgroundColor || table.bgColor,
+                        className: cssClass,
+                        id: table.id,
+                        borderWidth: tStyle.borderWidth || table.border,
+                        borderColor: tStyle.borderColor,
+                        borderStyle: tStyle.borderStyle || '',
+                        collapseBorders: !!tStyle.borderCollapse,
+                        summary: table.summary,
+                        captionContent: caption ? captionClone.html() : '',
+                        captionAlignment: caption && captionAlignment.textAlign ? captionAlignment.textAlign + ' ' + captionAlignment.verticalAlign : '',
+                        cellsWithHeaders: cellsWithHeaders
+                    },
+                    selectedCells: []
+                };
+                tableJson.rows = cmd.parseTableRows(rows, selectedCells, tableJson);
+                return tableJson;
+            },
+            parseTableRows: function (rows, selectedCells, tableJson) {
+                var cmd = this;
+                var data = [], row, rowData, cells, cell, cellData;
+                for (var i = 0; i < rows.length; i++) {
+                    row = rows[i];
+                    rowData = { cells: [] };
+                    cells = row.cells;
+                    data.push(rowData);
+                    for (var j = 0; j < cells.length; j++) {
+                        cell = cells[j];
+                        cellData = cmd.parseCell(cell);
+                        if ($.inArray(cell, selectedCells) != -1) {
+                            tableJson.selectedCells.push(cellData);
+                        }
+                        rowData.cells.push(cellData);
+                    }
+                }
+                return data;
+            },
+            parseCell: function (cell) {
+                var cmd = this;
+                var cStyle = cell.style;
+                var alignment = cmd._getAlignment(cell);
+                alignment = alignment.textAlign ? alignment.textAlign + ' ' + alignment.verticalAlign : '';
+                var data = {
+                    width: cStyle.width || cell.width ? parseFloat(cStyle.width || cell.width) : null,
+                    height: cStyle.height || cell.height ? parseFloat(cStyle.height || cell.height) : null,
+                    widthUnit: cmd._getUnit(cStyle.width),
+                    heightUnit: cmd._getUnit(cStyle.height),
+                    cellMargin: cStyle.margin || cell.cellMargin,
+                    cellPadding: cStyle.padding || cell.cellPadding,
+                    alignment: alignment,
+                    bgColor: cStyle.backgroundColor || cell.bgColor,
+                    className: cell.className,
+                    id: cell.id,
+                    borderWidth: cStyle.borderWidth || cell.border,
+                    borderColor: cStyle.borderColor,
+                    borderStyle: cStyle.borderStyle,
+                    wrapText: cStyle.whiteSpace != 'nowrap'
+                };
+                return data;
+            },
+            _getAlignment: function (element, horizontalOnly) {
+                var style = element.style;
+                var hAlign = style.textAlign || element.align || '';
+                if (horizontalOnly) {
+                    return { textAlign: hAlign };
+                }
+                var vAlign = style.verticalAlign || element.vAlign || '';
+                if (hAlign && vAlign) {
+                    return {
+                        textAlign: hAlign,
+                        verticalAlign: vAlign
+                    };
+                }
+                if (!hAlign && vAlign) {
+                    return {
+                        textAlign: 'left',
+                        verticalAlign: vAlign
+                    };
+                }
+                if (hAlign && !vAlign) {
+                    return {
+                        textAlign: hAlign,
+                        verticalAlign: 'top'
+                    };
+                }
+                return {
+                    textAlign: '',
+                    verticalAlign: ''
+                };
+            },
+            _getUnit: function (value) {
+                var unit = (value || '').match(reUnit);
+                return unit ? unit[0] : 'px';
+            },
+            _selectedTable: function (range) {
+                var nodes = dom.filterBy(RangeUtils.nodes(range), dom.htmlIndentSpace, true);
+                return tableFormatFinder.findSuitable(nodes)[0];
+            },
+            _selectedCells: function (range) {
+                var nodes = dom.filterBy(RangeUtils.nodes(range), dom.htmlIndentSpace, true);
+                return cellsFormatFinder.findSuitable(nodes);
+            }
+        });
+        var TableWizardTool = Editor.Tool.extend({
+            command: function (options) {
+                options.insertNewTable = this.options.insertNewTable;
+                return new TableWizardCommand(options);
+            }
+        });
+        var TableWizardEditTool = TableWizardTool.extend({
+            update: function (ui, nodes) {
+                var isFormatted = !tableFormatFinder.isFormatted(nodes);
+                ui.toggleClass('k-state-disabled', isFormatted);
+            }
+        });
+        kendo.ui.editor.TableWizardTool = TableWizardTool;
+        kendo.ui.editor.TableWizardCommand = TableWizardCommand;
+        registerTool('tableWizard', new TableWizardEditTool({
+            command: TableWizardCommand,
+            insertNewTable: false,
+            template: new ToolTemplate({
+                template: EditorUtils.buttonTemplate,
+                title: 'Table Wizard'
+            })
+        }));
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('editor/table-wizard/table-wizard-dialog', ['editor/table-wizard/table-wizard-command'], f);
+}(function () {
+    (function ($, undefined) {
+        var kendo = window.kendo, numericTextBoxSettings = {
+                format: '0',
+                min: 0
+            }, units = [
+                'px',
+                'em'
+            ], borderStyles = [
+                'solid',
+                'dotted',
+                'dashed',
+                'double',
+                'groove',
+                'ridge',
+                'inset',
+                'outset',
+                'initial',
+                'inherit',
+                'none',
+                'hidden'
+            ];
+        var tableAlignmentDropDownSettings = {
+            dataSource: [
+                {
+                    className: 'k-font-icon k-i-table-align-middle-left',
+                    value: 'left'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-middle-center',
+                    value: 'center'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-middle-right',
+                    value: 'right'
+                },
+                {
+                    className: 'k-font-icon k-i-justify-clear',
+                    value: ''
+                }
+            ],
+            dataTextField: 'className',
+            dataValueField: 'value',
+            template: '<span class=\'#: className #\' title=\'#: tooltip #\'></span>',
+            valueTemplate: '<span class=\'k-align-group #: className #\' title=\'#: tooltip #\'></span>'
+        };
+        var cellAlignmentDropDownSettings = {
+            dataSource: [
+                {
+                    className: 'k-font-icon k-i-table-align-top-left',
+                    value: 'left top'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-top-center',
+                    value: 'center top'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-top-right',
+                    value: 'right top'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-middle-left',
+                    value: 'left middle'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-middle-center',
+                    value: 'center middle'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-middle-right',
+                    value: 'right middle'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-bottom-left',
+                    value: 'left bottom'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-bottom-center',
+                    value: 'center bottom'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-bottom-right',
+                    value: 'right bottom'
+                },
+                {
+                    className: 'k-font-icon k-i-justify-clear',
+                    value: ''
+                }
+            ],
+            dataTextField: 'className',
+            dataValueField: 'value',
+            template: '<span class=\'#: className #\' title=\'#: tooltip #\'></span>',
+            valueTemplate: '<span class=\'k-align-group #: className #\' title=\'#: tooltip #\'></span>'
+        };
+        var accessibilityAlignmentDropDownSettings = {
+            dataSource: [
+                {
+                    className: 'k-font-icon k-i-table-align-top-left',
+                    value: 'left top'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-top-center',
+                    value: 'center top'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-top-right',
+                    value: 'right top'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-bottom-left',
+                    value: 'left bottom'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-bottom-center',
+                    value: 'center bottom'
+                },
+                {
+                    className: 'k-font-icon k-i-table-align-bottom-right',
+                    value: 'right bottom'
+                },
+                {
+                    className: 'k-font-icon k-i-justify-clear',
+                    value: ''
+                }
+            ],
+            dataTextField: 'className',
+            dataValueField: 'value',
+            template: '<span class=\'#: className #\' title=\'#: tooltip #\'></span>',
+            valueTemplate: '<span class=\'k-align-group #: className #\' title=\'#: tooltip #\'></span>'
+        };
+        var dialogTemplate = '<div class="k-editor-dialog k-editor-table-wizard-dialog k-action-window k-edit-form-container k-popup-edit-form">' + '<div id="k-table-wizard-tabs" class="k-root-tabs">' + '<ul>' + '<li class="k-state-active">#= messages.tableTab #</li>' + '<li>#= messages.cellTab #</li>' + '<li>#= messages.accessibilityTab #</li>' + '</ul>' + '<div id="k-table-properties">' + '<div class="k-edit-label">' + '<label for="k-editor-table-width">#= messages.width #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-width" />' + '<input id="k-editor-table-width-type" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-height">#= messages.height #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-height" />' + '<input id="k-editor-table-height-type" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-columns">#= messages.columns #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-columns" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-rows">#= messages.rows #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-rows" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cell-spacing">#= messages.cellSpacing #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cell-spacing" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cell-padding">#= messages.cellPadding #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cell-padding" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-alignment">#= messages.alignment #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-table-alignment" class="k-align" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-bg">#= messages.background #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-table-bg" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-css-class">#= messages.cssClass #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-css-class" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-id">#= messages.id #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-id" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-border-width">#= messages.border #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-border-width" />' + '<input id="k-editor-border-color" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-border-style">#= messages.borderStyle #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-border-style" />' + '</div>' + '<div class="k-edit-label">&nbsp;</div>' + '<div class="k-edit-field">' + '<input id="k-editor-collapse-borders" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-collapse-borders" class="k-checkbox-label">#= messages.collapseBorders #</label>' + '</div>' + '</div>' + '<div id="k-cell-properties">' + '<div class="k-edit-field">' + '<input id="k-editor-selectAllCells" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-selectAllCells" class="k-checkbox-label">#= messages.selectAllCells #</label>' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-width">#= messages.width #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-cell-width" />' + '<input id="k-editor-cell-width-type" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-height">#= messages.height #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-cell-height" />' + '<input id="k-editor-cell-height-type" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cell-margin">#= messages.cellMargin #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cell-margin" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-table-cells-padding">#= messages.cellPadding #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-table-cells-padding" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-alignment">#= messages.alignment #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-alignment" class="k-align" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-bg">#= messages.background #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-bg" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-css-class">#= messages.cssClass #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-css-class" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-id">#= messages.id #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-id" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-border-width">#= messages.border #</label>' + '</div>' + '<div class="k-edit-field">' + '<input type="numeric" id="k-editor-cell-border-width" />' + '<input id="k-editor-cell-border-color" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-cell-border-style">#= messages.borderStyle #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cell-border-style" />' + '</div>' + '<div class="k-edit-label">&nbsp;</div>' + '<div class="k-edit-field">' + '<input id="k-editor-wrap-text" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-wrap-text" class="k-checkbox-label">#= messages.wrapText #</label>' + '</div>' + '</div>' + '<div id="k-accessibility-properties">' + '<div class="k-edit-label">' + '<label for="k-editor-table-caption">#= messages.caption #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-table-caption" class="k-input k-textbox" type="text" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-accessibility-alignment">#= messages.alignment #</label>' + '</div>' + '<div class="k-edit-field">' + '<input id="k-editor-accessibility-alignment" class="k-align" />' + '</div>' + '<div class="k-edit-label">' + '<label for="k-editor-accessibility-summary">#= messages.summary #</label>' + '</div>' + '<div class="k-edit-field">' + '<textarea id="k-editor-accessibility-summary" class="k-input k-textbox"></textarea>' + '</div>' + '<div class="k-edit-label">&nbsp;</div>' + '<div class="k-edit-field">' + '<input id="k-editor-cells-headers" type="checkbox" class="k-checkbox" />' + '<label for="k-editor-cells-headers" class="k-checkbox-label">#= messages.associateCellsWithHeaders #</label>' + '</div>' + '</div>' + '</div>' + '<div class="k-edit-buttons k-state-default">' + '<button class="k-button k-primary k-dialog-ok">#= messages.dialogOk #</button>' + '<button class="k-button k-dialog-close">#= messages.dialogCancel #</button>' + '</div>' + '</div>';
+        var TableWizardDialog = kendo.Class.extend({
+            init: function (options) {
+                this.options = options;
+            },
+            open: function () {
+                var that = this, options = that.options, dialogOptions = options.dialogOptions, tableData = options.table, dialog, messages = options.messages;
+                function close(e) {
+                    e.preventDefault();
+                    that.destroy();
+                    dialog.destroy();
+                }
+                function okHandler(e) {
+                    that.collectDialogValues(tableData);
+                    close(e);
+                    if (that.change) {
+                        that.change();
+                    }
+                    options.closeCallback(tableData);
+                }
+                function closeHandler(e) {
+                    close(e);
+                    options.closeCallback();
+                }
+                dialogOptions.close = closeHandler;
+                dialogOptions.title = messages.tableWizard;
+                dialogOptions.visible = options.visible;
+                dialogOptions.maxHeight = 720;
+                dialog = $(that._dialogTemplate(messages)).appendTo(document.body).kendoWindow(dialogOptions).closest('.k-window').toggleClass('k-rtl', options.isRtl).end().find('.k-dialog-ok').click(okHandler).end().find('.k-dialog-close').click(closeHandler).end().data('kendoWindow').center().open();
+                var element = dialog.element;
+                that._initTabStripComponent(element);
+                that._initTableViewComponents(element, tableData);
+                that._initCellViewComponents(element, tableData);
+                that._initAccessibilityViewComponents(element, tableData);
+                dialog.center();
+            },
+            _initTabStripComponent: function (element) {
+                var components = this.components = {};
+                components.tabStrip = element.find('#k-table-wizard-tabs').kendoTabStrip({ animation: false }).data('kendoTabStrip');
+            },
+            collectDialogValues: function () {
+                var that = this;
+                var data = that.options.table;
+                that._collectTableViewValues(data);
+                that._collectCellViewValues(data);
+                that._collectAccessibilityViewValues(data);
+            },
+            _collectTableViewValues: function (tableData) {
+                var tableView = this.components.tableView;
+                var tableProperties = tableData.tableProperties;
+                tableProperties.width = tableView.width.value();
+                tableProperties.widthUnit = tableView.widthUnit.value();
+                tableProperties.height = tableView.height.value();
+                tableProperties.columns = tableView.columns.value();
+                tableProperties.rows = tableView.rows.value();
+                tableProperties.heightUnit = tableView.heightUnit.value();
+                tableProperties.cellSpacing = tableView.cellSpacing.value();
+                tableProperties.cellPadding = tableView.cellPadding.value();
+                tableProperties.alignment = tableView.alignment.value();
+                tableProperties.bgColor = tableView.bgColor.value();
+                tableProperties.className = tableView.className.value;
+                tableProperties.id = tableView.id.value;
+                tableProperties.borderWidth = tableView.borderWidth.value();
+                tableProperties.borderColor = tableView.borderColor.value();
+                tableProperties.borderStyle = tableView.borderStyle.value();
+                tableProperties.collapseBorders = tableView.collapseBorders.checked;
+            },
+            _collectCellViewValues: function (table) {
+                var cellData = table.cellProperties = {};
+                var cellView = this.components.cellView;
+                cellData.selectAllCells = cellView.selectAllCells.checked;
+                cellData.width = cellView.width.value();
+                cellData.widthUnit = cellView.widthUnit.value();
+                cellData.height = cellView.height.value();
+                cellData.heightUnit = cellView.heightUnit.value();
+                cellData.cellMargin = cellView.cellMargin.value();
+                cellData.cellPadding = cellView.cellPadding.value();
+                cellData.alignment = cellView.alignment.value();
+                cellData.bgColor = cellView.bgColor.value();
+                cellData.className = cellView.className.value;
+                cellData.id = cellView.id.value;
+                cellData.borderWidth = cellView.borderWidth.value();
+                cellData.borderColor = cellView.borderColor.value();
+                cellData.borderStyle = cellView.borderStyle.value();
+                cellData.wrapText = cellView.wrapText.checked;
+            },
+            _collectAccessibilityViewValues: function (table) {
+                var tableProperties = table.tableProperties;
+                var accessibilityView = this.components.accessibilityView;
+                tableProperties.captionContent = accessibilityView.captionContent.value;
+                tableProperties.captionAlignment = accessibilityView.captionAlignment.value();
+                tableProperties.summary = accessibilityView.summary.value;
+                tableProperties.cellsWithHeaders = accessibilityView.cellsWithHeaders.checked;
+            },
+            _addUnit: function (units, value) {
+                if (value && $.inArray(value, units) == -1) {
+                    units.push(value);
+                }
+            },
+            _initTableViewComponents: function (element, table) {
+                var components = this.components;
+                var tableView = components.tableView = {};
+                var tableProperties = table.tableProperties = table.tableProperties || {};
+                tableProperties.borderStyle = tableProperties.borderStyle || '';
+                this._addUnit(units, tableProperties.widthUnit);
+                this._addUnit(units, tableProperties.heightUnit);
+                this._initNumericTextbox(element.find('#k-editor-table-width'), 'width', tableProperties, tableView);
+                this._initNumericTextbox(element.find('#k-editor-table-height'), 'height', tableProperties, tableView);
+                this._initNumericTextbox(element.find('#k-editor-table-columns'), 'columns', tableProperties, tableView, {
+                    min: 1,
+                    value: 4
+                });
+                this._initNumericTextbox(element.find('#k-editor-table-rows'), 'rows', tableProperties, tableView, {
+                    min: 1,
+                    value: 4
+                });
+                this._initDropDownList(element.find('#k-editor-table-width-type'), 'widthUnit', tableProperties, tableView, units);
+                this._initDropDownList(element.find('#k-editor-table-height-type'), 'heightUnit', tableProperties, tableView, units);
+                this._initNumericTextbox(element.find('#k-editor-table-cell-spacing'), 'cellSpacing', tableProperties, tableView);
+                this._initNumericTextbox(element.find('#k-editor-table-cell-padding'), 'cellPadding', tableProperties, tableView);
+                this._initTableAlignmentDropDown(element.find('#k-editor-table-alignment'), tableProperties);
+                this._initColorPicker(element.find('#k-editor-table-bg'), 'bgColor', tableProperties, tableView);
+                this._initInput(element.find('#k-editor-css-class'), 'className', tableProperties, tableView);
+                this._initInput(element.find('#k-editor-id'), 'id', tableProperties, tableView);
+                this._initNumericTextbox(element.find('#k-editor-border-width'), 'borderWidth', tableProperties, tableView);
+                this._initColorPicker(element.find('#k-editor-border-color'), 'borderColor', tableProperties, tableView);
+                this._initDropDownList(element.find('#k-editor-border-style'), 'borderStyle', tableProperties, tableView, borderStyles);
+                this._initCheckbox(element.find('#k-editor-collapse-borders'), 'collapseBorders', tableProperties, tableView);
+            },
+            _initCellViewComponents: function (element, table) {
+                var components = this.components;
+                var cellView = components.cellView = {};
+                table.selectedCells = table.selectedCells = table.selectedCells || [];
+                var cellProperties = table.selectedCells[0] || {
+                    borderStyle: '',
+                    wrapText: true
+                };
+                this._addUnit(units, cellProperties.widthUnit);
+                this._addUnit(units, cellProperties.heightUnit);
+                this._initCheckbox(element.find('#k-editor-selectAllCells'), 'selectAllCells', table.tableProperties, cellView);
+                this._initNumericTextbox(element.find('#k-editor-cell-width'), 'width', cellProperties, cellView);
+                this._initNumericTextbox(element.find('#k-editor-cell-height'), 'height', cellProperties, cellView);
+                this._initDropDownList(element.find('#k-editor-cell-width-type'), 'widthUnit', cellProperties, cellView, units);
+                this._initDropDownList(element.find('#k-editor-cell-height-type'), 'heightUnit', cellProperties, cellView, units);
+                this._initNumericTextbox(element.find('#k-editor-table-cell-margin'), 'cellMargin', cellProperties, cellView);
+                this._initNumericTextbox(element.find('#k-editor-table-cells-padding'), 'cellPadding', cellProperties, cellView);
+                this._initCellAlignmentDropDown(element.find('#k-editor-cell-alignment'), cellProperties);
+                this._initColorPicker(element.find('#k-editor-cell-bg'), 'bgColor', cellProperties, cellView);
+                this._initInput(element.find('#k-editor-cell-css-class'), 'className', cellProperties, cellView);
+                this._initInput(element.find('#k-editor-cell-id'), 'id', cellProperties, cellView);
+                this._initNumericTextbox(element.find('#k-editor-cell-border-width'), 'borderWidth', cellProperties, cellView);
+                this._initColorPicker(element.find('#k-editor-cell-border-color'), 'borderColor', cellProperties, cellView);
+                this._initDropDownList(element.find('#k-editor-cell-border-style'), 'borderStyle', cellProperties, cellView, borderStyles);
+                this._initCheckbox(element.find('#k-editor-wrap-text'), 'wrapText', cellProperties, cellView);
+            },
+            _initAccessibilityViewComponents: function (element, table) {
+                var components = this.components;
+                var accessibilityView = components.accessibilityView = {};
+                var tableProperties = table.tableProperties;
+                this._initInput(element.find('#k-editor-table-caption'), 'captionContent', tableProperties, accessibilityView);
+                this._initAccessibilityAlignmentDropDown(element.find('#k-editor-accessibility-alignment'), tableProperties);
+                this._initInput(element.find('#k-editor-accessibility-summary'), 'summary', tableProperties, accessibilityView);
+                this._initCheckbox(element.find('#k-editor-cells-headers'), 'cellsWithHeaders', tableProperties, accessibilityView);
+            },
+            _initNumericTextbox: function (element, property, data, storage, settings) {
+                var component = storage[property] = element.kendoNumericTextBox(settings ? $.extend({}, numericTextBoxSettings, settings) : numericTextBoxSettings).data('kendoNumericTextBox');
+                if (property in data) {
+                    component.value(parseInt(data[property], 10));
+                }
+            },
+            _initDropDownList: function (element, property, data, storage, dataSource) {
+                var component = storage[property] = element.kendoDropDownList({ dataSource: dataSource }).data('kendoDropDownList');
+                this._setComponentValue(component, data, property);
+            },
+            _initTableAlignmentDropDown: function (element, data) {
+                var messages = this.options.messages;
+                var tableView = this.components.tableView;
+                var dataSource = tableAlignmentDropDownSettings.dataSource;
+                dataSource[0].tooltip = messages.alignLeft;
+                dataSource[1].tooltip = messages.alignCenter;
+                dataSource[2].tooltip = messages.alignRight;
+                dataSource[3].tooltip = messages.alignRemove;
+                this._initAlignmentDropDown(element, tableAlignmentDropDownSettings, 'alignment', data, tableView);
+            },
+            _initCellAlignmentDropDown: function (element, data) {
+                var messages = this.options.messages;
+                var cellView = this.components.cellView;
+                var dataSource = cellAlignmentDropDownSettings.dataSource;
+                dataSource[0].tooltip = messages.alignLeftTop;
+                dataSource[1].tooltip = messages.alignCenterTop;
+                dataSource[2].tooltip = messages.alignRightTop;
+                dataSource[3].tooltip = messages.alignLeftMiddle;
+                dataSource[4].tooltip = messages.alignCenterMiddle;
+                dataSource[5].tooltip = messages.alignRightMiddle;
+                dataSource[6].tooltip = messages.alignLeftBottom;
+                dataSource[7].tooltip = messages.alignCenterBottom;
+                dataSource[8].tooltip = messages.alignRightBottom;
+                dataSource[9].tooltip = messages.alignRemove;
+                this._initAlignmentDropDown(element, cellAlignmentDropDownSettings, 'alignment', data, cellView);
+            },
+            _initAccessibilityAlignmentDropDown: function (element, data) {
+                var messages = this.options.messages;
+                var accessibilityView = this.components.accessibilityView;
+                var dataSource = accessibilityAlignmentDropDownSettings.dataSource;
+                dataSource[0].tooltip = messages.alignLeftTop;
+                dataSource[1].tooltip = messages.alignCenterTop;
+                dataSource[2].tooltip = messages.alignRightTop;
+                dataSource[3].tooltip = messages.alignLeftBottom;
+                dataSource[4].tooltip = messages.alignCenterBottom;
+                dataSource[5].tooltip = messages.alignRightBottom;
+                dataSource[6].tooltip = messages.alignRemove;
+                this._initAlignmentDropDown(element, accessibilityAlignmentDropDownSettings, 'captionAlignment', data, accessibilityView);
+            },
+            _initAlignmentDropDown: function (element, settings, name, data, storage) {
+                var component = storage[name] = element.kendoDropDownList(settings).data('kendoDropDownList');
+                component.list.addClass('k-align').css('width', '110px');
+                this._setComponentValue(component, data, name);
+            },
+            _setComponentValue: function (component, data, property) {
+                if (property in data) {
+                    component.value(data[property]);
+                }
+            },
+            _initColorPicker: function (element, property, data, storage) {
+                var component = storage[property] = element.kendoColorPicker().data('kendoColorPicker');
+                if (data[property]) {
+                    component.value(data[property]);
+                }
+            },
+            _initInput: function (element, property, data, storage) {
+                var component = storage[property] = element.get(0);
+                if (property in data) {
+                    component.value = data[property];
+                }
+            },
+            _initCheckbox: function (element, property, data, storage) {
+                var component = storage[property] = element.get(0);
+                if (property in data) {
+                    component.checked = data[property];
+                }
+            },
+            destroy: function () {
+                this._destroyComponents(this.components.tableView);
+                this._destroyComponents(this.components.cellView);
+                this._destroyComponents(this.components.accessibilityView);
+                this._destroyComponents(this.components);
+                delete this.components;
+            },
+            _destroyComponents: function (components) {
+                for (var widget in components) {
+                    if (components[widget].destroy) {
+                        components[widget].destroy();
+                    }
+                    delete components[widget];
+                }
+            },
+            _dialogTemplate: function (messages) {
+                return kendo.template(dialogTemplate)({ messages: messages });
+            }
+        });
+        kendo.ui.editor.TableWizardDialog = TableWizardDialog;
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
     define('kendo.editor', [
         'kendo.combobox',
         'kendo.dropdownlist',
@@ -8313,7 +11759,14 @@
         'editor/viewhtml',
         'editor/formatting',
         'editor/toolbar',
-        'editor/tables'
+        'editor/tables',
+        'editor/resizing/column-resizing',
+        'editor/resizing/row-resizing',
+        'editor/resizing/table-resizing',
+        'editor/resizing/table-resize-handle',
+        'editor/immutables',
+        'editor/table-wizard/table-wizard-command',
+        'editor/table-wizard/table-wizard-dialog'
     ], f);
 }(function () {
     var __meta__ = {

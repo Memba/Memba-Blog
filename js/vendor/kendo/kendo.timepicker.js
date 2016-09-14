@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -522,7 +522,7 @@
                 var that = this, element = that.element, arrow;
                 arrow = element.next('span.k-select');
                 if (!arrow[0]) {
-                    arrow = $('<span unselectable="on" class="k-select"><span unselectable="on" class="k-icon k-i-clock">select</span></span>').insertAfter(element);
+                    arrow = $('<span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-clock"></span></span>').insertAfter(element);
                 }
                 that._arrow = arrow.attr({
                     'role': 'button',
@@ -562,7 +562,7 @@
                     date = null;
                 }
                 that._value = date;
-                that.element.val(date ? kendo.toString(date, options.format, options.culture) : value);
+                that.element.val(kendo.toString(date || value, options.format, options.culture));
                 timeView.value(date);
                 return date;
             },

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -556,6 +556,8 @@ if (kendo.spreadsheet && kendo.spreadsheet.messages.dialogs) {
             "save": "儲存",
             "cancel": "取消",
             "remove": "移除",
+            "retry": "重試",
+            "revert": "還原",
             "okText": "是",
             "formatCellsDialog": {
                 "title": "格式",

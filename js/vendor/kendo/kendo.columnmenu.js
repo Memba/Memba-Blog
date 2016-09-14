@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -107,7 +107,11 @@
                     container: that.wrapper
                 });
             },
-            events: [INIT],
+            events: [
+                INIT,
+                'sort',
+                'filtering'
+            ],
             options: {
                 name: 'ColumnMenu',
                 messages: {
@@ -311,9 +315,19 @@
             },
             _sortDataSource: function (item, dir) {
                 var that = this, sortable = that.options.sortable, compare = sortable.compare === null ? undefined : sortable.compare, dataSource = that.dataSource, idx, length, sort = dataSource.sort() || [];
-                if (item.hasClass(ACTIVE) && sortable && sortable.allowUnsort !== false) {
+                var removeClass = item.hasClass(ACTIVE) && sortable && sortable.allowUnsort !== false;
+                dir = !removeClass ? dir : undefined;
+                if (that.trigger('sort', {
+                        sort: {
+                            field: that.field,
+                            dir: dir,
+                            compare: compare
+                        }
+                    })) {
+                    return;
+                }
+                if (removeClass) {
                     item.removeClass(ACTIVE);
-                    dir = undefined;
                 } else {
                     item.addClass(ACTIVE);
                 }
@@ -439,7 +453,15 @@
                         dataSource: options.dataSource,
                         values: options.values,
                         field: that.field,
-                        title: that.title
+                        title: that.title,
+                        change: function (e) {
+                            if (that.trigger('filtering', {
+                                    filter: e.filter,
+                                    field: e.field
+                                })) {
+                                e.preventDefault();
+                            }
+                        }
                     }, options.filterable)).data(widget);
                     if (that._isMobile) {
                         that.menu.bind(SELECT, function (e) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -96,12 +96,12 @@
             link: 'k-link',
             resizeHandle: 'k-resize-handle',
             resizeHandleInner: 'k-resize-handle-inner',
-            dropPositions: 'k-insert-top k-insert-bottom k-add k-insert-middle',
-            dropTop: 'k-insert-top',
-            dropBottom: 'k-insert-bottom',
-            dropAdd: 'k-add',
-            dropMiddle: 'k-insert-middle',
-            dropDenied: 'k-denied',
+            dropPositions: 'k-i-insert-top k-i-insert-bottom k-i-add k-i-insert-middle',
+            dropTop: 'k-i-insert-top',
+            dropBottom: 'k-i-insert-bottom',
+            dropAdd: 'k-i-add',
+            dropMiddle: 'k-i-insert-middle',
+            dropDenied: 'k-i-denied',
             dragStatus: 'k-drag-status',
             dragClue: 'k-drag-clue',
             dragClueText: 'k-clue-text'
@@ -499,6 +499,7 @@
             },
             _editable: function () {
                 var that = this;
+                var editable = this.options.editable;
                 var listStyles = GanttList.styles;
                 var iconSelector = 'span.' + listStyles.icon + ':not(' + listStyles.iconHidden + ')';
                 var finishEdit = function () {
@@ -517,7 +518,7 @@
                         blurActiveElement();
                     }
                 };
-                if (!this.options.editable) {
+                if (!editable || editable.update === false) {
                     return;
                 }
                 this._startEditHandler = function (e) {
@@ -682,6 +683,7 @@
                 var isRtl = kendo.support.isRtl(this.element);
                 var selector = 'tr[' + kendo.attr('level') + ' = 0]:last';
                 var action = {};
+                var editable = this.options.editable;
                 var clear = function () {
                     draggedTask = null;
                     dropTarget = null;
@@ -733,7 +735,7 @@
                 var status = function () {
                     return that._reorderDraggable.hint.children(DOT + listStyles.dragStatus).removeClass(listStyles.dropPositions);
                 };
-                if (!this.options.editable) {
+                if (!editable || editable.reorder === false || editable.update === false) {
                     return;
                 }
                 this._reorderDraggable = this.content.kendoDraggable({
@@ -758,7 +760,8 @@
                     },
                     container: this.content,
                     'dragstart': function (e) {
-                        if (that.editable && that.editable.trigger('validate')) {
+                        var editable = that.editable;
+                        if (editable && editable.reorder !== false && editable.trigger('validate')) {
                             e.preventDefault();
                             return;
                         }

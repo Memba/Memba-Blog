@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -113,6 +113,7 @@
                         } else if (type === 'date') {
                             if (useOdataFour) {
                                 format = '{1:yyyy-MM-ddTHH:mm:ss+00:00}';
+                                value = kendo.timezone.apply(value, 'Etc/UTC');
                             } else {
                                 format = 'datetime\'{1:yyyy-MM-ddTHH:mm:ss}\'';
                             }

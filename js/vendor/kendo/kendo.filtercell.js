@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -99,7 +99,14 @@
                 element = $(element).addClass('k-filtercell');
                 var wrapper = this.wrapper = $('<span/>').appendTo(element);
                 var that = this, dataSource, viewModel, passedOptions = options, first, type, operators = that.operators = options.operators || {}, input = that.input = $('<input/>').attr(kendo.attr('bind'), 'value: value').appendTo(wrapper);
+                var suggestDataSource = options ? options.suggestDataSource : null;
+                if (suggestDataSource) {
+                    options = $.extend({}, options, { suggestDataSource: {} });
+                }
                 Widget.fn.init.call(that, element[0], options);
+                if (suggestDataSource) {
+                    that.options.suggestDataSource = suggestDataSource;
+                }
                 options = that.options;
                 dataSource = that.dataSource = options.dataSource;
                 that.model = dataSource.reader.model;
@@ -215,7 +222,7 @@
                     },
                     valuePrimitive: true
                 }).data('kendoDropDownList');
-                this.operatorDropDown.wrapper.find('.k-i-arrow-s').removeClass('k-i-arrow-s').addClass('k-filter');
+                this.operatorDropDown.wrapper.find('.k-i-arrow-s').removeClass('k-i-arrow-s').addClass('k-i-filter');
             },
             initSuggestDataSource: function (options) {
                 var suggestDataSource = options.suggestDataSource;
@@ -269,8 +276,22 @@
                     logic: 'and',
                     filters: []
                 };
+                var prevented = false;
                 if (currentFilter.value !== undefined && currentFilter.value !== null || isNonValueFilter(currentFilter) && !this._clearInProgress) {
                     expression.filters.push(currentFilter);
+                    prevented = that.trigger(CHANGE, {
+                        filter: expression,
+                        field: that.options.field
+                    });
+                }
+                if (that._clearInProgress) {
+                    prevented = that.trigger(CHANGE, {
+                        filter: null,
+                        field: that.options.field
+                    });
+                }
+                if (prevented) {
+                    return;
                 }
                 var mergeResult = that._merge(expression);
                 if (mergeResult.filters.length) {

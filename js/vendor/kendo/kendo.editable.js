@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -43,7 +43,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, oldIE = kendo.support.browser.msie && kendo.support.browser.version < 9, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-warning"> </span>' + '#=message#<div class="k-callout k-callout-n"></div></div>', CHANGE = 'change';
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, extend = $.extend, oldIE = kendo.support.browser.msie && kendo.support.browser.version < 9, isFunction = kendo.isFunction, isPlainObject = $.isPlainObject, inArray = $.inArray, nameSpecialCharRegExp = /("|\%|'|\[|\]|\$|\.|\,|\:|\;|\+|\*|\&|\!|\#|\(|\)|<|>|\=|\?|\@|\^|\{|\}|\~|\/|\||`)/g, ERRORTEMPLATE = '<div class="k-widget k-tooltip k-tooltip-validation" style="margin:0.5em"><span class="k-icon k-i-warning"> </span>' + '#=message#<div class="k-callout k-callout-n"></div></div>', CHANGE = 'change';
         var specialRules = [
             'url',
             'email',

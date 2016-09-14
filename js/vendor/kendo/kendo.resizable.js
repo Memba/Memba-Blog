@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -48,7 +48,7 @@
                 that._positionMouse = that.orientation == HORIZONTAL ? 'x' : 'y';
                 that._position = that.orientation == HORIZONTAL ? 'left' : 'top';
                 that._sizingDom = that.orientation == HORIZONTAL ? 'outerWidth' : 'outerHeight';
-                that.draggable = new ui.Draggable(element, {
+                that.draggable = new ui.Draggable(options.draggableElement || element, {
                     distance: 1,
                     filter: options.handle,
                     drag: proxy(that._resize, that),

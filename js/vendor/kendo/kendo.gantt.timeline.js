@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.2.714 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -343,26 +343,28 @@
                     position = this._taskPosition(task);
                     position.borderWidth = taskBorderWidth;
                     row = kendoDomElement('tr', null);
-                    cell = kendoDomElement('td', null, [this._renderTask(tasks[i], position)]);
-                    if (task[resourcesField] && task[resourcesField].length) {
-                        if (isRtl) {
-                            resourcesPosition = this._tableWidth - position.left;
-                        } else {
-                            resourcesPosition = Math.max(position.width || size.clientWidth, 0) + position.left;
+                    if (task.start <= this.end && task.end >= this.start) {
+                        cell = kendoDomElement('td', null, [this._renderTask(tasks[i], position)]);
+                        if (task[resourcesField] && task[resourcesField].length) {
+                            if (isRtl) {
+                                resourcesPosition = this._tableWidth - position.left;
+                            } else {
+                                resourcesPosition = Math.max(position.width || size.clientWidth, 0) + position.left;
+                            }
+                            resourceStyle = { width: this._tableWidth - (resourcesPosition + resourcesMargin) + 'px' };
+                            resourceStyle[isRtl ? 'right' : 'left'] = resourcesPosition + 'px';
+                            if (calculatedSize) {
+                                resourceStyle.height = calculatedSize.cell + 'px';
+                            }
+                            cell.children.push(kendoDomElement('div', {
+                                className: styles.resourcesWrap,
+                                style: resourceStyle
+                            }, this._renderResources(task[resourcesField], className[i % 2])));
                         }
-                        resourceStyle = { width: this._tableWidth - (resourcesPosition + resourcesMargin) + 'px' };
-                        resourceStyle[isRtl ? 'right' : 'left'] = resourcesPosition + 'px';
-                        if (calculatedSize) {
-                            resourceStyle.height = calculatedSize.cell + 'px';
-                        }
-                        cell.children.push(kendoDomElement('div', {
-                            className: styles.resourcesWrap,
-                            style: resourceStyle
-                        }, this._renderResources(task[resourcesField], className[i % 2])));
+                        row.children.push(cell);
+                        addCoordinates(i);
                     }
-                    row.children.push(cell);
                     rows.push(row);
-                    addCoordinates(i);
                 }
                 return this._createTable(1, rows, { className: GanttView.styles.tasksTable });
             },
@@ -459,11 +461,11 @@
                     taskElement = this._renderSingleTask(task, position);
                 }
                 taskWrapper = kendoDomElement('div', taskWrapAttr, [taskElement]);
-                if (editable) {
+                if (editable && editable.dependencyCreate !== false) {
                     taskWrapper.children.push(kendoDomElement('div', { className: styles.taskDot + ' ' + styles.taskDotStart }));
                     taskWrapper.children.push(kendoDomElement('div', { className: styles.taskDot + ' ' + styles.taskDotEnd }));
                 }
-                if (!task.summary && !task.isMilestone() && editable && this._taskTemplate === null) {
+                if (!task.summary && !task.isMilestone() && editable && editable.dragPercentComplete !== false && editable.update !== false && this._taskTemplate === null) {
                     progressHandleOffset = Math.round(position.width * task.percentComplete);
                     dragHandleStyle[isRtl ? 'right' : 'left'] = progressHandleOffset + 'px';
                     taskWrapper.children.push(kendoDomElement('div', {
@@ -478,6 +480,7 @@
                 var progressWidth = Math.round(position.width * task.percentComplete);
                 var taskChildren = [];
                 var taskContent;
+                var editable = this.options.editable;
                 if (this._taskTemplate !== null) {
                     taskContent = kendoHtmlElement(this._taskTemplate(task));
                 } else {
@@ -489,13 +492,17 @@
                 }
                 var content = kendoDomElement('div', { className: styles.taskContent }, [kendoDomElement('div', { className: styles.taskTemplate }, [taskContent])]);
                 taskChildren.push(content);
-                if (this.options.editable) {
-                    content.children.push(kendoDomElement('span', { className: styles.taskActions }, [kendoDomElement('a', {
-                            className: styles.link + ' ' + styles.taskDelete,
-                            href: '#'
-                        }, [kendoDomElement('span', { className: styles.icon + ' ' + styles.iconDelete })])]));
-                    content.children.push(kendoDomElement('span', { className: styles.taskResizeHandle + ' ' + styles.taskResizeHandleWest }));
-                    content.children.push(kendoDomElement('span', { className: styles.taskResizeHandle + ' ' + styles.taskResizeHandleEast }));
+                if (editable) {
+                    if (editable.destroy !== false) {
+                        content.children.push(kendoDomElement('span', { className: styles.taskActions }, [kendoDomElement('a', {
+                                className: styles.link + ' ' + styles.taskDelete,
+                                href: '#'
+                            }, [kendoDomElement('span', { className: styles.icon + ' ' + styles.iconDelete })])]));
+                    }
+                    if (editable.resize !== false && editable.update !== false) {
+                        content.children.push(kendoDomElement('span', { className: styles.taskResizeHandle + ' ' + styles.taskResizeHandleWest }));
+                        content.children.push(kendoDomElement('span', { className: styles.taskResizeHandle + ' ' + styles.taskResizeHandleEast }));
+                    }
                 }
                 var element = kendoDomElement('div', {
                     className: styles.task + ' ' + styles.taskSingle,
@@ -1042,6 +1049,18 @@
                     content.scrollLeft(content.scrollLeft() + (elementLeft - contentLeft));
                 }
             },
+            _scrollToDate: function (date) {
+                var viewStart = this.start;
+                var viewEnd = this.end;
+                var offset;
+                if (date >= viewStart && date < viewEnd) {
+                    offset = this._offset(date);
+                    if (kendo.support.isRtl(this.element)) {
+                        offset = this._tableWidth - offset;
+                    }
+                    kendo.scrollLeft(this.content, offset);
+                }
+            },
             _timeSlots: function () {
                 if (!this._slots || !this._slots.length) {
                     return [];
@@ -1108,7 +1127,7 @@
                 start = new Date(start);
                 end = new Date(end);
                 while (start < end) {
-                    slotEnd = kendo.date.nextDay(start);
+                    slotEnd = end < kendo.date.nextDay(start) ? end : kendo.date.nextDay(start);
                     isWorkDay = this._isWorkDay(start);
                     if (!this.options.showWorkDays || isWorkDay) {
                         slots.push({
@@ -1150,6 +1169,7 @@
             },
             _months: function (start, end) {
                 var slotEnd;
+                var endMonth;
                 var slots = [];
                 var daySlots;
                 var span;
@@ -1157,7 +1177,8 @@
                 end = new Date(end);
                 while (start < end) {
                     slotEnd = new Date(start);
-                    slotEnd.setMonth(slotEnd.getMonth() + 1);
+                    endMonth = kendo.date.firstDayOfMonth(new Date(slotEnd.setMonth(slotEnd.getMonth() + 1)));
+                    slotEnd = end < endMonth ? end : endMonth;
                     daySlots = this._days(start, slotEnd);
                     span = daySlots.length;
                     if (span > 0) {
@@ -1173,16 +1194,23 @@
             },
             _years: function (start, end) {
                 var slotEnd;
+                var monthSpan;
+                var endMonth;
                 var slots = [];
                 start = new Date(start);
                 end = new Date(end);
                 while (start < end) {
                     slotEnd = new Date(start);
-                    slotEnd.setFullYear(slotEnd.getFullYear() + 1);
+                    slotEnd = kendo.date.firstDayOfMonth(new Date(slotEnd.setMonth(12)));
+                    if (slotEnd >= end) {
+                        slotEnd = end;
+                    }
+                    endMonth = slotEnd.getMonth() || 12;
+                    monthSpan = endMonth - start.getMonth();
                     slots.push({
                         start: start,
                         end: slotEnd,
-                        span: 12
+                        span: monthSpan
                     });
                     start = slotEnd;
                 }
@@ -1260,10 +1288,19 @@
                 resizeTooltipFormat: 'h:mm tt ddd, MMM d'
             },
             range: function (range) {
+                var optionsRange = this.options.range;
                 this.start = kendo.date.getDate(range.start);
                 this.end = kendo.date.getDate(range.end);
                 if (kendo.date.getMilliseconds(range.end) > 0 || this.end.getTime() === this.start.getTime()) {
                     this.end = kendo.date.addDays(this.end, 1);
+                }
+                if (optionsRange && optionsRange.start) {
+                    this.start = kendo.date.getDate(optionsRange.start);
+                    this.start.setHours(optionsRange.start.getHours());
+                }
+                if (optionsRange && optionsRange.end) {
+                    this.end = kendo.date.getDate(optionsRange.end);
+                    this.end.setHours(optionsRange.end.getHours());
                 }
             },
             _createSlots: function () {
@@ -1300,14 +1337,27 @@
                 resizeTooltipFormat: 'h:mm tt ddd, MMM d'
             },
             range: function (range) {
+                var optionsRange = this.options.range;
                 var calendarInfo = this.calendarInfo();
                 var firstDay = calendarInfo.firstDay;
                 var rangeEnd = range.end;
+                var endDay;
                 if (firstDay === rangeEnd.getDay()) {
                     rangeEnd.setDate(rangeEnd.getDate() + 7);
                 }
                 this.start = kendo.date.getDate(kendo.date.dayOfWeek(range.start, firstDay, -1));
                 this.end = kendo.date.getDate(kendo.date.dayOfWeek(rangeEnd, firstDay, 1));
+                if (optionsRange && optionsRange.start) {
+                    this.start = kendo.date.getDate(optionsRange.start);
+                }
+                if (optionsRange && optionsRange.end) {
+                    endDay = new Date(optionsRange.end);
+                    if (kendo.date.getDate(endDay) < optionsRange.end) {
+                        this.end = kendo.date.getDate(new Date(endDay.setDate(endDay.getDate() + 1)));
+                    } else {
+                        this.end = kendo.date.getDate(endDay);
+                    }
+                }
             },
             _createSlots: function () {
                 var slots = [];
@@ -1331,8 +1381,21 @@
                 resizeTooltipFormat: 'dddd, MMM d, yyyy'
             },
             range: function (range) {
+                var optionsRange = this.options.range;
+                var endDay;
                 this.start = kendo.date.firstDayOfMonth(range.start);
                 this.end = kendo.date.addDays(kendo.date.getDate(kendo.date.lastDayOfMonth(range.end)), 1);
+                if (optionsRange && optionsRange.start) {
+                    this.start = kendo.date.getDate(optionsRange.start);
+                }
+                if (optionsRange && optionsRange.end) {
+                    endDay = new Date(optionsRange.end);
+                    if (kendo.date.getDate(endDay) < optionsRange.end) {
+                        this.end = kendo.date.getDate(new Date(endDay.setDate(endDay.getDate() + 1)));
+                    } else {
+                        this.end = kendo.date.getDate(endDay);
+                    }
+                }
             },
             _createSlots: function () {
                 var slots = [];
@@ -1356,8 +1419,17 @@
                 resizeTooltipFormat: 'dddd, MMM d, yyyy'
             },
             range: function (range) {
+                var optionsRange = this.options.range;
+                var firstDayOfMonth;
                 this.start = kendo.date.firstDayOfMonth(new Date(range.start.setMonth(0)));
                 this.end = kendo.date.firstDayOfMonth(new Date(range.end.setMonth(12)));
+                if (optionsRange && optionsRange.start) {
+                    this.start = kendo.date.firstDayOfMonth(optionsRange.start);
+                }
+                if (optionsRange && optionsRange.end) {
+                    firstDayOfMonth = kendo.date.firstDayOfMonth(optionsRange.end);
+                    this.end = kendo.date.getDate(new Date(firstDayOfMonth.setMonth(firstDayOfMonth.getMonth() + 1)));
+                }
             },
             _createSlots: function () {
                 var slots = [];
@@ -1570,12 +1642,18 @@
                         type = kendo.getter(view.type)(window);
                     }
                     if (type) {
+                        var newRange = {};
+                        extend(newRange, this.options.range, view.range);
+                        var newDate = view.date || this.options.date;
                         view = new type(this.wrapper, trimOptions(extend(true, {
                             headerTree: this._headerTree,
                             taskTree: this._taskTree,
                             dependencyTree: this._dependencyTree,
                             calculatedSize: this._calculatedSize
-                        }, view, this.options)));
+                        }, view, this.options, {
+                            date: newDate,
+                            range: newRange
+                        })));
                     } else {
                         throw new Error('There is no such view');
                     }
@@ -1612,10 +1690,14 @@
             _render: function (tasks) {
                 var view = this.view();
                 var range = this._range(tasks);
+                var date = view.options.date;
                 this._tasks = tasks;
                 view.range(range);
                 view.renderLayout();
                 view.render(tasks);
+                if (date) {
+                    view._scrollToDate(date);
+                }
             },
             _renderDependencies: function (dependencies) {
                 this.view()._renderDependencies(dependencies);
@@ -1639,6 +1721,7 @@
                 var startOffset;
                 var snap = this.options.snap;
                 var styles = GanttTimeline.styles;
+                var editable = this.options.editable;
                 var cleanUp = function () {
                     that.view()._removeDragHint();
                     if (element) {
@@ -1648,7 +1731,7 @@
                     task = null;
                     that.dragInProgress = false;
                 };
-                if (!this.options.editable) {
+                if (!editable || editable.move === false || editable.update === false) {
                     return;
                 }
                 this._moveDraggable = new kendo.ui.Draggable(this.wrapper, {
@@ -1709,13 +1792,14 @@
                 var resizeStart;
                 var snap = this.options.snap;
                 var styles = GanttTimeline.styles;
+                var editable = this.options.editable;
                 var cleanUp = function () {
                     that.view()._removeResizeHint();
                     element = null;
                     task = null;
                     that.dragInProgress = false;
                 };
-                if (!this.options.editable) {
+                if (!editable || editable.resize === false || editable.update === false) {
                     return;
                 }
                 this._resizeDraggable = new kendo.ui.Draggable(this.wrapper, {
@@ -1792,6 +1876,7 @@
                 var tooltipLeft;
                 var styles = GanttTimeline.styles;
                 var delta;
+                var editable = this.options.editable;
                 var cleanUp = function () {
                     that.view()._removePercentCompleteTooltip();
                     taskElement = null;
@@ -1801,7 +1886,7 @@
                 var updateElement = function (width) {
                     taskElement.find(DOT + styles.taskComplete).width(width).end().siblings(DOT + styles.taskDragHandle).css(isRtl ? 'right' : 'left', width);
                 };
-                if (!this.options.editable) {
+                if (!editable || editable.dragPercentComplete === false || editable.update === false) {
                     return;
                 }
                 this._percentDraggable = new kendo.ui.Draggable(this.wrapper, {
@@ -1859,6 +1944,7 @@
                 var startY;
                 var useVML = browser.msie && browser.version < 9;
                 var styles = GanttTimeline.styles;
+                var editable = this.options.editable;
                 var cleanUp = function () {
                     originalHandle.css('display', '').removeClass(styles.hovered);
                     originalHandle.parent().removeClass(styles.origin);
@@ -1875,7 +1961,7 @@
                         hoveredHandle.toggleClass(styles.hovered, value);
                     }
                 };
-                if (!this.options.editable) {
+                if (!editable || editable.dependencyCreate === false) {
                     return;
                 }
                 if (useVML && document.namespaces) {
@@ -2008,7 +2094,8 @@
             _attachEvents: function () {
                 var that = this;
                 var styles = GanttTimeline.styles;
-                if (this.options.editable) {
+                var editable = this.options.editable;
+                if (editable) {
                     this._tabindex();
                     this.wrapper.on(CLICK + NS, DOT + styles.taskDelete, function (e) {
                         that.trigger('removeTask', { uid: $(this).closest(DOT + styles.task).attr('data-uid') });
@@ -2016,7 +2103,8 @@
                         e.preventDefault();
                     }).on(KEYDOWN + NS, function (e) {
                         var selectedDependency;
-                        if (e.keyCode === keys.DELETE) {
+                        var editable = that.options.editable;
+                        if (e.keyCode === keys.DELETE && editable && editable.dependencyDestroy !== false) {
                             selectedDependency = that.selectDependency();
                             if (selectedDependency.length) {
                                 that.trigger('removeDependency', { uid: selectedDependency.attr('data-uid') });
@@ -2026,15 +2114,19 @@
                     });
                     if (!kendo.support.mobileOS) {
                         this.wrapper.on(DBLCLICK + NS, DOT + styles.task, function (e) {
-                            that.trigger('editTask', { uid: $(this).attr('data-uid') });
-                            e.stopPropagation();
-                            e.preventDefault();
+                            if (that.options.editable.update !== false) {
+                                that.trigger('editTask', { uid: $(this).attr('data-uid') });
+                                e.stopPropagation();
+                                e.preventDefault();
+                            }
                         });
                     } else {
                         this.touch = this.wrapper.kendoTouch({
                             filter: DOT + styles.task,
                             doubletap: function (e) {
-                                that.trigger('editTask', { uid: $(e.touch.currentTarget).attr('data-uid') });
+                                if (that.options.editable.update !== false) {
+                                    that.trigger('editTask', { uid: $(e.touch.currentTarget).attr('data-uid') });
+                                }
                             }
                         }).data('kendoTouch');
                     }
