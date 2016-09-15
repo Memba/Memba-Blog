@@ -91,14 +91,14 @@ function enhance(entry, level) {
         if (request.ip) {
             entry.ip = request.ip;
         }
-        if (request.query) {
-            entry.query = request.query;
-        }
-        if (request.trace) {
+        if (!entry.trace && request.trace) {
             entry.trace = request.trace;
         }
-        if (request.url) {
+        if (!entry.url && request.url) {
             entry.url = request.url;
+        }
+        if (!entry.query && request.query) {
+            entry.query = request.query;
         }
         delete entry.request;
     }
