@@ -29,3 +29,18 @@
 @notification-info-border-color: @info;
 
 @import "app.template.less";
+
+// Fix editor splitter
+.k-splitbar {
+    border-color: @widget-border-color;
+}
+
+// Fix editor tabstrip (formatting toolbar and upload dialog)
+.k-tabstrip.k-header {
+    .composite-background(@tabs-normal-gradient);
+    .k-tabstrip-items {
+        .k-item {
+            color: @selected-text-color;
+        }
+    }
+}
