@@ -64,7 +64,7 @@
                         try {
                             localStorage.setItem(THEME, theme);
                         } catch (exception) {
-                            if (!(exception instanceof QuotaExceededError)) {
+                            if (!(exception instanceof window.QuotaExceededError)) {
                                 throw exception;
                             }
                         }

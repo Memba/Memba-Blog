@@ -39,7 +39,7 @@ module.exports = exports = {
      */
     notify: function (entry, callback) {
         /* jshint maxcomplexity: 15 */
-        /* jshint maxstatements: 36 */
+        /* jshint maxstatements: 39 */
 
         assert.ok(utils.isObject(entry), '`entry` is expected to be an object');
         assert.ok(typeof entry.message === 'string', '`entry` is expected to have a string property named `message`');
