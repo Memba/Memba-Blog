@@ -64,6 +64,8 @@
                         try {
                             localStorage.setItem(THEME, theme);
                         } catch (exception) {
+                            // A QoutaExceededError in raised in private browsing, which we do not care about
+                            // @see https://github.com/jlchereau/Kidoju-Webapp/issues/181
                             // @see http://chrisberkhout.com/blog/localstorage-errors/
                             if (!window.DOMException || !(exception instanceof window.DOMException) || exception.code !== window.DOMException.QUOTA_EXCEEDED_ERR) {
                                 throw exception;
