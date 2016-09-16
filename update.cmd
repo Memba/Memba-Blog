@@ -69,6 +69,11 @@ REM ------------------------------------------------------------
 REM Javascript files
 REM ------------------------------------------------------------
 
+REM ./js/.jshintrc
+ATTRIB -R .\js\.jshintrc
+COPY ..\..\Kidoju\Kidoju.Webapp\js\.jshintrc .\js\ /Y
+ATTRIB +R .\js\.jshintrc
+
 REM Copy ./js/cultures files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\cultures\*.*  .\js\cultures\ /C /E /I /R /Y
 ATTRIB +R .\js\cultures\*.* /S
@@ -176,7 +181,7 @@ REM ------------------------------------------------------------
 REM Tests
 REM ------------------------------------------------------------
 
-REM Copy ./test/node/comon.js files
+REM Copy ./test/node/common.js files
 ATTRIB -R .\test\node\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\common.js .\test\node /Y
 ATTRIB +R .\test\node\common.js
