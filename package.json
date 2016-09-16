@@ -52,7 +52,7 @@
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-jscs": "^3.0.1",
     "grunt-mocha": "^1.0.2",
-    "grunt-mocha-test": "^0.12.7",
+    "grunt-mocha-test": "^0.13.0",
     "grunt-webdriver": "^2.0.1",
     "grunt-webpack": "^1.0.14",
     "json-loader": "^0.5.4",
