@@ -63,7 +63,7 @@
     "node-libs-browser": "^1.0.0",
     "phantomjs-prebuilt": "^2.1.12",
     "postcss-loader": "^0.13.0",
-    "selenium-standalone": "^5.6.4",
+    "selenium-standalone": "^5.7.0",
     "style-loader": "^0.13.1",
     "supertest": "^2.0.0",
     "url-loader": "^0.5.7",
