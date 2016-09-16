@@ -68,9 +68,10 @@ if (typeof(require) === 'function') {
     // Note: jQuery, kendo and app.i18n are not yet loaded
     var lang = window.document.getElementsByTagName('html')[0].getAttribute('lang');
     var errorUrl = app.uris.webapp.error.replace('{0}', lang);
+    var qaEnvironment = app.DEBUG && (navigator.userAgent.indexOf('PhantomJS') >= 0); // window.PHANTOMJS and window.phantom do not seem to work
 
-    // Make sure we are not yet on the error page
-    if (location.href.substr(0, errorUrl.length) !== errorUrl) {
+    // Make sure we are not debugging/testing in PhantomJS and we are not yet on the error page
+    if (!qaEnvironment && location.href.substr(0, errorUrl.length) !== errorUrl) {
 
         // Check browser features
         // TODO consider testing javascript enabled
