@@ -64,7 +64,8 @@
                         try {
                             localStorage.setItem(THEME, theme);
                         } catch (exception) {
-                            if (!(exception instanceof window.QuotaExceededError)) {
+                            // @see http://chrisberkhout.com/blog/localstorage-errors/
+                            if (!window.DOMException || !(exception instanceof window.DOMException) || exception.code !== window.DOMException.QUOTA_EXCEEDED_ERR) {
                                 throw exception;
                             }
                         }
