@@ -178,12 +178,10 @@
 	"footer": {
 		"copyright": "Copyright &copy; 2014-2016 Memba Sarl",
 		"language": {
-			"label": "Langue:",
-			"tooltip": "Changez votre langue."
+			"label": "Langue:"
 		},
 		"theme": {
-			"label": "Thème:",
-			"tooltip": "Changez le thème de votre page."
+			"label": "Thème:"
 		}
 	},
     "home": {
