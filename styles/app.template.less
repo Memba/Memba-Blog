@@ -397,6 +397,30 @@ form {
     }
 }
 //---------------------------------------------
+// Dialog
+.k-dialog {
+    .k-dialog-buttongroup.k-dialog-button-layout-normal {
+        // border-top: solid 1px @active-border-color;
+        // background-color: @active-background-color;
+        // border-top: solid 1px @primary-active-border-color;
+        // background-color: @primary-active-background-color;
+        border-top: solid 1px @widget-border-color;
+        background-color: @widget-background-color;
+        // border-top: solid 1px @selected-border-color;
+        // background-color: @selected-background-color;
+    }
+    .k-dialog-buttongroup {
+        .k-button {
+            .k-image {
+                height: 1.5em;
+                width: 1.5em;
+                margin-right: 0.25em;
+                vertical-align: middle;
+            }
+        }
+    }
+}
+//---------------------------------------------
 // Tooltips
 .k-tooltip.k-popup.k-group {
     background-color: @notification-info-background-color;
@@ -440,4 +464,3 @@ footer {
 .thumbnail .caption {
     color: @widget-text-color !important;
 }
-
