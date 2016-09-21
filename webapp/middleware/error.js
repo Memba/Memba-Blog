@@ -11,6 +11,9 @@ var assert = require('assert');
 var ApplicationError = require('../lib/error');
 var logger = require('../lib/logger');
 var utils = require('../lib/utils');
+var config;
+var format;
+var url;
 
 module.exports = {
 
@@ -60,9 +63,9 @@ module.exports = {
         // If requesting a web page
         if (req.method === 'GET' && typeof res.getLocale === 'function' && typeof res.__ === 'function') {
 
-            var config = res.locals.config;
-            var format = res.locals.format;
-            var url = res.locals.url;
+            config = res.locals.config;
+            format = res.locals.format;
+            url = res.locals.url;
 
             // Create a trace that we can track in the browser
             req.trace = utils.uuid();
@@ -94,12 +97,27 @@ module.exports = {
                     trace: req.trace
                 });
 
-        } else { // This is not a web page request
+        } else if (err.status === 401 && err.i18n === 'token.accessDenied') { // In the specific case where authentication is denied by provider
+
+            config = require('../config');
+            url = require('url');
+            format = require('util').format;
+
+            // The typical url when arriving here is /api/auth/google/callback?error=access_denied&state=812691399-f6245c57-b75e-492d-9d16-b9f6adb1c6fc
+            // and we have no way to determine the language except via request headers
+            var language = (req.headers['accept-language'] || 'en').substr(0,2);
+            language = config.get('locales').indexOf(language) > -1 ? language : 'en';
+
+            // Redirect to a clean error page
+            res.redirect(url.resolve(config.get('uris:webapp:root'), format(config.get('uris:webapp:error'), language)) + '?code=1001');
+
+        } else { // This is not a web page request (API Server)
 
             // Return json error message for api server
             res
                 .status(error.status)
                 .json({ error: error });
+
         }
     }
 
