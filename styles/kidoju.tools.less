@@ -1,18 +1,26 @@
-.k-popup-edit-form.no-padding {
-    padding: 0 !important;
-    .k-edit-form-container {
+.k-dialog {
+    .k-dialog-buttongroup {
+        .k-button {
+            .k-image {
+                height: 1.5em;
+                width: 1.5em;
+                margin-right: 0.25em;
+                vertical-align: middle;
+            }
+        }
+    }
+    .k-content.no-padding {
+        padding: 0
+    }
+    .k-spreadsheet {
+        .k-tabstrip {
+            .k-content {
+                padding: 0;
+            }
+        }
+    }
+    .k-spreadsheet, .kj-assetmanager, .kj-codeeditor, .kj-styleeditor {
         width: 100%;
-        .kj-assetmanager {
-            border-style: none;
-        }
-        .kj-codeeditor {
-            border-style: none;
-        }
-        .kj-styleeditor {
-            border-style: none;
-        }
-        .k-edit-buttons {
-            bottom: 0;
-        }
+        border-style: none;
     }
 }
