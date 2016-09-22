@@ -14,8 +14,15 @@ var utils = require('../lib/utils');
 var config;
 var format;
 var url;
+var language;
 
 module.exports = {
+
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
+    /* This function's cyclomatic complexity is too high. */
+    /* jshint -W074 */
 
     /**
      * Error handler
@@ -70,7 +77,7 @@ module.exports = {
             // Create a trace that we can track in the browser
             req.trace = utils.uuid();
 
-            var language = res.getLocale();
+            language = res.getLocale();
 
             // Display error page for webapp
             res
@@ -105,7 +112,7 @@ module.exports = {
 
             // The typical url when arriving here is /api/auth/google/callback?error=access_denied&state=812691399-f6245c57-b75e-492d-9d16-b9f6adb1c6fc
             // and we have no way to determine the language except via request headers
-            var language = (req.headers['accept-language'] || 'en').substr(0,2);
+            language = (req.headers['accept-language'] || 'en').substr(0, 2);
             language = config.get('locales').indexOf(language) > -1 ? language : 'en';
 
             // Redirect to a clean error page
@@ -120,5 +127,8 @@ module.exports = {
 
         }
     }
+
+    /* jshint -W074 */
+    /* jshint -W071 */
 
 };
