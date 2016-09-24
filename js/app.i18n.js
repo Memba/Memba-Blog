@@ -114,14 +114,14 @@
         /**
          * Load page locale (read from html tag)
          */
-        $(document).ready(function () {
+        $(function () {
             var locale = i18n.locale();
             i18n.load(locale)
                 .then(function () {
                     // Log readiness
                     logger.debug({
                         message: locale + ' locale loaded',
-                        method: '$(document).ready'
+                        method: 'document.ready'
                     });
 
                     // trigger event for client localization of page

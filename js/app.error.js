@@ -33,7 +33,7 @@ if (typeof(require) === 'function') {
          * Wait for document to be ready to initialize UI
          * Note: no need to use the i18n.loaded event here
          */
-        $(document).ready(function () {
+        $(function () {
 
             // Add click handler on back button
             $('#back-button').click(function () {
@@ -43,7 +43,7 @@ if (typeof(require) === 'function') {
             // Log page readiness
             logger.info({
                 message: 'error page initialized in ' + i18n.locale(),
-                method: '$(document).ready'
+                method: 'document.ready'
             });
 
         });
