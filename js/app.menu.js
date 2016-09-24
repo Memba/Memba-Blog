@@ -67,7 +67,7 @@ require('./vendor/bootstrap/dropdown.js');
         /**
          * Initialization code to execute when document is ready
          */
-        $(document).ready(function () {
+        $(function () {
             // Search input event handlers
             $(SEARCH_INPUT)
                 .on(BLUR, onSearchInputBlur)
@@ -77,7 +77,7 @@ require('./vendor/bootstrap/dropdown.js');
             // Log page readiness
             logger.debug({
                 message: 'Menu initialized in ' + i18n.locale(),
-                method: '$(document).ready'
+                method: 'document.ready'
             });
         });
 

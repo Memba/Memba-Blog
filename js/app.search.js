@@ -28,12 +28,12 @@ require('../styles/app.page.search.less');
         var logger = new window.Logger('app.search');
         var i18n = app.i18n;
 
-        $(document).ready(function () {
+        $(function () {
 
             // Log page readiness
             logger.info({
                 message: 'search page initialized in ' + i18n.locale(),
-                method: '$(document).ready'
+                method: 'document.ready'
             });
 
         });

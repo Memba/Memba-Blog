@@ -28,12 +28,12 @@ require('../styles/app.page.home.less');
         var logger = new window.Logger('app.home');
         var i18n = app.i18n;
 
-        $(document).ready(function () {
+        $(function () {
 
             // Log page readiness
             logger.info({
                 message: 'home page initialized in ' + i18n.locale(),
-                method: '$(document).ready'
+                method: 'document.ready'
             });
 
         });

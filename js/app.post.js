@@ -131,14 +131,14 @@ require('../styles/app.page.post.less');
         var socialWindow = null;
         var socialUrl;
 
-        $(document).ready(function () {
+        $(function () {
 
             initSocialButtons();
 
             // Log page readiness
             logger.info({
                 message: 'post page initialized in ' + i18n.locale(),
-                method: '$(document).ready'
+                method: 'document.ready'
             });
 
         });
