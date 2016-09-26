@@ -364,6 +364,13 @@ form {
 
 //---------------------------------------------
 // Images in buttons
+.k-toolbar .home.k-button {
+    .k-image {
+        // The home button has no text
+        margin-right: 0em;
+    }
+}
+
 :not(.k-toolbar) .k-button {
     .k-image {
         height: 1.5em;
@@ -432,6 +439,13 @@ form {
             padding: 7px;
         }
     }
+}
+
+//---------------------------------------------
+// Bootstrap
+.thumbnail {
+    // Fixes https://github.com/Memba/Memba-Blog/issues/105
+    box-sizing: border-box;
 }
 
 //---------------------------------------------
