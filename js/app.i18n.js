@@ -136,7 +136,7 @@
         $(document)
             .on(LOADED, function () {
                 if ($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED) {
-                    setTimeout(function () { $('body>div.k-loading-image').fadeOut(); }, 200);
+                    $('body>div.k-loading-image').delay(400).fadeOut();
                 }
             });
 
