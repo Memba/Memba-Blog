@@ -42,7 +42,7 @@
     "request": "^2.75.0"
   },
   "devDependencies": {
-    "autoprefixer": "^6.4.1",
+    "autoprefixer": "^6.5.0",
     "bundle-loader": "^0.5.4",
     "chai": "^3.5.0",
     "css-loader": "^0.25.0",
@@ -59,7 +59,7 @@
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "loader-utils": "^0.2.16",
-    "mocha": "^3.0.2",
+    "mocha": "^3.1.0",
     "node-libs-browser": "^1.0.0",
     "phantomjs-prebuilt": "^2.1.12",
     "postcss-loader": "^0.13.0",
