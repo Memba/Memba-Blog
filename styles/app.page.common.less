@@ -153,21 +153,21 @@ label {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        & > img {
+        >img {
             border: 0;
-            vertical-align: sub;
+            vertical-align: middle;
         }
     }
     h1 {
-        & > img {
+        >img {
             height: 64px;
             width: 64px;
         }
     }
     h2 {
-        & > img {
-            height: 57px;
-            width: 57px;
+        >img {
+            height: 56px;
+            width: 56px;
         }
     }
 }
@@ -177,47 +177,47 @@ label {
         border-bottom: 0;
         h1 {
             margin: 10px 0 0;
-            & > img {
+            >img {
                 height: 48px;
                 width: 48px;
             }
-            & > span {
+            >span {
                 font-size: 30px;
             }
         }
         h2 {
             margin: 5px 0 0;
-            & > img {
+            >img {
                 height: 32px;
                 width: 32px;
             }
-            & > span {
+            >span {
                 font-size: 24px;
             }
         }
     }
 }
-@media (max-height: 450px) {
+@media (max-height: 450px), (max-width: 450px) {
     .page-header {
         margin: 5px 0 5px;
         border-bottom: 0;
         h1 {
             margin: 5px 0 0;
-            & > img {
+            >img {
                 height: 32px;
                 width: 32px;
             }
-            & > span {
+            >span {
                 font-size: 24px;
             }
         }
         h2 {
             margin: 0;
-            & > img {
+            >img {
                 height: 24px;
                 width: 24px;
             }
-            & > span {
+            >span {
                 font-size: 20px;
             }
         }
