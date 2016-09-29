@@ -124,7 +124,7 @@ require('../styles/app.page.post.less');
                     }
                     socialUrl = openUrl;
                     if (socialWindow && $.isFunction(socialWindow.focus)) {
-                        // focus not avilable when this triggers mobile apps
+                        // focus not available when this triggers mobile apps
                         socialWindow.focus();
                     }
                 });
