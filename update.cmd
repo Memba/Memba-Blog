@@ -154,6 +154,8 @@ ATTRIB +R .\webapp\public\*.svg
 REM Copy ./js/vendor files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\vendor\bootstrap\*.* .\styles\vendor\bootstrap\ /C /E /I /R /Y
 ATTRIB +R .\styles\vendor\bootstrap\*.* /S
+XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\vendor\highlight\*.* .\styles\vendor\highlight\ /C /E /I /R /Y
+ATTRIB +R .\styles\vendor\highlight\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\vendor\fonts\*.* .\styles\vendor\fonts\ /C /E /I /R /Y
 ATTRIB +R .\styles\vendor\fonts\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\styles\vendor\kendo\*.* .\styles\vendor\kendo\ /C /E /I /R /Y
