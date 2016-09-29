@@ -114,7 +114,7 @@ require('../styles/app.page.post.less');
                             break;
                         case COMMAND.EMAIL:
                             // TODO add icon in summary.ejs
-                            openUrl = 'mailto:fastlec@memba.org?&subject=Shared Link&body=Hey%20loojk%20at%20that';
+                            openUrl = 'mailto:info@memba.org?&subject=Shared Link&body=Hey%20loojk%20at%20that';
                             break;
                     }
                     if (socialWindow === null || socialWindow.closed || socialUrl !== openUrl) {
@@ -123,7 +123,10 @@ require('../styles/app.page.post.less');
                         socialWindow = window.open(openUrl, 'social', 'toolbar=0,status=0,menubar=0,height=450,width=600');
                     }
                     socialUrl = openUrl;
-                    socialWindow.focus();
+                    if (socialWindow && $.isFunction(socialWindow.focus)) {
+                        // focus not avilable when this triggers mobile apps
+                        socialWindow.focus();
+                    }
                 });
 
             /* jshint +W074 */
