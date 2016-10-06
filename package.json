@@ -61,7 +61,7 @@
     "loader-utils": "^0.2.16",
     "mocha": "^3.1.0",
     "node-libs-browser": "^1.0.0",
-    "phantomjs-prebuilt": "^2.1.12",
+    "phantomjs-prebuilt": "^2.1.13",
     "postcss-loader": "^0.13.0",
     "selenium-standalone": "^5.7.2",
     "style-loader": "^0.13.1",
@@ -71,7 +71,7 @@
     "wdio-selenium-standalone-service": "0.0.7",
     "webdriverio": "^4.2.16",
     "webpack": "^1.13.2",
-    "webpack-dev-server": "^1.16.1"
+    "webpack-dev-server": "^1.16.2"
   },
   "engines": {
     "node": ">=0.10"
