@@ -91,6 +91,12 @@
 .kf-comment:before {
     content: "\f111";
 }
+.kf-first:before {
+    content: "\e309";
+}
+.kf-last:before {
+    content: "\e311";
+}
 .kf-previous:before {
     content: "\e30a";
 }
@@ -102,6 +108,9 @@
 }
 .kf-create:before {
     content: "\f113";
+}
+.kf-scan:before {
+    content: "\e0db";
 }
 .kf-publish:before {
     content: "\f114";

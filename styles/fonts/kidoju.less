@@ -12,7 +12,7 @@
 }
 
 .kf {
-    font-family:"kidoju";
+	font-family:"kidoju";
 	display:inline-block;
 	vertical-align:middle;
 	line-height:1;
@@ -197,6 +197,20 @@
 }
 
 
+.kf-first {
+	&:before {
+		content:"\e309";
+	}
+}
+
+
+.kf-last {
+	&:before {
+		content:"\e311";
+	}
+}
+
+
 .kf-previous {
 	&:before {
 		content:"\e30a";
@@ -221,6 +235,13 @@
 .kf-create {
 	&:before {
 		content:"\f113";
+	}
+}
+
+
+.kf-scan {
+	&:before {
+		content:"\e0db";
 	}
 }
 
