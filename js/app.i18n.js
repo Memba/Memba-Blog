@@ -82,7 +82,7 @@
                     // Note: assume kendo is not yet loaded
                     assert.type(ARRAY, app.locales, '`app.locales` is expected to be an array');
                     assert.enum(app.locales, locale, '`locale` is expected to be one of ' + app.locales.toString());
-                    assert.ok($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED, 'This is not the way to change locale in phonegap/cordova');
+                    assert.isUndefined(window.cordova, 'This is not the way to change locale in phonegap/cordova');
 
                     var href = app.uris.webapp.locale.replace('{0}', locale);
                     if (window.top === window.self) {
@@ -94,7 +94,7 @@
 
                 } else if (locale === undefined) {
 
-                    // if (window.device && window.device.cordova) { // Phonegap
+                    // if (window.cordova) { // Phonegap
                     if (app.mobile && kendo.mobile && kendo.mobile.Application &&
                         app.mobile.application instanceof kendo.mobile.Application) {
                         return window.localStorage.getItem(LANGUAGE) || 'en';
@@ -135,7 +135,7 @@
          */
         $(document)
             .on(LOADED, function () {
-                if ($.type(window.device) === UNDEFINED || $.type(window.device.cordova) === UNDEFINED) {
+                if ($.type(window.cordova) === UNDEFINED) {
                     $('body>div.k-loading-image').delay(400).fadeOut();
                 }
             });

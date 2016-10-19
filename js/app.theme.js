@@ -23,13 +23,37 @@
         var app = window.app = window.app || {};
         var kendo = window.kendo;
         var logger = new window.Logger('app.theme');
+        var UNDEFINED = 'undefined';
         var STRING = 'string';
         var FUNCTION = 'function';
         var THEME = 'theme';
         var DEFAULT = 'flat';
-        // Note: app.i18n is not yet loaded, so we need a duplicated list
-        var ALL = ['black', 'blueopal', 'bootstrap', 'default', 'fiori', 'flat', 'highcontrast', 'material', 'materialblack',
-            'metro', 'metroblack', 'moonlight', 'nova', 'office365', 'silver', 'uniform'];
+        // This list list the web theme to load for a mobile or web theme
+        // Attention! this theme should be important in the corresponding app.theme.* file
+        var THEMES = {
+            andark: 'black', // <------- mobile only
+            anlight: 'fiori', // <------- mobile only
+            black: 'black',
+            blackberry: 'black', // <------- mobile only
+            blueopal: 'blueopal',
+            bootstrap: 'bootstrap',
+            default: 'default',
+            fiori: 'fiori',
+            flat: 'flat',
+            highcontrast: 'highcontrast',
+            ios: 'bootstrap', // <------- mobile only
+            ios7: 'bootstrap', // <------- mobile only
+            material: 'material',
+            materialblack: 'materialblack',
+            metro: 'metro',
+            metroblack: 'metroblack',
+            moonlight: 'moonlight',
+            nova: 'nova',
+            office365: 'office365',
+            silver: 'silver',
+            uniform: 'uniform',
+            wp: 'metroblack' // <------- mobile only
+        };
 
         var localStorage; // = window.localStorage;
         // The following is necessary when localStorage is explicitly disabled in browser settings
@@ -45,7 +69,7 @@
                 var dfd = $.Deferred();
                 var oldTheme = localStorage && localStorage.getItem(THEME);
                 var loader;
-                if (ALL.indexOf(theme) === -1) {
+                if ($.type(THEMES[theme]) === UNDEFINED) {
                     theme = DEFAULT;
                 }
                 if (typeof oldTheme === STRING && oldTheme !== theme) {
@@ -72,14 +96,10 @@
                             }
                         }
                     }
-                    // if (window.device && window.device.cordova) { // Phonegap
-                    if (app.mobile && kendo.mobile && kendo.mobile.Application &&
-                        app.mobile.application instanceof kendo.mobile.Application) {
-                        app.mobile.application.skin(theme);
-                    } else { // Web application
-                        $(document.documentElement).removeClass('k-' + oldTheme).addClass('k-' + theme);
-                    }
-                    app.theme.updateCharts(theme);
+                    // The mobile application skin is set in app.mobile.js when initializing kendo.mobile.Application
+                    // Web application
+                    $(document.documentElement).removeClass('k-' + THEMES[oldTheme]).addClass('k-' + THEMES[theme]);
+                    app.theme.updateCharts(THEMES[theme]);
                     logger.debug({
                         message: 'theme changed to ' + theme,
                         method: 'load'
