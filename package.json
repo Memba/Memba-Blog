@@ -65,7 +65,7 @@
     "postcss-loader": "^1.0.0",
     "selenium-standalone": "^5.7.2",
     "style-loader": "^0.13.1",
-    "supertest": "^2.0.0",
+    "supertest": "^2.0.1",
     "url-loader": "^0.5.7",
     "wdio-mocha-framework": "^0.4.3",
     "wdio-selenium-standalone-service": "0.0.7",
