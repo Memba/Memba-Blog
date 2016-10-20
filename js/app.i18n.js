@@ -115,17 +115,24 @@
          * Load page locale (read from html tag)
          */
         $(function () {
+            function fireLoaded() {
+                // Log readiness
+                logger.debug({
+                    message: locale + ' locale loaded',
+                    method: 'document.ready'
+                });
+                // trigger event for client localization of page
+                $(document).trigger(LOADED);
+            }
             var locale = i18n.locale();
             i18n.load(locale)
                 .then(function () {
-                    // Log readiness
-                    logger.debug({
-                        message: locale + ' locale loaded',
-                        method: 'document.ready'
-                    });
-
-                    // trigger event for client localization of page
-                    $(document).trigger(LOADED);
+                    if ($.type(window.cordova) === UNDEFINED) {
+                        fireLoaded()
+                    } else {
+                        // only fire after device is ready
+                        document.addEventListener('deviceready', fireLoaded, false);
+                    }
                 });
         });
 
