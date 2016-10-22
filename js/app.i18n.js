@@ -24,15 +24,46 @@
         var assert = window.assert;
         var logger = new window.Logger('app.i18n');
         var cultures = app.cultures = app.cultures || {};
-        var LOADED = 'i18n.loaded';
-        var LANGUAGE = 'language';
+        var UNDEFINED = 'undefined';
         var STRING = 'string';
         var ARRAY = 'array';
+        var LOADED = 'i18n.loaded';
+        var LANGUAGE = 'language';
 
         /**
          * localization functions
          */
         var i18n = app.i18n = {
+
+            /**
+             * Initialize i18n
+             * @private
+             */
+            _init: function () {
+
+                // Load page locale (read from html tag)
+                var locale = i18n.locale();
+
+                // Wait until locale is loaded to localize and hide preload
+                // @see http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui
+                $(document)
+                    .one(LOADED, function () {
+                        $(document).data(LOADED, true); // This way, we know it has already fired (see app.mobile)
+                        $('body>div.k-loading-image').delay(400).fadeOut();
+                    });
+
+                // Load locale and trigger event
+                i18n.load(locale)
+                    .then(function () {
+                        // Log readiness
+                        logger.debug({
+                            message: locale + ' locale loaded',
+                            method: 'document.ready'
+                        });
+                        // trigger event for localization
+                        $(document).trigger(LOADED);
+                    });
+            },
 
             /**
              * Load culture file for locale
@@ -107,36 +138,24 @@
             }
 
             /* jshint +W074 */
-
         };
 
         /**
-         * Load page locale (read from html tag)
+         * Phonegap workaround
          */
-        $(function () {
-            var locale = i18n.locale();
-
-            // Wait until locale is loaded to localize and hide preload
-            // @see http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui
-            $(document)
-                .one(LOADED, function () {
-                    $(document).data(LOADED, true); // This way, we know it has already fired (see app.mobile)
-                    $('body>div.k-loading-image').delay(400).fadeOut();
-                });
-
-            // Load locale and trigger event
-            i18n.load(locale)
-                .then(function () {
-                    // Log readiness
-                    logger.debug({
-                        message: locale + ' locale loaded',
-                        method: 'document.ready'
-                    });
-                    // trigger event for localization
-                    $(document).trigger(LOADED);
-                });
-        });
-
+        if ($.type(window.cordova) === UNDEFINED) {
+            // Init when jQuery ready
+            $(function () {
+                i18n._init();
+            });
+        } else {
+            // Very strangely, the jQuery ready event
+            // won't fire in Cordova (only here though!)
+            // So the option above would not work
+            setTimeout(function () {
+                i18n._init();
+            }, 0);
+        }
 
     }(window.jQuery));
 
