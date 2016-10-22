@@ -26,7 +26,6 @@
         var cultures = app.cultures = app.cultures || {};
         var LOADED = 'i18n.loaded';
         var LANGUAGE = 'language';
-        var UNDEFINED = 'undefined';
         var STRING = 'string';
         var ARRAY = 'array';
 
@@ -115,37 +114,28 @@
          * Load page locale (read from html tag)
          */
         $(function () {
-            function fireLoaded() {
-                // Log readiness
-                logger.debug({
-                    message: locale + ' locale loaded',
-                    method: 'document.ready'
-                });
-                // trigger event for client localization of page
-                $(document).trigger(LOADED);
-            }
             var locale = i18n.locale();
+
+            // Wait until locale is loaded to localize and hide preload
+            // @see http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui
+            $(document)
+                .one(LOADED, function () {
+                    $(document).data(LOADED, true); // This way, we know it has already fired (see app.mobile)
+                    $('body>div.k-loading-image').delay(400).fadeOut();
+                });
+
+            // Load locale and trigger event
             i18n.load(locale)
                 .then(function () {
-                    if ($.type(window.cordova) === UNDEFINED) {
-                        fireLoaded()
-                    } else {
-                        // only fire after device is ready
-                        document.addEventListener('deviceready', fireLoaded, false);
-                    }
+                    // Log readiness
+                    logger.debug({
+                        message: locale + ' locale loaded',
+                        method: 'document.ready'
+                    });
+                    // trigger event for localization
+                    $(document).trigger(LOADED);
                 });
         });
-
-        /**
-         * Wait until locale is loaded to localize and hide preload
-         * @see http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui
-         */
-        $(document)
-            .on(LOADED, function () {
-                if ($.type(window.cordova) === UNDEFINED) {
-                    $('body>div.k-loading-image').delay(400).fadeOut();
-                }
-            });
 
 
     }(window.jQuery));
