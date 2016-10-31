@@ -129,7 +129,7 @@ if (typeof(require) === 'function') {
          * Wait until document is ready to initialize UI
          */
         $(document)
-            .on(LOADED, function () { // LOADED occurs after document ready event
+            .one(LOADED, function () { // LOADED occurs after document ready event
 
                 // Init using kendo ui and kendo mobile ui (scollers)
                 kendo.init('body', kendo.ui, kendo.mobile.ui);
