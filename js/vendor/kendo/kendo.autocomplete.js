@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -279,21 +279,23 @@
             },
             _click: function (e) {
                 var item = e.item;
-                var element = this.element;
-                var dataItem = this.listView.dataItemByIndex(this.listView.getElementIndex(item));
+                var that = this;
+                var element = that.element;
+                var dataItem = that.listView.dataItemByIndex(that.listView.getElementIndex(item));
                 e.preventDefault();
-                this._active = true;
-                if (this.trigger('select', {
+                that._active = true;
+                if (that.trigger('select', {
                         dataItem: dataItem,
                         item: item
                     })) {
-                    this.close();
+                    that.close();
                     return;
                 }
-                this._oldText = element.val();
-                this._select(item);
-                this._blur();
-                caret(element, element.val().length);
+                that._oldText = element.val();
+                that._select(item).done(function () {
+                    that._blur();
+                    caret(element, element.val().length);
+                });
             },
             _clearText: $.noop,
             _resetFocusItem: function () {
@@ -535,9 +537,11 @@
                 }, that.options.delay);
             },
             _select: function (candidate) {
-                this._active = true;
-                this.listView.select(candidate);
-                this._active = false;
+                var that = this;
+                that._active = true;
+                return that.listView.select(candidate).done(function () {
+                    that._active = false;
+                });
             },
             _loader: function () {
                 this._loading = $('<span class="k-icon k-i-loading" style="display:none"></span>').insertAfter(this.element);

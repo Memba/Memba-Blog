@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -281,10 +281,7 @@
                 for (var i = arguments.length; --i >= 0;) {
                     id += ':' + arguments[i];
                 }
-                if (id in cache) {
-                    return cache[id];
-                }
-                return f.apply(this, arguments);
+                return id in cache ? cache[id] : cache[id] = f.apply(this, arguments);
             };
         }
         function ucs2decode(string) {
@@ -10804,7 +10801,7 @@
                     gestureend: proxy(that._gestureEnd, that)
                 });
                 that.toolService = new ToolService(that);
-                this.scrollable.on('mouseover' + NS, proxy(that._mouseover, that)).on('mouseout' + NS, proxy(that._mouseout, that)).on('mousemove' + NS, proxy(that._mouseMove, that));
+                this.scrollable.on('mouseover' + NS, proxy(that._mouseover, that)).on('mouseout' + NS, proxy(that._mouseout, that)).on('mousemove' + NS, proxy(that._mouseMove, that)).on('mousedown' + NS, proxy(that._mouseDown, that)).on('mouseup' + NS, proxy(that._mouseUp, that));
                 this._syncHandler = proxy(that._syncChanges, that);
                 that._resizeHandler = proxy(that.resize, that, false);
                 kendo.onResize(that._resizeHandler);
@@ -10837,11 +10834,17 @@
                 }
             },
             _mouseMove: function (e) {
-                if (!this._pauseMouseHandlers && (e.which === 0 || e.which === 1)) {
+                if (!this._pauseMouseHandlers) {
                     var p = this._eventPositions(e);
                     this.toolService._updateHoveredItem(p);
                     this.toolService._updateCursor(p);
                 }
+            },
+            _mouseDown: function () {
+                this._pauseMouseHandlers = true;
+            },
+            _mouseUp: function () {
+                this._pauseMouseHandlers = false;
             },
             _tap: function (e) {
                 var toolService = this.toolService;
@@ -11755,7 +11758,7 @@
             },
             _extendLayoutOptions: function (options) {
                 if (options.layout) {
-                    options.layout = deepExtend(diagram.LayoutBase.fn.defaultOptions || {}, options.layout);
+                    options.layout = deepExtend({}, diagram.LayoutBase.fn.defaultOptions || {}, options.layout);
                 }
             },
             _selectionChanged: function (selected, deselected) {

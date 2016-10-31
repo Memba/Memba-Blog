@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -375,7 +375,7 @@
 }
 
 .k-popup.k-list-container {
-    padding: 0.286em 0;
+    padding: 11px;
 }
 
 .k-popup.k-calendar-containe {
@@ -392,8 +392,15 @@
     padding: 1px 11px;
 }
 
+.k-list-scroller,
+.k-virtual-wrap,
+.k-list-optionlabel,
+.k-popup > .k-group-header {
+    margin: 0 -11px;
+}
+
 .k-list-filter {
-    margin: 0 .29em .29em;
+    margin: 0 0 11px;
 }
 
 .k-button,
@@ -450,14 +457,21 @@
 }
 
 .k-multiselect-wrap .k-input {
-    height: @input-height;
+    font-size: inherit;
+    height: 2em;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .k-multiselect-wrap li {
     border-radius: 1.071em;
-    margin: 3px 0 3px 3px;
-    padding: 0 1.6em 0 .857em;
     line-height: 1.86em;
+    padding: 0 1.6em 0 .857em;
+}
+
+.k-multiselect-wrap .k-input,
+.k-multiselect-wrap li {
+    margin: .286em 0 .286em .286em;
 }
 
 .k-multiselect-wrap li span {
@@ -1026,37 +1040,37 @@ form.k-filter-menu .k-textbox {
 
 .k-toolbar {
     .k-state-active .k-justifyLeft,
-    .k-button:active .k-justifyLeft {
+    .k-button:active:not(.k-state-disabled) .k-justifyLeft {
         background-position: -265px -144px;
     }
 
     .k-state-active .k-justifyCenter,
-    .k-button:active .k-justifyCenter {
+    .k-button:active:not(.k-state-disabled) .k-justifyCenter {
         background-position: -265px -168px;
     }
 
     .k-state-active .k-justifyRight,
-    .k-button:active .k-justifyRight {
+    .k-button:active:not(.k-state-disabled) .k-justifyRight {
         background-position: -265px -192px;
     }
 
     .k-state-active .k-bold,
-    .k-button:active .k-bold {
+    .k-button:active:not(.k-state-disabled) .k-bold {
         background-position: -265px 0;
     }
 
     .k-state-active .k-italic,
-    .k-button:active .k-italic {
+    .k-button:active:not(.k-state-disabled) .k-italic {
         background-position: -265px -24px;
     }
 
     .k-state-active .k-underline,
-    .k-button:active .k-underline {
+    .k-button:active:not(.k-state-disabled) .k-underline {
         background-position: -265px -48px;
     }
 
     .k-state-active .k-i-more,
-    .k-button:active .k-i-more,
+    .k-button:active:not(.k-state-disabled) .k-i-more,
     .k-state-border-down .k-i-more,
     .k-state-border-up .k-i-more,
     .k-state-border-down:not(.k-state-disabled):hover .k-i-more,
@@ -1690,6 +1704,13 @@ form.k-filter-menu .k-textbox {
     background-position: -32px -80px;
 }
 
+@checkbox-size: 16px;
+
+.k-checkbox-label,
+.k-radio-label {
+    line-height: 18px;
+}
+
 .k-radio-label:before {
     width: 16px;
     height: 16px;
@@ -1698,6 +1719,11 @@ form.k-filter-menu .k-textbox {
 .k-radio:checked + .k-radio-label:after {
   top: 4px;
   left: 4px
+}
+
+.k-checkbox:indeterminate + .k-checkbox-label:after {
+    left: 9px;
+    top: 9px;
 }
 
 //RTL
@@ -1765,7 +1791,7 @@ form.k-filter-menu .k-textbox {
 }
 
 .km-pane-wrapper .k-scheduler-views {
-    width: 8em;
+    width: auto;
 }
 
 .km-pane-wrapper .k-scheduler-toolbar>ul>li {
@@ -1797,7 +1823,7 @@ li.k-item.k-last.k-state-selected {
 
 .k-spreadsheet-window {
     .k-page-orientation {
-        top: 26%;
+        top: 27%;
     }
 
     .k-page-landscape {

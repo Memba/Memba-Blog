@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -215,14 +215,22 @@
                     that._state = STATE_REBIND;
                     if (that.options.minLength !== 1) {
                         that.refresh();
-                        that.popup.open();
+                        that._openPopup();
                     } else {
                         that._filterSource();
                     }
                 } else if (that._allowOpening()) {
-                    that.popup.open();
+                    that._openPopup();
                     that._focusItem();
                 }
+            },
+            _scrollToFocusedItem: function () {
+                var listView = this.listView;
+                listView.scrollToIndex(listView.getElementIndex(listView.focus()));
+            },
+            _openPopup: function () {
+                this.popup.one('activate', proxy(this._scrollToFocusedItem, this));
+                this.popup.open();
             },
             _updateSelectionState: function () {
                 var that = this;
@@ -354,15 +362,17 @@
                 return candidate;
             },
             _select: function (candidate, keepState) {
-                candidate = this._get(candidate);
+                var that = this;
+                candidate = that._get(candidate);
                 if (candidate === -1) {
-                    this.input[0].value = '';
-                    this._accessor('');
+                    that.input[0].value = '';
+                    that._accessor('');
                 }
-                this.listView.select(candidate);
-                if (!keepState && this._state === STATE_FILTER) {
-                    this._state = STATE_ACCEPT;
-                }
+                return that.listView.select(candidate).done(function () {
+                    if (!keepState && that._state === STATE_FILTER) {
+                        that._state = STATE_ACCEPT;
+                    }
+                });
             },
             _selectValue: function (dataItem) {
                 var idx = this.listView.select();
@@ -462,13 +472,14 @@
                         data = (data + '').toLowerCase();
                     }
                     return data === loweredText;
+                }).done(function () {
+                    if (that.selectedIndex < 0) {
+                        that._accessor(text);
+                        input.value = text;
+                        that._triggerCascade();
+                    }
+                    that._prev = input.value;
                 });
-                if (that.selectedIndex < 0) {
-                    that._accessor(text);
-                    input.value = text;
-                    that._triggerCascade();
-                }
-                that._prev = input.value;
             },
             toggle: function (toggle) {
                 this._toggle(toggle, true);
@@ -507,19 +518,21 @@
                 });
             },
             _click: function (e) {
+                var that = this;
                 var item = e.item;
-                var dataItem = this.listView.dataItemByIndex(this.listView.getElementIndex(item));
+                var dataItem = that.listView.dataItemByIndex(that.listView.getElementIndex(item));
                 e.preventDefault();
-                if (this.trigger('select', {
+                if (that.trigger('select', {
                         dataItem: dataItem,
                         item: item
                     })) {
-                    this.close();
+                    that.close();
                     return;
                 }
-                this._userTriggered = true;
-                this._select(item);
-                this._blur();
+                that._userTriggered = true;
+                that._select(item).done(function () {
+                    that._blur();
+                });
             },
             _inputValue: function () {
                 return this.text();

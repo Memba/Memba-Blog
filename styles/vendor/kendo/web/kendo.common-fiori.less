@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1090,12 +1090,19 @@ span.k-tooltip
 @checkbox-tick-icon-content: "\2714";
 @checkbox-border-width: 2px;
 
+@checkbox-size: 16px;
+
+.k-checkbox-label,
+.k-radio-label {
+    line-height: 20px;
+}
+
 .k-checkbox:indeterminate + .k-checkbox-label:after {
     width: 6px;
     height: 6px;
     margin-left: 0;
-    top: 4px;
-    left: 4px;
+    top: 5px;
+    left: 5px;
     transform: none;
 }
 
@@ -1190,7 +1197,7 @@ span.k-tooltip
 
 .k-spreadsheet-window {
     .k-page-orientation {
-        top: 26%;
+        top: 24%;
     }
 
     .k-page-landscape {

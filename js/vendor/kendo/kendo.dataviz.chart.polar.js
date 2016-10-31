@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -281,10 +281,7 @@
                 for (var i = arguments.length; --i >= 0;) {
                     id += ':' + arguments[i];
                 }
-                if (id in cache) {
-                    return cache[id];
-                }
-                return f.apply(this, arguments);
+                return id in cache ? cache[id] : cache[id] = f.apply(this, arguments);
             };
         }
         function ucs2decode(string) {
@@ -950,8 +947,10 @@
                         dashType: options.dashType
                     }
                 };
+                var skip = options.skip || 0;
+                var step = options.step || 1;
                 var container = this.gridLinesVisual();
-                for (tickIx = 0; tickIx < ticks.length; tickIx++) {
+                for (tickIx = skip; tickIx < ticks.length; tickIx += step) {
                     tickRadius = center.y - ticks[tickIx];
                     if (tickRadius > 0) {
                         var circle = new geom.Circle([

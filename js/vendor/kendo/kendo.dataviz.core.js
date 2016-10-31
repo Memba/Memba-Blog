@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -281,10 +281,7 @@
                 for (var i = arguments.length; --i >= 0;) {
                     id += ':' + arguments[i];
                 }
-                if (id in cache) {
-                    return cache[id];
-                }
-                return f.apply(this, arguments);
+                return id in cache ? cache[id] : cache[id] = f.apply(this, arguments);
             };
         }
         function ucs2decode(string) {
@@ -671,7 +668,7 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, util = kendo.util, append = util.append, defined = util.defined, last = util.last, valueOrDefault = util.valueOrDefault, dataviz = kendo.dataviz, geom = dataviz.geometry, draw = dataviz.drawing, measureText = draw.util.measureText, Class = kendo.Class, template = kendo.template, noop = $.noop, indexOf = $.inArray, isPlainObject = $.isPlainObject, trim = $.trim, math = Math, deepExtend = kendo.deepExtend;
-        var AXIS_LABEL_CLICK = 'axisLabelClick', BLACK = '#000', BOTTOM = 'bottom', CENTER = 'center', COORD_PRECISION = 3, CLIP = 'clip', CIRCLE = 'circle', CROSS = 'cross', DEFAULT_FONT = '12px sans-serif', DEFAULT_HEIGHT = 400, DEFAULT_ICON_SIZE = 7, DEFAULT_PRECISION = 10, DEFAULT_WIDTH = 600, DEG_TO_RAD = math.PI / 180, FORMAT_REGEX = /\{\d+:?/, HEIGHT = 'height', VML_COORDINATE_LIMIT = 100000, INITIAL_ANIMATION_DURATION = 600, INSIDE = 'inside', LEFT = 'left', LINEAR = 'linear', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, NONE = 'none', NOTE_CLICK = 'noteClick', NOTE_HOVER = 'noteHover', OUTSIDE = 'outside', RADIAL = 'radial', RIGHT = 'right', TOP = 'top', TRIANGLE = 'triangle', WIDTH = 'width', WHITE = '#fff', X = 'x', Y = 'y', ZERO_THRESHOLD = 0.2;
+        var AXIS_LABEL_CLICK = 'axisLabelClick', BLACK = '#000', BOTTOM = 'bottom', CENTER = 'center', COORD_PRECISION = 3, CLIP = 'clip', CIRCLE = 'circle', CROSS = 'cross', DEFAULT_FONT = '12px sans-serif', DEFAULT_HEIGHT = 400, DEFAULT_ICON_SIZE = 7, DEFAULT_PRECISION = 10, DEFAULT_WIDTH = 600, DEG_TO_RAD = math.PI / 180, FORMAT_REGEX = /\{\d+:?/, HEIGHT = 'height', COORDINATE_LIMIT = kendo.support.vml ? 100000 : 300000, INITIAL_ANIMATION_DURATION = 600, INSIDE = 'inside', LEFT = 'left', LINEAR = 'linear', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, MIN_VALUE_RANGE = Math.pow(10, -DEFAULT_PRECISION + 1), NONE = 'none', NOTE_CLICK = 'noteClick', NOTE_HOVER = 'noteHover', OUTSIDE = 'outside', RADIAL = 'radial', RIGHT = 'right', TOP = 'top', TRIANGLE = 'triangle', WIDTH = 'width', WHITE = '#fff', X = 'x', Y = 'y', ZERO_THRESHOLD = 0.2;
         function getSpacing(value, defaultSpacing) {
             var spacing = {
                 top: 0,
@@ -2922,10 +2919,12 @@
                 var endValue = this.getValue(end);
                 var min = math.min(startValue, endValue);
                 var max = math.max(startValue, endValue);
-                return {
-                    min: min,
-                    max: max
-                };
+                if (this.isValidRange(min, max)) {
+                    return {
+                        min: min,
+                        max: max
+                    };
+                }
             },
             zoomRange: function (delta) {
                 var newRange = this.scaleRange(delta);
@@ -2933,13 +2932,15 @@
                 var totalMin = this.totalMin;
                 var min = util.limitValue(newRange.min, totalMin, totalMax);
                 var max = util.limitValue(newRange.max, totalMin, totalMax);
-                var optionsRange = this.options.max - this.options.min;
-                if (optionsRange < this.totalMajorUnit || max - min >= this.totalMajorUnit) {
+                if (this.isValidRange(min, max)) {
                     return {
                         min: min,
                         max: max
                     };
                 }
+            },
+            isValidRange: function (min, max) {
+                return max - min > MIN_VALUE_RANGE;
             }
         });
         var LogarithmicAxis = Axis.extend({
@@ -2989,8 +2990,8 @@
                     p1 = math.min(a, b) - logMin;
                     p2 = math.max(a, b) - logMin;
                 }
-                slotBox[valueAxis + 1] = lineStart + step * (reverse ? p2 : p1);
-                slotBox[valueAxis + 2] = lineStart + step * (reverse ? p1 : p2);
+                slotBox[valueAxis + 1] = limitCoordinate(lineStart + step * (reverse ? p2 : p1));
+                slotBox[valueAxis + 2] = limitCoordinate(lineStart + step * (reverse ? p1 : p2));
                 return slotBox;
             },
             getValue: function (point) {
@@ -3535,7 +3536,7 @@
                 return segments;
             },
             removeDuplicates: function (idx, points) {
-                while (points[idx].equals(points[idx + 1]) || points[idx + 1].equals(points[idx + 2])) {
+                while (points[idx + 1] && (points[idx].equals(points[idx + 1]) || points[idx + 1].equals(points[idx + 2]))) {
                     points.splice(idx + 1, 1);
                 }
             },
@@ -3724,10 +3725,7 @@
             return element;
         }
         function limitCoordinate(value) {
-            if (kendo.support.vml) {
-                value = math.max(math.min(value, VML_COORDINATE_LIMIT), -VML_COORDINATE_LIMIT);
-            }
-            return value;
+            return math.max(math.min(value, COORDINATE_LIMIT), -COORDINATE_LIMIT);
         }
         decodeEntities._element = document.createElement('span');
         deepExtend(kendo.dataviz, {

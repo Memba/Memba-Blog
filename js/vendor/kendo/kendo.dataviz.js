@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.3.914'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2016.3.1028'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1733,10 +1733,6 @@
                 type = 'offset';
             }
             var result = element[type]();
-            if (support.mobileOS.android) {
-                result.top -= window.scrollY;
-                result.left -= window.scrollX;
-            }
             if (support.browser.msie && (support.pointers || support.msPointers) && !positioned) {
                 var sign = support.isRtl(element) ? 1 : -1;
                 result.top -= window.pageYOffset + sign * document.documentElement.scrollTop;
@@ -14403,10 +14399,7 @@
                 for (var i = arguments.length; --i >= 0;) {
                     id += ':' + arguments[i];
                 }
-                if (id in cache) {
-                    return cache[id];
-                }
-                return f.apply(this, arguments);
+                return id in cache ? cache[id] : cache[id] = f.apply(this, arguments);
             };
         }
         function ucs2decode(string) {
@@ -21321,7 +21314,11 @@
                     if (options.keepTogether && jqel.is(options.keepTogether) && jqel.height() <= pageHeight - adjust) {
                         return true;
                     }
-                    return jqel.data('kendoChart') || /^(?:img|tr|thead|th|tfoot|iframe|svg|object|canvas|input|textarea|select|video|h[1-6])/i.test(jqel[0].tagName);
+                    var tag = jqel[0].tagName;
+                    if (/^h[1-6]$/i.test(tag) && jqel.height() >= pageHeight - adjust) {
+                        return false;
+                    }
+                    return jqel.data('kendoChart') || /^(?:img|tr|thead|th|tfoot|iframe|svg|object|canvas|input|textarea|select|video|h[1-6])$/i.test(tag);
                 }
                 function splitElement(element) {
                     var style = getComputedStyle(element);
@@ -21672,8 +21669,7 @@
                 return cache[cacheKey] = ret;
             };
         }();
-        var getFontURL = function () {
-            var cache = {};
+        var getFontURL = function (cache) {
             return function (el) {
                 var url = cache[el];
                 if (!url) {
@@ -21686,7 +21682,16 @@
                 }
                 return url;
             };
-        }();
+        }(Object.create(null));
+        var getFontHeight = function (cache) {
+            return function (font) {
+                var height = cache[font];
+                if (height == null) {
+                    height = cache[font] = kendo.util.measureText('Mapq', { font: font }).height;
+                }
+                return height;
+            };
+        }(Object.create(null));
         function getFontFaces(doc) {
             if (doc == null) {
                 doc = document;
@@ -23291,14 +23296,14 @@
             }
             function drawText(str, box) {
                 if (browser.msie && !isNaN(lineHeight)) {
-                    var size = kendo.util.measureText(str, { font: font });
-                    var top = (box.top + box.bottom - size.height) / 2;
+                    var height = getFontHeight(font);
+                    var top = (box.top + box.bottom - height) / 2;
                     box = {
                         top: top,
                         right: box.right,
-                        bottom: top + size.height,
+                        bottom: top + height,
                         left: box.left,
-                        height: size.height,
+                        height: height,
                         width: box.right - box.left
                     };
                 }
@@ -23592,7 +23597,7 @@
     };
     (function ($, undefined) {
         var kendo = window.kendo, util = kendo.util, append = util.append, defined = util.defined, last = util.last, valueOrDefault = util.valueOrDefault, dataviz = kendo.dataviz, geom = dataviz.geometry, draw = dataviz.drawing, measureText = draw.util.measureText, Class = kendo.Class, template = kendo.template, noop = $.noop, indexOf = $.inArray, isPlainObject = $.isPlainObject, trim = $.trim, math = Math, deepExtend = kendo.deepExtend;
-        var AXIS_LABEL_CLICK = 'axisLabelClick', BLACK = '#000', BOTTOM = 'bottom', CENTER = 'center', COORD_PRECISION = 3, CLIP = 'clip', CIRCLE = 'circle', CROSS = 'cross', DEFAULT_FONT = '12px sans-serif', DEFAULT_HEIGHT = 400, DEFAULT_ICON_SIZE = 7, DEFAULT_PRECISION = 10, DEFAULT_WIDTH = 600, DEG_TO_RAD = math.PI / 180, FORMAT_REGEX = /\{\d+:?/, HEIGHT = 'height', VML_COORDINATE_LIMIT = 100000, INITIAL_ANIMATION_DURATION = 600, INSIDE = 'inside', LEFT = 'left', LINEAR = 'linear', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, NONE = 'none', NOTE_CLICK = 'noteClick', NOTE_HOVER = 'noteHover', OUTSIDE = 'outside', RADIAL = 'radial', RIGHT = 'right', TOP = 'top', TRIANGLE = 'triangle', WIDTH = 'width', WHITE = '#fff', X = 'x', Y = 'y', ZERO_THRESHOLD = 0.2;
+        var AXIS_LABEL_CLICK = 'axisLabelClick', BLACK = '#000', BOTTOM = 'bottom', CENTER = 'center', COORD_PRECISION = 3, CLIP = 'clip', CIRCLE = 'circle', CROSS = 'cross', DEFAULT_FONT = '12px sans-serif', DEFAULT_HEIGHT = 400, DEFAULT_ICON_SIZE = 7, DEFAULT_PRECISION = 10, DEFAULT_WIDTH = 600, DEG_TO_RAD = math.PI / 180, FORMAT_REGEX = /\{\d+:?/, HEIGHT = 'height', COORDINATE_LIMIT = kendo.support.vml ? 100000 : 300000, INITIAL_ANIMATION_DURATION = 600, INSIDE = 'inside', LEFT = 'left', LINEAR = 'linear', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, MIN_VALUE_RANGE = Math.pow(10, -DEFAULT_PRECISION + 1), NONE = 'none', NOTE_CLICK = 'noteClick', NOTE_HOVER = 'noteHover', OUTSIDE = 'outside', RADIAL = 'radial', RIGHT = 'right', TOP = 'top', TRIANGLE = 'triangle', WIDTH = 'width', WHITE = '#fff', X = 'x', Y = 'y', ZERO_THRESHOLD = 0.2;
         function getSpacing(value, defaultSpacing) {
             var spacing = {
                 top: 0,
@@ -25843,10 +25848,12 @@
                 var endValue = this.getValue(end);
                 var min = math.min(startValue, endValue);
                 var max = math.max(startValue, endValue);
-                return {
-                    min: min,
-                    max: max
-                };
+                if (this.isValidRange(min, max)) {
+                    return {
+                        min: min,
+                        max: max
+                    };
+                }
             },
             zoomRange: function (delta) {
                 var newRange = this.scaleRange(delta);
@@ -25854,13 +25861,15 @@
                 var totalMin = this.totalMin;
                 var min = util.limitValue(newRange.min, totalMin, totalMax);
                 var max = util.limitValue(newRange.max, totalMin, totalMax);
-                var optionsRange = this.options.max - this.options.min;
-                if (optionsRange < this.totalMajorUnit || max - min >= this.totalMajorUnit) {
+                if (this.isValidRange(min, max)) {
                     return {
                         min: min,
                         max: max
                     };
                 }
+            },
+            isValidRange: function (min, max) {
+                return max - min > MIN_VALUE_RANGE;
             }
         });
         var LogarithmicAxis = Axis.extend({
@@ -25910,8 +25919,8 @@
                     p1 = math.min(a, b) - logMin;
                     p2 = math.max(a, b) - logMin;
                 }
-                slotBox[valueAxis + 1] = lineStart + step * (reverse ? p2 : p1);
-                slotBox[valueAxis + 2] = lineStart + step * (reverse ? p1 : p2);
+                slotBox[valueAxis + 1] = limitCoordinate(lineStart + step * (reverse ? p2 : p1));
+                slotBox[valueAxis + 2] = limitCoordinate(lineStart + step * (reverse ? p1 : p2));
                 return slotBox;
             },
             getValue: function (point) {
@@ -26456,7 +26465,7 @@
                 return segments;
             },
             removeDuplicates: function (idx, points) {
-                while (points[idx].equals(points[idx + 1]) || points[idx + 1].equals(points[idx + 2])) {
+                while (points[idx + 1] && (points[idx].equals(points[idx + 1]) || points[idx + 1].equals(points[idx + 2]))) {
                     points.splice(idx + 1, 1);
                 }
             },
@@ -26645,10 +26654,7 @@
             return element;
         }
         function limitCoordinate(value) {
-            if (kendo.support.vml) {
-                value = math.max(math.min(value, VML_COORDINATE_LIMIT), -VML_COORDINATE_LIMIT);
-            }
-            return value;
+            return math.max(math.min(value, COORDINATE_LIMIT), -COORDINATE_LIMIT);
         }
         decodeEntities._element = document.createElement('span');
         deepExtend(kendo.dataviz, {
@@ -29358,7 +29364,7 @@
     };
     (function ($, undefined) {
         var each = $.each, isArray = $.isArray, isPlainObject = $.isPlainObject, map = $.map, math = Math, noop = $.noop, extend = $.extend, proxy = $.proxy, kendo = window.kendo, Class = kendo.Class, Observable = kendo.Observable, DataSource = kendo.data.DataSource, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, getter = kendo.getter, isFn = kendo.isFunction, template = kendo.template, dataviz = kendo.dataviz, Axis = dataviz.Axis, AxisLabel = dataviz.AxisLabel, Box2D = dataviz.Box2D, BoxElement = dataviz.BoxElement, ChartElement = dataviz.ChartElement, Color = kendo.drawing.Color, CurveProcessor = dataviz.CurveProcessor, FloatElement = dataviz.FloatElement, Note = dataviz.Note, LogarithmicAxis = dataviz.LogarithmicAxis, NumericAxis = dataviz.NumericAxis, Point2D = dataviz.Point2D, RootElement = dataviz.RootElement, Ring = dataviz.Ring, ShapeElement = dataviz.ShapeElement, ShapeBuilder = dataviz.ShapeBuilder, TextBox = dataviz.TextBox, Title = dataviz.Title, alignPathToPixel = dataviz.alignPathToPixel, autoFormat = dataviz.autoFormat, dateComparer = dataviz.dateComparer, eventTargetElement = dataviz.eventTargetElement, getSpacing = dataviz.getSpacing, inArray = dataviz.inArray, interpolate = dataviz.interpolateValue, mwDelta = dataviz.mwDelta, round = dataviz.round, util = kendo.util, append = util.append, defined = util.defined, last = util.last, limitValue = util.limitValue, sparseArrayLimits = util.sparseArrayLimits, sparseArrayMin = util.sparseArrayMin, sparseArrayMax = util.sparseArrayMax, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, geom = dataviz.geometry, draw = dataviz.drawing;
-        var NS = '.kendoChart', ABOVE = 'above', AREA = 'area', AUTO = 'auto', FIT = 'fit', AXIS_LABEL_CLICK = dataviz.AXIS_LABEL_CLICK, BAR = 'bar', BAR_ALIGN_MIN_WIDTH = 6, BAR_BORDER_BRIGHTNESS = 0.8, BELOW = 'below', BLACK = '#000', BOTH = 'both', BOTTOM = 'bottom', BOX_PLOT = 'boxPlot', BUBBLE = 'bubble', BULLET = 'bullet', CANDLESTICK = 'candlestick', CATEGORY = 'category', CENTER = 'center', CHANGE = 'change', CIRCLE = 'circle', CONTEXTMENU_NS = 'contextmenu' + NS, CLIP = dataviz.CLIP, COLOR = 'color', COLUMN = 'column', COORD_PRECISION = dataviz.COORD_PRECISION, CROSS = 'cross', CSS_PREFIX = 'k-', CUSTOM = 'custom', DATABOUND = 'dataBound', DATE = 'date', DAYS = 'days', DEFAULT_FONT = dataviz.DEFAULT_FONT, DEFAULT_HEIGHT = dataviz.DEFAULT_HEIGHT, DEFAULT_PRECISION = dataviz.DEFAULT_PRECISION, DEFAULT_WIDTH = dataviz.DEFAULT_WIDTH, DEFAULT_ERROR_BAR_WIDTH = 4, DONUT = 'donut', DONUT_SECTOR_ANIM_DELAY = 50, DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', ERROR_LOW_FIELD = 'errorLow', ERROR_HIGH_FIELD = 'errorHigh', X_ERROR_LOW_FIELD = 'xErrorLow', X_ERROR_HIGH_FIELD = 'xErrorHigh', Y_ERROR_LOW_FIELD = 'yErrorLow', Y_ERROR_HIGH_FIELD = 'yErrorHigh', FADEIN = 'fadeIn', FIRST = 'first', FROM = 'from', FUNNEL = 'funnel', GLASS = 'glass', HORIZONTAL = 'horizontal', HORIZONTAL_WATERFALL = 'horizontalWaterfall', HOURS = 'hours', INITIAL_ANIMATION_DURATION = dataviz.INITIAL_ANIMATION_DURATION, INSIDE_BASE = 'insideBase', INSIDE_END = 'insideEnd', INTERPOLATE = 'interpolate', LEAVE = 'leave', LEFT = 'left', LEGEND_ITEM_CLICK = 'legendItemClick', LEGEND_ITEM_HOVER = 'legendItemHover', LINE = 'line', LINE_MARKER_SIZE = 8, LINEAR = 'linear', LOGARITHMIC = 'log', MAX = 'max', MAX_EXPAND_DEPTH = 5, MAX_VALUE = Number.MAX_VALUE, MIN = 'min', MIN_VALUE = -Number.MAX_VALUE, MINUTES = 'minutes', MONTHS = 'months', MOUSELEAVE_NS = 'mouseleave' + NS, MOUSEMOVE_TRACKING = 'mousemove.tracking', MOUSEMOVE_NS = 'mousemove' + NS, MOUSEMOVE_DELAY = 20, MOUSEWHEEL_DELAY = 150, MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, NOTE_CLICK = dataviz.NOTE_CLICK, NOTE_HOVER = dataviz.NOTE_HOVER, NOTE_TEXT = 'noteText', OBJECT = 'object', OHLC = 'ohlc', OUTSIDE_END = 'outsideEnd', PIE = 'pie', PIE_SECTOR_ANIM_DELAY = 70, PLOT_AREA_CLICK = 'plotAreaClick', PLOT_AREA_HOVER = 'plotAreaHover', POINTER = 'pointer', RANGE_BAR = 'rangeBar', RANGE_COLUMN = 'rangeColumn', RENDER = 'render', RIGHT = 'right', ROUNDED_BEVEL = 'roundedBevel', ROUNDED_GLASS = 'roundedGlass', SCATTER = 'scatter', SCATTER_LINE = 'scatterLine', SECONDS = 'seconds', MILLISECONDS = 'milliseconds', SELECT_START = 'selectStart', SELECT = 'select', SELECT_END = 'selectEnd', SERIES_CLICK = 'seriesClick', SERIES_HOVER = 'seriesHover', START_SCALE = 0.001, STEP = 'step', SMOOTH = 'smooth', STD_ERR = 'stderr', STD_DEV = 'stddev', STRING = 'string', SUMMARY_FIELD = 'summary', TIME_PER_MILLISECOND = 1, TIME_PER_SECOND = 1000 * TIME_PER_MILLISECOND, TIME_PER_MINUTE = 60 * TIME_PER_SECOND, TIME_PER_HOUR = 60 * TIME_PER_MINUTE, TIME_PER_DAY = 24 * TIME_PER_HOUR, TIME_PER_WEEK = 7 * TIME_PER_DAY, TIME_PER_MONTH = 31 * TIME_PER_DAY, TIME_PER_YEAR = 365 * TIME_PER_DAY, TIME_PER_UNIT = {
+        var NS = '.kendoChart', ABOVE = 'above', AREA = 'area', AUTO = 'auto', FIT = 'fit', AXIS_LABEL_CLICK = dataviz.AXIS_LABEL_CLICK, BAR = 'bar', BAR_ALIGN_MIN_WIDTH = 6, BAR_BORDER_BRIGHTNESS = 0.8, BELOW = 'below', BLACK = '#000', BOTH = 'both', BOTTOM = 'bottom', BOX_PLOT = 'boxPlot', BUBBLE = 'bubble', BULLET = 'bullet', CANDLESTICK = 'candlestick', CATEGORY = 'category', CENTER = 'center', CHANGE = 'change', CIRCLE = 'circle', CONTEXTMENU_NS = 'contextmenu' + NS, CLIP = dataviz.CLIP, COLOR = 'color', COLUMN = 'column', COORD_PRECISION = dataviz.COORD_PRECISION, CROSS = 'cross', CSS_PREFIX = 'k-', CUSTOM = 'custom', DATABOUND = 'dataBound', DATE = 'date', DAYS = 'days', DEFAULT_FONT = dataviz.DEFAULT_FONT, DEFAULT_HEIGHT = dataviz.DEFAULT_HEIGHT, DEFAULT_PRECISION = dataviz.DEFAULT_PRECISION, DEFAULT_WIDTH = dataviz.DEFAULT_WIDTH, DEFAULT_ERROR_BAR_WIDTH = 4, DONUT = 'donut', DONUT_SECTOR_ANIM_DELAY = 50, DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', ERROR_LOW_FIELD = 'errorLow', ERROR_HIGH_FIELD = 'errorHigh', X_ERROR_LOW_FIELD = 'xErrorLow', X_ERROR_HIGH_FIELD = 'xErrorHigh', Y_ERROR_LOW_FIELD = 'yErrorLow', Y_ERROR_HIGH_FIELD = 'yErrorHigh', FADEIN = 'fadeIn', FIRST = 'first', FROM = 'from', FUNNEL = 'funnel', GLASS = 'glass', HORIZONTAL = 'horizontal', HORIZONTAL_WATERFALL = 'horizontalWaterfall', HOURS = 'hours', INITIAL_ANIMATION_DURATION = dataviz.INITIAL_ANIMATION_DURATION, INSIDE_BASE = 'insideBase', INSIDE_END = 'insideEnd', INTERPOLATE = 'interpolate', LEAVE = 'leave', LEFT = 'left', LEGEND_ITEM_CLICK = 'legendItemClick', LEGEND_ITEM_HOVER = 'legendItemHover', LINE = 'line', LINE_MARKER_SIZE = 8, LINEAR = 'linear', LOGARITHMIC = 'log', MAX = 'max', MAX_EXPAND_DEPTH = 5, MAX_VALUE = Number.MAX_VALUE, MIN = 'min', MIN_CATEGORY_POINTS_RANGE = 0.01, MIN_VALUE = -Number.MAX_VALUE, MINUTES = 'minutes', MONTHS = 'months', MOUSELEAVE_NS = 'mouseleave' + NS, MOUSEMOVE_TRACKING = 'mousemove.tracking', MOUSEMOVE_NS = 'mousemove' + NS, MOUSEMOVE_DELAY = 20, MOUSEWHEEL_DELAY = 150, MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, NOTE_CLICK = dataviz.NOTE_CLICK, NOTE_HOVER = dataviz.NOTE_HOVER, NOTE_TEXT = 'noteText', OBJECT = 'object', OHLC = 'ohlc', OUTSIDE_END = 'outsideEnd', PIE = 'pie', PIE_SECTOR_ANIM_DELAY = 70, PLOT_AREA_CLICK = 'plotAreaClick', PLOT_AREA_HOVER = 'plotAreaHover', POINTER = 'pointer', RANGE_BAR = 'rangeBar', RANGE_COLUMN = 'rangeColumn', RENDER = 'render', RIGHT = 'right', ROUNDED_BEVEL = 'roundedBevel', ROUNDED_GLASS = 'roundedGlass', SCATTER = 'scatter', SCATTER_LINE = 'scatterLine', SECONDS = 'seconds', MILLISECONDS = 'milliseconds', SELECT_START = 'selectStart', SELECT = 'select', SELECT_END = 'selectEnd', SERIES_CLICK = 'seriesClick', SERIES_HOVER = 'seriesHover', START_SCALE = kendo.support.browser.msie && kendo.support.browser.version === 10 ? 0.001 : 0, STEP = 'step', SMOOTH = 'smooth', STD_ERR = 'stderr', STD_DEV = 'stddev', STRING = 'string', SUMMARY_FIELD = 'summary', TIME_PER_MILLISECOND = 1, TIME_PER_SECOND = 1000 * TIME_PER_MILLISECOND, TIME_PER_MINUTE = 60 * TIME_PER_SECOND, TIME_PER_HOUR = 60 * TIME_PER_MINUTE, TIME_PER_DAY = 24 * TIME_PER_HOUR, TIME_PER_WEEK = 7 * TIME_PER_DAY, TIME_PER_MONTH = 31 * TIME_PER_DAY, TIME_PER_YEAR = 365 * TIME_PER_DAY, TIME_PER_UNIT = {
                 'years': TIME_PER_YEAR,
                 'months': TIME_PER_MONTH,
                 'weeks': TIME_PER_WEEK,
@@ -31349,10 +31355,14 @@
                 var diffEnd = end[valueAxis] - lineStart;
                 var min = range.min + diffStart / scale;
                 var max = range.min + diffEnd / scale;
-                return {
-                    min: math.min(min, max),
-                    max: math.max(min, max)
-                };
+                var rangeMin = math.min(min, max);
+                var rangeMax = math.max(min, max);
+                if (rangeMax - rangeMin >= MIN_CATEGORY_POINTS_RANGE) {
+                    return {
+                        min: rangeMin,
+                        max: rangeMax
+                    };
+                }
             },
             valueRange: function () {
                 return this.range();
@@ -38744,10 +38754,12 @@
                     vertical = axis.options.vertical;
                     if (!(lock == X && !vertical) && !(lock === Y && vertical)) {
                         var range = axis.pointsRange(start, end);
-                        axisRanges.push({
-                            axis: axis,
-                            range: range
-                        });
+                        if (range) {
+                            axisRanges.push({
+                                axis: axis,
+                                range: range
+                            });
+                        }
                     }
                 }
                 this.axisRanges = axisRanges;
@@ -40263,8 +40275,10 @@
                         dashType: options.dashType
                     }
                 };
+                var skip = options.skip || 0;
+                var step = options.step || 1;
                 var container = this.gridLinesVisual();
-                for (tickIx = 0; tickIx < ticks.length; tickIx++) {
+                for (tickIx = skip; tickIx < ticks.length; tickIx += step) {
                     tickRadius = center.y - ticks[tickIx];
                     if (tickRadius > 0) {
                         var circle = new geom.Circle([
@@ -50140,7 +50154,7 @@
                 this.element = $('<img style=\'position: absolute; display: block;\' />').css({
                     width: this.options.size,
                     height: this.options.size
-                }).error(proxy(function (e) {
+                }).on('error', proxy(function (e) {
                     if (this.errorUrl()) {
                         e.target.setAttribute('src', this.errorUrl());
                     } else {
@@ -59763,7 +59777,9 @@
                 var element = this.element, icon = this.options.icon, spriteCssClass = this.options.spriteCssClass, imageUrl = this.options.imageUrl, isEmpty, span, img;
                 if (spriteCssClass || imageUrl || icon) {
                     isEmpty = true;
-                    element.contents().not('span.k-sprite,span.' + ICON + ',img.k-image').each(function (idx, el) {
+                    element.contents().filter(function () {
+                        return !$(this).hasClass('k-sprite') && !$(this).hasClass(ICON) && !$(this).hasClass('k-image');
+                    }).each(function (idx, el) {
                         if (el.nodeType == 1 || el.nodeType == 3 && $.trim(el.nodeValue).length > 0) {
                             isEmpty = false;
                         }
@@ -62553,9 +62569,10 @@
                 } catch (e) {
                     element.type = 'text';
                 }
+                that._initialTitle = element.title;
+                text[0].title = element.title;
                 text[0].tabIndex = element.tabIndex;
                 text[0].style.cssText = element.style.cssText;
-                text[0].title = element.title;
                 text.prop('placeholder', options.placeholder);
                 if (accessKey) {
                     text.attr('accesskey', accessKey);
@@ -62722,8 +62739,8 @@
                 if (!placeholderSupported && !value) {
                     input.val(this.options.placeholder);
                 }
-                input.attr('title', input.attr('title') || input.val());
-                input.attr('aria-title', input.attr('title') || input.val());
+                input.attr('title', this._initialTitle || input.val());
+                input.attr('aria-title', this._initialTitle || input.val());
             },
             _wrapper: function () {
                 var that = this, element = that.element, DOMElement = element[0], wrapper;
@@ -62753,7 +62770,7 @@
         });
         function buttonHtml(direction, text) {
             var className = 'k-i-arrow-' + (direction === 'increase' ? 'n' : 's');
-            return '<span unselectable="on" class="k-link k-link-' + direction + '" aria-label="' + text + '"><span unselectable="on" class="k-icon ' + className + '"></span></span>';
+            return '<span unselectable="on" class="k-link k-link-' + direction + '" aria-label="' + text + '" title="' + text + '">' + '<span unselectable="on" class="k-icon ' + className + '"></span>' + '</span>';
         }
         function truncate(value, precision) {
             var parts = parseFloat(value, 10).toString().split(POINT);
@@ -62876,7 +62893,7 @@
                 rules: {
                     required: function (input) {
                         var checkbox = input.filter('[type=checkbox]').length && !input.is(':checked'), value = input.val();
-                        return !(hasAttribute(input, 'required') && (value === '' || !value || checkbox));
+                        return !(hasAttribute(input, 'required') && (!value || value === '' || value.length === 0 || checkbox));
                     },
                     pattern: function (input) {
                         if (input.filter('[type=text],[type=email],[type=url],[type=tel],[type=search],[type=password]').filter('[pattern]').length && input.val() !== '') {
@@ -63339,7 +63356,7 @@
         depends: ['draganddrop']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-minimize,.k-window-actions .k-i-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', isLocalUrl = kendo.isLocalUrl;
+        var kendo = window.kendo, Widget = kendo.ui.Widget, Draggable = kendo.ui.Draggable, isPlainObject = $.isPlainObject, activeElement = kendo._activeElement, proxy = $.proxy, extend = $.extend, each = $.each, template = kendo.template, BODY = 'body', templates, NS = '.kendoWindow', KWINDOW = '.k-window', KWINDOWTITLE = '.k-window-title', KWINDOWTITLEBAR = KWINDOWTITLE + 'bar', KWINDOWCONTENT = '.k-window-content', KWINDOWRESIZEHANDLES = '.k-resize-handle', KOVERLAY = '.k-overlay', KCONTENTFRAME = 'k-content-frame', LOADING = 'k-i-loading', KHOVERSTATE = 'k-state-hover', KFOCUSEDSTATE = 'k-state-focused', MAXIMIZEDSTATE = 'k-window-maximized', VISIBLE = ':visible', HIDDEN = 'hidden', CURSOR = 'cursor', OPEN = 'open', ACTIVATE = 'activate', DEACTIVATE = 'deactivate', CLOSE = 'close', REFRESH = 'refresh', MINIMIZE = 'minimize', MAXIMIZE = 'maximize', RESIZESTART = 'resizeStart', RESIZE = 'resize', RESIZEEND = 'resizeEnd', DRAGSTART = 'dragstart', DRAGEND = 'dragend', ERROR = 'error', OVERFLOW = 'overflow', ZINDEX = 'zIndex', MINIMIZE_MAXIMIZE = '.k-window-actions .k-i-minimize,.k-window-actions .k-i-maximize', KPIN = '.k-i-pin', KUNPIN = '.k-i-unpin', PIN_UNPIN = KPIN + ',' + KUNPIN, TITLEBAR_BUTTONS = '.k-window-titlebar .k-window-action', REFRESHICON = '.k-window-titlebar .k-i-refresh', isLocalUrl = kendo.isLocalUrl;
         function defined(x) {
             return typeof x != 'undefined';
         }
@@ -63584,6 +63601,7 @@
                 MINIMIZE,
                 MAXIMIZE,
                 REFRESH,
+                RESIZESTART,
                 RESIZE,
                 RESIZEEND,
                 DRAGSTART,
@@ -63629,7 +63647,9 @@
                 visible: null,
                 height: null,
                 width: null,
-                appendTo: 'body'
+                appendTo: 'body',
+                isMaximized: false,
+                isMinimized: false
             },
             _closable: function () {
                 return $.inArray('close', $.map(this.options.actions, function (x) {
@@ -63949,7 +63969,7 @@
                 if (that._shouldFocus(target)) {
                     that.element.focus();
                     var scrollTop = $(window).scrollTop(), windowTop = parseInt(wrapper.position().top, 10);
-                    if (windowTop > 0 && windowTop < scrollTop) {
+                    if (!that.options.pinned && windowTop > 0 && windowTop < scrollTop) {
                         if (scrollTop > 0) {
                             $(window).scrollTop(windowTop);
                         } else {
@@ -64033,6 +64053,9 @@
                 });
                 return this;
             },
+            isMaximized: function () {
+                return this.options.isMaximized;
+            },
             minimize: function () {
                 this._sizingAction('minimize', function () {
                     var that = this;
@@ -64044,6 +64067,9 @@
                     that.options.isMinimized = true;
                 });
                 return this;
+            },
+            isMinimized: function () {
+                return this.options.isMinimized;
             },
             pin: function (force) {
                 var that = this, win = $(window), wrapper = that.wrapper, top = parseInt(wrapper.css('top'), 10), left = parseInt(wrapper.css('left'), 10);
@@ -64210,6 +64236,7 @@
         function WindowResizing(wnd) {
             var that = this;
             that.owner = wnd;
+            that._preventDragging = false;
             that._draggable = new Draggable(wnd.wrapper, {
                 filter: '>' + KWINDOWRESIZEHANDLES,
                 group: wnd.wrapper.id + '-resizing',
@@ -64231,6 +64258,10 @@
                 var that = this;
                 var wnd = that.owner;
                 var wrapper = wnd.wrapper;
+                that._preventDragging = wnd.trigger(RESIZESTART);
+                if (that._preventDragging) {
+                    return;
+                }
                 that.elementPadding = parseInt(wrapper.css('padding-top'), 10);
                 that.initialPosition = kendo.getOffset(wrapper, 'position');
                 that.resizeDirection = e.currentTarget.prop('className').replace('k-resize-handle k-resize-', '');
@@ -64243,6 +64274,9 @@
                 $(BODY).css(CURSOR, e.currentTarget.css(CURSOR));
             },
             drag: function (e) {
+                if (this._preventDragging) {
+                    return;
+                }
                 var that = this, wnd = that.owner, wrapper = wnd.wrapper, options = wnd.options, direction = that.resizeDirection, containerOffset = that.containerOffset, initialPosition = that.initialPosition, initialSize = that.initialSize, newWidth, newHeight, windowBottom, windowRight, x = Math.max(e.x.location, 0), y = Math.max(e.y.location, 0);
                 if (direction.indexOf('e') >= 0) {
                     newWidth = x - initialPosition.left - containerOffset.left;
@@ -64255,12 +64289,16 @@
                         width: newWidth
                     });
                 }
+                var newWindowTop = y;
+                if (wnd.options.pinned) {
+                    newWindowTop -= $(window).scrollTop();
+                }
                 if (direction.indexOf('s') >= 0) {
-                    newHeight = y - initialPosition.top - that.elementPadding - containerOffset.top;
+                    newHeight = newWindowTop - initialPosition.top - that.elementPadding - containerOffset.top;
                     wrapper.height(constrain(newHeight, options.minHeight, options.maxHeight));
                 } else if (direction.indexOf('n') >= 0) {
                     windowBottom = initialPosition.top + initialSize.height + containerOffset.top;
-                    newHeight = constrain(windowBottom - y, options.minHeight, options.maxHeight);
+                    newHeight = constrain(windowBottom - newWindowTop, options.minHeight, options.maxHeight);
                     wrapper.css({
                         top: windowBottom - newHeight - containerOffset.top,
                         height: newHeight
@@ -64275,6 +64313,9 @@
                 wnd.resize();
             },
             dragend: function (e) {
+                if (this._preventDragging) {
+                    return;
+                }
                 var that = this, wnd = that.owner, wrapper = wnd.wrapper;
                 wrapper.children(KWINDOWRESIZEHANDLES).not(e.currentTarget).show();
                 $(BODY).css(CURSOR, '');
@@ -64297,6 +64338,7 @@
         function WindowDragging(wnd, dragHandle) {
             var that = this;
             that.owner = wnd;
+            that._preventDragging = false;
             that._draggable = new Draggable(wnd.wrapper, {
                 filter: dragHandle,
                 group: wnd.wrapper.id + '-moving',
@@ -64310,7 +64352,10 @@
         WindowDragging.prototype = {
             dragstart: function (e) {
                 var wnd = this.owner, element = wnd.element, actions = element.find('.k-window-actions'), containerOffset = kendo.getOffset(wnd.appendTo);
-                wnd.trigger(DRAGSTART);
+                this._preventDragging = wnd.trigger(DRAGSTART);
+                if (this._preventDragging) {
+                    return;
+                }
                 wnd.initialWindowPosition = kendo.getOffset(wnd.wrapper, 'position');
                 wnd.initialPointerPosition = {
                     left: e.x.client,
@@ -64331,6 +64376,9 @@
                 $(BODY).css(CURSOR, e.currentTarget.css(CURSOR));
             },
             drag: function (e) {
+                if (this._preventDragging) {
+                    return;
+                }
                 var wnd = this.owner;
                 var position = wnd.options.position;
                 position.top = Math.max(e.y.client - wnd.startPosition.top, wnd.minTopPosition);
@@ -64347,10 +64395,16 @@
                 $(BODY).css(CURSOR, '');
             },
             dragcancel: function (e) {
+                if (this._preventDragging) {
+                    return;
+                }
                 this._finishDrag();
                 e.currentTarget.closest(KWINDOW).css(this.owner.initialWindowPosition);
             },
             dragend: function () {
+                if (this._preventDragging) {
+                    return;
+                }
                 $(this.owner.wrapper).css(this.owner.options.position).css('transform', '');
                 this._finishDrag();
                 this.owner.trigger(DRAGEND);
@@ -64386,7 +64440,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', HIDDENCLASS = 'k-loading-hidden', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', WIDTH = 'width', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, isIE8 = browser.msie && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, support = kendo.support, htmlEncode = kendo.htmlEncode, activeElement = kendo._activeElement, ObservableArray = kendo.data.ObservableArray, ID = 'id', CHANGE = 'change', FOCUSED = 'k-state-focused', HOVER = 'k-state-hover', LOADING = 'k-i-loading', HIDDENCLASS = 'k-loading-hidden', OPEN = 'open', CLOSE = 'close', CASCADE = 'cascade', SELECT = 'select', SELECTED = 'selected', REQUESTSTART = 'requestStart', REQUESTEND = 'requestEnd', WIDTH = 'width', extend = $.extend, proxy = $.proxy, isArray = $.isArray, browser = support.browser, isIE = browser.msie, isIE8 = isIE && browser.version < 9, quotRegExp = /"/g, alternativeNames = {
                 'ComboBox': 'DropDownList',
                 'DropDownList': 'ComboBox'
             };
@@ -64549,6 +64603,7 @@
                 var options = that.options;
                 var dataSource = that.dataSource;
                 var expression = extend({}, dataSource.filter() || {});
+                var clearFilter = expression.filters && expression.filters.length && !filter;
                 var removed = removeFiltersForField(expression, options.dataTextField);
                 if ((filter || removed) && that.trigger('filtering', { filter: filter })) {
                     return;
@@ -64563,11 +64618,15 @@
                 if (that._cascading) {
                     this.listView.setDSFilter(expression);
                 }
-                if (!force) {
-                    dataSource.filter(expression);
-                } else {
-                    dataSource.read(dataSource._mergeState({ filter: expression }));
-                }
+                var dataSourceState = extend({}, {
+                    page: dataSource.page(),
+                    pageSize: clearFilter ? dataSource.options.pageSize : dataSource.pageSize(),
+                    sort: dataSource.sort(),
+                    filter: dataSource.filter(),
+                    group: dataSource.group(),
+                    aggregate: dataSource.aggregate()
+                }, { filter: expression });
+                dataSource[force ? 'read' : 'query'](dataSource._mergeState(dataSourceState));
             },
             _angularElement: function (element, action) {
                 if (!element) {
@@ -64894,15 +64953,14 @@
             },
             _focusItem: function () {
                 var listView = this.listView;
-                var focusedItem = listView.focus();
-                var index = listView.select();
-                index = index[index.length - 1];
-                if (index === undefined && this.options.highlightFirst && !focusedItem) {
+                var noFocusedItem = !listView.focus();
+                var index = last(listView.select());
+                if (index === undefined && this.options.highlightFirst && noFocusedItem) {
                     index = 0;
                 }
                 if (index !== undefined) {
                     listView.focus(index);
-                } else {
+                } else if (noFocusedItem) {
                     listView.scrollToIndex(0);
                 }
             },
@@ -65046,9 +65104,10 @@
                 if (candidate === undefined) {
                     return that.selectedIndex;
                 } else {
-                    that._select(candidate);
-                    that._old = that._accessor();
-                    that._oldIndex = that.selectedIndex;
+                    return that._select(candidate).done(function () {
+                        that._old = that._accessor();
+                        that._oldIndex = that.selectedIndex;
+                    });
                 }
             },
             _accessor: function (value, idx) {
@@ -65205,10 +65264,11 @@
                             that._focus(current);
                             return;
                         }
-                        that._select(that._focus(), true);
-                        if (!that.popup.visible()) {
-                            that._blur();
-                        }
+                        that._select(that._focus(), true).done(function () {
+                            if (!that.popup.visible()) {
+                                that._blur();
+                            }
+                        });
                     }
                     e.preventDefault();
                     pressed = true;
@@ -65340,10 +65400,11 @@
                 var parent;
                 if (cascade) {
                     parent = that._parentWidget();
-                    that._cascadeHandlerProxy = proxy(that._cascadeHandler, that);
                     if (!parent) {
                         return;
                     }
+                    that._cascadeHandlerProxy = proxy(that._cascadeHandler, that);
+                    that._cascadeFilterRequests = [];
                     options.autoBind = false;
                     parent.bind('set', function () {
                         that.one('set', function (e) {
@@ -65367,11 +65428,12 @@
             _toggleCascadeOnFocus: function () {
                 var that = this;
                 var parent = that._parentWidget();
+                var focusout = isIE ? 'blur' : 'focusout';
                 parent._focused.add(parent.filterInput).bind('focus', function () {
                     parent.unbind(CASCADE, that._cascadeHandlerProxy);
                     parent.first(CHANGE, that._cascadeHandlerProxy);
                 });
-                parent._focused.add(parent.filterInput).bind('focusout', function () {
+                parent._focused.add(parent.filterInput).bind(focusout, function () {
                     parent.unbind(CHANGE, that._cascadeHandlerProxy);
                     parent.first(CASCADE, that._cascadeHandlerProxy);
                 });
@@ -65388,7 +65450,9 @@
             _cascadeChange: function (parent) {
                 var that = this;
                 var value = that._accessor() || that._selectedValue;
-                that._selectedValue = null;
+                if (!that._cascadeFilterRequests.length) {
+                    that._selectedValue = null;
+                }
                 if (that._userTriggered) {
                     that._clearSelection(parent, true);
                 } else if (value) {
@@ -65417,10 +65481,20 @@
                     expressions = that.dataSource.filter() || {};
                     removeFiltersForField(expressions, valueField);
                     var handler = function () {
-                        that.unbind('dataBound', handler);
+                        var currentHandler = that._cascadeFilterRequests.shift();
+                        if (currentHandler) {
+                            that.unbind('dataBound', currentHandler);
+                        }
+                        currentHandler = that._cascadeFilterRequests[0];
+                        if (currentHandler) {
+                            that.first('dataBound', currentHandler);
+                        }
                         that._cascadeChange(parent);
                     };
-                    that.first('dataBound', handler);
+                    that._cascadeFilterRequests.push(handler);
+                    if (that._cascadeFilterRequests.length === 1) {
+                        that.first('dataBound', handler);
+                    }
                     that._cascading = true;
                     that._filterSource({
                         field: valueField,
@@ -65588,7 +65662,7 @@
                 this.focus(this.element[0].children[0]);
             },
             focusLast: function () {
-                this.focus(this.element[0].children[this.element[0].children.length - 1]);
+                this.focus(last(this.element[0].children));
             },
             focus: function (candidate) {
                 var that = this;
@@ -65597,8 +65671,7 @@
                 if (candidate === undefined) {
                     return that._current;
                 }
-                candidate = that._get(candidate);
-                candidate = candidate[candidate.length - 1];
+                candidate = last(that._get(candidate));
                 candidate = $(this.element[0].children[candidate]);
                 if (that._current) {
                     that._current.removeClass(FOCUSED).removeAttr('aria-selected').removeAttr(ID);
@@ -65634,22 +65707,23 @@
                 if (indices.length === 1 && indices[0] === -1) {
                     indices = [];
                 }
+                var deferred = $.Deferred().resolve();
                 var filtered = that.isFiltered();
                 if (filtered && !singleSelection && that._deselectFiltered(indices)) {
-                    return;
+                    return deferred;
                 }
-                if (singleSelection && !filtered && $.inArray(indices[indices.length - 1], selectedIndices) !== -1) {
+                if (singleSelection && !filtered && $.inArray(last(indices), selectedIndices) !== -1) {
                     if (that._dataItems.length && that._view.length) {
                         that._dataItems = [that._view[selectedIndices[0]].item];
                     }
-                    return;
+                    return deferred;
                 }
                 result = that._deselect(indices);
                 removed = result.removed;
                 indices = result.indices;
                 if (indices.length) {
                     if (singleSelection) {
-                        indices = [indices[indices.length - 1]];
+                        indices = [last(indices)];
                     }
                     added = that._select(indices);
                 }
@@ -65660,6 +65734,7 @@
                         removed: removed
                     });
                 }
+                return deferred;
             },
             removeAt: function (position) {
                 this._selectedIndices.splice(position, 1);
@@ -65818,7 +65893,7 @@
                 var dataItem, index;
                 var added = [];
                 var idx = 0;
-                if (indices[indices.length - 1] !== -1) {
+                if (last(indices) !== -1) {
                     that.focus(indices);
                 }
                 for (; idx < indices.length; idx++) {
@@ -66068,6 +66143,9 @@
             }
         });
         ui.plugin(StaticList);
+        function last(list) {
+            return list[list.length - 1];
+        }
         function getSelectedOption(select) {
             var index = select.selectedIndex;
             return index > -1 ? select.options[index] : {};
@@ -66292,18 +66370,14 @@
                         that.refresh();
                         that.popup.one('activate', that._focusInputHandler);
                         that.popup.open();
-                        if (that.filterInput) {
-                            that._resizeFilterInput();
-                        }
+                        that._resizeFilterInput();
                     } else {
                         that._filterSource();
                     }
                 } else if (that._allowOpening()) {
                     that.popup.one('activate', that._focusInputHandler);
                     that.popup.open();
-                    if (that.filterInput) {
-                        that._resizeFilterInput();
-                    }
+                    that._resizeFilterInput();
                     that._focusItem();
                 }
             },
@@ -66311,9 +66385,20 @@
                 this._focusElement(this.filterInput);
             },
             _resizeFilterInput: function () {
-                this.filterInput.css('display', 'none');
-                this.filterInput.css('width', this.popup.element.css('width'));
-                this.filterInput.css('display', 'inline-block');
+                var filterInput = this.filterInput;
+                var originalPrevent = this._prevent;
+                if (!filterInput) {
+                    return;
+                }
+                var isInputActive = this.filterInput[0] === activeElement();
+                var caret = kendo.caret(this.filterInput[0])[0];
+                this._prevent = true;
+                filterInput.css('display', 'none').css('width', this.popup.element.css('width')).css('display', 'inline-block');
+                if (isInputActive) {
+                    filterInput.focus();
+                    kendo.caret(filterInput[0], caret);
+                }
+                this._prevent = originalPrevent;
             },
             _allowOpening: function () {
                 return this.hasOptionLabel() || this.filterInput || Select.fn._allowOpening.call(this);
@@ -66365,25 +66450,24 @@
             },
             text: function (text) {
                 var that = this;
-                var dataItem, loweredText;
+                var loweredText;
                 var ignoreCase = that.options.ignoreCase;
                 text = text === null ? '' : text;
                 if (text !== undefined) {
-                    if (typeof text === 'string') {
-                        loweredText = ignoreCase ? text.toLowerCase() : text;
-                        that._select(function (data) {
-                            data = that._text(data);
-                            if (ignoreCase) {
-                                data = (data + '').toLowerCase();
-                            }
-                            return data === loweredText;
-                        });
-                        dataItem = that.dataItem();
-                        if (dataItem) {
-                            text = dataItem;
-                        }
+                    if (typeof text !== 'string') {
+                        that._textAccessor(text);
+                        return;
                     }
-                    that._textAccessor(text);
+                    loweredText = ignoreCase ? text.toLowerCase() : text;
+                    that._select(function (data) {
+                        data = that._text(data);
+                        if (ignoreCase) {
+                            data = (data + '').toLowerCase();
+                        }
+                        return data === loweredText;
+                    }).done(function () {
+                        that._textAccessor(that.dataItem() || text);
+                    });
                 } else {
                     return that._textAccessor();
                 }
@@ -66562,23 +66646,29 @@
                 var isIFrame = window.self !== window.top;
                 var focusedItem = that._focus();
                 var dataItem = that._getElementDataItem(focusedItem);
+                var shouldTrigger;
                 if (!that._prevent) {
                     clearTimeout(that._typingTimeout);
-                    if (!filtered && focusedItem && !that.trigger('select', {
+                    var done = function () {
+                        if (support.mobileOS.ios && isIFrame) {
+                            that._change();
+                        } else {
+                            that._blur();
+                        }
+                        that._inputWrapper.removeClass(FOCUSED);
+                        that._prevent = true;
+                        that._open = false;
+                        that.element.blur();
+                    };
+                    shouldTrigger = !filtered && focusedItem && that._value(dataItem) !== that.value();
+                    if (shouldTrigger && !that.trigger('select', {
                             dataItem: dataItem,
                             item: focusedItem
                         })) {
-                        that._select(focusedItem, !that.dataSource.view().length);
-                    }
-                    if (support.mobileOS.ios && isIFrame) {
-                        that._change();
+                        that._select(focusedItem, !that.dataSource.view().length).done(done);
                     } else {
-                        that._blur();
+                        done();
                     }
-                    that._inputWrapper.removeClass(FOCUSED);
-                    that._prevent = true;
-                    that._open = false;
-                    that.element.blur();
                 }
             },
             _wrapperMousedown: function () {
@@ -66667,10 +66757,11 @@
                             that._focus(current);
                             return;
                         }
-                        that._select(that._focus(), true);
-                        if (!isPopupVisible) {
-                            that._blur();
-                        }
+                        that._select(that._focus(), true).done(function () {
+                            if (!isPopupVisible) {
+                                that._blur();
+                            }
+                        });
                     }
                 }
                 if (!altKey && !handled && that.filterInput) {
@@ -66721,16 +66812,21 @@
                 }
                 if (idx !== dataLength) {
                     oldFocusedItem = that._focus();
-                    that._select(normalizeIndex(startIndex + idx, dataLength));
-                    if (that.trigger('select', {
-                            dataItem: that._getElementDataItem(that._focus()),
-                            item: that._focus()
-                        })) {
-                        that._select(oldFocusedItem);
-                    }
-                    if (!that.popup.visible()) {
-                        that._change();
-                    }
+                    that._select(normalizeIndex(startIndex + idx, dataLength)).done(function () {
+                        var done = function () {
+                            if (!that.popup.visible()) {
+                                that._change();
+                            }
+                        };
+                        if (that.trigger('select', {
+                                dataItem: that._getElementDataItem(that._focus()),
+                                item: that._focus()
+                            })) {
+                            that._select(oldFocusedItem).done(done);
+                        } else {
+                            done();
+                        }
+                    });
                 }
             },
             _keypress: function (e) {
@@ -66771,19 +66867,21 @@
                 return this.listView.dataItemByIndex(this.listView.getElementIndex(element));
             },
             _click: function (e) {
+                var that = this;
                 var item = e.item || $(e.currentTarget);
                 e.preventDefault();
-                if (this.trigger('select', {
-                        dataItem: this._getElementDataItem(item),
+                if (that.trigger('select', {
+                        dataItem: that._getElementDataItem(item),
                         item: item
                     })) {
-                    this.close();
+                    that.close();
                     return;
                 }
-                this._userTriggered = true;
-                this._select(item);
-                this._focusElement(this.wrapper);
-                this._blur();
+                that._userTriggered = true;
+                that._select(item).done(function () {
+                    that._focusElement(that.wrapper);
+                    that._blur();
+                });
             },
             _focusElement: function (element) {
                 var active = activeElement();
@@ -66800,16 +66898,17 @@
                 }
             },
             _searchByWord: function (word) {
-                if (word) {
-                    var that = this;
-                    var ignoreCase = that.options.ignoreCase;
-                    if (ignoreCase) {
-                        word = word.toLowerCase();
-                    }
-                    that._select(function (dataItem) {
-                        return that._matchText(that._text(dataItem), word);
-                    });
+                if (!word) {
+                    return;
                 }
+                var that = this;
+                var ignoreCase = that.options.ignoreCase;
+                if (ignoreCase) {
+                    word = word.toLowerCase();
+                }
+                that._select(function (dataItem) {
+                    return that._matchText(that._text(dataItem), word);
+                });
             },
             _inputValue: function () {
                 return this.text();
@@ -66940,13 +67039,14 @@
             _select: function (candidate, keepState) {
                 var that = this;
                 candidate = that._get(candidate);
-                that.listView.select(candidate);
-                if (!keepState && that._state === STATE_FILTER) {
-                    that._state = STATE_ACCEPT;
-                }
-                if (candidate === -1) {
-                    that._selectValue(null);
-                }
+                return that.listView.select(candidate).done(function () {
+                    if (!keepState && that._state === STATE_FILTER) {
+                        that._state = STATE_ACCEPT;
+                    }
+                    if (candidate === -1) {
+                        that._selectValue(null);
+                    }
+                });
             },
             _selectValue: function (dataItem) {
                 var that = this;
@@ -68819,7 +68919,7 @@
                     gestureend: proxy(that._gestureEnd, that)
                 });
                 that.toolService = new ToolService(that);
-                this.scrollable.on('mouseover' + NS, proxy(that._mouseover, that)).on('mouseout' + NS, proxy(that._mouseout, that)).on('mousemove' + NS, proxy(that._mouseMove, that));
+                this.scrollable.on('mouseover' + NS, proxy(that._mouseover, that)).on('mouseout' + NS, proxy(that._mouseout, that)).on('mousemove' + NS, proxy(that._mouseMove, that)).on('mousedown' + NS, proxy(that._mouseDown, that)).on('mouseup' + NS, proxy(that._mouseUp, that));
                 this._syncHandler = proxy(that._syncChanges, that);
                 that._resizeHandler = proxy(that.resize, that, false);
                 kendo.onResize(that._resizeHandler);
@@ -68852,11 +68952,17 @@
                 }
             },
             _mouseMove: function (e) {
-                if (!this._pauseMouseHandlers && (e.which === 0 || e.which === 1)) {
+                if (!this._pauseMouseHandlers) {
                     var p = this._eventPositions(e);
                     this.toolService._updateHoveredItem(p);
                     this.toolService._updateCursor(p);
                 }
+            },
+            _mouseDown: function () {
+                this._pauseMouseHandlers = true;
+            },
+            _mouseUp: function () {
+                this._pauseMouseHandlers = false;
             },
             _tap: function (e) {
                 var toolService = this.toolService;
@@ -69770,7 +69876,7 @@
             },
             _extendLayoutOptions: function (options) {
                 if (options.layout) {
-                    options.layout = deepExtend(diagram.LayoutBase.fn.defaultOptions || {}, options.layout);
+                    options.layout = deepExtend({}, diagram.LayoutBase.fn.defaultOptions || {}, options.layout);
                 }
             },
             _selectionChanged: function (selected, deselected) {
@@ -72388,7 +72494,7 @@
                     return widget.value();
                 };
             }
-            ngModel.$render = function () {
+            var viewRender = function () {
                 var val = ngModel.$viewValue;
                 if (val === undefined) {
                     val = ngModel.$modelValue;
@@ -72414,6 +72520,13 @@
                     }
                 }, 0);
             };
+            ngModel.$render = viewRender;
+            setTimeout(function () {
+                if (ngModel.$render !== viewRender) {
+                    ngModel.$render = viewRender;
+                    ngModel.$render();
+                }
+            });
             if (isForm(element)) {
                 element.on('change', function () {
                     haveChangeOnElement = true;
@@ -72459,7 +72572,7 @@
                 return;
             }
             var form = $(widget.element).parents('form');
-            var ngForm = kendo.getter(form.attr('name'))(scope);
+            var ngForm = kendo.getter(form.attr('name'), true)(scope);
             var getter = $parse(kNgModel);
             var setter = getter.assign;
             var updating = false;

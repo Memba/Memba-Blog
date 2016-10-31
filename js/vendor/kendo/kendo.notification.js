@@ -1,25 +1,25 @@
-/**
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)
- * Copyright 2016 Telerik AD. All rights reserved.
- *
- * Kendo UI commercial licenses may be obtained at
- * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
- * If you do not own a commercial license, this file shall be governed by the trial license terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/** 
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ *                                                                                                                                                                                                      
+ * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
+ * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
+ * If you do not own a commercial license, this file shall be governed by the trial license terms.                                                                                                      
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
+                                                                                                                                                                                                       
 
 */
 (function (f, define) {
@@ -214,7 +214,7 @@
                     }
                     popup.open(x, y);
                 }
-                popup.wrapper.addClass(that._guid).css(extend({ margin: 0, zIndex: 10050 }, that._popupPaddings));
+                popup.wrapper.addClass(that._guid).css(extend({ margin: 0 }, that._popupPaddings));
                 if (options.position.pinned) {
                     popup.wrapper.css('position', 'fixed');
                     if (openPopup[0]) {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -440,13 +440,12 @@
                 var column;
                 var sortableInstance;
                 var cells = this.header.find('th[' + kendo.attr('field') + ']');
-                var handler = function (e) {
+                var cell;
+                var changeHandler = function (e) {
                     if (that.dataSource.total() === 0 || that.editable && that.editable.trigger('validate')) {
                         e.preventDefault();
-                        e.stopImmediatePropagation();
                     }
                 };
-                var cell;
                 for (var idx = 0, length = cells.length; idx < length; idx++) {
                     column = columns[idx];
                     if (column.sortable && column.field !== resourcesField) {
@@ -455,7 +454,10 @@
                         if (sortableInstance) {
                             sortableInstance.destroy();
                         }
-                        cell.attr('data-' + kendo.ns + 'field', column.field).kendoColumnSorter({ dataSource: this.dataSource }).find(DOT + GanttList.styles.link).on('click' + NS, handler);
+                        cell.attr('data-' + kendo.ns + 'field', column.field).kendoColumnSorter({
+                            dataSource: this.dataSource,
+                            change: changeHandler
+                        });
                     }
                 }
                 cells = null;
@@ -496,6 +498,7 @@
             },
             _setDataSource: function (dataSource) {
                 this.dataSource = dataSource;
+                this._sortable();
             },
             _editable: function () {
                 var that = this;

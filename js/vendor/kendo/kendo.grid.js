@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -281,10 +281,7 @@
                 for (var i = arguments.length; --i >= 0;) {
                     id += ':' + arguments[i];
                 }
-                if (id in cache) {
-                    return cache[id];
-                }
-                return f.apply(this, arguments);
+                return id in cache ? cache[id] : cache[id] = f.apply(this, arguments);
             };
         }
         function ucs2decode(string) {
@@ -3272,6 +3269,9 @@
             },
             _confirmation: function (row) {
                 var that = this, editable = that.options.editable, confirmation = editable === true || typeof editable === STRING ? that.options.messages.editable.confirmation : editable.confirmation;
+                if (isPlainObject(editable) && typeof editable.mode === STRING && typeof confirmation !== STRING && confirmation !== false) {
+                    confirmation = that.options.messages.editable.confirmation;
+                }
                 if (confirmation !== false && confirmation != null) {
                     if (typeof confirmation === FUNCTION) {
                         confirmation = confirmation(that._modelForContainer(row));
@@ -4480,7 +4480,7 @@
                         }
                         if (that.thead) {
                             expander.width(that.thead.width());
-                            if (scrollLeft) {
+                            if (!isNaN(parseFloat(scrollLeft, 10))) {
                                 that.content.scrollLeft(scrollLeft);
                             }
                         }
@@ -4736,9 +4736,9 @@
                 if (footer.length) {
                     if (options.scrollable) {
                         footerWrap = footer.attr('tabindex', -1).children('.k-grid-footer-wrap');
-                        that.scrollables = that.scrollables.filter(function () {
+                        that.scrollables = $(that.scrollables.filter(function () {
                             return !$(this).is('.k-grid-footer-wrap');
-                        }).add(footerWrap);
+                        }).toArray()).add(footerWrap);
                     }
                     if (that._footerWidth) {
                         footer.find('table').css('width', that._footerWidth);
@@ -5339,6 +5339,7 @@
                             field = kendo.attr('field') + '=\'' + th.field + '\' ';
                         }
                         html += '<th scope=\'col\' role=\'columnheader\' ' + field;
+                        html += ' aria-haspopup=\'true\'';
                         if (rowSpan && !columns[idx].colSpan) {
                             html += ' rowspan=\'' + rowSpan + '\'';
                         }

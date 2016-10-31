@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.914 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -356,7 +356,44 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
   "formatting": "Format",
   "viewHtml": "View HTML",
   "dialogUpdate": "Update",
-  "insertFile": "Insérer un Fichier"
+  "insertFile": "Insérer un Fichier",
+  "dialogOk": "OK",
+  "tableWizard": "Assistant de tableau",
+  "tableTab": "Table",
+  "cellTab": "Cellule",
+  "accessibilityTab": "Accessibilité",
+  "caption": "Sous-titre",
+  "summary": "Sommaire",
+  "width": "Largeur",
+  "height": "Hauteur",
+  "cellSpacing": "Espacement des cellules",
+  "cellPadding": "Rembourrage des cellules",
+  "cellMargin": "Marge des cellules",
+  "alignment": "Alignement",
+  "background": "Fond",
+  "cssClass": "CSS Classe",
+  "id": "Id",
+  "border": "Bordure",
+  "borderStyle": "Style de bordure",
+  "collapseBorders": "Rétracter bordures",
+  "wrapText": "Renvoi à la ligne",
+  "associateCellsWithHeaders": "Cellules associées aux entêtes",
+  "alignLeft": "Aligner à gauche",
+  "alignCenter": "Aligner le centre",
+  "alignRight": "Aligner à droite",
+  "alignLeftTop": "Aligner à gauche et haut",
+  "alignCenterTop": "Aligner le centre et haut",
+  "alignRightTop": "Aligner à droite et haut",
+  "alignLeftMiddle": "Aligner à gauche et milieu",
+  "alignCenterMiddle": "Aligner le centre et milieu",
+  "alignRightMiddle": "Aligner à droite et milieu",
+  "alignLeftBottom": "Aligner à gauche et bas",
+  "alignCenterBottom": "Aligner le centre et bas",
+  "alignRightBottom": "Aligner à droite et bas",
+  "alignRemove": "Retirer alignement",
+  "columns": "Colonnes",
+  "rows": "Lignes",
+  "selectAllCells": "Sélectionner toutes les cellules"
 });
 }
 
