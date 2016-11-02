@@ -30,17 +30,53 @@
 
 @import "app.template.less";
 
+// Fix button images
+.k-button {
+    .k-image {
+        opacity: 1;
+    }
+}
+
+// Fix dialog buttons
+.k-dialog {
+    .k-dialog-buttongroup {
+        .k-button {
+            color: #000000;
+        }
+    }
+}
+
 // Fix editor splitter
 .k-splitbar {
     border-color: @widget-border-color;
 }
 
-// Fix editor tabstrip (formatting toolbar and upload dialog)
+// Fix tabstrip (spreadsheet, formatting toolbar and file upload dialog)
+.k-tabstrip {
+    .k-button {
+        .k-icon {
+            opacity: 1;
+        }
+    }
+    .k-state-disabled {
+
+    }
+}
 .k-tabstrip.k-header {
     .composite-background(@tabs-normal-gradient);
     .k-tabstrip-items {
-        .k-item {
+        .k-item, .k-link {
             color: @selected-text-color;
+        }
+    }
+}
+
+// Fix spreadsheet
+.k-spreadsheet {
+    .k-spreadsheet-quick-access-toolbar {
+        .k-button {
+            color: @selected-text-color;
+            line-height: normal;
         }
     }
 }
