@@ -33,13 +33,13 @@
     "helmet": "^3.0.0",
     "highlight.js": "^9.8.0",
     "i18n": "^0.8.3",
-    "markdown-it": "^8.0.1",
+    "markdown-it": "^8.1.0",
     "markdown-it-video": "^0.4.0",
     "moment": "^2.15.2",
     "nconf": "^0.8.4",
     "node-uuid": "^1.4.7",
     "qs": "^6.3.0",
-    "request": "^2.76.0"
+    "request": "^2.78.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.5.1",
