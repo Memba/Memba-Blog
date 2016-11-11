@@ -1,12 +1,12 @@
 sudo: false
 language: node_js
 node_js:
-  - "7"
-  - "6"
-  - "5"
-  - "4"
-  - "0.12"
-  - "0.11"
+  - 7
+  - 6
+  - 5
+  - 4
+  - 0.12
+  - 0.11
 addons:
   apt:
     sources:
@@ -14,8 +14,7 @@ addons:
     packages:
     - g++-4.8
 env:
-  - "NODE_ENV=test"
-  - "CXX=g++-4.8"
+  - "NODE_ENV=test" "CXX=g++-4.8"
 before_install:
   - "npm install -g npm"
   - "npm install -g grunt-cli"
