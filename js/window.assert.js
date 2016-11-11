@@ -135,6 +135,17 @@
         };
 
         /**
+         * Assert isArray
+         * @param value
+         * @param message
+         */
+        assert.isArray = function (value, message) {
+            if (!$.isArray(value)) {
+                throw new TypeError(message);
+            }
+        };
+
+        /**
          * Assert optional object (can be undefined but mot an empty object, i.e. {})
          * @param value
          * @param message
@@ -201,6 +212,18 @@
             }
         };
 
+        /**
+         * Assert typeOrUndef
+         * @param type
+         * @param value
+         * @param message
+         */
+        assert.typeOrUndef = function (type, value, message) {
+            if ($.type(value) !== UNDEFINED && $.type(value) !== type) {
+                throw new TypeError(message);
+            }
+        };
+
         assert.messages = {
             enum: {
                 default: '`{0}` is expected to be any of `{1}`'
@@ -213,6 +236,9 @@
             },
             instanceof: {
                 default: '`{0}` is expected to be an instance of `{1}`'
+            },
+            isArray: {
+                default: '`{0}` is expected to be an array'
             },
             isOptionalObject: {
                 default: '`{0}` is expected to be undefined or a plain object'
@@ -231,6 +257,9 @@
             },
             type: {
                 default: '`{0}` is expected to have type `{1}`'
+            },
+            typeOrUndef: {
+                default: '`{0}` is expected to have type `{1}` or be undefined'
             }
         };
 
