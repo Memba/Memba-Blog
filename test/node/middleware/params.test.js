@@ -16,7 +16,7 @@ try {
     mongoose = { Types: {
         ObjectId: function () {
             var ret = ((0.1 + 0.9 * Math.random()) * 1.e20).toString(16).substr(0, 12) + ((0.1 + 0.9 * Math.random()) * 1.e20).toString(16).substr(0, 12);
-            expect(ret).to.match(/^[a-z0-9]{24}$/);
+            expect(ret).to.match(/^[a-f0-9]{24}$/);
             return ret;
         }
     } };

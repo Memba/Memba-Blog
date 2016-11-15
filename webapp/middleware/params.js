@@ -15,7 +15,7 @@ var mongoose;
 try {
     mongoose = require('mongoose');
 } catch (exception) {
-    mongoose = { Types: { ObjectId : { isValid: function (id) { return (/^[a-z0-9]{24}$/).test(id); } } } };
+    mongoose = { Types: { ObjectId : { isValid: function (id) { return (/^[a-f0-9]{24}$/).test(id); } } } };
 }
 
 module.exports = {
