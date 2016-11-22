@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -2154,7 +2154,9 @@
                     promise = $.when.apply(null, promises).then(function () {
                         var idx, length;
                         for (idx = 0, length = arguments.length; idx < length; idx++) {
-                            that._accept(arguments[idx]);
+                            if (arguments[idx]) {
+                                that._accept(arguments[idx]);
+                            }
                         }
                         that._storeData(true);
                         that._change({ action: 'sync' });

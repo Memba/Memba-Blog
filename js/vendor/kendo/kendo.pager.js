@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -225,7 +225,7 @@
                 }
                 if (options.info) {
                     if (total > 0) {
-                        html = kendo.format(options.messages.display, (page - 1) * pageSize + 1, Math.min(page * pageSize, total), total);
+                        html = kendo.format(options.messages.display, Math.min((page - 1) * pageSize + 1, total), Math.min(page * pageSize, total), total);
                     } else {
                         html = options.messages.empty;
                     }

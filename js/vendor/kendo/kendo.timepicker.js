@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -248,16 +248,16 @@
                 return value;
             },
             _adjustListWidth: function () {
-                var list = this.list, width = list[0].style.width, wrapper = this.options.anchor, computedStyle, computedWidth;
+                var list = this.list, width = list[0].style.width, wrapper = this.options.anchor, computedStyle, computedWidth, outerWidth = kendo._outerWidth;
                 if (!list.data('width') && width) {
                     return;
                 }
                 computedStyle = window.getComputedStyle ? window.getComputedStyle(wrapper[0], null) : 0;
-                computedWidth = computedStyle ? parseFloat(computedStyle.width) : wrapper.outerWidth();
+                computedWidth = computedStyle ? parseFloat(computedStyle.width) : outerWidth(wrapper);
                 if (computedStyle && (browser.mozilla || browser.msie)) {
                     computedWidth += parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight) + parseFloat(computedStyle.borderLeftWidth) + parseFloat(computedStyle.borderRightWidth);
                 }
-                width = computedWidth - (list.outerWidth() - list.width());
+                width = computedWidth - (outerWidth(list) - list.width());
                 list.css({
                     fontFamily: wrapper.css('font-family'),
                     width: width

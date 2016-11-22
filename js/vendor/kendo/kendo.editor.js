@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -80,9 +80,6 @@
 }(function () {
     (function ($, undefined) {
         var kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, os = kendo.support.mobileOS, browser = kendo.support.browser, extend = $.extend, proxy = $.proxy, deepExtend = kendo.deepExtend, keys = kendo.keys;
-        var COLUMN_RESIZING_NS = '.kendoEditorColumnResizing';
-        var ROW_RESIZING_NS = '.kendoEditorRowResizing';
-        var TABLE_RESIZING_NS = '.kendoEditorTableResizing';
         var SELECT = 'select';
         var ToolTemplate = Class.extend({
             init: function (options) {
@@ -299,9 +296,6 @@
                 }
                 that._resizable();
                 that._initializeContentElement(that);
-                that._initializeColumnResizing();
-                that._initializeRowResizing();
-                that._initializeTableResizing();
                 that.keyboard = new editorNS.Keyboard([
                     new editorNS.BackspaceHandler(that),
                     new editorNS.TypingHandler(that),
@@ -385,7 +379,8 @@
             _initializeTableResizing: function () {
                 var editor = this;
                 kendo.ui.editor.TableResizing.create(editor);
-                editor.bind(SELECT, proxy(editor._showTableResizeHandles, editor));
+                editor._showTableResizeHandlesProxy = proxy(editor._showTableResizeHandles, editor);
+                editor.bind(SELECT, editor._showTableResizeHandlesProxy);
             },
             _destroyTableResizing: function () {
                 var editor = this;
@@ -393,6 +388,9 @@
                 if (tableResizing) {
                     tableResizing.destroy();
                     editor.tableResizing = null;
+                }
+                if (editor._showTableResizeHandlesProxy) {
+                    editor.unbind(SELECT, editor._showTableResizeHandlesProxy);
                 }
             },
             _showTableResizeHandles: function () {
@@ -453,7 +451,7 @@
                     editor.toolbar.decorateFrom(doc.body);
                 });
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge ? 'height:auto;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + 'k\\:script{display:none;}' + '</style>' + domainScript + '<script>(function(d,c){d[c](\'header\'),d[c](\'article\'),d[c](\'nav\'),d[c](\'section\'),d[c](\'footer\');})(document, \'createElement\');</script>' + $.map(stylesheets, function (href) {
+                doc.write('<!DOCTYPE html><html><head>' + '<meta charset=\'utf-8\' />' + '<style>' + 'html,body{padding:0;margin:0;height:100%;min-height:100%;}' + 'body{box-sizing:border-box;font-size:12px;font-family:Verdana,Geneva,sans-serif;margin-top:-1px;padding:5px .4em 0;' + 'word-wrap: break-word;-webkit-nbsp-mode: space;-webkit-line-break: after-white-space;' + (kendo.support.isRtl(textarea) ? 'direction:rtl;' : '') + (browser.msie || browser.edge ? 'height:auto;' : '') + (os.ios ? 'word-break:break-all;' : '') + '}' + 'h1{font-size:2em;margin:.67em 0}h2{font-size:1.5em}h3{font-size:1.16em}h4{font-size:1em}h5{font-size:.83em}h6{font-size:.7em}' + 'p{margin:0 0 1em;}.k-marker{display:none;}.k-paste-container,.Apple-style-span{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}' + 'ul,ol{padding-left:2.5em}' + 'span{-ms-high-contrast-adjust:none;}' + 'a{color:#00a}' + 'code{font-size:1.23em}' + 'telerik\\3Ascript{display: none;}' + '.k-table{width:100%;border-spacing:0;margin: 0 0 1em;}' + '.k-table td{min-width:1px;padding:.2em .3em;}' + '.k-table,.k-table td{outline:0;border: 1px dotted #ccc;}' + '.k-table p{margin:0;padding:0;}' + '.k-column-resize-handle-wrapper {position: absolute; height: 10px; width:10px; cursor: col-resize; z-index: 2;}' + '.k-column-resize-handle {width: 100%; height: 100%;}' + '.k-column-resize-handle > .k-column-resize-marker {width:2px; height:100%; margin:0 auto; background-color:#00b0ff; display:none; opacity:0.8;}' + '.k-row-resize-handle-wrapper {position: absolute; cursor: row-resize; z-index:2; width: 10px; height: 10px;}' + '.k-row-resize-handle {display: table; width: 100%; height: 100%;}' + '.k-row-resize-marker-wrapper{display: table-cell; height:100%; width:100%; margin:0; padding:0; vertical-align: middle;}' + '.k-row-resize-marker{margin: 0; padding:0; width:100%; height:2px; background-color: #00b0ff; opacity:0.8; display:none;}' + '.k-table-resize-handle-wrapper {position: absolute; background-color: #fff; border: 1px solid #000; z-index: 100; width: 5px; height: 5px;}' + '.k-table-resize-handle {width: 100%; height: 100%;}' + '.k-table-resize-handle.k-resize-east{cursor:e-resize;}' + '.k-table-resize-handle.k-resize-north{cursor:n-resize;}' + '.k-table-resize-handle.k-resize-northeast{cursor:ne-resize;}' + '.k-table-resize-handle.k-resize-northwest{cursor:nw-resize;}' + '.k-table-resize-handle.k-resize-south{cursor:s-resize;}' + '.k-table-resize-handle.k-resize-southeast{cursor:se-resize;}' + '.k-table-resize-handle.k-resize-southwest{cursor:sw-resize;}' + '.k-table-resize-handle.k-resize-west{cursor:w-resize;}' + '.k-table.k-table-resizing{opacity:0.6;}' + 'k\\:script{display:none;}' + '</style>' + domainScript + '<script>(function(d,c){d[c](\'header\'),d[c](\'article\'),d[c](\'nav\'),d[c](\'section\'),d[c](\'footer\');})(document, \'createElement\');</script>' + $.map(stylesheets, function (href) {
                     return '<link rel=\'stylesheet\' href=\'' + href + '\'>';
                 }).join('') + '</head><body autocorrect=\'off\' contenteditable=\'true\'></body></html>');
                 doc.close();
@@ -666,6 +664,9 @@
                         }, 10);
                     }
                 });
+                editor._initializeColumnResizing();
+                editor._initializeRowResizing();
+                editor._initializeTableResizing();
             },
             _initializeImmutables: function () {
                 var that = this, editorNS = kendo.ui.editor;
@@ -711,6 +712,7 @@
             refresh: function () {
                 var that = this;
                 if (that.textarea) {
+                    that._destroyResizings();
                     that.textarea.val(that.value());
                     that.wrapper.find('iframe').remove();
                     that._initializeContentElement(that);
@@ -865,20 +867,23 @@
             },
             destroy: function () {
                 var editor = this;
-                var body = $(editor.body);
                 Widget.fn.destroy.call(this);
                 this._endTyping(true);
                 this._deregisterHandlers();
                 clearTimeout(this._spellCorrectTimeout);
                 this._focusOutside();
                 this.toolbar.destroy();
-                editor._destroyTableResizing();
-                body.off(TABLE_RESIZING_NS);
-                editor._destroyRowResizing();
-                body.off(ROW_RESIZING_NS);
-                editor._destroyColumnResizing();
-                body.off(COLUMN_RESIZING_NS);
+                editor._destroyResizings();
                 kendo.destroy(this.wrapper);
+            },
+            _destroyResizings: function () {
+                var editor = this;
+                editor._destroyTableResizing();
+                kendo.ui.editor.TableResizing.dispose(editor);
+                editor._destroyRowResizing();
+                kendo.ui.editor.RowResizing.dispose(editor);
+                editor._destroyColumnResizing();
+                kendo.ui.editor.ColumnResizing.dispose(editor);
             },
             _focusOutside: function () {
                 if (kendo.support.browser.msie && this.textarea) {
@@ -2416,6 +2421,8 @@
                             specified = false;
                         } else if (scriptAttr.test(name)) {
                             specified = !!options.scripts;
+                        } else if (name == 'data-role' && value == 'resizable' && (dom.is(node, 'tr') || dom.is(node, 'td'))) {
+                            specified = false;
                         }
                         if (specified) {
                             result.push(attribute);
@@ -5552,6 +5559,7 @@
                         if (color) {
                             Tool.exec(editor, toolName, color);
                         }
+                        ui.value(null);
                         editor.focus();
                     },
                     activate: function (e) {
@@ -8097,6 +8105,8 @@
         var EditorUtils = kendo.ui.editor.EditorUtils;
         var ToolTemplate = kendo.ui.editor.ToolTemplate;
         var Tool = kendo.ui.editor.Tool;
+        var outerWidth = kendo._outerWidth;
+        var outerHeight = kendo._outerHeight;
         var OVERFLOWANCHOR = 'overflowAnchor';
         var focusable = '.k-tool-group:visible a.k-tool:not(.k-state-disabled),' + '.k-tool.k-overflow-anchor,' + '.k-tool-group:visible .k-widget.k-colorpicker,' + '.k-tool-group:visible .k-selectbox,' + '.k-tool-group:visible .k-dropdown,' + '.k-tool-group:visible .k-combobox .k-input';
         var OverflowAnchorTool = Tool.extend({
@@ -8326,12 +8336,12 @@
                     editorElement = editorOptions.element;
                     if (!wrapper.is(':visible') || !that.window.options.visible) {
                         if (!wrapper[0].style.width) {
-                            wrapper.width(editorElement.outerWidth() - parseInt(wrapper.css('border-left-width'), 10) - parseInt(wrapper.css('border-right-width'), 10));
+                            wrapper.width(outerWidth(editorElement) - parseInt(wrapper.css('border-left-width'), 10) - parseInt(wrapper.css('border-right-width'), 10));
                         }
                         if (!window._moved) {
                             editorOffset = editorElement.offset();
                             wrapper.css({
-                                top: Math.max(0, parseInt(editorOffset.top, 10) - wrapper.outerHeight() - parseInt(that.window.element.css('padding-bottom'), 10)),
+                                top: Math.max(0, parseInt(editorOffset.top, 10) - outerHeight(wrapper) - parseInt(that.window.element.css('padding-bottom'), 10)),
                                 left: Math.max(0, parseInt(editorOffset.left, 10))
                             });
                         }
@@ -8707,7 +8717,7 @@
             _refreshWidths: function () {
                 this.element.children('li').each(function (idx, element) {
                     var group = $(element);
-                    group.data('outerWidth', group.outerWidth(true));
+                    group.data('outerWidth', outerWidth(group, true));
                 });
             },
             _shrink: function (width) {
@@ -9502,6 +9512,9 @@
                     }
                 });
             },
+            dispose: function (editor, options) {
+                $(editor.body).off(options.eventNamespace);
+            },
             _initResizing: function (editor, tableElement, options) {
                 var resizingName = options.name;
                 var resizingType = options.type;
@@ -9521,6 +9534,9 @@
         ResizingFactory.current = new ResizingFactory();
         TableElementResizing.create = function (editor, options) {
             ResizingFactory.current.create(editor, options);
+        };
+        TableElementResizing.dispose = function (editor, options) {
+            ResizingFactory.current.dispose(editor, options);
         };
         extend(Editor, { TableElementResizing: TableElementResizing });
     }(window.kendo));
@@ -9549,6 +9565,7 @@
         var inPercentages = ResizingUtils.inPercentages;
         var toPercentages = ResizingUtils.toPercentages;
         var toPixels = ResizingUtils.toPixels;
+        var outerWidth = kendo._outerWidth;
         var NS = '.kendoEditorColumnResizing';
         var RESIZE_HANDLE_CLASS = 'k-column-resize-handle';
         var RESIZE_MARKER_CLASS = 'k-column-resize-marker';
@@ -9584,7 +9601,7 @@
                 var that = this;
                 var options = that.options;
                 var handleWidth = options.handle.width;
-                var borderOffset = column.offset().left + (options.rtl ? 0 : column.outerWidth());
+                var borderOffset = column.offset().left + (options.rtl ? 0 : outerWidth(column));
                 var mousePosition = e.clientX + $(column[0].ownerDocument).scrollLeft();
                 if (mousePosition > borderOffset - handleWidth && mousePosition < borderOffset + handleWidth) {
                     return true;
@@ -9601,7 +9618,7 @@
                 var rootElement = $(options.rootElement);
                 var scrollTopOffset = rootElement.is(BODY) ? 0 : rootElement.scrollTop();
                 var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
-                var columnWidthOffset = rtl ? 0 : column.outerWidth();
+                var columnWidthOffset = rtl ? 0 : outerWidth(column);
                 var scrollBarWidth = rtl ? getScrollBarWidth(rootElement[0]) : 0;
                 that.resizeHandle.css({
                     top: tableBody.position().top + scrollTopOffset,
@@ -9624,9 +9641,9 @@
                 var handleWidth = options.handle ? options.handle.width : 0;
                 var min = options.min;
                 var rtl = options.rtl;
-                var columnWidth = column.outerWidth();
+                var columnWidth = outerWidth(column);
                 var columnLeftOffset = column.position().left;
-                var adjacentColumnWidth = column.next().outerWidth() || 0;
+                var adjacentColumnWidth = outerWidth(column.next());
                 var resizeHandle = $(that.resizeHandle);
                 var rootElement = $(options.rootElement);
                 var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
@@ -9650,8 +9667,8 @@
                 var initialColumnWidth;
                 that._setTableComputedWidth();
                 that._setColumnsComputedWidth();
-                initialColumnWidth = column.outerWidth();
-                initialAdjacentColumnWidth = column.next().outerWidth() || 0;
+                initialColumnWidth = outerWidth(column);
+                initialAdjacentColumnWidth = outerWidth(column.next());
                 newWidth = constrain({
                     value: initialColumnWidth + initialDeltaX,
                     min: min,
@@ -9664,17 +9681,17 @@
             _setTableComputedWidth: function () {
                 var element = this.element;
                 if (element.style[WIDTH] === '') {
-                    element.style[WIDTH] = toPixels($(element).outerWidth());
+                    element.style[WIDTH] = toPixels(outerWidth($(element)));
                 }
             },
             _setColumnsComputedWidth: function () {
                 var that = this;
                 var tableBody = $(that.element).children(TBODY);
-                var tableBodyWidth = tableBody.outerWidth();
+                var tableBodyWidth = outerWidth(tableBody);
                 var columns = tableBody.children(TR).children(TD);
                 var length = columns.length;
                 var currentColumnsWidths = columns.map(function () {
-                    return $(this).outerWidth();
+                    return outerWidth($(this));
                 });
                 var i;
                 for (i = 0; i < length; i++) {
@@ -9700,7 +9717,7 @@
             },
             _resizeColumn: function (column, newWidth) {
                 if (inPercentages(column.style[WIDTH])) {
-                    column.style[WIDTH] = toPercentages(calculatePercentageRatio(newWidth, $(this.element).children(TBODY).outerWidth()));
+                    column.style[WIDTH] = toPercentages(calculatePercentageRatio(newWidth, outerWidth($(this.element).children(TBODY))));
                 } else {
                     column.style[WIDTH] = toPixels(newWidth);
                 }
@@ -9735,6 +9752,9 @@
                 eventNamespace: NS
             });
         };
+        ColumnResizing.dispose = function (editor) {
+            TableElementResizing.dispose(editor, { eventNamespace: NS });
+        };
         extend(Editor, { ColumnResizing: ColumnResizing });
     }(window.kendo));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
@@ -9761,6 +9781,7 @@
         var inPercentages = ResizingUtils.inPercentages;
         var toPercentages = ResizingUtils.toPercentages;
         var toPixels = ResizingUtils.toPixels;
+        var outerHeight = kendo._outerHeight;
         var NS = '.kendoEditorRowResizing';
         var RESIZE_HANDLE_CLASS = 'k-row-resize-handle';
         var RESIZE_HANDLE_MARKER_WRAPPER_CLASS = 'k-row-resize-marker-wrapper';
@@ -9790,7 +9811,7 @@
             elementBorderHovered: function (tableElement, e) {
                 var that = this;
                 var handleHeight = that.options.handle[HEIGHT];
-                var borderOffset = tableElement.offset().top + tableElement.outerHeight();
+                var borderOffset = tableElement.offset().top + outerHeight(tableElement);
                 var mousePosition = e.clientY + $(tableElement[0].ownerDocument).scrollTop();
                 if (mousePosition > borderOffset - handleHeight && mousePosition < borderOffset + handleHeight) {
                     return true;
@@ -9808,7 +9829,7 @@
                 var scrollLeftOffset = rootElement.is(BODY) ? 0 : rootElement.scrollLeft();
                 var scrollBarWidth = options.rtl ? getScrollBarWidth(rootElement[0]) : 0;
                 that.resizeHandle.css({
-                    top: rowPosition.top + row.outerHeight() + scrollTopOffset - handleHeight / 2,
+                    top: rowPosition.top + outerHeight(row) + scrollTopOffset - handleHeight / 2,
                     left: rowPosition.left + (scrollLeftOffset - scrollBarWidth),
                     position: 'absolute'
                 });
@@ -9833,7 +9854,7 @@
                 var handleOffset = constrain({
                     value: resizeHandle.position().top + scrollTopOffset + e.y.delta,
                     min: $(row).position().top + scrollTopOffset + min,
-                    max: tableBodyTopOffset + tableBody.outerHeight() + scrollTopOffset - options.handle[HEIGHT] - min
+                    max: tableBodyTopOffset + outerHeight(tableBody) + scrollTopOffset - options.handle[HEIGHT] - min
                 });
                 resizeHandle.css({ top: handleOffset });
             },
@@ -9841,9 +9862,9 @@
                 var that = this;
                 var options = that.options;
                 var row = $(e.currentTarget).data(options.handle.dataAttribute);
-                var currentRowHeight = $(row).outerHeight();
+                var currentRowHeight = outerHeight($(row));
                 var element = $(that.element);
-                var initialTableHeight = element.outerHeight();
+                var initialTableHeight = outerHeight(element);
                 var tableBody = element.children(TBODY);
                 var tableBodyHeight = tableBody.height();
                 var initialStyleHeight = row.style[HEIGHT];
@@ -9864,7 +9885,7 @@
                 var rows = $(that.element).children(TBODY).children(TR);
                 var length = rows.length;
                 var currentRowsHeights = rows.map(function () {
-                    return $(this).outerHeight();
+                    return outerHeight($(this));
                 });
                 var i;
                 for (i = 0; i < length; i++) {
@@ -9878,7 +9899,7 @@
                 var rows = tableBody.children(TR);
                 var length = rows.length;
                 var currentRowsHeights = rows.map(function () {
-                    return $(this).outerHeight();
+                    return outerHeight($(this));
                 });
                 var i;
                 for (i = 0; i < length; i++) {
@@ -9900,6 +9921,9 @@
                 type: RowResizing,
                 eventNamespace: NS
             });
+        };
+        RowResizing.dispose = function (editor) {
+            TableElementResizing.dispose(editor, { eventNamespace: NS });
         };
         extend(Editor, { RowResizing: RowResizing });
     }(window.kendo));
@@ -9923,6 +9947,8 @@
         var Draggable = kendo.ui.Draggable;
         var Observable = kendo.Observable;
         var getScrollBarWidth = Editor.ResizingUtils.getScrollBarWidth;
+        var outerWidth = kendo._outerWidth;
+        var outerHeight = kendo._outerHeight;
         var NS = '.kendoEditorTableResizeHandle';
         var RESIZE_HANDLE_CLASS = 'k-table-resize-handle';
         var DRAG_START = 'dragStart';
@@ -10108,8 +10134,8 @@
                 var handle = $(options.handle);
                 if (options.offset === HALF_INSIDE) {
                     return {
-                        top: position.top - handle.outerHeight() / 2,
-                        left: position.left - handle.outerWidth() / 2
+                        top: position.top - outerHeight(handle) / 2,
+                        left: position.left - outerWidth(handle) / 2
                     };
                 }
                 return position;
@@ -10135,8 +10161,8 @@
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
                 return {
-                    top: offset.top + resizableElement.outerHeight() / 2,
-                    left: offset.left + resizableElement.outerWidth()
+                    top: offset.top + outerHeight(resizableElement) / 2,
+                    left: offset.left + outerWidth(resizableElement)
                 };
             }
         });
@@ -10147,7 +10173,7 @@
                 var offset = resizableElement.position();
                 return {
                     top: offset.top,
-                    left: offset.left + resizableElement.outerWidth() / 2
+                    left: offset.left + outerWidth(resizableElement) / 2
                 };
             }
         });
@@ -10158,7 +10184,7 @@
                 var offset = resizableElement.position();
                 return {
                     top: offset.top,
-                    left: offset.left + resizableElement.outerWidth()
+                    left: offset.left + outerWidth(resizableElement)
                 };
             }
         });
@@ -10179,8 +10205,8 @@
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
                 return {
-                    top: offset.top + resizableElement.outerHeight(),
-                    left: offset.left + resizableElement.outerWidth() / 2
+                    top: offset.top + outerHeight(resizableElement),
+                    left: offset.left + outerWidth(resizableElement) / 2
                 };
             }
         });
@@ -10190,8 +10216,8 @@
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
                 return {
-                    top: offset.top + resizableElement.outerHeight(),
-                    left: offset.left + resizableElement.outerWidth()
+                    top: offset.top + outerHeight(resizableElement),
+                    left: offset.left + outerWidth(resizableElement)
                 };
             }
         });
@@ -10201,7 +10227,7 @@
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
                 return {
-                    top: offset.top + resizableElement.outerHeight(),
+                    top: offset.top + outerHeight(resizableElement),
                     left: offset.left
                 };
             }
@@ -10212,7 +10238,7 @@
                 var resizableElement = $(this.options.resizableElement);
                 var offset = resizableElement.position();
                 return {
-                    top: offset.top + resizableElement.outerHeight() / 2,
+                    top: offset.top + outerHeight(resizableElement) / 2,
                     left: offset.left
                 };
             }
@@ -10354,6 +10380,8 @@
         var inPixels = ResizingUtils.inPixels;
         var toPercentages = ResizingUtils.toPercentages;
         var toPixels = ResizingUtils.toPixels;
+        var outerWidth = kendo._outerWidth;
+        var outerHeight = kendo._outerHeight;
         var NS = '.kendoEditorTableResizing';
         var RESIZE_HANDLE_WRAPPER_CLASS = 'k-table-resize-handle-wrapper';
         var TABLE_CLASS = 'k-table';
@@ -10432,7 +10460,7 @@
                 var that = this;
                 var element = $(that.element);
                 var styleWidth = element[0].style[WIDTH];
-                var currentWidth = element.outerWidth();
+                var currentWidth = outerWidth(element);
                 var parentWidth = element.parent().width();
                 var maxWidth = that._getMaxDimensionValue(WIDTH);
                 var newWidth;
@@ -10469,7 +10497,7 @@
                 var that = this;
                 var element = $(that.element);
                 var styleHeight = element[0].style[HEIGHT];
-                var currentHeight = element.outerHeight();
+                var currentHeight = outerHeight(element);
                 var parent = element.parent();
                 var parentHeight = parent.height();
                 var maxHeight = that._getMaxDimensionValue(HEIGHT);
@@ -10568,7 +10596,7 @@
                 var rows = tableBody.children(ROW);
                 var length = rows.length;
                 var currentRowsHeights = rows.map(function () {
-                    return $(this).outerHeight();
+                    return outerHeight($(this));
                 });
                 var i;
                 for (i = 0; i < length; i++) {
@@ -10580,7 +10608,7 @@
                 var rows = $(that.element).children(TBODY).children(ROW);
                 var length = rows.length;
                 var currentRowsHeights = rows.map(function () {
-                    return $(this).outerHeight();
+                    return outerHeight($(this));
                 });
                 var i;
                 for (i = 0; i < length; i++) {
@@ -10647,8 +10675,8 @@
                 var that = this;
                 var element = $(that.element);
                 element.addClass(TABLE_RESIZING_CLASS);
-                that._initialElementHeight = element.outerHeight();
-                that._initialElementWidth = element.outerWidth();
+                that._initialElementHeight = outerHeight(element);
+                that._initialElementWidth = outerWidth(element);
                 that._disableKeyboard();
             },
             _onResizeHandleDrag: function (e) {
@@ -10701,6 +10729,9 @@
                     }
                 });
             },
+            dispose: function (editor) {
+                $(editor.body).off(NS);
+            },
             _initResizing: function (editor, table) {
                 if (!browser.msie && !browser.mozilla) {
                     editor.tableResizing = new TableResizing(table, {
@@ -10714,6 +10745,9 @@
         TableResizingFactory.current = new TableResizingFactory();
         TableResizing.create = function (editor) {
             TableResizingFactory.current.create(editor);
+        };
+        TableResizing.dispose = function (editor) {
+            TableResizingFactory.current.dispose(editor);
         };
         extend(Editor, { TableResizing: TableResizing });
     }(window.kendo));

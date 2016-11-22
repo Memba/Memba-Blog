@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -694,6 +694,8 @@
         var extend = $.extend;
         var isPlainObject = $.isPlainObject;
         var map = $.map;
+        var outerWidth = kendo._outerWidth;
+        var outerHeight = kendo._outerHeight;
         var keys = kendo.keys;
         var defaultIndicatorWidth = 3;
         var NS = '.kendoGantt';
@@ -968,24 +970,24 @@
                 var ganttStyles = Gantt.styles;
                 var width = list[0].style.width;
                 var wrapper = this.element.find(DOT + ganttStyles.toolbar.appendButton);
-                var outerWidth = list.outerWidth();
+                var listOuterWidth = outerWidth(list);
                 var computedStyle;
                 var computedWidth;
                 if (!list.data(WIDTH) && width) {
                     return;
                 }
                 computedStyle = window.getComputedStyle ? window.getComputedStyle(wrapper[0], null) : 0;
-                computedWidth = computedStyle ? parseFloat(computedStyle.width) : wrapper.outerWidth();
+                computedWidth = computedStyle ? parseFloat(computedStyle.width) : outerWidth(wrapper);
                 if (computedStyle && (browser.mozilla || browser.msie)) {
                     computedWidth += parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight) + parseFloat(computedStyle.borderLeftWidth) + parseFloat(computedStyle.borderRightWidth);
                 }
                 if (list.css('box-sizing') !== 'border-box') {
-                    width = computedWidth - (list.outerWidth() - list.width());
+                    width = computedWidth - (outerWidth(list) - list.width());
                 } else {
                     width = computedWidth;
                 }
-                if (outerWidth > width) {
-                    width = outerWidth;
+                if (listOuterWidth > width) {
+                    width = listOuterWidth;
                 }
                 list.css({
                     fontFamily: wrapper.css('font-family'),
@@ -1654,7 +1656,6 @@
             events: ['save'],
             open: function () {
                 this.window.center().open();
-                this.grid.resize(true);
             },
             close: function () {
                 this.window.bind('deactivate', proxy(this.destroy, this)).close();
@@ -1711,6 +1712,7 @@
                 this.close();
             },
             _initContainer: function () {
+                var that = this;
                 var popupStyles = Gantt.styles.popup;
                 var dom = kendo.format('<div class="{0} {1}"><div class="{2} {3}"/></div>"', popupStyles.form, popupStyles.editForm, popupStyles.formContainer, popupStyles.resourcesFormContainer);
                 dom = $(dom);
@@ -1720,7 +1722,10 @@
                     resizable: false,
                     draggable: true,
                     visible: false,
-                    title: this.options.messages.resourcesEditorTitle
+                    title: this.options.messages.resourcesEditorTitle,
+                    open: function () {
+                        that.grid.resize(true);
+                    }
                 }).data('kendoWindow');
                 this._resourceGrid();
                 this._createButtons();
@@ -2217,12 +2222,12 @@
                 var listSelector = DOT + ganttStyles.list;
                 var timelineSelector = DOT + ganttStyles.timeline;
                 var splitBarSelector = DOT + ganttStyles.splitBar;
-                var toolbarHeight = this.toolbar.outerHeight();
-                var footerHeight = this.footer ? this.footer.outerHeight() : 0;
+                var toolbarHeight = outerHeight(this.toolbar);
+                var footerHeight = this.footer ? outerHeight(this.footer) : 0;
                 var totalHeight = element.height();
                 var totalWidth = element.width();
-                var splitBarWidth = element.find(splitBarSelector).outerWidth();
-                var treeListWidth = element.find(listSelector).outerWidth();
+                var splitBarWidth = outerWidth(element.find(splitBarSelector));
+                var treeListWidth = outerWidth(element.find(listSelector));
                 element.children([
                     listSelector,
                     timelineSelector,
@@ -2321,7 +2326,7 @@
                     editable: this.options.editable,
                     resizable: this.options.resizable,
                     columnResizeHandleWidth: this.options.columnResizeHandleWidth,
-                    listWidth: listWrapper.outerWidth(),
+                    listWidth: outerWidth(listWrapper),
                     resourcesField: this.resources.field,
                     rowHeight: this.options.rowHeight
                 };

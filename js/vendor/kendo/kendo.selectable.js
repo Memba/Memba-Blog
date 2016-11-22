@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -296,8 +296,8 @@
                 return false;
             }
             var elementPosition = kendo.getOffset(element), right = position.left + position.width, bottom = position.top + position.height;
-            elementPosition.right = elementPosition.left + element.outerWidth();
-            elementPosition.bottom = elementPosition.top + element.outerHeight();
+            elementPosition.right = elementPosition.left + kendo._outerWidth(element);
+            elementPosition.bottom = elementPosition.top + kendo._outerHeight(element);
             return !(elementPosition.left > right || elementPosition.right < position.left || elementPosition.top > bottom || elementPosition.bottom < position.top);
         }
         kendo.ui.plugin(Selectable);

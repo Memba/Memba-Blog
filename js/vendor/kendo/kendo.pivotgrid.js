@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -76,7 +76,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Widget = ui.Widget, DataSource = kendo.data.DataSource, toString = {}.toString, identity = function (o) {
+        var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Widget = ui.Widget, DataSource = kendo.data.DataSource, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, toString = {}.toString, identity = function (o) {
                 return o;
             }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, CHANGE = 'change', ERROR = 'error', MEASURES = 'Measures', PROGRESS = 'progress', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div/>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-arrow-s', STATE_COLLAPSED = 'k-i-arrow-e', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-#=data.dataItem.value > 0 ? "open" : data.dataItem.value < 0 ? "denied" : "hold"#">#:data.dataItem.value#</span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-#=data.dataItem.value > 0 ? "increase" : data.dataItem.value < 0 ? "decrease" : "equal"#">#:data.dataItem.value#</span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
         function normalizeMeasures(measure) {
@@ -3154,7 +3154,7 @@
                 var rowsHeader = this.rowsHeader;
                 var leftColumn = rowsHeader.parent('.k-pivot-rowheaders').width(AUTO);
                 var width;
-                width = Math.max(this.measureFields.outerWidth(), this.rowFields.outerWidth());
+                width = Math.max(outerWidth(this.measureFields), outerWidth(this.rowFields));
                 width = Math.max(rowsHeader.children('table').width(), width);
                 leftColumn.width(width);
             },
@@ -3200,8 +3200,8 @@
                         rowsHeader.height(content.height() - scrollbar);
                         return;
                     }
-                    innerHeight -= that.columnFields.outerHeight();
-                    innerHeight -= that.columnsHeader.outerHeight();
+                    innerHeight -= outerHeight(that.columnFields);
+                    innerHeight -= outerHeight(that.columnsHeader);
                     if (innerHeight <= scrollbar * 2) {
                         innerHeight = scrollbar * 2 + 1;
                         if (!skipScrollbar) {

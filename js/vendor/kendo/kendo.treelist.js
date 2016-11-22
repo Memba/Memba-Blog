@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -108,6 +108,8 @@
         var kendoDomElement = kendoDom.element;
         var kendoTextElement = kendoDom.text;
         var kendoHtmlElement = kendoDom.html;
+        var outerWidth = kendo._outerWidth;
+        var outerHeight = kendo._outerHeight;
         var ui = kendo.ui;
         var DataBoundWidget = ui.DataBoundWidget;
         var DataSource = data.DataSource;
@@ -485,7 +487,7 @@
                 } else if (model.hasChildren) {
                     method = 'read';
                 }
-                return this[method]({ id: model.id }).then(proxy(this._modelLoaded, this, model.id), proxy(this._modelError, this, model.id));
+                return this[method]({ id: model.id }).done(proxy(this._modelLoaded, this, model.id)).fail(proxy(this._modelError, this, model.id));
             },
             contains: function (root, child) {
                 var rootId = root.id;
@@ -1022,7 +1024,7 @@
                     return initialHeight != newHeight;
                 };
                 if (isHeightSet(element)) {
-                    height = element.height() - header.outerHeight() - toolbar.outerHeight();
+                    height = element.height() - outerHeight(header) - outerHeight(toolbar);
                     contentWrap.height(height);
                     if (this._hasLockedColumns) {
                         scrollbar = this.table[0].offsetWidth > this.table.parent()[0].clientWidth ? scrollbar : 0;
@@ -1812,7 +1814,7 @@
                 var resizeHandle = this.resizeHandle;
                 var position = th.position();
                 var left = position.left;
-                var cellWidth = th.outerWidth();
+                var cellWidth = outerWidth(th);
                 var container = th.closest('div');
                 var clientX = e.clientX + $(window).scrollLeft();
                 var indicatorWidth = this.options.columnResizeHandleWidth || 3;
@@ -1830,7 +1832,7 @@
                 resizeHandle.show().css({
                     top: position.top,
                     left: left + cellWidth - indicatorWidth - 1,
-                    height: th.outerHeight(),
+                    height: outerHeight(th),
                     width: indicatorWidth * 3
                 }).data('th', th);
                 var that = this;
@@ -1891,13 +1893,13 @@
                     col = contentTable.children('colgroup').find('col:not(.k-group-col):not(.k-hierarchy-col):eq(' + index + ')');
                 }
                 var tables = headerTable.add(contentTable).add(footerTable);
-                var oldColumnWidth = th.outerWidth();
+                var oldColumnWidth = outerWidth(th);
                 col.width('');
                 tables.css('table-layout', 'fixed');
                 col.width('auto');
                 tables.addClass('k-autofitting');
                 tables.css('table-layout', '');
-                var newColumnWidth = Math.ceil(Math.max(th.outerWidth(), contentTable.find('tr').eq(0).children('td:visible').eq(index).outerWidth(), footerTable.find('tr').eq(0).children('td:visible').eq(index).outerWidth()));
+                var newColumnWidth = Math.ceil(Math.max(outerWidth(th), outerWidth(contentTable.find('tr').eq(0).children('td:visible').eq(index)), outerWidth(footerTable.find('tr').eq(0).children('td:visible').eq(index))));
                 col.width(newColumnWidth);
                 column.width = newColumnWidth;
                 if (options.scrollable) {
@@ -1980,7 +1982,7 @@
                         this.col = contentTable.children('colgroup').find(colSelector).add(header.find(colSelector));
                         this.th = th;
                         this.startLocation = e.x.location;
-                        this.columnWidth = th.outerWidth();
+                        this.columnWidth = outerWidth(th);
                         this.table = this.col.closest('table');
                         this.totalWidth = this.table.width();
                     },
@@ -1999,7 +2001,7 @@
                         var column = grep(treelist.columns, function (c) {
                             return c.field == field;
                         });
-                        var newWidth = Math.floor(this.th.outerWidth());
+                        var newWidth = Math.floor(outerWidth(this.th));
                         column[0].width = newWidth;
                         treelist._resize();
                         treelist._adjustRowsHeight();

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -766,7 +766,7 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, DataSource = kendo.data.DataSource, tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml, activeElement = kendo._activeElement, Widget = ui.Widget, keys = kendo.keys, isPlainObject = $.isPlainObject, extend = $.extend, map = $.map, grep = $.grep, isArray = $.isArray, inArray = $.inArray, push = Array.prototype.push, proxy = $.proxy, isFunction = kendo.isFunction, isEmptyObject = $.isEmptyObject, math = Math, PROGRESS = 'progress', ERROR = 'error', DATA_CELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', SELECTION_CELL_SELECTOR = 'tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)', NAVROW = 'tr:not(.k-footer-template):visible', NAVCELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', FIRSTNAVITEM = NAVROW + ':first>' + NAVCELL + ':first', HEADERCELLS = 'th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)', NS = '.kendoGrid', EDIT = 'edit', SAVE = 'save', REMOVE = 'remove', DETAILINIT = 'detailInit', FILTERMENUINIT = 'filterMenuInit', COLUMNMENUINIT = 'columnMenuInit', CHANGE = 'change', COLUMNHIDE = 'columnHide', COLUMNSHOW = 'columnShow', SAVECHANGES = 'saveChanges', DATABOUND = 'dataBound', DETAILEXPAND = 'detailExpand', DETAILCOLLAPSE = 'detailCollapse', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', NORECORDSCLASS = 'k-grid-norecords', COLUMNRESIZE = 'columnResize', COLUMNREORDER = 'columnReorder', COLUMNLOCK = 'columnLock', COLUMNUNLOCK = 'columnUnlock', NAVIGATE = 'navigate', CLICK = 'click', HEIGHT = 'height', TABINDEX = 'tabIndex', FUNCTION = 'function', STRING = 'string', DELETECONFIRM = 'Are you sure you want to delete this record?', NORECORDS = 'No records available.', CONFIRMDELETE = 'Delete', CANCELDELETE = 'Cancel', formatRegExp = /(\}|\#)/gi, templateHashRegExp = /#/gi, whitespaceRegExp = '[\\x20\\t\\r\\n\\f]', nonDataCellsRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-group-cell|k-hierarchy-cell)' + '(' + whitespaceRegExp + '|$)'), filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)'), COMMANDBUTTONTMPL = '<a class="k-button k-button-icontext #=className#" #=attr# href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>', isRtl = false, browser = kendo.support.browser, isIE7 = browser.msie && browser.version == 7, isIE8 = browser.msie && browser.version == 8;
+        var kendo = window.kendo, ui = kendo.ui, DataSource = kendo.data.DataSource, tbodySupportsInnerHtml = kendo.support.tbodyInnerHtml, activeElement = kendo._activeElement, Widget = ui.Widget, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, keys = kendo.keys, isPlainObject = $.isPlainObject, extend = $.extend, map = $.map, grep = $.grep, isArray = $.isArray, inArray = $.inArray, push = Array.prototype.push, proxy = $.proxy, isFunction = kendo.isFunction, isEmptyObject = $.isEmptyObject, math = Math, PROGRESS = 'progress', ERROR = 'error', DATA_CELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', SELECTION_CELL_SELECTOR = 'tbody>tr:not(.k-grouping-row):not(.k-detail-row):not(.k-group-footer) > td:not(.k-group-cell):not(.k-hierarchy-cell)', NAVROW = 'tr:not(.k-footer-template):visible', NAVCELL = ':not(.k-group-cell):not(.k-hierarchy-cell):visible', FIRSTNAVITEM = NAVROW + ':first>' + NAVCELL + ':first', HEADERCELLS = 'th.k-header:not(.k-group-cell):not(.k-hierarchy-cell)', NS = '.kendoGrid', EDIT = 'edit', SAVE = 'save', REMOVE = 'remove', DETAILINIT = 'detailInit', FILTERMENUINIT = 'filterMenuInit', COLUMNMENUINIT = 'columnMenuInit', CHANGE = 'change', COLUMNHIDE = 'columnHide', COLUMNSHOW = 'columnShow', SAVECHANGES = 'saveChanges', DATABOUND = 'dataBound', DETAILEXPAND = 'detailExpand', DETAILCOLLAPSE = 'detailCollapse', FOCUSED = 'k-state-focused', SELECTED = 'k-state-selected', NORECORDSCLASS = 'k-grid-norecords', COLUMNRESIZE = 'columnResize', COLUMNREORDER = 'columnReorder', COLUMNLOCK = 'columnLock', COLUMNUNLOCK = 'columnUnlock', NAVIGATE = 'navigate', CLICK = 'click', HEIGHT = 'height', TABINDEX = 'tabIndex', FUNCTION = 'function', STRING = 'string', DELETECONFIRM = 'Are you sure you want to delete this record?', NORECORDS = 'No records available.', CONFIRMDELETE = 'Delete', CANCELDELETE = 'Cancel', formatRegExp = /(\}|\#)/gi, templateHashRegExp = /#/gi, whitespaceRegExp = '[\\x20\\t\\r\\n\\f]', nonDataCellsRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-group-cell|k-hierarchy-cell)' + '(' + whitespaceRegExp + '|$)'), filterRowRegExp = new RegExp('(^|' + whitespaceRegExp + ')' + '(k-filter-row)' + '(' + whitespaceRegExp + '|$)'), COMMANDBUTTONTMPL = '<a class="k-button k-button-icontext #=className#" #=attr# href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>', isRtl = false, browser = kendo.support.browser, isIE7 = browser.msie && browser.version == 7, isIE8 = browser.msie && browser.version == 8;
         var VirtualScrollable = Widget.extend({
             init: function (element, options) {
                 var that = this;
@@ -2083,10 +2083,10 @@
                         left += cells[idx].offsetWidth;
                     }
                     if (groups > 0) {
-                        left += container.find('.k-group-cell:first').outerWidth() * groups;
+                        left += outerWidth(container.find('.k-group-cell:first')) * groups;
                     }
                     if (that._hasDetails()) {
-                        left += container.find('.k-hierarchy-cell:first').outerWidth();
+                        left += outerWidth(container.find('.k-hierarchy-cell:first'));
                     }
                 } else {
                     left = th.position().left;
@@ -2098,7 +2098,7 @@
                 resizeHandle.css({
                     top: th.position().top,
                     left: left - indicatorWidth,
-                    height: th.outerHeight(),
+                    height: outerHeight(th),
                     width: indicatorWidth * 3
                 }).data('th', th).show();
                 resizeHandle.off('dblclick' + NS).on('dblclick' + NS, function () {
@@ -2183,7 +2183,7 @@
                     that.resizable = new ui.Resizable(container.add(that.lockedHeader), {
                         handle: (!!options.scrollable ? '' : '>') + '.k-resize-handle',
                         hint: function (handle) {
-                            return $('<div class="k-grid-resize-indicator" />').css({ height: handle.data('th').outerHeight() + that.tbody.attr('clientHeight') });
+                            return $('<div class="k-grid-resize-indicator" />').css({ height: outerHeight(handle.data('th')) + that.tbody.attr('clientHeight') });
                         },
                         start: function (e) {
                             th = $(e.currentTarget).data('th');
@@ -2203,8 +2203,8 @@
                                 col = contentTable.children('colgroup').find('col:not(.k-group-col):not(.k-hierarchy-col):eq(' + index + ')');
                             }
                             columnStart = e.x.location;
-                            columnWidth = th.outerWidth();
-                            gridWidth = isLocked ? contentTable.children('tbody').outerWidth() : that.tbody.outerWidth();
+                            columnWidth = outerWidth(th);
+                            gridWidth = isLocked ? outerWidth(contentTable.children('tbody')) : outerWidth(that.tbody);
                             if (browser.webkit) {
                                 that.wrapper.addClass('k-grid-column-resizing');
                             }
@@ -2252,7 +2252,7 @@
                             }
                         },
                         resizeend: function () {
-                            var newWidth = th.outerWidth(), column, header;
+                            var newWidth = outerWidth(th), column, header;
                             cursor(that.wrapper, '');
                             if (browser.webkit) {
                                 that.wrapper.removeClass('k-grid-column-resizing');
@@ -2494,13 +2494,13 @@
                     col = contentTable.children('colgroup').find(notGroupOrHierarchyCol).eq(index);
                 }
                 var tables = headerTable.add(contentTable).add(footerTable);
-                var oldColumnWidth = th.outerWidth();
+                var oldColumnWidth = outerWidth(th);
                 col.width('');
                 tables.css('table-layout', 'fixed');
                 col.width('auto');
                 tables.addClass('k-autofitting');
                 tables.css('table-layout', '');
-                var newColumnWidth = Math.ceil(Math.max(th.outerWidth(), contentTable.find('tr:not(.k-grouping-row)').eq(0).children(notGroupOrHierarchyVisibleCell).eq(index).outerWidth(), footerTable.find('tr').eq(0).children(notGroupOrHierarchyVisibleCell).eq(index).outerWidth())) + 1;
+                var newColumnWidth = Math.ceil(Math.max(outerWidth(th), outerWidth(contentTable.find('tr:not(.k-grouping-row)').eq(0).children(notGroupOrHierarchyVisibleCell).eq(index)), outerWidth(footerTable.find('tr').eq(0).children(notGroupOrHierarchyVisibleCell).eq(index)))) + 1;
                 col.width(newColumnWidth);
                 column.width = newColumnWidth;
                 if (options.scrollable) {
@@ -3187,13 +3187,19 @@
                 }
             },
             saveRow: function () {
-                var that = this, container = that._editContainer, model = that._modelForContainer(container), editable = that.editable;
-                if (container && editable && editable.end() && !that.trigger(SAVE, {
+                var container = this._editContainer;
+                var model = this._modelForContainer(container);
+                var deferred = $.Deferred();
+                if (!container || !this.editable) {
+                    return deferred.resolve().promise();
+                }
+                if (!this.editable.end() || this.trigger(SAVE, {
                         container: container,
                         model: model
                     })) {
-                    that.dataSource.sync();
+                    return deferred.reject().promise();
                 }
+                return this.dataSource.sync();
             },
             _displayRow: function (row) {
                 var that = this, model = that._modelForContainer(row), related, newRow, nextRow, isSelected = row.hasClass('k-state-selected'), isAlt = row.hasClass('k-alt');
@@ -3781,7 +3787,7 @@
                 var tableContainer = row.closest('table').parent();
                 var isInLockedContainer = tableContainer.is('.k-grid-content-locked,.k-grid-header-locked');
                 var isInContent = tableContainer.is('.k-grid-content-locked,.k-grid-content,.k-virtual-scrollable-wrap');
-                var scrollableContainer = $(this.content).find('>.k-virtual-scrollable-wrap').andSelf().last()[0];
+                var scrollableContainer = $(this.content).find('>.k-virtual-scrollable-wrap').addBack().last()[0];
                 if (isInContent) {
                     if (scrollable.virtual) {
                         var rowIndex = Math.max(inArray(row[0], this._items(row.parent())), 0);
@@ -4500,7 +4506,7 @@
                 if (this.options.scrollable && this.lockedHeader) {
                     var headerTable = this.thead.parent(), headerWrap = headerTable.parent(), contentWidth = this.wrapper[0].clientWidth, groups = this._groups(), scrollbar = kendo.support.scrollbar(), cols = this.lockedHeader.find('>table>colgroup>col:not(.k-group-col, .k-hierarchy-col)'), nonLockedCols = headerTable.find('>colgroup>col:not(.k-group-col, .k-hierarchy-col)'), width = columnsWidth(cols), nonLockedColsWidth = columnsWidth(nonLockedCols), footerWrap;
                     if (groups > 0) {
-                        width += this.lockedHeader.find('.k-group-cell:first').outerWidth() * groups;
+                        width += outerWidth(this.lockedHeader.find('.k-group-cell:first')) * groups;
                     }
                     if (width >= contentWidth) {
                         width = contentWidth - 3 * scrollbar;
@@ -4523,18 +4529,18 @@
             _setContentHeight: function () {
                 var that = this, options = that.options, height = that.wrapper.innerHeight(), header = that.wrapper.children('.k-grid-header'), scrollbar = kendo.support.scrollbar();
                 if (options.scrollable && that.wrapper.is(':visible')) {
-                    height -= header.outerHeight();
+                    height -= outerHeight(header);
                     if (that.pager) {
-                        height -= that.pager.element.outerHeight();
+                        height -= outerHeight(that.pager.element);
                     }
                     if (options.groupable) {
-                        height -= that.wrapper.children('.k-grouping-header').outerHeight();
+                        height -= outerHeight(that.wrapper.children('.k-grouping-header'));
                     }
                     if (options.toolbar) {
-                        height -= that.wrapper.children('.k-grid-toolbar').outerHeight();
+                        height -= outerHeight(that.wrapper.children('.k-grid-toolbar'));
                     }
                     if (that.footerTemplate) {
-                        height -= that.wrapper.children('.k-grid-footer').outerHeight();
+                        height -= outerHeight(that.wrapper.children('.k-grid-footer'));
                     }
                     var isGridHeightSet = function (el) {
                         var initialHeight, newHeight;
@@ -4571,11 +4577,11 @@
                     return rowHeight;
                 }
                 if (!that._rowHeight) {
-                    that._rowHeight = rowHeight = that.table.outerHeight() / itemsCount;
+                    that._rowHeight = rowHeight = outerHeight(that.table) / itemsCount;
                     that._sum = rowHeight;
                     that._measures = 1;
                 }
-                var currentRowHeight = that.table.outerHeight() / itemsCount;
+                var currentRowHeight = outerHeight(that.table) / itemsCount;
                 if (rowHeight !== currentRowHeight) {
                     that._measures++;
                     that._sum += currentRowHeight;
@@ -6092,6 +6098,7 @@
                 kendo.ui.progress(element, toggle);
             },
             _resize: function (size, force) {
+                this._syncLockedContentHeight();
                 this._syncLockedHeaderHeight();
                 if (this.content) {
                     this._setContentWidth();

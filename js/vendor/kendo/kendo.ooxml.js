@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -330,7 +330,7 @@
                             };
                         }
                     }),
-                    userNames: $.map(this.options.names, function (def) {
+                    userNames: $.map(this.options.names || [], function (def) {
                         return {
                             name: def.localName,
                             localSheetId: def.sheet ? sheetIds[def.sheet.toLowerCase()] : null,
@@ -429,7 +429,6 @@
         function borderTemplate(border) {
             return '<border>' + borderSideTemplate('left', border.left) + borderSideTemplate('right', border.right) + borderSideTemplate('top', border.top) + borderSideTemplate('bottom', border.bottom) + '</border>';
         }
-        var SPAN_CELL = {};
         var EMPTY_CELL = {};
         function inflate(rows, mergedCells) {
             var rowData = [];
@@ -487,7 +486,7 @@
                 var rowSpan = cell.rowSpan || 1;
                 var colSpan = cell.colSpan || 1;
                 var cellIndex = insertCell(cellData, cell);
-                spanCell(cellData, cellIndex, colSpan);
+                spanCell(cell, cellData, cellIndex, colSpan);
                 if (rowSpan > 1 || colSpan > 1) {
                     ctx.mergedCells.push(ref(rowIndex, cellIndex) + ':' + ref(rowIndex + rowSpan - 1, cellIndex + colSpan - 1));
                 }
@@ -501,7 +500,7 @@
                             };
                             ctx.rowData.push(nextRow);
                         }
-                        spanCell(nextRow.cells, cellIndex - 1, colSpan + 1);
+                        spanCell(cell, nextRow.cells, cellIndex - 1, colSpan + 1);
                     }
                 }
             }
@@ -530,9 +529,15 @@
             }
             return index;
         }
-        function spanCell(cellData, startIndex, colSpan) {
+        function spanCell(cell, row, startIndex, colSpan) {
             for (var i = 1; i < colSpan; i++) {
-                insertCellAt(cellData, SPAN_CELL, startIndex + i);
+                var tmp = {
+                    borderTop: cell.borderTop,
+                    borderRight: cell.borderRight,
+                    borderBottom: cell.borderBottom,
+                    borderLeft: cell.borderLeft
+                };
+                insertCellAt(row, tmp, startIndex + i);
             }
         }
         kendo.ooxml = {

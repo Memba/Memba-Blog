@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -47,6 +47,8 @@
         var kendoTextElement = kendo.dom.text;
         var kendoHtmlElement = kendo.dom.html;
         var isPlainObject = $.isPlainObject;
+        var outerWidth = kendo._outerWidth;
+        var outerHeight = kendo._outerHeight;
         var extend = $.extend;
         var proxy = $.proxy;
         var browser = kendo.support.browser;
@@ -209,7 +211,7 @@
                 this.content.find(DOT + GanttView.styles.dependenciesWrapper).width(this._tableWidth);
             },
             _adjustHeight: function () {
-                this.content.height(this.element.height() - this.header.outerHeight());
+                this.content.height(this.element.height() - outerHeight(this.header));
             },
             createLayout: function (rows) {
                 var headers = this._headers(rows);
@@ -869,8 +871,8 @@
                     'left': 0
                 });
                 this.content.append(this._resizeTooltip);
-                this._resizeTooltipWidth = this._resizeTooltip.outerWidth();
-                tooltipHeight = this._resizeTooltip.outerHeight();
+                this._resizeTooltipWidth = outerWidth(this._resizeTooltip);
+                tooltipHeight = outerHeight(this._resizeTooltip);
                 tooltipTop = taskTop - tooltipHeight;
                 if (tooltipTop < 0) {
                     tooltipTop = taskTop + this._rowHeight;
@@ -930,11 +932,11 @@
                     styles: GanttView.styles,
                     text: text
                 })).appendTo(this.element);
-                var tooltipMiddle = Math.round(tooltip.outerWidth() / 2);
+                var tooltipMiddle = Math.round(outerWidth(tooltip) / 2);
                 var arrow = tooltip.find(DOT + GanttView.styles.callout);
-                var arrowHeight = Math.round(arrow.outerWidth() / 2);
+                var arrowHeight = Math.round(outerWidth(arrow) / 2);
                 tooltip.css({
-                    'top': top - (tooltip.outerHeight() + arrowHeight),
+                    'top': top - (outerHeight(tooltip) + arrowHeight),
                     'left': left - tooltipMiddle
                 });
                 arrow.css('left', tooltipMiddle - arrowHeight);
@@ -992,7 +994,7 @@
                 var rowOffset = row.offset();
                 var template = options.tooltip && options.tooltip.template ? kendo.template(options.tooltip.template) : TASK_TOOLTIP_TEMPLATE;
                 var left = isRtl ? mouseLeft - (contentOffset.left + contentScrollLeft + kendo.support.scrollbar()) : mouseLeft - (contentOffset.left - contentScrollLeft);
-                var top = rowOffset.top + row.outerHeight() - contentOffset.top + content.scrollTop();
+                var top = rowOffset.top + outerHeight(row) - contentOffset.top + content.scrollTop();
                 var tooltip = this._taskTooltip = $('<div style="z-index: 100002;" class="' + styles.tooltipWrapper + '" >' + '<div class="' + styles.taskContent + '"></div></div>');
                 var tooltipWidth;
                 tooltip.css({
@@ -1003,10 +1005,10 @@
                     task: task,
                     messages: options.messages.views
                 }));
-                if (tooltip.outerHeight() < rowOffset.top - contentOffset.top) {
-                    tooltip.css('top', rowOffset.top - contentOffset.top - tooltip.outerHeight() + content.scrollTop());
+                if (outerHeight(tooltip) < rowOffset.top - contentOffset.top) {
+                    tooltip.css('top', rowOffset.top - contentOffset.top - outerHeight(tooltip) + content.scrollTop());
                 }
-                tooltipWidth = tooltip.outerWidth();
+                tooltipWidth = outerWidth(tooltip);
                 if (tooltipWidth + left - contentScrollLeft > contentWidth) {
                     left -= tooltipWidth;
                     if (left < contentScrollLeft) {
@@ -1550,7 +1552,7 @@
                     var calculatedCellHeight;
                     var content = that.wrapper.find(DOT + styles.tasksWrapper);
                     content.append(table);
-                    calculatedRowHeight = table.find('tr').outerHeight();
+                    calculatedRowHeight = outerHeight(table.find('tr'));
                     calculatedCellHeight = table.find('td').height();
                     table.remove();
                     return {
@@ -1905,7 +1907,7 @@
                     taskElementOffset = taskElement.offset();
                     timelineOffset = this.element.offset();
                     originalPercentWidth = taskElement.find(DOT + styles.taskComplete).width();
-                    maxPercentWidth = taskElement.outerWidth();
+                    maxPercentWidth = outerWidth(taskElement);
                     clearTimeout(that._tooltipTimeout);
                     that.dragInProgress = true;
                 }).bind('drag', kendo.throttle(function (e) {
@@ -1981,8 +1983,8 @@
                     originalHandle.parent().addClass(styles.origin);
                     var elementOffset = originalHandle.offset();
                     var tablesOffset = that.wrapper.find(DOT + styles.tasksWrapper).offset();
-                    startX = Math.round(elementOffset.left - tablesOffset.left + originalHandle.outerHeight() / 2);
-                    startY = Math.round(elementOffset.top - tablesOffset.top + originalHandle.outerWidth() / 2);
+                    startX = Math.round(elementOffset.left - tablesOffset.left + outerHeight(originalHandle) / 2);
+                    startY = Math.round(elementOffset.top - tablesOffset.top + outerWidth(originalHandle) / 2);
                     clearTimeout(that._tooltipTimeout);
                     that.dragInProgress = true;
                 }).bind('drag', kendo.throttle(function (e) {

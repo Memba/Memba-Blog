@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -312,6 +312,7 @@
                 var element = this.element;
                 var height = this.options.height;
                 var border, fields;
+                var outerHeight = kendo._outerHeight;
                 if (!height) {
                     return;
                 }
@@ -319,8 +320,8 @@
                 if (element.is(':visible')) {
                     fields = element.children('.k-columns').children('div.k-state-default');
                     height = element.innerHeight();
-                    border = (element.outerHeight() - height) / 2;
-                    height = height - (fields.outerHeight(true) - fields.height()) - border;
+                    border = (outerHeight(element) - height) / 2;
+                    height = height - (outerHeight(fields, true) - fields.height()) - border;
                     fields.height(height);
                 }
             },

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -695,7 +695,7 @@
         ]
     };
     (function ($, undefined) {
-        var each = $.each, isArray = $.isArray, isPlainObject = $.isPlainObject, map = $.map, math = Math, noop = $.noop, extend = $.extend, proxy = $.proxy, kendo = window.kendo, Class = kendo.Class, Observable = kendo.Observable, DataSource = kendo.data.DataSource, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, getter = kendo.getter, isFn = kendo.isFunction, template = kendo.template, dataviz = kendo.dataviz, Axis = dataviz.Axis, AxisLabel = dataviz.AxisLabel, Box2D = dataviz.Box2D, BoxElement = dataviz.BoxElement, ChartElement = dataviz.ChartElement, Color = kendo.drawing.Color, CurveProcessor = dataviz.CurveProcessor, FloatElement = dataviz.FloatElement, Note = dataviz.Note, LogarithmicAxis = dataviz.LogarithmicAxis, NumericAxis = dataviz.NumericAxis, Point2D = dataviz.Point2D, RootElement = dataviz.RootElement, Ring = dataviz.Ring, ShapeElement = dataviz.ShapeElement, ShapeBuilder = dataviz.ShapeBuilder, TextBox = dataviz.TextBox, Title = dataviz.Title, alignPathToPixel = dataviz.alignPathToPixel, autoFormat = dataviz.autoFormat, dateComparer = dataviz.dateComparer, eventTargetElement = dataviz.eventTargetElement, getSpacing = dataviz.getSpacing, inArray = dataviz.inArray, interpolate = dataviz.interpolateValue, mwDelta = dataviz.mwDelta, round = dataviz.round, util = kendo.util, append = util.append, defined = util.defined, last = util.last, limitValue = util.limitValue, sparseArrayLimits = util.sparseArrayLimits, sparseArrayMin = util.sparseArrayMin, sparseArrayMax = util.sparseArrayMax, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, geom = dataviz.geometry, draw = dataviz.drawing;
+        var each = $.each, isArray = $.isArray, isPlainObject = $.isPlainObject, map = $.map, math = Math, noop = $.noop, extend = $.extend, proxy = $.proxy, kendo = window.kendo, Class = kendo.Class, Observable = kendo.Observable, DataSource = kendo.data.DataSource, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, getter = kendo.getter, isFn = kendo.isFunction, template = kendo.template, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, dataviz = kendo.dataviz, Axis = dataviz.Axis, AxisLabel = dataviz.AxisLabel, Box2D = dataviz.Box2D, BoxElement = dataviz.BoxElement, ChartElement = dataviz.ChartElement, Color = kendo.drawing.Color, CurveProcessor = dataviz.CurveProcessor, FloatElement = dataviz.FloatElement, Note = dataviz.Note, LogarithmicAxis = dataviz.LogarithmicAxis, NumericAxis = dataviz.NumericAxis, Point2D = dataviz.Point2D, RootElement = dataviz.RootElement, Ring = dataviz.Ring, ShapeElement = dataviz.ShapeElement, ShapeBuilder = dataviz.ShapeBuilder, TextBox = dataviz.TextBox, Title = dataviz.Title, alignPathToPixel = dataviz.alignPathToPixel, autoFormat = dataviz.autoFormat, dateComparer = dataviz.dateComparer, eventTargetElement = dataviz.eventTargetElement, getSpacing = dataviz.getSpacing, inArray = dataviz.inArray, interpolate = dataviz.interpolateValue, mwDelta = dataviz.mwDelta, round = dataviz.round, util = kendo.util, append = util.append, defined = util.defined, last = util.last, limitValue = util.limitValue, sparseArrayLimits = util.sparseArrayLimits, sparseArrayMin = util.sparseArrayMin, sparseArrayMax = util.sparseArrayMax, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, geom = dataviz.geometry, draw = dataviz.drawing;
         var NS = '.kendoChart', ABOVE = 'above', AREA = 'area', AUTO = 'auto', FIT = 'fit', AXIS_LABEL_CLICK = dataviz.AXIS_LABEL_CLICK, BAR = 'bar', BAR_ALIGN_MIN_WIDTH = 6, BAR_BORDER_BRIGHTNESS = 0.8, BELOW = 'below', BLACK = '#000', BOTH = 'both', BOTTOM = 'bottom', BOX_PLOT = 'boxPlot', BUBBLE = 'bubble', BULLET = 'bullet', CANDLESTICK = 'candlestick', CATEGORY = 'category', CENTER = 'center', CHANGE = 'change', CIRCLE = 'circle', CONTEXTMENU_NS = 'contextmenu' + NS, CLIP = dataviz.CLIP, COLOR = 'color', COLUMN = 'column', COORD_PRECISION = dataviz.COORD_PRECISION, CROSS = 'cross', CSS_PREFIX = 'k-', CUSTOM = 'custom', DATABOUND = 'dataBound', DATE = 'date', DAYS = 'days', DEFAULT_FONT = dataviz.DEFAULT_FONT, DEFAULT_HEIGHT = dataviz.DEFAULT_HEIGHT, DEFAULT_PRECISION = dataviz.DEFAULT_PRECISION, DEFAULT_WIDTH = dataviz.DEFAULT_WIDTH, DEFAULT_ERROR_BAR_WIDTH = 4, DONUT = 'donut', DONUT_SECTOR_ANIM_DELAY = 50, DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', ERROR_LOW_FIELD = 'errorLow', ERROR_HIGH_FIELD = 'errorHigh', X_ERROR_LOW_FIELD = 'xErrorLow', X_ERROR_HIGH_FIELD = 'xErrorHigh', Y_ERROR_LOW_FIELD = 'yErrorLow', Y_ERROR_HIGH_FIELD = 'yErrorHigh', FADEIN = 'fadeIn', FIRST = 'first', FROM = 'from', FUNNEL = 'funnel', GLASS = 'glass', HORIZONTAL = 'horizontal', HORIZONTAL_WATERFALL = 'horizontalWaterfall', HOURS = 'hours', INITIAL_ANIMATION_DURATION = dataviz.INITIAL_ANIMATION_DURATION, INSIDE_BASE = 'insideBase', INSIDE_END = 'insideEnd', INTERPOLATE = 'interpolate', LEAVE = 'leave', LEFT = 'left', LEGEND_ITEM_CLICK = 'legendItemClick', LEGEND_ITEM_HOVER = 'legendItemHover', LINE = 'line', LINE_MARKER_SIZE = 8, LINEAR = 'linear', LOGARITHMIC = 'log', MAX = 'max', MAX_EXPAND_DEPTH = 5, MAX_VALUE = Number.MAX_VALUE, MIN = 'min', MIN_CATEGORY_POINTS_RANGE = 0.01, MIN_VALUE = -Number.MAX_VALUE, MINUTES = 'minutes', MONTHS = 'months', MOUSELEAVE_NS = 'mouseleave' + NS, MOUSEMOVE_TRACKING = 'mousemove.tracking', MOUSEMOVE_NS = 'mousemove' + NS, MOUSEMOVE_DELAY = 20, MOUSEWHEEL_DELAY = 150, MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, NOTE_CLICK = dataviz.NOTE_CLICK, NOTE_HOVER = dataviz.NOTE_HOVER, NOTE_TEXT = 'noteText', OBJECT = 'object', OHLC = 'ohlc', OUTSIDE_END = 'outsideEnd', PIE = 'pie', PIE_SECTOR_ANIM_DELAY = 70, PLOT_AREA_CLICK = 'plotAreaClick', PLOT_AREA_HOVER = 'plotAreaHover', POINTER = 'pointer', RANGE_BAR = 'rangeBar', RANGE_COLUMN = 'rangeColumn', RENDER = 'render', RIGHT = 'right', ROUNDED_BEVEL = 'roundedBevel', ROUNDED_GLASS = 'roundedGlass', SCATTER = 'scatter', SCATTER_LINE = 'scatterLine', SECONDS = 'seconds', MILLISECONDS = 'milliseconds', SELECT_START = 'selectStart', SELECT = 'select', SELECT_END = 'selectEnd', SERIES_CLICK = 'seriesClick', SERIES_HOVER = 'seriesHover', START_SCALE = kendo.support.browser.msie && kendo.support.browser.version === 10 ? 0.001 : 0, STEP = 'step', SMOOTH = 'smooth', STD_ERR = 'stderr', STD_DEV = 'stddev', STRING = 'string', SUMMARY_FIELD = 'summary', TIME_PER_MILLISECOND = 1, TIME_PER_SECOND = 1000 * TIME_PER_MILLISECOND, TIME_PER_MINUTE = 60 * TIME_PER_SECOND, TIME_PER_HOUR = 60 * TIME_PER_MINUTE, TIME_PER_DAY = 24 * TIME_PER_HOUR, TIME_PER_WEEK = 7 * TIME_PER_DAY, TIME_PER_MONTH = 31 * TIME_PER_DAY, TIME_PER_YEAR = 365 * TIME_PER_DAY, TIME_PER_UNIT = {
                 'years': TIME_PER_YEAR,
                 'months': TIME_PER_MONTH,
@@ -1488,6 +1488,10 @@
                     }
                     chart._propagateClick(element, e);
                 }
+                chart._supressMouseleave = true;
+                setTimeout(function () {
+                    chart._supressMouseleave = false;
+                }, 0);
             },
             _click: function (e) {
                 var chart = this, element = chart._getChartElement(e);
@@ -1516,12 +1520,13 @@
                         tooltip.show(point);
                     }
                     highlight.show(point);
-                    return point.tooltipTracking;
+                    return point;
                 }
             },
             _mouseover: function (e) {
                 var chart = this;
-                if (chart._startHover(e.element, e.originalEvent)) {
+                var point = chart._startHover(e.element, e.originalEvent);
+                if (point && point.tooltipTracking) {
                     $(document).on(MOUSEMOVE_TRACKING, proxy(chart._mouseMoveTracking, chart));
                 }
             },
@@ -1591,7 +1596,7 @@
             },
             _mouseleave: function (e) {
                 var chart = this, plotArea = chart._plotArea, tooltip = chart._tooltip, highlight = chart._highlight, target = e.relatedTarget;
-                if (!(target && $(target).closest(tooltip.element).length)) {
+                if (!(target && $(target).closest(tooltip.element).length) && !chart._supressMouseleave) {
                     chart._mousemove.cancel();
                     plotArea.hideCrosshairs();
                     highlight.hide();
@@ -9162,8 +9167,8 @@
             _offset: function () {
                 var tooltip = this, size = tooltip._measure(), anchor = tooltip.anchor, chartPadding = tooltip._padding(), chartOffset = tooltip.chartElement.offset(), top = round(anchor.y + chartPadding.top + chartOffset.top), left = round(anchor.x + chartPadding.left + chartOffset.left), zoomLevel = kendo.support.zoomLevel(), viewport = $(window), scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0, scrollLeft = window.pageXOffset || document.documentElement.scrollLeft || 0, movable = (this._mobileScroller || {}).movable;
                 if (!movable || movable.scale === 1) {
-                    top += tooltip._fit(top - scrollTop, size.height, viewport.outerHeight() / zoomLevel);
-                    left += tooltip._fit(left - scrollLeft, size.width, viewport.outerWidth() / zoomLevel);
+                    top += tooltip._fit(top - scrollTop, size.height, outerHeight(viewport) / zoomLevel);
+                    left += tooltip._fit(left - scrollLeft, size.width, outerWidth(viewport) / zoomLevel);
                 } else {
                     var transform = geom.transform().scale(movable.scale, movable.scale, [
                         movable.x,
@@ -9216,8 +9221,8 @@
             _measure: function () {
                 this._ensureElement();
                 var size = {
-                    width: this.element.outerWidth(),
-                    height: this.element.outerHeight()
+                    width: outerWidth(this.element),
+                    height: outerHeight(this.element)
                 };
                 return size;
             },

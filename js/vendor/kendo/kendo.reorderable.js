@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, getOffset = kendo.getOffset, Widget = kendo.ui.Widget, CHANGE = 'change', KREORDERABLE = 'k-reorderable';
+        var kendo = window.kendo, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, getOffset = kendo.getOffset, Widget = kendo.ui.Widget, CHANGE = 'change', KREORDERABLE = 'k-reorderable';
         function toggleHintClass(hint, denied) {
             hint = $(hint);
             if (denied) {
@@ -82,11 +82,11 @@
                                 that._dropTarget = dropTarget;
                             } else {
                                 if (that._index(dropTarget) > that._index(that._draggable)) {
-                                    left += dropTarget.outerWidth();
+                                    left += outerWidth(dropTarget);
                                 }
                             }
                             that.reorderDropCue.css({
-                                height: dropTarget.outerHeight(),
+                                height: outerHeight(dropTarget),
                                 top: offset.top,
                                 left: left
                             }).appendTo(document.body);
@@ -140,7 +140,7 @@
                             return;
                         }
                         var dropStartOffset = getOffset(that._dropTarget).left;
-                        var width = that._dropTarget.outerWidth();
+                        var width = outerWidth(that._dropTarget);
                         if (e.pageX > dropStartOffset + width / 2) {
                             that.reorderDropCue.css({ left: dropStartOffset + width });
                         } else {

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -668,7 +668,7 @@
         ]
     };
     (function ($, undefined) {
-        var math = Math, proxy = $.proxy, isArray = $.isArray, kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, template = kendo.template, deepExtend = kendo.deepExtend, HierarchicalDataSource = kendo.data.HierarchicalDataSource, getter = kendo.getter, dataviz = kendo.dataviz;
+        var math = Math, proxy = $.proxy, isArray = $.isArray, kendo = window.kendo, outerHeight = kendo._outerHeight, outerWidth = kendo._outerWidth, Class = kendo.Class, Widget = kendo.ui.Widget, template = kendo.template, deepExtend = kendo.deepExtend, HierarchicalDataSource = kendo.data.HierarchicalDataSource, getter = kendo.getter, dataviz = kendo.dataviz;
         var NS = '.kendoTreeMap', CHANGE = 'change', DATA_BOUND = 'dataBound', ITEM_CREATED = 'itemCreated', MAX_VALUE = Number.MAX_VALUE, MOUSEOVER_NS = 'mouseover' + NS, MOUSELEAVE_NS = 'mouseleave' + NS, UNDEFINED = 'undefined';
         var TreeMap = Widget.extend({
             init: function (element, options) {
@@ -746,7 +746,7 @@
                     this._cleanItems();
                     this.element.empty();
                     item = this._wrapItem(items[0]);
-                    this._layout.createRoot(item, this.element.outerWidth(), this.element.outerHeight(), this.options.type === 'vertical');
+                    this._layout.createRoot(item, outerWidth(this.element), outerHeight(this.element), this.options.type === 'vertical');
                     this._view.createRoot(item);
                     this._root = item;
                     this._colorIdx = 0;
@@ -876,8 +876,8 @@
                 if (root) {
                     var element = this.element;
                     var rootElement = element.children();
-                    root.coord.width = element.outerWidth();
-                    root.coord.height = element.outerHeight();
+                    root.coord.width = outerWidth(element);
+                    root.coord.height = outerHeight(element);
                     rootElement.css({
                         width: root.coord.width,
                         height: root.coord.height
@@ -1096,7 +1096,7 @@
                         htmlSize.text = title.height();
                     }
                     rootElement.append(this._createWrap());
-                    this.offset = (rootElement.outerWidth() - rootElement.innerWidth()) / 2;
+                    this.offset = (outerWidth(rootElement) - rootElement.innerWidth()) / 2;
                 }
                 return htmlSize;
             },
@@ -1316,7 +1316,7 @@
                         }
                     }
                     rootElement.append(this._createWrap());
-                    this.offset = (rootElement.outerWidth() - rootElement.innerWidth()) / 2;
+                    this.offset = (outerWidth(rootElement) - rootElement.innerWidth()) / 2;
                 }
                 return htmlSize;
             },

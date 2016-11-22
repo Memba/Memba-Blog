@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -316,8 +316,8 @@
             _mouseleave: function (e) {
                 if (this.popup) {
                     var element = $(e.currentTarget), offset = element.offset(), pageX = e.pageX, pageY = e.pageY;
-                    offset.right = offset.left + element.outerWidth();
-                    offset.bottom = offset.top + element.outerHeight();
+                    offset.right = offset.left + kendo._outerWidth(element);
+                    offset.bottom = offset.top + kendo._outerHeight(element);
                     if (pageX > offset.left && pageX < offset.right && pageY > offset.top && pageY < offset.bottom) {
                         return;
                     }

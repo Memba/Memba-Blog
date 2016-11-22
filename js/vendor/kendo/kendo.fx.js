@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -698,7 +698,7 @@
                 return this;
             },
             prepare: function (start, end) {
-                var that = this, tmp, element = that.element, direction = directions[that._direction], offset = -direction.modifier * (direction.vertical ? element.outerHeight() : element.outerWidth()), startValue = offset / (that.options && that.options.divisor || 1) + PX, endValue = '0px';
+                var that = this, tmp, element = that.element, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, direction = directions[that._direction], offset = -direction.modifier * (direction.vertical ? outerHeight(element) : outerWidth(element)), startValue = offset / (that.options && that.options.divisor || 1) + PX, endValue = '0px';
                 if (that._reverse) {
                     tmp = start;
                     start = end;
@@ -1181,8 +1181,8 @@
         fx.box = function (element) {
             element = $(element);
             var result = element.offset();
-            result.width = element.outerWidth();
-            result.height = element.outerHeight();
+            result.width = kendo._outerWidth(element);
+            result.height = kendo._outerHeight(element);
             return result;
         };
         fx.transformOrigin = function (inner, outer) {

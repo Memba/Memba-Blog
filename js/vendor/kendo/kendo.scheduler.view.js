@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -35,7 +35,7 @@
     };
     kendo.ui.scheduler = {};
     (function ($) {
-        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, keys = kendo.keys, NS = '.kendoSchedulerView', math = Math;
+        var kendo = window.kendo, ui = kendo.ui, Widget = ui.Widget, outerHeight = kendo._outerHeight, keys = kendo.keys, NS = '.kendoSchedulerView', math = Math;
         function levels(values, key) {
             var result = [];
             function collect(depth, values) {
@@ -1436,23 +1436,23 @@
                 }
                 var columnLevels = this.columnLevels = levels(layout, 'columns');
                 var rowLevels = this.rowLevels = levels(layout, 'rows');
-                this.table = $('<table ' + cellspacing() + ' class="k-scheduler-layout k-scheduler-' + this.name + 'view"/>');
+                this.table = $('<table ' + cellspacing() + ' class="k-scheduler-layout k-scheduler-' + this.name + 'view"><tbody></tbody></table>');
                 var rowCount = rowLevels[rowLevels.length - 1].length;
-                this.table.append(this._topSection(columnLevels, allDaySlot, rowCount));
-                this.table.append(this._bottomSection(columnLevels, rowLevels, rowCount));
+                this.table.find('tbody:first').append(this._topSection(columnLevels, allDaySlot, rowCount));
+                this.table.find('tbody:first').append(this._bottomSection(columnLevels, rowLevels, rowCount));
                 this.element.append(this.table);
                 this._scroller();
             },
             refreshLayout: function () {
                 var that = this, toolbar = that.element.find('>.k-scheduler-toolbar'), height = that.element.innerHeight(), scrollbar = this._scrollbar, headerHeight = 0, paddingDirection = this._isRtl ? 'left' : 'right';
                 for (var idx = 0; idx < toolbar.length; idx++) {
-                    height -= toolbar.eq(idx).outerHeight();
+                    height -= outerHeight(toolbar.eq(idx));
                 }
                 if (that.datesHeader) {
-                    headerHeight = that.datesHeader.outerHeight();
+                    headerHeight = outerHeight(that.datesHeader);
                 }
-                if (that.timesHeader && that.timesHeader.outerHeight() > headerHeight) {
-                    headerHeight = that.timesHeader.outerHeight();
+                if (that.timesHeader && outerHeight(that.timesHeader) > headerHeight) {
+                    headerHeight = outerHeight(that.timesHeader);
                 }
                 if (that.datesHeader && that.timesHeader) {
                     var datesHeaderRows = that.datesHeader.find('table:first tr');
@@ -1464,7 +1464,7 @@
                     height -= headerHeight;
                 }
                 if (that.footer) {
-                    height -= that.footer.outerHeight();
+                    height -= outerHeight(that.footer);
                 }
                 var isSchedulerHeightSet = function (el) {
                     var initialHeight, newHeight;

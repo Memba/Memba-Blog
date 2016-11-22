@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -39,7 +39,7 @@
         advanced: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, proxy = $.proxy, isRtl = false, NS = '.kendoGroupable', CHANGE = 'change', indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' + '<a href="\\#" class="k-link">' + '<span class="k-icon k-i-sarrow-${(data.dir || "asc") == "asc" ? "n" : "s"}">(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})</span>' + '${data.title ? data.title: data.field}' + '</a>' + '<a class="k-button k-button-icon k-button-bare">' + '<span class="k-icon k-i-group-delete"></span>' + '</a>' + '</div>', { useWithBlock: false }), hint = function (target) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, outerWidth = kendo._outerWidth, proxy = $.proxy, isRtl = false, NS = '.kendoGroupable', CHANGE = 'change', indicatorTmpl = kendo.template('<div class="k-group-indicator" data-#=data.ns#field="${data.field}" data-#=data.ns#title="${data.title || ""}" data-#=data.ns#dir="${data.dir || "asc"}">' + '<a href="\\#" class="k-link">' + '<span class="k-icon k-i-sarrow-${(data.dir || "asc") == "asc" ? "n" : "s"}">(sorted ${(data.dir || "asc") == "asc" ? "ascending": "descending"})</span>' + '${data.title ? data.title: data.field}' + '</a>' + '<a class="k-button k-button-icon k-button-bare">' + '<span class="k-icon k-i-group-delete"></span>' + '</a>' + '</div>', { useWithBlock: false }), hint = function (target) {
                 var title = target.attr(kendo.attr('title'));
                 if (title) {
                     title = kendo.htmlEncode(title);
@@ -105,7 +105,7 @@
                     group: draggable.options.group,
                     dragcancel: proxy(that._dragCancel, that),
                     dragstart: function (e) {
-                        var element = e.currentTarget, marginLeft = parseInt(element.css('marginLeft'), 10), elementPosition = element.position(), left = isRtl ? elementPosition.left - marginLeft : elementPosition.left + element.outerWidth();
+                        var element = e.currentTarget, marginLeft = parseInt(element.css('marginLeft'), 10), elementPosition = element.position(), left = isRtl ? elementPosition.left - marginLeft : elementPosition.left + outerWidth(element);
                         intializePositions();
                         dropCue.css({
                             top: dropCueOffsetTop(that.groupContainer),
@@ -146,7 +146,7 @@
                         if (dropCuePositions.length) {
                             element = dropCuePositions[dropCuePositions.length - 1].element;
                             marginRight = parseInt(element.css('marginRight'), 10);
-                            left = element.position().left + element.outerWidth() + marginRight;
+                            left = element.position().left + outerWidth(element) + marginRight;
                         } else {
                             left = 0;
                         }
@@ -270,7 +270,7 @@
                 var lastCuePosition = dropCuePositions[dropCuePositions.length - 1], left = lastCuePosition.left, right = lastCuePosition.right, marginLeft = parseInt(lastCuePosition.element.css('marginLeft'), 10), marginRight = parseInt(lastCuePosition.element.css('marginRight'), 10);
                 if (position >= right && !isRtl || position < left && isRtl) {
                     position = {
-                        left: lastCuePosition.element.position().left + (!isRtl ? lastCuePosition.element.outerWidth() + marginRight : -marginLeft),
+                        left: lastCuePosition.element.position().left + (!isRtl ? outerWidth(lastCuePosition.element) + marginRight : -marginLeft),
                         element: lastCuePosition.element,
                         before: false
                     };
@@ -280,7 +280,7 @@
                     })[0];
                     if (position) {
                         position = {
-                            left: isRtl ? position.element.position().left + position.element.outerWidth() + marginRight : position.element.position().left - marginLeft,
+                            left: isRtl ? position.element.position().left + outerWidth(position.element) + marginRight : position.element.position().left - marginLeft,
                             element: position.element,
                             before: true
                         };
@@ -323,7 +323,7 @@
                     left = kendo.getOffset(item).left;
                     return {
                         left: parseInt(left, 10),
-                        right: parseInt(left + item.outerWidth(), 10),
+                        right: parseInt(left + outerWidth(item), 10),
                         element: item
                     };
                 });

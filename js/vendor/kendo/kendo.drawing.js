@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1587,7 +1587,7 @@
     ], f);
 }(function () {
     (function ($) {
-        var noop = $.noop, toString = Object.prototype.toString, kendo = window.kendo, Class = kendo.Class, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, util = kendo.util, defined = util.defined, limitValue = util.limitValue, g = kendo.geometry, proxy = $.proxy, NS = '.kendo', TOOLTIP_TEMPLATE = '<div class="k-tooltip">' + '<div class="k-tooltip-content"></div>' + '</div>', TOOLTIP_CLOSE_TEMPLATE = '<div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close">close</a></div>';
+        var noop = $.noop, toString = Object.prototype.toString, kendo = window.kendo, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, Class = kendo.Class, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, util = kendo.util, defined = util.defined, limitValue = util.limitValue, g = kendo.geometry, proxy = $.proxy, NS = '.kendo', TOOLTIP_TEMPLATE = '<div class="k-tooltip">' + '<div class="k-tooltip-content"></div>' + '</div>', TOOLTIP_CLOSE_TEMPLATE = '<div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close">close</a></div>';
         var Surface = Widget.extend({
             init: function (element, options) {
                 this.options = deepExtend({}, this.options, options);
@@ -2104,8 +2104,8 @@
                     width: defined(options.width) ? options.width : 'auto',
                     height: defined(options.height) ? options.height : 'auto'
                 });
-                width = this.element.outerWidth();
-                height = this.element.outerHeight();
+                width = outerWidth(this.element);
+                height = outerHeight(this.element);
                 if (!visible) {
                     this.popup.wrapper.hide();
                 }

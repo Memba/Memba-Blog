@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -903,7 +903,7 @@
             _setRange: function () {
                 var plotArea = this.chart._createPlotArea(true);
                 var axis = plotArea.namedCategoryAxes[NAVIGATOR_AXIS];
-                var range = axis.datesRange();
+                var range = axis.range();
                 var min = range.min;
                 var max = range.max;
                 var select = this.options.select || {};
@@ -1216,7 +1216,7 @@
                     });
                 }
                 tooltip.html(text).css({
-                    left: bbox.center().x - tooltip.outerWidth() / 2,
+                    left: bbox.center().x - kendo._outerWidth(tooltip) / 2,
                     top: bbox.y1
                 });
                 scroll.css({

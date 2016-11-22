@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -34,7 +34,7 @@
         hidden: true
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.ui, setTime = kendo.date.setTime, SchedulerView = ui.SchedulerView, extend = $.extend, proxy = $.proxy, getDate = kendo.date.getDate, MS_PER_MINUTE = kendo.date.MS_PER_MINUTE, MS_PER_DAY = kendo.date.MS_PER_DAY, CURRENT_TIME_MARKER_CLASS = 'k-current-time', CURRENT_TIME_MARKER_ARROW_CLASS = 'k-current-time-arrow', BORDER_SIZE_COEFF = 0.8666, getMilliseconds = kendo.date.getMilliseconds, NS = '.kendoMultiDayView';
+        var kendo = window.kendo, ui = kendo.ui, setTime = kendo.date.setTime, SchedulerView = ui.SchedulerView, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, extend = $.extend, proxy = $.proxy, getDate = kendo.date.getDate, MS_PER_MINUTE = kendo.date.MS_PER_MINUTE, MS_PER_DAY = kendo.date.MS_PER_DAY, CURRENT_TIME_MARKER_CLASS = 'k-current-time', CURRENT_TIME_MARKER_ARROW_CLASS = 'k-current-time-arrow', BORDER_SIZE_COEFF = 0.8666, getMilliseconds = kendo.date.getMilliseconds, NS = '.kendoMultiDayView';
         var DAY_VIEW_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t} - {1:t}", start, end)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template k-event-time">#:kendo.format("{0:t} - {1:t}", start, end)#</div>' + '<div class="k-event-template">${title}</div>' + '</div>'), DAY_VIEW_ALL_DAY_EVENT_TEMPLATE = kendo.template('<div title="(#=kendo.format("{0:t}", start)#): #=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">${title}</div>' + '</div>'), DATA_HEADER_TEMPLATE = kendo.template('<span class=\'k-link k-nav-day\'>#=kendo.toString(date, \'ddd M/dd\')#</span>'), ALLDAY_EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color#; border-color: #=resources[0].color#"' + 'class="k-event#=inverseColor ? " k-event-inverse" : ""#" ' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-w"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-exception"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-refresh"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-si-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-e"></span>' + '#}#' + '</span>' + '#if(resizable && !singleDay && !data.tail && !data.middle){#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '#if(resizable && !singleDay && !data.head && !data.middle){#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" ' + 'data-#=ns#uid="#=uid#" ' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event#=inverseColor ? " k-event-inverse" : ""#"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.isException()) {#' + '<span class="k-icon k-i-exception"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-refresh"></span>' + '# } #' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-si-close"></span></a>' + '#}#' + '</span>' + '<span class="k-event-top-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-n"></span>' + '# } #' + '</span>' + '<span class="k-event-bottom-actions">' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-s"></span>' + '# } #' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-n"></span>' + '# } #' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-s"></span>' + '# } #' + '</div>';
         function toInvariantTime(date) {
             var staticDate = new Date(1980, 1, 1, 0, 0, 0);
@@ -137,13 +137,13 @@
                         var markerTopPosition = Math.round(ranges[0].innerRect(currentTime, new Date(currentTime.getTime() + 1), false).top);
                         var timesTableMarkerCss = {};
                         if (this._isRtl) {
-                            timesTableMarkerCss.right = firstTimesCell.position().left + firstTimesCell.outerHeight() - lastTimesCell.outerHeight();
+                            timesTableMarkerCss.right = firstTimesCell.position().left + outerHeight(firstTimesCell) - outerHeight(lastTimesCell);
                             timesTableMarker.addClass(CURRENT_TIME_MARKER_ARROW_CLASS + '-left');
                         } else {
                             timesTableMarkerCss.left = lastTimesCell.position().left;
                             timesTableMarker.addClass(CURRENT_TIME_MARKER_ARROW_CLASS + '-right');
                         }
-                        timesTableMarkerCss.top = markerTopPosition - timesTableMarker.outerWidth() * BORDER_SIZE_COEFF / 2;
+                        timesTableMarkerCss.top = markerTopPosition - outerWidth(timesTableMarker) * BORDER_SIZE_COEFF / 2;
                         timesTableMarker.css(timesTableMarkerCss);
                         $(elementHtml).prependTo(this.content).css({
                             top: markerTopPosition,
@@ -934,13 +934,13 @@
                     var th = $(e.currentTarget).closest('th');
                     var offset = th.offset();
                     var additioanlWidth = 0;
-                    var additionalHeight = th.outerHeight();
+                    var additionalHeight = outerHeight(th);
                     if (that._isGroupedByDate()) {
                         if (that._isVerticallyGrouped()) {
-                            additioanlWidth = that.times.outerWidth();
+                            additioanlWidth = outerWidth(that.times);
                             additionalHeight = 0;
                         } else {
-                            additionalHeight = that.datesHeader.outerHeight();
+                            additionalHeight = outerHeight(that.datesHeader);
                         }
                     }
                     var slot = that._slotByPosition(offset.left + additioanlWidth, offset.top + additionalHeight);

@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
+ * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -248,7 +248,7 @@
                 if (that.options.transport && that.options.transport.thumbnailUrl) {
                     clearTimeout(that._timeout);
                     that._timeout = setTimeout(function () {
-                        var height = that.list.outerHeight(), viewTop = that.list.scrollTop(), viewBottom = viewTop + height;
+                        var height = kendo._outerHeight(that.list), viewTop = that.list.scrollTop(), viewBottom = viewTop + height;
                         that._tiles.each(function () {
                             var top = offsetTop(this), bottom = top + this.offsetHeight;
                             if (top >= viewTop && top < viewBottom || bottom >= viewTop && bottom < viewBottom) {
