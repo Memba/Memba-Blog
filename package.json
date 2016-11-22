@@ -39,7 +39,7 @@
     "nconf": "^0.8.4",
     "node-uuid": "^1.4.7",
     "qs": "^6.3.0",
-    "request": "^2.78.0"
+    "request": "^2.79.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.5.3",
