@@ -38,7 +38,7 @@
     content: "\f105";
 }
 .kf-sync:before {
-    content: "\e325";
+    content: "\e340";
 }
 .kf-signout:before {
     content: "\f106";
@@ -134,17 +134,17 @@
     content: "\f114";
 }
 .kf-score:before {
-    content: "\f115";
+    content: "\e330";
 }
 .kf-twitter:before {
     content: "\e550";
 }
 .kf-user:before {
-    content: "\f116";
+    content: "\f115";
 }
 .kf-uservoice:before {
-    content: "\f117";
+    content: "\f116";
 }
 .kf-youtube:before {
-    content: "\f118";
+    content: "\f117";
 }
