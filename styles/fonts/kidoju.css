@@ -46,6 +46,9 @@
 .kf-drawer:before {
     content: "\e300";
 }
+.kf-ear:before {
+    content: "\e360";
+}
 .kf-view:before {
     content: "\f107";
 }
