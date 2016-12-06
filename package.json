@@ -42,7 +42,7 @@
     "chokidar": "^1.6.1",
     "cors": "^2.8.1",
     "deep-extend": "^0.4.1",
-    "ejs": "^2.5.3",
+    "ejs": "^2.5.5",
     "express": "^4.14.0",
     "helmet": "^3.1.0",
     "highlight.js": "^9.8.0",
