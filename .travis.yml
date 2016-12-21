@@ -22,4 +22,5 @@ before_install:
   - "selenium-standalone install"
   - "selenium-standalone start &"
 before_script:
+  - "if [ -d $TRAVIS_BUILD_DIR/webapp/cache ]; then rm -f $TRAVIS_BUILD_DIR/webapp/cache/*; fi"
   - "grunt build"
