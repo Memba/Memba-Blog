@@ -11,7 +11,8 @@ env:
 addons:
   apt:
     packages:
-      - g++
+      - gcc-4.8
+      - g++-4.8
 before_install:
   - "npm install -g npm"
   - "npm install -g grunt-cli"
