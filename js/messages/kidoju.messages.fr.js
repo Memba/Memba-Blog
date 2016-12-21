@@ -380,6 +380,8 @@
                     tools.dropzone.constructor.prototype.description = 'Zone de Dépot';
                     // Attributes
                     attributes = tools.dropzone.constructor.prototype.attributes;
+                    attributes.center.title = 'Centrer';
+                    attributes.text.defaultValue = false;
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
                     attributes.text.defaultValue = 'Veuillez déposer ici.';
@@ -431,6 +433,8 @@
                     attributes = tools.mathexpression.constructor.prototype.attributes;
                     attributes.formula.title = 'Formule';
                     attributes.formula.defaultValue = '\\sum_{n=1}^{\\infty}2^{-n}=1';
+                    attributes.inline.title = 'Aligné';
+                    attributes.inline.defaultValue = false;
                     attributes.style.title = 'Style';
                 }
 
