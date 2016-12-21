@@ -1,7 +1,9 @@
 sudo: false
 language: node_js
 node_js:
+  - "7"
   - "6"
+  - "5"
   - "4"
   - "0.12"
   - "0.11"
@@ -14,6 +16,7 @@ addons:
       - g++
 before_install:
   - "npm install -g npm"
+  - "npm explore npm -g -- npm install node-gyp@latest"
   - "npm install -g grunt-cli"
   - "npm install -g selenium-standalone"
   - "selenium-standalone install"
