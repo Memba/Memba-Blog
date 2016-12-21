@@ -93,7 +93,9 @@
 
                 } else if (locale === undefined) {
 
-                    // if (window.cordova) { // Phonegap
+                    // Note: cordova-plugin-globalization has method navigator.globalization.getLocaleName
+                    // but this method is asynchronous, so it is called in onDeviceReady to set LANGUAGE in window.localStorage
+
                     if (app.mobile && kendo.mobile && kendo.mobile.Application &&
                         app.mobile.application instanceof kendo.mobile.Application) {
                         return window.localStorage.getItem(LANGUAGE) || 'en';
