@@ -23,7 +23,7 @@ if (/^win/.test(process.platform)) {
         // Drivers can be downloaded at http://docs.seleniumhq.org/download/
         javaArgs: [
             // Add Microsoft Edge driver
-            '-Dwebdriver.edge.driver=' + path.join(__dirname, './test/bin/MicrosoftWebDriver.exe'),
+            '-Dwebdriver.edge.driver=' + path.join(__dirname, './test/bin/MicrosoftWebDriver.exe')
             // Add opera driver
             // '-Dwebdriver.opera.driver=' + path.join(__dirname, './test/bin/operadriver.exe')
         ]
