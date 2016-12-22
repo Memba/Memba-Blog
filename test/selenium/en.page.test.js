@@ -25,7 +25,7 @@ describe('English pages', function () {
 
     before(function (done) {
         browser.url(webapp.home);
-        // Note: it won't work in PhantomJS without settings the window size
+        // Note: it won't work in PhantomJS without setting the window size
         browser.windowHandleSize({ width:1280, height:800 });
     });
 
