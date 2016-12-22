@@ -1,6 +1,6 @@
 /****************************************************************
- * On any platform including Travis-CI
- ****************************************************************/
+* On any platform including Travis-CI
+****************************************************************/
 var seleniumArgs = {};
 var capabilities = [{
     // maxInstances can get overwritten per capability. So if you have an in-house Selenium
@@ -64,12 +64,12 @@ if (/^win/.test(process.platform)) {
         }
         /*
          {
-             maxInstances: 1,
-             browserName: 'operablink'
-             operaOptions: {
-                 // binary: 'C:\\Program Files (x86)\\Opera\\launcher.exe'
-                 binary: 'C:\\Program Files (x86)\\Opera\\42.0.2393.94\\opera.exe'
-            }
+         maxInstances: 1,
+         browserName: 'operablink'
+         operaOptions: {
+         // binary: 'C:\\Program Files (x86)\\Opera\\launcher.exe'
+         binary: 'C:\\Program Files (x86)\\Opera\\42.0.2393.94\\opera.exe'
+         }
          }
          */
 
@@ -138,18 +138,7 @@ exports.config = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://docs.saucelabs.com/reference/platforms-configurator
     //
-    capabilities: capabilities, // See above
-    //
-    // When enabled opens a debug port for node-inspector and pauses execution
-    // on `debugger` statements. The node-inspector can be attached with:
-    // `node-inspector --debug-port 5859 --no-preload`
-    // When debugging it is also recommended to change the timeout interval of
-    // test runner (eg. jasmineNodeOpts.defaultTimeoutInterval) to a very high
-    // value and setting maxInstances to 1.
-    // debug: false,
-    //
-    // Additional list node arguments to use when starting child processes
-    // execArgv: null,
+    capabilities: capabilities,
     //
     // ===================
     // Test Configurations

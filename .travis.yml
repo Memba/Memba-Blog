@@ -20,6 +20,5 @@ before_install:
   - "npm install -g grunt-cli"
   - "npm install -g selenium-standalone"
   - "selenium-standalone install"
-  - "selenium-standalone start &"
 before_script:
   - "grunt build"

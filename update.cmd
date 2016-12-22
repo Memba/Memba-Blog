@@ -183,6 +183,11 @@ REM ------------------------------------------------------------
 REM Tests
 REM ------------------------------------------------------------
 
+REM Copy ./test/bin files
+ATTRIB -R .\test\bin\*.*
+XCOPY ..\..\Kidoju\Kidoju.Webapp\test\bin\*.* .\test\bin\ /C /E /I /R /Y
+ATTRIB +R .\test\bin\*.*
+
 REM Copy ./test/node/common.js files
 ATTRIB -R .\test\node\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\common.js .\test\node /Y
