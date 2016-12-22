@@ -1,5 +1,105 @@
-exports.config = {
+/****************************************************************
+ * On any platform including Travis-CI
+ ****************************************************************/
+var seleniumArgs = {};
+var capabilities = [{
+    // maxInstances can get overwritten per capability. So if you have an in-house Selenium
+    // grid with only 5 firefox instance available you can make sure that not more than
+    // 5 instance gets started at a time.
+    maxInstances: 5,
+    // The following are the default drivers installed with selenium-standalone
+    // browserName: 'chrome'
+    // browserName: 'firefox' // gecko
+    // browserName: 'internet explorer'
+    // The following driver is installed with phantomjs-brebuilt
+    browserName: 'phantomjs'
+}];
+/****************************************************************
+ * On our Windows environment
+ ****************************************************************/
+if (/^win/.test(process.platform)) {
+    var path = require('path');
+    seleniumArgs = {
+        // Drivers can be downloaded at http://docs.seleniumhq.org/download/
+        javaArgs: [
+            // Add Microsoft Edge driver
+            '-Dwebdriver.edge.driver=' + path.join(__dirname, './test/bin/MicrosoftWebDriver.exe'),
+            // Add opera driver
+            // '-Dwebdriver.opera.driver=' + path.join(__dirname, './test/bin/operadriver.exe')
+        ]
+        // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
+        // seleniumArgs: [],
+        // version
+        // spawnCb
+        // drivers
+        // basePath
+        // javaPath
+    };
+    capabilities = [
+        {
+            maxInstances: 1,
+            browserName: 'chrome'
+        },
+        {
+            maxInstances: 1,
+            browserName: 'firefox',
+            // @see https://github.com/vvo/selenium-standalone/issues/237
+            // @see http://stackoverflow.com/questions/38125581/how-to-enable-a-firefox-extension-when-testing-with-selenium-webdriverio
+            marionette: true
+        },
+        {
+            maxInstances: 1,
+            browserName: 'internet explorer'
+        },
+        {
+            maxInstances: 1,
+            browserName: 'MicrosoftEdge'
+        },
+        {
+            maxInstances: 1,
+            browserName: 'phantomjs',
+            // Without the path, phantomJS is not found on Windows
+            'phantomjs.binary.path': 'C:\\Program Files (x86)\\PhantomJS\\bin\\phantomjs.EXE'
+            // 'phantomjs.binary.path': path.join(__dirname, './node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe')
+        }
+        /*
+         {
+             maxInstances: 1,
+             browserName: 'operablink'
+             operaOptions: {
+                 // binary: 'C:\\Program Files (x86)\\Opera\\launcher.exe'
+                 binary: 'C:\\Program Files (x86)\\Opera\\42.0.2393.94\\opera.exe'
+            }
+         }
+         */
 
+    ];
+}
+
+exports.config = {
+    // =====================
+    // Server Configurations
+    // =====================
+    // Host address of the running Selenium server. This information is usually obsolete as
+    // WebdriverIO automatically connects to localhost. Also, if you are using one of the
+    // supported cloud services like Sauce Labs, Browserstack, or Testing Bot you don't
+    // need to define host and port information because WebdriverIO can figure that out
+    // according to your user and key information. However, if you are using a private Selenium
+    // backend you should define the host address, port, and path here.
+    //
+    // host: '0.0.0.0',
+    // port: 4444,
+    // path: '/wd/hub',
+    //
+    // =================
+    // Service Providers
+    // =================
+    // WebdriverIO supports Sauce Labs, Browserstack, and Testing Bot (other cloud providers
+    // should work too though). These services define specific user and key (or access key)
+    // values you need to put in here in order to connect to these services.
+    //
+    // user: 'webdriverio',
+    // key:  'xxxxxxxxxxxxxxxx-xxxxxx-xxxxx-xxxxxxxxx',
     //
     // ==================
     // Specify Test Files
@@ -38,18 +138,18 @@ exports.config = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://docs.saucelabs.com/reference/platforms-configurator
     //
-    capabilities: [{
-        // maxInstances can get overwritten per capability. So if you have an in-house Selenium
-        // grid with only 5 firefox instance available you can make sure that not more than
-        // 5 instance gets started at a time.
-        maxInstances: 5,
-        //
-        // browserName: 'chrome'
-        // browserName: 'firefox'
-        // browserName: 'internet explorer'
-        // browserName: 'MicrosoftEdge'
-        browserName: 'phantomjs'
-    }],
+    capabilities: capabilities, // See above
+    //
+    // When enabled opens a debug port for node-inspector and pauses execution
+    // on `debugger` statements. The node-inspector can be attached with:
+    // `node-inspector --debug-port 5859 --no-preload`
+    // When debugging it is also recommended to change the timeout interval of
+    // test runner (eg. jasmineNodeOpts.defaultTimeoutInterval) to a very high
+    // value and setting maxInstances to 1.
+    // debug: false,
+    //
+    // Additional list node arguments to use when starting child processes
+    // execArgv: null,
     //
     // ===================
     // Test Configurations
@@ -108,6 +208,10 @@ exports.config = {
     // commands. Instead, they hook themselves up into the test process.
     // services: [],//
     services: ['selenium-standalone'],
+    // selenium-standalone configuration
+    // @see http://webdriver.io/guide/services/selenium-standalone.html
+    // @see https://www.npmjs.com/package/selenium-standalone
+    seleniumArgs: seleniumArgs,
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
     // see also: http://webdriver.io/guide/testrunner/frameworks.html
