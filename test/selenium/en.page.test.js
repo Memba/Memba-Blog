@@ -20,6 +20,7 @@ var webapp = {
     privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'privacy')),
     terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'terms'))
 };
+var WAIT = 1000;
 
 describe('English pages', function () {
 
@@ -32,6 +33,7 @@ describe('English pages', function () {
     describe('When navigating pages', function () {
 
         it('it should land on the home page with a choice of languages', function () {
+            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
             browser.logger.info(browser.getUrl());
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.isExisting('nav.navbar')).to.be.true;
@@ -40,6 +42,7 @@ describe('English pages', function () {
         });
 
         it('it should find and navigate support', function () {
+            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', '') + '"]');
             expect(browser.getUrl()).to.equal(webapp.index);
@@ -48,6 +51,7 @@ describe('English pages', function () {
         });
 
         it('it should find and navigate faqs', function () {
+            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a.dropdown-toggle');
             browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'faqs') + '"]');
@@ -57,6 +61,7 @@ describe('English pages', function () {
         });
 
         it('it should find and navigate privacy', function () {
+            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a.dropdown-toggle');
             browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'privacy') + '"]');
@@ -66,6 +71,7 @@ describe('English pages', function () {
         });
 
         it('it should find and navigate terms', function () {
+            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a.dropdown-toggle');
             browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'terms') + '"]');

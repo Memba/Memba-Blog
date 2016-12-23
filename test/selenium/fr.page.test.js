@@ -20,7 +20,7 @@ var webapp = {
     privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'privacy')),
     terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'terms'))
 };
-
+var WAIT = 1000;
 
 describe('French pages', function () {
 
@@ -33,6 +33,7 @@ describe('French pages', function () {
     describe('When navigating pages', function () {
 
         it('it should find and navigate support', function () {
+            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', '') + '"]');
             expect(browser.getUrl()).to.equal(webapp.index);
@@ -41,6 +42,7 @@ describe('French pages', function () {
         });
 
         it('it should find and navigate faqs', function () {
+            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a.dropdown-toggle');
             browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', 'faqs') + '"]');
@@ -50,6 +52,7 @@ describe('French pages', function () {
         });
 
         it('it should find and navigate privacy', function () {
+            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a.dropdown-toggle');
             browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', 'privacy') + '"]');
@@ -59,6 +62,7 @@ describe('French pages', function () {
         });
 
         it('it should find and navigate terms', function () {
+            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
             browser.logger.info(browser.getUrl());
             browser.click('nav.navbar a.dropdown-toggle');
             browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', 'terms') + '"]');
