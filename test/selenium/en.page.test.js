@@ -20,21 +20,85 @@ var webapp = {
     privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'privacy')),
     terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'terms'))
 };
-var WAIT = 1000;
+var WAIT = 2000;
 
+/**
+ * Tests that a page is loaded
+ * @returns {boolean}
+ */
+function pageComplete() {
+    return 'complete' ===  browser.execute(function () { return document.readyState }).value;
+}
+
+/**
+ * browser.clickEx because browser.click raises errors
+ * in Microsoft Edge: `Element is obscured` (always)
+ * in internet explorer: `Cannot click on element` (often)
+ * @param selector
+ */
+browser.clickEx = function (selector) {
+    if (browser.desiredCapabilities.browserName === 'internet explorer' || browser.desiredCapabilities.browserName === 'MicrosoftEdge') {
+        browser.execute(function (el) { document.querySelector(el).click(); }, selector);
+    } else {
+        browser.click(selector);
+    }
+    // Give some time for click, especially to execute animations
+    browser.pause(100);
+};
+
+/**
+ * browser.waitForVisibleEx because browser.waitForVisible raises:
+ * In PhantomJS: Promise was rejected with the following reason: timeout (always)
+ * In Firefox: element (body>div.k-loading-image) still visible after 2000ms (sometimes)
+ * @param selector
+ */
+browser.waitForVisibleEx = function (selector, timeout, reverse) {
+    if (browser.desiredCapabilities.browserName !== 'phantomjs') {
+        browser.waitForVisible(selector, timeout, reverse);
+        /*
+         browser.waitUntil(function () {
+             var visible = browser.isVisible(selector);
+             var element = browser.element(selector);
+             browser.logger.info('------------------> browser: ' + browser.desiredCapabilities.browserName +
+                 ', display: ' + element.getCssProperty('display').value +
+                 ', opacity: ' + element.getCssProperty('opacity').value +
+                 ', visible: ' + visible);
+             return reverse ? !visible : visible;
+         }, timeout, 'waitUntil timeout', Math.floor(timeout / 5));
+         */
+    }
+};
+
+/**
+ * We are testing, finally!
+ */
 describe('English pages', function () {
 
-    before(function (done) {
+    var tabId;
+
+    before(function () {
+        if (browser.desiredCapabilities.browserName === 'firefox') {
+            // This prevents `No such content frame; perhaps the listener was not registered?`
+            browser.pause(100);
+        }
         browser.url(webapp.home);
+        tabId = browser.getCurrentTabId();
         // Note: it won't work in PhantomJS without setting the window size
         browser.windowHandleSize({ width:1280, height:800 });
     });
 
     describe('When navigating pages', function () {
 
-        it('it should land on the home page with a choice of languages', function () {
-            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
+        this.retries(2);
+
+        beforeEach(function () {
+            // browser.switchTab ensures we are running all tests on the same tab
+            // especially as we have experienced extensions like Skype that open a welcome page in a new tab
+            browser.switchTab(tabId);
             browser.logger.info(browser.getUrl());
+        });
+
+        it('it should land on the home page with a choice of languages', function () {
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.isExisting('nav.navbar')).to.be.true;
             expect(browser.isExisting('div.uk.flag')).to.be.true;
@@ -42,39 +106,39 @@ describe('English pages', function () {
         });
 
         it('it should find and navigate support', function () {
-            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
-            browser.logger.info(browser.getUrl());
-            browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', '') + '"]');
+            browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
+            browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', '') + '"]');
+            browser.waitUntil(pageComplete, WAIT);
             expect(browser.getUrl()).to.equal(webapp.index);
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.getText('div.page-header span')).to.equal('Support');
         });
 
         it('it should find and navigate faqs', function () {
-            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
-            browser.logger.info(browser.getUrl());
-            browser.click('nav.navbar a.dropdown-toggle');
-            browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'faqs') + '"]');
+            browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
+            browser.clickEx('nav.navbar a.dropdown-toggle');
+            browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'faqs') + '"]');
+            browser.waitUntil(pageComplete, WAIT);
             expect(browser.getUrl()).to.equal(webapp.faqs);
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.getText('div.page-header span')).to.equal('Frequently Asked Questions');
         });
 
         it('it should find and navigate privacy', function () {
-            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
-            browser.logger.info(browser.getUrl());
-            browser.click('nav.navbar a.dropdown-toggle');
-            browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'privacy') + '"]');
+            browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
+            browser.clickEx('nav.navbar a.dropdown-toggle');
+            browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'privacy') + '"]');
+            browser.waitUntil(pageComplete, WAIT);
             expect(browser.getUrl()).to.equal(webapp.privacy);
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.getText('div.page-header span')).to.equal('Privacy Policy');
         });
 
         it('it should find and navigate terms', function () {
-            browser.waitForVisible('body>div.k-loading-image', WAIT, true);
-            browser.logger.info(browser.getUrl());
-            browser.click('nav.navbar a.dropdown-toggle');
-            browser.click('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'terms') + '"]');
+            browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
+            browser.clickEx('nav.navbar a.dropdown-toggle');
+            browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'terms') + '"]');
+            browser.waitUntil(pageComplete, WAIT);
             expect(browser.getUrl()).to.equal(webapp.terms);
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.getText('div.page-header span')).to.equal('Terms of Use');
