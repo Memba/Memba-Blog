@@ -215,6 +215,11 @@ ATTRIB +R .\test\node\middleware\notFound.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.js .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\params.test.js
 
+REM Copy ./test/selenium files
+ATTRIB -R .\test\selenium\selenium.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\selenium\selenium.js .\test\selenium /Y
+ATTRIB +R .\test\selenium\selenium.js
+
 REM Copy ./test/vendor files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\test\vendor  .\test\vendor /C /E /I /R /Y
 ATTRIB +R .\test\vendor\*.* /S
