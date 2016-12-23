@@ -13,6 +13,8 @@ var NAME = 'Memba Robot';
 
 describe('lib/github', function () {
 
+    this.retries(2);
+
     var content = {
         path: 'temp/' + ((1 + Math.random()) * 1e10).toString(36).slice(-5) + '.md',
         markdown: '# This is a dummy sample\n\nwith dummy content',
