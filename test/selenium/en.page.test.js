@@ -23,51 +23,9 @@ var webapp = {
 var WAIT = 2000;
 
 /**
- * Tests that a page is loaded
- * @returns {boolean}
+ * Enhance browser with our Ex functions
  */
-function pageComplete() {
-    return 'complete' ===  browser.execute(function () { return document.readyState }).value;
-}
-
-/**
- * browser.clickEx because browser.click raises errors
- * in Microsoft Edge: `Element is obscured` (always)
- * in internet explorer: `Cannot click on element` (often)
- * @param selector
- */
-browser.clickEx = function (selector) {
-    if (browser.desiredCapabilities.browserName === 'internet explorer' || browser.desiredCapabilities.browserName === 'MicrosoftEdge') {
-        browser.execute(function (el) { document.querySelector(el).click(); }, selector);
-    } else {
-        browser.click(selector);
-    }
-    // Give some time for click, especially to execute animations
-    browser.pause(100);
-};
-
-/**
- * browser.waitForVisibleEx because browser.waitForVisible raises:
- * In PhantomJS: Promise was rejected with the following reason: timeout (always)
- * In Firefox: element (body>div.k-loading-image) still visible after 2000ms (sometimes)
- * @param selector
- */
-browser.waitForVisibleEx = function (selector, timeout, reverse) {
-    if (browser.desiredCapabilities.browserName !== 'phantomjs') {
-        browser.waitForVisible(selector, timeout, reverse);
-        /*
-         browser.waitUntil(function () {
-             var visible = browser.isVisible(selector);
-             var element = browser.element(selector);
-             browser.logger.info('------------------> browser: ' + browser.desiredCapabilities.browserName +
-                 ', display: ' + element.getCssProperty('display').value +
-                 ', opacity: ' + element.getCssProperty('opacity').value +
-                 ', visible: ' + visible);
-             return reverse ? !visible : visible;
-         }, timeout, 'waitUntil timeout', Math.floor(timeout / 5));
-         */
-    }
-};
+require('./selenium');
 
 /**
  * We are testing, finally!
@@ -85,6 +43,8 @@ describe('English pages', function () {
         tabId = browser.getCurrentTabId();
         // Note: it won't work in PhantomJS without setting the window size
         browser.windowHandleSize({ width:1280, height:800 });
+        // Find a way to reset the cache
+        // browser.refresh();
     });
 
     describe('When navigating pages', function () {
@@ -108,7 +68,7 @@ describe('English pages', function () {
         it('it should find and navigate support', function () {
             browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
             browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', '') + '"]');
-            browser.waitUntil(pageComplete, WAIT);
+            browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.index);
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.getText('div.page-header span')).to.equal('Support');
@@ -118,7 +78,7 @@ describe('English pages', function () {
             browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
             browser.clickEx('nav.navbar a.dropdown-toggle');
             browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'faqs') + '"]');
-            browser.waitUntil(pageComplete, WAIT);
+            browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.faqs);
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.getText('div.page-header span')).to.equal('Frequently Asked Questions');
@@ -128,7 +88,7 @@ describe('English pages', function () {
             browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
             browser.clickEx('nav.navbar a.dropdown-toggle');
             browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'privacy') + '"]');
-            browser.waitUntil(pageComplete, WAIT);
+            browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.privacy);
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.getText('div.page-header span')).to.equal('Privacy Policy');
@@ -138,7 +98,7 @@ describe('English pages', function () {
             browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
             browser.clickEx('nav.navbar a.dropdown-toggle');
             browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'terms') + '"]');
-            browser.waitUntil(pageComplete, WAIT);
+            browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.terms);
             expect(browser.getAttribute('html', 'lang')).to.equal('en');
             expect(browser.getText('div.page-header span')).to.equal('Terms of Use');

@@ -23,82 +23,9 @@ var webapp = {
 var WAIT = 2000;
 
 /**
- * Tests that a page is loading
- * @returns {boolean}
+ * Enhance browser with our Ex functions
  */
-function pageLoading() {
-    var readyState =  browser.execute(function () { return document.readyState }).value;
-    return readyState === 'loading';
-}
-
-/**
- * Tests that a page is loaded
- * @returns {boolean}
- */
-function pageComplete() {
-    var readyState =  browser.execute(function () { return document.readyState }).value;
-    return readyState === 'complete';
-}
-
-/**
- * browser.clickEx because browser.click raises errors
- * in Microsoft Edge: `Element is obscured` (always)
- * in internet explorer: `Cannot click on element` (often)
- * @param selector
- */
-browser.clickEx = function (selector) {
-    if (browser.desiredCapabilities.browserName === 'internet explorer' || browser.desiredCapabilities.browserName === 'MicrosoftEdge') {
-       browser.execute(function (el) { document.querySelector(el).click(); }, selector);
-    } else {
-        browser.click(selector);
-    }
-    // Give some time for click, especially to execute animations
-    browser.pause(100);
-};
-
-/**
- * browser.waitForVisibleEx because browser.waitForVisible raises:
- * In PhantomJS: Promise was rejected with the following reason: timeout (always)
- * In Firefox: element (body>div.k-loading-image) still visible after 2000ms (sometimes)
- * @param selector
- */
-browser.waitForVisibleEx = function (selector, timeout, reverse) {
-    if (browser.desiredCapabilities.browserName !== 'phantomjs') {
-        browser.waitForVisible(selector, timeout, reverse);
-        /*
-         browser.waitUntil(function () {
-             var visible = browser.isVisible(selector);
-             var element = browser.element(selector);
-             browser.logger.info('------------------> browser: ' + browser.desiredCapabilities.browserName +
-                 ', display: ' + element.getCssProperty('display').value +
-                 ', opacity: ' + element.getCssProperty('opacity').value +
-                 ', visible: ' + visible);
-             return reverse ? !visible : visible;
-         }, timeout, 'waitUntil timeout', Math.floor(timeout / 5));
-         */
-    }
-};
-
-/**
- * browser.alertTextEx because
- * 1) phantomjs does not have alerts
- * 2) browser.alertText fails on Microsoft Edge
- */
-browser.alertTextEx = function (text) {
-    return (browser.desiredCapabilities.browserName === 'phantomjs') ||
-        (browser.desiredCapabilities.browserName === 'MicrosoftEdge') ||
-        browser.alertText(text);
-};
-
-/**
- * browser.alertAcceptEx because
- * 1) phantomjs does not have alerts
- */
-browser.alertAcceptEx = function () {
-    if (browser.desiredCapabilities.browserName !== 'phantomjs') {
-        return browser.alertAccept();
-    }
-};
+require('./selenium');
 
 /**
  * We are testing, finally!
@@ -116,6 +43,8 @@ describe('French pages', function () {
         tabId = browser.getCurrentTabId();
         // Note: it won't work in PhantomJS without setting the window size
         browser.windowHandleSize({ width: 1280, height: 800 });
+        // Find a way to reset the cache
+        // browser.refresh();
     });
 
     describe('When navigating pages', function () {
@@ -133,7 +62,7 @@ describe('French pages', function () {
 
         it('it should find and navigate support', function () {
             browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', '') + '"]');
-            browser.waitUntil(pageComplete, WAIT);
+            browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.index);
             expect(browser.getAttribute('html', 'lang')).to.equal('fr');
             expect(browser.getText('div.page-header span')).to.equal('Support');
@@ -143,7 +72,7 @@ describe('French pages', function () {
             browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
             browser.clickEx('nav.navbar a.dropdown-toggle');
             browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', 'faqs') + '"]');
-            browser.waitUntil(pageComplete, WAIT);
+            browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.faqs);
             expect(browser.getAttribute('html', 'lang')).to.equal('fr');
             expect(browser.getText('div.page-header span')).to.equal('Questions fréquentes');
@@ -153,7 +82,7 @@ describe('French pages', function () {
             browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
             browser.clickEx('nav.navbar a.dropdown-toggle');
             browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', 'privacy') + '"]');
-            browser.waitUntil(pageComplete, WAIT);
+            browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.privacy);
             expect(browser.getAttribute('html', 'lang')).to.equal('fr');
             expect(browser.getText('div.page-header span')).to.equal('Confidentialité des données');
@@ -164,7 +93,7 @@ describe('French pages', function () {
             browser.clickEx('nav.navbar a.dropdown-toggle');
             browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'fr', 'terms') + '"]');
             if (browser.desiredCapabilities.browserName === 'firefox') {
-                browser.waitUntil(pageLoading, WAIT);
+                browser.waitForReadyStateEx('loading', WAIT);
             } // else {
             // Error: No tab modal was open when attempting to get the dialog text
                 browser.pause(100);
@@ -172,7 +101,7 @@ describe('French pages', function () {
             if (browser.alertTextEx()) {
                 browser.alertAcceptEx(); // browser.alertDismiss();
             }
-            browser.waitUntil(pageComplete, WAIT);
+            browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.terms);
             expect(browser.getAttribute('html', 'lang')).to.equal('fr');
             expect(browser.getText('div.page-header span')).to.equal('Conditions d\'utilisation');
