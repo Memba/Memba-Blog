@@ -41,6 +41,7 @@ if (/^win/.test(process.platform)) {
         {
             maxInstances: 1,
             browserName: 'chrome'
+            // unexpectedAlertBehaviour: 'ignore' - use it to display an alert that is not seen
         },
         {
             maxInstances: 1,
