@@ -23,9 +23,10 @@ if (/^win/.test(process.platform)) {
         // Drivers can be downloaded at http://docs.seleniumhq.org/download/
         javaArgs: [
             // Add Microsoft Edge driver
-            '-Dwebdriver.edge.driver=' + path.join(__dirname, './test/bin/MicrosoftWebDriver.exe')
+            '-Dwebdriver.edge.driver=' + path.join(__dirname, './test/bin/MicrosoftWebDriver.exe'),
             // Add opera driver
             // '-Dwebdriver.opera.driver=' + path.join(__dirname, './test/bin/operadriver.exe')
+            '-Dwebdriver.opera.driver=' + path.join(__dirname, './node_modules/selenium-standalone/.selenium/chromedriver/2.25-x64-chromedriver')
         ]
         // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
         // seleniumArgs: [],
@@ -36,6 +37,7 @@ if (/^win/.test(process.platform)) {
         // javaPath
     };
     capabilities = [
+        // @see https://medium.com/@jlchereau/how-to-configure-webdrivier-io-with-selenium-standalone-and-additional-browsers-9369d38bc4d1
         {
             maxInstances: 1,
             browserName: 'chrome'
@@ -61,18 +63,17 @@ if (/^win/.test(process.platform)) {
             // Without the path, phantomJS is not found on Windows
             'phantomjs.binary.path': 'C:\\Program Files (x86)\\PhantomJS\\bin\\phantomjs.EXE'
             // 'phantomjs.binary.path': path.join(__dirname, './node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe')
-        }
-        /*
+        },
         {
             maxInstances: 1,
-            browserName: 'operablink'
-            operaOptions: {
+            browserName: 'operablink',
+            chromeOptions: {
+                args: [],
+                extensions: [],
                 // binary: 'C:\\Program Files (x86)\\Opera\\launcher.exe'
                 binary: 'C:\\Program Files (x86)\\Opera\\42.0.2393.94\\opera.exe'
             }
         }
-         */
-
     ];
 }
 
