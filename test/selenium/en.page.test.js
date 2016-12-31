@@ -37,7 +37,7 @@ describe('English pages', function () {
     before(function () {
         if (browser.desiredCapabilities.browserName === 'firefox') {
             // This prevents `No such content frame; perhaps the listener was not registered?`
-            browser.pause(100);
+            browser.pause(200);
         }
         browser.url(webapp.home);
         tabId = browser.getCurrentTabId();
@@ -49,7 +49,8 @@ describe('English pages', function () {
 
     describe('When navigating pages', function () {
 
-        this.retries(2);
+        // Retry all tests in this suite up to 3 times
+        this.retries(3);
 
         beforeEach(function () {
             // browser.switchTab ensures we are running all tests on the same tab
