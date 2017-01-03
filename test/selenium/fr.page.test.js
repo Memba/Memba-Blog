@@ -20,7 +20,12 @@ var webapp = {
     privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'privacy')),
     terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'fr', 'terms'))
 };
+
 var WAIT = 2000;
+var SCREEN = {
+    HEIGHT: 800,
+    WIDTH: 1280
+};
 
 /**
  * Enhance browser with our Ex functions
@@ -42,7 +47,7 @@ describe('French pages', function () {
         browser.url(webapp.index);
         tabId = browser.getCurrentTabId();
         // Note: it won't work in PhantomJS without setting the window size
-        browser.windowHandleSize({ width: 1280, height: 800 });
+        browser.windowHandleSize({ height: SCREEN.HEIGHT, width: SCREEN.WIDTH });
         // Find a way to reset the cache
         // browser.refresh();
     });
