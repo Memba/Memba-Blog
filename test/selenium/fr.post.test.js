@@ -23,7 +23,7 @@ var FIRST_TITLE = 'Memba';
 // Links in the navbar are in the form /en/posts instead of http://www.memba.com/en/posts
 var posts = util.format(config.get('uris:webapp:posts'), LOCALE, '', '', '').replace(/[\/]+/g, '/').replace(/\/$/, '');
 var webapp = {
-    home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')) + LOCALE,
+    home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
     locale: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:locale'), LOCALE)),
     posts: url.join(config.get('uris:webapp:root'), posts),
     calendar: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:posts'), LOCALE, FIRST_YEAR, FIRST_MONTH, '').replace(/[\/]+/g, '/').replace(/\/$/, '')) + '/',
@@ -51,6 +51,7 @@ describe('French posts', function () {
             // This prevents `No such content frame; perhaps the listener was not registered?`
             browser.pause(200);
         }
+        // browser.url(webapp.home);
         browser.url(webapp.locale);
         tabId = browser.getCurrentTabId();
         // Note: it won't work in PhantomJS without setting the window size
