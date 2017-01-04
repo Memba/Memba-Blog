@@ -28,28 +28,33 @@ if (typeof(require) === 'function') {
     var navigator = window.navigator;
     var STANDALONE = 'standalone';
 
-    // prevents links from apps from opening in mobile safari
-    // this javascript must be the first script in your <head>
+    // Prevents links from opening in mobile safari when web application is running standalone (web-app-capable)
+    // Especially when navigating categories or searching for kidojus in the explorer
+    // Note: to debug in Chrome, remove the standalone test
     if ((STANDALONE in navigator) && navigator[STANDALONE]) {
-        var curnode;
-        var chref;
+
         var location = document.location;
-        var stop = /^(a|html)$/i;
+        var CLOSEST = /^(a|html)$/i;
+        var STRING = 'string';
+
         document.addEventListener('click', function (e) {
-            curnode = e.target;
-            while (!(stop).test(curnode.nodeName)) {
+            var curnode = e.target;
+            // Find the closest anchor
+            while (!(CLOSEST).test(curnode.nodeName)) {
                 curnode = curnode.parentNode;
             }
-            // Conditions to do this only on links to your own app
-            // if you want all links, use if('href' in curnode) instead.
+            var chref = curnode.href;
             if (
-                'href' in curnode && // is a link
-                (chref = curnode.href).replace(location.href, '').indexOf('#') && // is not an anchor
-                (!(/^[a-z\+\.\-]+:/i).test(chref) ||                       // either does not have a proper scheme (relative links)
-                chref.indexOf(location.protocol + '//' + location.host) === 0) // or is in the same protocol and domain
+                $.type(chref) === STRING &&                                                                     // is a link
+                chref.length > 1 &&                                                                             // is not empty (signInDialog or searchPanel) or '#'
+                chref !== location.href &&                                                                      // is not identical to the location href
+                // chref.replace(location.protocol + '//' + location.host + location.pathname, '').length > 1 &&
+                chref.replace(location.protocol + '//' + location.host + location.pathname, '').indexOf('#') && // is not an anchor on the same page
+                (!(/^[a-z\+\.\-]+:/i).test(chref) ||                                                            // either does not have a proper scheme (relative links)
+                chref.indexOf(location.protocol + '//' + location.host) === 0)                                  // or is in the same protocol and domain
             ) {
                 e.preventDefault();
-                location.href = curnode.href;
+                location.assign(chref);
             }
         }, false);
     }
@@ -76,7 +81,7 @@ if (typeof(require) === 'function') {
         // Check browser features
         // TODO consider testing javascript enabled
         var support = app.support;
-        var supported = support.atobbtoa &&
+        var requirements = support.atobbtoa &&
             support.audio && (support.audio.mp3 || support.audio.ogg) &&
             support.blobconstructor &&
             support.bloburls &&
@@ -94,7 +99,7 @@ if (typeof(require) === 'function') {
             support.webworkers;
 
         // If any feature is missing, redirect to error page with error code 1000
-        if (!supported) {
+        if (!requirements) {
             location.assign(errorUrl + '?code=1000');
         }
     }
