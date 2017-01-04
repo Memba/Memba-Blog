@@ -33,6 +33,12 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        copy: {
+            gremlins: {
+                src: 'test/vendor/gremlins.min.js',
+                dest: 'webapp/public/build/gremlins.min.js'
+            }
+        },
         jscs: {
             files: ['gruntfile.js', 'webpack.config.js', 'js/**/app.*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
             options: {
@@ -123,6 +129,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
     // Tests
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-webdriver');
@@ -130,7 +137,7 @@ module.exports = function (grunt) {
     // Commands
     grunt.registerTask('lint', ['jscs', 'jshint']); // , 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build']);
-    grunt.registerTask('test', ['mocha', 'mochaTest', 'webdriver']);
+    grunt.registerTask('test', ['mocha', 'mochaTest', 'copy:gremlins', 'webdriver']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 
 };

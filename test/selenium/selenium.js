@@ -52,7 +52,7 @@ browser.waitForVisibleEx = function (selector, timeout, reverse) {
  */
 browser.waitForReadyStateEx = function (state, timeout) {
     return browser.waitUntil(function () {
-        return state ===  browser.execute(function () { return document.readyState }).value;
+        return state ===  browser.execute(function () { return document.readyState; }).value;
     }, timeout);
 };
 

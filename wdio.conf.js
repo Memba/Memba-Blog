@@ -42,8 +42,7 @@ if (/^win/.test(process.platform)) {
             maxInstances: 1,
             browserName: 'chrome'
             // unexpectedAlertBehaviour: 'ignore' - use it to display an alert that is not seen
-        }
-        /*,
+        },
         {
             maxInstances: 1,
             browserName: 'firefox',
@@ -76,7 +75,6 @@ if (/^win/.test(process.platform)) {
                 binary: 'C:\\Program Files (x86)\\Opera\\42.0.2393.94\\opera.exe'
             }
         }
-        */
     ];
 }
 
@@ -232,7 +230,8 @@ exports.config = {
     // Options to be passed to Mocha.
     // See the full list at http://mochajs.org/
     mochaOpts: {
-        ui: 'bdd'
+        ui: 'bdd',
+        timeout: 60000 // for gremlins
     },
     //
     // =====

@@ -13,6 +13,7 @@ Thumbs.db
 coverage/
 errorShots/
 logs/
+webapp/public/build/gremlins.min.js
 
 # Ignore Node files
 node_modules/
