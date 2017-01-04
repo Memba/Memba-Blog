@@ -4,7 +4,7 @@
  */
 
 /* jshint node: true, mocha: true, expr: true */
-/* globals browser: false */
+/* globals browser: false, document: false, window: false */
 
 'use strict';
 
@@ -38,12 +38,16 @@ require('./selenium');
  * Check https://medium.com/@jlchereau/automate-monkey-testing-with-selenium-webdriver-io-and-mocha-337ea935e308
  */
 
+/* This function's cyclomatic complexity is too high. */
+/* jshint -W074 */
+
 /**
  * Load script
  * @param source
  * @param callback
  */
 function loadScript(source, callback) {
+    /* jshint maxcomplexity: 10 */
     if (typeof source !== 'string') {
         return typeof callback === 'function' ? callback() : undefined;
     }
@@ -64,14 +68,14 @@ function loadScript(source, callback) {
         script.type = 'text/javascript';
         // @see https://www.nczonline.net/blog/2009/06/23/loading-javascript-without-blocking/
         if (isPath && typeof callback === 'function') {
-            if (script.readyState) {  //IE
+            if (script.readyState) {  // IE
                 script.onreadystatechange = function () {
-                    if (script.readyState == "loaded" || script.readyState == "complete") {
+                    if (script.readyState === 'loaded' || script.readyState === 'complete') {
                         script.onreadystatechange = null;
                         callback();
                     }
                 };
-            } else {  //Others
+            } else {  // Other browsers
                 script.onload = callback;
             }
         }
@@ -83,6 +87,8 @@ function loadScript(source, callback) {
         head.appendChild(script);
     }
 }
+
+/* jshint +W074 */
 
 /**
  * Unleash our gremlins

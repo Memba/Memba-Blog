@@ -102,7 +102,7 @@ describe('French pages', function () {
                 browser.waitForReadyStateEx('loading', WAIT);
             } // else {
             // Error: No tab modal was open when attempting to get the dialog text
-                browser.pause(100);
+            browser.pause(100);
             // }
             if (browser.alertTextEx()) {
                 browser.alertAcceptEx(); // browser.alertDismiss();

@@ -4,7 +4,7 @@
  */
 
 /* jshint node: true, mocha: true, expr: true */
-/* globals browser: false */
+/* globals browser: false, document: false */
 
 'use strict';
 
