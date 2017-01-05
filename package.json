@@ -71,7 +71,7 @@
     "grunt-webdriver": "^2.0.3",
     "grunt-webpack": "^1.0.18",
     "json-loader": "^0.5.4",
-    "less": "^2.7.1",
+    "less": "^2.7.2",
     "less-loader": "^2.2.3",
     "loader-utils": "^0.2.16",
     "mocha": "^3.2.0",
