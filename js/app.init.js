@@ -48,7 +48,7 @@ if (typeof(require) === 'function') {
                 $.type(chref) === STRING &&                                                                     // is a link
                 chref.length > 1 &&                                                                             // is not empty (signInDialog or searchPanel) or '#'
                 chref !== location.href &&                                                                      // is not identical to the location href
-                // chref.replace(location.protocol + '//' + location.host + location.pathname, '').length > 1 &&
+                chref.replace(location.protocol + '//' + location.host + location.pathname, '').length > 1 &&
                 chref.replace(location.protocol + '//' + location.host + location.pathname, '').indexOf('#') && // is not an anchor on the same page
                 (!(/^[a-z\+\.\-]+:/i).test(chref) ||                                                            // either does not have a proper scheme (relative links)
                 chref.indexOf(location.protocol + '//' + location.host) === 0)                                  // or is in the same protocol and domain
