@@ -4,7 +4,7 @@
  */
 
 /* jshint browser: true */
-/* globals require: false, __NODE_ENV__: false */
+/* globals module: false, require: false, __NODE_ENV__: false */
 
 if (typeof(require) === 'function') {
     // require('./window.assert');
@@ -109,14 +109,20 @@ if (typeof(require) === 'function') {
 /*! iNoBounce - v0.1.0
  * https://github.com/lazd/iNoBounce/
  * Copyright (c) 2013 Larry Davis <lazdnet@gmail.com>; Licensed BSD */
-(function(global) {
+(function (global) {
+
+    'use strict';
+
     // Stores the Y position where the touch started
     var startY = 0;
 
     // Store enabled status
     var enabled = false;
 
-    var handleTouchmove = function(evt) {
+    /* This function's cyclomatic complexity is too high. */
+    /* jshint -W074 */
+
+    var handleTouchmove = function (evt) {
         // Get the element that was scrolled upon
         var el = evt.target;
 
@@ -169,26 +175,28 @@ if (typeof(require) === 'function') {
         evt.preventDefault();
     };
 
-    var handleTouchstart = function(evt) {
+    /* jshint +W074 */
+
+    var handleTouchstart = function (evt) {
         // Store the first Y position of the touch
         startY = evt.touches ? evt.touches[0].screenY : evt.screenY;
     };
 
-    var enable = function() {
+    var enable = function () {
         // Listen to a couple key touch events
         window.addEventListener('touchstart', handleTouchstart, false);
         window.addEventListener('touchmove', handleTouchmove, false);
         enabled = true;
     };
 
-    var disable = function() {
+    var disable = function () {
         // Stop listening
         window.removeEventListener('touchstart', handleTouchstart, false);
         window.removeEventListener('touchmove', handleTouchmove, false);
         enabled = false;
     };
 
-    var isEnabled = function() {
+    var isEnabled = function () {
         return enabled;
     };
 
@@ -218,8 +226,8 @@ if (typeof(require) === 'function') {
     }
     if (typeof global.define === 'function') {
         // AMD Support
-        (function(define) {
-            define('iNoBounce', [], function() { return iNoBounce; });
+        (function (define) {
+            define('iNoBounce', [], function () { return iNoBounce; });
         }(global.define));
     }
     else {
