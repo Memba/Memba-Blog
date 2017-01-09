@@ -68,6 +68,7 @@
     "grunt-jscs": "^3.0.1",
     "grunt-mocha": "^1.0.2",
     "grunt-mocha-test": "^0.13.2",
+    "grunt-nsp": "^2.3.1",
     "grunt-webdriver": "^2.0.3",
     "grunt-webpack": "^1.0.18",
     "json-loader": "^0.5.4",
