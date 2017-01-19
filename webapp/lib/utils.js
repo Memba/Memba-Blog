@@ -7,7 +7,7 @@
 
 'use strict';
 
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 var deepExtend = require('deep-extend');
 
 /**
@@ -44,8 +44,7 @@ module.exports = {
 
     /**
      * uuid generator
-     * @see https://github.com/broofa/node-uuid
-     * @see http://jsperf.com/node-uuid-performance/24
+     * @see https://github.com/kelektiv/node-uuid
      * @returns {string}
      */
     uuid: uuid.v1
