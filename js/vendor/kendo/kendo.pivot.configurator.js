@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -194,7 +194,7 @@
             },
             _fields: function () {
                 var container = $('<div class="k-state-default"><p class="k-reset"><span class="k-icon k-i-group"></span>' + this.options.messages.fieldsLabel + '</p></div>').appendTo(this.form);
-                var template = '# if (item.type == 2 || item.uniqueName == "[KPIs]") { #' + '<span class="k-icon k-i-#= (item.type == 2 ? "sum" : "kpi") #"></span>' + '# } else if (item.type && item.type !== "kpi") { #' + '<span class="k-icon k-i-dimension"></span>' + '# } #' + '#: item.caption || item.name #';
+                var template = '# if (item.type == 2 || item.uniqueName == "[KPIs]") { #' + '<span class="k-icon k-i-#= (item.type == 2 ? "sum" : "kpi") #"></span>' + '# } else if (item.type && item.type !== "kpi") { #' + '<span class="k-icon k-i-arrows-dimensions"></span>' + '# } #' + '#: item.caption || item.name #';
                 this.treeView = $('<div/>').appendTo(container).kendoTreeView({
                     template: template,
                     dataTextField: 'caption',
@@ -208,10 +208,10 @@
                         }
                     },
                     drag: function (e) {
-                        var status = 'k-i-denied';
+                        var status = 'k-i-cancel';
                         var setting = settingTargetFromNode(e.dropTarget);
                         if (setting && setting.validate(this.dataItem(e.sourceNode))) {
-                            status = 'k-i-add';
+                            status = 'k-i-plus';
                         }
                         e.setStatusClass(status);
                     },
@@ -244,13 +244,13 @@
                 var icons = '';
                 if (sortable) {
                     icons += '#if (data.sortIcon) {#';
-                    icons += '<span class="k-icon ${data.sortIcon} k-setting-sort"></span>';
+                    icons += '<span class="k-icon ${data.sortIcon}-sm"></span>';
                     icons += '#}#';
                 }
                 if (options.filterable || sortable) {
-                    icons += '<span class="k-icon k-i-arrowhead-s k-setting-fieldmenu"></span>';
+                    icons += '<span class="k-icon k-i-more-vertical k-setting-fieldmenu"></span>';
                 }
-                icons += '<span class="k-icon k-si-close k-setting-delete"></span>';
+                icons += '<span class="k-icon k-i-close k-setting-delete"></span>';
                 template += '<span class="k-field-actions">' + icons + '</span></li>';
                 return new kendo.ui.PivotSettingTarget(element, $.extend({
                     dataSource: this.dataSource,
@@ -267,12 +267,12 @@
                 var container = $('<div class="k-state-default"/>').appendTo(this.form);
                 var columnsContainer = $(SETTING_CONTAINER_TEMPLATE({
                     name: this.options.messages.columnsLabel,
-                    icon: 'k-i-vbars'
+                    icon: 'k-i-columns'
                 })).appendTo(container);
                 var columns = $('<ul class="k-pivot-configurator-settings k-list k-reset" />').appendTo(columnsContainer.last());
                 var rowsContainer = $(SETTING_CONTAINER_TEMPLATE({
                     name: this.options.messages.rowsLabel,
-                    icon: 'k-i-hbars'
+                    icon: 'k-i-rows'
                 })).appendTo(container);
                 var rows = $('<ul class="k-pivot-configurator-settings k-list k-reset" />').appendTo(rowsContainer.last());
                 var measuresContainer = $(SETTING_CONTAINER_TEMPLATE({
@@ -292,6 +292,7 @@
                 });
                 this.rows = this._createTarget(rows, {
                     filterable: options.filterable,
+                    sortable: options.sortable,
                     setting: 'rows',
                     connectWith: columns,
                     messages: {

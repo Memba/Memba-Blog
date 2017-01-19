@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -46,7 +46,7 @@
         var kendo = window.kendo, Widget = kendo.ui.Widget, isPlainObject = $.isPlainObject, proxy = $.proxy, extend = $.extend, placeholderSupported = kendo.support.placeholder, browser = kendo.support.browser, isFunction = kendo.isFunction, trimSlashesRegExp = /(^\/|\/$)/g, CHANGE = 'change', APPLY = 'apply', ERROR = 'error', CLICK = 'click', NS = '.kendoFileBrowser', BREADCRUBMSNS = '.kendoBreadcrumbs', SEARCHBOXNS = '.kendoSearchBox', NAMEFIELD = 'name', SIZEFIELD = 'size', TYPEFIELD = 'type', DEFAULTSORTORDER = {
                 field: TYPEFIELD,
                 dir: 'asc'
-            }, EMPTYTILE = kendo.template('<li class="k-tile-empty"><strong>${text}</strong></li>'), TOOLBARTMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' + '<div class="k-toolbar-wrap">' + '# if (showUpload) { # ' + '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' + '<span class="k-icon k-i-add"></span>#=messages.uploadFile#<input type="file" name="file" /></div></div>' + '# } #' + '# if (showCreate) { #' + '<button type="button" class="k-button k-button-icon"><span class="k-icon k-i-add-folder" /></button>' + '# } #' + '# if (showDelete) { #' + '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-delete" /></button>&nbsp;' + '# } #' + '</div>' + '<div class="k-tiles-arrange">' + '<label>#=messages.orderBy#: <select /></label>' + '</div>' + '</div>';
+            }, EMPTYTILE = kendo.template('<li class="k-tile-empty"><strong>${text}</strong></li>'), TOOLBARTMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' + '<div class="k-toolbar-wrap">' + '# if (showUpload) { # ' + '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' + '<span class="k-icon k-i-plus"></span>#=messages.uploadFile#<input type="file" name="file" /></div></div>' + '# } #' + '# if (showCreate) { #' + '<button type="button" class="k-button k-button-icon"><span class="k-icon k-i-folder-add" /></button>' + '# } #' + '# if (showDelete) { #' + '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close" /></button>&nbsp;' + '# } #' + '</div>' + '<div class="k-tiles-arrange">' + '<label>#=messages.orderBy#: <select /></label>' + '</div>' + '</div>';
         extend(true, kendo.data, {
             schemas: {
                 'filebrowser': {
@@ -163,7 +163,7 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 that.element.addClass('k-filebrowser');
-                that.element.on(CLICK + NS, '.k-filebrowser-toolbar button:not(.k-state-disabled):has(.k-i-delete)', proxy(that._deleteClick, that)).on(CLICK + NS, '.k-filebrowser-toolbar button:not(.k-state-disabled):has(.k-i-add-folder)', proxy(that._addClick, that)).on('keydown' + NS, 'li.k-state-selected input', proxy(that._directoryKeyDown, that)).on('blur' + NS, 'li.k-state-selected input', proxy(that._directoryBlur, that));
+                that.element.on(CLICK + NS, '.k-filebrowser-toolbar button:not(.k-state-disabled):has(.k-i-close)', proxy(that._deleteClick, that)).on(CLICK + NS, '.k-filebrowser-toolbar button:not(.k-state-disabled):has(.k-i-folder-add)', proxy(that._addClick, that)).on('keydown' + NS, 'li.k-state-selected input', proxy(that._directoryKeyDown, that)).on('blur' + NS, 'li.k-state-selected input', proxy(that._directoryBlur, that));
                 that._dataSource();
                 that.refresh();
                 that.path(that.options.path);
@@ -453,7 +453,7 @@
                     selectable: true,
                     autoBind: false,
                     dataBinding: function (e) {
-                        that.toolbar.find('.k-i-delete').parent().addClass('k-state-disabled');
+                        that.toolbar.find('.k-i-close').parent().addClass('k-state-disabled');
                         if (e.action === 'remove' || e.action === 'sync') {
                             e.preventDefault();
                         }
@@ -486,7 +486,7 @@
             _listViewChange: function () {
                 var selected = this._selectedItem();
                 if (selected) {
-                    this.toolbar.find('.k-i-delete').parent().removeClass('k-state-disabled');
+                    this.toolbar.find('.k-i-close').parent().removeClass('k-state-disabled');
                     this.trigger(CHANGE, { selected: selected });
                 }
             },
@@ -663,7 +663,7 @@
                     if (!placeholderSupported) {
                         $('<label style="display:block">' + this.options.label + '</label>').insertBefore(element);
                     }
-                    $('<a href="#" class="k-icon k-i-search k-search"/>').appendTo(wrapper);
+                    $('<a href="#" class="k-icon k-i-zoom k-search"/>').appendTo(wrapper);
                 }
                 this.wrapper = wrapper;
                 this.label = wrapper.find('>label');
@@ -685,7 +685,7 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 that._wrapper();
-                that.wrapper.on('focus' + BREADCRUBMSNS, 'input', proxy(that._focus, that)).on('blur' + BREADCRUBMSNS, 'input', proxy(that._blur, that)).on('keydown' + BREADCRUBMSNS, 'input', proxy(that._keydown, that)).on(CLICK + BREADCRUBMSNS, 'a.k-i-arrow-n:first', proxy(that._rootClick, that)).on(CLICK + BREADCRUBMSNS, 'a:not(.k-i-arrow-n)', proxy(that._click, that));
+                that.wrapper.on('focus' + BREADCRUBMSNS, 'input', proxy(that._focus, that)).on('blur' + BREADCRUBMSNS, 'input', proxy(that._blur, that)).on('keydown' + BREADCRUBMSNS, 'input', proxy(that._keydown, that)).on(CLICK + BREADCRUBMSNS, 'a.k-i-arrow-60-up:first', proxy(that._rootClick, that)).on(CLICK + BREADCRUBMSNS, 'a:not(.k-i-arrow-60-up)', proxy(that._click, that));
                 that.value(that.options.value);
             },
             options: {
@@ -707,7 +707,7 @@
             },
             _click: function (e) {
                 e.preventDefault();
-                this._update(this._path($(e.target).prevAll('a:not(.k-i-arrow-n)').addBack()));
+                this._update(this._path($(e.target).prevAll('a:not(.k-i-arrow-60-up)').addBack()));
             },
             _rootClick: function (e) {
                 e.preventDefault();
@@ -763,10 +763,10 @@
                     segment = segments[idx];
                     if (segment) {
                         if (!html) {
-                            html += '<a href="#" class="k-icon k-i-arrow-n">root</a>';
+                            html += '<a href="#" class="k-icon k-i-arrow-60-up" title="Go to parent folder"></a>';
                         }
                         html += '<a class="k-link" href="#">' + segments[idx] + '</a>';
-                        html += '<span class="k-icon k-i-arrow-e">&gt;</span>';
+                        html += '<span class="k-icon k-i-arrow-60-right" title="Go to child folder"></span>';
                     }
                 }
                 this.overlay.empty().append($(html));

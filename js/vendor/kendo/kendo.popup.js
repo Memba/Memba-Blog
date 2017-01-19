@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -64,7 +64,7 @@
                     that.collisions.push(that.collisions[0]);
                 }
                 parentPopup = $(that.options.anchor).closest('.k-popup,.k-group').filter(':not([class^=km-])');
-                options.appendTo = $($(options.appendTo)[0] || parentPopup[0] || BODY);
+                options.appendTo = $($(options.appendTo)[0] || parentPopup[0] || document.body);
                 that.element.hide().addClass('k-popup k-group k-reset').toggleClass('k-rtl', !!options.isRtl).css({ position: ABSOLUTE }).appendTo(options.appendTo).on('mouseenter' + NS, function () {
                     that._hovered = true;
                 }).on('mouseleave' + NS, function () {

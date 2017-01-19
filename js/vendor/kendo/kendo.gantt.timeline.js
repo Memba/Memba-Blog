@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -141,7 +141,7 @@
             taskDetailsPercent: 'k-task-pct',
             link: 'k-link',
             icon: 'k-icon',
-            iconDelete: 'k-si-close',
+            iconDelete: 'k-i-close',
             taskResizeHandle: 'k-resize-handle',
             taskResizeHandleWest: 'k-resize-w',
             taskResizeHandleEast: 'k-resize-e',

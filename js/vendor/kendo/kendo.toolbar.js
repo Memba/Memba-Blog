@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -172,7 +172,7 @@
                 } else if (spriteCssClass) {
                     span = element.children('span.k-sprite').first();
                     if (!span[0]) {
-                        span = $('<span class="k-sprite"></span>').prependTo(element);
+                        span = $('<span class="k-sprite ' + ICON + '"></span>').prependTo(element);
                     }
                     span.addClass(spriteCssClass);
                 } else if (imageUrl) {
@@ -353,7 +353,7 @@
                 this.options = options;
                 this.toolbar = toolbar;
                 this.mainButton = new ToolBarButton($.extend({}, options, { hidden: false }), toolbar);
-                this.arrowButton = $('<a class="' + BUTTON + ' ' + SPLIT_BUTTON_ARROW + '"><span class="' + (options.mobile ? 'km-icon km-arrowdown' : 'k-icon k-i-arrow-s') + '"></span></a>');
+                this.arrowButton = $('<a class="' + BUTTON + ' ' + SPLIT_BUTTON_ARROW + '"><span class="' + (options.mobile ? 'km-icon km-arrowdown' : 'k-icon k-i-arrow-60-down') + '"></span></a>');
                 this.popupElement = $('<ul class="' + LIST_CONTAINER + '"></ul>');
                 this.mainButton.element.removeAttr('href tabindex').appendTo(element);
                 this.arrowButton.appendTo(element);
@@ -912,7 +912,7 @@
                     that.overflowAnchor.append('<span class="km-icon km-more"></span>');
                     overflowContainer = actionSheetWrap(overflowContainer);
                 } else {
-                    that.overflowAnchor.append('<span class="k-icon k-i-arrow-s"></span>');
+                    that.overflowAnchor.append('<span class="k-icon k-i-arrow-60-down"></span>');
                 }
                 that.popup = new kendo.ui.Popup(overflowContainer, {
                     origin: 'bottom ' + horizontalDirection,
@@ -1048,6 +1048,9 @@
                 var that = this;
                 that.element.attr('tabindex', 0).focus(function () {
                     var element = $(this).find(':kendoFocusable:first');
+                    if (element.length === 0) {
+                        return;
+                    }
                     if (element.is('.' + OVERFLOW_ANCHOR)) {
                         element = findFocusableSibling(element, 'next');
                     }

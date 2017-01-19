@@ -78,28 +78,18 @@ div.k-treeview
     vertical-align: baseline;
 }
 
-.k-treeview .k-plus,
-.k-treeview .k-minus,
-.k-treeview .k-plus-disabled,
-.k-treeview .k-minus-disabled,
 .k-treeview .k-i-plus,
 .k-treeview .k-i-minus,
-.k-treeview .k-i-plus-disabled,
-.k-treeview .k-i-minus-disabled,
 .k-treeview .k-i-expand,
 .k-treeview .k-i-collapse
 {
-    margin-top: 0.25em;
+    margin-top: .05em;
     margin-left: -16px;
     cursor: pointer;
 }
 
-.k-treeview .k-plus-disabled,
-.k-treeview .k-minus-disabled,
-.k-treeview .k-i-plus-disabled,
-.k-treeview .k-i-minus-disabled
-{
-    cursor: default;
+.k-treeview .k-i-collapse {
+    margin-top: -.4em;
 }
 
 .k-treeview .k-sprite,
@@ -123,7 +113,7 @@ div.k-treeview
     cursor: default;
 }
 
-.k-treeview .k-drop-hint
+.k-treeview .k-i-drag-and-drop
 {
     position: absolute;
     z-index: 10000;
@@ -135,3 +125,14 @@ div.k-treeview
     background-repeat: no-repeat;
 }
 
+.k-treeview .k-state-hover,
+.k-treeview .k-state-hover:hover {
+    cursor: pointer;
+}
+
+.k-rtl .k-treeview .k-i-expand,
+.k-rtl .k-treeview .k-i-collapse {
+    transform: scaleX(-1);
+    margin-left: 0;
+    margin-right: -16px;
+}

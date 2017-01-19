@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -239,7 +239,7 @@
                 var target = $(e.target);
                 var closeButton = target.hasClass('k-select') || target.hasClass('k-icon');
                 if (closeButton) {
-                    closeButton = !target.closest('.k-select').children('.k-i-arrow-s').length;
+                    closeButton = !target.closest('.k-select').children('.k-i-arrow-60-down').length;
                 }
                 if (notInput && !(closeButton && kendo.support.mobileOS)) {
                     e.preventDefault();
@@ -305,7 +305,7 @@
             },
             _tagListClick: function (e) {
                 var target = $(e.currentTarget);
-                if (!target.children('.k-i-arrow-s').length) {
+                if (!target.children('.k-i-arrow-60-down').length) {
                     this._removeTag(target.closest(LI));
                 }
             },
@@ -911,14 +911,14 @@
                 defaultTemplate = isMultiple ? kendo.template('#:' + kendo.expr(options.dataTextField, 'data') + '#', { useWithBlock: false }) : kendo.template('#:values.length# item(s) selected');
                 that.tagTextTemplate = tagTemplate = tagTemplate ? kendo.template(tagTemplate) : defaultTemplate;
                 that.tagTemplate = function (data) {
-                    return '<li class="k-button" deselectable="on"><span deselectable="on">' + tagTemplate(data) + '</span><span unselectable="on" aria-label="' + (isMultiple ? 'delete' : 'open') + '" class="k-select"><span class="k-icon ' + (isMultiple ? 'k-i-close' : 'k-i-arrow-s') + '">' + '</span></span></li>';
+                    return '<li class="k-button" deselectable="on"><span deselectable="on">' + tagTemplate(data) + '</span><span unselectable="on" aria-label="' + (isMultiple ? 'delete' : 'open') + '" class="k-select"><span class="k-icon ' + (isMultiple ? 'k-i-close' : 'k-i-arrow-60-down') + '">' + '</span></span></li>';
                 };
             },
             _loader: function () {
                 this._loading = $('<span class="k-icon k-i-loading ' + HIDDENCLASS + '"></span>').insertAfter(this.input);
             },
             _clearButton: function () {
-                this._clear = $('<span deselectable="on" class="k-icon k-i-close" title="clear"></span>').attr({
+                this._clear = $('<span deselectable="on" class="k-icon k-clear-value k-i-close" title="clear"></span>').attr({
                     'role': 'button',
                     'tabIndex': -1
                 });

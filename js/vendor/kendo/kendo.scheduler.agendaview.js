@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -35,7 +35,7 @@
     };
     (function ($) {
         var kendo = window.kendo, ui = kendo.ui, NS = '.kendoAgendaView';
-        var EVENT_WRAPPER_FORMAT = '<div class="k-task" title="#:title.replace(/"/g,"\'")#" data-#=kendo.ns#uid="#=uid#">' + '# if (resources[0]) {#' + '<span class="k-scheduler-mark" style="background-color:#=resources[0].color#"></span>' + '# } #' + '# if (data.isException()) { #' + '<span class="k-icon k-i-exception"></span>' + '# } else if (data.isRecurring()) {#' + '<span class="k-icon k-i-refresh"></span>' + '# } #' + '{0}' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-si-close"></span></a>' + '#}#' + '</div>';
+        var EVENT_WRAPPER_FORMAT = '<div class="k-task" title="#:title.replace(/"/g,"\'")#" data-#=kendo.ns#uid="#=uid#">' + '# if (resources[0]) {#' + '<span class="k-scheduler-mark" style="background-color:#=resources[0].color#"></span>' + '# } #' + '# if (data.isException()) { #' + '<span class="k-icon k-i-warning"></span>' + '# } else if (data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '# } #' + '{0}' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-i-close"></span></a>' + '#}#' + '</div>';
         var AgendaGroupedView = kendo.Class.extend({
             init: function (view) {
                 this._view = view;
@@ -209,7 +209,7 @@
                 this._dateTemplate = kendo.template(options.eventDateTemplate);
                 this._groupTemplate = kendo.template(options.eventGroupTemplate);
                 this._timeTemplate = kendo.template(options.eventTimeTemplate);
-                this.element.on('mouseenter' + NS, '.k-scheduler-agenda .k-scheduler-content tr', '_mouseenter').on('mouseleave' + NS, '.k-scheduler-agenda .k-scheduler-content tr', '_mouseleave').on('click' + NS, '.k-scheduler-agenda .k-scheduler-content .k-link:has(.k-si-close)', '_remove');
+                this.element.on('mouseenter' + NS, '.k-scheduler-agenda .k-scheduler-content tr', '_mouseenter').on('mouseleave' + NS, '.k-scheduler-agenda .k-scheduler-content tr', '_mouseleave').on('click' + NS, '.k-scheduler-agenda .k-scheduler-content .k-link:has(.k-i-close)', '_remove');
                 this._renderLayout(options.date);
             },
             name: 'agenda',
@@ -296,8 +296,7 @@
                         for (var day = 1; day < eventDurationInDays; day++) {
                             start = task.end;
                             task = event.clone();
-                            task.start = start;
-                            task.startDate = kendo.date.getDate(start);
+                            task.start = task.startDate = kendo.date.getDate(start);
                             task.end = kendo.date.nextDay(start);
                             if (day == eventDurationInDays - 1) {
                                 task.end = new Date(task.start.getFullYear(), task.start.getMonth(), task.start.getDate(), end.getHours(), end.getMinutes(), end.getSeconds(), end.getMilliseconds());
@@ -357,10 +356,10 @@
                             task.format = '{0:t}-{1:t}';
                         }
                         task.resources = this.eventResources(task);
-                        tableRow.push(kendo.format('<td class="k-scheduler-timecolumn"><div>{0}{1}{2}</div></td><td>{3}</td>', task.tail || task.middle ? '<span class="k-icon k-i-arrow-w"></span>' : '', this._timeTemplate(task.clone({
+                        tableRow.push(kendo.format('<td class="k-scheduler-timecolumn"><div>{0}{1}{2}</div></td><td>{3}</td>', task.tail || task.middle ? '<span class="k-icon k-i-arrow-60-left"></span>' : '', this._timeTemplate(task.clone({
                             start: task._startTime || task.start,
                             end: task.endTime || task.end
-                        })), task.head || task.middle ? '<span class="k-icon k-i-arrow-e"></span>' : '', this._eventTemplate(task.clone({ showDelete: showDelete }))));
+                        })), task.head || task.middle ? '<span class="k-icon k-i-arrow-60-right"></span>' : '', this._eventTemplate(task.clone({ showDelete: showDelete }))));
                         tableRows.push('<tr role="row" aria-selected="false"' + (today ? ' class="k-today">' : '>') + tableRow.join('') + '</tr>');
                     }
                 }

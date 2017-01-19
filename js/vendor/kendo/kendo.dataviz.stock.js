@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -23,43 +23,59 @@
 
 */
 (function (f, define) {
-    define('util/main', ['kendo.core'], f);
+    define('util/text-metrics', ['kendo.core'], f);
 }(function () {
-    (function () {
-        var math = Math, kendo = window.kendo, deepExtend = kendo.deepExtend;
-        var DEG_TO_RAD = math.PI / 180, MAX_NUM = Number.MAX_VALUE, MIN_NUM = -Number.MAX_VALUE, UNDEFINED = 'undefined';
-        function defined(value) {
-            return typeof value !== UNDEFINED;
-        }
-        function round(value, precision) {
-            var power = pow(precision);
-            return math.round(value * power) / power;
-        }
-        function pow(p) {
-            if (p) {
-                return math.pow(10, p);
-            } else {
-                return 1;
+    (function ($) {
+        window.kendo.util = window.kendo.util || {};
+        var LRUCache = kendo.Class.extend({
+            init: function (size) {
+                this._size = size;
+                this._length = 0;
+                this._map = {};
+            },
+            put: function (key, value) {
+                var map = this._map;
+                var entry = {
+                    key: key,
+                    value: value
+                };
+                map[key] = entry;
+                if (!this._head) {
+                    this._head = this._tail = entry;
+                } else {
+                    this._tail.newer = entry;
+                    entry.older = this._tail;
+                    this._tail = entry;
+                }
+                if (this._length >= this._size) {
+                    map[this._head.key] = null;
+                    this._head = this._head.newer;
+                    this._head.older = null;
+                } else {
+                    this._length++;
+                }
+            },
+            get: function (key) {
+                var entry = this._map[key];
+                if (entry) {
+                    if (entry === this._head && entry !== this._tail) {
+                        this._head = entry.newer;
+                        this._head.older = null;
+                    }
+                    if (entry !== this._tail) {
+                        if (entry.older) {
+                            entry.older.newer = entry.newer;
+                            entry.newer.older = entry.older;
+                        }
+                        entry.older = this._tail;
+                        entry.newer = null;
+                        this._tail.newer = entry;
+                        this._tail = entry;
+                    }
+                    return entry.value;
+                }
             }
-        }
-        function limitValue(value, min, max) {
-            return math.max(math.min(value, max), min);
-        }
-        function rad(degrees) {
-            return degrees * DEG_TO_RAD;
-        }
-        function deg(radians) {
-            return radians / DEG_TO_RAD;
-        }
-        function isNumber(val) {
-            return typeof val === 'number' && !isNaN(val);
-        }
-        function valueOrDefault(value, defaultValue) {
-            return defined(value) ? value : defaultValue;
-        }
-        function sqr(value) {
-            return value * value;
-        }
+        });
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -75,381 +91,6 @@
             }
             return hash >>> 0;
         }
-        function hashObject(object) {
-            return hashKey(objectKey(object));
-        }
-        var now = Date.now;
-        if (!now) {
-            now = function () {
-                return new Date().getTime();
-            };
-        }
-        function arrayLimits(arr) {
-            var length = arr.length, i, min = MAX_NUM, max = MIN_NUM;
-            for (i = 0; i < length; i++) {
-                max = math.max(max, arr[i]);
-                min = math.min(min, arr[i]);
-            }
-            return {
-                min: min,
-                max: max
-            };
-        }
-        function arrayMin(arr) {
-            return arrayLimits(arr).min;
-        }
-        function arrayMax(arr) {
-            return arrayLimits(arr).max;
-        }
-        function sparseArrayMin(arr) {
-            return sparseArrayLimits(arr).min;
-        }
-        function sparseArrayMax(arr) {
-            return sparseArrayLimits(arr).max;
-        }
-        function sparseArrayLimits(arr) {
-            var min = MAX_NUM, max = MIN_NUM;
-            for (var i = 0, length = arr.length; i < length; i++) {
-                var n = arr[i];
-                if (n !== null && isFinite(n)) {
-                    min = math.min(min, n);
-                    max = math.max(max, n);
-                }
-            }
-            return {
-                min: min === MAX_NUM ? undefined : min,
-                max: max === MIN_NUM ? undefined : max
-            };
-        }
-        function last(array) {
-            if (array) {
-                return array[array.length - 1];
-            }
-        }
-        function append(first, second) {
-            first.push.apply(first, second);
-            return first;
-        }
-        function renderTemplate(text) {
-            return kendo.template(text, {
-                useWithBlock: false,
-                paramName: 'd'
-            });
-        }
-        function renderAttr(name, value) {
-            return defined(value) && value !== null ? ' ' + name + '=\'' + value + '\' ' : '';
-        }
-        function renderAllAttr(attrs) {
-            var output = '';
-            for (var i = 0; i < attrs.length; i++) {
-                output += renderAttr(attrs[i][0], attrs[i][1]);
-            }
-            return output;
-        }
-        function renderStyle(attrs) {
-            var output = '';
-            for (var i = 0; i < attrs.length; i++) {
-                var value = attrs[i][1];
-                if (defined(value)) {
-                    output += attrs[i][0] + ':' + value + ';';
-                }
-            }
-            if (output !== '') {
-                return output;
-            }
-        }
-        function renderSize(size) {
-            if (typeof size !== 'string') {
-                size += 'px';
-            }
-            return size;
-        }
-        function renderPos(pos) {
-            var result = [];
-            if (pos) {
-                var parts = kendo.toHyphens(pos).split('-');
-                for (var i = 0; i < parts.length; i++) {
-                    result.push('k-pos-' + parts[i]);
-                }
-            }
-            return result.join(' ');
-        }
-        function isTransparent(color) {
-            return color === '' || color === null || color === 'none' || color === 'transparent' || !defined(color);
-        }
-        function arabicToRoman(n) {
-            var literals = {
-                1: 'i',
-                10: 'x',
-                100: 'c',
-                2: 'ii',
-                20: 'xx',
-                200: 'cc',
-                3: 'iii',
-                30: 'xxx',
-                300: 'ccc',
-                4: 'iv',
-                40: 'xl',
-                400: 'cd',
-                5: 'v',
-                50: 'l',
-                500: 'd',
-                6: 'vi',
-                60: 'lx',
-                600: 'dc',
-                7: 'vii',
-                70: 'lxx',
-                700: 'dcc',
-                8: 'viii',
-                80: 'lxxx',
-                800: 'dccc',
-                9: 'ix',
-                90: 'xc',
-                900: 'cm',
-                1000: 'm'
-            };
-            var values = [
-                1000,
-                900,
-                800,
-                700,
-                600,
-                500,
-                400,
-                300,
-                200,
-                100,
-                90,
-                80,
-                70,
-                60,
-                50,
-                40,
-                30,
-                20,
-                10,
-                9,
-                8,
-                7,
-                6,
-                5,
-                4,
-                3,
-                2,
-                1
-            ];
-            var roman = '';
-            while (n > 0) {
-                if (n < values[0]) {
-                    values.shift();
-                } else {
-                    roman += literals[values[0]];
-                    n -= values[0];
-                }
-            }
-            return roman;
-        }
-        function romanToArabic(r) {
-            r = r.toLowerCase();
-            var digits = {
-                i: 1,
-                v: 5,
-                x: 10,
-                l: 50,
-                c: 100,
-                d: 500,
-                m: 1000
-            };
-            var value = 0, prev = 0;
-            for (var i = 0; i < r.length; ++i) {
-                var v = digits[r.charAt(i)];
-                if (!v) {
-                    return null;
-                }
-                value += v;
-                if (v > prev) {
-                    value -= 2 * prev;
-                }
-                prev = v;
-            }
-            return value;
-        }
-        function memoize(f) {
-            var cache = Object.create(null);
-            return function () {
-                var id = '';
-                for (var i = arguments.length; --i >= 0;) {
-                    id += ':' + arguments[i];
-                }
-                return id in cache ? cache[id] : cache[id] = f.apply(this, arguments);
-            };
-        }
-        function ucs2decode(string) {
-            var output = [], counter = 0, length = string.length, value, extra;
-            while (counter < length) {
-                value = string.charCodeAt(counter++);
-                if (value >= 55296 && value <= 56319 && counter < length) {
-                    extra = string.charCodeAt(counter++);
-                    if ((extra & 64512) == 56320) {
-                        output.push(((value & 1023) << 10) + (extra & 1023) + 65536);
-                    } else {
-                        output.push(value);
-                        counter--;
-                    }
-                } else {
-                    output.push(value);
-                }
-            }
-            return output;
-        }
-        function ucs2encode(array) {
-            return array.map(function (value) {
-                var output = '';
-                if (value > 65535) {
-                    value -= 65536;
-                    output += String.fromCharCode(value >>> 10 & 1023 | 55296);
-                    value = 56320 | value & 1023;
-                }
-                output += String.fromCharCode(value);
-                return output;
-            }).join('');
-        }
-        function mergeSort(a, cmp) {
-            if (a.length < 2) {
-                return a.slice();
-            }
-            function merge(a, b) {
-                var r = [], ai = 0, bi = 0, i = 0;
-                while (ai < a.length && bi < b.length) {
-                    if (cmp(a[ai], b[bi]) <= 0) {
-                        r[i++] = a[ai++];
-                    } else {
-                        r[i++] = b[bi++];
-                    }
-                }
-                if (ai < a.length) {
-                    r.push.apply(r, a.slice(ai));
-                }
-                if (bi < b.length) {
-                    r.push.apply(r, b.slice(bi));
-                }
-                return r;
-            }
-            return function sort(a) {
-                if (a.length <= 1) {
-                    return a;
-                }
-                var m = Math.floor(a.length / 2);
-                var left = a.slice(0, m);
-                var right = a.slice(m);
-                left = sort(left);
-                right = sort(right);
-                return merge(left, right);
-            }(a);
-        }
-        deepExtend(kendo, {
-            util: {
-                MAX_NUM: MAX_NUM,
-                MIN_NUM: MIN_NUM,
-                append: append,
-                arrayLimits: arrayLimits,
-                arrayMin: arrayMin,
-                arrayMax: arrayMax,
-                defined: defined,
-                deg: deg,
-                hashKey: hashKey,
-                hashObject: hashObject,
-                isNumber: isNumber,
-                isTransparent: isTransparent,
-                last: last,
-                limitValue: limitValue,
-                now: now,
-                objectKey: objectKey,
-                round: round,
-                rad: rad,
-                renderAttr: renderAttr,
-                renderAllAttr: renderAllAttr,
-                renderPos: renderPos,
-                renderSize: renderSize,
-                renderStyle: renderStyle,
-                renderTemplate: renderTemplate,
-                sparseArrayLimits: sparseArrayLimits,
-                sparseArrayMin: sparseArrayMin,
-                sparseArrayMax: sparseArrayMax,
-                sqr: sqr,
-                valueOrDefault: valueOrDefault,
-                romanToArabic: romanToArabic,
-                arabicToRoman: arabicToRoman,
-                memoize: memoize,
-                ucs2encode: ucs2encode,
-                ucs2decode: ucs2decode,
-                mergeSort: mergeSort
-            }
-        });
-        kendo.drawing.util = kendo.util;
-        kendo.dataviz.util = kendo.util;
-    }());
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('util/text-metrics', [
-        'kendo.core',
-        'util/main'
-    ], f);
-}(function () {
-    (function ($) {
-        var doc = document, kendo = window.kendo, Class = kendo.Class, util = kendo.util, defined = util.defined;
-        var LRUCache = Class.extend({
-            init: function (size) {
-                this._size = size;
-                this._length = 0;
-                this._map = {};
-            },
-            put: function (key, value) {
-                var lru = this, map = lru._map, entry = {
-                        key: key,
-                        value: value
-                    };
-                map[key] = entry;
-                if (!lru._head) {
-                    lru._head = lru._tail = entry;
-                } else {
-                    lru._tail.newer = entry;
-                    entry.older = lru._tail;
-                    lru._tail = entry;
-                }
-                if (lru._length >= lru._size) {
-                    map[lru._head.key] = null;
-                    lru._head = lru._head.newer;
-                    lru._head.older = null;
-                } else {
-                    lru._length++;
-                }
-            },
-            get: function (key) {
-                var lru = this, entry = lru._map[key];
-                if (entry) {
-                    if (entry === lru._head && entry !== lru._tail) {
-                        lru._head = entry.newer;
-                        lru._head.older = null;
-                    }
-                    if (entry !== lru._tail) {
-                        if (entry.older) {
-                            entry.older.newer = entry.newer;
-                            entry.newer.older = entry.older;
-                        }
-                        entry.older = lru._tail;
-                        entry.newer = null;
-                        lru._tail.newer = entry;
-                        lru._tail = entry;
-                    }
-                    return entry.value;
-                }
-            }
-        });
-        var defaultMeasureBox = $('<div style=\'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;\' />')[0];
         function zeroSize() {
             return {
                 width: 0,
@@ -457,33 +98,40 @@
                 baseline: 0
             };
         }
-        var TextMetrics = Class.extend({
+        var DEFAULT_OPTIONS = { baselineMarkerSize: 1 };
+        var defaultMeasureBox;
+        if (typeof document !== 'undefined') {
+            defaultMeasureBox = document.createElement('div');
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
+        }
+        var TextMetrics = kendo.Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
-                this._initOptions(options);
+                this.options = $.extend({}, DEFAULT_OPTIONS, options);
             },
-            options: { baselineMarkerSize: 1 },
             measure: function (text, style, box) {
                 if (!text) {
                     return zeroSize();
                 }
-                var styleKey = util.objectKey(style), cacheKey = util.hashKey(text + styleKey), cachedResult = this._cache.get(cacheKey);
+                var styleKey = objectKey(style);
+                var cacheKey = hashKey(text + styleKey);
+                var cachedResult = this._cache.get(cacheKey);
                 if (cachedResult) {
                     return cachedResult;
                 }
                 var size = zeroSize();
-                var measureBox = box ? box : defaultMeasureBox;
+                var measureBox = box || defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
                     var value = style[key];
-                    if (defined(value)) {
+                    if (typeof value !== 'undefined') {
                         measureBox.style[key] = value;
                     }
                 }
-                $(measureBox).text(text);
+                measureBox.textContent = text;
                 measureBox.appendChild(baselineMarker);
-                doc.body.appendChild(measureBox);
-                if ((text + '').length) {
+                document.body.appendChild(measureBox);
+                if (String(text).length) {
                     size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
                     size.height = measureBox.offsetHeight;
                     size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
@@ -495,180 +143,533 @@
                 return size;
             },
             _baselineMarker: function () {
-                return $('<div class=\'k-baseline-marker\' ' + 'style=\'display: inline-block; vertical-align: baseline;' + 'width: ' + this.options.baselineMarkerSize + 'px; height: ' + this.options.baselineMarkerSize + 'px;' + 'overflow: hidden;\' />')[0];
+                var marker = document.createElement('div');
+                marker.style.cssText = 'display: inline-block; vertical-align: baseline;width: ' + this.options.baselineMarkerSize + 'px; height: ' + this.options.baselineMarkerSize + 'px;overflow: hidden;';
+                return marker;
             }
         });
         TextMetrics.current = new TextMetrics();
         function measureText(text, style, measureBox) {
             return TextMetrics.current.measure(text, style, measureBox);
         }
-        function loadFonts(fonts, callback) {
-            var promises = [];
-            if (fonts.length > 0 && document.fonts) {
-                try {
-                    promises = fonts.map(function (font) {
-                        return document.fonts.load(font);
-                    });
-                } catch (e) {
-                    kendo.logToConsole(e);
-                }
-                Promise.all(promises).then(callback, callback);
-            } else {
-                callback();
-            }
-        }
-        kendo.util.TextMetrics = TextMetrics;
-        kendo.util.LRUCache = LRUCache;
-        kendo.util.loadFonts = loadFonts;
-        kendo.util.measureText = measureText;
+        kendo.deepExtend(kendo.util, {
+            LRUCache: LRUCache,
+            TextMetrics: TextMetrics,
+            measureText: measureText,
+            objectKey: objectKey,
+            hashKey: hashKey
+        });
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('util/base64', ['util/main'], f);
+    define('dataviz/stock/kendo-stock-chart', ['kendo.dataviz.chart'], f);
 }(function () {
     (function () {
-        var kendo = window.kendo, deepExtend = kendo.deepExtend, fromCharCode = String.fromCharCode;
-        var KEY_STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-        function encodeBase64(input) {
-            var output = '';
-            var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-            var i = 0;
-            input = encodeUTF8(input);
-            while (i < input.length) {
-                chr1 = input.charCodeAt(i++);
-                chr2 = input.charCodeAt(i++);
-                chr3 = input.charCodeAt(i++);
-                enc1 = chr1 >> 2;
-                enc2 = (chr1 & 3) << 4 | chr2 >> 4;
-                enc3 = (chr2 & 15) << 2 | chr3 >> 6;
-                enc4 = chr3 & 63;
-                if (isNaN(chr2)) {
-                    enc3 = enc4 = 64;
-                } else if (isNaN(chr3)) {
-                    enc4 = 64;
-                }
-                output = output + KEY_STR.charAt(enc1) + KEY_STR.charAt(enc2) + KEY_STR.charAt(enc3) + KEY_STR.charAt(enc4);
+        window.kendo.dataviz = window.kendo.dataviz || {};
+        var dataviz = kendo.dataviz;
+        var deepExtend = dataviz.deepExtend;
+        var elementStyles = dataviz.elementStyles;
+        var toTime = dataviz.toTime;
+        var services = dataviz.services;
+        var datavizConstants = dataviz.constants;
+        var Chart = dataviz.Chart;
+        function createDiv(className, style) {
+            var div = document.createElement('div');
+            div.className = className;
+            if (style) {
+                div.style.cssText = style;
             }
-            return output;
+            return div;
         }
-        function encodeUTF8(input) {
-            var output = '';
-            for (var i = 0; i < input.length; i++) {
-                var c = input.charCodeAt(i);
-                if (c < 128) {
-                    output += fromCharCode(c);
-                } else if (c < 2048) {
-                    output += fromCharCode(192 | c >>> 6);
-                    output += fromCharCode(128 | c & 63);
-                } else if (c < 65536) {
-                    output += fromCharCode(224 | c >>> 12);
-                    output += fromCharCode(128 | c >>> 6 & 63);
-                    output += fromCharCode(128 | c & 63);
+        var NavigatorHint = dataviz.Class.extend({
+            init: function (container, chartService, options) {
+                this.options = deepExtend({}, this.options, options);
+                this.container = container;
+                this.chartService = chartService;
+                var padding = elementStyles(container, [
+                    'paddingLeft',
+                    'paddingTop'
+                ]);
+                this.chartPadding = {
+                    top: padding.paddingTop,
+                    left: padding.paddingLeft
+                };
+                this.createElements();
+                container.appendChild(this.element);
+            },
+            createElements: function () {
+                var element = this.element = createDiv('k-navigator-hint', 'display: none; position: absolute; top: 1px; left: 1px;');
+                var tooltip = this.tooltip = createDiv('k-tooltip k-chart-tooltip');
+                var scroll = this.scroll = createDiv('k-scroll');
+                tooltip.innerHTML = '&nbsp;';
+                element.appendChild(tooltip);
+                element.appendChild(scroll);
+            },
+            show: function (from, to, bbox) {
+                var ref = this;
+                var element = ref.element;
+                var options = ref.options;
+                var scroll = ref.scroll;
+                var tooltip = ref.tooltip;
+                var middle = dataviz.toDate(toTime(from) + toTime(to - from) / 2);
+                var scrollWidth = bbox.width() * 0.4;
+                var minPos = bbox.center().x - scrollWidth;
+                var maxPos = bbox.center().x;
+                var posRange = maxPos - minPos;
+                var range = options.max - options.min;
+                var scale = posRange / range;
+                var offset = middle - options.min;
+                var text = this.chartService.intl.format(options.format, from, to);
+                if (this._hideTimeout) {
+                    clearTimeout(this._hideTimeout);
                 }
+                if (!this._visible) {
+                    elementStyles(element, {
+                        visibility: 'hidden',
+                        display: 'block'
+                    });
+                    this._visible = true;
+                }
+                if (options.template) {
+                    text = services.TemplateService.compile(options.template)({
+                        from: from,
+                        to: to
+                    });
+                }
+                tooltip.innerHTML = text;
+                elementStyles(tooltip, {
+                    left: bbox.center().x - tooltip.offsetWidth / 2,
+                    top: bbox.y1
+                });
+                var tooltipStyle = elementStyles(tooltip, [
+                    'marginTop',
+                    'borderTopWidth',
+                    'height'
+                ]);
+                elementStyles(scroll, {
+                    width: scrollWidth,
+                    left: minPos + offset * scale,
+                    top: bbox.y1 + tooltipStyle.marginTop + tooltipStyle.borderTopWidth + tooltipStyle.height / 2
+                });
+                elementStyles(element, { visibility: 'visible' });
+            },
+            hide: function () {
+                var this$1 = this;
+                if (this._hideTimeout) {
+                    clearTimeout(this._hideTimeout);
+                }
+                this._hideTimeout = setTimeout(function () {
+                    this$1._visible = false;
+                    elementStyles(this$1.element, { display: 'none' });
+                }, this.options.hideDelay);
             }
-            return output;
-        }
-        deepExtend(kendo.util, {
-            encodeBase64: encodeBase64,
-            encodeUTF8: encodeUTF8
         });
-    }());
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('mixins/observers', ['kendo.core'], f);
-}(function () {
-    (function ($) {
-        var math = Math, kendo = window.kendo, deepExtend = kendo.deepExtend, inArray = $.inArray;
-        var ObserversMixin = {
-            observers: function () {
-                this._observers = this._observers || [];
-                return this._observers;
+        dataviz.setDefaultOptions(NavigatorHint, {
+            format: '{0:d} - {1:d}',
+            hideDelay: 500
+        });
+        var NAVIGATOR_PANE = '_navigator';
+        var NAVIGATOR_AXIS = NAVIGATOR_PANE;
+        var constants = {
+            NAVIGATOR_AXIS: NAVIGATOR_AXIS,
+            NAVIGATOR_PANE: NAVIGATOR_PANE
+        };
+        var ZOOM_ACCELERATION = 3;
+        var Navigator = dataviz.Class.extend({
+            init: function (chart) {
+                this.chart = chart;
+                var options = this.options = deepExtend({}, this.options, chart.options.navigator);
+                var select = options.select;
+                if (select) {
+                    select.from = this.parseDate(select.from);
+                    select.to = this.parseDate(select.to);
+                }
+                if (!dataviz.defined(options.hint.visible)) {
+                    options.hint.visible = options.visible;
+                }
+                var obj;
+                this.chartObserver = new dataviz.InstanceObserver(this, (obj = {}, obj[datavizConstants.DRAG] = '_drag', obj[datavizConstants.DRAG_END] = '_dragEnd', obj[datavizConstants.ZOOM] = '_zoom', obj[datavizConstants.ZOOM_END] = '_zoomEnd', obj));
+                chart.addObserver(this.chartObserver);
             },
-            addObserver: function (element) {
-                if (!this._observers) {
-                    this._observers = [element];
+            parseDate: function (value) {
+                return dataviz.parseDate(this.chart.chartService.intl, value);
+            },
+            destroy: function () {
+                if (this.chart) {
+                    this.chart.removeObserver(this.chartObserver);
+                    delete this.chart;
+                }
+                if (this.selection) {
+                    this.selection.destroy();
+                    delete this.selection;
+                }
+            },
+            redraw: function () {
+                this._redrawSelf();
+                this._initSelection();
+            },
+            _initSelection: function () {
+                var ref = this;
+                var chart = ref.chart;
+                var options = ref.options;
+                var axis = this.mainAxis();
+                var ref$1 = axis.range();
+                var min = ref$1.min;
+                var max = ref$1.max;
+                var ref$2 = options.select;
+                var from = ref$2.from;
+                var to = ref$2.to;
+                var mousewheel = ref$2.mousewheel;
+                var axisClone = clone(axis);
+                var groups = axis.options.categories;
+                var selection = this.selection;
+                if (groups.length === 0) {
+                    return;
+                }
+                if (selection) {
+                    selection.destroy();
+                }
+                axisClone.box = axis.box;
+                selection = this.selection = new dataviz.Selection(chart, axisClone, {
+                    min: min,
+                    max: max,
+                    from: from || min,
+                    to: to || max,
+                    mousewheel: dataviz.valueOrDefault(mousewheel, { zoom: 'left' }),
+                    visible: options.visible
+                }, new dataviz.InstanceObserver(this, {
+                    selectStart: '_selectStart',
+                    select: '_select',
+                    selectEnd: '_selectEnd'
+                }));
+                if (options.hint.visible) {
+                    this.hint = new NavigatorHint(chart.element, chart.chartService, {
+                        min: min,
+                        max: max,
+                        template: options.hint.template,
+                        format: options.hint.format
+                    });
+                }
+            },
+            _setRange: function () {
+                var plotArea = this.chart._createPlotArea(true);
+                var axis = plotArea.namedCategoryAxes[NAVIGATOR_AXIS];
+                var ref = axis.range();
+                var min = ref.min;
+                var max = ref.max;
+                var select = this.options.select || {};
+                var from = select.from || min;
+                if (from < min) {
+                    from = min;
+                }
+                var to = select.to || max;
+                if (to > max) {
+                    to = max;
+                }
+                this.options.select = deepExtend({}, select, {
+                    from: from,
+                    to: to
+                });
+                this.filterAxes();
+            },
+            _redrawSelf: function (silent) {
+                var plotArea = this.chart._plotArea;
+                if (plotArea) {
+                    plotArea.redraw(dataviz.last(plotArea.panes), silent);
+                }
+            },
+            redrawSlaves: function () {
+                var chart = this.chart;
+                var plotArea = chart._plotArea;
+                var slavePanes = plotArea.panes.slice(0, -1);
+                plotArea.srcSeries = chart.options.series;
+                plotArea.redraw(slavePanes);
+            },
+            _drag: function (e) {
+                var ref = this;
+                var chart = ref.chart;
+                var selection = ref.selection;
+                var coords = chart._eventCoordinates(e.originalEvent);
+                var navigatorAxis = this.mainAxis();
+                var naviRange = navigatorAxis.datesRange();
+                var inNavigator = navigatorAxis.pane.box.containsPoint(coords);
+                var axis = chart._plotArea.categoryAxis;
+                var range = e.axisRanges[axis.options.name];
+                var select = this.options.select;
+                var duration;
+                if (!range || inNavigator || !selection) {
+                    return;
+                }
+                if (select.from && select.to) {
+                    duration = toTime(select.to) - toTime(select.from);
                 } else {
-                    this._observers.push(element);
+                    duration = toTime(selection.options.to) - toTime(selection.options.from);
                 }
-                return this;
-            },
-            removeObserver: function (element) {
-                var observers = this.observers();
-                var index = inArray(element, observers);
-                if (index != -1) {
-                    observers.splice(index, 1);
+                var from = dataviz.toDate(dataviz.limitValue(toTime(range.min), naviRange.min, toTime(naviRange.max) - duration));
+                var to = dataviz.toDate(dataviz.limitValue(toTime(from) + duration, toTime(naviRange.min) + duration, naviRange.max));
+                this.options.select = {
+                    from: from,
+                    to: to
+                };
+                if (this.options.liveDrag) {
+                    this.filterAxes();
+                    this.redrawSlaves();
                 }
-                return this;
+                selection.set(from, to);
+                this.showHint(from, to);
             },
-            trigger: function (methodName, event) {
-                var observers = this._observers;
-                var observer;
-                var idx;
-                if (observers && !this._suspended) {
-                    for (idx = 0; idx < observers.length; idx++) {
-                        observer = observers[idx];
-                        if (observer[methodName]) {
-                            observer[methodName](event);
-                        }
+            _dragEnd: function () {
+                this.filterAxes();
+                this.filter();
+                this.redrawSlaves();
+                if (this.hint) {
+                    this.hint.hide();
+                }
+            },
+            readSelection: function () {
+                var ref = this;
+                var ref_selection_options = ref.selection.options;
+                var from = ref_selection_options.from;
+                var to = ref_selection_options.to;
+                var select = ref.options.select;
+                select.from = from;
+                select.to = to;
+            },
+            filterAxes: function () {
+                var ref = this;
+                var select = ref.options.select;
+                if (select === void 0) {
+                    select = {};
+                }
+                var chart = ref.chart;
+                var allAxes = chart.options.categoryAxis;
+                var from = select.from;
+                var to = select.to;
+                for (var idx = 0; idx < allAxes.length; idx++) {
+                    var axis = allAxes[idx];
+                    if (axis.pane !== NAVIGATOR_PANE) {
+                        axis.min = from;
+                        axis.max = to;
                     }
                 }
-                return this;
             },
-            optionsChange: function (e) {
-                e = e || {};
-                e.element = this;
-                this.trigger('optionsChange', e);
-            },
-            geometryChange: function () {
-                this.trigger('geometryChange', { element: this });
-            },
-            suspend: function () {
-                this._suspended = (this._suspended || 0) + 1;
-                return this;
-            },
-            resume: function () {
-                this._suspended = math.max((this._suspended || 0) - 1, 0);
-                return this;
-            },
-            _observerField: function (field, value) {
-                if (this[field]) {
-                    this[field].removeObserver(this);
+            filter: function () {
+                var ref = this;
+                var chart = ref.chart;
+                var ref_options = ref.options;
+                var filterable = ref_options.filterable;
+                var select = ref_options.select;
+                if (filterable) {
+                    var axisOptions = new dataviz.DateCategoryAxis(deepExtend({ baseUnit: 'fit' }, chart.options.categoryAxis[0], {
+                        categories: [
+                            select.from,
+                            select.to
+                        ]
+                    }), chart.chartService).options;
+                    this.chart.trigger('navigatorFilter', {
+                        from: dataviz.addDuration(axisOptions.min, -axisOptions.baseUnitStep, axisOptions.baseUnit),
+                        to: dataviz.addDuration(axisOptions.max, axisOptions.baseUnitStep, axisOptions.baseUnit)
+                    });
                 }
-                this[field] = value;
-                value.addObserver(this);
+            },
+            _zoom: function (e) {
+                var ref = this;
+                var axis = ref.chart._plotArea.categoryAxis;
+                var selection = ref.selection;
+                var ref_options = ref.options;
+                var select = ref_options.select;
+                var liveDrag = ref_options.liveDrag;
+                var categories = this.mainAxis().options.categories;
+                var delta = e.delta;
+                if (!selection) {
+                    return;
+                }
+                var fromIx = dataviz.lteDateIndex(selection.options.from, categories);
+                var toIx = dataviz.lteDateIndex(selection.options.to, categories);
+                e.originalEvent.preventDefault();
+                if (Math.abs(delta) > 1) {
+                    delta *= ZOOM_ACCELERATION;
+                }
+                if (toIx - fromIx > 1) {
+                    selection.expand(delta);
+                    this.readSelection();
+                } else {
+                    axis.options.min = select.from;
+                    select.from = axis.scaleRange(-e.delta).min;
+                }
+                if (liveDrag) {
+                    this.filterAxes();
+                    this.redrawSlaves();
+                }
+                selection.set(select.from, select.to);
+                this.showHint(this.options.select.from, this.options.select.to);
+            },
+            _zoomEnd: function (e) {
+                this._dragEnd(e);
+            },
+            showHint: function (from, to) {
+                var plotArea = this.chart._plotArea;
+                if (this.hint) {
+                    this.hint.show(from, to, plotArea.backgroundBox());
+                }
+            },
+            _selectStart: function (e) {
+                return this.chart._selectStart(e);
+            },
+            _select: function (e) {
+                this.showHint(e.from, e.to);
+                return this.chart._select(e);
+            },
+            _selectEnd: function (e) {
+                if (this.hint) {
+                    this.hint.hide();
+                }
+                this.readSelection();
+                this.filterAxes();
+                this.filter();
+                this.redrawSlaves();
+                return this.chart._selectEnd(e);
+            },
+            mainAxis: function () {
+                var plotArea = this.chart._plotArea;
+                if (plotArea) {
+                    return plotArea.namedCategoryAxes[NAVIGATOR_AXIS];
+                }
+            },
+            select: function (from, to) {
+                var select = this.options.select;
+                if (from && to) {
+                    select.from = this.parseDate(from);
+                    select.to = this.parseDate(to);
+                    this.filterAxes();
+                    this.filter();
+                    this.redrawSlaves();
+                    this.selection.set(from, to);
+                }
+                return {
+                    from: select.from,
+                    to: select.to
+                };
+            }
+        });
+        Navigator.setup = function (options, themeOptions) {
+            if (options === void 0) {
+                options = {};
+            }
+            if (themeOptions === void 0) {
+                themeOptions = {};
+            }
+            if (options.__navi) {
+                return;
+            }
+            options.__navi = true;
+            var naviOptions = deepExtend({}, themeOptions.navigator, options.navigator);
+            var panes = options.panes = [].concat(options.panes);
+            var paneOptions = deepExtend({}, naviOptions.pane, { name: NAVIGATOR_PANE });
+            if (!naviOptions.visible) {
+                paneOptions.visible = false;
+                paneOptions.height = 0.1;
+            }
+            panes.push(paneOptions);
+            Navigator.attachAxes(options, naviOptions);
+            Navigator.attachSeries(options, naviOptions, themeOptions);
+        };
+        Navigator.attachAxes = function (options, naviOptions) {
+            var series = naviOptions.series || [];
+            var categoryAxes = options.categoryAxis = [].concat(options.categoryAxis);
+            var valueAxes = options.valueAxis = [].concat(options.valueAxis);
+            var equallySpacedSeries = dataviz.filterSeriesByType(series, datavizConstants.EQUALLY_SPACED_SERIES);
+            var justifyAxis = equallySpacedSeries.length === 0;
+            var base = deepExtend({
+                type: 'date',
+                pane: NAVIGATOR_PANE,
+                roundToBaseUnit: !justifyAxis,
+                justified: justifyAxis,
+                _collapse: false,
+                majorTicks: { visible: true },
+                tooltip: { visible: false },
+                labels: { step: 1 },
+                autoBind: !naviOptions.filterable,
+                autoBaseUnitSteps: {
+                    minutes: [1],
+                    hours: [
+                        1,
+                        2
+                    ],
+                    days: [
+                        1,
+                        2
+                    ],
+                    weeks: [],
+                    months: [1],
+                    years: [1]
+                }
+            });
+            var user = naviOptions.categoryAxis;
+            categoryAxes.push(deepExtend({}, base, { maxDateGroups: 200 }, user, {
+                name: NAVIGATOR_AXIS,
+                title: null,
+                baseUnit: 'fit',
+                baseUnitStep: 'auto',
+                labels: { visible: false },
+                majorTicks: { visible: false }
+            }), deepExtend({}, base, user, {
+                name: NAVIGATOR_AXIS + '_labels',
+                maxDateGroups: 20,
+                baseUnitStep: 'auto',
+                plotBands: [],
+                autoBaseUnitSteps: { minutes: [] },
+                _overlap: true
+            }), deepExtend({}, base, user, {
+                name: NAVIGATOR_AXIS + '_ticks',
+                maxDateGroups: 200,
+                majorTicks: { width: 0.5 },
+                plotBands: [],
+                title: null,
+                labels: {
+                    visible: false,
+                    mirror: true
+                },
+                _overlap: true
+            }));
+            valueAxes.push(deepExtend({
+                name: NAVIGATOR_AXIS,
+                pane: NAVIGATOR_PANE,
+                majorGridLines: { visible: false },
+                visible: false
+            }, naviOptions.valueAxis));
+        };
+        Navigator.attachSeries = function (options, naviOptions, themeOptions) {
+            var series = options.series = options.series || [];
+            var navigatorSeries = [].concat(naviOptions.series || []);
+            var seriesColors = themeOptions.seriesColors;
+            var defaults = naviOptions.seriesDefaults;
+            for (var idx = 0; idx < navigatorSeries.length; idx++) {
+                series.push(deepExtend({
+                    color: seriesColors[idx % seriesColors.length],
+                    categoryField: naviOptions.dateField,
+                    visibleInLegend: false,
+                    tooltip: { visible: false }
+                }, defaults, navigatorSeries[idx], {
+                    axis: NAVIGATOR_AXIS,
+                    categoryAxis: NAVIGATOR_AXIS,
+                    autoBind: !naviOptions.filterable
+                }));
             }
         };
-        deepExtend(kendo, { mixins: { ObserversMixin: ObserversMixin } });
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.dataviz.stock', ['kendo.dataviz.chart'], f);
-}(function () {
-    var __meta__ = {
-        id: 'dataviz.stockchart',
-        name: 'StockChart',
-        category: 'dataviz',
-        description: 'StockChart widget and associated financial series.',
-        depends: ['dataviz.chart']
-    };
-    (function ($, undefined) {
-        var kendo = window.kendo, Class = kendo.Class, Observable = kendo.Observable, deepExtend = kendo.deepExtend, math = Math, proxy = $.proxy, util = kendo.util, last = util.last, renderTemplate = util.renderTemplate, dataviz = kendo.dataviz, defined = util.defined, filterSeriesByType = dataviz.filterSeriesByType, template = kendo.template, Chart = dataviz.ui.Chart, Selection = dataviz.Selection, addDuration = dataviz.addDuration, limitValue = util.limitValue, lteDateIndex = dataviz.lteDateIndex, toDate = dataviz.toDate, toTime = dataviz.toTime;
-        var AUTO_CATEGORY_WIDTH = 28, CHANGE = 'change', CSS_PREFIX = 'k-', DRAG = 'drag', DRAG_END = 'dragEnd', NAVIGATOR_PANE = '_navigator', NAVIGATOR_AXIS = NAVIGATOR_PANE, EQUALLY_SPACED_SERIES = dataviz.EQUALLY_SPACED_SERIES, ZOOM_ACCELERATION = 3, ZOOM = 'zoom', ZOOM_END = 'zoomEnd';
+        function ClonedObject() {
+        }
+        function clone(obj) {
+            ClonedObject.prototype = obj;
+            return new ClonedObject();
+        }
+        var AUTO_CATEGORY_WIDTH = 28;
         var StockChart = Chart.extend({
-            init: function (element, userOptions) {
-                $(element).addClass(CSS_PREFIX + 'chart');
-                Chart.fn.init.call(this, element, userOptions);
-            },
             _applyDefaults: function (options, themeOptions) {
-                var chart = this, width = chart.element.width() || dataviz.DEFAULT_WIDTH;
+                var width = dataviz.elementSize(this.element).width || datavizConstants.DEFAULT_WIDTH;
+                var theme = themeOptions;
                 var stockDefaults = {
                     seriesDefaults: { categoryField: options.dateField },
                     axisDefaults: {
@@ -677,34 +678,139 @@
                             majorGridLines: { visible: false },
                             labels: { step: 2 },
                             majorTicks: { visible: false },
-                            maxDateGroups: math.floor(width / AUTO_CATEGORY_WIDTH)
+                            maxDateGroups: Math.floor(width / AUTO_CATEGORY_WIDTH)
                         }
                     }
                 };
-                if (themeOptions) {
-                    themeOptions = deepExtend({}, themeOptions, stockDefaults);
+                if (theme) {
+                    theme = deepExtend({}, theme, stockDefaults);
                 }
-                Navigator.setup(options, themeOptions);
-                Chart.fn._applyDefaults.call(chart, options, themeOptions);
+                Navigator.setup(options, theme);
+                Chart.fn._applyDefaults.call(this, options, theme);
+            },
+            _setElementClass: function (element) {
+                dataviz.addClass(element, 'k-chart k-stockchart');
             },
             setOptions: function (options) {
                 this._destroyNavigator();
                 Chart.fn.setOptions.call(this, options);
             },
-            _initDataSource: function (userOptions) {
-                var options = userOptions || {}, dataSource = options.dataSource, hasServerFiltering = dataSource && dataSource.serverFiltering, mainAxis = [].concat(options.categoryAxis)[0], naviOptions = options.navigator || {}, select = naviOptions.select, hasSelect = select && select.from && select.to, filter, dummyAxis;
-                if (hasServerFiltering && hasSelect) {
-                    filter = [].concat(dataSource.filter || []);
-                    dummyAxis = new dataviz.DateCategoryAxis(deepExtend({ baseUnit: 'fit' }, mainAxis, {
-                        categories: [
-                            select.from,
-                            select.to
-                        ]
-                    }));
-                    dataSource.filter = Navigator.buildFilter(dummyAxis.range().min, select.to).concat(filter);
-                }
-                Chart.fn._initDataSource.call(this, userOptions);
+            _resize: function () {
+                var transitions = this.options.transitions;
+                this.options.transitions = false;
+                this._fullRedraw();
+                this.options.transitions = transitions;
             },
+            _redraw: function () {
+                var navigator = this._navigator;
+                if (!this._dirty() && navigator && navigator.options.filterable) {
+                    navigator.redrawSlaves();
+                } else {
+                    this._fullRedraw();
+                }
+            },
+            _dirty: function () {
+                var options = this.options;
+                var series = [].concat(options.series, options.navigator.series);
+                var seriesCount = dataviz.grep(series, function (s) {
+                    return s && s.visible;
+                }).length;
+                var dirty = this._seriesCount !== seriesCount;
+                this._seriesCount = seriesCount;
+                return dirty;
+            },
+            _fullRedraw: function () {
+                var navigator = this._navigator;
+                if (!navigator) {
+                    navigator = this._navigator = new Navigator(this);
+                    this.trigger('navigatorCreated', { navigator: navigator });
+                }
+                navigator._setRange();
+                Chart.fn._redraw.call(this);
+                navigator._initSelection();
+            },
+            _trackSharedTooltip: function (coords) {
+                var plotArea = this._plotArea;
+                var pane = plotArea.paneByPoint(coords);
+                if (pane && pane.options.name === NAVIGATOR_PANE) {
+                    this._unsetActivePoint();
+                } else {
+                    Chart.fn._trackSharedTooltip.call(this, coords);
+                }
+            },
+            _destroyNavigator: function () {
+                this._navigator.destroy();
+                this._navigator = null;
+            },
+            destroy: function () {
+                this._destroyNavigator();
+                Chart.fn.destroy.call(this);
+            },
+            _stopDragEvent: function (e) {
+                var coords = this._eventCoordinates(e);
+                var pane = this._plotArea.paneByPoint(coords);
+                return Chart.fn._stopDragEvent.call(this, e) || pane && pane.options.name === NAVIGATOR_PANE;
+            }
+        });
+        dataviz.setDefaultOptions(StockChart, {
+            dateField: 'date',
+            axisDefaults: {
+                categoryAxis: {
+                    type: 'date',
+                    baseUnit: 'fit',
+                    justified: true
+                },
+                valueAxis: {
+                    narrowRange: true,
+                    labels: { format: 'C' }
+                }
+            },
+            navigator: {
+                select: {},
+                seriesDefaults: {
+                    markers: { visible: false },
+                    tooltip: { visible: true },
+                    line: { width: 2 }
+                },
+                hint: {},
+                visible: true
+            },
+            tooltip: { visible: true },
+            legend: { visible: false }
+        });
+        kendo.deepExtend(kendo.dataviz, {
+            constants: constants,
+            Navigator: Navigator,
+            NavigatorHint: NavigatorHint,
+            StockChart: StockChart
+        });
+    }());
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('dataviz/stock/stock-chart', ['dataviz/stock/kendo-stock-chart'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo;
+        var dataviz = kendo.dataviz;
+        var ChartInstanceObserver = dataviz.ChartInstanceObserver;
+        var Chart = dataviz.ui.Chart;
+        var KendoStockChart = dataviz.StockChart;
+        var constants = dataviz.constants;
+        var NAVIGATOR_AXIS = constants.NAVIGATOR_AXIS;
+        var NAVIGATOR_PANE = constants.NAVIGATOR_PANE;
+        var deepExtend = kendo.deepExtend;
+        var defined = dataviz.defined;
+        var proxy = $.proxy;
+        var CHANGE = 'change';
+        var StockInstanceObserver = ChartInstanceObserver.extend({
+            handlerMap: {
+                navigatorFilter: '_onNavigatorFilter',
+                navigatorCreated: '_onNavigatorCreated'
+            }
+        });
+        var StockChart = Chart.extend({
             options: {
                 name: 'StockChart',
                 dateField: 'date',
@@ -735,103 +841,62 @@
                 tooltip: { visible: true },
                 legend: { visible: false }
             },
-            _resize: function () {
-                var t = this.options.transitions;
-                this.options.transitions = false;
-                this._fullRedraw();
-                this.options.transitions = t;
+            _createChart: function (options, themeOptions) {
+                this._initNavigatorOptions(options);
+                this._instance = new KendoStockChart(this.element[0], options, themeOptions, {
+                    observer: new StockInstanceObserver(this),
+                    sender: this
+                });
             },
-            _redraw: function () {
-                var chart = this, navigator = chart._navigator;
-                if (!this._dirty() && navigator && navigator.dataSource) {
-                    navigator.redrawSlaves();
-                } else {
-                    chart._fullRedraw();
+            _initNavigatorOptions: function (options) {
+                var navigatorOptions = options.navigator || {};
+                var support = kendo.support;
+                var isTouch = support.touch;
+                var isFirefox = support.browser.mozilla;
+                deepExtend(navigatorOptions, {
+                    filterable: !!navigatorOptions.dataSource,
+                    liveDrag: !isTouch && !isFirefox
+                });
+            },
+            _initDataSource: function (userOptions) {
+                var options = userOptions || {}, dataSource = options.dataSource, hasServerFiltering = dataSource && dataSource.serverFiltering, mainAxis = [].concat(options.categoryAxis)[0], naviOptions = options.navigator || {}, select = naviOptions.select, hasSelect = select && select.from && select.to;
+                if (hasServerFiltering && hasSelect) {
+                    var filter = [].concat(dataSource.filter || []);
+                    var from = kendo.parseDate(select.from);
+                    var to = kendo.parseDate(select.to);
+                    var dummyAxis = new dataviz.DateCategoryAxis(deepExtend({ baseUnit: 'fit' }, mainAxis, {
+                        categories: [
+                            from,
+                            to
+                        ]
+                    }), kendo);
+                    dataSource.filter = buildFilter(dummyAxis.range().min, to).concat(filter);
                 }
+                Chart.fn._initDataSource.call(this, userOptions);
             },
-            _dirty: function () {
-                var options = this.options;
-                var series = [].concat(options.series, options.navigator.series);
-                var seriesCount = $.grep(series, function (s) {
-                    return s && s.visible;
-                }).length;
-                var dirty = this._seriesCount !== seriesCount;
-                this._seriesCount = seriesCount;
-                return dirty;
+            _onNavigatorCreated: function (e) {
+                this._instance = e.sender;
+                this.options = e.sender.options;
+                this._navigator = this.navigator = e.navigator;
+                this._initNavigatorDataSource();
             },
-            _fullRedraw: function () {
-                var chart = this, navigator = chart._navigator;
-                if (!navigator) {
-                    navigator = chart._navigator = chart.navigator = new Navigator(chart);
-                }
-                navigator._setRange();
-                Chart.fn._redraw.call(chart);
-                navigator._initSelection();
-            },
-            _onDataChanged: function () {
-                var chart = this;
-                Chart.fn._onDataChanged.call(chart);
-                chart._dataBound = true;
-            },
-            _bindCategoryAxis: function (axis, data, axisIx) {
-                var chart = this, categoryAxes = chart.options.categoryAxis, axesLength = categoryAxes.length, currentAxis;
-                Chart.fn._bindCategoryAxis.apply(this, arguments);
-                if (axis.name === NAVIGATOR_AXIS) {
-                    while (axisIx < axesLength) {
-                        currentAxis = categoryAxes[axisIx++];
-                        if (currentAxis.pane == NAVIGATOR_PANE) {
-                            currentAxis.categories = axis.categories;
-                        }
-                    }
-                }
-            },
-            _trackSharedTooltip: function (coords) {
-                var chart = this, plotArea = chart._plotArea, pane = plotArea.paneByPoint(coords);
-                if (pane && pane.options.name === NAVIGATOR_PANE) {
-                    chart._unsetActivePoint();
-                } else {
-                    Chart.fn._trackSharedTooltip.call(chart, coords);
-                }
-            },
-            _destroyNavigator: function () {
-                this._navigator.destroy();
-                this._navigator = null;
-            },
-            destroy: function () {
-                this._destroyNavigator();
-                Chart.fn.destroy.call(this);
-            }
-        });
-        var Navigator = Observable.extend({
-            init: function (chart) {
-                var navi = this;
-                navi.chart = chart;
-                navi.options = deepExtend({}, navi.options, chart.options.navigator);
-                navi._initDataSource();
-                if (!defined(navi.options.hint.visible)) {
-                    navi.options.hint.visible = navi.options.visible;
-                }
-                chart.bind(DRAG, proxy(navi._drag, navi));
-                chart.bind(DRAG_END, proxy(navi._dragEnd, navi));
-                chart.bind(ZOOM, proxy(navi._zoom, navi));
-                chart.bind(ZOOM_END, proxy(navi._zoomEnd, navi));
-            },
-            options: {},
-            _initDataSource: function () {
-                var navi = this, options = navi.options, autoBind = options.autoBind, dsOptions = options.dataSource;
-                if (!defined(autoBind)) {
-                    autoBind = navi.chart.options.autoBind;
-                }
-                navi._dataChangedHandler = proxy(navi._onDataChanged, navi);
+            _initNavigatorDataSource: function () {
+                var navigatorOptions = this.options.navigator;
+                var autoBind = navigatorOptions.autoBind;
+                var dsOptions = navigatorOptions.dataSource;
                 if (dsOptions) {
-                    navi.dataSource = kendo.data.DataSource.create(dsOptions).bind(CHANGE, navi._dataChangedHandler);
+                    this._navigatorDataChangedHandler = this._navigatorDataChangedHandler || proxy(this._onNavigatorDataChanged, this);
+                    this._navigatorDataSource = kendo.data.DataSource.create(dsOptions).bind(CHANGE, this._navigatorDataChangedHandler);
+                    if (!defined(autoBind)) {
+                        autoBind = this.options.autoBind;
+                    }
                     if (autoBind) {
-                        navi.dataSource.fetch();
+                        this._navigatorDataSource.fetch();
                     }
                 }
             },
-            _onDataChanged: function () {
-                var navi = this, chart = navi.chart, series = chart.options.series, seriesIx, seriesLength = series.length, categoryAxes = chart.options.categoryAxis, axisIx, axesLength = categoryAxes.length, data = navi.dataSource.view(), currentSeries, currentAxis, naviCategories;
+            _onNavigatorDataChanged: function () {
+                var chart = this, instance = chart._instance, series = chart.options.series, seriesIx, seriesLength = series.length, categoryAxes = chart.options.categoryAxis, axisIx, axesLength = categoryAxes.length, data = chart._navigatorDataSource.view(), currentSeries, currentAxis, naviCategories;
                 for (seriesIx = 0; seriesIx < seriesLength; seriesIx++) {
                     currentSeries = series[seriesIx];
                     if (currentSeries.axis == NAVIGATOR_AXIS && chart._isBindable(currentSeries)) {
@@ -849,404 +914,86 @@
                         }
                     }
                 }
-                if (chart._model) {
-                    navi.redraw();
-                    navi._setRange();
+                if (instance._model) {
+                    var navigator = this.navigator;
+                    navigator.redraw();
+                    navigator._setRange();
                     if (!chart.options.dataSource || chart.options.dataSource && chart._dataBound) {
-                        navi.redrawSlaves();
+                        navigator.redrawSlaves();
                     }
+                }
+            },
+            _bindCategories: function () {
+                var options = this.options;
+                var definitions = [].concat(options.categoryAxis);
+                var axisIx, axis, categories;
+                Chart.fn._bindCategories.call(this);
+                for (axisIx = 0; axisIx < definitions.length; axisIx++) {
+                    axis = definitions[axisIx];
+                    if (axis.name === NAVIGATOR_AXIS) {
+                        categories = axis.categories;
+                    } else if (categories && axis.pane == NAVIGATOR_PANE) {
+                        axis.categories = categories;
+                    }
+                }
+            },
+            _onDataChanged: function () {
+                Chart.fn._onDataChanged.call(this);
+                this._dataBound = true;
+            },
+            setOptions: function (options) {
+                this._removeNavigatorDataSource();
+                this._initNavigatorOptions(options);
+                this._instance._destroyNavigator();
+                Chart.fn.setOptions.call(this, options);
+            },
+            _onNavigatorFilter: function (e) {
+                this.dataSource.filter(buildFilter(e.from, e.to));
+            },
+            _removeNavigatorDataSource: function () {
+                var navigatorDataSource = this._navigatorDataSource;
+                if (navigatorDataSource) {
+                    navigatorDataSource.unbind(CHANGE, this._navigatorDataChangedHandler);
+                    delete this._navigatorDataSource;
                 }
             },
             destroy: function () {
-                var navi = this, dataSource = navi.dataSource;
-                if (dataSource) {
-                    dataSource.unbind(CHANGE, navi._dataChangeHandler);
-                }
-                if (navi.selection) {
-                    navi.selection.destroy();
-                }
-            },
-            redraw: function () {
-                this._redrawSelf();
-                this._initSelection();
-            },
-            _initSelection: function () {
-                var navi = this, chart = navi.chart, options = navi.options, axis = navi.mainAxis(), axisClone = clone(axis), range = axis.range(), min = range.min, max = range.max, groups = axis.options.categories, select = navi.options.select, selection = navi.selection, from = toDate(select.from), to = toDate(select.to);
-                if (groups.length === 0) {
-                    return;
-                }
-                if (selection) {
-                    selection.destroy();
-                    selection.wrapper.remove();
-                }
-                axisClone.box = axis.box;
-                selection = navi.selection = new Selection(chart, axisClone, {
-                    min: min,
-                    max: max,
-                    from: from || min,
-                    to: to || max,
-                    selectStart: $.proxy(navi._selectStart, navi),
-                    select: $.proxy(navi._select, navi),
-                    selectEnd: $.proxy(navi._selectEnd, navi),
-                    mousewheel: util.valueOrDefault(select.mousewheel, { zoom: 'left' }),
-                    visible: options.visible
-                });
-                if (options.hint.visible) {
-                    navi.hint = new NavigatorHint(chart.element, {
-                        min: min,
-                        max: max,
-                        template: options.hint.template,
-                        format: options.hint.format
-                    });
-                }
-            },
-            _setRange: function () {
-                var plotArea = this.chart._createPlotArea(true);
-                var axis = plotArea.namedCategoryAxes[NAVIGATOR_AXIS];
-                var range = axis.range();
-                var min = range.min;
-                var max = range.max;
-                var select = this.options.select || {};
-                var from = toDate(select.from) || min;
-                if (from < min) {
-                    from = min;
-                }
-                var to = toDate(select.to) || max;
-                if (to > max) {
-                    to = max;
-                }
-                this.options.select = deepExtend({}, select, {
-                    from: from,
-                    to: to
-                });
-                this.filterAxes();
-            },
-            _redrawSelf: function (silent) {
-                var plotArea = this.chart._plotArea;
-                if (plotArea) {
-                    plotArea.redraw(last(plotArea.panes), silent);
-                }
-            },
-            redrawSlaves: function () {
-                var navi = this, chart = navi.chart, plotArea = chart._plotArea, slavePanes = plotArea.panes.slice(0, -1);
-                plotArea.srcSeries = chart.options.series;
-                plotArea.redraw(slavePanes);
-            },
-            _drag: function (e) {
-                var navi = this, chart = navi.chart, coords = chart._eventCoordinates(e.originalEvent), navigatorAxis = navi.mainAxis(), naviRange = navigatorAxis.datesRange(), inNavigator = navigatorAxis.pane.box.containsPoint(coords), axis = chart._plotArea.categoryAxis, range = e.axisRanges[axis.options.name], select = navi.options.select, selection = navi.selection, duration, from, to;
-                if (!range || inNavigator || !selection) {
-                    return;
-                }
-                if (select.from && select.to) {
-                    duration = toTime(select.to) - toTime(select.from);
-                } else {
-                    duration = toTime(selection.options.to) - toTime(selection.options.from);
-                }
-                from = toDate(limitValue(toTime(range.min), naviRange.min, toTime(naviRange.max) - duration));
-                to = toDate(limitValue(toTime(from) + duration, toTime(naviRange.min) + duration, naviRange.max));
-                navi.options.select = {
-                    from: from,
-                    to: to
-                };
-                if (navi._liveDrag()) {
-                    navi.filterAxes();
-                    navi.redrawSlaves();
-                }
-                selection.set(from, to);
-                navi.showHint(from, to);
-            },
-            _dragEnd: function () {
-                var navi = this;
-                navi.filterAxes();
-                navi.filterDataSource();
-                navi.redrawSlaves();
-                if (navi.hint) {
-                    navi.hint.hide();
-                }
-            },
-            _liveDrag: function () {
-                var support = kendo.support, isTouch = support.touch, browser = support.browser, isFirefox = browser.mozilla, isOldIE = browser.msie && browser.version < 9;
-                return !isTouch && !isFirefox && !isOldIE;
-            },
-            readSelection: function () {
-                var navi = this, selection = navi.selection, src = selection.options, dst = navi.options.select;
-                dst.from = src.from;
-                dst.to = src.to;
-            },
-            filterAxes: function () {
-                var navi = this, select = navi.options.select || {}, chart = navi.chart, allAxes = chart.options.categoryAxis, from = select.from, to = select.to, i, axis;
-                for (i = 0; i < allAxes.length; i++) {
-                    axis = allAxes[i];
-                    if (axis.pane !== NAVIGATOR_PANE) {
-                        axis.min = toDate(from);
-                        axis.max = toDate(to);
-                    }
-                }
-            },
-            filterDataSource: function () {
-                var navi = this, select = navi.options.select || {}, chart = navi.chart, chartDataSource = chart.dataSource, hasServerFiltering = chartDataSource && chartDataSource.options.serverFiltering, axisOptions;
-                if (navi.dataSource && hasServerFiltering) {
-                    axisOptions = new dataviz.DateCategoryAxis(deepExtend({ baseUnit: 'fit' }, chart.options.categoryAxis[0], {
-                        categories: [
-                            select.from,
-                            select.to
-                        ]
-                    })).options;
-                    chartDataSource.filter(Navigator.buildFilter(addDuration(axisOptions.min, -axisOptions.baseUnitStep, axisOptions.baseUnit), addDuration(axisOptions.max, axisOptions.baseUnitStep, axisOptions.baseUnit)));
-                }
-            },
-            _zoom: function (e) {
-                var navi = this, chart = navi.chart, delta = e.delta, axis = chart._plotArea.categoryAxis, select = navi.options.select, selection = navi.selection, categories = navi.mainAxis().options.categories, fromIx, toIx;
-                if (!selection) {
-                    return;
-                }
-                fromIx = lteDateIndex(selection.options.from, categories);
-                toIx = lteDateIndex(selection.options.to, categories);
-                e.originalEvent.preventDefault();
-                if (math.abs(delta) > 1) {
-                    delta *= ZOOM_ACCELERATION;
-                }
-                if (toIx - fromIx > 1) {
-                    selection.expand(delta);
-                    navi.readSelection();
-                } else {
-                    axis.options.min = select.from;
-                    select.from = axis.scaleRange(-e.delta).min;
-                }
-                if (!kendo.support.touch) {
-                    navi.filterAxes();
-                    navi.redrawSlaves();
-                }
-                selection.set(select.from, select.to);
-                navi.showHint(navi.options.select.from, navi.options.select.to);
-            },
-            _zoomEnd: function (e) {
-                this._dragEnd(e);
-            },
-            showHint: function (from, to) {
-                var navi = this, chart = navi.chart, plotArea = chart._plotArea;
-                if (navi.hint) {
-                    navi.hint.show(from, to, plotArea.backgroundBox());
-                }
-            },
-            _selectStart: function (e) {
-                var chart = this.chart;
-                chart._selectStart.call(chart, e);
-            },
-            _select: function (e) {
-                var navi = this, chart = navi.chart;
-                navi.showHint(e.from, e.to);
-                chart._select.call(chart, e);
-            },
-            _selectEnd: function (e) {
-                var navi = this, chart = navi.chart;
-                if (navi.hint) {
-                    navi.hint.hide();
-                }
-                navi.readSelection();
-                navi.filterAxes();
-                navi.filterDataSource();
-                navi.redrawSlaves();
-                chart._selectEnd.call(chart, e);
-            },
-            mainAxis: function () {
-                var plotArea = this.chart._plotArea;
-                if (plotArea) {
-                    return plotArea.namedCategoryAxes[NAVIGATOR_AXIS];
-                }
-            },
-            select: function (from, to) {
-                var select = this.options.select;
-                if (from && to) {
-                    select.from = toDate(from);
-                    select.to = toDate(to);
-                    this.filterAxes();
-                    this.filterDataSource();
-                    this.redrawSlaves();
-                    this.selection.set(from, to);
-                }
-                return {
-                    from: select.from,
-                    to: select.to
-                };
+                Chart.fn.destroy.call(this);
+                this._removeNavigatorDataSource();
             }
         });
-        Navigator.setup = function (options, themeOptions) {
-            options = options || {};
-            themeOptions = themeOptions || {};
-            if (options.__navi) {
-                return;
-            }
-            options.__navi = true;
-            var naviOptions = deepExtend({}, themeOptions.navigator, options.navigator), panes = options.panes = [].concat(options.panes), paneOptions = deepExtend({}, naviOptions.pane, { name: NAVIGATOR_PANE });
-            if (!naviOptions.visible) {
-                paneOptions.visible = false;
-                paneOptions.height = 0.1;
-            }
-            panes.push(paneOptions);
-            Navigator.attachAxes(options, naviOptions);
-            Navigator.attachSeries(options, naviOptions, themeOptions);
-        };
-        Navigator.attachAxes = function (options, naviOptions) {
-            var categoryAxes, valueAxes, series = naviOptions.series || [];
-            categoryAxes = options.categoryAxis = [].concat(options.categoryAxis);
-            valueAxes = options.valueAxis = [].concat(options.valueAxis);
-            var equallySpacedSeries = filterSeriesByType(series, EQUALLY_SPACED_SERIES);
-            var justifyAxis = equallySpacedSeries.length === 0;
-            var base = deepExtend({
-                type: 'date',
-                pane: NAVIGATOR_PANE,
-                roundToBaseUnit: !justifyAxis,
-                justified: justifyAxis,
-                _collapse: false,
-                majorTicks: { visible: true },
-                tooltip: { visible: false },
-                labels: { step: 1 },
-                autoBind: !naviOptions.dataSource,
-                autoBaseUnitSteps: {
-                    minutes: [1],
-                    hours: [
-                        1,
-                        2
-                    ],
-                    days: [
-                        1,
-                        2
-                    ],
-                    weeks: [],
-                    months: [1],
-                    years: [1]
-                },
-                _overlap: true
-            });
-            var user = naviOptions.categoryAxis;
-            categoryAxes.push(deepExtend({}, base, { maxDateGroups: 200 }, user, {
-                name: NAVIGATOR_AXIS,
-                title: null,
-                baseUnit: 'fit',
-                baseUnitStep: 'auto',
-                labels: { visible: false },
-                majorTicks: { visible: false }
-            }), deepExtend({}, base, user, {
-                name: NAVIGATOR_AXIS + '_labels',
-                maxDateGroups: 20,
-                baseUnitStep: 'auto',
-                plotBands: [],
-                autoBaseUnitSteps: { minutes: [] }
-            }), deepExtend({}, base, user, {
-                name: NAVIGATOR_AXIS + '_ticks',
-                maxDateGroups: 200,
-                majorTicks: { width: 0.5 },
-                plotBands: [],
-                title: null,
-                labels: {
-                    visible: false,
-                    mirror: true
-                }
-            }));
-            valueAxes.push(deepExtend({
-                name: NAVIGATOR_AXIS,
-                pane: NAVIGATOR_PANE,
-                majorGridLines: { visible: false },
-                visible: false
-            }, naviOptions.valueAxis));
-        };
-        Navigator.attachSeries = function (options, naviOptions, themeOptions) {
-            var series = options.series = options.series || [], navigatorSeries = [].concat(naviOptions.series || []), seriesColors = themeOptions.seriesColors, defaults = naviOptions.seriesDefaults, i;
-            for (i = 0; i < navigatorSeries.length; i++) {
-                series.push(deepExtend({
-                    color: seriesColors[i % seriesColors.length],
-                    categoryField: naviOptions.dateField,
-                    visibleInLegend: false,
-                    tooltip: { visible: false }
-                }, defaults, navigatorSeries[i], {
-                    axis: NAVIGATOR_AXIS,
-                    categoryAxis: NAVIGATOR_AXIS,
-                    autoBind: !naviOptions.dataSource
-                }));
-            }
-        };
-        Navigator.buildFilter = function (from, to) {
+        dataviz.ui.plugin(StockChart);
+        function buildFilter(from, to) {
             return [
                 {
                     field: 'Date',
                     operator: 'gte',
-                    value: toDate(from)
+                    value: from
                 },
                 {
                     field: 'Date',
                     operator: 'lt',
-                    value: toDate(to)
+                    value: to
                 }
             ];
-        };
-        var NavigatorHint = Class.extend({
-            init: function (container, options) {
-                var hint = this;
-                hint.options = deepExtend({}, hint.options, options);
-                hint.container = container;
-                hint.chartPadding = {
-                    top: parseInt(container.css('paddingTop'), 10),
-                    left: parseInt(container.css('paddingLeft'), 10)
-                };
-                hint.template = hint.template;
-                if (!hint.template) {
-                    hint.template = hint.template = renderTemplate('<div class=\'' + CSS_PREFIX + 'navigator-hint\' ' + 'style=\'display: none; position: absolute; top: 1px; left: 1px;\'>' + '<div class=\'' + CSS_PREFIX + 'tooltip ' + CSS_PREFIX + 'chart-tooltip\'>&nbsp;</div>' + '<div class=\'' + CSS_PREFIX + 'scroll\' />' + '</div>');
-                }
-                hint.element = $(hint.template()).appendTo(container);
-            },
-            options: {
-                format: '{0:d} - {1:d}',
-                hideDelay: 500
-            },
-            show: function (from, to, bbox) {
-                var hint = this, middle = toDate(toTime(from) + toTime(to - from) / 2), options = hint.options, text = kendo.format(hint.options.format, from, to), tooltip = hint.element.find('.' + CSS_PREFIX + 'tooltip'), scroll = hint.element.find('.' + CSS_PREFIX + 'scroll'), scrollWidth = bbox.width() * 0.4, minPos = bbox.center().x - scrollWidth, maxPos = bbox.center().x, posRange = maxPos - minPos, range = options.max - options.min, scale = posRange / range, offset = middle - options.min, hintTemplate;
-                if (hint._hideTimeout) {
-                    clearTimeout(hint._hideTimeout);
-                }
-                if (!hint._visible) {
-                    hint.element.stop(false, true).css('visibility', 'hidden').show();
-                    hint._visible = true;
-                }
-                if (options.template) {
-                    hintTemplate = template(options.template);
-                    text = hintTemplate({
-                        from: from,
-                        to: to
-                    });
-                }
-                tooltip.html(text).css({
-                    left: bbox.center().x - kendo._outerWidth(tooltip) / 2,
-                    top: bbox.y1
-                });
-                scroll.css({
-                    width: scrollWidth,
-                    left: minPos + offset * scale,
-                    top: bbox.y1 + parseInt(tooltip.css('margin-top'), 10) + parseInt(tooltip.css('border-top-width'), 10) + tooltip.height() / 2
-                });
-                hint.element.css('visibility', 'visible');
-            },
-            hide: function () {
-                var hint = this;
-                if (hint._hideTimeout) {
-                    clearTimeout(hint._hideTimeout);
-                }
-                hint._hideTimeout = setTimeout(function () {
-                    hint._visible = false;
-                    hint.element.fadeOut('slow');
-                }, hint.options.hideDelay);
-            }
-        });
-        function ClonedObject() {
         }
-        function clone(obj) {
-            ClonedObject.prototype = obj;
-            return new ClonedObject();
-        }
-        dataviz.ui.plugin(StockChart);
-        deepExtend(dataviz, { Navigator: Navigator });
     }(window.kendo.jQuery));
-    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('kendo.dataviz.stock', [
+        'dataviz/stock/kendo-stock-chart',
+        'dataviz/stock/stock-chart'
+    ], f);
+}(function () {
+    var __meta__ = {
+        id: 'dataviz.stockchart',
+        name: 'StockChart',
+        category: 'dataviz',
+        description: 'StockChart widget and associated financial series.',
+        depends: ['dataviz.chart']
+    };
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));

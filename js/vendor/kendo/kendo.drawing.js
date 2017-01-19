@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -23,43 +23,79 @@
 
 */
 (function (f, define) {
-    define('util/main', ['kendo.core'], f);
+    define('drawing/util', ['kendo.core'], f);
 }(function () {
-    (function () {
-        var math = Math, kendo = window.kendo, deepExtend = kendo.deepExtend;
-        var DEG_TO_RAD = math.PI / 180, MAX_NUM = Number.MAX_VALUE, MIN_NUM = -Number.MAX_VALUE, UNDEFINED = 'undefined';
-        function defined(value) {
-            return typeof value !== UNDEFINED;
+    (function ($) {
+        function createPromise() {
+            return $.Deferred();
         }
-        function round(value, precision) {
-            var power = pow(precision);
-            return math.round(value * power) / power;
+        function promiseAll(promises) {
+            return $.when.apply($, promises);
         }
-        function pow(p) {
-            if (p) {
-                return math.pow(10, p);
-            } else {
-                return 1;
+        kendo.drawing.util = kendo.drawing.util || {};
+        kendo.deepExtend(kendo.drawing.util, {
+            createPromise: createPromise,
+            promiseAll: promiseAll
+        });
+    }(window.kendo.jQuery));
+    return window.kendo;
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('util/text-metrics', ['kendo.core'], f);
+}(function () {
+    (function ($) {
+        window.kendo.util = window.kendo.util || {};
+        var LRUCache = kendo.Class.extend({
+            init: function (size) {
+                this._size = size;
+                this._length = 0;
+                this._map = {};
+            },
+            put: function (key, value) {
+                var map = this._map;
+                var entry = {
+                    key: key,
+                    value: value
+                };
+                map[key] = entry;
+                if (!this._head) {
+                    this._head = this._tail = entry;
+                } else {
+                    this._tail.newer = entry;
+                    entry.older = this._tail;
+                    this._tail = entry;
+                }
+                if (this._length >= this._size) {
+                    map[this._head.key] = null;
+                    this._head = this._head.newer;
+                    this._head.older = null;
+                } else {
+                    this._length++;
+                }
+            },
+            get: function (key) {
+                var entry = this._map[key];
+                if (entry) {
+                    if (entry === this._head && entry !== this._tail) {
+                        this._head = entry.newer;
+                        this._head.older = null;
+                    }
+                    if (entry !== this._tail) {
+                        if (entry.older) {
+                            entry.older.newer = entry.newer;
+                            entry.newer.older = entry.older;
+                        }
+                        entry.older = this._tail;
+                        entry.newer = null;
+                        this._tail.newer = entry;
+                        this._tail = entry;
+                    }
+                    return entry.value;
+                }
             }
-        }
-        function limitValue(value, min, max) {
-            return math.max(math.min(value, max), min);
-        }
-        function rad(degrees) {
-            return degrees * DEG_TO_RAD;
-        }
-        function deg(radians) {
-            return radians / DEG_TO_RAD;
-        }
-        function isNumber(val) {
-            return typeof val === 'number' && !isNaN(val);
-        }
-        function valueOrDefault(value, defaultValue) {
-            return defined(value) ? value : defaultValue;
-        }
-        function sqr(value) {
-            return value * value;
-        }
+        });
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -75,139 +111,196 @@
             }
             return hash >>> 0;
         }
-        function hashObject(object) {
-            return hashKey(objectKey(object));
-        }
-        var now = Date.now;
-        if (!now) {
-            now = function () {
-                return new Date().getTime();
-            };
-        }
-        function arrayLimits(arr) {
-            var length = arr.length, i, min = MAX_NUM, max = MIN_NUM;
-            for (i = 0; i < length; i++) {
-                max = math.max(max, arr[i]);
-                min = math.min(min, arr[i]);
-            }
+        function zeroSize() {
             return {
-                min: min,
-                max: max
+                width: 0,
+                height: 0,
+                baseline: 0
             };
         }
-        function arrayMin(arr) {
-            return arrayLimits(arr).min;
+        var DEFAULT_OPTIONS = { baselineMarkerSize: 1 };
+        var defaultMeasureBox;
+        if (typeof document !== 'undefined') {
+            defaultMeasureBox = document.createElement('div');
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
         }
-        function arrayMax(arr) {
-            return arrayLimits(arr).max;
-        }
-        function sparseArrayMin(arr) {
-            return sparseArrayLimits(arr).min;
-        }
-        function sparseArrayMax(arr) {
-            return sparseArrayLimits(arr).max;
-        }
-        function sparseArrayLimits(arr) {
-            var min = MAX_NUM, max = MIN_NUM;
-            for (var i = 0, length = arr.length; i < length; i++) {
-                var n = arr[i];
-                if (n !== null && isFinite(n)) {
-                    min = math.min(min, n);
-                    max = math.max(max, n);
+        var TextMetrics = kendo.Class.extend({
+            init: function (options) {
+                this._cache = new LRUCache(1000);
+                this.options = $.extend({}, DEFAULT_OPTIONS, options);
+            },
+            measure: function (text, style, box) {
+                if (!text) {
+                    return zeroSize();
                 }
+                var styleKey = objectKey(style);
+                var cacheKey = hashKey(text + styleKey);
+                var cachedResult = this._cache.get(cacheKey);
+                if (cachedResult) {
+                    return cachedResult;
+                }
+                var size = zeroSize();
+                var measureBox = box || defaultMeasureBox;
+                var baselineMarker = this._baselineMarker().cloneNode(false);
+                for (var key in style) {
+                    var value = style[key];
+                    if (typeof value !== 'undefined') {
+                        measureBox.style[key] = value;
+                    }
+                }
+                measureBox.textContent = text;
+                measureBox.appendChild(baselineMarker);
+                document.body.appendChild(measureBox);
+                if (String(text).length) {
+                    size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
+                    size.height = measureBox.offsetHeight;
+                    size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
+                }
+                if (size.width > 0 && size.height > 0) {
+                    this._cache.put(cacheKey, size);
+                }
+                measureBox.parentNode.removeChild(measureBox);
+                return size;
+            },
+            _baselineMarker: function () {
+                var marker = document.createElement('div');
+                marker.style.cssText = 'display: inline-block; vertical-align: baseline;width: ' + this.options.baselineMarkerSize + 'px; height: ' + this.options.baselineMarkerSize + 'px;overflow: hidden;';
+                return marker;
             }
-            return {
-                min: min === MAX_NUM ? undefined : min,
-                max: max === MIN_NUM ? undefined : max
-            };
+        });
+        TextMetrics.current = new TextMetrics();
+        function measureText(text, style, measureBox) {
+            return TextMetrics.current.measure(text, style, measureBox);
         }
-        function last(array) {
-            if (array) {
-                return array[array.length - 1];
+        kendo.deepExtend(kendo.util, {
+            LRUCache: LRUCache,
+            TextMetrics: TextMetrics,
+            measureText: measureText,
+            objectKey: objectKey,
+            hashKey: hashKey
+        });
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('drawing/kendo-drawing', [
+        'drawing/util',
+        'kendo.color',
+        'util/text-metrics'
+    ], f);
+}(function () {
+    (function ($) {
+        window.kendo = window.kendo || {};
+        var kendoDrawing = kendo.drawing;
+        var kendoDrawingUtil = kendoDrawing.util;
+        var Class = kendo.Class;
+        var kendoUtil = kendo.util;
+        var support = kendo.support;
+        var createPromise = kendoDrawingUtil.createPromise;
+        var promiseAll = kendoDrawingUtil.promiseAll;
+        var ObserversMixin = {
+            extend: function (proto) {
+                var this$1 = this;
+                for (var method in this) {
+                    if (method !== 'extend') {
+                        proto[method] = this$1[method];
+                    }
+                }
+            },
+            observers: function () {
+                this._observers = this._observers || [];
+                return this._observers;
+            },
+            addObserver: function (element) {
+                if (!this._observers) {
+                    this._observers = [element];
+                } else {
+                    this._observers.push(element);
+                }
+                return this;
+            },
+            removeObserver: function (element) {
+                var observers = this.observers();
+                var index = observers.indexOf(element);
+                if (index !== -1) {
+                    observers.splice(index, 1);
+                }
+                return this;
+            },
+            trigger: function (methodName, event) {
+                var observers = this._observers;
+                if (observers && !this._suspended) {
+                    for (var idx = 0; idx < observers.length; idx++) {
+                        var observer = observers[idx];
+                        if (observer[methodName]) {
+                            observer[methodName](event);
+                        }
+                    }
+                }
+                return this;
+            },
+            optionsChange: function (e) {
+                if (e === void 0) {
+                    e = {};
+                }
+                e.element = this;
+                this.trigger('optionsChange', e);
+            },
+            geometryChange: function () {
+                this.trigger('geometryChange', { element: this });
+            },
+            suspend: function () {
+                this._suspended = (this._suspended || 0) + 1;
+                return this;
+            },
+            resume: function () {
+                this._suspended = Math.max((this._suspended || 0) - 1, 0);
+                return this;
+            },
+            _observerField: function (field, value) {
+                if (this[field]) {
+                    this[field].removeObserver(this);
+                }
+                this[field] = value;
+                value.addObserver(this);
             }
-        }
+        };
         function append(first, second) {
             first.push.apply(first, second);
             return first;
         }
-        function renderTemplate(text) {
-            return kendo.template(text, {
-                useWithBlock: false,
-                paramName: 'd'
-            });
-        }
-        function renderAttr(name, value) {
-            return defined(value) && value !== null ? ' ' + name + '=\'' + value + '\' ' : '';
-        }
-        function renderAllAttr(attrs) {
-            var output = '';
-            for (var i = 0; i < attrs.length; i++) {
-                output += renderAttr(attrs[i][0], attrs[i][1]);
-            }
-            return output;
-        }
-        function renderStyle(attrs) {
-            var output = '';
-            for (var i = 0; i < attrs.length; i++) {
-                var value = attrs[i][1];
-                if (defined(value)) {
-                    output += attrs[i][0] + ':' + value + ';';
-                }
-            }
-            if (output !== '') {
-                return output;
-            }
-        }
-        function renderSize(size) {
-            if (typeof size !== 'string') {
-                size += 'px';
-            }
-            return size;
-        }
-        function renderPos(pos) {
-            var result = [];
-            if (pos) {
-                var parts = kendo.toHyphens(pos).split('-');
-                for (var i = 0; i < parts.length; i++) {
-                    result.push('k-pos-' + parts[i]);
-                }
-            }
-            return result.join(' ');
-        }
-        function isTransparent(color) {
-            return color === '' || color === null || color === 'none' || color === 'transparent' || !defined(color);
-        }
+        var literals = {
+            1: 'i',
+            10: 'x',
+            100: 'c',
+            2: 'ii',
+            20: 'xx',
+            200: 'cc',
+            3: 'iii',
+            30: 'xxx',
+            300: 'ccc',
+            4: 'iv',
+            40: 'xl',
+            400: 'cd',
+            5: 'v',
+            50: 'l',
+            500: 'd',
+            6: 'vi',
+            60: 'lx',
+            600: 'dc',
+            7: 'vii',
+            70: 'lxx',
+            700: 'dcc',
+            8: 'viii',
+            80: 'lxxx',
+            800: 'dccc',
+            9: 'ix',
+            90: 'xc',
+            900: 'cm',
+            1000: 'm'
+        };
         function arabicToRoman(n) {
-            var literals = {
-                1: 'i',
-                10: 'x',
-                100: 'c',
-                2: 'ii',
-                20: 'xx',
-                200: 'cc',
-                3: 'iii',
-                30: 'xxx',
-                300: 'ccc',
-                4: 'iv',
-                40: 'xl',
-                400: 'cd',
-                5: 'v',
-                50: 'l',
-                500: 'd',
-                6: 'vi',
-                60: 'lx',
-                600: 'dc',
-                7: 'vii',
-                70: 'lxx',
-                700: 'dcc',
-                8: 'viii',
-                80: 'lxxx',
-                800: 'dccc',
-                9: 'ix',
-                90: 'xc',
-                900: 'cm',
-                1000: 'm'
-            };
             var values = [
                 1000,
                 900,
@@ -249,70 +342,85 @@
             }
             return roman;
         }
-        function romanToArabic(r) {
-            r = r.toLowerCase();
-            var digits = {
-                i: 1,
-                v: 5,
-                x: 10,
-                l: 50,
-                c: 100,
-                d: 500,
-                m: 1000
-            };
-            var value = 0, prev = 0;
-            for (var i = 0; i < r.length; ++i) {
-                var v = digits[r.charAt(i)];
-                if (!v) {
-                    return null;
-                }
-                value += v;
-                if (v > prev) {
-                    value -= 2 * prev;
-                }
-                prev = v;
-            }
-            return value;
+        var UNDEFINED = 'undefined';
+        function defined(value) {
+            return typeof value !== UNDEFINED;
         }
-        function memoize(f) {
-            var cache = Object.create(null);
-            return function () {
-                var id = '';
-                for (var i = arguments.length; --i >= 0;) {
-                    id += ':' + arguments[i];
-                }
-                return id in cache ? cache[id] : cache[id] = f.apply(this, arguments);
-            };
+        var defId = 1;
+        function definitionId() {
+            return 'kdef' + defId++;
         }
-        function ucs2decode(string) {
-            var output = [], counter = 0, length = string.length, value, extra;
-            while (counter < length) {
-                value = string.charCodeAt(counter++);
-                if (value >= 55296 && value <= 56319 && counter < length) {
-                    extra = string.charCodeAt(counter++);
-                    if ((extra & 64512) == 56320) {
-                        output.push(((value & 1023) << 10) + (extra & 1023) + 65536);
-                    } else {
-                        output.push(value);
-                        counter--;
-                    }
-                } else {
-                    output.push(value);
+        var DEG_TO_RAD = Math.PI / 180;
+        var MAX_NUM = Number.MAX_VALUE;
+        var MIN_NUM = -Number.MAX_VALUE;
+        function deg(radians) {
+            return radians / DEG_TO_RAD;
+        }
+        var KEY_STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        var fromCharCode = String.fromCharCode;
+        function encodeUTF8(input) {
+            var output = '';
+            for (var i = 0; i < input.length; i++) {
+                var c = input.charCodeAt(i);
+                if (c < 128) {
+                    output += fromCharCode(c);
+                } else if (c < 2048) {
+                    output += fromCharCode(192 | c >>> 6);
+                    output += fromCharCode(128 | c & 63);
+                } else if (c < 65536) {
+                    output += fromCharCode(224 | c >>> 12);
+                    output += fromCharCode(128 | c >>> 6 & 63);
+                    output += fromCharCode(128 | c & 63);
                 }
             }
             return output;
         }
-        function ucs2encode(array) {
-            return array.map(function (value) {
-                var output = '';
-                if (value > 65535) {
-                    value -= 65536;
-                    output += String.fromCharCode(value >>> 10 & 1023 | 55296);
-                    value = 56320 | value & 1023;
+        function encodeBase64(input) {
+            var output = '';
+            var i = 0;
+            var utfInput = encodeUTF8(input);
+            while (i < utfInput.length) {
+                var chr1 = utfInput.charCodeAt(i++);
+                var chr2 = utfInput.charCodeAt(i++);
+                var chr3 = utfInput.charCodeAt(i++);
+                var enc1 = chr1 >> 2;
+                var enc2 = (chr1 & 3) << 4 | chr2 >> 4;
+                var enc3 = (chr2 & 15) << 2 | chr3 >> 6;
+                var enc4 = chr3 & 63;
+                if (isNaN(chr2)) {
+                    enc3 = enc4 = 64;
+                } else if (isNaN(chr3)) {
+                    enc4 = 64;
                 }
-                output += String.fromCharCode(value);
-                return output;
-            }).join('');
+                output = output + KEY_STR.charAt(enc1) + KEY_STR.charAt(enc2) + KEY_STR.charAt(enc3) + KEY_STR.charAt(enc4);
+            }
+            return output;
+        }
+        function eventCoordinates(e) {
+            if (defined((e.x || {}).location)) {
+                return {
+                    x: e.x.location,
+                    y: e.y.location
+                };
+            }
+            return {
+                x: e.pageX || e.clientX || 0,
+                y: e.pageY || e.clientY || 0
+            };
+        }
+        function eventElement(e) {
+            return e.touch ? e.touch.initialTouch : e.target;
+        }
+        function isTransparent(color) {
+            return color === '' || color === null || color === 'none' || color === 'transparent' || !defined(color);
+        }
+        function last(array) {
+            if (array) {
+                return array[array.length - 1];
+            }
+        }
+        function limitValue(value, min, max) {
+            return Math.max(Math.min(value, max), min);
         }
         function mergeSort(a, cmp) {
             if (a.length < 2) {
@@ -347,321 +455,332 @@
                 return merge(left, right);
             }(a);
         }
-        deepExtend(kendo, {
-            util: {
-                MAX_NUM: MAX_NUM,
-                MIN_NUM: MIN_NUM,
-                append: append,
-                arrayLimits: arrayLimits,
-                arrayMin: arrayMin,
-                arrayMax: arrayMax,
-                defined: defined,
-                deg: deg,
-                hashKey: hashKey,
-                hashObject: hashObject,
-                isNumber: isNumber,
-                isTransparent: isTransparent,
-                last: last,
-                limitValue: limitValue,
-                now: now,
-                objectKey: objectKey,
-                round: round,
-                rad: rad,
-                renderAttr: renderAttr,
-                renderAllAttr: renderAllAttr,
-                renderPos: renderPos,
-                renderSize: renderSize,
-                renderStyle: renderStyle,
-                renderTemplate: renderTemplate,
-                sparseArrayLimits: sparseArrayLimits,
-                sparseArrayMin: sparseArrayMin,
-                sparseArrayMax: sparseArrayMax,
-                sqr: sqr,
-                valueOrDefault: valueOrDefault,
-                romanToArabic: romanToArabic,
-                arabicToRoman: arabicToRoman,
-                memoize: memoize,
-                ucs2encode: ucs2encode,
-                ucs2decode: ucs2decode,
-                mergeSort: mergeSort
+        function rad(degrees) {
+            return degrees * DEG_TO_RAD;
+        }
+        function pow(p) {
+            if (p) {
+                return Math.pow(10, p);
             }
-        });
-        kendo.drawing.util = kendo.util;
-        kendo.dataviz.util = kendo.util;
-    }());
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('util/text-metrics', [
-        'kendo.core',
-        'util/main'
-    ], f);
-}(function () {
-    (function ($) {
-        var doc = document, kendo = window.kendo, Class = kendo.Class, util = kendo.util, defined = util.defined;
-        var LRUCache = Class.extend({
-            init: function (size) {
-                this._size = size;
-                this._length = 0;
-                this._map = {};
-            },
-            put: function (key, value) {
-                var lru = this, map = lru._map, entry = {
-                        key: key,
-                        value: value
-                    };
-                map[key] = entry;
-                if (!lru._head) {
-                    lru._head = lru._tail = entry;
-                } else {
-                    lru._tail.newer = entry;
-                    entry.older = lru._tail;
-                    lru._tail = entry;
-                }
-                if (lru._length >= lru._size) {
-                    map[lru._head.key] = null;
-                    lru._head = lru._head.newer;
-                    lru._head.older = null;
-                } else {
-                    lru._length++;
-                }
-            },
-            get: function (key) {
-                var lru = this, entry = lru._map[key];
-                if (entry) {
-                    if (entry === lru._head && entry !== lru._tail) {
-                        lru._head = entry.newer;
-                        lru._head.older = null;
-                    }
-                    if (entry !== lru._tail) {
-                        if (entry.older) {
-                            entry.older.newer = entry.newer;
-                            entry.newer.older = entry.older;
-                        }
-                        entry.older = lru._tail;
-                        entry.newer = null;
-                        lru._tail.newer = entry;
-                        lru._tail = entry;
-                    }
-                    return entry.value;
+            return 1;
+        }
+        function round(value, precision) {
+            var power = pow(precision);
+            return Math.round(value * power) / power;
+        }
+        function valueOrDefault(value, defaultValue) {
+            return defined(value) ? value : defaultValue;
+        }
+        function bindEvents(element, events) {
+            for (var eventName in events) {
+                var eventNames = eventName.trim().split(' ');
+                for (var idx = 0; idx < eventNames.length; idx++) {
+                    element.addEventListener(eventNames[idx], events[eventName], false);
                 }
             }
-        });
-        var defaultMeasureBox = $('<div style=\'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;\' />')[0];
-        function zeroSize() {
+        }
+        function elementOffset(element) {
+            var box = element.getBoundingClientRect();
+            var documentElement = document.documentElement;
             return {
-                width: 0,
-                height: 0,
-                baseline: 0
+                top: box.top + (window.pageYOffset || documentElement.scrollTop) - (documentElement.clientTop || 0),
+                left: box.left + (window.pageXOffset || documentElement.scrollLeft) - (documentElement.clientLeft || 0)
             };
         }
-        var TextMetrics = Class.extend({
-            init: function (options) {
-                this._cache = new LRUCache(1000);
-                this._initOptions(options);
-            },
-            options: { baselineMarkerSize: 1 },
-            measure: function (text, style, box) {
-                if (!text) {
-                    return zeroSize();
-                }
-                var styleKey = util.objectKey(style), cacheKey = util.hashKey(text + styleKey), cachedResult = this._cache.get(cacheKey);
-                if (cachedResult) {
-                    return cachedResult;
-                }
-                var size = zeroSize();
-                var measureBox = box ? box : defaultMeasureBox;
-                var baselineMarker = this._baselineMarker().cloneNode(false);
-                for (var key in style) {
-                    var value = style[key];
-                    if (defined(value)) {
-                        measureBox.style[key] = value;
-                    }
-                }
-                $(measureBox).text(text);
-                measureBox.appendChild(baselineMarker);
-                doc.body.appendChild(measureBox);
-                if ((text + '').length) {
-                    size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
-                    size.height = measureBox.offsetHeight;
-                    size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
-                }
-                if (size.width > 0 && size.height > 0) {
-                    this._cache.put(cacheKey, size);
-                }
-                measureBox.parentNode.removeChild(measureBox);
-                return size;
-            },
-            _baselineMarker: function () {
-                return $('<div class=\'k-baseline-marker\' ' + 'style=\'display: inline-block; vertical-align: baseline;' + 'width: ' + this.options.baselineMarkerSize + 'px; height: ' + this.options.baselineMarkerSize + 'px;' + 'overflow: hidden;\' />')[0];
+        function elementStyles(element, styles) {
+            var result = {};
+            var style = window.getComputedStyle(element);
+            var stylesArray = Array.isArray(styles) ? styles : [styles];
+            for (var idx = 0; idx < stylesArray.length; idx++) {
+                var field = stylesArray[idx];
+                result[field] = style[field];
             }
-        });
-        TextMetrics.current = new TextMetrics();
-        function measureText(text, style, measureBox) {
-            return TextMetrics.current.measure(text, style, measureBox);
+            return result;
         }
-        function loadFonts(fonts, callback) {
-            var promises = [];
-            if (fonts.length > 0 && document.fonts) {
-                try {
-                    promises = fonts.map(function (font) {
-                        return document.fonts.load(font);
-                    });
-                } catch (e) {
-                    kendo.logToConsole(e);
+        function getPixels(value) {
+            if (isNaN(value)) {
+                return value;
+            }
+            return value + 'px';
+        }
+        function elementSize(element, size) {
+            if (size) {
+                var width = size.width;
+                var height = size.height;
+                if (defined(width)) {
+                    element.style.width = getPixels(width);
                 }
-                Promise.all(promises).then(callback, callback);
+                if (defined(height)) {
+                    element.style.height = getPixels(height);
+                }
             } else {
-                callback();
+                var size$1 = elementStyles(element, [
+                    'width',
+                    'height'
+                ]);
+                return {
+                    width: parseInt(size$1.width, 10),
+                    height: parseInt(size$1.height, 10)
+                };
             }
         }
-        kendo.util.TextMetrics = TextMetrics;
-        kendo.util.LRUCache = LRUCache;
-        kendo.util.loadFonts = loadFonts;
-        kendo.util.measureText = measureText;
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('util/base64', ['util/main'], f);
-}(function () {
-    (function () {
-        var kendo = window.kendo, deepExtend = kendo.deepExtend, fromCharCode = String.fromCharCode;
-        var KEY_STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-        function encodeBase64(input) {
-            var output = '';
-            var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-            var i = 0;
-            input = encodeUTF8(input);
-            while (i < input.length) {
-                chr1 = input.charCodeAt(i++);
-                chr2 = input.charCodeAt(i++);
-                chr3 = input.charCodeAt(i++);
-                enc1 = chr1 >> 2;
-                enc2 = (chr1 & 3) << 4 | chr2 >> 4;
-                enc3 = (chr2 & 15) << 2 | chr3 >> 6;
-                enc4 = chr3 & 63;
-                if (isNaN(chr2)) {
-                    enc3 = enc4 = 64;
-                } else if (isNaN(chr3)) {
-                    enc4 = 64;
-                }
-                output = output + KEY_STR.charAt(enc1) + KEY_STR.charAt(enc2) + KEY_STR.charAt(enc3) + KEY_STR.charAt(enc4);
+        function unbindEvents(element, events) {
+            if (events === void 0) {
+                events = {};
             }
-            return output;
-        }
-        function encodeUTF8(input) {
-            var output = '';
-            for (var i = 0; i < input.length; i++) {
-                var c = input.charCodeAt(i);
-                if (c < 128) {
-                    output += fromCharCode(c);
-                } else if (c < 2048) {
-                    output += fromCharCode(192 | c >>> 6);
-                    output += fromCharCode(128 | c & 63);
-                } else if (c < 65536) {
-                    output += fromCharCode(224 | c >>> 12);
-                    output += fromCharCode(128 | c >>> 6 & 63);
-                    output += fromCharCode(128 | c & 63);
+            for (var name in events) {
+                var eventNames = name.trim().split(' ');
+                for (var idx = 0; idx < eventNames.length; idx++) {
+                    element.removeEventListener(eventNames[idx], events[name], false);
                 }
             }
-            return output;
         }
-        deepExtend(kendo.util, {
+        var util = {
+            append: append,
+            arabicToRoman: arabicToRoman,
+            createPromise: createPromise,
+            defined: defined,
+            definitionId: definitionId,
+            deg: deg,
             encodeBase64: encodeBase64,
-            encodeUTF8: encodeUTF8
-        });
-    }());
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('mixins/observers', ['kendo.core'], f);
-}(function () {
-    (function ($) {
-        var math = Math, kendo = window.kendo, deepExtend = kendo.deepExtend, inArray = $.inArray;
-        var ObserversMixin = {
-            observers: function () {
-                this._observers = this._observers || [];
-                return this._observers;
-            },
-            addObserver: function (element) {
-                if (!this._observers) {
-                    this._observers = [element];
-                } else {
-                    this._observers.push(element);
+            eventCoordinates: eventCoordinates,
+            eventElement: eventElement,
+            isTransparent: isTransparent,
+            last: last,
+            limitValue: limitValue,
+            mergeSort: mergeSort,
+            promiseAll: promiseAll,
+            rad: rad,
+            round: round,
+            valueOrDefault: valueOrDefault,
+            bindEvents: bindEvents,
+            elementOffset: elementOffset,
+            elementSize: elementSize,
+            elementStyles: elementStyles,
+            unbindEvents: unbindEvents,
+            DEG_TO_RAD: DEG_TO_RAD,
+            MAX_NUM: MAX_NUM,
+            MIN_NUM: MIN_NUM
+        };
+        var toString = {}.toString;
+        var OptionsStore = Class.extend({
+            init: function (options, prefix) {
+                var this$1 = this;
+                if (prefix === void 0) {
+                    prefix = '';
                 }
-                return this;
-            },
-            removeObserver: function (element) {
-                var observers = this.observers();
-                var index = inArray(element, observers);
-                if (index != -1) {
-                    observers.splice(index, 1);
+                this.prefix = prefix;
+                for (var field in options) {
+                    var member = options[field];
+                    member = this$1._wrap(member, field);
+                    this$1[field] = member;
                 }
-                return this;
             },
-            trigger: function (methodName, event) {
-                var observers = this._observers;
-                var observer;
-                var idx;
-                if (observers && !this._suspended) {
-                    for (idx = 0; idx < observers.length; idx++) {
-                        observer = observers[idx];
-                        if (observer[methodName]) {
-                            observer[methodName](event);
+            get: function (field) {
+                var parts = field.split('.');
+                var result = this;
+                while (parts.length && result) {
+                    var part = parts.shift();
+                    result = result[part];
+                }
+                return result;
+            },
+            set: function (field, value) {
+                var current = this.get(field);
+                if (current !== value) {
+                    this._set(field, this._wrap(value, field));
+                    this.optionsChange({
+                        field: this.prefix + field,
+                        value: value
+                    });
+                }
+            },
+            _set: function (field, value) {
+                var this$1 = this;
+                var composite = field.indexOf('.') >= 0;
+                var parentObj = this;
+                var fieldName = field;
+                if (composite) {
+                    var parts = fieldName.split('.');
+                    var prefix = this.prefix;
+                    while (parts.length > 1) {
+                        fieldName = parts.shift();
+                        prefix += fieldName + '.';
+                        var obj = parentObj[fieldName];
+                        if (!obj) {
+                            obj = new OptionsStore({}, prefix);
+                            obj.addObserver(this$1);
+                            parentObj[fieldName] = obj;
                         }
+                        parentObj = obj;
+                    }
+                    fieldName = parts[0];
+                }
+                parentObj._clear(fieldName);
+                parentObj[fieldName] = value;
+            },
+            _clear: function (field) {
+                var current = this[field];
+                if (current && current.removeObserver) {
+                    current.removeObserver(this);
+                }
+            },
+            _wrap: function (object, field) {
+                var type = toString.call(object);
+                var wrapped = object;
+                if (wrapped !== null && defined(wrapped) && type === '[object Object]') {
+                    if (!(object instanceof OptionsStore) && !(object instanceof Class)) {
+                        wrapped = new OptionsStore(wrapped, this.prefix + field + '.');
+                    }
+                    wrapped.addObserver(this);
+                }
+                return wrapped;
+            }
+        });
+        ObserversMixin.extend(OptionsStore.prototype);
+        function setAccessor(field) {
+            return function (value) {
+                if (this[field] !== value) {
+                    this[field] = value;
+                    this.geometryChange();
+                }
+                return this;
+            };
+        }
+        function getAccessor(field) {
+            return function () {
+                return this[field];
+            };
+        }
+        function defineAccessors(fn, fields) {
+            for (var i = 0; i < fields.length; i++) {
+                var name = fields[i];
+                var capitalized = name.charAt(0).toUpperCase() + name.substring(1, name.length);
+                fn['set' + capitalized] = setAccessor(name);
+                fn['get' + capitalized] = getAccessor(name);
+            }
+        }
+        var Matrix = Class.extend({
+            init: function (a, b, c, d, e, f) {
+                if (a === void 0) {
+                    a = 0;
+                }
+                if (b === void 0) {
+                    b = 0;
+                }
+                if (c === void 0) {
+                    c = 0;
+                }
+                if (d === void 0) {
+                    d = 0;
+                }
+                if (e === void 0) {
+                    e = 0;
+                }
+                if (f === void 0) {
+                    f = 0;
+                }
+                this.a = a;
+                this.b = b;
+                this.c = c;
+                this.d = d;
+                this.e = e;
+                this.f = f;
+            },
+            multiplyCopy: function (matrix) {
+                return new Matrix(this.a * matrix.a + this.c * matrix.b, this.b * matrix.a + this.d * matrix.b, this.a * matrix.c + this.c * matrix.d, this.b * matrix.c + this.d * matrix.d, this.a * matrix.e + this.c * matrix.f + this.e, this.b * matrix.e + this.d * matrix.f + this.f);
+            },
+            invert: function () {
+                var ref = this;
+                var a = ref.a;
+                var b = ref.b;
+                var d = ref.c;
+                var e = ref.d;
+                var g = ref.e;
+                var h = ref.f;
+                var det = a * e - b * d;
+                if (det === 0) {
+                    return null;
+                }
+                return new Matrix(e / det, -b / det, -d / det, a / det, (d * h - e * g) / det, (b * g - a * h) / det);
+            },
+            clone: function () {
+                return new Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
+            },
+            equals: function (other) {
+                if (!other) {
+                    return false;
+                }
+                return this.a === other.a && this.b === other.b && this.c === other.c && this.d === other.d && this.e === other.e && this.f === other.f;
+            },
+            round: function (precision) {
+                this.a = round(this.a, precision);
+                this.b = round(this.b, precision);
+                this.c = round(this.c, precision);
+                this.d = round(this.d, precision);
+                this.e = round(this.e, precision);
+                this.f = round(this.f, precision);
+                return this;
+            },
+            toArray: function (precision) {
+                var result = [
+                    this.a,
+                    this.b,
+                    this.c,
+                    this.d,
+                    this.e,
+                    this.f
+                ];
+                if (defined(precision)) {
+                    for (var i = 0; i < result.length; i++) {
+                        result[i] = round(result[i], precision);
                     }
                 }
-                return this;
+                return result;
             },
-            optionsChange: function (e) {
-                e = e || {};
-                e.element = this;
-                this.trigger('optionsChange', e);
-            },
-            geometryChange: function () {
-                this.trigger('geometryChange', { element: this });
-            },
-            suspend: function () {
-                this._suspended = (this._suspended || 0) + 1;
-                return this;
-            },
-            resume: function () {
-                this._suspended = math.max((this._suspended || 0) - 1, 0);
-                return this;
-            },
-            _observerField: function (field, value) {
-                if (this[field]) {
-                    this[field].removeObserver(this);
+            toString: function (precision, separator) {
+                if (separator === void 0) {
+                    separator = ',';
                 }
-                this[field] = value;
-                value.addObserver(this);
+                return this.toArray(precision).join(separator);
             }
+        });
+        Matrix.translate = function (x, y) {
+            return new Matrix(1, 0, 0, 1, x, y);
         };
-        deepExtend(kendo, { mixins: { ObserversMixin: ObserversMixin } });
-    }(window.kendo.jQuery));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/geometry', [
-        'util/main',
-        'mixins/observers'
-    ], f);
-}(function () {
-    (function () {
-        var math = Math, pow = math.pow, kendo = window.kendo, Class = kendo.Class, deepExtend = kendo.deepExtend, ObserversMixin = kendo.mixins.ObserversMixin, util = kendo.util, defined = util.defined, rad = util.rad, deg = util.deg, round = util.round;
-        var PI_DIV_2 = math.PI / 2, MIN_NUM = util.MIN_NUM, MAX_NUM = util.MAX_NUM, PRECISION = 10;
+        Matrix.unit = function () {
+            return new Matrix(1, 0, 0, 1, 0, 0);
+        };
+        Matrix.rotate = function (angle, x, y) {
+            var matrix = new Matrix();
+            matrix.a = Math.cos(rad(angle));
+            matrix.b = Math.sin(rad(angle));
+            matrix.c = -matrix.b;
+            matrix.d = matrix.a;
+            matrix.e = x - x * matrix.a + y * matrix.b || 0;
+            matrix.f = y - y * matrix.a - x * matrix.b || 0;
+            return matrix;
+        };
+        Matrix.scale = function (scaleX, scaleY) {
+            return new Matrix(scaleX, 0, 0, scaleY, 0, 0);
+        };
+        Matrix.IDENTITY = Matrix.unit();
+        function toMatrix(transformation) {
+            if (transformation && typeof transformation.matrix === 'function') {
+                return transformation.matrix();
+            }
+            return transformation;
+        }
         var Point = Class.extend({
             init: function (x, y) {
-                this.x = x || 0;
-                this.y = y || 0;
+                if (x === void 0) {
+                    x = 0;
+                }
+                if (y === void 0) {
+                    y = 0;
+                }
+                this.x = x;
+                this.y = y;
             },
             equals: function (other) {
                 return other && other.x === this.x && other.y === this.y;
@@ -670,7 +789,8 @@
                 return new Point(this.x, this.y);
             },
             rotate: function (angle, origin) {
-                return this.transform(transform().rotate(angle, origin));
+                var originPoint = Point.create(origin) || Point.ZERO;
+                return this.transform(Matrix.rotate(angle, originPoint.x, originPoint.y));
             },
             translate: function (x, y) {
                 this.x += x;
@@ -686,7 +806,7 @@
                 return this.translate(x, y);
             },
             scale: function (scaleX, scaleY) {
-                if (!defined(scaleY)) {
+                if (scaleY === void 0) {
                     scaleY = scaleX;
                 }
                 this.x *= scaleX;
@@ -698,9 +818,12 @@
                 return this.clone().scale(scaleX, scaleY);
             },
             transform: function (transformation) {
-                var mx = toMatrix(transformation), x = this.x, y = this.y;
-                this.x = mx.a * x + mx.c * y + mx.e;
-                this.y = mx.b * x + mx.d * y + mx.f;
+                var matrix = toMatrix(transformation);
+                var ref = this;
+                var x = ref.x;
+                var y = ref.y;
+                this.x = matrix.a * x + matrix.c * y + matrix.e;
+                this.y = matrix.b * x + matrix.d * y + matrix.f;
                 this.geometryChange();
                 return this;
             },
@@ -714,7 +837,7 @@
             distanceTo: function (point) {
                 var dx = this.x - point.x;
                 var dy = this.y - point.y;
-                return math.sqrt(dx * dx + dy * dy);
+                return Math.sqrt(dx * dx + dy * dy);
             },
             round: function (digits) {
                 this.x = round(this.x, digits);
@@ -730,50 +853,50 @@
                     x,
                     y
                 ];
+            },
+            toString: function (digits, separator) {
+                if (separator === void 0) {
+                    separator = ' ';
+                }
+                var ref = this;
+                var x = ref.x;
+                var y = ref.y;
+                if (defined(digits)) {
+                    x = round(x, digits);
+                    y = round(y, digits);
+                }
+                return x + separator + y;
             }
         });
-        defineAccessors(Point.fn, [
-            'x',
-            'y'
-        ]);
-        deepExtend(Point.fn, ObserversMixin);
-        Point.fn.toString = function (digits, separator) {
-            var x = this.x, y = this.y;
-            if (defined(digits)) {
-                x = round(x, digits);
-                y = round(y, digits);
-            }
-            separator = separator || ' ';
-            return x + separator + y;
-        };
         Point.create = function (arg0, arg1) {
             if (defined(arg0)) {
                 if (arg0 instanceof Point) {
                     return arg0;
                 } else if (arguments.length === 1 && arg0.length === 2) {
                     return new Point(arg0[0], arg0[1]);
-                } else {
-                    return new Point(arg0, arg1);
                 }
+                return new Point(arg0, arg1);
             }
         };
         Point.min = function () {
-            var minX = util.MAX_NUM;
-            var minY = util.MAX_NUM;
+            var arguments$1 = arguments;
+            var minX = MAX_NUM;
+            var minY = MAX_NUM;
             for (var i = 0; i < arguments.length; i++) {
-                var pt = arguments[i];
-                minX = math.min(pt.x, minX);
-                minY = math.min(pt.y, minY);
+                var point = arguments$1[i];
+                minX = Math.min(point.x, minX);
+                minY = Math.min(point.y, minY);
             }
             return new Point(minX, minY);
         };
         Point.max = function () {
-            var maxX = util.MIN_NUM;
-            var maxY = util.MIN_NUM;
+            var arguments$1 = arguments;
+            var maxX = MIN_NUM;
+            var maxY = MIN_NUM;
             for (var i = 0; i < arguments.length; i++) {
-                var pt = arguments[i];
-                maxX = math.max(pt.x, maxX);
-                maxY = math.max(pt.y, maxY);
+                var point = arguments$1[i];
+                maxX = Math.max(point.x, maxX);
+                maxY = Math.max(point.y, maxY);
             }
             return new Point(maxX, maxY);
         };
@@ -783,11 +906,30 @@
         Point.maxPoint = function () {
             return new Point(MAX_NUM, MAX_NUM);
         };
-        Point.ZERO = new Point(0, 0);
+        if (Object.defineProperties) {
+            Object.defineProperties(Point, {
+                ZERO: {
+                    get: function () {
+                        return new Point(0, 0);
+                    }
+                }
+            });
+        }
+        defineAccessors(Point.prototype, [
+            'x',
+            'y'
+        ]);
+        ObserversMixin.extend(Point.prototype);
         var Size = Class.extend({
             init: function (width, height) {
-                this.width = width || 0;
-                this.height = height || 0;
+                if (width === void 0) {
+                    width = 0;
+                }
+                if (height === void 0) {
+                    height = 0;
+                }
+                this.width = width;
+                this.height = height;
             },
             equals: function (other) {
                 return other && other.width === this.width && other.height === this.height;
@@ -805,27 +947,40 @@
                 ];
             }
         });
-        defineAccessors(Size.fn, [
-            'width',
-            'height'
-        ]);
-        deepExtend(Size.fn, ObserversMixin);
         Size.create = function (arg0, arg1) {
             if (defined(arg0)) {
                 if (arg0 instanceof Size) {
                     return arg0;
                 } else if (arguments.length === 1 && arg0.length === 2) {
                     return new Size(arg0[0], arg0[1]);
-                } else {
-                    return new Size(arg0, arg1);
                 }
+                return new Size(arg0, arg1);
             }
         };
-        Size.ZERO = new Size(0, 0);
+        if (Object.defineProperties) {
+            Object.defineProperties(Size, {
+                ZERO: {
+                    get: function () {
+                        return new Size(0, 0);
+                    }
+                }
+            });
+        }
+        defineAccessors(Size.prototype, [
+            'width',
+            'height'
+        ]);
+        ObserversMixin.extend(Size.prototype);
         var Rect = Class.extend({
             init: function (origin, size) {
-                this.setOrigin(origin || new Point());
-                this.setSize(size || new Size());
+                if (origin === void 0) {
+                    origin = new Point();
+                }
+                if (size === void 0) {
+                    size = new Size();
+                }
+                this.setOrigin(origin);
+                this.setSize(size);
             },
             clone: function () {
                 return new Rect(this.origin.clone(), this.size.clone());
@@ -881,7 +1036,7 @@
                 return Rect.fromPoints(this.topLeft().transform(m), this.bottomRight().transform(m));
             },
             expand: function (x, y) {
-                if (!defined(y)) {
+                if (y === void 0) {
                     y = x;
                 }
                 this.size.width += 2 * x;
@@ -903,10 +1058,9 @@
                 return rectOuter.containsPoint(point) && !rectInner.containsPoint(point);
             }
         });
-        deepExtend(Rect.fn, ObserversMixin);
         Rect.fromPoints = function () {
-            var topLeft = Point.min.apply(this, arguments);
-            var bottomRight = Point.max.apply(this, arguments);
+            var topLeft = Point.min.apply(null, arguments);
+            var bottomRight = Point.max.apply(null, arguments);
             var size = new Size(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
             return new Rect(topLeft, size);
         };
@@ -914,26 +1068,236 @@
             return Rect.fromPoints(Point.min(a.topLeft(), b.topLeft()), Point.max(a.bottomRight(), b.bottomRight()));
         };
         Rect.intersect = function (a, b) {
-            a = {
+            var rect1 = {
                 left: a.topLeft().x,
                 top: a.topLeft().y,
                 right: a.bottomRight().x,
                 bottom: a.bottomRight().y
             };
-            b = {
+            var rect2 = {
                 left: b.topLeft().x,
                 top: b.topLeft().y,
                 right: b.bottomRight().x,
                 bottom: b.bottomRight().y
             };
-            if (a.left <= b.right && b.left <= a.right && a.top <= b.bottom && b.top <= a.bottom) {
-                return Rect.fromPoints(new Point(math.max(a.left, b.left), math.max(a.top, b.top)), new Point(math.min(a.right, b.right), math.min(a.bottom, b.bottom)));
+            if (rect1.left <= rect2.right && rect2.left <= rect1.right && rect1.top <= rect2.bottom && rect2.top <= rect1.bottom) {
+                return Rect.fromPoints(new Point(Math.max(rect1.left, rect2.left), Math.max(rect1.top, rect2.top)), new Point(Math.min(rect1.right, rect2.right), Math.min(rect1.bottom, rect2.bottom)));
             }
         };
-        var Circle = Class.extend({
+        ObserversMixin.extend(Rect.prototype);
+        var Transformation = Class.extend({
+            init: function (matrix) {
+                if (matrix === void 0) {
+                    matrix = Matrix.unit();
+                }
+                this._matrix = matrix;
+            },
+            clone: function () {
+                return new Transformation(this._matrix.clone());
+            },
+            equals: function (other) {
+                return other && other._matrix.equals(this._matrix);
+            },
+            translate: function (x, y) {
+                this._matrix = this._matrix.multiplyCopy(Matrix.translate(x, y));
+                this._optionsChange();
+                return this;
+            },
+            scale: function (scaleX, scaleY, origin) {
+                if (scaleY === void 0) {
+                    scaleY = scaleX;
+                }
+                if (origin === void 0) {
+                    origin = null;
+                }
+                var originPoint = origin;
+                if (originPoint) {
+                    originPoint = Point.create(originPoint);
+                    this._matrix = this._matrix.multiplyCopy(Matrix.translate(originPoint.x, originPoint.y));
+                }
+                this._matrix = this._matrix.multiplyCopy(Matrix.scale(scaleX, scaleY));
+                if (originPoint) {
+                    this._matrix = this._matrix.multiplyCopy(Matrix.translate(-originPoint.x, -originPoint.y));
+                }
+                this._optionsChange();
+                return this;
+            },
+            rotate: function (angle, origin) {
+                var originPoint = Point.create(origin) || Point.ZERO;
+                this._matrix = this._matrix.multiplyCopy(Matrix.rotate(angle, originPoint.x, originPoint.y));
+                this._optionsChange();
+                return this;
+            },
+            multiply: function (transformation) {
+                var matrix = toMatrix(transformation);
+                this._matrix = this._matrix.multiplyCopy(matrix);
+                this._optionsChange();
+                return this;
+            },
+            matrix: function (value) {
+                if (value) {
+                    this._matrix = value;
+                    this._optionsChange();
+                    return this;
+                }
+                return this._matrix;
+            },
+            _optionsChange: function () {
+                this.optionsChange({
+                    field: 'transform',
+                    value: this
+                });
+            }
+        });
+        ObserversMixin.extend(Transformation.prototype);
+        function transform(matrix) {
+            if (matrix === null) {
+                return null;
+            }
+            if (matrix instanceof Transformation) {
+                return matrix;
+            }
+            return new Transformation(matrix);
+        }
+        var Element$1 = Class.extend({
+            init: function (options) {
+                this._initOptions(options);
+            },
+            _initOptions: function (options) {
+                if (options === void 0) {
+                    options = {};
+                }
+                var clip = options.clip;
+                var transform$$1 = options.transform;
+                if (transform$$1) {
+                    options.transform = transform(transform$$1);
+                }
+                if (clip && !clip.id) {
+                    clip.id = definitionId();
+                }
+                this.options = new OptionsStore(options);
+                this.options.addObserver(this);
+            },
+            transform: function (value) {
+                if (defined(value)) {
+                    this.options.set('transform', transform(value));
+                } else {
+                    return this.options.get('transform');
+                }
+            },
+            parentTransform: function () {
+                var element = this;
+                var parentMatrix;
+                while (element.parent) {
+                    element = element.parent;
+                    var transformation = element.transform();
+                    if (transformation) {
+                        parentMatrix = transformation.matrix().multiplyCopy(parentMatrix || Matrix.unit());
+                    }
+                }
+                if (parentMatrix) {
+                    return transform(parentMatrix);
+                }
+            },
+            currentTransform: function (parentTransform) {
+                if (parentTransform === void 0) {
+                    parentTransform = this.parentTransform();
+                }
+                var elementTransform = this.transform();
+                var elementMatrix = toMatrix(elementTransform);
+                var parentMatrix = toMatrix(parentTransform);
+                var combinedMatrix;
+                if (elementMatrix && parentMatrix) {
+                    combinedMatrix = parentMatrix.multiplyCopy(elementMatrix);
+                } else {
+                    combinedMatrix = elementMatrix || parentMatrix;
+                }
+                if (combinedMatrix) {
+                    return transform(combinedMatrix);
+                }
+            },
+            visible: function (value) {
+                if (defined(value)) {
+                    this.options.set('visible', value);
+                    return this;
+                }
+                return this.options.get('visible') !== false;
+            },
+            clip: function (value) {
+                var options = this.options;
+                if (defined(value)) {
+                    if (value && !value.id) {
+                        value.id = definitionId();
+                    }
+                    options.set('clip', value);
+                    return this;
+                }
+                return options.get('clip');
+            },
+            opacity: function (value) {
+                if (defined(value)) {
+                    this.options.set('opacity', value);
+                    return this;
+                }
+                return valueOrDefault(this.options.get('opacity'), 1);
+            },
+            clippedBBox: function (transformation) {
+                var bbox = this._clippedBBox(transformation);
+                if (bbox) {
+                    var clip = this.clip();
+                    return clip ? Rect.intersect(bbox, clip.bbox(transformation)) : bbox;
+                }
+            },
+            containsPoint: function (point, parentTransform) {
+                if (this.visible()) {
+                    var transform$$1 = this.currentTransform(parentTransform);
+                    var transformedPoint = point;
+                    if (transform$$1) {
+                        transformedPoint = point.transformCopy(transform$$1.matrix().invert());
+                    }
+                    return this._hasFill() && this._containsPoint(transformedPoint) || this._isOnPath && this._hasStroke() && this._isOnPath(transformedPoint);
+                }
+                return false;
+            },
+            _hasFill: function () {
+                var fill = this.options.fill;
+                return fill && !isTransparent(fill.color);
+            },
+            _hasStroke: function () {
+                var stroke = this.options.stroke;
+                return stroke && stroke.width > 0 && !isTransparent(stroke.color);
+            },
+            _clippedBBox: function (transformation) {
+                return this.bbox(transformation);
+            }
+        });
+        Element$1.prototype.nodeType = 'Element';
+        ObserversMixin.extend(Element$1.prototype);
+        function ellipseExtremeAngles(center, rx, ry, matrix) {
+            var extremeX = 0;
+            var extremeY = 0;
+            if (matrix) {
+                extremeX = Math.atan2(matrix.c * ry, matrix.a * rx);
+                if (matrix.b !== 0) {
+                    extremeY = Math.atan2(matrix.d * ry, matrix.b * rx);
+                }
+            }
+            return {
+                x: extremeX,
+                y: extremeY
+            };
+        }
+        var PI_DIV_2 = Math.PI / 2;
+        var Circle$2 = Class.extend({
             init: function (center, radius) {
-                this.setCenter(center || new Point());
-                this.setRadius(radius || 0);
+                if (center === void 0) {
+                    center = new Point();
+                }
+                if (radius === void 0) {
+                    radius = 0;
+                }
+                this.setCenter(center);
+                this.setRadius(radius);
             },
             setCenter: function (value) {
                 this._observerField('center', Point.create(value));
@@ -947,18 +1311,19 @@
                 return other && other.center.equals(this.center) && other.radius === this.radius;
             },
             clone: function () {
-                return new Circle(this.center.clone(), this.radius);
+                return new Circle$2(this.center.clone(), this.radius);
             },
             pointAt: function (angle) {
                 return this._pointAt(rad(angle));
             },
             bbox: function (matrix) {
+                var this$1 = this;
+                var extremeAngles = ellipseExtremeAngles(this.center, this.radius, this.radius, matrix);
                 var minPoint = Point.maxPoint();
                 var maxPoint = Point.minPoint();
-                var extremeAngles = ellipseExtremeAngles(this.center, this.radius, this.radius, matrix);
                 for (var i = 0; i < 4; i++) {
-                    var currentPointX = this._pointAt(extremeAngles.x + i * PI_DIV_2).transformCopy(matrix);
-                    var currentPointY = this._pointAt(extremeAngles.y + i * PI_DIV_2).transformCopy(matrix);
+                    var currentPointX = this$1._pointAt(extremeAngles.x + i * PI_DIV_2).transformCopy(matrix);
+                    var currentPointY = this$1._pointAt(extremeAngles.y + i * PI_DIV_2).transformCopy(matrix);
                     var currentPoint = new Point(currentPointX.x, currentPointY.y);
                     minPoint = Point.min(minPoint, currentPoint);
                     maxPoint = Point.max(maxPoint, currentPoint);
@@ -966,28 +1331,175 @@
                 return Rect.fromPoints(minPoint, maxPoint);
             },
             _pointAt: function (angle) {
-                var c = this.center;
-                var r = this.radius;
-                return new Point(c.x - r * math.cos(angle), c.y - r * math.sin(angle));
+                var ref = this;
+                var center = ref.center;
+                var radius = ref.radius;
+                return new Point(center.x + radius * Math.cos(angle), center.y + radius * Math.sin(angle));
             },
             containsPoint: function (point) {
-                var center = this.center;
-                var inCircle = math.pow(point.x - center.x, 2) + math.pow(point.y - center.y, 2) <= math.pow(this.radius, 2);
+                var ref = this;
+                var center = ref.center;
+                var radius = ref.radius;
+                var inCircle = Math.pow(point.x - center.x, 2) + Math.pow(point.y - center.y, 2) <= Math.pow(radius, 2);
                 return inCircle;
             },
             _isOnPath: function (point, width) {
-                var center = this.center;
-                var radius = this.radius;
+                var ref = this;
+                var center = ref.center;
+                var radius = ref.radius;
                 var pointDistance = center.distanceTo(point);
                 return radius - width <= pointDistance && pointDistance <= radius + width;
             }
         });
-        defineAccessors(Circle.fn, ['radius']);
-        deepExtend(Circle.fn, ObserversMixin);
-        var Arc = Class.extend({
+        defineAccessors(Circle$2.prototype, ['radius']);
+        ObserversMixin.extend(Circle$2.prototype);
+        var GRADIENT = 'Gradient';
+        var Paintable = {
+            extend: function (proto) {
+                proto.fill = this.fill;
+                proto.stroke = this.stroke;
+            },
+            fill: function (color, opacity) {
+                var options = this.options;
+                if (defined(color)) {
+                    if (color && color.nodeType !== GRADIENT) {
+                        var newFill = { color: color };
+                        if (defined(opacity)) {
+                            newFill.opacity = opacity;
+                        }
+                        options.set('fill', newFill);
+                    } else {
+                        options.set('fill', color);
+                    }
+                    return this;
+                }
+                return options.get('fill');
+            },
+            stroke: function (color, width, opacity) {
+                if (defined(color)) {
+                    this.options.set('stroke.color', color);
+                    if (defined(width)) {
+                        this.options.set('stroke.width', width);
+                    }
+                    if (defined(opacity)) {
+                        this.options.set('stroke.opacity', opacity);
+                    }
+                    return this;
+                }
+                return this.options.get('stroke');
+            }
+        };
+        var IDENTITY_MATRIX_HASH = Matrix.IDENTITY.toString();
+        var Measurable = {
+            extend: function (proto) {
+                proto.bbox = this.bbox;
+                proto.geometryChange = this.geometryChange;
+            },
+            bbox: function (transformation) {
+                var combinedMatrix = toMatrix(this.currentTransform(transformation));
+                var matrixHash = combinedMatrix ? combinedMatrix.toString() : IDENTITY_MATRIX_HASH;
+                var bbox;
+                if (this._bboxCache && this._matrixHash === matrixHash) {
+                    bbox = this._bboxCache.clone();
+                } else {
+                    bbox = this._bbox(combinedMatrix);
+                    this._bboxCache = bbox ? bbox.clone() : null;
+                    this._matrixHash = matrixHash;
+                }
+                var strokeWidth = this.options.get('stroke.width');
+                if (strokeWidth && bbox) {
+                    bbox.expand(strokeWidth / 2);
+                }
+                return bbox;
+            },
+            geometryChange: function () {
+                delete this._bboxCache;
+                this.trigger('geometryChange', { element: this });
+            }
+        };
+        function geometryAccessor(name) {
+            var fieldName = '_' + name;
+            return function (value) {
+                if (defined(value)) {
+                    this._observerField(fieldName, value);
+                    this.geometryChange();
+                    return this;
+                }
+                return this[fieldName];
+            };
+        }
+        function defineGeometryAccessors(fn, names) {
+            for (var i = 0; i < names.length; i++) {
+                fn[names[i]] = geometryAccessor(names[i]);
+            }
+        }
+        var DEFAULT_STROKE = '#000';
+        var Circle = Element$1.extend({
+            init: function (geometry, options) {
+                if (geometry === void 0) {
+                    geometry = new Circle$2();
+                }
+                if (options === void 0) {
+                    options = {};
+                }
+                Element$1.fn.init.call(this, options);
+                this.geometry(geometry);
+                if (!defined(this.options.stroke)) {
+                    this.stroke(DEFAULT_STROKE);
+                }
+            },
+            rawBBox: function () {
+                return this._geometry.bbox();
+            },
+            _bbox: function (matrix) {
+                return this._geometry.bbox(matrix);
+            },
+            _containsPoint: function (point) {
+                return this.geometry().containsPoint(point);
+            },
+            _isOnPath: function (point) {
+                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
+            }
+        });
+        Circle.prototype.nodeType = 'Circle';
+        Paintable.extend(Circle.prototype);
+        Measurable.extend(Circle.prototype);
+        defineGeometryAccessors(Circle.prototype, ['geometry']);
+        var PRECISION = 10;
+        function close(a, b, tolerance) {
+            if (tolerance === void 0) {
+                tolerance = PRECISION;
+            }
+            return round(Math.abs(a - b), tolerance) === 0;
+        }
+        function closeOrLess(a, b, tolerance) {
+            return a < b || close(a, b, tolerance);
+        }
+        function lineIntersection(p0, p1, p2, p3) {
+            var s1x = p1.x - p0.x;
+            var s2x = p3.x - p2.x;
+            var s1y = p1.y - p0.y;
+            var s2y = p3.y - p2.y;
+            var nx = p0.x - p2.x;
+            var ny = p0.y - p2.y;
+            var d = s1x * s2y - s2x * s1y;
+            var s = (s1x * ny - s1y * nx) / d;
+            var t = (s2x * ny - s2y * nx) / d;
+            if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+                return new Point(p0.x + t * s1x, p0.y + t * s1y);
+            }
+        }
+        var MAX_INTERVAL = 45;
+        var pow$1 = Math.pow;
+        var Arc$2 = Class.extend({
             init: function (center, options) {
-                this.setCenter(center || new Point());
-                options = options || {};
+                if (center === void 0) {
+                    center = new Point();
+                }
+                if (options === void 0) {
+                    options = {};
+                }
+                this.setCenter(center);
                 this.radiusX = options.radiusX;
                 this.radiusY = options.radiusY || options.radiusX;
                 this.startAngle = options.startAngle;
@@ -995,7 +1507,7 @@
                 this.anticlockwise = options.anticlockwise || false;
             },
             clone: function () {
-                return new Arc(this.center, {
+                return new Arc$2(this.center, {
                     radiusX: this.radiusX,
                     radiusY: this.radiusY,
                     startAngle: this.startAngle,
@@ -1011,52 +1523,52 @@
             getCenter: function () {
                 return this.center;
             },
-            MAX_INTERVAL: 45,
             pointAt: function (angle) {
                 var center = this.center;
                 var radian = rad(angle);
-                return new Point(center.x + this.radiusX * math.cos(radian), center.y + this.radiusY * math.sin(radian));
+                return new Point(center.x + this.radiusX * Math.cos(radian), center.y + this.radiusY * Math.sin(radian));
             },
             curvePoints: function () {
+                var this$1 = this;
                 var startAngle = this.startAngle;
                 var dir = this.anticlockwise ? -1 : 1;
                 var curvePoints = [this.pointAt(startAngle)];
-                var currentAngle = startAngle;
                 var interval = this._arcInterval();
                 var intervalAngle = interval.endAngle - interval.startAngle;
-                var subIntervalsCount = math.ceil(intervalAngle / this.MAX_INTERVAL);
+                var subIntervalsCount = Math.ceil(intervalAngle / MAX_INTERVAL);
                 var subIntervalAngle = intervalAngle / subIntervalsCount;
+                var currentAngle = startAngle;
                 for (var i = 1; i <= subIntervalsCount; i++) {
                     var nextAngle = currentAngle + dir * subIntervalAngle;
-                    var points = this._intervalCurvePoints(currentAngle, nextAngle);
+                    var points = this$1._intervalCurvePoints(currentAngle, nextAngle);
                     curvePoints.push(points.cp1, points.cp2, points.p2);
                     currentAngle = nextAngle;
                 }
                 return curvePoints;
             },
             bbox: function (matrix) {
-                var arc = this;
-                var interval = arc._arcInterval();
+                var this$1 = this;
+                var interval = this._arcInterval();
                 var startAngle = interval.startAngle;
                 var endAngle = interval.endAngle;
                 var extremeAngles = ellipseExtremeAngles(this.center, this.radiusX, this.radiusY, matrix);
                 var extremeX = deg(extremeAngles.x);
                 var extremeY = deg(extremeAngles.y);
-                var currentPoint = arc.pointAt(startAngle).transformCopy(matrix);
-                var endPoint = arc.pointAt(endAngle).transformCopy(matrix);
-                var minPoint = Point.min(currentPoint, endPoint);
-                var maxPoint = Point.max(currentPoint, endPoint);
+                var endPoint = this.pointAt(endAngle).transformCopy(matrix);
                 var currentAngleX = bboxStartAngle(extremeX, startAngle);
                 var currentAngleY = bboxStartAngle(extremeY, startAngle);
+                var currentPoint = this.pointAt(startAngle).transformCopy(matrix);
+                var minPoint = Point.min(currentPoint, endPoint);
+                var maxPoint = Point.max(currentPoint, endPoint);
                 while (currentAngleX < endAngle || currentAngleY < endAngle) {
-                    var currentPointX;
+                    var currentPointX = void 0;
                     if (currentAngleX < endAngle) {
-                        currentPointX = arc.pointAt(currentAngleX).transformCopy(matrix);
+                        currentPointX = this$1.pointAt(currentAngleX).transformCopy(matrix);
                         currentAngleX += 90;
                     }
-                    var currentPointY;
+                    var currentPointY = void 0;
                     if (currentAngleY < endAngle) {
-                        currentPointY = arc.pointAt(currentAngleY).transformCopy(matrix);
+                        currentPointY = this$1.pointAt(currentAngleY).transformCopy(matrix);
                         currentAngleY += 90;
                     }
                     currentPoint = new Point(currentPointX.x, currentPointY.y);
@@ -1066,9 +1578,10 @@
                 return Rect.fromPoints(minPoint, maxPoint);
             },
             _arcInterval: function () {
-                var startAngle = this.startAngle;
-                var endAngle = this.endAngle;
-                var anticlockwise = this.anticlockwise;
+                var ref = this;
+                var startAngle = ref.startAngle;
+                var endAngle = ref.endAngle;
+                var anticlockwise = ref.anticlockwise;
                 if (anticlockwise) {
                     var oldStart = startAngle;
                     startAngle = endAngle;
@@ -1083,11 +1596,10 @@
                 };
             },
             _intervalCurvePoints: function (startAngle, endAngle) {
-                var arc = this;
-                var p1 = arc.pointAt(startAngle);
-                var p2 = arc.pointAt(endAngle);
-                var p1Derivative = arc._derivativeAt(startAngle);
-                var p2Derivative = arc._derivativeAt(endAngle);
+                var p1 = this.pointAt(startAngle);
+                var p2 = this.pointAt(endAngle);
+                var p1Derivative = this._derivativeAt(startAngle);
+                var p2Derivative = this._derivativeAt(endAngle);
                 var t = (rad(endAngle) - rad(startAngle)) / 3;
                 var cp1 = new Point(p1.x + t * p1Derivative.x, p1.y + t * p1Derivative.y);
                 var cp2 = new Point(p2.x - t * p2Derivative.x, p2.y - t * p2Derivative.y);
@@ -1099,17 +1611,19 @@
                 };
             },
             _derivativeAt: function (angle) {
-                var arc = this;
                 var radian = rad(angle);
-                return new Point(-arc.radiusX * math.sin(radian), arc.radiusY * math.cos(radian));
+                return new Point(-this.radiusX * Math.sin(radian), this.radiusY * Math.cos(radian));
             },
             containsPoint: function (point) {
                 var interval = this._arcInterval();
                 var intervalAngle = interval.endAngle - interval.startAngle;
-                var center = this.center;
+                var ref = this;
+                var center = ref.center;
+                var radiusX = ref.radiusX;
+                var radiusY = ref.radiusY;
                 var distance = center.distanceTo(point);
-                var angleRad = math.atan2(point.y - center.y, point.x - center.x);
-                var pointRadius = this.radiusX * this.radiusY / math.sqrt(math.pow(this.radiusX, 2) * math.pow(math.sin(angleRad), 2) + math.pow(this.radiusY, 2) * math.pow(math.cos(angleRad), 2));
+                var angleRad = Math.atan2(point.y - center.y, point.x - center.x);
+                var pointRadius = radiusX * radiusY / Math.sqrt(pow$1(radiusX, 2) * pow$1(Math.sin(angleRad), 2) + pow$1(radiusY, 2) * pow$1(Math.cos(angleRad), 2));
                 var startPoint = this.pointAt(this.startAngle).round(PRECISION);
                 var endPoint = this.pointAt(this.endAngle).round(PRECISION);
                 var intersection = lineIntersection(center, point.round(PRECISION), startPoint, endPoint);
@@ -1117,8 +1631,8 @@
                 if (intervalAngle < 180) {
                     containsPoint = intersection && closeOrLess(center.distanceTo(intersection), distance) && closeOrLess(distance, pointRadius);
                 } else {
-                    var angle = calculateAngle(center.x, center.y, this.radiusX, this.radiusY, point.x, point.y);
-                    if (angle != 360) {
+                    var angle = calculateAngle(center.x, center.y, radiusX, radiusY, point.x, point.y);
+                    if (angle !== 360) {
                         angle = (360 + angle) % 360;
                     }
                     var inAngleRange = interval.startAngle <= angle && angle <= interval.endAngle;
@@ -1130,24 +1644,25 @@
                 var interval = this._arcInterval();
                 var center = this.center;
                 var angle = calculateAngle(center.x, center.y, this.radiusX, this.radiusY, point.x, point.y);
-                if (angle != 360) {
+                if (angle !== 360) {
                     angle = (360 + angle) % 360;
                 }
                 var inAngleRange = interval.startAngle <= angle && angle <= interval.endAngle;
                 return inAngleRange && this.pointAt(angle).distanceTo(point) <= width;
             }
         });
-        defineAccessors(Arc.fn, [
-            'radiusX',
-            'radiusY',
-            'startAngle',
-            'endAngle',
-            'anticlockwise'
-        ]);
-        deepExtend(Arc.fn, ObserversMixin);
-        Arc.fromPoints = function (start, end, rx, ry, largeArc, swipe) {
-            var arcParameters = normalizeArcParameters(start.x, start.y, end.x, end.y, rx, ry, largeArc, swipe);
-            return new Arc(arcParameters.center, {
+        Arc$2.fromPoints = function (start, end, rx, ry, largeArc, swipe) {
+            var arcParameters = normalizeArcParameters({
+                x1: start.x,
+                y1: start.y,
+                x2: end.x,
+                y2: end.y,
+                rx: rx,
+                ry: ry,
+                largeArc: largeArc,
+                swipe: swipe
+            });
+            return new Arc$2(arcParameters.center, {
                 startAngle: arcParameters.startAngle,
                 endAngle: arcParameters.endAngle,
                 radiusX: rx,
@@ -1155,206 +1670,20 @@
                 anticlockwise: swipe === 0
             });
         };
-        var Matrix = Class.extend({
-            init: function (a, b, c, d, e, f) {
-                this.a = a || 0;
-                this.b = b || 0;
-                this.c = c || 0;
-                this.d = d || 0;
-                this.e = e || 0;
-                this.f = f || 0;
-            },
-            multiplyCopy: function (m) {
-                return new Matrix(this.a * m.a + this.c * m.b, this.b * m.a + this.d * m.b, this.a * m.c + this.c * m.d, this.b * m.c + this.d * m.d, this.a * m.e + this.c * m.f + this.e, this.b * m.e + this.d * m.f + this.f);
-            },
-            invert: function () {
-                var a = this.a, b = this.b;
-                var d = this.c, e = this.d;
-                var g = this.e, h = this.f;
-                var det = a * e - b * d;
-                if (det === 0) {
-                    return null;
-                }
-                return new Matrix(e / det, -b / det, -d / det, a / det, (d * h - e * g) / det, (b * g - a * h) / det);
-            },
-            clone: function () {
-                return new Matrix(this.a, this.b, this.c, this.d, this.e, this.f);
-            },
-            equals: function (other) {
-                if (!other) {
-                    return false;
-                }
-                return this.a === other.a && this.b === other.b && this.c === other.c && this.d === other.d && this.e === other.e && this.f === other.f;
-            },
-            round: function (precision) {
-                this.a = round(this.a, precision);
-                this.b = round(this.b, precision);
-                this.c = round(this.c, precision);
-                this.d = round(this.d, precision);
-                this.e = round(this.e, precision);
-                this.f = round(this.f, precision);
-                return this;
-            },
-            toArray: function (precision) {
-                var arr = [
-                    this.a,
-                    this.b,
-                    this.c,
-                    this.d,
-                    this.e,
-                    this.f
-                ];
-                if (defined(precision)) {
-                    for (var i = 0; i < arr.length; i++) {
-                        arr[i] = round(arr[i], precision);
-                    }
-                }
-                return arr;
-            }
-        });
-        Matrix.fn.toString = function (precision, separator) {
-            return this.toArray(precision).join(separator || ',');
-        };
-        Matrix.translate = function (x, y) {
-            return new Matrix(1, 0, 0, 1, x, y);
-        };
-        Matrix.unit = function () {
-            return new Matrix(1, 0, 0, 1, 0, 0);
-        };
-        Matrix.rotate = function (angle, x, y) {
-            var m = new Matrix();
-            m.a = math.cos(rad(angle));
-            m.b = math.sin(rad(angle));
-            m.c = -m.b;
-            m.d = m.a;
-            m.e = x - x * m.a + y * m.b || 0;
-            m.f = y - y * m.a - x * m.b || 0;
-            return m;
-        };
-        Matrix.scale = function (scaleX, scaleY) {
-            return new Matrix(scaleX, 0, 0, scaleY, 0, 0);
-        };
-        Matrix.IDENTITY = Matrix.unit();
-        var Transformation = Class.extend({
-            init: function (matrix) {
-                this._matrix = matrix || Matrix.unit();
-            },
-            clone: function () {
-                return new Transformation(this._matrix.clone());
-            },
-            equals: function (other) {
-                return other && other._matrix.equals(this._matrix);
-            },
-            _optionsChange: function () {
-                this.optionsChange({
-                    field: 'transform',
-                    value: this
-                });
-            },
-            translate: function (x, y) {
-                this._matrix = this._matrix.multiplyCopy(Matrix.translate(x, y));
-                this._optionsChange();
-                return this;
-            },
-            scale: function (scaleX, scaleY, origin) {
-                if (!defined(scaleY)) {
-                    scaleY = scaleX;
-                }
-                if (origin) {
-                    origin = Point.create(origin);
-                    this._matrix = this._matrix.multiplyCopy(Matrix.translate(origin.x, origin.y));
-                }
-                this._matrix = this._matrix.multiplyCopy(Matrix.scale(scaleX, scaleY));
-                if (origin) {
-                    this._matrix = this._matrix.multiplyCopy(Matrix.translate(-origin.x, -origin.y));
-                }
-                this._optionsChange();
-                return this;
-            },
-            rotate: function (angle, origin) {
-                origin = Point.create(origin) || Point.ZERO;
-                this._matrix = this._matrix.multiplyCopy(Matrix.rotate(angle, origin.x, origin.y));
-                this._optionsChange();
-                return this;
-            },
-            multiply: function (transformation) {
-                var matrix = toMatrix(transformation);
-                this._matrix = this._matrix.multiplyCopy(matrix);
-                this._optionsChange();
-                return this;
-            },
-            matrix: function (matrix) {
-                if (matrix) {
-                    this._matrix = matrix;
-                    this._optionsChange();
-                    return this;
-                } else {
-                    return this._matrix;
-                }
-            }
-        });
-        deepExtend(Transformation.fn, ObserversMixin);
-        function transform(matrix) {
-            if (matrix === null) {
-                return null;
-            }
-            if (matrix instanceof Transformation) {
-                return matrix;
-            }
-            return new Transformation(matrix);
-        }
-        function toMatrix(value) {
-            if (value && kendo.isFunction(value.matrix)) {
-                return value.matrix();
-            }
-            return value;
-        }
-        function ellipseExtremeAngles(center, rx, ry, matrix) {
-            var extremeX = 0, extremeY = 0;
-            if (matrix) {
-                extremeX = math.atan2(matrix.c * ry, matrix.a * rx);
-                if (matrix.b !== 0) {
-                    extremeY = math.atan2(matrix.d * ry, matrix.b * rx);
-                }
-            }
-            return {
-                x: extremeX,
-                y: extremeY
-            };
-        }
-        function bboxStartAngle(angle, start) {
-            while (angle < start) {
-                angle += 90;
-            }
-            return angle;
-        }
-        function defineAccessors(fn, fields) {
-            for (var i = 0; i < fields.length; i++) {
-                var name = fields[i];
-                var capitalized = name.charAt(0).toUpperCase() + name.substring(1, name.length);
-                fn['set' + capitalized] = setAccessor(name);
-                fn['get' + capitalized] = getAccessor(name);
-            }
-        }
-        function setAccessor(field) {
-            return function (value) {
-                if (this[field] !== value) {
-                    this[field] = value;
-                    this.geometryChange();
-                }
-                return this;
-            };
-        }
-        function getAccessor(field) {
-            return function () {
-                return this[field];
-            };
-        }
+        defineAccessors(Arc$2.prototype, [
+            'radiusX',
+            'radiusY',
+            'startAngle',
+            'endAngle',
+            'anticlockwise'
+        ]);
+        ObserversMixin.extend(Arc$2.prototype);
         function elipseAngle(start, end, swipe) {
-            if (start > end) {
-                end += 360;
+            var endAngle = end;
+            if (start > endAngle) {
+                endAngle += 360;
             }
-            var alpha = math.abs(end - start);
+            var alpha = Math.abs(endAngle - start);
             if (!swipe) {
                 alpha = 360 - alpha;
             }
@@ -1363,31 +1692,39 @@
         function calculateAngle(cx, cy, rx, ry, x, y) {
             var cos = round((x - cx) / rx, 3);
             var sin = round((y - cy) / ry, 3);
-            return round(deg(math.atan2(sin, cos)));
+            return round(deg(Math.atan2(sin, cos)));
         }
-        function normalizeArcParameters(x1, y1, x2, y2, rx, ry, largeArc, swipe) {
+        function normalizeArcParameters(parameters) {
+            var x1 = parameters.x1;
+            var y1 = parameters.y1;
+            var x2 = parameters.x2;
+            var y2 = parameters.y2;
+            var rx = parameters.rx;
+            var ry = parameters.ry;
+            var largeArc = parameters.largeArc;
+            var swipe = parameters.swipe;
             var cx, cy;
             var cx1, cy1;
             var a, b, c, sqrt;
             if (y1 !== y2) {
                 var x21 = x2 - x1;
                 var y21 = y2 - y1;
-                var rx2 = pow(rx, 2), ry2 = pow(ry, 2);
+                var rx2 = pow$1(rx, 2), ry2 = pow$1(ry, 2);
                 var k = (ry2 * x21 * (x1 + x2) + rx2 * y21 * (y1 + y2)) / (2 * rx2 * y21);
                 var yk2 = k - y2;
                 var l = -(x21 * ry2) / (rx2 * y21);
-                a = 1 / rx2 + pow(l, 2) / ry2;
+                a = 1 / rx2 + pow$1(l, 2) / ry2;
                 b = 2 * (l * yk2 / ry2 - x2 / rx2);
-                c = pow(x2, 2) / rx2 + pow(yk2, 2) / ry2 - 1;
-                sqrt = math.sqrt(pow(b, 2) - 4 * a * c);
+                c = pow$1(x2, 2) / rx2 + pow$1(yk2, 2) / ry2 - 1;
+                sqrt = Math.sqrt(pow$1(b, 2) - 4 * a * c);
                 cx = (-b - sqrt) / (2 * a);
                 cy = k + l * cx;
                 cx1 = (-b + sqrt) / (2 * a);
                 cy1 = k + l * cx1;
             } else if (x1 !== x2) {
                 b = -2 * y2;
-                c = pow((x2 - x1) * ry / (2 * rx), 2) + pow(y2, 2) - pow(ry, 2);
-                sqrt = math.sqrt(pow(b, 2) - 4 * c);
+                c = pow$1((x2 - x1) * ry / (2 * rx), 2) + pow$1(y2, 2) - pow$1(ry, 2);
+                sqrt = Math.sqrt(pow$1(b, 2) - 4 * c);
                 cx = cx1 = (x1 + x2) / 2;
                 cy = (-b - sqrt) / 2;
                 cy1 = (-b + sqrt) / 2;
@@ -1409,1043 +1746,34 @@
                 endAngle: end
             };
         }
-        var ComplexNumber = function (real, img) {
-            this.real = real || 0;
-            this.img = img || 0;
-        };
-        ComplexNumber.fn = ComplexNumber.prototype = {
-            add: function (cNumber) {
-                return new ComplexNumber(round(this.real + cNumber.real, PRECISION), round(this.img + cNumber.img, PRECISION));
-            },
-            addConstant: function (value) {
-                return new ComplexNumber(this.real + value, this.img);
-            },
-            negate: function () {
-                return new ComplexNumber(-this.real, -this.img);
-            },
-            multiply: function (cNumber) {
-                return new ComplexNumber(this.real * cNumber.real - this.img * cNumber.img, this.real * cNumber.img + this.img * cNumber.real);
-            },
-            multiplyConstant: function (value) {
-                return new ComplexNumber(this.real * value, this.img * value);
-            },
-            nthRoot: function (n) {
-                var rad = math.atan2(this.img, this.real), r = math.sqrt(math.pow(this.img, 2) + math.pow(this.real, 2)), nthR = math.pow(r, 1 / n);
-                return new ComplexNumber(nthR * math.cos(rad / n), nthR * math.sin(rad / n));
-            },
-            equals: function (cNumber) {
-                return this.real === cNumber.real && this.img === cNumber.img;
-            },
-            isReal: function () {
-                return this.img === 0;
+        function bboxStartAngle(angle, start) {
+            var startAngle = angle;
+            while (startAngle < start) {
+                startAngle += 90;
             }
-        };
-        function solveCubic(a, b, c, d) {
-            if (a === 0) {
-                return solveQuadratic(b, c, d);
-            }
-            var p = (3 * a * c - math.pow(b, 2)) / (3 * math.pow(a, 2)), q = (2 * math.pow(b, 3) - 9 * a * b * c + 27 * math.pow(a, 2) * d) / (27 * math.pow(a, 3)), Q = math.pow(p / 3, 3) + math.pow(q / 2, 2), i = new ComplexNumber(0, 1), b3a = -b / (3 * a), x1, x2, y1, y2, y3, result = [], z1, z2;
-            if (Q < 0) {
-                x1 = new ComplexNumber(-q / 2, math.sqrt(-Q)).nthRoot(3);
-                x2 = new ComplexNumber(-q / 2, -math.sqrt(-Q)).nthRoot(3);
-            } else {
-                x1 = -q / 2 + math.sqrt(Q);
-                x1 = new ComplexNumber(numberSign(x1) * math.pow(math.abs(x1), 1 / 3));
-                x2 = -q / 2 - math.sqrt(Q);
-                x2 = new ComplexNumber(numberSign(x2) * math.pow(math.abs(x2), 1 / 3));
-            }
-            y1 = x1.add(x2);
-            z1 = x1.add(x2).multiplyConstant(-1 / 2);
-            z2 = x1.add(x2.negate()).multiplyConstant(math.sqrt(3) / 2);
-            y2 = z1.add(i.multiply(z2));
-            y3 = z1.add(i.negate().multiply(z2));
-            if (y1.isReal()) {
-                result.push(round(y1.real + b3a, PRECISION));
-            }
-            if (y2.isReal()) {
-                result.push(round(y2.real + b3a, PRECISION));
-            }
-            if (y3.isReal()) {
-                result.push(round(y3.real + b3a, PRECISION));
-            }
-            return result;
+            return startAngle;
         }
-        function toCubicPolynomial(points, field) {
-            return [
-                -points[0][field] + 3 * points[1][field] - 3 * points[2][field] + points[3][field],
-                3 * (points[0][field] - 2 * points[1][field] + points[2][field]),
-                3 * (-points[0][field] + points[1][field]),
-                points[0][field]
-            ];
-        }
-        function calculateCurveAt(t, field, points) {
-            var t1 = 1 - t;
-            return math.pow(t1, 3) * points[0][field] + 3 * math.pow(t1, 2) * t * points[1][field] + 3 * math.pow(t, 2) * t1 * points[2][field] + math.pow(t, 3) * points[3][field];
-        }
-        function curveIntersectionsCount(points, point, bbox) {
-            var polynomial = toCubicPolynomial(points, 'x');
-            var roots = solveCubic(polynomial[0], polynomial[1], polynomial[2], polynomial[3] - point.x);
-            var count = 0;
-            var rayIntersection;
-            var intersectsRay;
-            for (var i = 0; i < roots.length; i++) {
-                rayIntersection = calculateCurveAt(roots[i], 'y', points);
-                intersectsRay = close(rayIntersection, point.y) || rayIntersection > point.y;
-                if (intersectsRay && ((roots[i] === 0 || roots[i] === 1) && bbox.bottomRight().x > point.x || 0 < roots[i] && roots[i] < 1)) {
-                    count++;
-                }
-            }
-            return count;
-        }
-        function lineIntersectionsCount(a, b, point) {
-            var intersects;
-            if (a.x != b.x) {
-                var minX = math.min(a.x, b.x), maxX = math.max(a.x, b.x), minY = math.min(a.y, b.y), maxY = math.max(a.y, b.y), inRange = minX <= point.x && point.x < maxX;
-                if (minY == maxY) {
-                    intersects = point.y <= minY && inRange;
-                } else {
-                    intersects = inRange && (maxY - minY) * ((a.x - b.x) * (a.y - b.y) > 0 ? point.x - minX : maxX - point.x) / (maxX - minX) + minY - point.y >= 0;
-                }
-            }
-            return intersects ? 1 : 0;
-        }
-        function lineIntersection(p0, p1, p2, p3) {
-            var s1x = p1.x - p0.x;
-            var s2x = p3.x - p2.x;
-            var s1y = p1.y - p0.y;
-            var s2y = p3.y - p2.y;
-            var nx = p0.x - p2.x;
-            var ny = p0.y - p2.y;
-            var d = s1x * s2y - s2x * s1y;
-            var s = (s1x * ny - s1y * nx) / d;
-            var t = (s2x * ny - s2y * nx) / d;
-            if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-                return new Point(p0.x + t * s1x, p0.y + t * s1y);
-            }
-        }
-        function close(a, b, tolerance) {
-            return round(math.abs(a - b), tolerance || PRECISION) === 0;
-        }
-        function closeOrLess(a, b, tolerance) {
-            return a < b || close(a, b, tolerance);
-        }
-        function numberSign(x) {
-            return x < 0 ? -1 : 1;
-        }
-        function isOutOfEndPoint(endPoint, controlPoint, point) {
-            var angle = util.deg(math.atan2(controlPoint.y - endPoint.y, controlPoint.x - endPoint.x));
-            var rotatedPoint = point.transformCopy(transform().rotate(-angle, endPoint));
-            return rotatedPoint.x < endPoint.x;
-        }
-        function hasRootsInRange(points, point, field, rootField, range) {
-            var polynomial = toCubicPolynomial(points, rootField);
-            var roots = solveCubic(polynomial[0], polynomial[1], polynomial[2], polynomial[3] - point[rootField]);
-            var intersection;
-            for (var idx = 0; idx < roots.length; idx++) {
-                if (0 <= roots[idx] && roots[idx] <= 1) {
-                    intersection = calculateCurveAt(roots[idx], field, points);
-                    if (math.abs(intersection - point[field]) <= range) {
-                        return true;
-                    }
-                }
-            }
-        }
-        function solveQuadratic(a, b, c) {
-            var squareRoot = math.sqrt(math.pow(b, 2) - 4 * a * c);
-            return [
-                (-b + squareRoot) / (2 * a),
-                (-b - squareRoot) / (2 * a)
-            ];
-        }
-        deepExtend(kendo, {
-            geometry: {
-                Arc: Arc,
-                Circle: Circle,
-                curveIntersectionsCount: curveIntersectionsCount,
-                lineIntersectionsCount: lineIntersectionsCount,
-                Matrix: Matrix,
-                Point: Point,
-                Rect: Rect,
-                Size: Size,
-                Transformation: Transformation,
-                transform: transform,
-                toMatrix: toMatrix,
-                isOutOfEndPoint: isOutOfEndPoint,
-                hasRootsInRange: hasRootsInRange
-            }
-        });
-        kendo.dataviz.geometry = kendo.geometry;
-    }());
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/core', [
-        'drawing/geometry',
-        'kendo.popup'
-    ], f);
-}(function () {
-    (function ($) {
-        var noop = $.noop, toString = Object.prototype.toString, kendo = window.kendo, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, Class = kendo.Class, Widget = kendo.ui.Widget, deepExtend = kendo.deepExtend, util = kendo.util, defined = util.defined, limitValue = util.limitValue, g = kendo.geometry, proxy = $.proxy, NS = '.kendo', TOOLTIP_TEMPLATE = '<div class="k-tooltip">' + '<div class="k-tooltip-content"></div>' + '</div>', TOOLTIP_CLOSE_TEMPLATE = '<div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close">close</a></div>';
-        var Surface = Widget.extend({
-            init: function (element, options) {
-                this.options = deepExtend({}, this.options, options);
-                Widget.fn.init.call(this, element, this.options);
-                this._click = this._handler('click');
-                this._mouseenter = this._handler('mouseenter');
-                this._mouseleave = this._handler('mouseleave');
-                this._mousemove = this._handler('mousemove');
-                this._visual = new kendo.drawing.Group();
-                if (this.options.width) {
-                    this.element.css('width', this.options.width);
-                }
-                if (this.options.height) {
-                    this.element.css('height', this.options.height);
-                }
-                this._enableTracking();
-            },
-            options: {
-                name: 'Surface',
-                tooltip: {}
-            },
-            events: [
-                'click',
-                'mouseenter',
-                'mouseleave',
-                'mousemove',
-                'resize',
-                'tooltipOpen',
-                'tooltipClose'
-            ],
-            draw: function (element) {
-                this._visual.children.push(element);
-            },
-            clear: function () {
-                this._visual.children = [];
-                this.hideTooltip();
-            },
-            destroy: function () {
-                this._visual = null;
-                if (this._tooltip) {
-                    this._tooltip.destroy();
-                    delete this._tooltip;
-                }
-                Widget.fn.destroy.call(this);
-            },
-            exportVisual: function () {
-                return this._visual;
-            },
-            getSize: function () {
-                return {
-                    width: this.element.width(),
-                    height: this.element.height()
-                };
-            },
-            setSize: function (size) {
-                this.element.css({
-                    width: size.width,
-                    height: size.height
-                });
-                this._size = size;
-                this._resize();
-            },
-            eventTarget: function (e) {
-                var domNode = $(e.touch ? e.touch.initialTouch : e.target);
-                var node;
-                while (!node && domNode.length > 0) {
-                    node = domNode[0]._kendoNode;
-                    if (domNode.is(this.element) || domNode.length === 0) {
-                        break;
-                    }
-                    domNode = domNode.parent();
-                }
-                if (node) {
-                    return node.srcElement;
-                }
-            },
-            showTooltip: function (shape, options) {
-                if (this._tooltip) {
-                    this._tooltip.show(shape, options);
-                }
-            },
-            hideTooltip: function () {
-                if (this._tooltip) {
-                    this._tooltip.hide();
-                }
-            },
-            suspendTracking: function () {
-                this._suspendedTracking = true;
-                this.hideTooltip();
-            },
-            resumeTracking: function () {
-                this._suspendedTracking = false;
-            },
-            _resize: noop,
-            _handler: function (event) {
-                var surface = this;
-                return function (e) {
-                    var node = surface.eventTarget(e);
-                    if (node && !surface._suspendedTracking) {
-                        surface.trigger(event, {
-                            element: node,
-                            originalEvent: e,
-                            type: event
-                        });
-                    }
-                };
-            },
-            _enableTracking: function () {
-                if (kendo.ui.Popup) {
-                    this._tooltip = new SurfaceTooltip(this, this.options.tooltip || {});
-                }
-            },
-            _elementOffset: function () {
-                var element = this.element;
-                var offset = element.offset();
-                var paddingLeft = parseInt(element.css('paddingLeft'), 10);
-                var paddingTop = parseInt(element.css('paddingTop'), 10);
-                return {
-                    left: offset.left + paddingLeft,
-                    top: offset.top + paddingTop
-                };
-            },
-            _surfacePoint: function (event) {
-                var offset = this._elementOffset();
-                var coord = eventCoordinates(event);
-                var x = coord.x - offset.left;
-                var y = coord.y - offset.top;
-                return new g.Point(x, y);
-            }
-        });
-        kendo.ui.plugin(Surface);
-        Surface.create = function (element, options) {
-            return SurfaceFactory.current.create(element, options);
-        };
-        var BaseNode = Class.extend({
-            init: function (srcElement) {
-                this.childNodes = [];
-                this.parent = null;
-                if (srcElement) {
-                    this.srcElement = srcElement;
-                    this.observe();
-                }
-            },
-            destroy: function () {
-                if (this.srcElement) {
-                    this.srcElement.removeObserver(this);
-                }
-                var children = this.childNodes;
-                for (var i = 0; i < children.length; i++) {
-                    this.childNodes[i].destroy();
-                }
-                this.parent = null;
-            },
-            load: noop,
-            observe: function () {
-                if (this.srcElement) {
-                    this.srcElement.addObserver(this);
-                }
-            },
-            append: function (node) {
-                this.childNodes.push(node);
-                node.parent = this;
-            },
-            insertAt: function (node, pos) {
-                this.childNodes.splice(pos, 0, node);
-                node.parent = this;
-            },
-            remove: function (index, count) {
-                var end = index + count;
-                for (var i = index; i < end; i++) {
-                    this.childNodes[i].removeSelf();
-                }
-                this.childNodes.splice(index, count);
-            },
-            removeSelf: function () {
-                this.clear();
-                this.destroy();
-            },
-            clear: function () {
-                this.remove(0, this.childNodes.length);
-            },
-            invalidate: function () {
-                if (this.parent) {
-                    this.parent.invalidate();
-                }
-            },
-            geometryChange: function () {
-                this.invalidate();
-            },
-            optionsChange: function () {
-                this.invalidate();
-            },
-            childrenChange: function (e) {
-                if (e.action === 'add') {
-                    this.load(e.items, e.index);
-                } else if (e.action === 'remove') {
-                    this.remove(e.index, e.items.length);
-                }
-                this.invalidate();
-            }
-        });
-        var OptionsStore = Class.extend({
-            init: function (options, prefix) {
-                var field, member;
-                this.prefix = prefix || '';
-                for (field in options) {
-                    member = options[field];
-                    member = this._wrap(member, field);
-                    this[field] = member;
-                }
-            },
-            get: function (field) {
-                return kendo.getter(field, true)(this);
-            },
-            set: function (field, value) {
-                var current = kendo.getter(field, true)(this);
-                if (current !== value) {
-                    var composite = this._set(field, this._wrap(value, field));
-                    if (!composite) {
-                        this.optionsChange({
-                            field: this.prefix + field,
-                            value: value
-                        });
-                    }
-                }
-            },
-            _set: function (field, value) {
-                var composite = field.indexOf('.') >= 0;
-                if (composite) {
-                    var parts = field.split('.'), path = '', obj;
-                    while (parts.length > 1) {
-                        path += parts.shift();
-                        obj = kendo.getter(path, true)(this);
-                        if (!obj) {
-                            obj = new OptionsStore({}, path + '.');
-                            obj.addObserver(this);
-                            this[path] = obj;
-                        }
-                        if (obj instanceof OptionsStore) {
-                            obj.set(parts.join('.'), value);
-                            return composite;
-                        }
-                        path += '.';
-                    }
-                }
-                this._clear(field);
-                kendo.setter(field)(this, value);
-                return composite;
-            },
-            _clear: function (field) {
-                var current = kendo.getter(field, true)(this);
-                if (current && current.removeObserver) {
-                    current.removeObserver(this);
-                }
-            },
-            _wrap: function (object, field) {
-                var type = toString.call(object);
-                if (object !== null && defined(object) && type === '[object Object]') {
-                    if (!(object instanceof OptionsStore) && !(object instanceof Class)) {
-                        object = new OptionsStore(object, this.prefix + field + '.');
-                    }
-                    object.addObserver(this);
-                }
-                return object;
-            }
-        });
-        deepExtend(OptionsStore.fn, kendo.mixins.ObserversMixin);
-        var SurfaceFactory = function () {
-            this._items = [];
-        };
-        SurfaceFactory.prototype = {
-            register: function (name, type, order) {
-                var items = this._items, first = items[0], entry = {
-                        name: name,
-                        type: type,
-                        order: order
-                    };
-                if (!first || order < first.order) {
-                    items.unshift(entry);
-                } else {
-                    items.push(entry);
-                }
-            },
-            create: function (element, options) {
-                var items = this._items, match = items[0];
-                if (options && options.type) {
-                    var preferred = options.type.toLowerCase();
-                    for (var i = 0; i < items.length; i++) {
-                        if (items[i].name === preferred) {
-                            match = items[i];
-                            break;
-                        }
-                    }
-                }
-                if (match) {
-                    return new match.type(element, options);
-                }
-                kendo.logToConsole('Warning: Unable to create Kendo UI Drawing Surface. Possible causes:\n' + '- The browser does not support SVG, VML and Canvas. User agent: ' + navigator.userAgent + '\n' + '- The Kendo UI scripts are not fully loaded');
-            }
-        };
-        SurfaceFactory.current = new SurfaceFactory();
-        var SurfaceTooltip = Class.extend({
-            init: function (surface, options) {
-                this.element = $(TOOLTIP_TEMPLATE);
-                this.content = this.element.children('.k-tooltip-content');
-                options = options || {};
-                this.options = deepExtend({}, this.options, this._tooltipOptions(options));
-                this.popup = new kendo.ui.Popup(this.element, {
-                    appendTo: options.appendTo,
-                    animation: options.animation,
-                    copyAnchorStyles: false,
-                    collision: 'fit fit'
-                });
-                this._openPopupHandler = $.proxy(this._openPopup, this);
-                this.surface = surface;
-                this._bindEvents();
-            },
-            options: {
-                position: 'top',
-                showOn: 'mouseenter',
-                offset: 7,
-                autoHide: true,
-                hideDelay: 0,
-                showAfter: 100
-            },
-            _bindEvents: function () {
-                this._showHandler = proxy(this._showEvent, this);
-                this._surfaceLeaveHandler = proxy(this._surfaceLeave, this);
-                this._mouseleaveHandler = proxy(this._mouseleave, this);
-                this._mousemoveHandler = proxy(this._mousemove, this);
-                this.surface.bind('click', this._showHandler);
-                this.surface.bind('mouseenter', this._showHandler);
-                this.surface.bind('mouseleave', this._mouseleaveHandler);
-                this.surface.bind('mousemove', this._mousemoveHandler);
-                this.surface.element.on('mouseleave' + NS, this._surfaceLeaveHandler);
-                this.element.on('click' + NS, '.k-tooltip-button', proxy(this._hideClick, this));
-            },
-            destroy: function () {
-                var popup = this.popup;
-                this.surface.unbind('click', this._showHandler);
-                this.surface.unbind('mouseenter', this._showHandler);
-                this.surface.unbind('mouseleave', this._mouseleaveHandler);
-                this.surface.unbind('mousemove', this._mousemoveHandler);
-                this.surface.element.off('mouseleave' + NS, this._surfaceLeaveHandler);
-                this.element.off('click' + NS);
-                if (popup) {
-                    popup.destroy();
-                    delete this.popup;
-                }
-                clearTimeout(this._timeout);
-                delete this.popup;
-                delete this.element;
-                delete this.content;
-                delete this.surface;
-            },
-            _tooltipOptions: function (options) {
-                options = options || {};
-                return {
-                    position: options.position,
-                    showOn: options.showOn,
-                    offset: options.offset,
-                    autoHide: options.autoHide,
-                    width: options.width,
-                    height: options.height,
-                    content: options.content,
-                    shared: options.shared,
-                    hideDelay: options.hideDelay,
-                    showAfter: options.showAfter
-                };
-            },
-            _tooltipShape: function (shape) {
-                while (shape && !shape.options.tooltip) {
-                    shape = shape.parent;
-                }
-                return shape;
-            },
-            _updateContent: function (target, shape, options) {
-                var content = options.content;
-                if (kendo.isFunction(content)) {
-                    content = content({
-                        element: shape,
-                        target: target
-                    });
-                }
-                if (content) {
-                    this.content.html(content);
-                    return true;
-                }
-            },
-            _position: function (shape, options, elementSize, event) {
-                var position = options.position;
-                var tooltipOffset = options.offset || 0;
-                var surface = this.surface;
-                var offset = surface._elementOffset();
-                var size = surface.getSize();
-                var surfaceOffset = surface._offset;
-                var bbox = shape.bbox();
-                var width = elementSize.width;
-                var height = elementSize.height;
-                var left = 0, top = 0;
-                bbox.origin.translate(offset.left, offset.top);
-                if (surfaceOffset) {
-                    bbox.origin.translate(-surfaceOffset.x, -surfaceOffset.y);
-                }
-                if (position == 'cursor' && event) {
-                    var coord = eventCoordinates(event);
-                    left = coord.x - width / 2;
-                    top = coord.y - height - tooltipOffset;
-                } else if (position == 'left') {
-                    left = bbox.origin.x - width - tooltipOffset;
-                    top = bbox.center().y - height / 2;
-                } else if (position == 'right') {
-                    left = bbox.bottomRight().x + tooltipOffset;
-                    top = bbox.center().y - height / 2;
-                } else if (position == 'bottom') {
-                    left = bbox.center().x - width / 2;
-                    top = bbox.bottomRight().y + tooltipOffset;
-                } else {
-                    left = bbox.center().x - width / 2;
-                    top = bbox.origin.y - height - tooltipOffset;
-                }
-                return {
-                    left: limitValue(left, offset.left, offset.left + size.width),
-                    top: limitValue(top, offset.top, offset.top + size.height)
-                };
-            },
-            show: function (shape, options) {
-                this._show(shape, shape, deepExtend({}, this.options, this._tooltipOptions(shape.options.tooltip), options));
-            },
-            hide: function () {
-                var current = this._current;
-                delete this._current;
-                clearTimeout(this._showTimeout);
-                if (this.popup.visible() && current && !this.surface.trigger('tooltipClose', {
-                        element: current.shape,
-                        target: current.target,
-                        popup: this.popup
-                    })) {
-                    this.popup.close();
-                }
-            },
-            _hideClick: function (e) {
-                e.preventDefault();
-                this.hide();
-            },
-            _show: function (target, shape, options, event, delay) {
-                var current = this._current;
-                clearTimeout(this._timeout);
-                if (current && (current.shape === shape && options.shared || current.target === target)) {
-                    return;
-                }
-                clearTimeout(this._showTimeout);
-                if (!this.surface.trigger('tooltipOpen', {
-                        element: shape,
-                        target: target,
-                        popup: this.popup
-                    }) && this._updateContent(target, shape, options)) {
-                    this._autoHide(options);
-                    var elementSize = this._measure(options);
-                    var popup = this.popup;
-                    if (popup.visible()) {
-                        popup.close(true);
-                    }
-                    this._current = {
-                        options: options,
-                        elementSize: elementSize,
-                        shape: shape,
-                        target: target,
-                        position: this._position(options.shared ? shape : target, options, elementSize, event)
-                    };
-                    if (delay) {
-                        this._showTimeout = setTimeout(this._openPopupHandler, options.showAfter || 0);
-                    } else {
-                        this._openPopup();
-                    }
-                }
-            },
-            _openPopup: function () {
-                var current = this._current;
-                var position = current.position;
-                this.popup.open(position.left, position.top);
-            },
-            _autoHide: function (options) {
-                if (options.autoHide && this._closeButton) {
-                    this.element.removeClass('k-tooltip-closable');
-                    this._closeButton.remove();
-                    delete this._closeButton;
-                }
-                if (!options.autoHide && !this._closeButton) {
-                    this.element.addClass('k-tooltip-closable');
-                    this._closeButton = $(TOOLTIP_CLOSE_TEMPLATE).prependTo(this.element);
-                }
-            },
-            _showEvent: function (e) {
-                var shape = this._tooltipShape(e.element);
-                if (shape) {
-                    var options = deepExtend({}, this.options, this._tooltipOptions(shape.options.tooltip));
-                    if (options && options.showOn == e.type) {
-                        this._show(e.element, shape, options, e.originalEvent, true);
-                    }
-                }
-            },
-            _measure: function (options) {
-                var width, height;
-                this.element.css({
-                    width: 'auto',
-                    height: 'auto'
-                });
-                var visible = this.popup.visible();
-                if (!visible) {
-                    this.popup.wrapper.show();
-                }
-                this.element.css({
-                    width: defined(options.width) ? options.width : 'auto',
-                    height: defined(options.height) ? options.height : 'auto'
-                });
-                width = outerWidth(this.element);
-                height = outerHeight(this.element);
-                if (!visible) {
-                    this.popup.wrapper.hide();
-                }
-                return {
-                    width: width,
-                    height: height
-                };
-            },
-            _mouseleave: function (e) {
-                if (!this._popupRelatedTarget(e.originalEvent)) {
-                    var tooltip = this;
-                    var current = tooltip._current;
-                    if (current && current.options.autoHide) {
-                        tooltip._timeout = setTimeout(function () {
-                            clearTimeout(tooltip._showTimeout);
-                            tooltip.hide();
-                        }, current.options.hideDelay || 0);
-                    }
-                }
-            },
-            _mousemove: function (e) {
-                var current = this._current;
-                if (current && e.element) {
-                    var options = current.options;
-                    if (options.position == 'cursor') {
-                        var position = this._position(e.element, options, current.elementSize, e.originalEvent);
-                        current.position = position;
-                        this.popup.wrapper.css({
-                            left: position.left,
-                            top: position.top
-                        });
-                    }
-                }
-            },
-            _surfaceLeave: function (e) {
-                if (!this._popupRelatedTarget(e)) {
-                    clearTimeout(this._showTimeout);
-                    this.hide();
-                }
-            },
-            _popupRelatedTarget: function (e) {
-                return e.relatedTarget && $(e.relatedTarget).closest(this.popup.wrapper).length;
-            }
-        });
-        function eventCoordinates(event) {
-            var x, y;
-            if (event.touch) {
-                x = event.x.location;
-                y = event.y.location;
-            } else {
-                x = event.pageX || event.clientX || 0;
-                y = event.pageY || event.clientY || 0;
-            }
-            return {
-                x: x,
-                y: y
-            };
-        }
-        deepExtend(kendo, {
-            drawing: {
-                DASH_ARRAYS: {
-                    dot: [
-                        1.5,
-                        3.5
-                    ],
-                    dash: [
-                        4,
-                        3.5
-                    ],
-                    longdash: [
-                        8,
-                        3.5
-                    ],
-                    dashdot: [
-                        3.5,
-                        3.5,
-                        1.5,
-                        3.5
-                    ],
-                    longdashdot: [
-                        8,
-                        3.5,
-                        1.5,
-                        3.5
-                    ],
-                    longdashdotdot: [
-                        8,
-                        3.5,
-                        1.5,
-                        3.5,
-                        1.5,
-                        3.5
-                    ]
-                },
-                Color: kendo.Color,
-                BaseNode: BaseNode,
-                OptionsStore: OptionsStore,
-                Surface: Surface,
-                SurfaceFactory: SurfaceFactory,
-                SurfaceTooltip: SurfaceTooltip
-            }
-        });
-        kendo.dataviz.drawing = kendo.drawing;
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/mixins', ['drawing/core'], f);
-}(function () {
-    (function () {
-        var kendo = window.kendo, deepExtend = kendo.deepExtend, defined = kendo.util.defined, g = kendo.geometry;
-        var GRADIENT = 'gradient';
-        var IDENTITY_MATRIX_HASH = g.Matrix.IDENTITY.toString();
-        var Paintable = {
-            extend: function (proto) {
-                proto.fill = this.fill;
-                proto.stroke = this.stroke;
-            },
-            fill: function (color, opacity) {
-                var options = this.options;
-                if (defined(color)) {
-                    if (color && color.nodeType != GRADIENT) {
-                        var newFill = { color: color };
-                        if (defined(opacity)) {
-                            newFill.opacity = opacity;
-                        }
-                        options.set('fill', newFill);
-                    } else {
-                        options.set('fill', color);
-                    }
-                    return this;
-                } else {
-                    return options.get('fill');
-                }
-            },
-            stroke: function (color, width, opacity) {
-                if (defined(color)) {
-                    this.options.set('stroke.color', color);
-                    if (defined(width)) {
-                        this.options.set('stroke.width', width);
-                    }
-                    if (defined(opacity)) {
-                        this.options.set('stroke.opacity', opacity);
-                    }
-                    return this;
-                } else {
-                    return this.options.get('stroke');
-                }
-            }
-        };
-        var Traversable = {
-            extend: function (proto, childrenField) {
-                proto.traverse = function (callback) {
-                    var children = this[childrenField];
-                    for (var i = 0; i < children.length; i++) {
-                        var child = children[i];
-                        if (child.traverse) {
-                            child.traverse(callback);
-                        } else {
-                            callback(child);
-                        }
-                    }
-                    return this;
-                };
-            }
-        };
-        var Measurable = {
-            extend: function (proto) {
-                proto.bbox = this.bbox;
-                proto.geometryChange = this.geometryChange;
-            },
-            bbox: function (transformation) {
-                var combinedMatrix = g.toMatrix(this.currentTransform(transformation));
-                var matrixHash = combinedMatrix ? combinedMatrix.toString() : IDENTITY_MATRIX_HASH;
-                var bbox;
-                if (this._bboxCache && this._matrixHash == matrixHash) {
-                    bbox = this._bboxCache.clone();
-                } else {
-                    bbox = this._bbox(combinedMatrix);
-                    this._bboxCache = bbox ? bbox.clone() : null;
-                    this._matrixHash = matrixHash;
-                }
-                var strokeWidth = this.options.get('stroke.width');
-                if (strokeWidth && bbox) {
-                    bbox.expand(strokeWidth / 2);
-                }
-                return bbox;
-            },
-            geometryChange: function () {
-                delete this._bboxCache;
-                this.trigger('geometryChange', { element: this });
-            }
-        };
-        deepExtend(kendo.drawing, {
-            mixins: {
-                Paintable: Paintable,
-                Traversable: Traversable,
-                Measurable: Measurable
-            }
-        });
-    }());
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/shapes', [
-        'drawing/core',
-        'drawing/mixins',
-        'util/text-metrics',
-        'mixins/observers'
-    ], f);
-}(function () {
-    (function ($) {
-        var kendo = window.kendo, Class = kendo.Class, deepExtend = kendo.deepExtend, g = kendo.geometry, Point = g.Point, Size = g.Size, Matrix = g.Matrix, toMatrix = g.toMatrix, drawing = kendo.drawing, OptionsStore = drawing.OptionsStore, math = Math, pow = math.pow, util = kendo.util, append = util.append, arrayLimits = util.arrayLimits, defined = util.defined, last = util.last, valueOrDefault = util.valueOrDefault, ObserversMixin = kendo.mixins.ObserversMixin, inArray = $.inArray, push = [].push, pop = [].pop, splice = [].splice, shift = [].shift, slice = [].slice, unshift = [].unshift, defId = 1, START = 'start', END = 'end', HORIZONTAL = 'horizontal';
-        var Element = Class.extend({
-            nodeType: 'Element',
-            init: function (options) {
-                this._initOptions(options);
-            },
-            _initOptions: function (options) {
-                options = options || {};
-                var transform = options.transform;
-                var clip = options.clip;
-                if (transform) {
-                    options.transform = g.transform(transform);
-                }
-                if (clip && !clip.id) {
-                    clip.id = generateDefinitionId();
-                }
-                this.options = new OptionsStore(options);
-                this.options.addObserver(this);
-            },
-            transform: function (transform) {
-                if (defined(transform)) {
-                    this.options.set('transform', g.transform(transform));
-                } else {
-                    return this.options.get('transform');
-                }
-            },
-            parentTransform: function () {
-                var element = this, transformation, parentMatrix;
-                while (element.parent) {
-                    element = element.parent;
-                    transformation = element.transform();
-                    if (transformation) {
-                        parentMatrix = transformation.matrix().multiplyCopy(parentMatrix || Matrix.unit());
-                    }
-                }
-                if (parentMatrix) {
-                    return g.transform(parentMatrix);
-                }
-            },
-            currentTransform: function (parentTransform) {
-                var elementTransform = this.transform(), elementMatrix = toMatrix(elementTransform), parentMatrix, combinedMatrix;
-                if (!defined(parentTransform)) {
-                    parentTransform = this.parentTransform();
-                }
-                parentMatrix = toMatrix(parentTransform);
-                if (elementMatrix && parentMatrix) {
-                    combinedMatrix = parentMatrix.multiplyCopy(elementMatrix);
-                } else {
-                    combinedMatrix = elementMatrix || parentMatrix;
-                }
-                if (combinedMatrix) {
-                    return g.transform(combinedMatrix);
-                }
-            },
-            visible: function (visible) {
-                if (defined(visible)) {
-                    this.options.set('visible', visible);
-                    return this;
-                } else {
-                    return this.options.get('visible') !== false;
-                }
-            },
-            clip: function (clip) {
-                var options = this.options;
-                if (defined(clip)) {
-                    if (clip && !clip.id) {
-                        clip.id = generateDefinitionId();
-                    }
-                    options.set('clip', clip);
-                    return this;
-                } else {
-                    return options.get('clip');
-                }
-            },
-            opacity: function (value) {
-                if (defined(value)) {
-                    this.options.set('opacity', value);
-                    return this;
-                } else {
-                    return valueOrDefault(this.options.get('opacity'), 1);
-                }
-            },
-            clippedBBox: function (transformation) {
-                var box = this._clippedBBox(transformation);
-                if (box) {
-                    var clip = this.clip();
-                    return clip ? g.Rect.intersect(box, clip.bbox(transformation)) : box;
-                }
-            },
-            containsPoint: function (point, parentTransform) {
-                if (this.visible()) {
-                    var transform = this.currentTransform(parentTransform);
-                    if (transform) {
-                        point = point.transformCopy(transform.matrix().invert());
-                    }
-                    return this._hasFill() && this._containsPoint(point) || this._isOnPath && this._hasStroke() && this._isOnPath(point);
-                }
-                return false;
-            },
-            _hasFill: function () {
-                var fill = this.options.fill;
-                return fill && !util.isTransparent(fill.color);
-            },
-            _hasStroke: function () {
-                var stroke = this.options.stroke;
-                return stroke && stroke.width > 0 && !util.isTransparent(stroke.color);
-            },
-            _clippedBBox: function (transformation) {
-                return this.bbox(transformation);
-            }
-        });
-        deepExtend(Element.fn, ObserversMixin);
+        var push = [].push;
+        var pop = [].pop;
+        var splice = [].splice;
+        var shift = [].shift;
+        var slice = [].slice;
+        var unshift = [].unshift;
         var ElementsArray = Class.extend({
             init: function (array) {
-                array = array || [];
+                if (array === void 0) {
+                    array = [];
+                }
                 this.length = 0;
                 this._splice(0, array.length, array);
             },
-            elements: function (elements) {
-                if (elements) {
-                    this._splice(0, this.length, elements);
+            elements: function (value) {
+                if (value) {
+                    this._splice(0, this.length, value);
                     this._change();
                     return this;
-                } else {
-                    return this.slice(0);
                 }
+                return this.slice(0);
             },
             push: function () {
                 var elements = arguments;
@@ -2453,7 +1781,9 @@
                 this._add(elements);
                 return result;
             },
-            slice: slice,
+            slice: function () {
+                return slice.call(this);
+            },
             pop: function () {
                 var length = this.length;
                 var result = pop.apply(this);
@@ -2483,11 +1813,10 @@
                 return result;
             },
             indexOf: function (element) {
-                var that = this;
-                var idx;
-                var length;
-                for (idx = 0, length = that.length; idx < length; idx++) {
-                    if (that[idx] === element) {
+                var this$1 = this;
+                var length = this.length;
+                for (var idx = 0; idx < length; idx++) {
+                    if (this$1[idx] === element) {
                         return idx;
                     }
                 }
@@ -2511,186 +1840,529 @@
                 this._change();
             },
             _setObserver: function (elements) {
+                var this$1 = this;
                 for (var idx = 0; idx < elements.length; idx++) {
-                    elements[idx].addObserver(this);
+                    elements[idx].addObserver(this$1);
                 }
             },
             _clearObserver: function (elements) {
+                var this$1 = this;
                 for (var idx = 0; idx < elements.length; idx++) {
-                    elements[idx].removeObserver(this);
+                    elements[idx].removeObserver(this$1);
                 }
             },
             _change: function () {
             }
         });
-        deepExtend(ElementsArray.fn, ObserversMixin);
-        var Group = Element.extend({
-            nodeType: 'Group',
+        ObserversMixin.extend(ElementsArray.prototype);
+        var GeometryElementsArray = ElementsArray.extend({
+            _change: function () {
+                this.geometryChange();
+            }
+        });
+        function pointAccessor(name) {
+            var fieldName = '_' + name;
+            return function (value) {
+                if (defined(value)) {
+                    this._observerField(fieldName, Point.create(value));
+                    this.geometryChange();
+                    return this;
+                }
+                return this[fieldName];
+            };
+        }
+        function definePointAccessors(fn, names) {
+            for (var i = 0; i < names.length; i++) {
+                fn[names[i]] = pointAccessor(names[i]);
+            }
+        }
+        function isOutOfEndPoint(endPoint, controlPoint, point) {
+            var angle = deg(Math.atan2(controlPoint.y - endPoint.y, controlPoint.x - endPoint.x));
+            var rotatedPoint = point.transformCopy(transform().rotate(-angle, endPoint));
+            return rotatedPoint.x < endPoint.x;
+        }
+        function calculateCurveAt(t, field, points) {
+            var t1 = 1 - t;
+            return Math.pow(t1, 3) * points[0][field] + 3 * Math.pow(t1, 2) * t * points[1][field] + 3 * Math.pow(t, 2) * t1 * points[2][field] + Math.pow(t, 3) * points[3][field];
+        }
+        function toCubicPolynomial(points, field) {
+            return [
+                -points[0][field] + 3 * points[1][field] - 3 * points[2][field] + points[3][field],
+                3 * (points[0][field] - 2 * points[1][field] + points[2][field]),
+                3 * (-points[0][field] + points[1][field]),
+                points[0][field]
+            ];
+        }
+        var ComplexNumber = Class.extend({
+            init: function (real, img) {
+                if (real === void 0) {
+                    real = 0;
+                }
+                if (img === void 0) {
+                    img = 0;
+                }
+                this.real = real;
+                this.img = img;
+            },
+            add: function (cNumber) {
+                return new ComplexNumber(round(this.real + cNumber.real, PRECISION), round(this.img + cNumber.img, PRECISION));
+            },
+            addConstant: function (value) {
+                return new ComplexNumber(this.real + value, this.img);
+            },
+            negate: function () {
+                return new ComplexNumber(-this.real, -this.img);
+            },
+            multiply: function (cNumber) {
+                return new ComplexNumber(this.real * cNumber.real - this.img * cNumber.img, this.real * cNumber.img + this.img * cNumber.real);
+            },
+            multiplyConstant: function (value) {
+                return new ComplexNumber(this.real * value, this.img * value);
+            },
+            nthRoot: function (n) {
+                var rad$$1 = Math.atan2(this.img, this.real);
+                var r = Math.sqrt(Math.pow(this.img, 2) + Math.pow(this.real, 2));
+                var nthR = Math.pow(r, 1 / n);
+                return new ComplexNumber(nthR * Math.cos(rad$$1 / n), nthR * Math.sin(rad$$1 / n));
+            },
+            equals: function (cNumber) {
+                return this.real === cNumber.real && this.img === cNumber.img;
+            },
+            isReal: function () {
+                return this.img === 0;
+            }
+        });
+        function numberSign(x) {
+            return x < 0 ? -1 : 1;
+        }
+        function solveQuadraticEquation(a, b, c) {
+            var squareRoot = Math.sqrt(Math.pow(b, 2) - 4 * a * c);
+            return [
+                (-b + squareRoot) / (2 * a),
+                (-b - squareRoot) / (2 * a)
+            ];
+        }
+        function solveCubicEquation(a, b, c, d) {
+            if (a === 0) {
+                return solveQuadraticEquation(b, c, d);
+            }
+            var p = (3 * a * c - Math.pow(b, 2)) / (3 * Math.pow(a, 2));
+            var q = (2 * Math.pow(b, 3) - 9 * a * b * c + 27 * Math.pow(a, 2) * d) / (27 * Math.pow(a, 3));
+            var Q = Math.pow(p / 3, 3) + Math.pow(q / 2, 2);
+            var i = new ComplexNumber(0, 1);
+            var b3a = -b / (3 * a);
+            var x1, x2, y1, y2, y3, z1, z2;
+            if (Q < 0) {
+                x1 = new ComplexNumber(-q / 2, Math.sqrt(-Q)).nthRoot(3);
+                x2 = new ComplexNumber(-q / 2, -Math.sqrt(-Q)).nthRoot(3);
+            } else {
+                x1 = -q / 2 + Math.sqrt(Q);
+                x1 = new ComplexNumber(numberSign(x1) * Math.pow(Math.abs(x1), 1 / 3));
+                x2 = -q / 2 - Math.sqrt(Q);
+                x2 = new ComplexNumber(numberSign(x2) * Math.pow(Math.abs(x2), 1 / 3));
+            }
+            y1 = x1.add(x2);
+            z1 = x1.add(x2).multiplyConstant(-1 / 2);
+            z2 = x1.add(x2.negate()).multiplyConstant(Math.sqrt(3) / 2);
+            y2 = z1.add(i.multiply(z2));
+            y3 = z1.add(i.negate().multiply(z2));
+            var result = [];
+            if (y1.isReal()) {
+                result.push(round(y1.real + b3a, PRECISION));
+            }
+            if (y2.isReal()) {
+                result.push(round(y2.real + b3a, PRECISION));
+            }
+            if (y3.isReal()) {
+                result.push(round(y3.real + b3a, PRECISION));
+            }
+            return result;
+        }
+        function hasRootsInRange(points, point, field, rootField, range) {
+            var polynomial = toCubicPolynomial(points, rootField);
+            var roots = solveCubicEquation(polynomial[0], polynomial[1], polynomial[2], polynomial[3] - point[rootField]);
+            var intersection;
+            for (var idx = 0; idx < roots.length; idx++) {
+                if (0 <= roots[idx] && roots[idx] <= 1) {
+                    intersection = calculateCurveAt(roots[idx], field, points);
+                    if (Math.abs(intersection - point[field]) <= range) {
+                        return true;
+                    }
+                }
+            }
+        }
+        function curveIntersectionsCount(points, point, bbox) {
+            var polynomial = toCubicPolynomial(points, 'x');
+            var roots = solveCubicEquation(polynomial[0], polynomial[1], polynomial[2], polynomial[3] - point.x);
+            var rayIntersection, intersectsRay;
+            var count = 0;
+            for (var i = 0; i < roots.length; i++) {
+                rayIntersection = calculateCurveAt(roots[i], 'y', points);
+                intersectsRay = close(rayIntersection, point.y) || rayIntersection > point.y;
+                if (intersectsRay && ((roots[i] === 0 || roots[i] === 1) && bbox.bottomRight().x > point.x || 0 < roots[i] && roots[i] < 1)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        function lineIntersectionsCount(a, b, point) {
+            var intersects;
+            if (a.x !== b.x) {
+                var minX = Math.min(a.x, b.x);
+                var maxX = Math.max(a.x, b.x);
+                var minY = Math.min(a.y, b.y);
+                var maxY = Math.max(a.y, b.y);
+                var inRange = minX <= point.x && point.x < maxX;
+                if (minY === maxY) {
+                    intersects = point.y <= minY && inRange;
+                } else {
+                    intersects = inRange && (maxY - minY) * ((a.x - b.x) * (a.y - b.y) > 0 ? point.x - minX : maxX - point.x) / (maxX - minX) + minY - point.y >= 0;
+                }
+            }
+            return intersects ? 1 : 0;
+        }
+        var Segment = Class.extend({
+            init: function (anchor, controlIn, controlOut) {
+                this.anchor(anchor || new Point());
+                this.controlIn(controlIn);
+                this.controlOut(controlOut);
+            },
+            bboxTo: function (toSegment, matrix) {
+                var segmentAnchor = this.anchor().transformCopy(matrix);
+                var toSegmentAnchor = toSegment.anchor().transformCopy(matrix);
+                var rect;
+                if (this.controlOut() && toSegment.controlIn()) {
+                    rect = this._curveBoundingBox(segmentAnchor, this.controlOut().transformCopy(matrix), toSegment.controlIn().transformCopy(matrix), toSegmentAnchor);
+                } else {
+                    rect = this._lineBoundingBox(segmentAnchor, toSegmentAnchor);
+                }
+                return rect;
+            },
+            _lineBoundingBox: function (p1, p2) {
+                return Rect.fromPoints(p1, p2);
+            },
+            _curveBoundingBox: function (p1, cp1, cp2, p2) {
+                var points = [
+                    p1,
+                    cp1,
+                    cp2,
+                    p2
+                ];
+                var extremesX = this._curveExtremesFor(points, 'x');
+                var extremesY = this._curveExtremesFor(points, 'y');
+                var xLimits = arrayLimits([
+                    extremesX.min,
+                    extremesX.max,
+                    p1.x,
+                    p2.x
+                ]);
+                var yLimits = arrayLimits([
+                    extremesY.min,
+                    extremesY.max,
+                    p1.y,
+                    p2.y
+                ]);
+                return Rect.fromPoints(new Point(xLimits.min, yLimits.min), new Point(xLimits.max, yLimits.max));
+            },
+            _curveExtremesFor: function (points, field) {
+                var extremes = this._curveExtremes(points[0][field], points[1][field], points[2][field], points[3][field]);
+                return {
+                    min: calculateCurveAt(extremes.min, field, points),
+                    max: calculateCurveAt(extremes.max, field, points)
+                };
+            },
+            _curveExtremes: function (x1, x2, x3, x4) {
+                var a = x1 - 3 * x2 + 3 * x3 - x4;
+                var b = -2 * (x1 - 2 * x2 + x3);
+                var c = x1 - x2;
+                var sqrt = Math.sqrt(b * b - 4 * a * c);
+                var t1 = 0;
+                var t2 = 1;
+                if (a === 0) {
+                    if (b !== 0) {
+                        t1 = t2 = -c / b;
+                    }
+                } else if (!isNaN(sqrt)) {
+                    t1 = (-b + sqrt) / (2 * a);
+                    t2 = (-b - sqrt) / (2 * a);
+                }
+                var min = Math.max(Math.min(t1, t2), 0);
+                if (min < 0 || min > 1) {
+                    min = 0;
+                }
+                var max = Math.min(Math.max(t1, t2), 1);
+                if (max > 1 || max < 0) {
+                    max = 1;
+                }
+                return {
+                    min: min,
+                    max: max
+                };
+            },
+            _intersectionsTo: function (segment, point) {
+                var intersectionsCount;
+                if (this.controlOut() && segment.controlIn()) {
+                    intersectionsCount = curveIntersectionsCount([
+                        this.anchor(),
+                        this.controlOut(),
+                        segment.controlIn(),
+                        segment.anchor()
+                    ], point, this.bboxTo(segment));
+                } else {
+                    intersectionsCount = lineIntersectionsCount(this.anchor(), segment.anchor(), point);
+                }
+                return intersectionsCount;
+            },
+            _isOnCurveTo: function (segment, point, width, endSegment) {
+                var bbox = this.bboxTo(segment).expand(width, width);
+                if (bbox.containsPoint(point)) {
+                    var p1 = this.anchor();
+                    var p2 = this.controlOut();
+                    var p3 = segment.controlIn();
+                    var p4 = segment.anchor();
+                    if (endSegment === 'start' && p1.distanceTo(point) <= width) {
+                        return !isOutOfEndPoint(p1, p2, point);
+                    } else if (endSegment === 'end' && p4.distanceTo(point) <= width) {
+                        return !isOutOfEndPoint(p4, p3, point);
+                    }
+                    var points = [
+                        p1,
+                        p2,
+                        p3,
+                        p4
+                    ];
+                    if (hasRootsInRange(points, point, 'x', 'y', width) || hasRootsInRange(points, point, 'y', 'x', width)) {
+                        return true;
+                    }
+                    var rotation = transform().rotate(45, point);
+                    var rotatedPoints = [
+                        p1.transformCopy(rotation),
+                        p2.transformCopy(rotation),
+                        p3.transformCopy(rotation),
+                        p4.transformCopy(rotation)
+                    ];
+                    return hasRootsInRange(rotatedPoints, point, 'x', 'y', width) || hasRootsInRange(rotatedPoints, point, 'y', 'x', width);
+                }
+            },
+            _isOnLineTo: function (segment, point, width) {
+                var p1 = this.anchor();
+                var p2 = segment.anchor();
+                var angle = deg(Math.atan2(p2.y - p1.y, p2.x - p1.x));
+                var rect = new Rect([
+                    p1.x,
+                    p1.y - width / 2
+                ], [
+                    p1.distanceTo(p2),
+                    width
+                ]);
+                return rect.containsPoint(point.transformCopy(transform().rotate(-angle, p1)));
+            },
+            _isOnPathTo: function (segment, point, width, endSegment) {
+                var isOnPath;
+                if (this.controlOut() && segment.controlIn()) {
+                    isOnPath = this._isOnCurveTo(segment, point, width / 2, endSegment);
+                } else {
+                    isOnPath = this._isOnLineTo(segment, point, width);
+                }
+                return isOnPath;
+            }
+        });
+        definePointAccessors(Segment.prototype, [
+            'anchor',
+            'controlIn',
+            'controlOut'
+        ]);
+        ObserversMixin.extend(Segment.prototype);
+        function arrayLimits(arr) {
+            var length = arr.length;
+            var min = MAX_NUM;
+            var max = MIN_NUM;
+            for (var i = 0; i < length; i++) {
+                max = Math.max(max, arr[i]);
+                min = Math.min(min, arr[i]);
+            }
+            return {
+                min: min,
+                max: max
+            };
+        }
+        var Path = Element$1.extend({
             init: function (options) {
-                Element.fn.init.call(this, options);
-                this.children = [];
+                Element$1.fn.init.call(this, options);
+                this.segments = new GeometryElementsArray();
+                this.segments.addObserver(this);
+                if (!defined(this.options.stroke)) {
+                    this.stroke('#000');
+                    if (!defined(this.options.stroke.lineJoin)) {
+                        this.options.set('stroke.lineJoin', 'miter');
+                    }
+                }
             },
-            childrenChange: function (action, items, index) {
-                this.trigger('childrenChange', {
-                    action: action,
-                    items: items,
-                    index: index
-                });
-            },
-            append: function () {
-                append(this.children, arguments);
-                this._reparent(arguments, this);
-                this.childrenChange('add', arguments);
+            moveTo: function (x, y) {
+                this.suspend();
+                this.segments.elements([]);
+                this.resume();
+                this.lineTo(x, y);
                 return this;
             },
-            insert: function (index, element) {
-                this.children.splice(index, 0, element);
-                element.parent = this;
-                this.childrenChange('add', [element], index);
+            lineTo: function (x, y) {
+                var point = defined(y) ? new Point(x, y) : x;
+                var segment = new Segment(point);
+                this.segments.push(segment);
                 return this;
             },
-            insertAt: function (element, index) {
-                return this.insert(index, element);
-            },
-            remove: function (element) {
-                var index = inArray(element, this.children);
-                if (index >= 0) {
-                    this.children.splice(index, 1);
-                    element.parent = null;
-                    this.childrenChange('remove', [element], index);
+            curveTo: function (controlOut, controlIn, point) {
+                if (this.segments.length > 0) {
+                    var lastSegment = last(this.segments);
+                    var segment = new Segment(point, controlIn);
+                    this.suspend();
+                    lastSegment.controlOut(controlOut);
+                    this.resume();
+                    this.segments.push(segment);
                 }
                 return this;
             },
-            removeAt: function (index) {
-                if (0 <= index && index < this.children.length) {
-                    var element = this.children[index];
-                    this.children.splice(index, 1);
-                    element.parent = null;
-                    this.childrenChange('remove', [element], index);
+            arc: function (startAngle, endAngle, radiusX, radiusY, anticlockwise) {
+                if (this.segments.length > 0) {
+                    var lastSegment = last(this.segments);
+                    var anchor = lastSegment.anchor();
+                    var start = rad(startAngle);
+                    var center = new Point(anchor.x - radiusX * Math.cos(start), anchor.y - radiusY * Math.sin(start));
+                    var arc = new Arc$2(center, {
+                        startAngle: startAngle,
+                        endAngle: endAngle,
+                        radiusX: radiusX,
+                        radiusY: radiusY,
+                        anticlockwise: anticlockwise
+                    });
+                    this._addArcSegments(arc);
                 }
                 return this;
             },
-            clear: function () {
-                var items = this.children;
-                this.children = [];
-                this._reparent(items, null);
-                this.childrenChange('remove', items, 0);
+            arcTo: function (end, rx, ry, largeArc, swipe) {
+                if (this.segments.length > 0) {
+                    var lastSegment = last(this.segments);
+                    var anchor = lastSegment.anchor();
+                    var arc = Arc$2.fromPoints(anchor, end, rx, ry, largeArc, swipe);
+                    this._addArcSegments(arc);
+                }
                 return this;
             },
-            bbox: function (transformation) {
-                return elementsBoundingBox(this.children, true, this.currentTransform(transformation));
+            _addArcSegments: function (arc) {
+                var this$1 = this;
+                this.suspend();
+                var curvePoints = arc.curvePoints();
+                for (var i = 1; i < curvePoints.length; i += 3) {
+                    this$1.curveTo(curvePoints[i], curvePoints[i + 1], curvePoints[i + 2]);
+                }
+                this.resume();
+                this.geometryChange();
+            },
+            close: function () {
+                this.options.closed = true;
+                this.geometryChange();
+                return this;
             },
             rawBBox: function () {
-                return elementsBoundingBox(this.children, false);
+                return this._bbox();
             },
-            _clippedBBox: function (transformation) {
-                return elementsClippedBoundingBox(this.children, this.currentTransform(transformation));
+            _containsPoint: function (point) {
+                var segments = this.segments;
+                var length = segments.length;
+                var intersectionsCount = 0;
+                var previous, current;
+                for (var idx = 1; idx < length; idx++) {
+                    previous = segments[idx - 1];
+                    current = segments[idx];
+                    intersectionsCount += previous._intersectionsTo(current, point);
+                }
+                if (this.options.closed || !segments[0].anchor().equals(segments[length - 1].anchor())) {
+                    intersectionsCount += lineIntersectionsCount(segments[0].anchor(), segments[length - 1].anchor(), point);
+                }
+                return intersectionsCount % 2 !== 0;
             },
-            currentTransform: function (transformation) {
-                return Element.fn.currentTransform.call(this, transformation) || null;
-            },
-            containsPoint: function (point, parentTransform) {
-                if (this.visible()) {
-                    var children = this.children;
-                    var transform = this.currentTransform(parentTransform);
-                    for (var idx = 0; idx < children.length; idx++) {
-                        if (children[idx].containsPoint(point, transform)) {
+            _isOnPath: function (point, width) {
+                var segments = this.segments;
+                var length = segments.length;
+                var pathWidth = width || this.options.stroke.width;
+                if (length > 1) {
+                    if (segments[0]._isOnPathTo(segments[1], point, pathWidth, 'start')) {
+                        return true;
+                    }
+                    for (var idx = 2; idx <= length - 2; idx++) {
+                        if (segments[idx - 1]._isOnPathTo(segments[idx], point, pathWidth)) {
                             return true;
                         }
+                    }
+                    if (segments[length - 2]._isOnPathTo(segments[length - 1], point, pathWidth, 'end')) {
+                        return true;
                     }
                 }
                 return false;
             },
-            _reparent: function (elements, newParent) {
-                for (var i = 0; i < elements.length; i++) {
-                    var child = elements[i];
-                    var parent = child.parent;
-                    if (parent && parent != this && parent.remove) {
-                        parent.remove(child);
-                    }
-                    child.parent = newParent;
-                }
-            }
-        });
-        drawing.mixins.Traversable.extend(Group.fn, 'children');
-        var Text = Element.extend({
-            nodeType: 'Text',
-            init: function (content, position, options) {
-                Element.fn.init.call(this, options);
-                this.content(content);
-                this.position(position || new g.Point());
-                if (!this.options.font) {
-                    this.options.font = '12px sans-serif';
-                }
-                if (!defined(this.options.fill)) {
-                    this.fill('#000');
-                }
-            },
-            content: function (value) {
-                if (defined(value)) {
-                    this.options.set('content', value);
-                    return this;
-                } else {
-                    return this.options.get('content');
-                }
-            },
-            measure: function () {
-                var metrics = util.measureText(this.content(), { font: this.options.get('font') });
-                return metrics;
-            },
-            rect: function () {
-                var size = this.measure();
-                var pos = this.position().clone();
-                return new g.Rect(pos, [
-                    size.width,
-                    size.height
-                ]);
-            },
-            bbox: function (transformation) {
-                var combinedMatrix = toMatrix(this.currentTransform(transformation));
-                return this.rect().bbox(combinedMatrix);
-            },
-            rawBBox: function () {
-                return this.rect().bbox();
-            },
-            _containsPoint: function (point) {
-                return this.rect().containsPoint(point);
-            }
-        });
-        drawing.mixins.Paintable.extend(Text.fn);
-        definePointAccessors(Text.fn, ['position']);
-        var Circle = Element.extend({
-            nodeType: 'Circle',
-            init: function (geometry, options) {
-                Element.fn.init.call(this, options);
-                this.geometry(geometry || new g.Circle());
-                if (!defined(this.options.stroke)) {
-                    this.stroke('#000');
-                }
-            },
             _bbox: function (matrix) {
-                return this._geometry.bbox(matrix);
-            },
-            rawBBox: function () {
-                return this._geometry.bbox();
-            },
-            _containsPoint: function (point) {
-                return this.geometry().containsPoint(point);
-            },
-            _isOnPath: function (point) {
-                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
+                var segments = this.segments;
+                var length = segments.length;
+                var boundingBox;
+                if (length === 1) {
+                    var anchor = segments[0].anchor().transformCopy(matrix);
+                    boundingBox = new Rect(anchor, Size.ZERO);
+                } else if (length > 0) {
+                    for (var i = 1; i < length; i++) {
+                        var segmentBox = segments[i - 1].bboxTo(segments[i], matrix);
+                        if (boundingBox) {
+                            boundingBox = Rect.union(boundingBox, segmentBox);
+                        } else {
+                            boundingBox = segmentBox;
+                        }
+                    }
+                }
+                return boundingBox;
             }
         });
-        drawing.mixins.Paintable.extend(Circle.fn);
-        drawing.mixins.Measurable.extend(Circle.fn);
-        defineGeometryAccessors(Circle.fn, ['geometry']);
-        var Arc = Element.extend({
-            nodeType: 'Arc',
+        Path.fromRect = function (rect, options) {
+            return new Path(options).moveTo(rect.topLeft()).lineTo(rect.topRight()).lineTo(rect.bottomRight()).lineTo(rect.bottomLeft()).close();
+        };
+        Path.fromPoints = function (points, options) {
+            if (points) {
+                var path = new Path(options);
+                for (var i = 0; i < points.length; i++) {
+                    var point = Point.create(points[i]);
+                    if (point) {
+                        if (i === 0) {
+                            path.moveTo(point);
+                        } else {
+                            path.lineTo(point);
+                        }
+                    }
+                }
+                return path;
+            }
+        };
+        Path.fromArc = function (arc, options) {
+            var path = new Path(options);
+            var startAngle = arc.startAngle;
+            var start = arc.pointAt(startAngle);
+            path.moveTo(start.x, start.y);
+            path.arc(startAngle, arc.endAngle, arc.radiusX, arc.radiusY, arc.anticlockwise);
+            return path;
+        };
+        Path.prototype.nodeType = 'Path';
+        Paintable.extend(Path.prototype);
+        Measurable.extend(Path.prototype);
+        var DEFAULT_STROKE$1 = '#000';
+        var Arc = Element$1.extend({
             init: function (geometry, options) {
-                Element.fn.init.call(this, options);
-                this.geometry(geometry || new g.Arc());
+                if (geometry === void 0) {
+                    geometry = new Arc$2();
+                }
+                if (options === void 0) {
+                    options = {};
+                }
+                Element$1.fn.init.call(this, options);
+                this.geometry(geometry);
                 if (!defined(this.options.stroke)) {
-                    this.stroke('#000');
+                    this.stroke(DEFAULT_STROKE$1);
                 }
             },
             _bbox: function (matrix) {
@@ -2717,333 +2389,47 @@
                 return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
             }
         });
-        drawing.mixins.Paintable.extend(Arc.fn);
-        drawing.mixins.Measurable.extend(Arc.fn);
-        defineGeometryAccessors(Arc.fn, ['geometry']);
-        var GeometryElementsArray = ElementsArray.extend({
-            _change: function () {
-                this.geometryChange();
-            }
-        });
-        var Segment = Class.extend({
-            init: function (anchor, controlIn, controlOut) {
-                this.anchor(anchor || new Point());
-                this.controlIn(controlIn);
-                this.controlOut(controlOut);
-            },
-            bboxTo: function (toSegment, matrix) {
-                var rect;
-                var segmentAnchor = this.anchor().transformCopy(matrix);
-                var toSegmentAnchor = toSegment.anchor().transformCopy(matrix);
-                if (this.controlOut() && toSegment.controlIn()) {
-                    rect = this._curveBoundingBox(segmentAnchor, this.controlOut().transformCopy(matrix), toSegment.controlIn().transformCopy(matrix), toSegmentAnchor);
-                } else {
-                    rect = this._lineBoundingBox(segmentAnchor, toSegmentAnchor);
-                }
-                return rect;
-            },
-            _lineBoundingBox: function (p1, p2) {
-                return g.Rect.fromPoints(p1, p2);
-            },
-            _curveBoundingBox: function (p1, cp1, cp2, p2) {
-                var points = [
-                        p1,
-                        cp1,
-                        cp2,
-                        p2
-                    ], extremesX = this._curveExtremesFor(points, 'x'), extremesY = this._curveExtremesFor(points, 'y'), xLimits = arrayLimits([
-                        extremesX.min,
-                        extremesX.max,
-                        p1.x,
-                        p2.x
-                    ]), yLimits = arrayLimits([
-                        extremesY.min,
-                        extremesY.max,
-                        p1.y,
-                        p2.y
-                    ]);
-                return g.Rect.fromPoints(new Point(xLimits.min, yLimits.min), new Point(xLimits.max, yLimits.max));
-            },
-            _curveExtremesFor: function (points, field) {
-                var extremes = this._curveExtremes(points[0][field], points[1][field], points[2][field], points[3][field]);
-                return {
-                    min: this._calculateCurveAt(extremes.min, field, points),
-                    max: this._calculateCurveAt(extremes.max, field, points)
-                };
-            },
-            _calculateCurveAt: function (t, field, points) {
-                var t1 = 1 - t;
-                return pow(t1, 3) * points[0][field] + 3 * pow(t1, 2) * t * points[1][field] + 3 * pow(t, 2) * t1 * points[2][field] + pow(t, 3) * points[3][field];
-            },
-            _curveExtremes: function (x1, x2, x3, x4) {
-                var a = x1 - 3 * x2 + 3 * x3 - x4;
-                var b = -2 * (x1 - 2 * x2 + x3);
-                var c = x1 - x2;
-                var sqrt = math.sqrt(b * b - 4 * a * c);
-                var t1 = 0;
-                var t2 = 1;
-                if (a === 0) {
-                    if (b !== 0) {
-                        t1 = t2 = -c / b;
-                    }
-                } else if (!isNaN(sqrt)) {
-                    t1 = (-b + sqrt) / (2 * a);
-                    t2 = (-b - sqrt) / (2 * a);
-                }
-                var min = math.max(math.min(t1, t2), 0);
-                if (min < 0 || min > 1) {
-                    min = 0;
-                }
-                var max = math.min(math.max(t1, t2), 1);
-                if (max > 1 || max < 0) {
-                    max = 1;
-                }
-                return {
-                    min: min,
-                    max: max
-                };
-            },
-            _intersectionsTo: function (segment, point) {
-                var intersectionsCount;
-                if (this.controlOut() && segment.controlIn()) {
-                    intersectionsCount = g.curveIntersectionsCount([
-                        this.anchor(),
-                        this.controlOut(),
-                        segment.controlIn(),
-                        segment.anchor()
-                    ], point, this.bboxTo(segment));
-                } else {
-                    intersectionsCount = g.lineIntersectionsCount(this.anchor(), segment.anchor(), point);
-                }
-                return intersectionsCount;
-            },
-            _isOnCurveTo: function (segment, point, width, endSegment) {
-                var bbox = this.bboxTo(segment).expand(width, width);
-                if (bbox.containsPoint(point)) {
-                    var p1 = this.anchor();
-                    var p2 = this.controlOut();
-                    var p3 = segment.controlIn();
-                    var p4 = segment.anchor();
-                    if (endSegment == 'start' && p1.distanceTo(point) <= width) {
-                        return !g.isOutOfEndPoint(p1, p2, point);
-                    } else if (endSegment == 'end' && p4.distanceTo(point) <= width) {
-                        return !g.isOutOfEndPoint(p4, p3, point);
-                    }
-                    var hasRootsInRange = g.hasRootsInRange;
-                    var points = [
-                        p1,
-                        p2,
-                        p3,
-                        p4
-                    ];
-                    if (hasRootsInRange(points, point, 'x', 'y', width) || hasRootsInRange(points, point, 'y', 'x', width)) {
-                        return true;
-                    }
-                    var rotation = g.transform().rotate(45, point);
-                    var rotatedPoints = [
-                        p1.transformCopy(rotation),
-                        p2.transformCopy(rotation),
-                        p3.transformCopy(rotation),
-                        p4.transformCopy(rotation)
-                    ];
-                    return hasRootsInRange(rotatedPoints, point, 'x', 'y', width) || hasRootsInRange(rotatedPoints, point, 'y', 'x', width);
-                }
-            },
-            _isOnLineTo: function (segment, point, width) {
-                var p1 = this.anchor();
-                var p2 = segment.anchor();
-                var angle = util.deg(math.atan2(p2.y - p1.y, p2.x - p1.x));
-                var rect = new g.Rect([
-                    p1.x,
-                    p1.y - width / 2
-                ], [
-                    p1.distanceTo(p2),
-                    width
-                ]);
-                return rect.containsPoint(point.transformCopy(g.transform().rotate(-angle, p1)));
-            },
-            _isOnPathTo: function (segment, point, width, endSegment) {
-                var isOnPath;
-                if (this.controlOut() && segment.controlIn()) {
-                    isOnPath = this._isOnCurveTo(segment, point, width / 2, endSegment);
-                } else {
-                    isOnPath = this._isOnLineTo(segment, point, width);
-                }
-                return isOnPath;
-            }
-        });
-        definePointAccessors(Segment.fn, [
-            'anchor',
-            'controlIn',
-            'controlOut'
-        ]);
-        deepExtend(Segment.fn, ObserversMixin);
-        var Path = Element.extend({
-            nodeType: 'Path',
-            init: function (options) {
-                Element.fn.init.call(this, options);
-                this.segments = new GeometryElementsArray();
-                this.segments.addObserver(this);
-                if (!defined(this.options.stroke)) {
-                    this.stroke('#000');
-                    if (!defined(this.options.stroke.lineJoin)) {
-                        this.options.set('stroke.lineJoin', 'miter');
-                    }
-                }
-            },
-            moveTo: function (x, y) {
-                this.suspend();
-                this.segments.elements([]);
-                this.resume();
-                this.lineTo(x, y);
-                return this;
-            },
-            lineTo: function (x, y) {
-                var point = defined(y) ? new Point(x, y) : x, segment = new Segment(point);
-                this.segments.push(segment);
-                return this;
-            },
-            curveTo: function (controlOut, controlIn, point) {
-                if (this.segments.length > 0) {
-                    var lastSegment = last(this.segments);
-                    var segment = new Segment(point, controlIn);
-                    this.suspend();
-                    lastSegment.controlOut(controlOut);
-                    this.resume();
-                    this.segments.push(segment);
-                }
-                return this;
-            },
-            arc: function (startAngle, endAngle, radiusX, radiusY, anticlockwise) {
-                if (this.segments.length > 0) {
-                    var lastSegment = last(this.segments);
-                    var anchor = lastSegment.anchor();
-                    var start = util.rad(startAngle);
-                    var center = new Point(anchor.x - radiusX * math.cos(start), anchor.y - radiusY * math.sin(start));
-                    var arc = new g.Arc(center, {
-                        startAngle: startAngle,
-                        endAngle: endAngle,
-                        radiusX: radiusX,
-                        radiusY: radiusY,
-                        anticlockwise: anticlockwise
-                    });
-                    this._addArcSegments(arc);
-                }
-                return this;
-            },
-            arcTo: function (end, rx, ry, largeArc, swipe) {
-                if (this.segments.length > 0) {
-                    var lastSegment = last(this.segments);
-                    var anchor = lastSegment.anchor();
-                    var arc = g.Arc.fromPoints(anchor, end, rx, ry, largeArc, swipe);
-                    this._addArcSegments(arc);
-                }
-                return this;
-            },
-            _addArcSegments: function (arc) {
-                this.suspend();
-                var curvePoints = arc.curvePoints();
-                for (var i = 1; i < curvePoints.length; i += 3) {
-                    this.curveTo(curvePoints[i], curvePoints[i + 1], curvePoints[i + 2]);
-                }
-                this.resume();
-                this.geometryChange();
-            },
-            close: function () {
-                this.options.closed = true;
-                this.geometryChange();
-                return this;
-            },
-            rawBBox: function () {
-                return this._bbox();
-            },
-            _containsPoint: function (point) {
-                var segments = this.segments;
-                var length = segments.length;
-                var intersectionsCount = 0;
-                var previous, current;
-                for (var idx = 1; idx < length; idx++) {
-                    previous = segments[idx - 1];
-                    current = segments[idx];
-                    intersectionsCount += previous._intersectionsTo(current, point);
-                }
-                if (this.options.closed || !segments[0].anchor().equals(segments[length - 1].anchor())) {
-                    intersectionsCount += g.lineIntersectionsCount(segments[0].anchor(), segments[length - 1].anchor(), point);
-                }
-                return intersectionsCount % 2 !== 0;
-            },
-            _isOnPath: function (point, width) {
-                var segments = this.segments;
-                var length = segments.length;
-                width = width || this.options.stroke.width;
-                if (length > 1) {
-                    if (segments[0]._isOnPathTo(segments[1], point, width, 'start')) {
-                        return true;
-                    }
-                    for (var idx = 2; idx <= length - 2; idx++) {
-                        if (segments[idx - 1]._isOnPathTo(segments[idx], point, width)) {
-                            return true;
-                        }
-                    }
-                    if (segments[length - 2]._isOnPathTo(segments[length - 1], point, width, 'end')) {
-                        return true;
-                    }
-                }
-                return false;
-            },
-            _bbox: function (matrix) {
-                var segments = this.segments;
-                var length = segments.length;
-                var boundingBox;
-                if (length === 1) {
-                    var anchor = segments[0].anchor().transformCopy(matrix);
-                    boundingBox = new g.Rect(anchor, Size.ZERO);
-                } else if (length > 0) {
-                    for (var i = 1; i < length; i++) {
-                        var segmentBox = segments[i - 1].bboxTo(segments[i], matrix);
+        Arc.prototype.nodeType = 'Arc';
+        Paintable.extend(Arc.prototype);
+        Measurable.extend(Arc.prototype);
+        defineGeometryAccessors(Arc.prototype, ['geometry']);
+        function elementsBoundingBox(elements, applyTransform, transformation) {
+            var boundingBox;
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+                if (element.visible()) {
+                    var elementBoundingBox = applyTransform ? element.bbox(transformation) : element.rawBBox();
+                    if (elementBoundingBox) {
                         if (boundingBox) {
-                            boundingBox = g.Rect.union(boundingBox, segmentBox);
+                            boundingBox = Rect.union(boundingBox, elementBoundingBox);
                         } else {
-                            boundingBox = segmentBox;
+                            boundingBox = elementBoundingBox;
                         }
                     }
                 }
-                return boundingBox;
             }
-        });
-        drawing.mixins.Paintable.extend(Path.fn);
-        drawing.mixins.Measurable.extend(Path.fn);
-        Path.fromRect = function (rect, options) {
-            return new Path(options).moveTo(rect.topLeft()).lineTo(rect.topRight()).lineTo(rect.bottomRight()).lineTo(rect.bottomLeft()).close();
-        };
-        Path.fromPoints = function (points, options) {
-            if (points) {
-                var path = new Path(options);
-                for (var i = 0; i < points.length; i++) {
-                    var pt = Point.create(points[i]);
-                    if (pt) {
-                        if (i === 0) {
-                            path.moveTo(pt);
+            return boundingBox;
+        }
+        function elementsClippedBoundingBox(elements, transformation) {
+            var boundingBox;
+            for (var i = 0; i < elements.length; i++) {
+                var element = elements[i];
+                if (element.visible()) {
+                    var elementBoundingBox = element.clippedBBox(transformation);
+                    if (elementBoundingBox) {
+                        if (boundingBox) {
+                            boundingBox = Rect.union(boundingBox, elementBoundingBox);
                         } else {
-                            path.lineTo(pt);
+                            boundingBox = elementBoundingBox;
                         }
                     }
                 }
-                return path;
             }
-        };
-        Path.fromArc = function (arc, options) {
-            var path = new Path(options);
-            var startAngle = arc.startAngle;
-            var start = arc.pointAt(startAngle);
-            path.moveTo(start.x, start.y);
-            path.arc(startAngle, arc.endAngle, arc.radiusX, arc.radiusY, arc.anticlockwise);
-            return path;
-        };
-        var MultiPath = Element.extend({
-            nodeType: 'MultiPath',
+            return boundingBox;
+        }
+        var MultiPath = Element$1.extend({
             init: function (options) {
-                Element.fn.init.call(this, options);
+                Element$1.fn.init.call(this, options);
                 this.paths = new GeometryElementsArray();
                 this.paths.addObserver(this);
                 if (!defined(this.options.stroke)) {
@@ -3115,22 +2501,80 @@
                 return elementsClippedBoundingBox(this.paths, this.currentTransform(transformation));
             }
         });
-        drawing.mixins.Paintable.extend(MultiPath.fn);
-        drawing.mixins.Measurable.extend(MultiPath.fn);
-        var Image = Element.extend({
-            nodeType: 'Image',
+        MultiPath.prototype.nodeType = 'MultiPath';
+        Paintable.extend(MultiPath.prototype);
+        Measurable.extend(MultiPath.prototype);
+        var DEFAULT_FONT = '12px sans-serif';
+        var DEFAULT_FILL = '#000';
+        var Text = Element$1.extend({
+            init: function (content, position, options) {
+                if (position === void 0) {
+                    position = new Point();
+                }
+                if (options === void 0) {
+                    options = {};
+                }
+                Element$1.fn.init.call(this, options);
+                this.content(content);
+                this.position(position);
+                if (!this.options.font) {
+                    this.options.font = DEFAULT_FONT;
+                }
+                if (!defined(this.options.fill)) {
+                    this.fill(DEFAULT_FILL);
+                }
+            },
+            content: function (value) {
+                if (defined(value)) {
+                    this.options.set('content', value);
+                    return this;
+                }
+                return this.options.get('content');
+            },
+            measure: function () {
+                var metrics = kendoUtil.measureText(this.content(), { font: this.options.get('font') });
+                return metrics;
+            },
+            rect: function () {
+                var size = this.measure();
+                var pos = this.position().clone();
+                return new Rect(pos, [
+                    size.width,
+                    size.height
+                ]);
+            },
+            bbox: function (transformation) {
+                var combinedMatrix = toMatrix(this.currentTransform(transformation));
+                return this.rect().bbox(combinedMatrix);
+            },
+            rawBBox: function () {
+                return this.rect().bbox();
+            },
+            _containsPoint: function (point) {
+                return this.rect().containsPoint(point);
+            }
+        });
+        Text.prototype.nodeType = 'Text';
+        Paintable.extend(Text.prototype);
+        definePointAccessors(Text.prototype, ['position']);
+        var Image$1 = Element$1.extend({
             init: function (src, rect, options) {
-                Element.fn.init.call(this, options);
+                if (rect === void 0) {
+                    rect = new Rect();
+                }
+                if (options === void 0) {
+                    options = {};
+                }
+                Element$1.fn.init.call(this, options);
                 this.src(src);
-                this.rect(rect || new g.Rect());
+                this.rect(rect);
             },
             src: function (value) {
                 if (defined(value)) {
                     this.options.set('src', value);
                     return this;
-                } else {
-                    return this.options.get('src');
                 }
+                return this.options.get('src');
             },
             bbox: function (transformation) {
                 var combinedMatrix = toMatrix(this.currentTransform(transformation));
@@ -3146,180 +2590,159 @@
                 return this.src();
             }
         });
-        defineGeometryAccessors(Image.fn, ['rect']);
-        var GradientStop = Class.extend({
-            init: function (offset, color, opacity) {
-                this.options = new OptionsStore({
-                    offset: offset,
-                    color: color,
-                    opacity: defined(opacity) ? opacity : 1
-                });
-                this.options.addObserver(this);
-            }
-        });
-        defineOptionsAccessors(GradientStop.fn, [
-            'offset',
-            'color',
-            'opacity'
-        ]);
-        deepExtend(GradientStop.fn, ObserversMixin);
-        GradientStop.create = function (arg) {
-            if (defined(arg)) {
-                var stop;
-                if (arg instanceof GradientStop) {
-                    stop = arg;
-                } else if (arg.length > 1) {
-                    stop = new GradientStop(arg[0], arg[1], arg[2]);
-                } else {
-                    stop = new GradientStop(arg.offset, arg.color, arg.opacity);
-                }
-                return stop;
+        Image$1.prototype.nodeType = 'Image';
+        defineGeometryAccessors(Image$1.prototype, ['rect']);
+        var Traversable = {
+            extend: function (proto, childrenField) {
+                proto.traverse = function (callback) {
+                    var children = this[childrenField];
+                    for (var i = 0; i < children.length; i++) {
+                        var child = children[i];
+                        if (child.traverse) {
+                            child.traverse(callback);
+                        } else {
+                            callback(child);
+                        }
+                    }
+                    return this;
+                };
             }
         };
-        var StopsArray = ElementsArray.extend({
-            _change: function () {
-                this.optionsChange({ field: 'stops' });
-            }
-        });
-        var Gradient = Class.extend({
-            nodeType: 'gradient',
+        var Group = Element$1.extend({
             init: function (options) {
-                this.stops = new StopsArray(this._createStops(options.stops));
-                this.stops.addObserver(this);
-                this._userSpace = options.userSpace;
-                this.id = generateDefinitionId();
+                Element$1.fn.init.call(this, options);
+                this.children = [];
             },
-            userSpace: function (value) {
-                if (defined(value)) {
-                    this._userSpace = value;
-                    this.optionsChange();
-                    return this;
-                } else {
-                    return this._userSpace;
-                }
-            },
-            _createStops: function (stops) {
-                var result = [];
-                var idx;
-                stops = stops || [];
-                for (idx = 0; idx < stops.length; idx++) {
-                    result.push(GradientStop.create(stops[idx]));
-                }
-                return result;
-            },
-            addStop: function (offset, color, opacity) {
-                this.stops.push(new GradientStop(offset, color, opacity));
-            },
-            removeStop: function (stop) {
-                var index = this.stops.indexOf(stop);
-                if (index >= 0) {
-                    this.stops.splice(index, 1);
-                }
-            }
-        });
-        deepExtend(Gradient.fn, ObserversMixin, {
-            optionsChange: function (e) {
-                this.trigger('optionsChange', {
-                    field: 'gradient' + (e ? '.' + e.field : ''),
-                    value: this
+            childrenChange: function (action, items, index) {
+                this.trigger('childrenChange', {
+                    action: action,
+                    items: items,
+                    index: index
                 });
             },
-            geometryChange: function () {
-                this.optionsChange();
-            }
-        });
-        var LinearGradient = Gradient.extend({
-            init: function (options) {
-                options = options || {};
-                Gradient.fn.init.call(this, options);
-                this.start(options.start || new Point());
-                this.end(options.end || new Point(1, 0));
-            }
-        });
-        definePointAccessors(LinearGradient.fn, [
-            'start',
-            'end'
-        ]);
-        var RadialGradient = Gradient.extend({
-            init: function (options) {
-                options = options || {};
-                Gradient.fn.init.call(this, options);
-                this.center(options.center || new Point());
-                this._radius = defined(options.radius) ? options.radius : 1;
-                this._fallbackFill = options.fallbackFill;
+            append: function () {
+                append(this.children, arguments);
+                this._reparent(arguments, this);
+                this.childrenChange('add', arguments);
+                return this;
             },
-            radius: function (value) {
-                if (defined(value)) {
-                    this._radius = value;
-                    this.geometryChange();
-                    return this;
-                } else {
-                    return this._radius;
-                }
+            insert: function (index, element) {
+                this.children.splice(index, 0, element);
+                element.parent = this;
+                this.childrenChange('add', [element], index);
+                return this;
             },
-            fallbackFill: function (value) {
-                if (defined(value)) {
-                    this._fallbackFill = value;
-                    this.optionsChange();
-                    return this;
-                } else {
-                    return this._fallbackFill;
-                }
-            }
-        });
-        definePointAccessors(RadialGradient.fn, ['center']);
-        var Rect = Element.extend({
-            nodeType: 'Rect',
-            init: function (geometry, options) {
-                Element.fn.init.call(this, options);
-                this.geometry(geometry || new g.Rect());
-                if (!defined(this.options.stroke)) {
-                    this.stroke('#000');
-                }
+            insertAt: function (element, index) {
+                return this.insert(index, element);
             },
-            _bbox: function (matrix) {
-                return this._geometry.bbox(matrix);
+            remove: function (element) {
+                var index = this.children.indexOf(element);
+                if (index >= 0) {
+                    this.children.splice(index, 1);
+                    element.parent = null;
+                    this.childrenChange('remove', [element], index);
+                }
+                return this;
+            },
+            removeAt: function (index) {
+                if (0 <= index && index < this.children.length) {
+                    var element = this.children[index];
+                    this.children.splice(index, 1);
+                    element.parent = null;
+                    this.childrenChange('remove', [element], index);
+                }
+                return this;
+            },
+            clear: function () {
+                var items = this.children;
+                this.children = [];
+                this._reparent(items, null);
+                this.childrenChange('remove', items, 0);
+                return this;
+            },
+            bbox: function (transformation) {
+                return elementsBoundingBox(this.children, true, this.currentTransform(transformation));
             },
             rawBBox: function () {
-                return this._geometry.bbox();
+                return elementsBoundingBox(this.children, false);
             },
-            _containsPoint: function (point) {
-                return this._geometry.containsPoint(point);
+            _clippedBBox: function (transformation) {
+                return elementsClippedBoundingBox(this.children, this.currentTransform(transformation));
             },
-            _isOnPath: function (point) {
-                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
+            currentTransform: function (transformation) {
+                return Element$1.prototype.currentTransform.call(this, transformation) || null;
+            },
+            containsPoint: function (point, parentTransform) {
+                if (this.visible()) {
+                    var children = this.children;
+                    var transform = this.currentTransform(parentTransform);
+                    for (var idx = 0; idx < children.length; idx++) {
+                        if (children[idx].containsPoint(point, transform)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            },
+            _reparent: function (elements, newParent) {
+                var this$1 = this;
+                for (var i = 0; i < elements.length; i++) {
+                    var child = elements[i];
+                    var parent = child.parent;
+                    if (parent && parent !== this$1 && parent.remove) {
+                        parent.remove(child);
+                    }
+                    child.parent = newParent;
+                }
             }
         });
-        drawing.mixins.Paintable.extend(Rect.fn);
-        drawing.mixins.Measurable.extend(Rect.fn);
-        defineGeometryAccessors(Rect.fn, ['geometry']);
+        Group.prototype.nodeType = 'Group';
+        Traversable.extend(Group.prototype, 'children');
+        function translateToPoint(point, bbox, element) {
+            var transofrm = element.transform() || transform();
+            var matrix = transofrm.matrix();
+            matrix.e += point.x - bbox.origin.x;
+            matrix.f += point.y - bbox.origin.y;
+            transofrm.matrix(matrix);
+            element.transform(transofrm);
+        }
+        function alignStart(size, rect, align, axis, sizeField) {
+            var start;
+            if (align === 'start') {
+                start = rect.origin[axis];
+            } else if (align === 'end') {
+                start = rect.origin[axis] + rect.size[sizeField] - size;
+            } else {
+                start = rect.origin[axis] + (rect.size[sizeField] - size) / 2;
+            }
+            return start;
+        }
+        var DEFAULT_OPTIONS = {
+            alignContent: 'start',
+            justifyContent: 'start',
+            alignItems: 'start',
+            spacing: 0,
+            orientation: 'horizontal',
+            lineSpacing: 0,
+            wrap: true
+        };
         var Layout = Group.extend({
             init: function (rect, options) {
-                Group.fn.init.call(this, kendo.deepExtend({}, this._defaults, options));
+                Group.fn.init.call(this, $.extend({}, DEFAULT_OPTIONS, options));
                 this._rect = rect;
                 this._fieldMap = {};
-            },
-            _defaults: {
-                alignContent: START,
-                justifyContent: START,
-                alignItems: START,
-                spacing: 0,
-                orientation: HORIZONTAL,
-                lineSpacing: 0,
-                wrap: true
             },
             rect: function (value) {
                 if (value) {
                     this._rect = value;
                     return this;
-                } else {
-                    return this._rect;
                 }
+                return this._rect;
             },
             _initMap: function () {
                 var options = this.options;
                 var fieldMap = this._fieldMap;
-                if (options.orientation == HORIZONTAL) {
+                if (options.orientation === 'horizontal') {
                     fieldMap.sizeField = 'width';
                     fieldMap.groupsSizeField = 'height';
                     fieldMap.groupAxis = 'x';
@@ -3340,19 +2763,19 @@
                     this.transform(null);
                 }
                 var options = this.options;
-                var fieldMap = this._fieldMap;
                 var rect = this._rect;
-                var groupOptions = this._initGroups();
-                var groups = groupOptions.groups;
-                var groupsSize = groupOptions.groupsSize;
-                var sizeField = fieldMap.sizeField;
-                var groupsSizeField = fieldMap.groupsSizeField;
-                var groupAxis = fieldMap.groupAxis;
-                var groupsAxis = fieldMap.groupsAxis;
-                var groupStart = alignStart(groupsSize, rect, options.alignContent, groupsAxis, groupsSizeField);
+                var ref = this._initGroups();
+                var groups = ref.groups;
+                var groupsSize = ref.groupsSize;
+                var ref$1 = this._fieldMap;
+                var sizeField = ref$1.sizeField;
+                var groupsSizeField = ref$1.groupsSizeField;
+                var groupAxis = ref$1.groupAxis;
+                var groupsAxis = ref$1.groupsAxis;
                 var groupOrigin = new Point();
                 var elementOrigin = new Point();
-                var size = new g.Size();
+                var size = new Size();
+                var groupStart = alignStart(groupsSize, rect, options.alignContent, groupsAxis, groupsSizeField);
                 var elementStart, bbox, element, group, groupBox;
                 for (var groupIdx = 0; groupIdx < groups.length; groupIdx++) {
                     group = groups[groupIdx];
@@ -3360,7 +2783,7 @@
                     groupOrigin[groupsAxis] = groupStart;
                     size[sizeField] = group.size;
                     size[groupsSizeField] = group.lineSize;
-                    groupBox = new g.Rect(groupOrigin, size);
+                    groupBox = new Rect(groupOrigin, size);
                     for (var idx = 0; idx < group.bboxes.length; idx++) {
                         element = group.elements[idx];
                         bbox = group.bboxes[idx];
@@ -3376,45 +2799,48 @@
                     var scaledStart = groupBox.topLeft().scale(scale, scale);
                     var scaledSize = groupBox.size[groupsSizeField] * scale;
                     var newStart = alignStart(scaledSize, rect, options.alignContent, groupsAxis, groupsSizeField);
-                    var transform = g.transform();
+                    var transform$$1 = transform();
                     if (groupAxis === 'x') {
-                        transform.translate(rect.origin.x - scaledStart.x, newStart - scaledStart.y);
+                        transform$$1.translate(rect.origin.x - scaledStart.x, newStart - scaledStart.y);
                     } else {
-                        transform.translate(newStart - scaledStart.x, rect.origin.y - scaledStart.y);
+                        transform$$1.translate(newStart - scaledStart.x, rect.origin.y - scaledStart.y);
                     }
-                    transform.scale(scale, scale);
-                    this.transform(transform);
+                    transform$$1.scale(scale, scale);
+                    this.transform(transform$$1);
                 }
             },
             _initGroups: function () {
-                var options = this.options;
-                var children = this.children;
+                var this$1 = this;
+                var ref = this;
+                var options = ref.options;
+                var children = ref.children;
                 var lineSpacing = options.lineSpacing;
+                var wrap = options.wrap;
+                var spacing = options.spacing;
                 var sizeField = this._fieldMap.sizeField;
-                var groupsSize = -lineSpacing;
-                var groups = [];
                 var group = this._newGroup();
+                var groups = [];
                 var addGroup = function () {
                     groups.push(group);
                     groupsSize += group.lineSize + lineSpacing;
                 };
-                var bbox, element;
+                var groupsSize = -lineSpacing;
                 for (var idx = 0; idx < children.length; idx++) {
-                    element = children[idx];
-                    bbox = children[idx].clippedBBox();
+                    var element = children[idx];
+                    var bbox = children[idx].clippedBBox();
                     if (element.visible() && bbox) {
-                        if (options.wrap && group.size + bbox.size[sizeField] + options.spacing > this._rect.size[sizeField]) {
+                        if (wrap && group.size + bbox.size[sizeField] + spacing > this$1._rect.size[sizeField]) {
                             if (group.bboxes.length === 0) {
-                                this._addToGroup(group, bbox, element);
+                                this$1._addToGroup(group, bbox, element);
                                 addGroup();
-                                group = this._newGroup();
+                                group = this$1._newGroup();
                             } else {
                                 addGroup();
-                                group = this._newGroup();
-                                this._addToGroup(group, bbox, element);
+                                group = this$1._newGroup();
+                                this$1._addToGroup(group, bbox, element);
                             }
                         } else {
-                            this._addToGroup(group, bbox, element);
+                            this$1._addToGroup(group, bbox, element);
                         }
                     }
                 }
@@ -3441,91 +2867,46 @@
                 };
             }
         });
-        function elementsBoundingBox(elements, applyTransform, transformation) {
-            var boundingBox;
-            for (var i = 0; i < elements.length; i++) {
-                var element = elements[i];
-                if (element.visible()) {
-                    var elementBoundingBox = applyTransform ? element.bbox(transformation) : element.rawBBox();
-                    if (elementBoundingBox) {
-                        if (boundingBox) {
-                            boundingBox = g.Rect.union(boundingBox, elementBoundingBox);
-                        } else {
-                            boundingBox = elementBoundingBox;
-                        }
-                    }
+        var Rect$2 = Element$1.extend({
+            init: function (geometry, options) {
+                if (geometry === void 0) {
+                    geometry = new Rect();
+                }
+                if (options === void 0) {
+                    options = {};
+                }
+                Element$1.fn.init.call(this, options);
+                this.geometry(geometry);
+                if (!defined(this.options.stroke)) {
+                    this.stroke('#000');
+                }
+            },
+            _bbox: function (matrix) {
+                return this._geometry.bbox(matrix);
+            },
+            rawBBox: function () {
+                return this._geometry.bbox();
+            },
+            _containsPoint: function (point) {
+                return this._geometry.containsPoint(point);
+            },
+            _isOnPath: function (point) {
+                return this.geometry()._isOnPath(point, this.options.stroke.width / 2);
+            }
+        });
+        Rect$2.prototype.nodeType = 'Rect';
+        Paintable.extend(Rect$2.prototype);
+        Measurable.extend(Rect$2.prototype);
+        defineGeometryAccessors(Rect$2.prototype, ['geometry']);
+        function alignElements(elements, rect, alignment, axis, sizeField) {
+            for (var idx = 0; idx < elements.length; idx++) {
+                var bbox = elements[idx].clippedBBox();
+                if (bbox) {
+                    var point = bbox.origin.clone();
+                    point[axis] = alignStart(bbox.size[sizeField], rect, alignment || 'start', axis, sizeField);
+                    translateToPoint(point, bbox, elements[idx]);
                 }
             }
-            return boundingBox;
-        }
-        function elementsClippedBoundingBox(elements, transformation) {
-            var boundingBox;
-            for (var i = 0; i < elements.length; i++) {
-                var element = elements[i];
-                if (element.visible()) {
-                    var elementBoundingBox = element.clippedBBox(transformation);
-                    if (elementBoundingBox) {
-                        if (boundingBox) {
-                            boundingBox = g.Rect.union(boundingBox, elementBoundingBox);
-                        } else {
-                            boundingBox = elementBoundingBox;
-                        }
-                    }
-                }
-            }
-            return boundingBox;
-        }
-        function defineGeometryAccessors(fn, names) {
-            for (var i = 0; i < names.length; i++) {
-                fn[names[i]] = geometryAccessor(names[i]);
-            }
-        }
-        function geometryAccessor(name) {
-            var fieldName = '_' + name;
-            return function (value) {
-                if (defined(value)) {
-                    this._observerField(fieldName, value);
-                    this.geometryChange();
-                    return this;
-                } else {
-                    return this[fieldName];
-                }
-            };
-        }
-        function definePointAccessors(fn, names) {
-            for (var i = 0; i < names.length; i++) {
-                fn[names[i]] = pointAccessor(names[i]);
-            }
-        }
-        function pointAccessor(name) {
-            var fieldName = '_' + name;
-            return function (value) {
-                if (defined(value)) {
-                    this._observerField(fieldName, Point.create(value));
-                    this.geometryChange();
-                    return this;
-                } else {
-                    return this[fieldName];
-                }
-            };
-        }
-        function defineOptionsAccessors(fn, names) {
-            for (var i = 0; i < names.length; i++) {
-                fn[names[i]] = optionsAccessor(names[i]);
-            }
-        }
-        function optionsAccessor(name) {
-            return function (value) {
-                if (defined(value)) {
-                    this.options.set(name, value);
-                    return this;
-                } else {
-                    return this.options.get(name);
-                }
-            };
-        }
-        function generateDefinitionId() {
-            return 'kdef' + defId++;
         }
         function align(elements, rect, alignment) {
             alignElements(elements, rect, alignment, 'x', 'width');
@@ -3533,59 +2914,47 @@
         function vAlign(elements, rect, alignment) {
             alignElements(elements, rect, alignment, 'y', 'height');
         }
-        function stack(elements) {
-            stackElements(getStackElements(elements), 'x', 'y', 'width');
-        }
-        function vStack(elements) {
-            stackElements(getStackElements(elements), 'y', 'x', 'height');
-        }
-        function wrap(elements, rect) {
-            return wrapElements(elements, rect, 'x', 'y', 'width');
-        }
-        function vWrap(elements, rect) {
-            return wrapElements(elements, rect, 'y', 'x', 'height');
-        }
-        function wrapElements(elements, rect, axis, otherAxis, sizeField) {
-            var result = [];
-            var stacks = getStacks(elements, rect, sizeField);
-            var origin = rect.origin.clone();
-            var startElement;
-            var elementIdx;
-            var stack;
-            var idx;
-            for (idx = 0; idx < stacks.length; idx++) {
-                stack = stacks[idx];
-                startElement = stack[0];
-                origin[otherAxis] = startElement.bbox.origin[otherAxis];
-                translateToPoint(origin, startElement.bbox, startElement.element);
-                startElement.bbox.origin[axis] = origin[axis];
-                stackElements(stack, axis, otherAxis, sizeField);
-                result.push([]);
-                for (elementIdx = 0; elementIdx < stack.length; elementIdx++) {
-                    result[idx].push(stack[elementIdx].element);
+        function stackElements(elements, stackAxis, otherAxis, sizeField) {
+            if (elements.length > 1) {
+                var origin = new Point();
+                var previousBBox = elements[0].bbox;
+                for (var idx = 1; idx < elements.length; idx++) {
+                    var element = elements[idx].element;
+                    var bbox = elements[idx].bbox;
+                    origin[stackAxis] = previousBBox.origin[stackAxis] + previousBBox.size[sizeField];
+                    origin[otherAxis] = bbox.origin[otherAxis];
+                    translateToPoint(origin, bbox, element);
+                    bbox.origin[stackAxis] = origin[stackAxis];
+                    previousBBox = bbox;
                 }
             }
-            return result;
         }
-        function fit(element, rect) {
-            var bbox = element.clippedBBox();
-            var elementSize = bbox.size;
-            var rectSize = rect.size;
-            if (rectSize.width < elementSize.width || rectSize.height < elementSize.height) {
-                var scale = math.min(rectSize.width / elementSize.width, rectSize.height / elementSize.height);
-                var transform = element.transform() || g.transform();
-                transform.scale(scale, scale);
-                element.transform(transform);
+        function createStackElements(elements) {
+            var stackElements = [];
+            for (var idx = 0; idx < elements.length; idx++) {
+                var element = elements[idx];
+                var bbox = element.clippedBBox();
+                if (bbox) {
+                    stackElements.push({
+                        element: element,
+                        bbox: bbox
+                    });
+                }
             }
+            return stackElements;
+        }
+        function stack(elements) {
+            stackElements(createStackElements(elements), 'x', 'y', 'width');
+        }
+        function vStack(elements) {
+            stackElements(createStackElements(elements), 'y', 'x', 'height');
         }
         function getStacks(elements, rect, sizeField) {
             var maxSize = rect.size[sizeField];
-            var stackSize = 0;
             var stacks = [];
             var stack = [];
-            var element;
-            var size;
-            var bbox;
+            var stackSize = 0;
+            var element, bbox;
             var addElementToStack = function () {
                 stack.push({
                     element: element,
@@ -3596,7 +2965,7 @@
                 element = elements[idx];
                 bbox = element.clippedBBox();
                 if (bbox) {
-                    size = bbox.size[sizeField];
+                    var size = bbox.size[sizeField];
                     if (stackSize + size > maxSize) {
                         if (stack.length) {
                             stacks.push(stack);
@@ -3620,149 +2989,303 @@
             }
             return stacks;
         }
-        function getStackElements(elements) {
-            var stackElements = [];
-            var element;
-            var bbox;
-            for (var idx = 0; idx < elements.length; idx++) {
-                element = elements[idx];
-                bbox = element.clippedBBox();
-                if (bbox) {
-                    stackElements.push({
-                        element: element,
-                        bbox: bbox
-                    });
+        function wrapElements(elements, rect, axis, otherAxis, sizeField) {
+            var stacks = getStacks(elements, rect, sizeField);
+            var origin = rect.origin.clone();
+            var result = [];
+            for (var idx = 0; idx < stacks.length; idx++) {
+                var stack = stacks[idx];
+                var startElement = stack[0];
+                origin[otherAxis] = startElement.bbox.origin[otherAxis];
+                translateToPoint(origin, startElement.bbox, startElement.element);
+                startElement.bbox.origin[axis] = origin[axis];
+                stackElements(stack, axis, otherAxis, sizeField);
+                result.push([]);
+                for (var elementIdx = 0; elementIdx < stack.length; elementIdx++) {
+                    result[idx].push(stack[elementIdx].element);
                 }
             }
-            return stackElements;
+            return result;
         }
-        function stackElements(elements, stackAxis, otherAxis, sizeField) {
-            if (elements.length > 1) {
-                var previousBBox = elements[0].bbox;
-                var origin = new Point();
-                var element;
-                var bbox;
-                for (var idx = 1; idx < elements.length; idx++) {
-                    element = elements[idx].element;
-                    bbox = elements[idx].bbox;
-                    origin[stackAxis] = previousBBox.origin[stackAxis] + previousBBox.size[sizeField];
-                    origin[otherAxis] = bbox.origin[otherAxis];
-                    translateToPoint(origin, bbox, element);
-                    bbox.origin[stackAxis] = origin[stackAxis];
-                    previousBBox = bbox;
-                }
-            }
+        function wrap(elements, rect) {
+            return wrapElements(elements, rect, 'x', 'y', 'width');
         }
-        function alignElements(elements, rect, alignment, axis, sizeField) {
-            var bbox, point;
-            alignment = alignment || 'start';
-            for (var idx = 0; idx < elements.length; idx++) {
-                bbox = elements[idx].clippedBBox();
-                if (bbox) {
-                    point = bbox.origin.clone();
-                    point[axis] = alignStart(bbox.size[sizeField], rect, alignment, axis, sizeField);
-                    translateToPoint(point, bbox, elements[idx]);
+        function vWrap(elements, rect) {
+            return wrapElements(elements, rect, 'y', 'x', 'height');
+        }
+        function fit(element, rect) {
+            var bbox = element.clippedBBox();
+            if (bbox) {
+                var elementSize = bbox.size;
+                var rectSize = rect.size;
+                if (rectSize.width < elementSize.width || rectSize.height < elementSize.height) {
+                    var scale = Math.min(rectSize.width / elementSize.width, rectSize.height / elementSize.height);
+                    var transform$$1 = element.transform() || transform();
+                    transform$$1.scale(scale, scale);
+                    element.transform(transform$$1);
                 }
             }
         }
-        function alignStart(size, rect, align, axis, sizeField) {
-            var start;
-            if (align == START) {
-                start = rect.origin[axis];
-            } else if (align == END) {
-                start = rect.origin[axis] + rect.size[sizeField] - size;
-            } else {
-                start = rect.origin[axis] + (rect.size[sizeField] - size) / 2;
+        var StopsArray = ElementsArray.extend({
+            _change: function () {
+                this.optionsChange({ field: 'stops' });
             }
-            return start;
-        }
-        function translate(x, y, element) {
-            var transofrm = element.transform() || g.transform();
-            var matrix = transofrm.matrix();
-            matrix.e += x;
-            matrix.f += y;
-            transofrm.matrix(matrix);
-            element.transform(transofrm);
-        }
-        function translateToPoint(point, bbox, element) {
-            translate(point.x - bbox.origin.x, point.y - bbox.origin.y, element);
-        }
-        deepExtend(drawing, {
-            align: align,
-            Arc: Arc,
-            Circle: Circle,
-            Element: Element,
-            ElementsArray: ElementsArray,
-            fit: fit,
-            Gradient: Gradient,
-            GradientStop: GradientStop,
-            Group: Group,
-            Image: Image,
-            Layout: Layout,
-            LinearGradient: LinearGradient,
-            MultiPath: MultiPath,
-            Path: Path,
-            RadialGradient: RadialGradient,
-            Rect: Rect,
-            Segment: Segment,
-            stack: stack,
-            Text: Text,
-            vAlign: vAlign,
-            vStack: vStack,
-            vWrap: vWrap,
-            wrap: wrap
         });
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/parser', ['drawing/shapes'], f);
-}(function () {
-    (function ($) {
-        var kendo = window.kendo, drawing = kendo.drawing, geometry = kendo.geometry, Class = kendo.Class, Point = geometry.Point, deepExtend = kendo.deepExtend, trim = $.trim, util = kendo.util, last = util.last;
-        var SEGMENT_REGEX = /([a-df-z]{1})([^a-df-z]*)(z)?/gi, SPLIT_REGEX = /[,\s]?([+\-]?(?:\d*\.\d+|\d+)(?:[eE][+\-]?\d+)?)/g, MOVE = 'm', CLOSE = 'z';
-        var PathParser = Class.extend({
-            parse: function (str, options) {
-                var multiPath = new drawing.MultiPath(options);
-                var position = new Point();
-                var previousCommand;
-                str.replace(SEGMENT_REGEX, function (match, element, params, closePath) {
-                    var command = element.toLowerCase();
-                    var isRelative = command === element;
-                    var parameters = parseParameters(trim(params));
-                    if (command === MOVE) {
-                        if (isRelative) {
-                            position.x += parameters[0];
-                            position.y += parameters[1];
-                        } else {
-                            position.x = parameters[0];
-                            position.y = parameters[1];
-                        }
-                        multiPath.moveTo(position.x, position.y);
-                        if (parameters.length > 2) {
-                            command = 'l';
-                            parameters.splice(0, 2);
-                        }
-                    }
-                    if (ShapeMap[command]) {
-                        ShapeMap[command](multiPath, {
-                            parameters: parameters,
-                            position: position,
-                            isRelative: isRelative,
-                            previousCommand: previousCommand
-                        });
-                        if (closePath && closePath.toLowerCase() === CLOSE) {
-                            multiPath.close();
-                        }
-                    } else if (command !== MOVE) {
-                        throw new Error('Error while parsing SVG path. Unsupported command: ' + command);
-                    }
-                    previousCommand = command;
+        function optionsAccessor(name) {
+            return function (value) {
+                if (defined(value)) {
+                    this.options.set(name, value);
+                    return this;
+                }
+                return this.options.get(name);
+            };
+        }
+        function defineOptionsAccessors(fn, names) {
+            for (var i = 0; i < names.length; i++) {
+                fn[names[i]] = optionsAccessor(names[i]);
+            }
+        }
+        var GradientStop = Class.extend({
+            init: function (offset, color, opacity) {
+                this.options = new OptionsStore({
+                    offset: offset,
+                    color: color,
+                    opacity: defined(opacity) ? opacity : 1
                 });
-                return multiPath;
+                this.options.addObserver(this);
             }
         });
+        GradientStop.create = function (arg) {
+            if (defined(arg)) {
+                var stop;
+                if (arg instanceof GradientStop) {
+                    stop = arg;
+                } else if (arg.length > 1) {
+                    stop = new GradientStop(arg[0], arg[1], arg[2]);
+                } else {
+                    stop = new GradientStop(arg.offset, arg.color, arg.opacity);
+                }
+                return stop;
+            }
+        };
+        defineOptionsAccessors(GradientStop.prototype, [
+            'offset',
+            'color',
+            'opacity'
+        ]);
+        ObserversMixin.extend(GradientStop.prototype);
+        var Gradient = Class.extend({
+            init: function (options) {
+                if (options === void 0) {
+                    options = {};
+                }
+                this.stops = new StopsArray(this._createStops(options.stops));
+                this.stops.addObserver(this);
+                this._userSpace = options.userSpace;
+                this.id = definitionId();
+            },
+            userSpace: function (value) {
+                if (defined(value)) {
+                    this._userSpace = value;
+                    this.optionsChange();
+                    return this;
+                }
+                return this._userSpace;
+            },
+            _createStops: function (stops) {
+                if (stops === void 0) {
+                    stops = [];
+                }
+                var result = [];
+                for (var idx = 0; idx < stops.length; idx++) {
+                    result.push(GradientStop.create(stops[idx]));
+                }
+                return result;
+            },
+            addStop: function (offset, color, opacity) {
+                this.stops.push(new GradientStop(offset, color, opacity));
+            },
+            removeStop: function (stop) {
+                var index = this.stops.indexOf(stop);
+                if (index >= 0) {
+                    this.stops.splice(index, 1);
+                }
+            }
+        });
+        Gradient.prototype.nodeType = 'Gradient';
+        ObserversMixin.extend(Gradient.prototype);
+        $.extend(Gradient.prototype, {
+            optionsChange: function (e) {
+                this.trigger('optionsChange', {
+                    field: 'gradient' + (e ? '.' + e.field : ''),
+                    value: this
+                });
+            },
+            geometryChange: function () {
+                this.optionsChange();
+            }
+        });
+        var LinearGradient = Gradient.extend({
+            init: function (options) {
+                if (options === void 0) {
+                    options = {};
+                }
+                Gradient.fn.init.call(this, options);
+                this.start(options.start || new Point());
+                this.end(options.end || new Point(1, 0));
+            }
+        });
+        definePointAccessors(LinearGradient.prototype, [
+            'start',
+            'end'
+        ]);
+        var RadialGradient = Gradient.extend({
+            init: function (options) {
+                if (options === void 0) {
+                    options = {};
+                }
+                Gradient.fn.init.call(this, options);
+                this.center(options.center || new Point());
+                this._radius = defined(options.radius) ? options.radius : 1;
+                this._fallbackFill = options.fallbackFill;
+            },
+            radius: function (value) {
+                if (defined(value)) {
+                    this._radius = value;
+                    this.geometryChange();
+                    return this;
+                }
+                return this._radius;
+            },
+            fallbackFill: function (value) {
+                if (defined(value)) {
+                    this._fallbackFill = value;
+                    this.optionsChange();
+                    return this;
+                }
+                return this._fallbackFill;
+            }
+        });
+        definePointAccessors(RadialGradient.prototype, ['center']);
+        function swing(position) {
+            return 0.5 - Math.cos(position * Math.PI) / 2;
+        }
+        function linear(position) {
+            return position;
+        }
+        function easeOutElastic(position, time, start, diff) {
+            var s = 1.70158, p = 0, a = diff;
+            if (position === 0) {
+                return start;
+            }
+            if (position === 1) {
+                return start + diff;
+            }
+            if (!p) {
+                p = 0.5;
+            }
+            if (a < Math.abs(diff)) {
+                a = diff;
+                s = p / 4;
+            } else {
+                s = p / (2 * Math.PI) * Math.asin(diff / a);
+            }
+            return a * Math.pow(2, -10 * position) * Math.sin((Number(position) - s) * (1.1 * Math.PI) / p) + diff + start;
+        }
+        var easingFunctions = {
+            swing: swing,
+            linear: linear,
+            easeOutElastic: easeOutElastic
+        };
+        var now = Date.now || function () {
+            return new Date().getTime();
+        };
+        var Animation = Class.extend({
+            init: function (element, options) {
+                this.options = $.extend({}, this.options, options);
+                this.element = element;
+            },
+            setup: function () {
+            },
+            step: function () {
+            },
+            play: function () {
+                var this$1 = this;
+                var options = this.options;
+                var duration = options.duration;
+                var delay = options.delay;
+                if (delay === void 0) {
+                    delay = 0;
+                }
+                var easing = easingFunctions[options.easing];
+                var start = now() + delay;
+                var finish = start + duration;
+                if (duration === 0) {
+                    this.step(1);
+                    this.abort();
+                } else {
+                    setTimeout(function () {
+                        var loop = function () {
+                            if (this$1._stopped) {
+                                return;
+                            }
+                            var wallTime = now();
+                            var time = limitValue(wallTime - start, 0, duration);
+                            var position = time / duration;
+                            var easingPosition = easing(position, time, 0, 1, duration);
+                            this$1.step(easingPosition);
+                            if (wallTime < finish) {
+                                kendo.animationFrame(loop);
+                            } else {
+                                this$1.abort();
+                            }
+                        };
+                        loop();
+                    }, delay);
+                }
+            },
+            abort: function () {
+                this._stopped = true;
+            },
+            destroy: function () {
+                this.abort();
+            }
+        });
+        Animation.prototype.options = {
+            duration: 500,
+            easing: 'swing'
+        };
+        var AnimationFactory = Class.extend({
+            init: function () {
+                this._items = [];
+            },
+            register: function (name, type) {
+                this._items.push({
+                    name: name,
+                    type: type
+                });
+            },
+            create: function (element, options) {
+                var items = this._items;
+                var match;
+                if (options && options.type) {
+                    var type = options.type.toLowerCase();
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].name.toLowerCase() === type) {
+                            match = items[i];
+                            break;
+                        }
+                    }
+                }
+                if (match) {
+                    return new match.type(element, options);
+                }
+            }
+        });
+        AnimationFactory.current = new AnimationFactory();
+        Animation.create = function (type, element, options) {
+            return AnimationFactory.current.create(type, element, options);
+        };
         var ShapeMap = {
             l: function (path, options) {
                 var parameters = options.parameters;
@@ -3780,11 +3303,10 @@
             c: function (path, options) {
                 var parameters = options.parameters;
                 var position = options.position;
-                var controlOut, controlIn, point;
                 for (var i = 0; i < parameters.length; i += 6) {
-                    controlOut = new Point(parameters[i], parameters[i + 1]);
-                    controlIn = new Point(parameters[i + 2], parameters[i + 3]);
-                    point = new Point(parameters[i + 4], parameters[i + 5]);
+                    var controlOut = new Point(parameters[i], parameters[i + 1]);
+                    var controlIn = new Point(parameters[i + 2], parameters[i + 3]);
+                    var point = new Point(parameters[i + 4], parameters[i + 5]);
                     if (options.isRelative) {
                         controlIn.translateWith(position);
                         controlOut.translateWith(position);
@@ -3826,13 +3348,14 @@
                 var parameters = options.parameters;
                 var position = options.position;
                 var previousCommand = options.previousCommand;
-                var controlOut, endPoint, controlIn, lastControlIn;
-                if (previousCommand == 's' || previousCommand == 'c') {
+                var lastControlIn;
+                if (previousCommand === 's' || previousCommand === 'c') {
                     lastControlIn = last(last(path.paths).segments).controlIn();
                 }
                 for (var i = 0; i < parameters.length; i += 4) {
-                    controlIn = new Point(parameters[i], parameters[i + 1]);
-                    endPoint = new Point(parameters[i + 2], parameters[i + 3]);
+                    var controlIn = new Point(parameters[i], parameters[i + 1]);
+                    var endPoint = new Point(parameters[i + 2], parameters[i + 3]);
+                    var controlOut = void 0;
                     if (options.isRelative) {
                         controlIn.translateWith(position);
                         endPoint.translateWith(position);
@@ -3851,15 +3374,14 @@
             q: function (path, options) {
                 var parameters = options.parameters;
                 var position = options.position;
-                var cubicControlPoints, endPoint, controlPoint;
                 for (var i = 0; i < parameters.length; i += 4) {
-                    controlPoint = new Point(parameters[i], parameters[i + 1]);
-                    endPoint = new Point(parameters[i + 2], parameters[i + 3]);
+                    var controlPoint = new Point(parameters[i], parameters[i + 1]);
+                    var endPoint = new Point(parameters[i + 2], parameters[i + 3]);
                     if (options.isRelative) {
                         controlPoint.translateWith(position);
                         endPoint.translateWith(position);
                     }
-                    cubicControlPoints = quadraticToCubicControlPoints(position, controlPoint, endPoint);
+                    var cubicControlPoints = quadraticToCubicControlPoints(position, controlPoint, endPoint);
                     path.curveTo(cubicControlPoints.controlOut, cubicControlPoints.controlIn, endPoint);
                     position.x = endPoint.x;
                     position.y = endPoint.y;
@@ -3869,13 +3391,13 @@
                 var parameters = options.parameters;
                 var position = options.position;
                 var previousCommand = options.previousCommand;
-                var cubicControlPoints, controlPoint, endPoint;
-                if (previousCommand == 'q' || previousCommand == 't') {
+                var controlPoint;
+                if (previousCommand === 'q' || previousCommand === 't') {
                     var lastSegment = last(last(path.paths).segments);
                     controlPoint = lastSegment.controlIn().clone().translateWith(position.scaleCopy(-1 / 3)).scale(3 / 2);
                 }
                 for (var i = 0; i < parameters.length; i += 2) {
-                    endPoint = new Point(parameters[i], parameters[i + 1]);
+                    var endPoint = new Point(parameters[i], parameters[i + 1]);
                     if (options.isRelative) {
                         endPoint.translateWith(position);
                     }
@@ -3884,20 +3406,13 @@
                     } else {
                         controlPoint = position.clone();
                     }
-                    cubicControlPoints = quadraticToCubicControlPoints(position, controlPoint, endPoint);
+                    var cubicControlPoints = quadraticToCubicControlPoints(position, controlPoint, endPoint);
                     path.curveTo(cubicControlPoints.controlOut, cubicControlPoints.controlIn, endPoint);
                     position.x = endPoint.x;
                     position.y = endPoint.y;
                 }
             }
         };
-        function parseParameters(str) {
-            var parameters = [];
-            str.replace(SPLIT_REGEX, function (match, number) {
-                parameters.push(parseFloat(number));
-            });
-            return parameters;
-        }
         function toLineParamaters(parameters, isVertical, value) {
             var insertPosition = isVertical ? 0 : 1;
             for (var i = 0; i < parameters.length; i += 2) {
@@ -3909,28 +3424,1559 @@
                 return center.scaleCopy(2).translate(-point.x, -point.y);
             }
         }
+        var third = 1 / 3;
         function quadraticToCubicControlPoints(position, controlPoint, endPoint) {
-            var third = 1 / 3;
-            controlPoint = controlPoint.clone().scale(2 / 3);
+            var scaledPoint = controlPoint.clone().scale(2 / 3);
             return {
-                controlOut: controlPoint.clone().translateWith(position.scaleCopy(third)),
-                controlIn: controlPoint.translateWith(endPoint.scaleCopy(third))
+                controlOut: scaledPoint.clone().translateWith(position.scaleCopy(third)),
+                controlIn: scaledPoint.translateWith(endPoint.scaleCopy(third))
             };
         }
+        var SEGMENT_REGEX = /([a-df-z]{1})([^a-df-z]*)(z)?/gi;
+        var SPLIT_REGEX = /[,\s]?([+\-]?(?:\d*\.\d+|\d+)(?:[eE][+\-]?\d+)?)/g;
+        var MOVE = 'm';
+        var CLOSE = 'z';
+        function parseParameters(str) {
+            var parameters = [];
+            str.replace(SPLIT_REGEX, function (match, number) {
+                parameters.push(parseFloat(number));
+            });
+            return parameters;
+        }
+        var PathParser = Class.extend({
+            parse: function (str, options) {
+                var multiPath = new MultiPath(options);
+                var position = new Point();
+                var previousCommand;
+                str.replace(SEGMENT_REGEX, function (match, element, params, closePath) {
+                    var command = element.toLowerCase();
+                    var isRelative = command === element;
+                    var parameters = parseParameters(params.trim());
+                    if (command === MOVE) {
+                        if (isRelative) {
+                            position.x += parameters[0];
+                            position.y += parameters[1];
+                        } else {
+                            position.x = parameters[0];
+                            position.y = parameters[1];
+                        }
+                        multiPath.moveTo(position.x, position.y);
+                        if (parameters.length > 2) {
+                            command = 'l';
+                            parameters.splice(0, 2);
+                        }
+                    }
+                    if (ShapeMap[command]) {
+                        ShapeMap[command](multiPath, {
+                            parameters: parameters,
+                            position: position,
+                            isRelative: isRelative,
+                            previousCommand: previousCommand
+                        });
+                        if (closePath && closePath.toLowerCase() === CLOSE) {
+                            multiPath.close();
+                        }
+                    } else if (command !== MOVE) {
+                        throw new Error('Error while parsing SVG path. Unsupported command: ' + command);
+                    }
+                    previousCommand = command;
+                });
+                return multiPath;
+            }
+        });
         PathParser.current = new PathParser();
-        drawing.Path.parse = function (str, options) {
+        Path.parse = function (str, options) {
             return PathParser.current.parse(str, options);
         };
-        deepExtend(drawing, { PathParser: PathParser });
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/search', ['drawing/shapes'], f);
-}(function () {
-    (function ($) {
-        var kendo = window.kendo, drawing = kendo.drawing, geometry = kendo.geometry, Class = kendo.Class, Rect = geometry.Rect, deepExtend = kendo.deepExtend, isArray = $.isArray, inArray = $.inArray, math = Math, LEVEL_STEP = 10000, MAX_LEVEL = 75;
+        var SurfaceFactory = Class.extend({
+            init: function () {
+                this._items = [];
+            },
+            register: function (name, type, order) {
+                var items = this._items;
+                var first = items[0];
+                var entry = {
+                    name: name,
+                    type: type,
+                    order: order
+                };
+                if (!first || order < first.order) {
+                    items.unshift(entry);
+                } else {
+                    items.push(entry);
+                }
+            },
+            create: function (element, options) {
+                var items = this._items;
+                var match = items[0];
+                if (options && options.type) {
+                    var preferred = options.type.toLowerCase();
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].name === preferred) {
+                            match = items[i];
+                            break;
+                        }
+                    }
+                }
+                if (match) {
+                    return new match.type(element, options);
+                }
+                kendo.logToConsole('Warning: Unable to create Kendo UI Drawing Surface. Possible causes:\n' + '- The browser does not support SVG and Canvas. User agent: ' + navigator.userAgent);
+            }
+        });
+        SurfaceFactory.current = new SurfaceFactory();
+        var events = [
+            'click',
+            'mouseenter',
+            'mouseleave',
+            'mousemove',
+            'resize',
+            'tooltipOpen',
+            'tooltipClose'
+        ];
+        var Surface = kendo.Observable.extend({
+            init: function (element, options) {
+                kendo.Observable.fn.init.call(this);
+                this.options = $.extend({}, options);
+                this.element = element;
+                this._click = this._handler('click');
+                this._mouseenter = this._handler('mouseenter');
+                this._mouseleave = this._handler('mouseleave');
+                this._mousemove = this._handler('mousemove');
+                this._visual = new Group();
+                elementSize(element, this.options);
+                this.bind(events, this.options);
+                this._enableTracking();
+            },
+            draw: function (element) {
+                this._visual.children.push(element);
+            },
+            clear: function () {
+                this._visual.children = [];
+            },
+            destroy: function () {
+                this._visual = null;
+                this.unbind();
+            },
+            eventTarget: function (e) {
+                var this$1 = this;
+                var domNode = eventElement(e);
+                var node;
+                while (!node && domNode) {
+                    node = domNode._kendoNode;
+                    if (domNode === this$1.element) {
+                        break;
+                    }
+                    domNode = domNode.parentElement;
+                }
+                if (node) {
+                    return node.srcElement;
+                }
+            },
+            exportVisual: function () {
+                return this._visual;
+            },
+            getSize: function () {
+                return elementSize(this.element);
+            },
+            currentSize: function (size) {
+                if (size) {
+                    this._size = size;
+                } else {
+                    return this._size;
+                }
+            },
+            setSize: function (size) {
+                elementSize(this.element, size);
+                this.currentSize(size);
+                this._resize();
+            },
+            resize: function (force) {
+                var size = this.getSize();
+                var currentSize = this.currentSize();
+                if (force || (size.width > 0 || size.height > 0) && (!currentSize || size.width !== currentSize.width || size.height !== currentSize.height)) {
+                    this.currentSize(size);
+                    this._resize(size, force);
+                    this.trigger('resize', size);
+                }
+            },
+            size: function (value) {
+                if (!value) {
+                    return this.getSize();
+                }
+                this.setSize(value);
+            },
+            suspendTracking: function () {
+                this._suspendedTracking = true;
+            },
+            resumeTracking: function () {
+                this._suspendedTracking = false;
+            },
+            _enableTracking: function () {
+            },
+            _resize: function () {
+            },
+            _handler: function (eventName) {
+                var this$1 = this;
+                return function (e) {
+                    var node = this$1.eventTarget(e);
+                    if (node && !this$1._suspendedTracking) {
+                        this$1.trigger(eventName, {
+                            element: node,
+                            originalEvent: e,
+                            type: eventName
+                        });
+                    }
+                };
+            },
+            _elementOffset: function () {
+                var element = this.element;
+                var ref = elementStyles(element, [
+                    'paddingLeft',
+                    'paddingTop'
+                ]);
+                var paddingLeft = ref.paddingLeft;
+                var paddingTop = ref.paddingTop;
+                var ref$1 = elementOffset(element);
+                var left = ref$1.left;
+                var top = ref$1.top;
+                return {
+                    left: left + parseInt(paddingLeft, 10),
+                    top: top + parseInt(paddingTop, 10)
+                };
+            },
+            _surfacePoint: function (e) {
+                var offset = this._elementOffset();
+                var coord = eventCoordinates(e);
+                var x = coord.x - offset.left;
+                var y = coord.y - offset.top;
+                return new Point(x, y);
+            }
+        });
+        Surface.create = function (element, options) {
+            return SurfaceFactory.current.create(element, options);
+        };
+        Surface.support = {};
+        var BaseNode = Class.extend({
+            init: function (srcElement) {
+                this.childNodes = [];
+                this.parent = null;
+                if (srcElement) {
+                    this.srcElement = srcElement;
+                    this.observe();
+                }
+            },
+            destroy: function () {
+                var this$1 = this;
+                if (this.srcElement) {
+                    this.srcElement.removeObserver(this);
+                }
+                var children = this.childNodes;
+                for (var i = 0; i < children.length; i++) {
+                    this$1.childNodes[i].destroy();
+                }
+                this.parent = null;
+            },
+            load: function () {
+            },
+            observe: function () {
+                if (this.srcElement) {
+                    this.srcElement.addObserver(this);
+                }
+            },
+            append: function (node) {
+                this.childNodes.push(node);
+                node.parent = this;
+            },
+            insertAt: function (node, pos) {
+                this.childNodes.splice(pos, 0, node);
+                node.parent = this;
+            },
+            remove: function (index, count) {
+                var this$1 = this;
+                var end = index + count;
+                for (var i = index; i < end; i++) {
+                    this$1.childNodes[i].removeSelf();
+                }
+                this.childNodes.splice(index, count);
+            },
+            removeSelf: function () {
+                this.clear();
+                this.destroy();
+            },
+            clear: function () {
+                this.remove(0, this.childNodes.length);
+            },
+            invalidate: function () {
+                if (this.parent) {
+                    this.parent.invalidate();
+                }
+            },
+            geometryChange: function () {
+                this.invalidate();
+            },
+            optionsChange: function () {
+                this.invalidate();
+            },
+            childrenChange: function (e) {
+                if (e.action === 'add') {
+                    this.load(e.items, e.index);
+                } else if (e.action === 'remove') {
+                    this.remove(e.index, e.items.length);
+                }
+                this.invalidate();
+            }
+        });
+        function renderAttr(name, value) {
+            return defined(value) && value !== null ? ' ' + name + '=\'' + value + '\' ' : '';
+        }
+        function renderAllAttr(attrs) {
+            var output = '';
+            for (var i = 0; i < attrs.length; i++) {
+                output += renderAttr(attrs[i][0], attrs[i][1]);
+            }
+            return output;
+        }
+        function renderStyle(attrs) {
+            var output = '';
+            for (var i = 0; i < attrs.length; i++) {
+                var value = attrs[i][1];
+                if (defined(value)) {
+                    output += attrs[i][0] + ':' + value + ';';
+                }
+            }
+            if (output !== '') {
+                return output;
+            }
+        }
+        var NODE_MAP = {};
+        var SVG_NS = 'http://www.w3.org/2000/svg';
+        var NONE = 'none';
+        var renderSVG = function (container, svg) {
+            container.innerHTML = svg;
+        };
+        if (typeof document !== 'undefined') {
+            var testFragment = '<svg xmlns=\'' + SVG_NS + '\'></svg>';
+            var testContainer = document.createElement('div');
+            var hasParser = typeof DOMParser !== 'undefined';
+            testContainer.innerHTML = testFragment;
+            if (hasParser && testContainer.firstChild.namespaceURI !== SVG_NS) {
+                renderSVG = function (container, svg) {
+                    var parser = new DOMParser();
+                    var chartDoc = parser.parseFromString(svg, 'text/xml');
+                    var importedDoc = document.adoptNode(chartDoc.documentElement);
+                    container.innerHTML = '';
+                    container.appendChild(importedDoc);
+                };
+            }
+        }
+        var renderSVG$1 = renderSVG;
+        var TRANSFORM = 'transform';
+        var DefinitionMap = {
+            clip: 'clip-path',
+            fill: 'fill'
+        };
+        function isDefinition(type, value) {
+            return type === 'clip' || type === 'fill' && (!value || value.nodeType === 'Gradient');
+        }
+        function baseUrl() {
+            var base = document.getElementsByTagName('base')[0];
+            var href = document.location.href;
+            var hashIndex = href.indexOf('#');
+            var url = '';
+            if (base && !support.browser.msie) {
+                if (hashIndex !== -1) {
+                    href = href.substring(0, hashIndex);
+                }
+                url = href;
+            }
+            return url;
+        }
+        function refUrl(id) {
+            return 'url(' + baseUrl() + '#' + id + ')';
+        }
+        var Node = BaseNode.extend({
+            init: function (srcElement) {
+                BaseNode.fn.init.call(this, srcElement);
+                this.definitions = {};
+            },
+            destroy: function () {
+                if (this.element) {
+                    this.element._kendoNode = null;
+                    this.element = null;
+                }
+                this.clearDefinitions();
+                BaseNode.fn.destroy.call(this);
+            },
+            load: function (elements, pos) {
+                var this$1 = this;
+                for (var i = 0; i < elements.length; i++) {
+                    var srcElement = elements[i];
+                    var children = srcElement.children;
+                    var childNode = new NODE_MAP[srcElement.nodeType](srcElement);
+                    if (defined(pos)) {
+                        this$1.insertAt(childNode, pos);
+                    } else {
+                        this$1.append(childNode);
+                    }
+                    childNode.createDefinitions();
+                    if (children && children.length > 0) {
+                        childNode.load(children);
+                    }
+                    var element = this$1.element;
+                    if (element) {
+                        childNode.attachTo(element, pos);
+                    }
+                }
+            },
+            root: function () {
+                var root = this;
+                while (root.parent) {
+                    root = root.parent;
+                }
+                return root;
+            },
+            attachTo: function (domElement, pos) {
+                var container = document.createElement('div');
+                renderSVG$1(container, '<svg xmlns=\'' + SVG_NS + '\' version=\'1.1\'>' + this.render() + '</svg>');
+                var element = container.firstChild.firstChild;
+                if (element) {
+                    if (defined(pos)) {
+                        domElement.insertBefore(element, domElement.childNodes[pos] || null);
+                    } else {
+                        domElement.appendChild(element);
+                    }
+                    this.setElement(element);
+                }
+            },
+            setElement: function (element) {
+                if (this.element) {
+                    this.element._kendoNode = null;
+                }
+                this.element = element;
+                this.element._kendoNode = this;
+                var nodes = this.childNodes;
+                for (var i = 0; i < nodes.length; i++) {
+                    var childElement = element.childNodes[i];
+                    nodes[i].setElement(childElement);
+                }
+            },
+            clear: function () {
+                this.clearDefinitions();
+                if (this.element) {
+                    this.element.innerHTML = '';
+                }
+                var children = this.childNodes;
+                for (var i = 0; i < children.length; i++) {
+                    children[i].destroy();
+                }
+                this.childNodes = [];
+            },
+            removeSelf: function () {
+                if (this.element) {
+                    var parentNode = this.element.parentNode;
+                    if (parentNode) {
+                        parentNode.removeChild(this.element);
+                    }
+                    this.element = null;
+                }
+                BaseNode.fn.removeSelf.call(this);
+            },
+            template: function () {
+                return this.renderChildren();
+            },
+            render: function () {
+                return this.template();
+            },
+            renderChildren: function () {
+                var nodes = this.childNodes;
+                var output = '';
+                for (var i = 0; i < nodes.length; i++) {
+                    output += nodes[i].render();
+                }
+                return output;
+            },
+            optionsChange: function (e) {
+                var field = e.field;
+                var value = e.value;
+                if (field === 'visible') {
+                    this.css('display', value ? '' : NONE);
+                } else if (DefinitionMap[field] && isDefinition(field, value)) {
+                    this.updateDefinition(field, value);
+                } else if (field === 'opacity') {
+                    this.attr('opacity', value);
+                }
+                BaseNode.fn.optionsChange.call(this, e);
+            },
+            attr: function (name, value) {
+                if (this.element) {
+                    this.element.setAttribute(name, value);
+                }
+            },
+            allAttr: function (attrs) {
+                var this$1 = this;
+                for (var i = 0; i < attrs.length; i++) {
+                    this$1.attr(attrs[i][0], attrs[i][1]);
+                }
+            },
+            css: function (name, value) {
+                if (this.element) {
+                    this.element.style[name] = value;
+                }
+            },
+            allCss: function (styles) {
+                var this$1 = this;
+                for (var i = 0; i < styles.length; i++) {
+                    this$1.css(styles[i][0], styles[i][1]);
+                }
+            },
+            removeAttr: function (name) {
+                if (this.element) {
+                    this.element.removeAttribute(name);
+                }
+            },
+            mapTransform: function (transform) {
+                var attrs = [];
+                if (transform) {
+                    attrs.push([
+                        TRANSFORM,
+                        'matrix(' + transform.matrix().toString(6) + ')'
+                    ]);
+                }
+                return attrs;
+            },
+            renderTransform: function () {
+                return renderAllAttr(this.mapTransform(this.srcElement.transform()));
+            },
+            transformChange: function (value) {
+                if (value) {
+                    this.allAttr(this.mapTransform(value));
+                } else {
+                    this.removeAttr(TRANSFORM);
+                }
+            },
+            mapStyle: function () {
+                var options = this.srcElement.options;
+                var style = [[
+                        'cursor',
+                        options.cursor
+                    ]];
+                if (options.visible === false) {
+                    style.push([
+                        'display',
+                        NONE
+                    ]);
+                }
+                return style;
+            },
+            renderStyle: function () {
+                return renderAttr('style', renderStyle(this.mapStyle(true)));
+            },
+            renderOpacity: function () {
+                return renderAttr('opacity', this.srcElement.options.opacity);
+            },
+            createDefinitions: function () {
+                var srcElement = this.srcElement;
+                var definitions = this.definitions;
+                if (srcElement) {
+                    var options = srcElement.options;
+                    var hasDefinitions;
+                    for (var field in DefinitionMap) {
+                        var definition = options.get(field);
+                        if (definition && isDefinition(field, definition)) {
+                            definitions[field] = definition;
+                            hasDefinitions = true;
+                        }
+                    }
+                    if (hasDefinitions) {
+                        this.definitionChange({
+                            action: 'add',
+                            definitions: definitions
+                        });
+                    }
+                }
+            },
+            definitionChange: function (e) {
+                if (this.parent) {
+                    this.parent.definitionChange(e);
+                }
+            },
+            updateDefinition: function (type, value) {
+                var definitions = this.definitions;
+                var current = definitions[type];
+                var attr = DefinitionMap[type];
+                var definition = {};
+                if (current) {
+                    definition[type] = current;
+                    this.definitionChange({
+                        action: 'remove',
+                        definitions: definition
+                    });
+                    delete definitions[type];
+                }
+                if (!value) {
+                    if (current) {
+                        this.removeAttr(attr);
+                    }
+                } else {
+                    definition[type] = value;
+                    this.definitionChange({
+                        action: 'add',
+                        definitions: definition
+                    });
+                    definitions[type] = value;
+                    this.attr(attr, refUrl(value.id));
+                }
+            },
+            clearDefinitions: function () {
+                var definitions = this.definitions;
+                this.definitionChange({
+                    action: 'remove',
+                    definitions: definitions
+                });
+                this.definitions = {};
+            },
+            renderDefinitions: function () {
+                return renderAllAttr(this.mapDefinitions());
+            },
+            mapDefinitions: function () {
+                var definitions = this.definitions;
+                var attrs = [];
+                for (var field in definitions) {
+                    attrs.push([
+                        DefinitionMap[field],
+                        refUrl(definitions[field].id)
+                    ]);
+                }
+                return attrs;
+            }
+        });
+        var GradientStopNode = Node.extend({
+            template: function () {
+                return '<stop ' + this.renderOffset() + ' ' + this.renderStyle() + ' />';
+            },
+            renderOffset: function () {
+                return renderAttr('offset', this.srcElement.offset());
+            },
+            mapStyle: function () {
+                var srcElement = this.srcElement;
+                return [
+                    [
+                        'stop-color',
+                        srcElement.color()
+                    ],
+                    [
+                        'stop-opacity',
+                        srcElement.opacity()
+                    ]
+                ];
+            },
+            optionsChange: function (e) {
+                if (e.field === 'offset') {
+                    this.attr(e.field, e.value);
+                } else if (e.field === 'color' || e.field === 'opacity') {
+                    this.css('stop-' + e.field, e.value);
+                }
+            }
+        });
+        var GradientNode = Node.extend({
+            init: function (srcElement) {
+                Node.fn.init.call(this, srcElement);
+                this.id = srcElement.id;
+                this.loadStops();
+            },
+            loadStops: function () {
+                var this$1 = this;
+                var stops = this.srcElement.stops;
+                var element = this.element;
+                for (var idx = 0; idx < stops.length; idx++) {
+                    var stopNode = new GradientStopNode(stops[idx]);
+                    this$1.append(stopNode);
+                    if (element) {
+                        stopNode.attachTo(element);
+                    }
+                }
+            },
+            optionsChange: function (e) {
+                if (e.field === 'gradient.stops') {
+                    BaseNode.prototype.clear.call(this);
+                    this.loadStops();
+                } else if (e.field === 'gradient') {
+                    this.allAttr(this.mapCoordinates());
+                }
+            },
+            renderCoordinates: function () {
+                return renderAllAttr(this.mapCoordinates());
+            },
+            mapSpace: function () {
+                return [
+                    'gradientUnits',
+                    this.srcElement.userSpace() ? 'userSpaceOnUse' : 'objectBoundingBox'
+                ];
+            }
+        });
+        var LinearGradientNode = GradientNode.extend({
+            template: function () {
+                return '<linearGradient id=\'' + this.id + '\' ' + this.renderCoordinates() + '>' + this.renderChildren() + '</linearGradient>';
+            },
+            mapCoordinates: function () {
+                var srcElement = this.srcElement;
+                var start = srcElement.start();
+                var end = srcElement.end();
+                var attrs = [
+                    [
+                        'x1',
+                        start.x
+                    ],
+                    [
+                        'y1',
+                        start.y
+                    ],
+                    [
+                        'x2',
+                        end.x
+                    ],
+                    [
+                        'y2',
+                        end.y
+                    ],
+                    this.mapSpace()
+                ];
+                return attrs;
+            }
+        });
+        var RadialGradientNode = GradientNode.extend({
+            template: function () {
+                return '<radialGradient id=\'' + this.id + '\' ' + this.renderCoordinates() + '>' + this.renderChildren() + '</radialGradient>';
+            },
+            mapCoordinates: function () {
+                var srcElement = this.srcElement;
+                var center = srcElement.center();
+                var radius = srcElement.radius();
+                var attrs = [
+                    [
+                        'cx',
+                        center.x
+                    ],
+                    [
+                        'cy',
+                        center.y
+                    ],
+                    [
+                        'r',
+                        radius
+                    ],
+                    this.mapSpace()
+                ];
+                return attrs;
+            }
+        });
+        var ClipNode = Node.extend({
+            init: function (srcElement) {
+                Node.fn.init.call(this);
+                this.srcElement = srcElement;
+                this.id = srcElement.id;
+                this.load([srcElement]);
+            },
+            template: function () {
+                return '<clipPath id=\'' + this.id + '\'>' + this.renderChildren() + '</clipPath>';
+            }
+        });
+        var DefinitionNode = Node.extend({
+            init: function () {
+                Node.fn.init.call(this);
+                this.definitionMap = {};
+            },
+            attachTo: function (domElement) {
+                this.element = domElement;
+            },
+            template: function () {
+                return '<defs>' + this.renderChildren() + '</defs>';
+            },
+            definitionChange: function (e) {
+                var definitions = e.definitions;
+                var action = e.action;
+                if (action === 'add') {
+                    this.addDefinitions(definitions);
+                } else if (action === 'remove') {
+                    this.removeDefinitions(definitions);
+                }
+            },
+            createDefinition: function (type, item) {
+                var nodeType;
+                if (type === 'clip') {
+                    nodeType = ClipNode;
+                } else if (type === 'fill') {
+                    if (item instanceof LinearGradient) {
+                        nodeType = LinearGradientNode;
+                    } else if (item instanceof RadialGradient) {
+                        nodeType = RadialGradientNode;
+                    }
+                }
+                return new nodeType(item);
+            },
+            addDefinitions: function (definitions) {
+                var this$1 = this;
+                for (var field in definitions) {
+                    this$1.addDefinition(field, definitions[field]);
+                }
+            },
+            addDefinition: function (type, srcElement) {
+                var ref = this;
+                var element = ref.element;
+                var definitionMap = ref.definitionMap;
+                var id = srcElement.id;
+                var mapItem = definitionMap[id];
+                if (!mapItem) {
+                    var node = this.createDefinition(type, srcElement);
+                    definitionMap[id] = {
+                        element: node,
+                        count: 1
+                    };
+                    this.append(node);
+                    if (element) {
+                        node.attachTo(this.element);
+                    }
+                } else {
+                    mapItem.count++;
+                }
+            },
+            removeDefinitions: function (definitions) {
+                var this$1 = this;
+                for (var field in definitions) {
+                    this$1.removeDefinition(definitions[field]);
+                }
+            },
+            removeDefinition: function (srcElement) {
+                var definitionMap = this.definitionMap;
+                var id = srcElement.id;
+                var mapItem = definitionMap[id];
+                if (mapItem) {
+                    mapItem.count--;
+                    if (mapItem.count === 0) {
+                        this.remove(this.childNodes.indexOf(mapItem.element), 1);
+                        delete definitionMap[id];
+                    }
+                }
+            }
+        });
+        var RootNode = Node.extend({
+            init: function (options) {
+                Node.fn.init.call(this);
+                this.options = options;
+                this.defs = new DefinitionNode();
+            },
+            attachTo: function (domElement) {
+                this.element = domElement;
+                this.defs.attachTo(domElement.firstElementChild);
+            },
+            clear: function () {
+                BaseNode.prototype.clear.call(this);
+            },
+            template: function () {
+                return this.defs.render() + this.renderChildren();
+            },
+            definitionChange: function (e) {
+                this.defs.definitionChange(e);
+            }
+        });
+        function alignToScreen(element) {
+            var ctm;
+            try {
+                ctm = element.getScreenCTM ? element.getScreenCTM() : null;
+            } catch (e) {
+            }
+            if (ctm) {
+                var left = -ctm.e % 1;
+                var top = -ctm.f % 1;
+                var style = element.style;
+                if (left !== 0 || top !== 0) {
+                    style.left = left + 'px';
+                    style.top = top + 'px';
+                }
+            }
+        }
+        var Surface$1 = Surface.extend({
+            init: function (element, options) {
+                Surface.fn.init.call(this, element, options);
+                this._root = new RootNode(this.options);
+                renderSVG$1(this.element, this._template());
+                this._rootElement = this.element.firstElementChild;
+                alignToScreen(this._rootElement);
+                this._root.attachTo(this._rootElement);
+                bindEvents(this.element, {
+                    click: this._click,
+                    mouseover: this._mouseenter,
+                    mouseout: this._mouseleave,
+                    mousemove: this._mousemove
+                });
+                this.resize();
+            },
+            destroy: function () {
+                if (this._root) {
+                    this._root.destroy();
+                    this._root = null;
+                    this._rootElement = null;
+                    unbindEvents(this.element, {
+                        click: this._click,
+                        mouseover: this._mouseenter,
+                        mouseout: this._mouseleave,
+                        mousemove: this._mousemove
+                    });
+                }
+                Surface.fn.destroy.call(this);
+            },
+            translate: function (offset) {
+                var viewBox = Math.round(offset.x) + ' ' + Math.round(offset.y) + ' ' + this._size.width + ' ' + this._size.height;
+                this._offset = offset;
+                this._rootElement.setAttribute('viewBox', viewBox);
+            },
+            draw: function (element) {
+                Surface.fn.draw.call(this, element);
+                this._root.load([element]);
+            },
+            clear: function () {
+                Surface.fn.clear.call(this);
+                this._root.clear();
+            },
+            svg: function () {
+                return '<?xml version=\'1.0\' ?>' + this._template();
+            },
+            exportVisual: function () {
+                var ref = this;
+                var visual = ref._visual;
+                var offset = ref._offset;
+                if (offset) {
+                    var wrap = new Group();
+                    wrap.children.push(visual);
+                    wrap.transform(transform().translate(-offset.x, -offset.y));
+                    visual = wrap;
+                }
+                return visual;
+            },
+            _resize: function () {
+                if (this._offset) {
+                    this.translate(this._offset);
+                }
+            },
+            _template: function () {
+                return '<svg style=\'width: 100%; height: 100%; overflow: hidden;\' xmlns=\'' + SVG_NS + '\' xmlns:xlink=\'http://www.w3.org/1999/xlink\' version=\'1.1\'>' + this._root.render() + '</svg>';
+            }
+        });
+        Surface$1.prototype.type = 'svg';
+        if (typeof document !== 'undefined' && document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#BasicStructure', '1.1')) {
+            Surface.support.svg = true;
+            SurfaceFactory.current.register('svg', Surface$1, 10);
+        }
+        var GroupNode = Node.extend({
+            template: function () {
+                return '<g' + (this.renderTransform() + this.renderStyle() + this.renderOpacity() + this.renderDefinitions()) + '>' + this.renderChildren() + '</g>';
+            },
+            optionsChange: function (e) {
+                if (e.field === 'transform') {
+                    this.transformChange(e.value);
+                }
+                Node.fn.optionsChange.call(this, e);
+            }
+        });
+        NODE_MAP.Group = GroupNode;
+        var DASH_ARRAYS = {
+            dot: [
+                1.5,
+                3.5
+            ],
+            dash: [
+                4,
+                3.5
+            ],
+            longdash: [
+                8,
+                3.5
+            ],
+            dashdot: [
+                3.5,
+                3.5,
+                1.5,
+                3.5
+            ],
+            longdashdot: [
+                8,
+                3.5,
+                1.5,
+                3.5
+            ],
+            longdashdotdot: [
+                8,
+                3.5,
+                1.5,
+                3.5,
+                1.5,
+                3.5
+            ]
+        };
+        var SOLID = 'solid';
+        var BUTT = 'butt';
+        var ATTRIBUTE_MAP = {
+            'fill.opacity': 'fill-opacity',
+            'stroke.color': 'stroke',
+            'stroke.width': 'stroke-width',
+            'stroke.opacity': 'stroke-opacity'
+        };
+        var SPACE = ' ';
+        var PathNode = Node.extend({
+            geometryChange: function () {
+                this.attr('d', this.renderData());
+                this.invalidate();
+            },
+            optionsChange: function (e) {
+                switch (e.field) {
+                case 'fill':
+                    if (e.value) {
+                        this.allAttr(this.mapFill(e.value));
+                    } else {
+                        this.removeAttr('fill');
+                    }
+                    break;
+                case 'fill.color':
+                    this.allAttr(this.mapFill({ color: e.value }));
+                    break;
+                case 'stroke':
+                    if (e.value) {
+                        this.allAttr(this.mapStroke(e.value));
+                    } else {
+                        this.removeAttr('stroke');
+                    }
+                    break;
+                case 'transform':
+                    this.transformChange(e.value);
+                    break;
+                default:
+                    var name = ATTRIBUTE_MAP[e.field];
+                    if (name) {
+                        this.attr(name, e.value);
+                    }
+                    break;
+                }
+                Node.fn.optionsChange.call(this, e);
+            },
+            content: function () {
+                if (this.element) {
+                    this.element.textContent = this.srcElement.content();
+                }
+            },
+            renderData: function () {
+                return this.printPath(this.srcElement);
+            },
+            printPath: function (path) {
+                var this$1 = this;
+                var segments = path.segments;
+                var length = segments.length;
+                if (length > 0) {
+                    var parts = [];
+                    var output, currentType;
+                    for (var i = 1; i < length; i++) {
+                        var segmentType = this$1.segmentType(segments[i - 1], segments[i]);
+                        if (segmentType !== currentType) {
+                            currentType = segmentType;
+                            parts.push(segmentType);
+                        }
+                        if (segmentType === 'L') {
+                            parts.push(this$1.printPoints(segments[i].anchor()));
+                        } else {
+                            parts.push(this$1.printPoints(segments[i - 1].controlOut(), segments[i].controlIn(), segments[i].anchor()));
+                        }
+                    }
+                    output = 'M' + this.printPoints(segments[0].anchor()) + SPACE + parts.join(SPACE);
+                    if (path.options.closed) {
+                        output += 'Z';
+                    }
+                    return output;
+                }
+            },
+            printPoints: function () {
+                var points = arguments;
+                var length = points.length;
+                var result = [];
+                for (var i = 0; i < length; i++) {
+                    result.push(points[i].toString(3));
+                }
+                return result.join(' ');
+            },
+            segmentType: function (segmentStart, segmentEnd) {
+                return segmentStart.controlOut() && segmentEnd.controlIn() ? 'C' : 'L';
+            },
+            mapStroke: function (stroke) {
+                var attrs = [];
+                if (stroke && !isTransparent(stroke.color)) {
+                    attrs.push([
+                        'stroke',
+                        stroke.color
+                    ]);
+                    attrs.push([
+                        'stroke-width',
+                        stroke.width
+                    ]);
+                    attrs.push([
+                        'stroke-linecap',
+                        this.renderLinecap(stroke)
+                    ]);
+                    attrs.push([
+                        'stroke-linejoin',
+                        stroke.lineJoin
+                    ]);
+                    if (defined(stroke.opacity)) {
+                        attrs.push([
+                            'stroke-opacity',
+                            stroke.opacity
+                        ]);
+                    }
+                    if (defined(stroke.dashType)) {
+                        attrs.push([
+                            'stroke-dasharray',
+                            this.renderDashType(stroke)
+                        ]);
+                    }
+                } else {
+                    attrs.push([
+                        'stroke',
+                        NONE
+                    ]);
+                }
+                return attrs;
+            },
+            renderStroke: function () {
+                return renderAllAttr(this.mapStroke(this.srcElement.options.stroke));
+            },
+            renderDashType: function (stroke) {
+                var dashType = stroke.dashType;
+                var width = stroke.width;
+                if (width === void 0) {
+                    width = 1;
+                }
+                if (dashType && dashType !== SOLID) {
+                    var dashArray = DASH_ARRAYS[dashType.toLowerCase()];
+                    var result = [];
+                    for (var i = 0; i < dashArray.length; i++) {
+                        result.push(dashArray[i] * width);
+                    }
+                    return result.join(' ');
+                }
+            },
+            renderLinecap: function (stroke) {
+                var dashType = stroke.dashType;
+                var lineCap = stroke.lineCap;
+                return dashType && dashType !== 'solid' ? BUTT : lineCap;
+            },
+            mapFill: function (fill) {
+                var attrs = [];
+                if (!(fill && fill.nodeType === 'Gradient')) {
+                    if (fill && !isTransparent(fill.color)) {
+                        attrs.push([
+                            'fill',
+                            fill.color
+                        ]);
+                        if (defined(fill.opacity)) {
+                            attrs.push([
+                                'fill-opacity',
+                                fill.opacity
+                            ]);
+                        }
+                    } else {
+                        attrs.push([
+                            'fill',
+                            NONE
+                        ]);
+                    }
+                }
+                return attrs;
+            },
+            renderFill: function () {
+                return renderAllAttr(this.mapFill(this.srcElement.options.fill));
+            },
+            template: function () {
+                return '<path ' + this.renderStyle() + ' ' + this.renderOpacity() + ' ' + renderAttr('d', this.renderData()) + '' + this.renderStroke() + this.renderFill() + this.renderDefinitions() + this.renderTransform() + '></path>';
+            }
+        });
+        NODE_MAP.Path = PathNode;
+        var ArcNode = PathNode.extend({
+            renderData: function () {
+                return this.printPath(this.srcElement.toPath());
+            }
+        });
+        NODE_MAP.Arc = ArcNode;
+        var CircleNode = PathNode.extend({
+            geometryChange: function () {
+                var center = this.center();
+                this.attr('cx', center.x);
+                this.attr('cy', center.y);
+                this.attr('r', this.radius());
+                this.invalidate();
+            },
+            center: function () {
+                return this.srcElement.geometry().center;
+            },
+            radius: function () {
+                return this.srcElement.geometry().radius;
+            },
+            template: function () {
+                return '<circle ' + this.renderStyle() + ' ' + this.renderOpacity() + 'cx=\'' + this.center().x + '\' cy=\'' + this.center().y + '\' r=\'' + this.radius() + '\'' + this.renderStroke() + ' ' + this.renderFill() + ' ' + this.renderDefinitions() + this.renderTransform() + ' ></circle>';
+            }
+        });
+        NODE_MAP.Circle = CircleNode;
+        var RectNode = PathNode.extend({
+            geometryChange: function () {
+                var geometry = this.srcElement.geometry();
+                this.attr('x', geometry.origin.x);
+                this.attr('y', geometry.origin.y);
+                this.attr('width', geometry.size.width);
+                this.attr('height', geometry.size.height);
+                this.invalidate();
+            },
+            size: function () {
+                return this.srcElement.geometry().size;
+            },
+            origin: function () {
+                return this.srcElement.geometry().origin;
+            },
+            template: function () {
+                return '<rect ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.origin().x + '\' y=\'' + this.origin().y + '\' ' + 'width=\'' + this.size().width + '\' height=\'' + this.size().height + '\' ' + this.renderStroke() + ' ' + this.renderFill() + ' ' + this.renderDefinitions() + ' ' + this.renderTransform() + ' />';
+            }
+        });
+        NODE_MAP.Rect = RectNode;
+        var ImageNode = PathNode.extend({
+            geometryChange: function () {
+                this.allAttr(this.mapPosition());
+                this.invalidate();
+            },
+            optionsChange: function (e) {
+                if (e.field === 'src') {
+                    this.allAttr(this.mapSource());
+                }
+                PathNode.fn.optionsChange.call(this, e);
+            },
+            mapPosition: function () {
+                var rect = this.srcElement.rect();
+                var tl = rect.topLeft();
+                return [
+                    [
+                        'x',
+                        tl.x
+                    ],
+                    [
+                        'y',
+                        tl.y
+                    ],
+                    [
+                        'width',
+                        rect.width() + 'px'
+                    ],
+                    [
+                        'height',
+                        rect.height() + 'px'
+                    ]
+                ];
+            },
+            renderPosition: function () {
+                return renderAllAttr(this.mapPosition());
+            },
+            mapSource: function (encode) {
+                var src = this.srcElement.src();
+                if (encode) {
+                    src = kendo.htmlEncode(src);
+                }
+                return [[
+                        'xlink:href',
+                        src
+                    ]];
+            },
+            renderSource: function () {
+                return renderAllAttr(this.mapSource(true));
+            },
+            template: function () {
+                return '<image preserveAspectRatio=\'none\' ' + this.renderStyle() + ' ' + this.renderTransform() + ' ' + this.renderOpacity() + this.renderPosition() + ' ' + this.renderSource() + ' ' + this.renderDefinitions() + '>' + '</image>';
+            }
+        });
+        NODE_MAP.Image = ImageNode;
+        function decodeEntities(text) {
+            if (!text || !text.indexOf || text.indexOf('&') < 0) {
+                return text;
+            }
+            var element = decodeEntities._element;
+            element.innerHTML = text;
+            return element.textContent || element.innerText;
+        }
+        if (typeof document !== 'undefined') {
+            decodeEntities._element = document.createElement('span');
+        }
+        var TextNode = PathNode.extend({
+            geometryChange: function () {
+                var pos = this.pos();
+                this.attr('x', pos.x);
+                this.attr('y', pos.y);
+                this.invalidate();
+            },
+            optionsChange: function (e) {
+                if (e.field === 'font') {
+                    this.attr('style', renderStyle(this.mapStyle()));
+                    this.geometryChange();
+                } else if (e.field === 'content') {
+                    PathNode.fn.content.call(this, this.srcElement.content());
+                }
+                PathNode.fn.optionsChange.call(this, e);
+            },
+            mapStyle: function (encode) {
+                var style = PathNode.fn.mapStyle.call(this, encode);
+                var font = this.srcElement.options.font;
+                if (encode) {
+                    font = kendo.htmlEncode(font);
+                }
+                style.push([
+                    'font',
+                    font
+                ]);
+                return style;
+            },
+            pos: function () {
+                var pos = this.srcElement.position();
+                var size = this.srcElement.measure();
+                return pos.clone().setY(pos.y + size.baseline);
+            },
+            renderContent: function () {
+                var content = this.srcElement.content();
+                content = decodeEntities(content);
+                content = kendo.htmlEncode(content);
+                return content;
+            },
+            template: function () {
+                return '<text ' + this.renderStyle() + ' ' + this.renderOpacity() + ' x=\'' + this.pos().x + '\' y=\'' + this.pos().y + '\'' + this.renderStroke() + ' ' + this.renderTransform() + ' ' + this.renderDefinitions() + this.renderFill() + '>' + this.renderContent() + '</text>';
+            }
+        });
+        NODE_MAP.Text = TextNode;
+        var MultiPathNode = PathNode.extend({
+            renderData: function () {
+                var this$1 = this;
+                var paths = this.srcElement.paths;
+                if (paths.length > 0) {
+                    var result = [];
+                    for (var i = 0; i < paths.length; i++) {
+                        result.push(this$1.printPath(paths[i]));
+                    }
+                    return result.join(' ');
+                }
+            }
+        });
+        NODE_MAP.MultiPath = MultiPathNode;
+        var geometry = {
+            Circle: Circle$2,
+            Arc: Arc$2,
+            Rect: Rect,
+            Point: Point,
+            Segment: Segment,
+            Matrix: Matrix,
+            Size: Size,
+            toMatrix: toMatrix,
+            Transformation: Transformation,
+            transform: transform
+        };
+        function exportGroup(group) {
+            var root = new RootNode();
+            var bbox = group.clippedBBox();
+            var rootGroup = group;
+            if (bbox) {
+                var origin = bbox.getOrigin();
+                var exportRoot = new Group();
+                exportRoot.transform(transform().translate(-origin.x, -origin.y));
+                exportRoot.children.push(group);
+                rootGroup = exportRoot;
+            }
+            root.load([rootGroup]);
+            var svg = '<?xml version=\'1.0\' ?><svg xmlns=\'' + SVG_NS + '\' xmlns:xlink=\'http://www.w3.org/1999/xlink\' version=\'1.1\'>' + root.render() + '</svg>';
+            root.destroy();
+            return svg;
+        }
+        var svg = {
+            Surface: Surface$1,
+            RootNode: RootNode,
+            Node: Node,
+            GroupNode: GroupNode,
+            ArcNode: ArcNode,
+            CircleNode: CircleNode,
+            RectNode: RectNode,
+            ImageNode: ImageNode,
+            TextNode: TextNode,
+            PathNode: PathNode,
+            MultiPathNode: MultiPathNode,
+            DefinitionNode: DefinitionNode,
+            ClipNode: ClipNode,
+            GradientStopNode: GradientStopNode,
+            LinearGradientNode: LinearGradientNode,
+            RadialGradientNode: RadialGradientNode,
+            exportGroup: exportGroup
+        };
+        var NODE_MAP$2 = {};
+        function renderPath(ctx, path) {
+            var segments = path.segments;
+            if (segments.length === 0) {
+                return;
+            }
+            var segment = segments[0];
+            var anchor = segment.anchor();
+            ctx.moveTo(anchor.x, anchor.y);
+            for (var i = 1; i < segments.length; i++) {
+                segment = segments[i];
+                anchor = segment.anchor();
+                var prevSeg = segments[i - 1];
+                var prevOut = prevSeg.controlOut();
+                var controlIn = segment.controlIn();
+                if (prevOut && controlIn) {
+                    ctx.bezierCurveTo(prevOut.x, prevOut.y, controlIn.x, controlIn.y, anchor.x, anchor.y);
+                } else {
+                    ctx.lineTo(anchor.x, anchor.y);
+                }
+            }
+            if (path.options.closed) {
+                ctx.closePath();
+            }
+        }
+        var Node$2 = BaseNode.extend({
+            init: function (srcElement) {
+                BaseNode.fn.init.call(this, srcElement);
+                if (srcElement) {
+                    this.initClip();
+                }
+            },
+            initClip: function () {
+                var clip = this.srcElement.clip();
+                if (clip) {
+                    this.clip = clip;
+                    clip.addObserver(this);
+                }
+            },
+            clear: function () {
+                if (this.srcElement) {
+                    this.srcElement.removeObserver(this);
+                }
+                this.clearClip();
+                BaseNode.fn.clear.call(this);
+            },
+            clearClip: function () {
+                if (this.clip) {
+                    this.clip.removeObserver(this);
+                    delete this.clip;
+                }
+            },
+            setClip: function (ctx) {
+                if (this.clip) {
+                    ctx.beginPath();
+                    renderPath(ctx, this.clip);
+                    ctx.clip();
+                }
+            },
+            optionsChange: function (e) {
+                if (e.field === 'clip') {
+                    this.clearClip();
+                    this.initClip();
+                }
+                BaseNode.fn.optionsChange.call(this, e);
+            },
+            setTransform: function (ctx) {
+                if (this.srcElement) {
+                    var transform = this.srcElement.transform();
+                    if (transform) {
+                        ctx.transform.apply(ctx, transform.matrix().toArray(6));
+                    }
+                }
+            },
+            loadElements: function (elements, pos, cors) {
+                var this$1 = this;
+                for (var i = 0; i < elements.length; i++) {
+                    var srcElement = elements[i];
+                    var children = srcElement.children;
+                    var childNode = new NODE_MAP$2[srcElement.nodeType](srcElement, cors);
+                    if (children && children.length > 0) {
+                        childNode.load(children, pos, cors);
+                    }
+                    if (defined(pos)) {
+                        this$1.insertAt(childNode, pos);
+                    } else {
+                        this$1.append(childNode);
+                    }
+                }
+            },
+            load: function (elements, pos, cors) {
+                this.loadElements(elements, pos, cors);
+                this.invalidate();
+            },
+            setOpacity: function (ctx) {
+                if (this.srcElement) {
+                    var opacity = this.srcElement.opacity();
+                    if (defined(opacity)) {
+                        this.globalAlpha(ctx, opacity);
+                    }
+                }
+            },
+            globalAlpha: function (ctx, value) {
+                var opactity = value;
+                if (opactity && ctx.globalAlpha) {
+                    opactity *= ctx.globalAlpha;
+                }
+                ctx.globalAlpha = opactity;
+            },
+            visible: function () {
+                var src = this.srcElement;
+                return !src || src && src.options.visible !== false;
+            }
+        });
+        var GroupNode$2 = Node$2.extend({
+            renderTo: function (ctx) {
+                if (!this.visible()) {
+                    return;
+                }
+                ctx.save();
+                this.setTransform(ctx);
+                this.setClip(ctx);
+                this.setOpacity(ctx);
+                var childNodes = this.childNodes;
+                for (var i = 0; i < childNodes.length; i++) {
+                    var child = childNodes[i];
+                    if (child.visible()) {
+                        child.renderTo(ctx);
+                    }
+                }
+                ctx.restore();
+            }
+        });
+        Traversable.extend(GroupNode$2.prototype, 'childNodes');
+        NODE_MAP$2.Group = GroupNode$2;
+        var FRAME_DELAY = 1000 / 60;
+        var RootNode$2 = GroupNode$2.extend({
+            init: function (canvas) {
+                GroupNode$2.fn.init.call(this);
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                var invalidateHandler = this._invalidate.bind(this);
+                this.invalidate = kendo.throttle(function () {
+                    kendo.animationFrame(invalidateHandler);
+                }, FRAME_DELAY);
+            },
+            destroy: function () {
+                GroupNode$2.fn.destroy.call(this);
+                this.canvas = null;
+                this.ctx = null;
+            },
+            load: function (elements, pos, cors) {
+                this.loadElements(elements, pos, cors);
+                this._invalidate();
+            },
+            _invalidate: function () {
+                if (!this.ctx) {
+                    return;
+                }
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.renderTo(this.ctx);
+            }
+        });
+        Traversable.extend(RootNode$2.prototype, 'childNodes');
         var QuadRoot = Class.extend({
             init: function () {
                 this.shapes = [];
@@ -3985,13 +5031,13 @@
                 var length = children.length;
                 var result = QuadRoot.fn.pointShapes.call(this, point);
                 for (var idx = 0; idx < length; idx++) {
-                    result = result.concat(children[idx].pointShapes(point));
+                    append(result, children[idx].pointShapes(point));
                 }
                 return result;
             },
             insert: function (shape, bbox) {
-                var inserted = false;
                 var children = this.children;
+                var inserted = false;
                 if (this.inBounds(bbox)) {
                     if (this.shapes.length < 4) {
                         this._add(shape, bbox);
@@ -4014,7 +5060,12 @@
                 return inserted;
             },
             _initChildren: function () {
-                var rect = this.rect, children = this.children, center = rect.center(), halfWidth = rect.width() / 2, halfHeight = rect.height() / 2;
+                var ref = this;
+                var rect = ref.rect;
+                var children = ref.children;
+                var center = rect.center();
+                var halfWidth = rect.width() / 2;
+                var halfHeight = rect.height() / 2;
                 children.push(new QuadNode(new Rect([
                     rect.origin.x,
                     rect.origin.y
@@ -4042,8 +5093,10 @@
                 ])));
             }
         });
+        var ROOT_SIZE = 3000;
+        var LEVEL_STEP = 10000;
+        var MAX_LEVEL = 75;
         var ShapesQuadTree = Class.extend({
-            ROOT_SIZE: 1000,
             init: function () {
                 this.initRoots();
             },
@@ -4053,17 +5106,16 @@
                 this.rootElements = [];
             },
             clear: function () {
-                var that = this;
-                var rootElements = that.rootElements;
+                var this$1 = this;
+                var rootElements = this.rootElements;
                 for (var idx = 0; idx < rootElements.length; idx++) {
-                    this.remove(rootElements[idx]);
+                    this$1.remove(rootElements[idx]);
                 }
                 this.initRoots();
             },
             pointShape: function (point) {
-                var size = this.ROOT_SIZE;
+                var sectorRoot = (this.rootMap[Math.floor(point.x / ROOT_SIZE)] || {})[Math.floor(point.y / ROOT_SIZE)];
                 var result = this.root.pointShapes(point);
-                var sectorRoot = (this.rootMap[math.floor(point.x / size)] || {})[math.floor(point.y / size)];
                 if (sectorRoot) {
                     result = result.concat(sectorRoot.pointShapes(point));
                 }
@@ -4076,26 +5128,26 @@
                 }
             },
             assignZindex: function (elements) {
-                var element, levelWeight, zIndex, parents;
+                var this$1 = this;
                 for (var idx = 0; idx < elements.length; idx++) {
-                    element = elements[idx];
-                    zIndex = 0;
-                    levelWeight = math.pow(LEVEL_STEP, MAX_LEVEL);
-                    parents = [];
+                    var element = elements[idx];
+                    var zIndex = 0;
+                    var levelWeight = Math.pow(LEVEL_STEP, MAX_LEVEL);
+                    var parents = [];
                     while (element) {
                         parents.push(element);
                         element = element.parent;
                     }
                     while (parents.length) {
                         element = parents.pop();
-                        zIndex += (inArray(element, element.parent ? element.parent.children : this.rootElements) + 1) * levelWeight;
+                        zIndex += ((element.parent ? element.parent.children : this$1.rootElements).indexOf(element) + 1) * levelWeight;
                         levelWeight /= LEVEL_STEP;
                     }
                     elements[idx]._zIndex = zIndex;
                 }
             },
             optionsChange: function (e) {
-                if (e.field == 'transform' || e.field == 'stroke.width') {
+                if (e.field === 'transform' || e.field === 'stroke.width') {
                     this.bboxChange(e.element);
                 }
             },
@@ -4103,9 +5155,10 @@
                 this.bboxChange(e.element);
             },
             bboxChange: function (element) {
+                var this$1 = this;
                 if (element.nodeType === 'Group') {
                     for (var idx = 0; idx < element.children.length; idx++) {
-                        this.bboxChange(element.children[idx]);
+                        this$1.bboxChange(element.children[idx]);
                     }
                 } else {
                     if (element._quadNode) {
@@ -4115,63 +5168,66 @@
                 }
             },
             add: function (elements) {
-                var elementsArray = isArray(elements) ? elements.slice(0) : [elements];
-                this.rootElements.push.apply(this.rootElements, elementsArray);
+                var elementsArray = Array.isArray(elements) ? elements.slice(0) : [elements];
+                append(this.rootElements, elementsArray);
                 this._insert(elementsArray);
             },
             childrenChange: function (e) {
-                if (e.action == 'remove') {
+                var this$1 = this;
+                if (e.action === 'remove') {
                     for (var idx = 0; idx < e.items.length; idx++) {
-                        this.remove(e.items[idx]);
+                        this$1.remove(e.items[idx]);
                     }
                 } else {
                     this._insert(Array.prototype.slice.call(e.items, 0));
                 }
             },
             _insert: function (elements) {
+                var this$1 = this;
                 var element;
                 while (elements.length > 0) {
                     element = elements.pop();
-                    element.addObserver(this);
-                    if (element.nodeType == 'Group') {
-                        elements.push.apply(elements, element.children);
+                    element.addObserver(this$1);
+                    if (element.nodeType === 'Group') {
+                        append(elements, element.children);
                     } else {
-                        this._insertShape(element);
+                        this$1._insertShape(element);
                     }
                 }
             },
             _insertShape: function (shape) {
                 var bbox = shape.bbox();
                 if (bbox) {
-                    var rootSize = this.ROOT_SIZE;
                     var sectors = this.getSectors(bbox);
                     var x = sectors[0][0];
                     var y = sectors[1][0];
                     if (this.inRoot(sectors)) {
                         this.root.insert(shape, bbox);
                     } else {
-                        if (!this.rootMap[x]) {
-                            this.rootMap[x] = {};
+                        var rootMap = this.rootMap;
+                        if (!rootMap[x]) {
+                            rootMap[x] = {};
                         }
-                        if (!this.rootMap[x][y]) {
-                            this.rootMap[x][y] = new QuadNode(new Rect([
-                                x * rootSize,
-                                y * rootSize
+                        if (!rootMap[x][y]) {
+                            rootMap[x][y] = new QuadNode(new Rect([
+                                x * ROOT_SIZE,
+                                y * ROOT_SIZE
                             ], [
-                                rootSize,
-                                rootSize
+                                ROOT_SIZE,
+                                ROOT_SIZE
                             ]));
                         }
-                        this.rootMap[x][y].insert(shape, bbox);
+                        rootMap[x][y].insert(shape, bbox);
                     }
                 }
             },
             remove: function (element) {
+                var this$1 = this;
                 element.removeObserver(this);
-                if (element.nodeType == 'Group') {
+                if (element.nodeType === 'Group') {
                     var children = element.children;
                     for (var idx = 0; idx < children.length; idx++) {
-                        this.remove(children[idx]);
+                        this$1.remove(children[idx]);
                     }
                 } else if (element._quadNode) {
                     element._quadNode.remove(element);
@@ -4182,18 +5238,17 @@
                 return sectors[0].length > 1 || sectors[1].length > 1;
             },
             getSectors: function (rect) {
-                var rootSize = this.ROOT_SIZE;
                 var bottomRight = rect.bottomRight();
-                var bottomX = math.floor(bottomRight.x / rootSize);
-                var bottomY = math.floor(bottomRight.y / rootSize);
+                var bottomX = Math.floor(bottomRight.x / ROOT_SIZE);
+                var bottomY = Math.floor(bottomRight.y / ROOT_SIZE);
                 var sectors = [
                     [],
                     []
                 ];
-                for (var x = math.floor(rect.origin.x / rootSize); x <= bottomX; x++) {
+                for (var x = Math.floor(rect.origin.x / ROOT_SIZE); x <= bottomX; x++) {
                     sectors[0].push(x);
                 }
-                for (var y = math.floor(rect.origin.y / rootSize); y <= bottomY; y++) {
+                for (var y = Math.floor(rect.origin.y / ROOT_SIZE); y <= bottomY; y++) {
                     sectors[1].push(y);
                 }
                 return sectors;
@@ -4208,1015 +5263,24 @@
             }
             return 0;
         }
-        deepExtend(drawing, {
-            ShapesQuadTree: ShapesQuadTree,
-            QuadNode: QuadNode
-        });
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/svg', [
-        'drawing/shapes',
-        'util/main'
-    ], f);
-}(function () {
-    (function ($) {
-        var doc = document, kendo = window.kendo, deepExtend = kendo.deepExtend, g = kendo.geometry, d = kendo.drawing, BaseNode = d.BaseNode, util = kendo.util, defined = util.defined, isTransparent = util.isTransparent, renderAttr = util.renderAttr, renderAllAttr = util.renderAllAttr, renderTemplate = util.renderTemplate, inArray = $.inArray;
-        var BUTT = 'butt', DASH_ARRAYS = d.DASH_ARRAYS, GRADIENT = 'gradient', NONE = 'none', NS = '.kendo', SOLID = 'solid', SPACE = ' ', SVG_NS = 'http://www.w3.org/2000/svg', TRANSFORM = 'transform', UNDEFINED = 'undefined';
-        var Surface = d.Surface.extend({
+        var Surface$3 = Surface.extend({
             init: function (element, options) {
-                d.Surface.fn.init.call(this, element, options);
-                this._root = new RootNode(this.options);
-                renderSVG(this.element[0], this._template(this));
-                this._rootElement = this.element[0].firstElementChild;
-                alignToScreen(this._rootElement);
-                this._root.attachTo(this._rootElement);
-                this.element.on('click' + NS, this._click);
-                this.element.on('mouseover' + NS, this._mouseenter);
-                this.element.on('mouseout' + NS, this._mouseleave);
-                this.element.on('mousemove' + NS, this._mousemove);
-                this.resize();
-            },
-            type: 'svg',
-            destroy: function () {
-                if (this._root) {
-                    this._root.destroy();
-                    this._root = null;
-                    this._rootElement = null;
-                    this.element.off(NS);
-                }
-                d.Surface.fn.destroy.call(this);
-            },
-            translate: function (offset) {
-                var viewBox = kendo.format('{0} {1} {2} {3}', Math.round(offset.x), Math.round(offset.y), this._size.width, this._size.height);
-                this._offset = offset;
-                this._rootElement.setAttribute('viewBox', viewBox);
-            },
-            draw: function (element) {
-                d.Surface.fn.draw.call(this, element);
-                this._root.load([element]);
-            },
-            clear: function () {
-                d.Surface.fn.clear.call(this);
-                this._root.clear();
-            },
-            svg: function () {
-                return '<?xml version=\'1.0\' ?>' + this._template(this);
-            },
-            exportVisual: function () {
-                var visual = this._visual;
-                var offset = this._offset;
-                if (offset) {
-                    var wrap = new d.Group();
-                    wrap.children.push(visual);
-                    wrap.transform(g.transform().translate(-offset.x, -offset.y));
-                    visual = wrap;
-                }
-                return visual;
-            },
-            _resize: function () {
-                if (this._offset) {
-                    this.translate(this._offset);
-                }
-            },
-            _template: renderTemplate('<svg style=\'width: 100%; height: 100%; overflow: hidden;\' ' + 'xmlns=\'' + SVG_NS + '\' ' + 'xmlns:xlink=\'http://www.w3.org/1999/xlink\' ' + 'version=\'1.1\'>#= d._root.render() #</svg>')
-        });
-        var Node = BaseNode.extend({
-            init: function (srcElement) {
-                BaseNode.fn.init.call(this, srcElement);
-                this.definitions = {};
-            },
-            destroy: function () {
-                if (this.element) {
-                    this.element._kendoNode = null;
-                    this.element = null;
-                }
-                this.clearDefinitions();
-                BaseNode.fn.destroy.call(this);
-            },
-            load: function (elements, pos) {
-                var node = this, element = node.element, childNode, srcElement, children, i;
-                for (i = 0; i < elements.length; i++) {
-                    srcElement = elements[i];
-                    children = srcElement.children;
-                    childNode = new nodeMap[srcElement.nodeType](srcElement);
-                    if (defined(pos)) {
-                        node.insertAt(childNode, pos);
-                    } else {
-                        node.append(childNode);
-                    }
-                    childNode.createDefinitions();
-                    if (children && children.length > 0) {
-                        childNode.load(children);
-                    }
-                    if (element) {
-                        childNode.attachTo(element, pos);
-                    }
-                }
-            },
-            root: function () {
-                var root = this;
-                while (root.parent) {
-                    root = root.parent;
-                }
-                return root;
-            },
-            attachTo: function (domElement, pos) {
-                var container = doc.createElement('div');
-                renderSVG(container, '<svg xmlns=\'' + SVG_NS + '\' version=\'1.1\'>' + this.render() + '</svg>');
-                var element = container.firstChild.firstChild;
-                if (element) {
-                    if (defined(pos)) {
-                        domElement.insertBefore(element, domElement.childNodes[pos] || null);
-                    } else {
-                        domElement.appendChild(element);
-                    }
-                    this.setElement(element);
-                }
-            },
-            setElement: function (element) {
-                var nodes = this.childNodes, childElement, i;
-                if (this.element) {
-                    this.element._kendoNode = null;
-                }
-                this.element = element;
-                this.element._kendoNode = this;
-                for (i = 0; i < nodes.length; i++) {
-                    childElement = element.childNodes[i];
-                    nodes[i].setElement(childElement);
-                }
-            },
-            clear: function () {
-                this.clearDefinitions();
-                if (this.element) {
-                    this.element.innerHTML = '';
-                }
-                var children = this.childNodes;
-                for (var i = 0; i < children.length; i++) {
-                    children[i].destroy();
-                }
-                this.childNodes = [];
-            },
-            removeSelf: function () {
-                if (this.element) {
-                    var parentNode = this.element.parentNode;
-                    if (parentNode) {
-                        parentNode.removeChild(this.element);
-                    }
-                    this.element = null;
-                }
-                BaseNode.fn.removeSelf.call(this);
-            },
-            template: renderTemplate('#= d.renderChildren() #'),
-            render: function () {
-                return this.template(this);
-            },
-            renderChildren: function () {
-                var nodes = this.childNodes, output = '', i;
-                for (i = 0; i < nodes.length; i++) {
-                    output += nodes[i].render();
-                }
-                return output;
-            },
-            optionsChange: function (e) {
-                var field = e.field;
-                var value = e.value;
-                if (field === 'visible') {
-                    this.css('display', value ? '' : NONE);
-                } else if (DefinitionMap[field] && isDefinition(field, value)) {
-                    this.updateDefinition(field, value);
-                } else if (field === 'opacity') {
-                    this.attr('opacity', value);
-                }
-                BaseNode.fn.optionsChange.call(this, e);
-            },
-            attr: function (name, value) {
-                if (this.element) {
-                    this.element.setAttribute(name, value);
-                }
-            },
-            allAttr: function (attrs) {
-                for (var i = 0; i < attrs.length; i++) {
-                    this.attr(attrs[i][0], attrs[i][1]);
-                }
-            },
-            css: function (name, value) {
-                if (this.element) {
-                    this.element.style[name] = value;
-                }
-            },
-            allCss: function (styles) {
-                for (var i = 0; i < styles.length; i++) {
-                    this.css(styles[i][0], styles[i][1]);
-                }
-            },
-            removeAttr: function (name) {
-                if (this.element) {
-                    this.element.removeAttribute(name);
-                }
-            },
-            mapTransform: function (transform) {
-                var attrs = [];
-                if (transform) {
-                    attrs.push([
-                        TRANSFORM,
-                        'matrix(' + transform.matrix().toString(6) + ')'
-                    ]);
-                }
-                return attrs;
-            },
-            renderTransform: function () {
-                return renderAllAttr(this.mapTransform(this.srcElement.transform()));
-            },
-            transformChange: function (value) {
-                if (value) {
-                    this.allAttr(this.mapTransform(value));
-                } else {
-                    this.removeAttr(TRANSFORM);
-                }
-            },
-            mapStyle: function () {
-                var options = this.srcElement.options;
-                var style = [[
-                        'cursor',
-                        options.cursor
-                    ]];
-                if (options.visible === false) {
-                    style.push([
-                        'display',
-                        NONE
-                    ]);
-                }
-                return style;
-            },
-            renderStyle: function () {
-                return renderAttr('style', util.renderStyle(this.mapStyle(true)));
-            },
-            renderOpacity: function () {
-                return renderAttr('opacity', this.srcElement.options.opacity);
-            },
-            createDefinitions: function () {
-                var srcElement = this.srcElement;
-                var definitions = this.definitions;
-                var definition, field, options, hasDefinitions;
-                if (srcElement) {
-                    options = srcElement.options;
-                    for (field in DefinitionMap) {
-                        definition = options.get(field);
-                        if (definition && isDefinition(field, definition)) {
-                            definitions[field] = definition;
-                            hasDefinitions = true;
-                        }
-                    }
-                    if (hasDefinitions) {
-                        this.definitionChange({
-                            action: 'add',
-                            definitions: definitions
-                        });
-                    }
-                }
-            },
-            definitionChange: function (e) {
-                if (this.parent) {
-                    this.parent.definitionChange(e);
-                }
-            },
-            updateDefinition: function (type, value) {
-                var definitions = this.definitions;
-                var current = definitions[type];
-                var attr = DefinitionMap[type];
-                var definition = {};
-                if (current) {
-                    definition[type] = current;
-                    this.definitionChange({
-                        action: 'remove',
-                        definitions: definition
-                    });
-                    delete definitions[type];
-                }
-                if (!value) {
-                    if (current) {
-                        this.removeAttr(attr);
-                    }
-                } else {
-                    definition[type] = value;
-                    this.definitionChange({
-                        action: 'add',
-                        definitions: definition
-                    });
-                    definitions[type] = value;
-                    this.attr(attr, refUrl(value.id));
-                }
-            },
-            clearDefinitions: function () {
-                var definitions = this.definitions;
-                var field;
-                for (field in definitions) {
-                    this.definitionChange({
-                        action: 'remove',
-                        definitions: definitions
-                    });
-                    this.definitions = {};
-                    break;
-                }
-            },
-            renderDefinitions: function () {
-                return renderAllAttr(this.mapDefinitions());
-            },
-            mapDefinitions: function () {
-                var definitions = this.definitions;
-                var attrs = [];
-                var field;
-                for (field in definitions) {
-                    attrs.push([
-                        DefinitionMap[field],
-                        refUrl(definitions[field].id)
-                    ]);
-                }
-                return attrs;
-            }
-        });
-        var RootNode = Node.extend({
-            init: function (options) {
-                Node.fn.init.call(this);
-                this.options = options;
-                this.defs = new DefinitionNode();
-            },
-            attachTo: function (domElement) {
-                this.element = domElement;
-                this.defs.attachTo(domElement.firstElementChild);
-            },
-            clear: function () {
-                BaseNode.fn.clear.call(this);
-            },
-            template: renderTemplate('#=d.defs.render()##= d.renderChildren() #'),
-            definitionChange: function (e) {
-                this.defs.definitionChange(e);
-            }
-        });
-        var DefinitionNode = Node.extend({
-            init: function () {
-                Node.fn.init.call(this);
-                this.definitionMap = {};
-            },
-            attachTo: function (domElement) {
-                this.element = domElement;
-            },
-            template: renderTemplate('<defs>#= d.renderChildren()#</defs>'),
-            definitionChange: function (e) {
-                var definitions = e.definitions;
-                var action = e.action;
-                if (action == 'add') {
-                    this.addDefinitions(definitions);
-                } else if (action == 'remove') {
-                    this.removeDefinitions(definitions);
-                }
-            },
-            createDefinition: function (type, item) {
-                var nodeType;
-                if (type == 'clip') {
-                    nodeType = ClipNode;
-                } else if (type == 'fill') {
-                    if (item instanceof d.LinearGradient) {
-                        nodeType = LinearGradientNode;
-                    } else if (item instanceof d.RadialGradient) {
-                        nodeType = RadialGradientNode;
-                    }
-                }
-                return new nodeType(item);
-            },
-            addDefinitions: function (definitions) {
-                for (var field in definitions) {
-                    this.addDefinition(field, definitions[field]);
-                }
-            },
-            addDefinition: function (type, srcElement) {
-                var definitionMap = this.definitionMap;
-                var id = srcElement.id;
-                var element = this.element;
-                var node, mapItem;
-                mapItem = definitionMap[id];
-                if (!mapItem) {
-                    node = this.createDefinition(type, srcElement);
-                    definitionMap[id] = {
-                        element: node,
-                        count: 1
-                    };
-                    this.append(node);
-                    if (element) {
-                        node.attachTo(this.element);
-                    }
-                } else {
-                    mapItem.count++;
-                }
-            },
-            removeDefinitions: function (definitions) {
-                for (var field in definitions) {
-                    this.removeDefinition(definitions[field]);
-                }
-            },
-            removeDefinition: function (srcElement) {
-                var definitionMap = this.definitionMap;
-                var id = srcElement.id;
-                var mapItem;
-                mapItem = definitionMap[id];
-                if (mapItem) {
-                    mapItem.count--;
-                    if (mapItem.count === 0) {
-                        this.remove(inArray(mapItem.element, this.childNodes), 1);
-                        delete definitionMap[id];
-                    }
-                }
-            }
-        });
-        var ClipNode = Node.extend({
-            init: function (srcElement) {
-                Node.fn.init.call(this);
-                this.srcElement = srcElement;
-                this.id = srcElement.id;
-                this.load([srcElement]);
-            },
-            template: renderTemplate('<clipPath id=\'#=d.id#\'>#= d.renderChildren()#</clipPath>')
-        });
-        var GroupNode = Node.extend({
-            template: renderTemplate('<g#= d.renderTransform() + d.renderStyle() + d.renderOpacity() + d.renderDefinitions()#>#= d.renderChildren() #</g>'),
-            optionsChange: function (e) {
-                if (e.field == TRANSFORM) {
-                    this.transformChange(e.value);
-                }
-                Node.fn.optionsChange.call(this, e);
-            }
-        });
-        var PathNode = Node.extend({
-            geometryChange: function () {
-                this.attr('d', this.renderData());
-                this.invalidate();
-            },
-            optionsChange: function (e) {
-                switch (e.field) {
-                case 'fill':
-                    if (e.value) {
-                        this.allAttr(this.mapFill(e.value));
-                    } else {
-                        this.removeAttr('fill');
-                    }
-                    break;
-                case 'fill.color':
-                    this.allAttr(this.mapFill({ color: e.value }));
-                    break;
-                case 'stroke':
-                    if (e.value) {
-                        this.allAttr(this.mapStroke(e.value));
-                    } else {
-                        this.removeAttr('stroke');
-                    }
-                    break;
-                case TRANSFORM:
-                    this.transformChange(e.value);
-                    break;
-                default:
-                    var name = this.attributeMap[e.field];
-                    if (name) {
-                        this.attr(name, e.value);
-                    }
-                    break;
-                }
-                Node.fn.optionsChange.call(this, e);
-            },
-            attributeMap: {
-                'fill.opacity': 'fill-opacity',
-                'stroke.color': 'stroke',
-                'stroke.width': 'stroke-width',
-                'stroke.opacity': 'stroke-opacity'
-            },
-            content: function () {
-                if (this.element) {
-                    this.element.textContent = this.srcElement.content();
-                }
-            },
-            renderData: function () {
-                return this.printPath(this.srcElement);
-            },
-            printPath: function (path) {
-                var segments = path.segments, length = segments.length;
-                if (length > 0) {
-                    var parts = [], output, segmentType, currentType, i;
-                    for (i = 1; i < length; i++) {
-                        segmentType = this.segmentType(segments[i - 1], segments[i]);
-                        if (segmentType !== currentType) {
-                            currentType = segmentType;
-                            parts.push(segmentType);
-                        }
-                        if (segmentType === 'L') {
-                            parts.push(this.printPoints(segments[i].anchor()));
-                        } else {
-                            parts.push(this.printPoints(segments[i - 1].controlOut(), segments[i].controlIn(), segments[i].anchor()));
-                        }
-                    }
-                    output = 'M' + this.printPoints(segments[0].anchor()) + SPACE + parts.join(SPACE);
-                    if (path.options.closed) {
-                        output += 'Z';
-                    }
-                    return output;
-                }
-            },
-            printPoints: function () {
-                var points = arguments, length = points.length, i, result = [];
-                for (i = 0; i < length; i++) {
-                    result.push(points[i].toString(3));
-                }
-                return result.join(SPACE);
-            },
-            segmentType: function (segmentStart, segmentEnd) {
-                return segmentStart.controlOut() && segmentEnd.controlIn() ? 'C' : 'L';
-            },
-            mapStroke: function (stroke) {
-                var attrs = [];
-                if (stroke && !isTransparent(stroke.color)) {
-                    attrs.push([
-                        'stroke',
-                        stroke.color
-                    ]);
-                    attrs.push([
-                        'stroke-width',
-                        stroke.width
-                    ]);
-                    attrs.push([
-                        'stroke-linecap',
-                        this.renderLinecap(stroke)
-                    ]);
-                    attrs.push([
-                        'stroke-linejoin',
-                        stroke.lineJoin
-                    ]);
-                    if (defined(stroke.opacity)) {
-                        attrs.push([
-                            'stroke-opacity',
-                            stroke.opacity
-                        ]);
-                    }
-                    if (defined(stroke.dashType)) {
-                        attrs.push([
-                            'stroke-dasharray',
-                            this.renderDashType(stroke)
-                        ]);
-                    }
-                } else {
-                    attrs.push([
-                        'stroke',
-                        NONE
-                    ]);
-                }
-                return attrs;
-            },
-            renderStroke: function () {
-                return renderAllAttr(this.mapStroke(this.srcElement.options.stroke));
-            },
-            renderDashType: function (stroke) {
-                var width = stroke.width || 1, dashType = stroke.dashType;
-                if (dashType && dashType != SOLID) {
-                    var dashArray = DASH_ARRAYS[dashType.toLowerCase()], result = [], i;
-                    for (i = 0; i < dashArray.length; i++) {
-                        result.push(dashArray[i] * width);
-                    }
-                    return result.join(' ');
-                }
-            },
-            renderLinecap: function (stroke) {
-                var dashType = stroke.dashType, lineCap = stroke.lineCap;
-                return dashType && dashType != SOLID ? BUTT : lineCap;
-            },
-            mapFill: function (fill) {
-                var attrs = [];
-                if (!(fill && fill.nodeType == GRADIENT)) {
-                    if (fill && !isTransparent(fill.color)) {
-                        attrs.push([
-                            'fill',
-                            fill.color
-                        ]);
-                        if (defined(fill.opacity)) {
-                            attrs.push([
-                                'fill-opacity',
-                                fill.opacity
-                            ]);
-                        }
-                    } else {
-                        attrs.push([
-                            'fill',
-                            NONE
-                        ]);
-                    }
-                }
-                return attrs;
-            },
-            renderFill: function () {
-                return renderAllAttr(this.mapFill(this.srcElement.options.fill));
-            },
-            template: renderTemplate('<path #= d.renderStyle() # #= d.renderOpacity() # ' + '#= kendo.util.renderAttr(\'d\', d.renderData()) # ' + '#= d.renderStroke() # ' + '#= d.renderFill() # ' + '#= d.renderDefinitions() # ' + '#= d.renderTransform() #></path>')
-        });
-        var ArcNode = PathNode.extend({
-            renderData: function () {
-                return this.printPath(this.srcElement.toPath());
-            }
-        });
-        var MultiPathNode = PathNode.extend({
-            renderData: function () {
-                var paths = this.srcElement.paths;
-                if (paths.length > 0) {
-                    var result = [], i;
-                    for (i = 0; i < paths.length; i++) {
-                        result.push(this.printPath(paths[i]));
-                    }
-                    return result.join(' ');
-                }
-            }
-        });
-        var CircleNode = PathNode.extend({
-            geometryChange: function () {
-                var center = this.center();
-                this.attr('cx', center.x);
-                this.attr('cy', center.y);
-                this.attr('r', this.radius());
-                this.invalidate();
-            },
-            center: function () {
-                return this.srcElement.geometry().center;
-            },
-            radius: function () {
-                return this.srcElement.geometry().radius;
-            },
-            template: renderTemplate('<circle #= d.renderStyle() # #= d.renderOpacity() # ' + 'cx=\'#= d.center().x #\' cy=\'#= d.center().y #\' ' + 'r=\'#= d.radius() #\' ' + '#= d.renderStroke() # ' + '#= d.renderFill() # ' + '#= d.renderDefinitions() # ' + '#= d.renderTransform() # ></circle>')
-        });
-        var TextNode = PathNode.extend({
-            geometryChange: function () {
-                var pos = this.pos();
-                this.attr('x', pos.x);
-                this.attr('y', pos.y);
-                this.invalidate();
-            },
-            optionsChange: function (e) {
-                if (e.field === 'font') {
-                    this.attr('style', util.renderStyle(this.mapStyle()));
-                    this.geometryChange();
-                } else if (e.field === 'content') {
-                    PathNode.fn.content.call(this, this.srcElement.content());
-                }
-                PathNode.fn.optionsChange.call(this, e);
-            },
-            mapStyle: function (encode) {
-                var style = PathNode.fn.mapStyle.call(this, encode);
-                var font = this.srcElement.options.font;
-                if (encode) {
-                    font = kendo.htmlEncode(font);
-                }
-                style.push([
-                    'font',
-                    font
-                ]);
-                return style;
-            },
-            pos: function () {
-                var pos = this.srcElement.position();
-                var size = this.srcElement.measure();
-                return pos.clone().setY(pos.y + size.baseline);
-            },
-            renderContent: function () {
-                var content = this.srcElement.content();
-                content = decodeEntities(content);
-                content = kendo.htmlEncode(content);
-                return content;
-            },
-            template: renderTemplate('<text #= d.renderStyle() # #= d.renderOpacity() # ' + 'x=\'#= this.pos().x #\' y=\'#= this.pos().y #\' ' + '#= d.renderStroke() # ' + '#= d.renderTransform() # ' + '#= d.renderDefinitions() # ' + '#= d.renderFill() #>#= d.renderContent() #</text>')
-        });
-        var ImageNode = PathNode.extend({
-            geometryChange: function () {
-                this.allAttr(this.mapPosition());
-                this.invalidate();
-            },
-            optionsChange: function (e) {
-                if (e.field === 'src') {
-                    this.allAttr(this.mapSource());
-                }
-                PathNode.fn.optionsChange.call(this, e);
-            },
-            mapPosition: function () {
-                var rect = this.srcElement.rect();
-                var tl = rect.topLeft();
-                return [
-                    [
-                        'x',
-                        tl.x
-                    ],
-                    [
-                        'y',
-                        tl.y
-                    ],
-                    [
-                        'width',
-                        rect.width() + 'px'
-                    ],
-                    [
-                        'height',
-                        rect.height() + 'px'
-                    ]
-                ];
-            },
-            renderPosition: function () {
-                return renderAllAttr(this.mapPosition());
-            },
-            mapSource: function (encode) {
-                var src = this.srcElement.src();
-                if (encode) {
-                    src = kendo.htmlEncode(src);
-                }
-                return [[
-                        'xlink:href',
-                        src
-                    ]];
-            },
-            renderSource: function () {
-                return renderAllAttr(this.mapSource(true));
-            },
-            template: renderTemplate('<image preserveAspectRatio=\'none\' #= d.renderStyle() # #= d.renderTransform()# #= d.renderOpacity() # ' + '#= d.renderPosition() # #= d.renderSource() # #= d.renderDefinitions()#>' + '</image>')
-        });
-        var GradientStopNode = Node.extend({
-            template: renderTemplate('<stop #=d.renderOffset()# #=d.renderStyle()# />'),
-            renderOffset: function () {
-                return renderAttr('offset', this.srcElement.offset());
-            },
-            mapStyle: function () {
-                var srcElement = this.srcElement;
-                return [
-                    [
-                        'stop-color',
-                        srcElement.color()
-                    ],
-                    [
-                        'stop-opacity',
-                        srcElement.opacity()
-                    ]
-                ];
-            },
-            optionsChange: function (e) {
-                if (e.field == 'offset') {
-                    this.attr(e.field, e.value);
-                } else if (e.field == 'color' || e.field == 'opacity') {
-                    this.css('stop-' + e.field, e.value);
-                }
-            }
-        });
-        var GradientNode = Node.extend({
-            init: function (srcElement) {
-                Node.fn.init.call(this, srcElement);
-                this.id = srcElement.id;
-                this.loadStops();
-            },
-            loadStops: function () {
-                var srcElement = this.srcElement;
-                var stops = srcElement.stops;
-                var element = this.element;
-                var stopNode;
-                var idx;
-                for (idx = 0; idx < stops.length; idx++) {
-                    stopNode = new GradientStopNode(stops[idx]);
-                    this.append(stopNode);
-                    if (element) {
-                        stopNode.attachTo(element);
-                    }
-                }
-            },
-            optionsChange: function (e) {
-                if (e.field == 'gradient.stops') {
-                    BaseNode.fn.clear.call(this);
-                    this.loadStops();
-                } else if (e.field == GRADIENT) {
-                    this.allAttr(this.mapCoordinates());
-                }
-            },
-            renderCoordinates: function () {
-                return renderAllAttr(this.mapCoordinates());
-            },
-            mapSpace: function () {
-                return [
-                    'gradientUnits',
-                    this.srcElement.userSpace() ? 'userSpaceOnUse' : 'objectBoundingBox'
-                ];
-            }
-        });
-        var LinearGradientNode = GradientNode.extend({
-            template: renderTemplate('<linearGradient id=\'#=d.id#\' #=d.renderCoordinates()#>' + '#= d.renderChildren()#' + '</linearGradient>'),
-            mapCoordinates: function () {
-                var srcElement = this.srcElement;
-                var start = srcElement.start();
-                var end = srcElement.end();
-                var attrs = [
-                    [
-                        'x1',
-                        start.x
-                    ],
-                    [
-                        'y1',
-                        start.y
-                    ],
-                    [
-                        'x2',
-                        end.x
-                    ],
-                    [
-                        'y2',
-                        end.y
-                    ],
-                    this.mapSpace()
-                ];
-                return attrs;
-            }
-        });
-        var RadialGradientNode = GradientNode.extend({
-            template: renderTemplate('<radialGradient id=\'#=d.id#\' #=d.renderCoordinates()#>' + '#= d.renderChildren()#' + '</radialGradient>'),
-            mapCoordinates: function () {
-                var srcElement = this.srcElement;
-                var center = srcElement.center();
-                var radius = srcElement.radius();
-                var attrs = [
-                    [
-                        'cx',
-                        center.x
-                    ],
-                    [
-                        'cy',
-                        center.y
-                    ],
-                    [
-                        'r',
-                        radius
-                    ],
-                    this.mapSpace()
-                ];
-                return attrs;
-            }
-        });
-        var RectNode = PathNode.extend({
-            geometryChange: function () {
-                var geometry = this.srcElement.geometry();
-                this.attr('x', geometry.origin.x);
-                this.attr('y', geometry.origin.y);
-                this.attr('width', geometry.size.width);
-                this.attr('height', geometry.size.height);
-                this.invalidate();
-            },
-            size: function () {
-                return this.srcElement.geometry().size;
-            },
-            origin: function () {
-                return this.srcElement.geometry().origin;
-            },
-            template: renderTemplate('<rect #= d.renderStyle() # #= d.renderOpacity() # ' + 'x=\'#= d.origin().x #\' y=\'#= d.origin().y #\' ' + 'width=\'#= d.size().width #\' height=\'#= d.size().height #\'' + '#= d.renderStroke() # ' + '#= d.renderFill() # ' + '#= d.renderDefinitions() # ' + '#= d.renderTransform() # />')
-        });
-        var nodeMap = {
-            Group: GroupNode,
-            Text: TextNode,
-            Path: PathNode,
-            MultiPath: MultiPathNode,
-            Circle: CircleNode,
-            Arc: ArcNode,
-            Image: ImageNode,
-            Rect: RectNode
-        };
-        var renderSVG = function (container, svg) {
-            container.innerHTML = svg;
-        };
-        (function () {
-            var testFragment = '<svg xmlns=\'' + SVG_NS + '\'></svg>', testContainer = doc.createElement('div'), hasParser = typeof DOMParser != UNDEFINED;
-            testContainer.innerHTML = testFragment;
-            if (hasParser && testContainer.firstChild.namespaceURI != SVG_NS) {
-                renderSVG = function (container, svg) {
-                    var parser = new DOMParser(), chartDoc = parser.parseFromString(svg, 'text/xml'), importedDoc = doc.adoptNode(chartDoc.documentElement);
-                    container.innerHTML = '';
-                    container.appendChild(importedDoc);
-                };
-            }
-        }());
-        function alignToScreen(element) {
-            var ctm;
-            try {
-                ctm = element.getScreenCTM ? element.getScreenCTM() : null;
-            } catch (e) {
-            }
-            if (ctm) {
-                var left = -ctm.e % 1, top = -ctm.f % 1, style = element.style;
-                if (left !== 0 || top !== 0) {
-                    style.left = left + 'px';
-                    style.top = top + 'px';
-                }
-            }
-        }
-        function baseUrl() {
-            var base = document.getElementsByTagName('base')[0], url = '', href = document.location.href, hashIndex = href.indexOf('#');
-            if (base && !kendo.support.browser.msie) {
-                if (hashIndex !== -1) {
-                    href = href.substring(0, hashIndex);
-                }
-                url = href;
-            }
-            return url;
-        }
-        function refUrl(id) {
-            return 'url(' + baseUrl() + '#' + id + ')';
-        }
-        function exportGroup(group) {
-            var root = new RootNode();
-            var bbox = group.clippedBBox();
-            if (bbox) {
-                var origin = bbox.getOrigin();
-                var exportRoot = new d.Group();
-                exportRoot.transform(g.transform().translate(-origin.x, -origin.y));
-                exportRoot.children.push(group);
-                group = exportRoot;
-            }
-            root.load([group]);
-            var svg = '<?xml version=\'1.0\' ?>' + '<svg xmlns=\'' + SVG_NS + '\' ' + 'xmlns:xlink=\'http://www.w3.org/1999/xlink\' ' + 'version=\'1.1\'>' + root.render() + '</svg>';
-            root.destroy();
-            return svg;
-        }
-        function exportSVG(group, options) {
-            var svg = exportGroup(group);
-            if (!options || !options.raw) {
-                svg = 'data:image/svg+xml;base64,' + util.encodeBase64(svg);
-            }
-            return $.Deferred().resolve(svg).promise();
-        }
-        function isDefinition(type, value) {
-            return type == 'clip' || type == 'fill' && (!value || value.nodeType == GRADIENT);
-        }
-        function decodeEntities(text) {
-            if (!text || !text.indexOf || text.indexOf('&') < 0) {
-                return text;
-            } else {
-                var element = decodeEntities._element;
-                element.innerHTML = text;
-                return element.textContent || element.innerText;
-            }
-        }
-        decodeEntities._element = document.createElement('span');
-        var DefinitionMap = {
-            clip: 'clip-path',
-            fill: 'fill'
-        };
-        kendo.support.svg = function () {
-            return doc.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#BasicStructure', '1.1');
-        }();
-        if (kendo.support.svg) {
-            d.SurfaceFactory.current.register('svg', Surface, 10);
-        }
-        deepExtend(d, {
-            exportSVG: exportSVG,
-            svg: {
-                ArcNode: ArcNode,
-                CircleNode: CircleNode,
-                ClipNode: ClipNode,
-                DefinitionNode: DefinitionNode,
-                GradientStopNode: GradientStopNode,
-                GroupNode: GroupNode,
-                ImageNode: ImageNode,
-                LinearGradientNode: LinearGradientNode,
-                MultiPathNode: MultiPathNode,
-                Node: Node,
-                PathNode: PathNode,
-                RadialGradientNode: RadialGradientNode,
-                RectNode: RectNode,
-                RootNode: RootNode,
-                Surface: Surface,
-                TextNode: TextNode,
-                _exportGroup: exportGroup
-            }
-        });
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/canvas', [
-        'drawing/search',
-        'kendo.color'
-    ], f);
-}(function () {
-    (function ($) {
-        var doc = document, kendo = window.kendo, deepExtend = kendo.deepExtend, util = kendo.util, defined = util.defined, isTransparent = util.isTransparent, renderTemplate = util.renderTemplate, valueOrDefault = util.valueOrDefault, g = kendo.geometry, d = kendo.drawing, BaseNode = d.BaseNode, proxy = $.proxy;
-        var BUTT = 'butt', DASH_ARRAYS = d.DASH_ARRAYS, FRAME_DELAY = 1000 / 60, SOLID = 'solid', NS = '.kendo';
-        var Surface = d.Surface.extend({
-            init: function (element, options) {
-                d.Surface.fn.init.call(this, element, options);
-                this.element[0].innerHTML = this._template(this);
-                var canvas = this.element[0].firstElementChild;
-                canvas.width = $(element).width();
-                canvas.height = $(element).height();
+                Surface.fn.init.call(this, element, options);
+                this.element.innerHTML = this._template(this);
+                var canvas = this.element.firstElementChild;
+                var size = elementSize(element);
+                canvas.width = size.width;
+                canvas.height = size.height;
                 this._rootElement = canvas;
-                this._root = new RootNode(canvas);
+                this._root = new RootNode$2(canvas);
+                this._mouseTrackHandler = this._trackMouse.bind(this);
+                bindEvents(this.element, {
+                    click: this._mouseTrackHandler,
+                    mousemove: this._mouseTrackHandler
+                });
             },
             destroy: function () {
-                d.Surface.fn.destroy.call(this);
+                Surface.fn.destroy.call(this);
                 if (this._root) {
                     this._root.destroy();
                     this._root = null;
@@ -5225,18 +5289,20 @@
                     this._searchTree.clear();
                     delete this._searchTree;
                 }
-                this.element.off(NS);
+                unbindEvents(this.element, {
+                    click: this._mouseTrackHandler,
+                    mousemove: this._mouseTrackHandler
+                });
             },
-            type: 'canvas',
             draw: function (element) {
-                d.Surface.fn.draw.call(this, element);
+                Surface.fn.draw.call(this, element);
                 this._root.load([element], undefined, this.options.cors);
                 if (this._searchTree) {
                     this._searchTree.add([element]);
                 }
             },
             clear: function () {
-                d.Surface.fn.clear.call(this);
+                Surface.fn.clear.call(this);
                 this._root.clear();
                 if (this._searchTree) {
                     this._searchTree.clear();
@@ -5250,39 +5316,40 @@
                 }
             },
             image: function () {
-                var root = this._root;
-                var rootElement = this._rootElement;
+                var ref = this;
+                var root = ref._root;
+                var rootElement = ref._rootElement;
                 var loadingStates = [];
                 root.traverse(function (childNode) {
                     if (childNode.loading) {
                         loadingStates.push(childNode.loading);
                     }
                 });
-                var defer = $.Deferred();
-                $.when.apply($, loadingStates).done(function () {
+                var promise = createPromise();
+                promiseAll(loadingStates).then(function () {
                     root._invalidate();
                     try {
                         var data = rootElement.toDataURL();
-                        defer.resolve(data);
+                        promise.resolve(data);
                     } catch (e) {
-                        defer.reject(e);
+                        promise.reject(e);
                     }
-                }).fail(function (e) {
-                    defer.reject(e);
+                }, function (e) {
+                    promise.reject(e);
                 });
-                return defer.promise();
+                return promise;
             },
             suspendTracking: function () {
-                d.Surface.fn.suspendTracking.call(this);
+                Surface.fn.suspendTracking.call(this);
                 if (this._searchTree) {
                     this._searchTree.clear();
                     delete this._searchTree;
                 }
             },
             resumeTracking: function () {
-                d.Surface.fn.resumeTracking.call(this);
+                Surface.fn.resumeTracking.call(this);
                 if (!this._searchTree) {
-                    this._searchTree = new d.ShapesQuadTree();
+                    this._searchTree = new ShapesQuadTree();
                     var childNodes = this._root.childNodes;
                     var rootElements = [];
                     for (var idx = 0; idx < childNodes.length; idx++) {
@@ -5296,20 +5363,19 @@
                 this._rootElement.height = this._size.height;
                 this._root.invalidate();
             },
-            _template: renderTemplate('<canvas style=\'width: 100%; height: 100%;\'></canvas>'),
+            _template: function () {
+                return '<canvas style=\'width: 100%; height: 100%;\'></canvas>';
+            },
             _enableTracking: function () {
-                this._searchTree = new d.ShapesQuadTree();
-                this._mouseTrackHandler = proxy(this._trackMouse, this);
-                this.element.on('click' + NS, this._mouseTrackHandler);
-                this.element.on('mousemove' + NS, this._mouseTrackHandler);
-                d.Surface.fn._enableTracking.call(this);
+                this._searchTree = new ShapesQuadTree();
+                Surface.fn._enableTracking.call(this);
             },
             _trackMouse: function (e) {
                 if (this._suspendedTracking) {
                     return;
                 }
                 var shape = this.eventTarget(e);
-                if (e.type != 'click') {
+                if (e.type !== 'click') {
                     var currentShape = this._currentShape;
                     if (currentShape && currentShape !== shape) {
                         this.trigger('mouseleave', {
@@ -5340,143 +5406,20 @@
                 }
             }
         });
-        var Node = BaseNode.extend({
-            init: function (srcElement) {
-                BaseNode.fn.init.call(this, srcElement);
-                if (srcElement) {
-                    this.initClip();
-                }
-            },
-            initClip: function () {
-                var clip = this.srcElement.clip();
-                if (clip) {
-                    this.clip = clip;
-                    clip.addObserver(this);
-                }
-            },
-            clear: function () {
-                if (this.srcElement) {
-                    this.srcElement.removeObserver(this);
-                }
-                this.clearClip();
-                BaseNode.fn.clear.call(this);
-            },
-            clearClip: function () {
-                if (this.clip) {
-                    this.clip.removeObserver(this);
-                    delete this.clip;
-                }
-            },
-            setClip: function (ctx) {
-                if (this.clip) {
-                    ctx.beginPath();
-                    PathNode.fn.renderPoints(ctx, this.clip);
-                    ctx.clip();
-                }
-            },
-            optionsChange: function (e) {
-                if (e.field == 'clip') {
-                    this.clearClip();
-                    this.initClip();
-                }
-                BaseNode.fn.optionsChange.call(this, e);
-            },
-            setTransform: function (ctx) {
-                if (this.srcElement) {
-                    var transform = this.srcElement.transform();
-                    if (transform) {
-                        ctx.transform.apply(ctx, transform.matrix().toArray(6));
-                    }
-                }
-            },
-            loadElements: function (elements, pos, cors) {
-                var node = this, childNode, srcElement, children, i;
-                for (i = 0; i < elements.length; i++) {
-                    srcElement = elements[i];
-                    children = srcElement.children;
-                    childNode = new nodeMap[srcElement.nodeType](srcElement, cors);
-                    if (children && children.length > 0) {
-                        childNode.load(children, pos, cors);
-                    }
-                    if (defined(pos)) {
-                        node.insertAt(childNode, pos);
-                    } else {
-                        node.append(childNode);
-                    }
-                }
-            },
-            load: function (elements, pos, cors) {
-                this.loadElements(elements, pos, cors);
-                this.invalidate();
-            },
-            setOpacity: function (ctx) {
-                if (this.srcElement) {
-                    var opacity = this.srcElement.opacity();
-                    if (defined(opacity)) {
-                        this.globalAlpha(ctx, opacity);
-                    }
-                }
-            },
-            globalAlpha: function (ctx, value) {
-                if (value && ctx.globalAlpha) {
-                    value *= ctx.globalAlpha;
-                }
-                ctx.globalAlpha = value;
-            },
-            visible: function () {
-                var src = this.srcElement;
-                return !src || src && src.options.visible !== false;
+        Surface$3.prototype.type = 'canvas';
+        if (typeof document !== 'undefined' && document.createElement('canvas').getContext) {
+            Surface.support.canvas = true;
+            SurfaceFactory.current.register('canvas', Surface$3, 20);
+        }
+        function addGradientStops(gradient, stops) {
+            for (var idx = 0; idx < stops.length; idx++) {
+                var stop = stops[idx];
+                var color = kendo.parseColor(stop.color());
+                color.a *= stop.opacity();
+                gradient.addColorStop(stop.offset(), color.toCssRgba());
             }
-        });
-        var GroupNode = Node.extend({
-            renderTo: function (ctx) {
-                if (!this.visible()) {
-                    return;
-                }
-                ctx.save();
-                this.setTransform(ctx);
-                this.setClip(ctx);
-                this.setOpacity(ctx);
-                var childNodes = this.childNodes;
-                for (var i = 0; i < childNodes.length; i++) {
-                    var child = childNodes[i];
-                    if (child.visible()) {
-                        child.renderTo(ctx);
-                    }
-                }
-                ctx.restore();
-            }
-        });
-        d.mixins.Traversable.extend(GroupNode.fn, 'childNodes');
-        var RootNode = GroupNode.extend({
-            init: function (canvas) {
-                GroupNode.fn.init.call(this);
-                this.canvas = canvas;
-                this.ctx = canvas.getContext('2d');
-                var invalidateHandler = proxy(this._invalidate, this);
-                this.invalidate = kendo.throttle(function () {
-                    kendo.animationFrame(invalidateHandler);
-                }, FRAME_DELAY);
-            },
-            destroy: function () {
-                GroupNode.fn.destroy.call(this);
-                this.canvas = null;
-                this.ctx = null;
-            },
-            load: function (elements, pos, cors) {
-                this.loadElements(elements, pos, cors);
-                this._invalidate();
-            },
-            _invalidate: function () {
-                if (!this.ctx) {
-                    return;
-                }
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                this.renderTo(this.ctx);
-            }
-        });
-        d.mixins.Traversable.extend(RootNode.fn, 'childNodes');
-        var PathNode = Node.extend({
+        }
+        var PathNode$2 = Node$2.extend({
             renderTo: function (ctx) {
                 ctx.save();
                 this.setTransform(ctx);
@@ -5495,7 +5438,7 @@
                 var fill = this.srcElement.options.fill;
                 var hasFill = false;
                 if (fill) {
-                    if (fill.nodeType == 'gradient') {
+                    if (fill.nodeType === 'Gradient') {
                         this.setGradientFill(ctx, fill);
                         hasFill = true;
                     } else if (!isTransparent(fill.color)) {
@@ -5512,11 +5455,11 @@
             setGradientFill: function (ctx, fill) {
                 var bbox = this.srcElement.rawBBox();
                 var gradient;
-                if (fill instanceof d.LinearGradient) {
+                if (fill instanceof LinearGradient) {
                     var start = fill.start();
                     var end = fill.end();
                     gradient = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
-                } else if (fill instanceof d.RadialGradient) {
+                } else if (fill instanceof RadialGradient) {
                     var center = fill.center();
                     gradient = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, fill.radius());
                 }
@@ -5549,7 +5492,7 @@
             },
             setLineDash: function (ctx) {
                 var dashType = this.dashType();
-                if (dashType && dashType != SOLID) {
+                if (dashType && dashType !== SOLID) {
                     var dashArray = DASH_ARRAYS[dashType];
                     if (ctx.setLineDash) {
                         ctx.setLineDash(dashArray);
@@ -5575,79 +5518,41 @@
                 }
             },
             renderPoints: function (ctx, path) {
-                var segments = path.segments;
-                if (segments.length === 0) {
-                    return;
-                }
-                var seg = segments[0];
-                var anchor = seg.anchor();
-                ctx.moveTo(anchor.x, anchor.y);
-                for (var i = 1; i < segments.length; i++) {
-                    seg = segments[i];
-                    anchor = seg.anchor();
-                    var prevSeg = segments[i - 1];
-                    var prevOut = prevSeg.controlOut();
-                    var controlIn = seg.controlIn();
-                    if (prevOut && controlIn) {
-                        ctx.bezierCurveTo(prevOut.x, prevOut.y, controlIn.x, controlIn.y, anchor.x, anchor.y);
-                    } else {
-                        ctx.lineTo(anchor.x, anchor.y);
-                    }
-                }
-                if (path.options.closed) {
-                    ctx.closePath();
-                }
+                renderPath(ctx, path);
             }
         });
-        var MultiPathNode = PathNode.extend({
-            renderPoints: function (ctx) {
-                var paths = this.srcElement.paths;
-                for (var i = 0; i < paths.length; i++) {
-                    PathNode.fn.renderPoints(ctx, paths[i]);
-                }
-            }
-        });
-        var CircleNode = PathNode.extend({
-            renderPoints: function (ctx) {
-                var geometry = this.srcElement.geometry();
-                var c = geometry.center;
-                var r = geometry.radius;
-                ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
-            }
-        });
-        var ArcNode = PathNode.extend({
+        NODE_MAP$2.Path = PathNode$2;
+        var ArcNode$2 = PathNode$2.extend({
             renderPoints: function (ctx) {
                 var path = this.srcElement.toPath();
-                PathNode.fn.renderPoints.call(this, ctx, path);
+                renderPath(ctx, path);
             }
         });
-        var TextNode = PathNode.extend({
-            renderTo: function (ctx) {
-                var text = this.srcElement;
-                var pos = text.position();
-                var size = text.measure();
-                ctx.save();
-                this.setTransform(ctx);
-                this.setClip(ctx);
-                this.setOpacity(ctx);
-                ctx.beginPath();
-                ctx.font = text.options.font;
-                if (this.setFill(ctx)) {
-                    ctx.fillText(text.content(), pos.x, pos.y + size.baseline);
-                }
-                if (this.setStroke(ctx)) {
-                    this.setLineDash(ctx);
-                    ctx.strokeText(text.content(), pos.x, pos.y + size.baseline);
-                }
-                ctx.restore();
+        NODE_MAP$2.Arc = ArcNode$2;
+        var CircleNode$2 = PathNode$2.extend({
+            renderPoints: function (ctx) {
+                var ref = this.srcElement.geometry();
+                var center = ref.center;
+                var radius = ref.radius;
+                ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
             }
         });
-        var ImageNode = PathNode.extend({
+        NODE_MAP$2.Circle = CircleNode$2;
+        var RectNode$2 = PathNode$2.extend({
+            renderPoints: function (ctx) {
+                var ref = this.srcElement.geometry();
+                var origin = ref.origin;
+                var size = ref.size;
+                ctx.rect(origin.x, origin.y, size.width, size.height);
+            }
+        });
+        NODE_MAP$2.Rect = RectNode$2;
+        var ImageNode$2 = PathNode$2.extend({
             init: function (srcElement, cors) {
-                PathNode.fn.init.call(this, srcElement);
-                this.onLoad = proxy(this.onLoad, this);
-                this.onError = proxy(this.onError, this);
-                this.loading = $.Deferred();
+                PathNode$2.fn.init.call(this, srcElement);
+                this.onLoad = this.onLoad.bind(this);
+                this.onError = this.onError.bind(this);
+                this.loading = createPromise();
                 var img = this.img = new Image();
                 if (cors && !/^data:/i.test(srcElement.src())) {
                     img.crossOrigin = cors;
@@ -5671,10 +5576,10 @@
             },
             optionsChange: function (e) {
                 if (e.field === 'src') {
-                    this.loading = $.Deferred();
+                    this.loading = createPromise();
                     this.img.src = this.srcElement.src();
                 } else {
-                    PathNode.fn.optionsChange.call(this, e);
+                    PathNode$2.fn.optionsChange.call(this, e);
                 }
             },
             onLoad: function () {
@@ -5686,1250 +5591,108 @@
             },
             drawImage: function (ctx) {
                 var rect = this.srcElement.rect();
-                var tl = rect.topLeft();
-                ctx.drawImage(this.img, tl.x, tl.y, rect.width(), rect.height());
+                var topLeft = rect.topLeft();
+                ctx.drawImage(this.img, topLeft.x, topLeft.y, rect.width(), rect.height());
             }
         });
-        var RectNode = PathNode.extend({
+        NODE_MAP$2.Image = ImageNode$2;
+        var TextNode$2 = PathNode$2.extend({
+            renderTo: function (ctx) {
+                var text = this.srcElement;
+                var pos = text.position();
+                var size = text.measure();
+                ctx.save();
+                this.setTransform(ctx);
+                this.setClip(ctx);
+                this.setOpacity(ctx);
+                ctx.beginPath();
+                ctx.font = text.options.font;
+                if (this.setFill(ctx)) {
+                    ctx.fillText(text.content(), pos.x, pos.y + size.baseline);
+                }
+                if (this.setStroke(ctx)) {
+                    this.setLineDash(ctx);
+                    ctx.strokeText(text.content(), pos.x, pos.y + size.baseline);
+                }
+                ctx.restore();
+            }
+        });
+        NODE_MAP$2.Text = TextNode$2;
+        var MultiPathNode$2 = PathNode$2.extend({
             renderPoints: function (ctx) {
-                var geometry = this.srcElement.geometry();
-                var origin = geometry.origin;
-                var size = geometry.size;
-                ctx.rect(origin.x, origin.y, size.width, size.height);
+                var paths = this.srcElement.paths;
+                for (var i = 0; i < paths.length; i++) {
+                    renderPath(ctx, paths[i]);
+                }
             }
         });
+        NODE_MAP$2.MultiPath = MultiPathNode$2;
+        var canvas = {
+            Surface: Surface$3,
+            RootNode: RootNode$2,
+            Node: Node$2,
+            GroupNode: GroupNode$2,
+            ArcNode: ArcNode$2,
+            CircleNode: CircleNode$2,
+            RectNode: RectNode$2,
+            ImageNode: ImageNode$2,
+            TextNode: TextNode$2,
+            PathNode: PathNode$2,
+            MultiPathNode: MultiPathNode$2
+        };
         function exportImage(group, options) {
             var defaults = {
                 width: '800px',
                 height: '600px',
                 cors: 'Anonymous'
             };
+            var exportRoot = group;
             var bbox = group.clippedBBox();
             if (bbox) {
                 var origin = bbox.getOrigin();
-                var exportRoot = new d.Group();
-                exportRoot.transform(g.transform().translate(-origin.x, -origin.y));
+                exportRoot = new Group();
+                exportRoot.transform(transform().translate(-origin.x, -origin.y));
                 exportRoot.children.push(group);
-                group = exportRoot;
                 var size = bbox.getSize();
                 defaults.width = size.width + 'px';
                 defaults.height = size.height + 'px';
             }
-            options = deepExtend(defaults, options);
-            var container = $('<div />').css({
-                display: 'none',
-                width: options.width,
-                height: options.height
-            }).appendTo(document.body);
-            var surface = new Surface(container, options);
+            var surfaceOptions = $.extend(defaults, options);
+            var container = document.createElement('div');
+            var style = container.style;
+            style.display = 'none';
+            style.width = surfaceOptions.width;
+            style.height = surfaceOptions.height;
+            document.body.appendChild(container);
+            var surface = new Surface$3(container, surfaceOptions);
             surface.suspendTracking();
-            surface.draw(group);
+            surface.draw(exportRoot);
             var promise = surface.image();
-            promise.always(function () {
+            var destroy = function () {
                 surface.destroy();
-                container.remove();
-            });
+                document.body.removeChild(container);
+            };
+            promise.then(destroy, destroy);
             return promise;
         }
-        var nodeMap = {
-            Group: GroupNode,
-            Text: TextNode,
-            Path: PathNode,
-            MultiPath: MultiPathNode,
-            Circle: CircleNode,
-            Arc: ArcNode,
-            Image: ImageNode,
-            Rect: RectNode
-        };
-        function addGradientStops(gradient, stops) {
-            var color, stop, idx;
-            for (idx = 0; idx < stops.length; idx++) {
-                stop = stops[idx];
-                color = kendo.parseColor(stop.color());
-                color.a *= stop.opacity();
-                gradient.addColorStop(stop.offset(), color.toCssRgba());
+        function exportSVG(group, options) {
+            var svg = exportGroup(group);
+            if (!options || !options.raw) {
+                svg = 'data:image/svg+xml;base64,' + encodeBase64(svg);
             }
+            return createPromise().resolve(svg);
         }
-        kendo.support.canvas = function () {
-            return !!doc.createElement('canvas').getContext;
-        }();
-        if (kendo.support.canvas) {
-            d.SurfaceFactory.current.register('canvas', Surface, 20);
+        var browser = support.browser;
+        function slice$1(thing) {
+            return Array.prototype.slice.call(thing);
         }
-        deepExtend(kendo.drawing, {
-            exportImage: exportImage,
-            canvas: {
-                ArcNode: ArcNode,
-                CircleNode: CircleNode,
-                GroupNode: GroupNode,
-                ImageNode: ImageNode,
-                MultiPathNode: MultiPathNode,
-                Node: Node,
-                PathNode: PathNode,
-                RectNode: RectNode,
-                RootNode: RootNode,
-                Surface: Surface,
-                TextNode: TextNode
-            }
-        });
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/vml', [
-        'drawing/shapes',
-        'kendo.color'
-    ], f);
-}(function () {
-    (function ($) {
-        var doc = document, math = Math, atan2 = math.atan2, ceil = math.ceil, sqrt = math.sqrt, kendo = window.kendo, deepExtend = kendo.deepExtend, noop = $.noop, d = kendo.drawing, BaseNode = d.BaseNode, g = kendo.geometry, toMatrix = g.toMatrix, Color = kendo.Color, util = kendo.util, isTransparent = util.isTransparent, defined = util.defined, deg = util.deg, round = util.round, valueOrDefault = util.valueOrDefault;
-        var NONE = 'none', NS = '.kendo', COORDINATE_MULTIPLE = 100, COORDINATE_SIZE = COORDINATE_MULTIPLE * COORDINATE_MULTIPLE, GRADIENT = 'gradient', TRANSFORM_PRECISION = 4;
-        var Surface = d.Surface.extend({
-            init: function (element, options) {
-                d.Surface.fn.init.call(this, element, options);
-                enableVML();
-                this.element.empty();
-                this._root = new RootNode();
-                this._root.attachTo(this.element[0]);
-                this.element.on('click' + NS, this._click);
-                this.element.on('mouseover' + NS, this._mouseenter);
-                this.element.on('mouseout' + NS, this._mouseleave);
-                this.element.on('mousemove' + NS, this._mousemove);
-            },
-            type: 'vml',
-            destroy: function () {
-                if (this._root) {
-                    this._root.destroy();
-                    this._root = null;
-                    this.element.off(NS);
-                }
-                d.Surface.fn.destroy.call(this);
-            },
-            draw: function (element) {
-                d.Surface.fn.draw.call(this, element);
-                this._root.load([element], undefined, null);
-            },
-            clear: function () {
-                d.Surface.fn.clear.call(this);
-                this._root.clear();
-            }
-        });
-        var Node = BaseNode.extend({
-            init: function (srcElement) {
-                BaseNode.fn.init.call(this, srcElement);
-                this.createElement();
-                this.attachReference();
-            },
-            observe: noop,
-            destroy: function () {
-                if (this.element) {
-                    this.element._kendoNode = null;
-                    this.element = null;
-                }
-                BaseNode.fn.destroy.call(this);
-            },
-            clear: function () {
-                if (this.element) {
-                    this.element.innerHTML = '';
-                }
-                var children = this.childNodes;
-                for (var i = 0; i < children.length; i++) {
-                    children[i].destroy();
-                }
-                this.childNodes = [];
-            },
-            removeSelf: function () {
-                if (this.element) {
-                    this.element.parentNode.removeChild(this.element);
-                    this.element = null;
-                }
-                BaseNode.fn.removeSelf.call(this);
-            },
-            createElement: function () {
-                this.element = doc.createElement('div');
-            },
-            attachReference: function () {
-                this.element._kendoNode = this;
-            },
-            load: function (elements, pos, transform, opacity) {
-                opacity = valueOrDefault(opacity, 1);
-                if (this.srcElement) {
-                    opacity *= valueOrDefault(this.srcElement.options.opacity, 1);
-                }
-                for (var i = 0; i < elements.length; i++) {
-                    var srcElement = elements[i];
-                    var children = srcElement.children;
-                    var combinedTransform = srcElement.currentTransform(transform);
-                    var currentOpacity = opacity * valueOrDefault(srcElement.options.opacity, 1);
-                    var childNode = new nodeMap[srcElement.nodeType](srcElement, combinedTransform, currentOpacity);
-                    if (children && children.length > 0) {
-                        childNode.load(children, pos, combinedTransform, opacity);
-                    }
-                    if (defined(pos)) {
-                        this.insertAt(childNode, pos);
-                    } else {
-                        this.append(childNode);
-                    }
-                    childNode.attachTo(this.element, pos);
-                }
-            },
-            attachTo: function (domElement, pos) {
-                if (defined(pos)) {
-                    domElement.insertBefore(this.element, domElement.children[pos] || null);
-                } else {
-                    domElement.appendChild(this.element);
-                }
-            },
-            optionsChange: function (e) {
-                if (e.field == 'visible') {
-                    this.css('display', e.value !== false ? '' : NONE);
-                }
-            },
-            setStyle: function () {
-                this.allCss(this.mapStyle());
-            },
-            mapStyle: function () {
-                var style = [];
-                if (this.srcElement && this.srcElement.options.visible === false) {
-                    style.push([
-                        'display',
-                        NONE
-                    ]);
-                }
-                return style;
-            },
-            mapOpacityTo: function (attrs, multiplier) {
-                var opacity = valueOrDefault(this.opacity, 1);
-                opacity *= valueOrDefault(multiplier, 1);
-                attrs.push([
-                    'opacity',
-                    opacity
-                ]);
-            },
-            attr: function (name, value) {
-                if (this.element) {
-                    this.element[name] = value;
-                }
-            },
-            allAttr: function (attrs) {
-                for (var i = 0; i < attrs.length; i++) {
-                    this.attr(attrs[i][0], attrs[i][1]);
-                }
-            },
-            css: function (name, value) {
-                if (this.element) {
-                    this.element.style[name] = value;
-                }
-            },
-            allCss: function (styles) {
-                for (var i = 0; i < styles.length; i++) {
-                    this.css(styles[i][0], styles[i][1]);
-                }
-            }
-        });
-        var RootNode = Node.extend({
-            createElement: function () {
-                Node.fn.createElement.call(this);
-                this.allCss([
-                    [
-                        'width',
-                        '100%'
-                    ],
-                    [
-                        'height',
-                        '100%'
-                    ],
-                    [
-                        'position',
-                        'relative'
-                    ],
-                    [
-                        'visibility',
-                        'visible'
-                    ]
-                ]);
-            },
-            attachReference: noop
-        });
-        var ClipObserver = kendo.Class.extend({
-            init: function (srcElement, observer) {
-                this.srcElement = srcElement;
-                this.observer = observer;
-                srcElement.addObserver(this);
-            },
-            geometryChange: function () {
-                this.observer.optionsChange({
-                    field: 'clip',
-                    value: this.srcElement
-                });
-            },
-            clear: function () {
-                this.srcElement.removeObserver(this);
-            }
-        });
-        var ObserverNode = Node.extend({
-            init: function (srcElement) {
-                Node.fn.init.call(this, srcElement);
-                if (srcElement) {
-                    this.initClip();
-                }
-            },
-            observe: function () {
-                BaseNode.fn.observe.call(this);
-            },
-            mapStyle: function () {
-                var style = Node.fn.mapStyle.call(this);
-                if (this.srcElement && this.srcElement.clip()) {
-                    style.push([
-                        'clip',
-                        this.clipRect()
-                    ]);
-                }
-                return style;
-            },
-            optionsChange: function (e) {
-                if (e.field == 'clip') {
-                    this.clearClip();
-                    this.initClip();
-                    this.setClip();
-                }
-                Node.fn.optionsChange.call(this, e);
-            },
-            clear: function () {
-                this.clearClip();
-                Node.fn.clear.call(this);
-            },
-            initClip: function () {
-                if (this.srcElement.clip()) {
-                    this.clip = new ClipObserver(this.srcElement.clip(), this);
-                    this.clip.observer = this;
-                }
-            },
-            clearClip: function () {
-                if (this.clip) {
-                    this.clip.clear();
-                    this.clip = null;
-                    this.css('clip', this.clipRect());
-                }
-            },
-            setClip: function () {
-                if (this.clip) {
-                    this.css('clip', this.clipRect());
-                }
-            },
-            clipRect: function () {
-                var clipRect = EMPTY_CLIP;
-                var clip = this.srcElement.clip();
-                if (clip) {
-                    var bbox = this.clipBBox(clip);
-                    var topLeft = bbox.topLeft();
-                    var bottomRight = bbox.bottomRight();
-                    clipRect = kendo.format('rect({0}px {1}px {2}px {3}px)', topLeft.y, bottomRight.x, bottomRight.y, topLeft.x);
-                }
-                return clipRect;
-            },
-            clipBBox: function (clip) {
-                var topLeft = this.srcElement.rawBBox().topLeft();
-                var clipBBox = clip.rawBBox();
-                clipBBox.origin.translate(-topLeft.x, -topLeft.y);
-                return clipBBox;
-            }
-        });
-        var GroupNode = ObserverNode.extend({
-            createElement: function () {
-                Node.fn.createElement.call(this);
-                this.setStyle();
-            },
-            attachTo: function (domElement, pos) {
-                this.css('display', NONE);
-                Node.fn.attachTo.call(this, domElement, pos);
-                if (this.srcElement.options.visible !== false) {
-                    this.css('display', '');
-                }
-            },
-            _attachTo: function (domElement) {
-                var frag = document.createDocumentFragment();
-                frag.appendChild(this.element);
-                domElement.appendChild(frag);
-            },
-            mapStyle: function () {
-                var style = ObserverNode.fn.mapStyle.call(this);
-                style.push([
-                    'position',
-                    'absolute'
-                ]);
-                style.push([
-                    'white-space',
-                    'nowrap'
-                ]);
-                return style;
-            },
-            optionsChange: function (e) {
-                if (e.field === 'transform') {
-                    this.refreshTransform();
-                }
-                if (e.field === 'opacity') {
-                    this.refreshOpacity();
-                }
-                ObserverNode.fn.optionsChange.call(this, e);
-            },
-            refreshTransform: function (transform) {
-                var currentTransform = this.srcElement.currentTransform(transform), children = this.childNodes, length = children.length, i;
-                this.setClip();
-                for (i = 0; i < length; i++) {
-                    children[i].refreshTransform(currentTransform);
-                }
-            },
-            currentOpacity: function () {
-                var opacity = valueOrDefault(this.srcElement.options.opacity, 1);
-                if (this.parent && this.parent.currentOpacity) {
-                    opacity *= this.parent.currentOpacity();
-                }
-                return opacity;
-            },
-            refreshOpacity: function () {
-                var children = this.childNodes, length = children.length, i;
-                var opacity = this.currentOpacity();
-                for (i = 0; i < length; i++) {
-                    children[i].refreshOpacity(opacity);
-                }
-            },
-            initClip: function () {
-                ObserverNode.fn.initClip.call(this);
-                if (this.clip) {
-                    var bbox = this.clip.srcElement.bbox(this.srcElement.currentTransform());
-                    if (bbox) {
-                        this.css('width', bbox.width() + bbox.origin.x);
-                        this.css('height', bbox.height() + bbox.origin.y);
-                    }
-                }
-            },
-            clipBBox: function (clip) {
-                return clip.bbox(this.srcElement.currentTransform());
-            },
-            clearClip: function () {
-                ObserverNode.fn.clearClip.call(this);
-            }
-        });
-        var StrokeNode = Node.extend({
-            init: function (srcElement, opacity) {
-                this.opacity = opacity;
-                Node.fn.init.call(this, srcElement);
-            },
-            createElement: function () {
-                this.element = createElementVML('stroke');
-                this.setOpacity();
-            },
-            optionsChange: function (e) {
-                if (e.field.indexOf('stroke') === 0) {
-                    this.setStroke();
-                }
-            },
-            refreshOpacity: function (opacity) {
-                this.opacity = opacity;
-                this.setStroke();
-            },
-            setStroke: function () {
-                this.allAttr(this.mapStroke());
-            },
-            setOpacity: function () {
-                this.setStroke();
-            },
-            mapStroke: function () {
-                var stroke = this.srcElement.options.stroke;
-                var attrs = [];
-                if (stroke && !isTransparent(stroke.color) && stroke.width !== 0) {
-                    attrs.push([
-                        'on',
-                        'true'
-                    ]);
-                    attrs.push([
-                        'color',
-                        stroke.color
-                    ]);
-                    attrs.push([
-                        'weight',
-                        (stroke.width || 1) + 'px'
-                    ]);
-                    this.mapOpacityTo(attrs, stroke.opacity);
-                    if (defined(stroke.dashType)) {
-                        attrs.push([
-                            'dashstyle',
-                            stroke.dashType
-                        ]);
-                    }
-                    if (defined(stroke.lineJoin)) {
-                        attrs.push([
-                            'joinstyle',
-                            stroke.lineJoin
-                        ]);
-                    }
-                    if (defined(stroke.lineCap)) {
-                        var lineCap = stroke.lineCap.toLowerCase();
-                        if (lineCap === 'butt') {
-                            lineCap = lineCap === 'butt' ? 'flat' : lineCap;
-                        }
-                        attrs.push([
-                            'endcap',
-                            lineCap
-                        ]);
-                    }
-                } else {
-                    attrs.push([
-                        'on',
-                        'false'
-                    ]);
-                }
-                return attrs;
-            }
-        });
-        var FillNode = Node.extend({
-            init: function (srcElement, transform, opacity) {
-                this.opacity = opacity;
-                Node.fn.init.call(this, srcElement);
-            },
-            createElement: function () {
-                this.element = createElementVML('fill');
-                this.setFill();
-            },
-            optionsChange: function (e) {
-                if (fillField(e.field)) {
-                    this.setFill();
-                }
-            },
-            refreshOpacity: function (opacity) {
-                this.opacity = opacity;
-                this.setOpacity();
-            },
-            setFill: function () {
-                this.allAttr(this.mapFill());
-            },
-            setOpacity: function () {
-                this.setFill();
-            },
-            attr: function (name, value) {
-                var element = this.element;
-                if (element) {
-                    var fields = name.split('.');
-                    while (fields.length > 1) {
-                        element = element[fields.shift()];
-                    }
-                    element[fields[0]] = value;
-                }
-            },
-            mapFill: function () {
-                var fill = this.srcElement.fill();
-                var attrs = [[
-                        'on',
-                        'false'
-                    ]];
-                if (fill) {
-                    if (fill.nodeType == GRADIENT) {
-                        attrs = this.mapGradient(fill);
-                    } else if (!isTransparent(fill.color)) {
-                        attrs = this.mapFillColor(fill);
-                    }
-                }
-                return attrs;
-            },
-            mapFillColor: function (fill) {
-                var attrs = [
-                    [
-                        'on',
-                        'true'
-                    ],
-                    [
-                        'color',
-                        fill.color
-                    ]
-                ];
-                this.mapOpacityTo(attrs, fill.opacity);
-                return attrs;
-            },
-            mapGradient: function (fill) {
-                var options = this.srcElement.options;
-                var fallbackFill = options.fallbackFill || fill.fallbackFill && fill.fallbackFill();
-                var attrs;
-                if (fill instanceof d.LinearGradient) {
-                    attrs = this.mapLinearGradient(fill);
-                } else if (fill instanceof d.RadialGradient && fill.supportVML) {
-                    attrs = this.mapRadialGradient(fill);
-                } else if (fallbackFill) {
-                    attrs = this.mapFillColor(fallbackFill);
-                } else {
-                    attrs = [[
-                            'on',
-                            'false'
-                        ]];
-                }
-                return attrs;
-            },
-            mapLinearGradient: function (fill) {
-                var start = fill.start();
-                var end = fill.end();
-                var angle = util.deg(atan2(end.y - start.y, end.x - start.x));
-                var attrs = [
-                    [
-                        'on',
-                        'true'
-                    ],
-                    [
-                        'type',
-                        GRADIENT
-                    ],
-                    [
-                        'focus',
-                        0
-                    ],
-                    [
-                        'method',
-                        'none'
-                    ],
-                    [
-                        'angle',
-                        270 - angle
-                    ]
-                ];
-                this.addColors(attrs);
-                return attrs;
-            },
-            mapRadialGradient: function (fill) {
-                var bbox = this.srcElement.rawBBox();
-                var center = fill.center();
-                var focusx = (center.x - bbox.origin.x) / bbox.width();
-                var focusy = (center.y - bbox.origin.y) / bbox.height();
-                var attrs = [
-                    [
-                        'on',
-                        'true'
-                    ],
-                    [
-                        'type',
-                        'gradienttitle'
-                    ],
-                    [
-                        'focus',
-                        '100%'
-                    ],
-                    [
-                        'focusposition',
-                        focusx + ' ' + focusy
-                    ],
-                    [
-                        'method',
-                        'none'
-                    ]
-                ];
-                this.addColors(attrs);
-                return attrs;
-            },
-            addColors: function (attrs) {
-                var options = this.srcElement.options;
-                var opacity = valueOrDefault(this.opacity, 1);
-                var stopColors = [];
-                var stops = options.fill.stops;
-                var baseColor = options.baseColor;
-                var colorsField = this.element.colors ? 'colors.value' : 'colors';
-                var color = stopColor(baseColor, stops[0], opacity);
-                var color2 = stopColor(baseColor, stops[stops.length - 1], opacity);
-                var stop;
-                for (var idx = 0; idx < stops.length; idx++) {
-                    stop = stops[idx];
-                    stopColors.push(math.round(stop.offset() * 100) + '% ' + stopColor(baseColor, stop, opacity));
-                }
-                attrs.push([
-                    colorsField,
-                    stopColors.join(',')
-                ], [
-                    'color',
-                    color
-                ], [
-                    'color2',
-                    color2
-                ]);
-            }
-        });
-        var TransformNode = Node.extend({
-            init: function (srcElement, transform) {
-                this.transform = transform;
-                Node.fn.init.call(this, srcElement);
-            },
-            createElement: function () {
-                this.element = createElementVML('skew');
-                this.setTransform();
-            },
-            optionsChange: function (e) {
-                if (e.field === 'transform') {
-                    this.refresh(this.srcElement.currentTransform());
-                }
-            },
-            refresh: function (transform) {
-                this.transform = transform;
-                this.setTransform();
-            },
-            transformOrigin: function () {
-                return '-0.5,-0.5';
-            },
-            setTransform: function () {
-                this.allAttr(this.mapTransform());
-            },
-            mapTransform: function () {
-                var transform = this.transform;
-                var attrs = [], matrix = toMatrix(transform);
-                if (matrix) {
-                    matrix.round(TRANSFORM_PRECISION);
-                    attrs.push([
-                        'on',
-                        'true'
-                    ], [
-                        'matrix',
-                        [
-                            matrix.a,
-                            matrix.c,
-                            matrix.b,
-                            matrix.d,
-                            0,
-                            0
-                        ].join(',')
-                    ], [
-                        'offset',
-                        matrix.e + 'px,' + matrix.f + 'px'
-                    ], [
-                        'origin',
-                        this.transformOrigin()
-                    ]);
-                } else {
-                    attrs.push([
-                        'on',
-                        'false'
-                    ]);
-                }
-                return attrs;
-            }
-        });
-        var ShapeNode = ObserverNode.extend({
-            init: function (srcElement, transform, opacity) {
-                this.fill = this.createFillNode(srcElement, transform, opacity);
-                this.stroke = new StrokeNode(srcElement, opacity);
-                this.transform = this.createTransformNode(srcElement, transform);
-                ObserverNode.fn.init.call(this, srcElement);
-            },
-            attachTo: function (domElement, pos) {
-                this.fill.attachTo(this.element);
-                this.stroke.attachTo(this.element);
-                this.transform.attachTo(this.element);
-                Node.fn.attachTo.call(this, domElement, pos);
-            },
-            createFillNode: function (srcElement, transform, opacity) {
-                return new FillNode(srcElement, transform, opacity);
-            },
-            createTransformNode: function (srcElement, transform) {
-                return new TransformNode(srcElement, transform);
-            },
-            createElement: function () {
-                this.element = createElementVML('shape');
-                this.setCoordsize();
-                this.setStyle();
-            },
-            optionsChange: function (e) {
-                if (fillField(e.field)) {
-                    this.fill.optionsChange(e);
-                } else if (e.field.indexOf('stroke') === 0) {
-                    this.stroke.optionsChange(e);
-                } else if (e.field === 'transform') {
-                    this.transform.optionsChange(e);
-                } else if (e.field === 'opacity') {
-                    this.fill.setOpacity();
-                    this.stroke.setOpacity();
-                }
-                ObserverNode.fn.optionsChange.call(this, e);
-            },
-            refreshTransform: function (transform) {
-                this.transform.refresh(this.srcElement.currentTransform(transform));
-            },
-            refreshOpacity: function (opacity) {
-                opacity *= valueOrDefault(this.srcElement.options.opacity, 1);
-                this.fill.refreshOpacity(opacity);
-                this.stroke.refreshOpacity(opacity);
-            },
-            mapStyle: function (width, height) {
-                var styles = ObserverNode.fn.mapStyle.call(this);
-                if (!width || !height) {
-                    width = height = COORDINATE_MULTIPLE;
-                }
-                styles.push([
-                    'position',
-                    'absolute'
-                ], [
-                    'width',
-                    width + 'px'
-                ], [
-                    'height',
-                    height + 'px'
-                ]);
-                var cursor = this.srcElement.options.cursor;
-                if (cursor) {
-                    styles.push([
-                        'cursor',
-                        cursor
-                    ]);
-                }
-                return styles;
-            },
-            setCoordsize: function () {
-                this.allAttr([
-                    [
-                        'coordorigin',
-                        '0 0'
-                    ],
-                    [
-                        'coordsize',
-                        COORDINATE_SIZE + ' ' + COORDINATE_SIZE
-                    ]
-                ]);
-            }
-        });
-        var PathDataNode = Node.extend({
-            createElement: function () {
-                this.element = createElementVML('path');
-                this.setPathData();
-            },
-            geometryChange: function () {
-                this.setPathData();
-            },
-            setPathData: function () {
-                this.attr('v', this.renderData());
-            },
-            renderData: function () {
-                return printPath(this.srcElement);
-            }
-        });
-        var PathNode = ShapeNode.extend({
-            init: function (srcElement, transform, opacity) {
-                this.pathData = this.createDataNode(srcElement);
-                ShapeNode.fn.init.call(this, srcElement, transform, opacity);
-            },
-            attachTo: function (domElement, pos) {
-                this.pathData.attachTo(this.element);
-                ShapeNode.fn.attachTo.call(this, domElement, pos);
-            },
-            createDataNode: function (srcElement) {
-                return new PathDataNode(srcElement);
-            },
-            geometryChange: function () {
-                this.pathData.geometryChange();
-                ShapeNode.fn.geometryChange.call(this);
-            }
-        });
-        var MultiPathDataNode = PathDataNode.extend({
-            renderData: function () {
-                var paths = this.srcElement.paths;
-                if (paths.length > 0) {
-                    var result = [], i, open;
-                    for (i = 0; i < paths.length; i++) {
-                        open = i < paths.length - 1;
-                        result.push(printPath(paths[i], open));
-                    }
-                    return result.join(' ');
-                }
-            }
-        });
-        var MultiPathNode = PathNode.extend({
-            createDataNode: function (srcElement) {
-                return new MultiPathDataNode(srcElement);
-            }
-        });
-        var CircleTransformNode = TransformNode.extend({
-            transformOrigin: function () {
-                var boundingBox = this.srcElement.geometry().bbox(), center = boundingBox.center(), originX = -ceil(center.x) / ceil(boundingBox.width()), originY = -ceil(center.y) / ceil(boundingBox.height());
-                return originX + ',' + originY;
-            }
-        });
-        var CircleNode = ShapeNode.extend({
-            createElement: function () {
-                this.element = createElementVML('oval');
-                this.setStyle();
-            },
-            createTransformNode: function (srcElement, transform) {
-                return new CircleTransformNode(srcElement, transform);
-            },
-            geometryChange: function () {
-                ShapeNode.fn.geometryChange.call(this);
-                this.setStyle();
-                this.refreshTransform();
-            },
-            mapStyle: function () {
-                var geometry = this.srcElement.geometry();
-                var radius = geometry.radius;
-                var center = geometry.center;
-                var diameter = ceil(radius * 2);
-                var styles = ShapeNode.fn.mapStyle.call(this, diameter, diameter);
-                styles.push([
-                    'left',
-                    ceil(center.x - radius) + 'px'
-                ], [
-                    'top',
-                    ceil(center.y - radius) + 'px'
-                ]);
-                return styles;
-            }
-        });
-        var ArcDataNode = PathDataNode.extend({
-            renderData: function () {
-                return printPath(this.srcElement.toPath());
-            }
-        });
-        var ArcNode = PathNode.extend({
-            createDataNode: function (srcElement) {
-                return new ArcDataNode(srcElement);
-            }
-        });
-        var TextPathDataNode = PathDataNode.extend({
-            createElement: function () {
-                PathDataNode.fn.createElement.call(this);
-                this.attr('textpathok', true);
-            },
-            renderData: function () {
-                var rect = this.srcElement.rect();
-                var center = rect.center();
-                return 'm ' + printPoints([new g.Point(rect.topLeft().x, center.y)]) + ' l ' + printPoints([new g.Point(rect.bottomRight().x, center.y)]);
-            }
-        });
-        var TextPathNode = Node.extend({
-            createElement: function () {
-                this.element = createElementVML('textpath');
-                this.attr('on', true);
-                this.attr('fitpath', false);
-                this.setStyle();
-                this.setString();
-            },
-            optionsChange: function (e) {
-                if (e.field === 'content') {
-                    this.setString();
-                } else {
-                    this.setStyle();
-                }
-                Node.fn.optionsChange.call(this, e);
-            },
-            mapStyle: function () {
-                return [[
-                        'font',
-                        this.srcElement.options.font
-                    ]];
-            },
-            setString: function () {
-                this.attr('string', this.srcElement.content());
-            }
-        });
-        var TextNode = PathNode.extend({
-            init: function (srcElement, transform, opacity) {
-                this.path = new TextPathNode(srcElement);
-                PathNode.fn.init.call(this, srcElement, transform, opacity);
-            },
-            createDataNode: function (srcElement) {
-                return new TextPathDataNode(srcElement);
-            },
-            attachTo: function (domElement, pos) {
-                this.path.attachTo(this.element);
-                PathNode.fn.attachTo.call(this, domElement, pos);
-            },
-            optionsChange: function (e) {
-                if (e.field === 'font' || e.field === 'content') {
-                    this.path.optionsChange(e);
-                    this.pathData.geometryChange(e);
-                }
-                PathNode.fn.optionsChange.call(this, e);
-            }
-        });
-        var ImagePathDataNode = PathDataNode.extend({
-            renderData: function () {
-                var rect = this.srcElement.rect();
-                var path = new d.Path().moveTo(rect.topLeft()).lineTo(rect.topRight()).lineTo(rect.bottomRight()).lineTo(rect.bottomLeft()).close();
-                return printPath(path);
-            }
-        });
-        var ImageFillNode = TransformNode.extend({
-            init: function (srcElement, transform, opacity) {
-                this.opacity = opacity;
-                TransformNode.fn.init.call(this, srcElement, transform);
-            },
-            createElement: function () {
-                this.element = createElementVML('fill');
-                this.attr('type', 'frame');
-                this.attr('rotate', true);
-                this.setOpacity();
-                this.setSrc();
-                this.setTransform();
-            },
-            optionsChange: function (e) {
-                if (e.field === 'src') {
-                    this.setSrc();
-                }
-                TransformNode.fn.optionsChange.call(this, e);
-            },
-            geometryChange: function () {
-                this.refresh();
-            },
-            refreshOpacity: function (opacity) {
-                this.opacity = opacity;
-                this.setOpacity();
-            },
-            setOpacity: function () {
-                var attrs = [];
-                this.mapOpacityTo(attrs, this.srcElement.options.opacity);
-                this.allAttr(attrs);
-            },
-            setSrc: function () {
-                this.attr('src', this.srcElement.src());
-            },
-            mapTransform: function () {
-                var img = this.srcElement;
-                var rawbbox = img.rawBBox();
-                var rawcenter = rawbbox.center();
-                var fillOrigin = COORDINATE_MULTIPLE / 2;
-                var fillSize = COORDINATE_MULTIPLE;
-                var x;
-                var y;
-                var width = rawbbox.width() / fillSize;
-                var height = rawbbox.height() / fillSize;
-                var angle = 0;
-                var transform = this.transform;
-                if (transform) {
-                    var matrix = toMatrix(transform);
-                    var sx = sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
-                    var sy = sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
-                    width *= sx;
-                    height *= sy;
-                    var ax = deg(atan2(matrix.b, matrix.d));
-                    var ay = deg(atan2(-matrix.c, matrix.a));
-                    angle = (ax + ay) / 2;
-                    if (angle !== 0) {
-                        var center = img.bbox().center();
-                        x = (center.x - fillOrigin) / fillSize;
-                        y = (center.y - fillOrigin) / fillSize;
-                    } else {
-                        x = (rawcenter.x * sx + matrix.e - fillOrigin) / fillSize;
-                        y = (rawcenter.y * sy + matrix.f - fillOrigin) / fillSize;
-                    }
-                } else {
-                    x = (rawcenter.x - fillOrigin) / fillSize;
-                    y = (rawcenter.y - fillOrigin) / fillSize;
-                }
-                width = round(width, TRANSFORM_PRECISION);
-                height = round(height, TRANSFORM_PRECISION);
-                x = round(x, TRANSFORM_PRECISION);
-                y = round(y, TRANSFORM_PRECISION);
-                angle = round(angle, TRANSFORM_PRECISION);
-                return [
-                    [
-                        'size',
-                        width + ',' + height
-                    ],
-                    [
-                        'position',
-                        x + ',' + y
-                    ],
-                    [
-                        'angle',
-                        angle
-                    ]
-                ];
-            }
-        });
-        var ImageNode = PathNode.extend({
-            createFillNode: function (srcElement, transform, opacity) {
-                return new ImageFillNode(srcElement, transform, opacity);
-            },
-            createDataNode: function (srcElement) {
-                return new ImagePathDataNode(srcElement);
-            },
-            optionsChange: function (e) {
-                if (e.field === 'src' || e.field === 'transform') {
-                    this.fill.optionsChange(e);
-                }
-                PathNode.fn.optionsChange.call(this, e);
-            },
-            geometryChange: function () {
-                this.fill.geometryChange();
-                PathNode.fn.geometryChange.call(this);
-            },
-            refreshTransform: function (transform) {
-                PathNode.fn.refreshTransform.call(this, transform);
-                this.fill.refresh(this.srcElement.currentTransform(transform));
-            }
-        });
-        var RectDataNode = PathDataNode.extend({
-            renderData: function () {
-                var rect = this.srcElement.geometry();
-                var parts = [
-                    'm',
-                    printPoints([rect.topLeft()]),
-                    'l',
-                    printPoints([
-                        rect.topRight(),
-                        rect.bottomRight(),
-                        rect.bottomLeft()
-                    ]),
-                    'x e'
-                ];
-                return parts.join(' ');
-            }
-        });
-        var RectNode = PathNode.extend({
-            createDataNode: function (srcElement) {
-                return new RectDataNode(srcElement);
-            }
-        });
-        var nodeMap = {
-            Group: GroupNode,
-            Text: TextNode,
-            Path: PathNode,
-            MultiPath: MultiPathNode,
-            Circle: CircleNode,
-            Arc: ArcNode,
-            Image: ImageNode,
-            Rect: RectNode
-        };
-        function enableVML() {
-            if (doc.namespaces && !doc.namespaces.kvml) {
-                doc.namespaces.add('kvml', 'urn:schemas-microsoft-com:vml');
-                var stylesheet = doc.styleSheets.length > 30 ? doc.styleSheets[0] : doc.createStyleSheet();
-                stylesheet.addRule('.kvml', 'behavior:url(#default#VML)');
-            }
-        }
-        function createElementVML(type) {
-            var element = doc.createElement('kvml:' + type);
-            element.className = 'kvml';
-            return element;
-        }
-        function printPoints(points) {
-            var length = points.length;
-            var result = [];
-            for (var i = 0; i < length; i++) {
-                result.push(points[i].scaleCopy(COORDINATE_MULTIPLE).toString(0, ','));
-            }
-            return result.join(' ');
-        }
-        function printPath(path, open) {
-            var segments = path.segments, length = segments.length;
-            if (length > 0) {
-                var parts = [], output, type, currentType, i;
-                for (i = 1; i < length; i++) {
-                    type = segmentType(segments[i - 1], segments[i]);
-                    if (type !== currentType) {
-                        currentType = type;
-                        parts.push(type);
-                    }
-                    if (type === 'l') {
-                        parts.push(printPoints([segments[i].anchor()]));
-                    } else {
-                        parts.push(printPoints([
-                            segments[i - 1].controlOut(),
-                            segments[i].controlIn(),
-                            segments[i].anchor()
-                        ]));
-                    }
-                }
-                output = 'm ' + printPoints([segments[0].anchor()]) + ' ' + parts.join(' ');
-                if (path.options.closed) {
-                    output += ' x';
-                }
-                if (open !== true) {
-                    output += ' e';
-                }
-                return output;
-            }
-        }
-        function segmentType(segmentStart, segmentEnd) {
-            return segmentStart.controlOut() && segmentEnd.controlIn() ? 'c' : 'l';
-        }
-        function fillField(field) {
-            return field.indexOf('fill') === 0 || field.indexOf(GRADIENT) === 0;
-        }
-        function stopColor(baseColor, stop, baseOpacity) {
-            var opacity = baseOpacity * valueOrDefault(stop.opacity(), 1);
-            var color;
-            if (baseColor) {
-                color = blendColors(baseColor, stop.color(), opacity);
-            } else {
-                color = blendColors(stop.color(), '#fff', 1 - opacity);
-            }
-            return color;
-        }
-        function blendColors(base, overlay, alpha) {
-            var baseColor = new Color(base), overlayColor = new Color(overlay), r = blendChannel(baseColor.r, overlayColor.r, alpha), g = blendChannel(baseColor.g, overlayColor.g, alpha), b = blendChannel(baseColor.b, overlayColor.b, alpha);
-            return new Color(r, g, b).toHex();
-        }
-        function blendChannel(a, b, alpha) {
-            return math.round(alpha * b + (1 - alpha) * a);
-        }
-        kendo.support.vml = function () {
-            var browser = kendo.support.browser;
-            return browser.msie && browser.version < 9;
-        }();
-        var EMPTY_CLIP = 'inherit';
-        if (kendo.support.browser.msie && kendo.support.browser.version < 8) {
-            EMPTY_CLIP = 'rect(auto auto auto auto)';
-        }
-        if (kendo.support.vml) {
-            d.SurfaceFactory.current.register('vml', Surface, 30);
-        }
-        deepExtend(d, {
-            vml: {
-                ArcDataNode: ArcDataNode,
-                ArcNode: ArcNode,
-                CircleTransformNode: CircleTransformNode,
-                CircleNode: CircleNode,
-                FillNode: FillNode,
-                GroupNode: GroupNode,
-                ImageNode: ImageNode,
-                ImageFillNode: ImageFillNode,
-                ImagePathDataNode: ImagePathDataNode,
-                MultiPathDataNode: MultiPathDataNode,
-                MultiPathNode: MultiPathNode,
-                Node: Node,
-                PathDataNode: PathDataNode,
-                PathNode: PathNode,
-                RectDataNode: RectDataNode,
-                RectNode: RectNode,
-                RootNode: RootNode,
-                StrokeNode: StrokeNode,
-                Surface: Surface,
-                TextNode: TextNode,
-                TextPathNode: TextPathNode,
-                TextPathDataNode: TextPathDataNode,
-                TransformNode: TransformNode
-            }
-        });
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('drawing/html', [
-        'kendo.color',
-        'drawing/shapes',
-        'util/main',
-        'util/text-metrics'
-    ], f);
-}(function () {
-    (function ($, parseFloat, Math) {
-        'use strict';
-        var drawing = kendo.drawing;
-        var geo = kendo.geometry;
-        var slice = Array.prototype.slice;
-        var browser = kendo.support.browser;
-        var romanNumeral = kendo.util.arabicToRoman;
-        var mergeSort = kendo.util.mergeSort;
         var KENDO_PSEUDO_ELEMENT = 'KENDO-PSEUDO-ELEMENT';
         var IMAGE_CACHE = {};
         var nodeInfo = {};
         nodeInfo._root = nodeInfo;
-        var TextRect = drawing.Text.extend({
-            nodeType: 'Text',
+        var TextRect = Text.extend({
             init: function (str, rect, options) {
-                drawing.Text.fn.init.call(this, str, rect.getOrigin(), options);
+                Text.fn.init.call(this, str, rect.getOrigin(), options);
                 this._pdfRect = rect;
             },
             rect: function () {
@@ -6939,6 +5702,48 @@
                 return this._pdfRect;
             }
         });
+        function addClass(el, cls) {
+            el.classList.add(cls);
+        }
+        function removeClass(el, cls) {
+            el.classList.remove(cls);
+        }
+        function setCSS(el, styles) {
+            Object.keys(styles).forEach(function (key) {
+                el.style[key] = styles[key];
+            });
+        }
+        function matches(el, selector) {
+            var p = Element.prototype;
+            var f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || function (s) {
+                return [].indexOf.call(document.querySelectorAll(s), this) !== -1;
+            };
+            return f.call(el, selector);
+        }
+        function closest(el, selector) {
+            if (el.closest) {
+                return el.closest(selector);
+            }
+            while (el) {
+                if (matches(el, selector)) {
+                    return el;
+                }
+                el = el.parentNode;
+            }
+        }
+        function cloneNodes(el) {
+            var clone = el.cloneNode(true);
+            var canvases = el.querySelectorAll('canvas');
+            if (canvases.length) {
+                slice$1(clone.querySelectorAll('canvas')).forEach(function (canvas$$1, i) {
+                    canvas$$1.getContext('2d').drawImage(canvases[i], 0, 0);
+                });
+            }
+            slice$1(clone.querySelectorAll('input')).forEach(function (input) {
+                input.removeAttribute('name');
+            });
+            return clone;
+        }
         function getXY(thing) {
             if (typeof thing == 'number') {
                 return {
@@ -6961,20 +5766,17 @@
             if (!options) {
                 options = {};
             }
-            var defer = $.Deferred();
-            element = $(element)[0];
+            var promise = createPromise();
             if (!element) {
-                return defer.reject('No element to export');
+                return promise.reject('No element to export');
             }
             if (typeof window.getComputedStyle != 'function') {
                 throw new Error('window.getComputedStyle is missing.  You are using an unsupported browser, or running in IE8 compatibility mode.  Drawing HTML is supported in Chrome, Firefox, Safari and IE9+.');
             }
-            if (kendo.pdf) {
-                kendo.pdf.defineFont(getFontFaces(element.ownerDocument));
-            }
+            kendo.pdf.defineFont(getFontFaces(element.ownerDocument));
             var scale = getXY(options.scale || 1);
             function doOne(element) {
-                var group = new drawing.Group();
+                var group = new Group();
                 var pos = element.getBoundingClientRect();
                 setTransform(group, [
                     scale.x,
@@ -6985,7 +5787,7 @@
                     -pos.top * scale.y
                 ]);
                 nodeInfo._clipbox = false;
-                nodeInfo._matrix = geo.Matrix.unit();
+                nodeInfo._matrix = Matrix.unit();
                 nodeInfo._stackingContext = {
                     element: element,
                     group: group
@@ -6995,9 +5797,9 @@
                 } else {
                     nodeInfo._avoidLinks = options.avoidLinks;
                 }
-                $(element).addClass('k-pdf-export');
+                addClass(element, 'k-pdf-export');
                 renderElement(element, group);
-                $(element).removeClass('k-pdf-export');
+                removeClass(element, 'k-pdf-export');
                 return group;
             }
             cacheImages(element, function () {
@@ -7012,7 +5814,7 @@
                 var pageWidth = hasPaperSize && paperOptions.paperSize[0];
                 var pageHeight = hasPaperSize && paperOptions.paperSize[1];
                 var margin = options.margin && paperOptions.margin;
-                var hasMargin = !!margin;
+                var hasMargin = Boolean(margin);
                 if (forceBreak || pageHeight) {
                     if (!margin) {
                         margin = {
@@ -7032,7 +5834,7 @@
                     margin.right /= scale.x;
                     margin.top /= scale.y;
                     margin.bottom /= scale.y;
-                    var group = new drawing.Group({
+                    var group = new Group({
                         pdf: {
                             multiPage: true,
                             paperSize: hasPaperSize ? paperOptions.paperSize : 'auto',
@@ -7061,7 +5863,7 @@
                                     }
                                 } else {
                                     x.container.parentNode.removeChild(x.container);
-                                    defer.resolve(group);
+                                    promise.resolve(group);
                                 }
                             }());
                         } else {
@@ -7069,70 +5871,50 @@
                                 group.append(doOne(page));
                             });
                             x.container.parentNode.removeChild(x.container);
-                            defer.resolve(group);
+                            promise.resolve(group);
                         }
                     }, element, forceBreak, pageWidth ? pageWidth - margin.left - margin.right : null, pageHeight ? pageHeight - margin.top - margin.bottom : null, margin, options);
                 } else {
-                    defer.resolve(doOne(element));
+                    promise.resolve(doOne(element));
                 }
             });
-            function makeTemplate(template) {
-                if (template != null) {
-                    if (typeof template == 'string') {
-                        template = kendo.template(template.replace(/^\s+|\s+$/g, ''));
+            function makeTemplate(template$$1) {
+                if (template$$1 != null) {
+                    if (typeof template$$1 == 'string') {
+                        template$$1 = kendo.template(template$$1.replace(/^\s+|\s+$/g, ''));
                     }
-                    if (typeof template == 'function') {
+                    if (typeof template$$1 == 'function') {
                         return function (data) {
-                            var el = template(data);
-                            if (el) {
-                                if (typeof el == 'string') {
-                                    el = el.replace(/^\s+|\s+$/g, '');
-                                }
-                                return $(el)[0];
+                            var el = template$$1(data);
+                            if (el && typeof el == 'string') {
+                                var div = document.createElement('div');
+                                div.innerHTML = el;
+                                el = div.firstElementChild;
                             }
+                            return el;
                         };
                     }
                     return function () {
-                        return $(template).clone()[0];
+                        return template$$1.cloneNode(true);
                     };
                 }
             }
-            function cloneNodes(el) {
-                var clone = el.cloneNode(false);
-                if (el.nodeType == 1) {
-                    var $el = $(el), $clone = $(clone), i;
-                    var data = $el.data();
-                    for (i in data) {
-                        $clone.data(i, data[i]);
-                    }
-                    if (/^canvas$/i.test(el.tagName)) {
-                        clone.getContext('2d').drawImage(el, 0, 0);
-                    } else if (/^input$/i.test(el.tagName)) {
-                        el.removeAttribute('name');
-                    } else {
-                        for (i = el.firstChild; i; i = i.nextSibling) {
-                            clone.appendChild(cloneNodes(i));
-                        }
-                    }
-                }
-                return clone;
-            }
             function handlePageBreaks(callback, element, forceBreak, pageWidth, pageHeight, margin, options) {
-                var template = makeTemplate(options.template);
+                var template$$1 = makeTemplate(options.template);
                 var doc = element.ownerDocument;
                 var pages = [];
                 var copy = options._destructive ? element : cloneNodes(element);
                 var container = doc.createElement('KENDO-PDF-DOCUMENT');
                 var adjust = 0;
-                $(copy).find('tfoot').each(function () {
-                    this.parentNode.appendChild(this);
+                slice$1(copy.querySelectorAll('tfoot')).forEach(function (tfoot) {
+                    tfoot.parentNode.appendChild(tfoot);
                 });
-                $(copy).find('ol').each(function () {
-                    $(this).children().each(function (index) {
-                        this.setAttribute('kendo-split-index', index);
+                slice$1(copy.querySelectorAll('ol')).forEach(function (ol) {
+                    slice$1(ol.children).forEach(function (li, index) {
+                        li.setAttribute('kendo-split-index', index);
                     });
                 });
-                $(container).css({
+                setCSS(container, {
                     display: 'block',
                     position: 'absolute',
                     boxSizing: 'content-box',
@@ -7140,12 +5922,12 @@
                     top: '-10000px'
                 });
                 if (pageWidth) {
-                    $(container).css({
-                        width: pageWidth,
-                        paddingLeft: margin.left,
-                        paddingRight: margin.right
+                    setCSS(container, {
+                        width: pageWidth + 'px',
+                        paddingLeft: margin.left + 'px',
+                        paddingRight: margin.right + 'px'
                     });
-                    $(copy).css({ overflow: 'hidden' });
+                    setCSS(copy, { overflow: 'hidden' });
                 }
                 element.parentNode.insertBefore(container, element);
                 container.appendChild(copy);
@@ -7163,10 +5945,10 @@
                     var page = makePage();
                     copy.parentNode.insertBefore(page, copy);
                     page.appendChild(copy);
-                    if (template) {
+                    if (template$$1) {
                         var count = pages.length;
                         pages.forEach(function (page, i) {
-                            var el = template({
+                            var el = template$$1({
                                 element: page,
                                 pageNum: i + 1,
                                 totalPages: pages.length
@@ -7192,15 +5974,15 @@
                         });
                     }
                 }
-                function keepTogether(jqel) {
-                    if (options.keepTogether && jqel.is(options.keepTogether) && jqel.height() <= pageHeight - adjust) {
+                function keepTogether(el) {
+                    if (options.keepTogether && matches(el, options.keepTogether) && el.offsetHeight <= pageHeight - adjust) {
                         return true;
                     }
-                    var tag = jqel[0].tagName;
-                    if (/^h[1-6]$/i.test(tag) && jqel.height() >= pageHeight - adjust) {
+                    var tag = el.tagName;
+                    if (/^h[1-6]$/i.test(tag) && el.offsetHeight >= pageHeight - adjust) {
                         return false;
                     }
-                    return jqel.data('kendoChart') || /^(?:img|tr|thead|th|tfoot|iframe|svg|object|canvas|input|textarea|select|video|h[1-6])$/i.test(tag);
+                    return el.getAttribute('data-kendo-chart') || /^(?:img|tr|thead|th|tfoot|iframe|svg|object|canvas|input|textarea|select|video|h[1-6])/i.test(el.tagName);
                 }
                 function splitElement(element) {
                     var style = getComputedStyle(element);
@@ -7212,8 +5994,7 @@
                     for (var el = element.firstChild; el; el = el.nextSibling) {
                         if (el.nodeType == 1) {
                             isFirst = false;
-                            var jqel = $(el);
-                            if (jqel.is(forceBreak)) {
+                            if (matches(el, forceBreak)) {
                                 breakAtElement(el);
                                 continue;
                             }
@@ -7228,7 +6009,7 @@
                             if (fall == 1) {
                                 breakAtElement(el);
                             } else if (fall) {
-                                if (keepTogether(jqel)) {
+                                if (keepTogether(el)) {
                                     breakAtElement(el);
                                 } else {
                                     splitElement(el);
@@ -7263,13 +6044,13 @@
                         return breakAtElement(el.parentNode);
                     }
                     var table, colgroup, thead, grid, gridHead;
-                    table = $(el).closest('table');
-                    colgroup = table.find('colgroup:first');
+                    table = closest(el, 'table');
+                    colgroup = table && table.querySelector('colgroup');
                     if (options.repeatHeaders) {
-                        thead = table.find('thead:first');
-                        grid = $(el).closest('.k-grid[data-role="grid"]');
-                        if (grid[0] && grid[0].querySelector('.k-auto-scrollable')) {
-                            gridHead = grid.find('.k-grid-header:first');
+                        thead = table && table.querySelector('thead');
+                        grid = closest(el, '.k-grid[data-role="grid"]');
+                        if (grid && grid.querySelector('.k-auto-scrollable')) {
+                            gridHead = grid.querySelector('.k-grid-header');
                         }
                     }
                     var page = makePage();
@@ -7278,31 +6059,29 @@
                     range.setEndBefore(el);
                     page.appendChild(range.extractContents());
                     copy.parentNode.insertBefore(page, copy);
-                    if (table[0]) {
-                        table = $(el).closest('table');
-                        if (options.repeatHeaders && thead[0]) {
-                            thead.clone().prependTo(table);
+                    if (table) {
+                        table = closest(el, 'table');
+                        if (options.repeatHeaders && thead) {
+                            table.insertBefore(thead.cloneNode(true), table.firstChild);
                         }
-                        if (colgroup[0]) {
-                            colgroup.clone().prependTo(table);
+                        if (colgroup) {
+                            table.insertBefore(colgroup.cloneNode(true), table.firstChild);
                         }
                     }
-                    if (options.repeatHeaders && gridHead && gridHead[0]) {
-                        grid = $(el).closest('.k-grid[data-role="grid"]');
-                        if (gridHead[0]) {
-                            gridHead.clone().prependTo(grid);
-                        }
+                    if (options.repeatHeaders && gridHead) {
+                        grid = closest(el, '.k-grid[data-role="grid"]');
+                        grid.insertBefore(gridHead.cloneNode(true), grid.firstChild);
                     }
                 }
                 function makePage() {
                     var page = doc.createElement('KENDO-PDF-PAGE');
-                    $(page).css({
+                    setCSS(page, {
                         display: 'block',
                         boxSizing: 'content-box',
-                        width: pageWidth || 'auto',
+                        width: pageWidth ? pageWidth + 'px' : 'auto',
                         padding: margin.top + 'px ' + margin.right + 'px ' + margin.bottom + 'px ' + margin.left + 'px',
                         position: 'relative',
-                        height: pageHeight || 'auto',
+                        height: pageHeight ? pageHeight + 'px' : 'auto',
                         overflow: pageHeight || pageWidth ? 'hidden' : 'visible',
                         clear: 'both'
                     });
@@ -7364,10 +6143,26 @@
                     splitText(nextnode);
                 }
             }
-            return defer.promise();
+            return promise;
         }
-        drawing.drawDOM = drawDOM;
         drawDOM.getFontFaces = getFontFaces;
+        drawDOM.drawText = function (element) {
+            var group = new Group();
+            nodeInfo._clipbox = false;
+            nodeInfo._matrix = Matrix.unit();
+            nodeInfo._stackingContext = {
+                element: element,
+                group: group
+            };
+            pushNodeInfo(element, getComputedStyle(element), group);
+            if (element.firstChild.nodeType == 3) {
+                renderText(element, element.firstChild, group);
+            } else {
+                _renderElement(element, group);
+            }
+            popNodeInfo();
+            return group;
+        };
         var parseBackgroundImage = function () {
             var tok_linear_gradient = /^((-webkit-|-moz-|-o-|-ms-)?linear-gradient\s*)\(/;
             var tok_percent = /^([-0-9.]+%)/;
@@ -7404,7 +6199,8 @@
                     var color = kendo.parseColor(input, true);
                     var length, percent;
                     if (color) {
-                        input = input.substr(color.match[0].length);
+                        var match = /^#[0-9a-f]+/i.exec(input) || /^rgba?\(.*?\)/i.exec(input) || /^..*?\b/.exec(input);
+                        input = input.substr(match[0].length);
                         color = color.toRGB();
                         if (!(length = read(tok_length))) {
                             percent = read(tok_percent);
@@ -7505,7 +6301,7 @@
                     return cache[cacheKey];
                 }
                 var ret = [];
-                var last = 0, pos = 0;
+                var last$$1 = 0, pos = 0;
                 var in_paren = 0;
                 var in_string = false;
                 var m;
@@ -7536,17 +6332,17 @@
                         in_string = false;
                         pos++;
                     } else if (looking_at(separator)) {
-                        if (!in_string && !in_paren && pos > last) {
-                            ret.push(trim(input.substring(last, pos)));
-                            last = pos + m[0].length;
+                        if (!in_string && !in_paren && pos > last$$1) {
+                            ret.push(trim(input.substring(last$$1, pos)));
+                            last$$1 = pos + m[0].length;
                         }
                         pos += m[0].length;
                     } else {
                         pos++;
                     }
                 }
-                if (last < pos) {
-                    ret.push(trim(input.substring(last, pos)));
+                if (last$$1 < pos) {
+                    ret.push(trim(input.substring(last$$1, pos)));
                 }
                 return cache[cacheKey] = ret;
             };
@@ -7564,16 +6360,16 @@
                 }
                 return url;
             };
-        }(Object.create(null));
+        }(Object.create ? Object.create(null) : {});
         var getFontHeight = function (cache) {
             return function (font) {
                 var height = cache[font];
                 if (height == null) {
-                    height = cache[font] = kendo.util.measureText('Mapq', { font: font }).height;
+                    height = cache[font] = kendoUtil.measureText('Mapq', { font: font }).height;
                 }
                 return height;
             };
-        }(Object.create(null));
+        }(Object.create ? Object.create(null) : {});
         function getFontFaces(doc) {
             if (doc == null) {
                 doc = document;
@@ -7692,8 +6488,8 @@
                 }
             }
         }
-        function parseColor(str, css) {
-            var color = kendo.parseColor(str);
+        function parseColor$1(str, css) {
+            var color = kendo.parseColor(str, true);
             if (color) {
                 color = color.toRGB();
                 if (css) {
@@ -7743,7 +6539,7 @@
                     }
                 });
                 if (element.children) {
-                    slice.call(element.children).forEach(dive);
+                    slice$1(element.children).forEach(dive);
                 }
             }(element));
             var count = urls.length;
@@ -7756,7 +6552,7 @@
                 next();
             }
             urls.forEach(function (url) {
-                var img = IMAGE_CACHE[url] = new Image();
+                var img = IMAGE_CACHE[url] = new window.Image();
                 if (!/^data:/i.test(url)) {
                     img.crossOrigin = 'Anonymous';
                 }
@@ -7810,7 +6606,7 @@
             if (nodeInfo._clipbox != null) {
                 var box = path.bbox(nodeInfo._matrix);
                 if (nodeInfo._clipbox) {
-                    nodeInfo._clipbox = geo.Rect.intersect(nodeInfo._clipbox, box);
+                    nodeInfo._clipbox = Rect.intersect(nodeInfo._clipbox, box);
                 } else {
                     nodeInfo._clipbox = box;
                 }
@@ -7829,7 +6625,7 @@
             function prop(name) {
                 return getPropertyValue(style, name);
             }
-            if (prop('transform') != 'none' || prop('position') != 'static' && prop('z-index') != 'auto' || prop('opacity') < 1) {
+            if (prop('transform') != 'none' || prop('position') != 'static' || prop('z-index') != 'auto' || prop('opacity') < 1) {
                 return true;
             }
         }
@@ -7872,7 +6668,7 @@
             return {
                 width: parseFloat(getPropertyValue(style, side + '-width')),
                 style: getPropertyValue(style, side + '-style'),
-                color: parseColor(getPropertyValue(style, side + '-color'), true)
+                color: parseColor$1(getPropertyValue(style, side + '-color'), true)
             };
         }
         function saveStyle(element, func) {
@@ -7918,11 +6714,11 @@
             };
         }
         function getTransform(style) {
-            var transform = getPropertyValue(style, 'transform');
-            if (transform == 'none') {
+            var transform$$1 = getPropertyValue(style, 'transform');
+            if (transform$$1 == 'none') {
                 return null;
             }
-            var matrix = /^\s*matrix\(\s*(.*?)\s*\)\s*$/.exec(transform);
+            var matrix = /^\s*matrix\(\s*(.*?)\s*\)\s*$/.exec(transform$$1);
             if (matrix) {
                 var origin = getPropertyValue(style, 'transform-origin');
                 matrix = matrix[1].split(/\s*,\s*/g).map(parseFloat);
@@ -7949,7 +6745,7 @@
             }
         }
         function setTransform(shape, m) {
-            m = new geo.Matrix(m[0], m[1], m[2], m[3], m[4], m[5]);
+            m = new Matrix(m[0], m[1], m[2], m[3], m[4], m[5]);
             shape.transform(m);
             return m;
         }
@@ -7957,7 +6753,7 @@
             shape.clip(clipPath);
         }
         function addArcToPath(path, x, y, options) {
-            var points = new geo.Arc([
+            var points = new Arc$2([
                     x,
                     y
                 ], options).curvePoints(), i = 1;
@@ -8058,7 +6854,7 @@
             var rTR = tmp.tr;
             var rBR = tmp.br;
             var rBL = tmp.bl;
-            var path = new drawing.Path({
+            var path = new Path({
                 fill: null,
                 stroke: null
             });
@@ -8101,7 +6897,7 @@
             return path.close();
         }
         function formatCounter(val, style) {
-            var str = parseFloat(val) + '';
+            var str = String(parseFloat(val));
             switch (style) {
             case 'decimal-leading-zero':
                 if (str.length < 2) {
@@ -8109,9 +6905,9 @@
                 }
                 return str;
             case 'lower-roman':
-                return romanNumeral(val).toLowerCase();
+                return arabicToRoman(val).toLowerCase();
             case 'upper-roman':
-                return romanNumeral(val).toUpperCase();
+                return arabicToRoman(val).toUpperCase();
             case 'lower-latin':
             case 'lower-alpha':
                 return alphaNumeral(val - 1);
@@ -8202,7 +6998,7 @@
             var rBR0 = getBorderRadius(style, 'bottom-right');
             var dir = getPropertyValue(style, 'direction');
             var backgroundColor = getPropertyValue(style, 'background-color');
-            backgroundColor = parseColor(backgroundColor);
+            backgroundColor = parseColor$1(backgroundColor);
             var backgroundImage = parseBackgroundImage(getPropertyValue(style, 'background-image'));
             var backgroundRepeat = splitProperty(getPropertyValue(style, 'background-repeat'));
             var backgroundPosition = splitProperty(getPropertyValue(style, 'background-position'));
@@ -8221,8 +7017,8 @@
                     var right = a[1] == 'auto' ? innerbox.right : parseFloat(a[1]) + innerbox.left;
                     var bottom = a[2] == 'auto' ? innerbox.bottom : parseFloat(a[2]) + innerbox.top;
                     var left = a[3] == 'auto' ? innerbox.left : parseFloat(a[3]) + innerbox.left;
-                    var tmp = new drawing.Group();
-                    var clipPath = new drawing.Path().moveTo(left, top).lineTo(right, top).lineTo(right, bottom).lineTo(left, bottom).close();
+                    var tmp = new Group();
+                    var clipPath = new Path().moveTo(left, top).lineTo(right, top).lineTo(right, bottom).lineTo(left, bottom).close();
                     setClipping(tmp, clipPath);
                     group.append(tmp);
                     group = tmp;
@@ -8252,7 +7048,7 @@
             (function () {
                 function clipit() {
                     var clipPath = elementRoundBox(element, innerbox, 'padding');
-                    var tmp = new drawing.Group();
+                    var tmp = new Group();
                     setClipping(tmp, clipPath);
                     group.append(tmp);
                     group = tmp;
@@ -8285,7 +7081,7 @@
                         var firstCell = table.element.rows[0].cells[0];
                         var firstCellBox = firstCell.getBoundingClientRect();
                         if (firstCellBox.top == tableBox.top || firstCellBox.left == tableBox.left) {
-                            return slice.call(boxes).map(function (box) {
+                            return slice$1(boxes).map(function (box) {
                                 return {
                                     left: box.left + tableBorderLeft,
                                     top: box.top + tableBorderTop,
@@ -8300,16 +7096,16 @@
                 }
                 return boxes;
             }
-            function drawEdge(color, len, Wtop, Wleft, Wright, rl, rr, transform) {
+            function drawEdge(color, len, Wtop, Wleft, Wright, rl, rr, transform$$1) {
                 if (Wtop <= 0) {
                     return;
                 }
-                var path, edge = new drawing.Group();
-                setTransform(edge, transform);
+                var path, edge = new Group();
+                setTransform(edge, transform$$1);
                 group.append(edge);
                 sanitizeRadius(rl);
                 sanitizeRadius(rr);
-                path = new drawing.Path({
+                path = new Path({
                     fill: { color: color },
                     stroke: null
                 });
@@ -8335,17 +7131,17 @@
                         0
                     ]);
                 }
-                function drawRoundCorner(Wright, r, transform) {
+                function drawRoundCorner(Wright, r, transform$$1) {
                     var angle = Math.PI / 2 * Wright / (Wright + Wtop);
                     var ri = {
                         x: r.x - Wright,
                         y: r.y - Wtop
                     };
-                    var path = new drawing.Path({
+                    var path = new Path({
                         fill: { color: color },
                         stroke: null
                     }).moveTo(0, 0);
-                    setTransform(path, transform);
+                    setTransform(path, transform$$1);
                     addArcToPath(path, 0, r.y, {
                         startAngle: -90,
                         endAngle: -radiansToDegrees(angle),
@@ -8370,11 +7166,11 @@
                 }
             }
             function drawBackground(box) {
-                var background = new drawing.Group();
+                var background = new Group();
                 setClipping(background, roundBox(box, rTL0, rTR0, rBR0, rBL0));
                 group.append(background);
-                if (element.tagName == 'A' && element.href && !/^#?$/.test($(element).attr('href'))) {
-                    if (!nodeInfo._avoidLinks || !$(element).is(nodeInfo._avoidLinks)) {
+                if (element.tagName == 'A' && element.href && !/^#?$/.test(element.getAttribute('href'))) {
+                    if (!nodeInfo._avoidLinks || !matches(element, nodeInfo._avoidLinks)) {
                         background._pdfLink = {
                             url: element.href,
                             top: box.top,
@@ -8385,7 +7181,7 @@
                     }
                 }
                 if (backgroundColor) {
-                    var path = new drawing.Path({
+                    var path = new Path({
                         fill: { color: backgroundColor.toCssRgba() },
                         stroke: null
                     });
@@ -8407,7 +7203,7 @@
                     var img = IMAGE_CACHE[background.url];
                     if (img && img.width > 0 && img.height > 0) {
                         drawBackgroundImage(group, box, img.width, img.height, function (group, rect) {
-                            group.append(new drawing.Image(background.url, rect));
+                            group.append(new Image$1(background.url, rect));
                         });
                     }
                 } else if (background.type == 'linear') {
@@ -8449,7 +7245,7 @@
                             }
                         }
                     }
-                    var pos = (backgroundPosition + '').split(/\s+/);
+                    var pos = String(backgroundPosition).split(/\s+/);
                     if (pos.length == 1) {
                         pos[1] = '50%';
                     }
@@ -8463,7 +7259,7 @@
                     } else {
                         pos[1] = parseFloat(pos[1]);
                     }
-                    var rect = new geo.Rect([
+                    var rect = new Rect([
                         orgBox.left + pos[0],
                         orgBox.top + pos[1]
                     ], [
@@ -8567,7 +7363,7 @@
                     _drawBullet(function (bullet) {
                         elementIndex(function (idx) {
                             ++idx;
-                            if (listStyleType == 'decimal-leading-zero' && (idx + '').length < 2) {
+                            if (listStyleType == 'decimal-leading-zero' && idx < 10) {
                                 idx = '0' + idx;
                             }
                             bullet.innerHTML = idx + '.';
@@ -8578,7 +7374,7 @@
                 case 'upper-roman':
                     _drawBullet(function (bullet) {
                         elementIndex(function (idx) {
-                            idx = romanNumeral(idx + 1);
+                            idx = arabicToRoman(idx + 1);
                             if (listStyleType == 'upper-roman') {
                                 idx = idx.toUpperCase();
                             }
@@ -8612,7 +7408,7 @@
                 if (top.width === 0 && left.width === 0 && right.width === 0 && bottom.width === 0) {
                     return;
                 }
-                if (true) {
+                {
                     if (top.color == right.color && top.color == bottom.color && top.color == left.color) {
                         if (top.width == right.width && top.width == bottom.width && top.width == left.width) {
                             if (shouldDrawLeft && shouldDrawRight) {
@@ -8630,7 +7426,7 @@
                     if (rTL0.x === 0 && rTR0.x === 0 && rBR0.x === 0 && rBL0.x === 0) {
                         if (top.width < 2 && left.width < 2 && right.width < 2 && bottom.width < 2) {
                             if (top.width > 0) {
-                                group.append(new drawing.Path({
+                                group.append(new Path({
                                     stroke: {
                                         width: top.width,
                                         color: top.color
@@ -8638,7 +7434,7 @@
                                 }).moveTo(box.left, box.top + top.width / 2).lineTo(box.right, box.top + top.width / 2));
                             }
                             if (bottom.width > 0) {
-                                group.append(new drawing.Path({
+                                group.append(new Path({
                                     stroke: {
                                         width: bottom.width,
                                         color: bottom.color
@@ -8646,7 +7442,7 @@
                                 }).moveTo(box.left, box.bottom - bottom.width / 2).lineTo(box.right, box.bottom - bottom.width / 2));
                             }
                             if (shouldDrawLeft) {
-                                group.append(new drawing.Path({
+                                group.append(new Path({
                                     stroke: {
                                         width: left.width,
                                         color: left.color
@@ -8654,7 +7450,7 @@
                                 }).moveTo(box.left + left.width / 2, box.top).lineTo(box.left + left.width / 2, box.bottom));
                             }
                             if (shouldDrawRight) {
-                                group.append(new drawing.Path({
+                                group.append(new Path({
                                     stroke: {
                                         width: right.width,
                                         color: right.color
@@ -8802,7 +7598,7 @@
                         0.5 + x,
                         0.5 - y
                     ];
-                    group.append(drawing.Path.fromRect(rect).stroke(null).fill(new drawing.LinearGradient({
+                    group.append(Path.fromRect(rect).stroke(null).fill(new LinearGradient({
                         start: start,
                         end: end,
                         stops: stops,
@@ -8818,8 +7614,8 @@
             };
         }
         function maybeRenderWidget(element, group) {
-            if (element.getAttribute(kendo.attr('role'))) {
-                var widget = kendo.widgetInstance($(element));
+            if (window.kendo && window.$ && element.getAttribute(window.kendo.attr('role'))) {
+                var widget = window.kendo.widgetInstance(window.$(element));
                 if (widget && (widget.exportDOMVisual || widget.exportVisual)) {
                     var visual;
                     if (widget.exportDOMVisual) {
@@ -8830,25 +7626,25 @@
                     if (!visual) {
                         return false;
                     }
-                    var wrap = new drawing.Group();
-                    wrap.children.push(visual);
+                    var wrap$$1 = new Group();
+                    wrap$$1.children.push(visual);
                     var bbox = element.getBoundingClientRect();
-                    wrap.transform(geo.transform().translate(bbox.left, bbox.top));
-                    group.append(wrap);
+                    wrap$$1.transform(transform().translate(bbox.left, bbox.top));
+                    group.append(wrap$$1);
                     return true;
                 }
             }
         }
         function renderImage(element, url, group) {
             var box = getContentBox(element);
-            var rect = new geo.Rect([
+            var rect = new Rect([
                 box.left,
                 box.top
             ], [
                 box.width,
                 box.height
             ]);
-            var image = new drawing.Image(url, rect);
+            var image = new Image$1(url, rect);
             setClipping(image, elementRoundBox(element, box, 'content'));
             group.append(image);
         }
@@ -8893,7 +7689,7 @@
             var color = getPropertyValue(style, 'color');
             var box = element.getBoundingClientRect();
             if (element.type == 'checkbox') {
-                group.append(drawing.Path.fromRect(new geo.Rect([
+                group.append(Path.fromRect(new Rect([
                     box.left + 1,
                     box.top + 1
                 ], [
@@ -8901,15 +7697,15 @@
                     box.height - 2
                 ])).stroke(color, 1));
                 if (element.checked) {
-                    group.append(new drawing.Path().stroke(color, 1.2).moveTo(box.left + 0.22 * box.width, box.top + 0.55 * box.height).lineTo(box.left + 0.45 * box.width, box.top + 0.75 * box.height).lineTo(box.left + 0.78 * box.width, box.top + 0.22 * box.width));
+                    group.append(new Path().stroke(color, 1.2).moveTo(box.left + 0.22 * box.width, box.top + 0.55 * box.height).lineTo(box.left + 0.45 * box.width, box.top + 0.75 * box.height).lineTo(box.left + 0.78 * box.width, box.top + 0.22 * box.width));
                 }
             } else {
-                group.append(new drawing.Circle(new geo.Circle([
+                group.append(new Circle(new Circle$2([
                     (box.left + box.right) / 2,
                     (box.top + box.bottom) / 2
                 ], Math.min(box.width - 2, box.height - 2) / 2)).stroke(color, 1));
                 if (element.checked) {
-                    group.append(new drawing.Circle(new geo.Circle([
+                    group.append(new Circle(new Circle$2([
                         (box.left + box.right) / 2,
                         (box.top + box.bottom) / 2
                     ], Math.min(box.width - 8, box.height - 8) / 2)).fill(color).stroke(null));
@@ -9049,8 +7845,8 @@
             }
             var color = getPropertyValue(style, 'color');
             var range = element.ownerDocument.createRange();
-            var align = getPropertyValue(style, 'text-align');
-            var isJustified = align == 'justify';
+            var align$$1 = getPropertyValue(style, 'text-align');
+            var isJustified = align$$1 == 'justify';
             var whiteSpace = getPropertyValue(style, 'white-space');
             var textOverflow, saveTextOverflow;
             if (browser.msie) {
@@ -9074,10 +7870,10 @@
             function actuallyGetRangeBoundingRect(range) {
                 if (browser.msie || browser.chrome) {
                     var rectangles = range.getClientRects(), box = {
-                            top: +Infinity,
+                            top: Infinity,
                             right: -Infinity,
                             bottom: -Infinity,
-                            left: +Infinity
+                            left: Infinity
                         };
                     for (var i = 0; i < rectangles.length; ++i) {
                         var b = rectangles[i];
@@ -9141,7 +7937,7 @@
                     start = pos;
                     pos = range.toString().search(/\s+$/);
                     if (pos === 0) {
-                        return;
+                        return false;
                     }
                     if (pos > 0) {
                         range.setEnd(node, range.startOffset + pos);
@@ -9189,7 +7985,7 @@
                         width: box.right - box.left
                     };
                 }
-                var text = new TextRect(str, new geo.Rect([
+                var text = new TextRect(str, new Rect([
                     box.left,
                     box.top
                 ], [
@@ -9209,7 +8005,7 @@
                 function line(color, ypos) {
                     if (color) {
                         var width = fontSize / 12;
-                        var path = new drawing.Path({
+                        var path = new Path({
                             stroke: {
                                 width: width,
                                 color: color
@@ -9237,14 +8033,14 @@
                     break;
                 }
             }
-            var tmp = new drawing.Group();
-            main.insertAt(tmp, i);
+            var tmp = new Group();
+            main.insert(i, tmp);
             tmp._dom_zIndex = zIndex;
             if (main !== group) {
                 if (nodeInfo._clipbox) {
                     var m = nodeInfo._matrix.invert();
                     var r = nodeInfo._clipbox.transformCopy(m);
-                    setClipping(tmp, drawing.Path.fromRect(r));
+                    setClipping(tmp, Path.fromRect(r));
                 }
             }
             return tmp;
@@ -9330,120 +8126,504 @@
                 e1 * b2 + f1 * d2 + f2
             ];
         }
-    }(window.kendo.jQuery, parseFloat, Math));
+        var drawing = {
+            svg: svg,
+            canvas: canvas,
+            util: util,
+            PathParser: PathParser,
+            Surface: Surface,
+            BaseNode: BaseNode,
+            SurfaceFactory: SurfaceFactory,
+            OptionsStore: OptionsStore,
+            exportImage: exportImage,
+            exportSVG: exportSVG,
+            QuadNode: QuadNode,
+            ShapesQuadTree: ShapesQuadTree,
+            ObserversMixin: ObserversMixin,
+            Element: Element$1,
+            Circle: Circle,
+            Arc: Arc,
+            Path: Path,
+            MultiPath: MultiPath,
+            Text: Text,
+            Image: Image$1,
+            Group: Group,
+            Layout: Layout,
+            Rect: Rect$2,
+            align: align,
+            vAlign: vAlign,
+            stack: stack,
+            vStack: vStack,
+            wrap: wrap,
+            vWrap: vWrap,
+            fit: fit,
+            LinearGradient: LinearGradient,
+            RadialGradient: RadialGradient,
+            GradientStop: GradientStop,
+            Gradient: Gradient,
+            Animation: Animation,
+            AnimationFactory: AnimationFactory,
+            drawDOM: drawDOM
+        };
+        kendo.deepExtend(kendo, {
+            drawing: drawing,
+            geometry: geometry
+        });
+        kendo.drawing.Segment = kendo.geometry.Segment;
+        kendo.dataviz.drawing = kendo.drawing;
+        kendo.dataviz.geometry = kendo.geometry;
+        kendo.drawing.util.measureText = kendo.util.measureText;
+        kendo.drawing.util.objectKey = kendo.util.objectKey;
+        kendo.drawing.Color = kendo.Color;
+    }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('drawing/animation', [
-        'drawing/geometry',
-        'drawing/core'
+    define('drawing/surface-tooltip', [
+        'kendo.popup',
+        'drawing/kendo-drawing'
     ], f);
 }(function () {
     (function ($) {
-        var noop = $.noop, kendo = window.kendo, Class = kendo.Class, util = kendo.util, animationFrame = kendo.animationFrame, deepExtend = kendo.deepExtend;
-        var Animation = Class.extend({
-            init: function (element, options) {
-                var anim = this;
-                anim.options = deepExtend({}, anim.options, options);
-                anim.element = element;
+        var NS = '.kendo';
+        var kendo = window.kendo;
+        var deepExtend = kendo.deepExtend;
+        var utils = kendo.drawing.util;
+        var defined = utils.defined;
+        var limitValue = utils.limitValue;
+        var eventCoordinates = utils.eventCoordinates;
+        var outerWidth = kendo._outerWidth;
+        var outerHeight = kendo._outerHeight;
+        var proxy = $.proxy;
+        var TOOLTIP_TEMPLATE = '<div class="k-tooltip">' + '<div class="k-tooltip-content"></div>' + '</div>';
+        var TOOLTIP_CLOSE_TEMPLATE = '<div class="k-tooltip-button"><a href="\\#" class="k-icon k-i-close">close</a></div>';
+        var SurfaceTooltip = kendo.Class.extend({
+            init: function (surface, options) {
+                this.element = $(TOOLTIP_TEMPLATE);
+                this.content = this.element.children('.k-tooltip-content');
+                options = options || {};
+                this.options = deepExtend({}, this.options, this._tooltipOptions(options));
+                this.popupOptions = {
+                    appendTo: options.appendTo,
+                    animation: options.animation,
+                    copyAnchorStyles: false,
+                    collision: 'fit fit'
+                };
+                this._openPopupHandler = $.proxy(this._openPopup, this);
+                this.surface = surface;
+                this._bindEvents();
             },
             options: {
-                duration: 500,
-                easing: 'swing'
+                position: 'top',
+                showOn: 'mouseenter',
+                offset: 7,
+                autoHide: true,
+                hideDelay: 0,
+                showAfter: 100
             },
-            setup: noop,
-            step: noop,
-            play: function () {
-                var anim = this, options = anim.options, easing = $.easing[options.easing], duration = options.duration, delay = options.delay || 0, start = util.now() + delay, finish = start + duration;
-                if (duration === 0) {
-                    anim.step(1);
-                    anim.abort();
-                } else {
-                    setTimeout(function () {
-                        var loop = function () {
-                            if (anim._stopped) {
-                                return;
-                            }
-                            var wallTime = util.now();
-                            var time = util.limitValue(wallTime - start, 0, duration);
-                            var pos = time / duration;
-                            var easingPos = easing(pos, time, 0, 1, duration);
-                            anim.step(easingPos);
-                            if (wallTime < finish) {
-                                animationFrame(loop);
-                            } else {
-                                anim.abort();
-                            }
-                        };
-                        loop();
-                    }, delay);
+            _bindEvents: function () {
+                this._showHandler = proxy(this._showEvent, this);
+                this._surfaceLeaveHandler = proxy(this._surfaceLeave, this);
+                this._mouseleaveHandler = proxy(this._mouseleave, this);
+                this._mousemoveHandler = proxy(this._mousemove, this);
+                this.surface.bind('click', this._showHandler);
+                this.surface.bind('mouseenter', this._showHandler);
+                this.surface.bind('mouseleave', this._mouseleaveHandler);
+                this.surface.bind('mousemove', this._mousemoveHandler);
+                this.surface.element.on('mouseleave' + NS, this._surfaceLeaveHandler);
+                this.element.on('click' + NS, '.k-tooltip-button', proxy(this._hideClick, this));
+            },
+            getPopup: function () {
+                if (!this.popup) {
+                    this.popup = new kendo.ui.Popup(this.element, this.popupOptions);
                 }
-            },
-            abort: function () {
-                this._stopped = true;
+                return this.popup;
             },
             destroy: function () {
-                this.abort();
-            }
-        });
-        var AnimationFactory = function () {
-            this._items = [];
-        };
-        AnimationFactory.prototype = {
-            register: function (name, type) {
-                this._items.push({
-                    name: name,
-                    type: type
-                });
+                var popup = this.popup;
+                this.surface.unbind('click', this._showHandler);
+                this.surface.unbind('mouseenter', this._showHandler);
+                this.surface.unbind('mouseleave', this._mouseleaveHandler);
+                this.surface.unbind('mousemove', this._mousemoveHandler);
+                this.surface.element.off('mouseleave' + NS, this._surfaceLeaveHandler);
+                this.element.off('click' + NS);
+                if (popup) {
+                    popup.destroy();
+                    delete this.popup;
+                }
+                delete this.popupOptions;
+                clearTimeout(this._timeout);
+                delete this.element;
+                delete this.content;
+                delete this.surface;
             },
-            create: function (element, options) {
-                var items = this._items;
-                var match;
-                if (options && options.type) {
-                    var type = options.type.toLowerCase();
-                    for (var i = 0; i < items.length; i++) {
-                        if (items[i].name.toLowerCase() === type) {
-                            match = items[i];
-                            break;
-                        }
+            _tooltipOptions: function (options) {
+                options = options || {};
+                return {
+                    position: options.position,
+                    showOn: options.showOn,
+                    offset: options.offset,
+                    autoHide: options.autoHide,
+                    width: options.width,
+                    height: options.height,
+                    content: options.content,
+                    shared: options.shared,
+                    hideDelay: options.hideDelay,
+                    showAfter: options.showAfter
+                };
+            },
+            _tooltipShape: function (shape) {
+                while (shape && !shape.options.tooltip) {
+                    shape = shape.parent;
+                }
+                return shape;
+            },
+            _updateContent: function (target, shape, options) {
+                var content = options.content;
+                if (kendo.isFunction(content)) {
+                    content = content({
+                        element: shape,
+                        target: target
+                    });
+                }
+                if (content) {
+                    this.content.html(content);
+                    return true;
+                }
+            },
+            _position: function (shape, options, elementSize, event) {
+                var position = options.position;
+                var tooltipOffset = options.offset || 0;
+                var surface = this.surface;
+                var offset = surface._instance._elementOffset();
+                var size = surface.getSize();
+                var surfaceOffset = surface._instance._offset;
+                var bbox = shape.bbox();
+                var width = elementSize.width;
+                var height = elementSize.height;
+                var left = 0, top = 0;
+                bbox.origin.translate(offset.left, offset.top);
+                if (surfaceOffset) {
+                    bbox.origin.translate(-surfaceOffset.x, -surfaceOffset.y);
+                }
+                if (position == 'cursor' && event) {
+                    var coord = eventCoordinates(event);
+                    left = coord.x - width / 2;
+                    top = coord.y - height - tooltipOffset;
+                } else if (position == 'left') {
+                    left = bbox.origin.x - width - tooltipOffset;
+                    top = bbox.center().y - height / 2;
+                } else if (position == 'right') {
+                    left = bbox.bottomRight().x + tooltipOffset;
+                    top = bbox.center().y - height / 2;
+                } else if (position == 'bottom') {
+                    left = bbox.center().x - width / 2;
+                    top = bbox.bottomRight().y + tooltipOffset;
+                } else {
+                    left = bbox.center().x - width / 2;
+                    top = bbox.origin.y - height - tooltipOffset;
+                }
+                return {
+                    left: limitValue(left, offset.left, offset.left + size.width),
+                    top: limitValue(top, offset.top, offset.top + size.height)
+                };
+            },
+            show: function (shape, options) {
+                this._show(shape, shape, deepExtend({}, this.options, this._tooltipOptions(shape.options.tooltip), options));
+            },
+            hide: function () {
+                var popup = this.popup;
+                var current = this._current;
+                delete this._current;
+                clearTimeout(this._showTimeout);
+                if (popup && popup.visible() && current && !this.surface.trigger('tooltipClose', {
+                        element: current.shape,
+                        target: current.target,
+                        popup: popup
+                    })) {
+                    popup.close();
+                }
+            },
+            _hideClick: function (e) {
+                e.preventDefault();
+                this.hide();
+            },
+            _show: function (target, shape, options, event, delay) {
+                var current = this._current;
+                clearTimeout(this._timeout);
+                if (current && (current.shape === shape && options.shared || current.target === target)) {
+                    return;
+                }
+                clearTimeout(this._showTimeout);
+                var popup = this.getPopup();
+                if (!this.surface.trigger('tooltipOpen', {
+                        element: shape,
+                        target: target,
+                        popup: popup
+                    }) && this._updateContent(target, shape, options)) {
+                    this._autoHide(options);
+                    var elementSize = this._measure(options);
+                    if (popup.visible()) {
+                        popup.close(true);
+                    }
+                    this._current = {
+                        options: options,
+                        elementSize: elementSize,
+                        shape: shape,
+                        target: target,
+                        position: this._position(options.shared ? shape : target, options, elementSize, event)
+                    };
+                    if (delay) {
+                        this._showTimeout = setTimeout(this._openPopupHandler, options.showAfter || 0);
+                    } else {
+                        this._openPopup();
                     }
                 }
-                if (match) {
-                    return new match.type(element, options);
+            },
+            _openPopup: function () {
+                var current = this._current;
+                var position = current.position;
+                this.getPopup().open(position.left, position.top);
+            },
+            _autoHide: function (options) {
+                if (options.autoHide && this._closeButton) {
+                    this.element.removeClass('k-tooltip-closable');
+                    this._closeButton.remove();
+                    delete this._closeButton;
+                }
+                if (!options.autoHide && !this._closeButton) {
+                    this.element.addClass('k-tooltip-closable');
+                    this._closeButton = $(TOOLTIP_CLOSE_TEMPLATE).prependTo(this.element);
+                }
+            },
+            _showEvent: function (e) {
+                var shape = this._tooltipShape(e.element);
+                if (shape) {
+                    var options = deepExtend({}, this.options, this._tooltipOptions(shape.options.tooltip));
+                    if (options && options.showOn == e.type) {
+                        this._show(e.element, shape, options, e.originalEvent, true);
+                    }
+                }
+            },
+            _measure: function (options) {
+                var popup = this.getPopup();
+                var width, height;
+                this.element.css({
+                    width: 'auto',
+                    height: 'auto'
+                });
+                var visible = popup.visible();
+                if (!visible) {
+                    popup.wrapper.show();
+                }
+                this.element.css({
+                    width: defined(options.width) ? options.width : 'auto',
+                    height: defined(options.height) ? options.height : 'auto'
+                });
+                width = outerWidth(this.element);
+                height = outerHeight(this.element);
+                if (!visible) {
+                    popup.wrapper.hide();
+                }
+                return {
+                    width: width,
+                    height: height
+                };
+            },
+            _mouseleave: function (e) {
+                if (this.popup && !this._popupRelatedTarget(e.originalEvent)) {
+                    var tooltip = this;
+                    var current = tooltip._current;
+                    if (current && current.options.autoHide) {
+                        tooltip._timeout = setTimeout(function () {
+                            clearTimeout(tooltip._showTimeout);
+                            tooltip.hide();
+                        }, current.options.hideDelay || 0);
+                    }
+                }
+            },
+            _mousemove: function (e) {
+                var current = this._current;
+                if (current && e.element) {
+                    var options = current.options;
+                    if (options.position == 'cursor') {
+                        var position = this._position(e.element, options, current.elementSize, e.originalEvent);
+                        current.position = position;
+                        this.getPopup().wrapper.css({
+                            left: position.left,
+                            top: position.top
+                        });
+                    }
+                }
+            },
+            _surfaceLeave: function (e) {
+                if (this.popup && !this._popupRelatedTarget(e)) {
+                    clearTimeout(this._showTimeout);
+                    this.hide();
+                }
+            },
+            _popupRelatedTarget: function (e) {
+                return e.relatedTarget && $(e.relatedTarget).closest(this.popup.wrapper).length;
+            }
+        });
+        kendo.drawing.SurfaceTooltip = SurfaceTooltip;
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('drawing/surface', [
+        'drawing/kendo-drawing',
+        'drawing/surface-tooltip'
+    ], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo;
+        var draw = kendo.drawing;
+        var DrawingSurface = draw.Surface;
+        var Widget = kendo.ui.Widget;
+        var deepExtend = kendo.deepExtend;
+        var proxy = $.proxy;
+        kendo.support.svg = DrawingSurface.support.svg;
+        kendo.support.canvas = DrawingSurface.support.canvas;
+        var Surface = Widget.extend({
+            init: function (element, options) {
+                this.options = deepExtend({}, this.options, options);
+                Widget.fn.init.call(this, element, this.options);
+                this._instance = DrawingSurface.create(this.element[0], options);
+                if (this._instance.translate) {
+                    this.translate = translate;
+                }
+                this._triggerInstanceHandler = proxy(this._triggerInstanceEvent, this);
+                this._bindHandler('click');
+                this._bindHandler('mouseenter');
+                this._bindHandler('mouseleave');
+                this._bindHandler('mousemove');
+                this._enableTracking();
+            },
+            options: {
+                name: 'Surface',
+                tooltip: {}
+            },
+            events: [
+                'click',
+                'mouseenter',
+                'mouseleave',
+                'mousemove',
+                'resize',
+                'tooltipOpen',
+                'tooltipClose'
+            ],
+            _triggerInstanceEvent: function (e) {
+                this.trigger(e.type, e);
+            },
+            _bindHandler: function (event) {
+                this._instance.bind(event, this._triggerInstanceHandler);
+            },
+            draw: function (element) {
+                this._instance.draw(element);
+            },
+            clear: function () {
+                if (this._instance) {
+                    this._instance.clear();
+                }
+                this.hideTooltip();
+            },
+            destroy: function () {
+                if (this._instance) {
+                    this._instance.destroy();
+                    delete this._instance;
+                }
+                if (this._tooltip) {
+                    this._tooltip.destroy();
+                    delete this._tooltip;
+                }
+                Widget.fn.destroy.call(this);
+            },
+            exportVisual: function () {
+                return this._instance.exportVisual();
+            },
+            eventTarget: function (e) {
+                return this._instance.eventTarget(e);
+            },
+            showTooltip: function (shape, options) {
+                if (this._tooltip) {
+                    this._tooltip.show(shape, options);
+                }
+            },
+            hideTooltip: function () {
+                if (this._tooltip) {
+                    this._tooltip.hide();
+                }
+            },
+            suspendTracking: function () {
+                this._instance.suspendTracking();
+                this.hideTooltip();
+            },
+            resumeTracking: function () {
+                this._instance.resumeTracking();
+            },
+            getSize: function () {
+                return {
+                    width: this.element.width(),
+                    height: this.element.height()
+                };
+            },
+            setSize: function (size) {
+                this.element.css({
+                    width: size.width,
+                    height: size.height
+                });
+                this._size = size;
+                this._instance.currentSize(size);
+                this._resize();
+            },
+            _resize: function () {
+                this._instance.currentSize(this._size);
+                this._instance._resize();
+            },
+            _enableTracking: function () {
+                if (kendo.ui.Popup) {
+                    this._tooltip = new draw.SurfaceTooltip(this, this.options.tooltip || {});
                 }
             }
-        };
-        AnimationFactory.current = new AnimationFactory();
-        Animation.create = function (type, element, options) {
-            return AnimationFactory.current.create(type, element, options);
-        };
-        deepExtend(kendo.drawing, {
-            Animation: Animation,
-            AnimationFactory: AnimationFactory
         });
+        kendo.ui.plugin(Surface);
+        Surface.create = function (element, options) {
+            return new Surface(element, options);
+        };
+        kendo.drawing.Surface = Surface;
+        function translate(offset) {
+            this._instance.translate(offset);
+        }
+    }(window.kendo.jQuery));
+}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
+    (a3 || a2)();
+}));
+(function (f, define) {
+    define('drawing/html', ['drawing/kendo-drawing'], f);
+}(function () {
+    (function ($) {
+        var kendo = window.kendo;
+        var drawing = kendo.drawing;
+        var drawDOM = drawing.drawDOM;
+        drawing.drawDOM = function (element, options) {
+            return drawDOM($(element)[0], options);
+        };
+        drawing.drawDOM.drawText = drawDOM.drawText;
+        drawing.drawDOM.getFontFaces = drawDOM.getFontFaces;
     }(window.kendo.jQuery));
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
 (function (f, define) {
     define('kendo.drawing', [
-        'kendo.color',
-        'util/main',
-        'util/text-metrics',
-        'util/base64',
-        'mixins/observers',
-        'drawing/geometry',
-        'drawing/core',
-        'drawing/mixins',
-        'drawing/shapes',
-        'drawing/parser',
-        'drawing/search',
-        'drawing/svg',
-        'drawing/canvas',
-        'drawing/vml',
-        'drawing/html',
-        'drawing/animation'
+        'drawing/util',
+        'drawing/kendo-drawing',
+        'drawing/surface-tooltip',
+        'drawing/surface',
+        'drawing/html'
     ], f);
 }(function () {
     var __meta__ = {

@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -398,8 +398,12 @@
                             modified = true;
                         }
                     } else if (frequency === 'weekly') {
-                        diff = (current.getFullYear() - start.getFullYear()) * 52;
-                        excess = weekInYear(current, weekStart) - weekInYear(start, weekStart) + diff;
+                        excess = this._getNumberOfWeeksBetweenDates(start, current);
+                        var normalizedCurrentIndex = normalizeDayIndex(current.getDay(), weekStart);
+                        var normalizedStartIndex = normalizeDayIndex(start.getDay(), weekStart);
+                        if (normalizedCurrentIndex < normalizedStartIndex) {
+                            excess += 1;
+                        }
                         excess = intervalExcess(excess, interval);
                         if (excess !== 0) {
                             kendoDate.setDayOfWeek(current, rule.weekStart, -1);
@@ -433,6 +437,14 @@
                         }
                     }
                     return modified;
+                },
+                _getNumberOfWeeksBetweenDates: function (first, second) {
+                    var weeks = (second - first) / 604800000;
+                    var exactWeeks = Math.floor(weeks);
+                    if (weeks - exactWeeks > 0.99) {
+                        exactWeeks = Math.round(weeks);
+                    }
+                    return exactWeeks;
                 },
                 _hour: function (date, rule, interval) {
                     var startTime = rule._startTime, hours = startTime.getHours();

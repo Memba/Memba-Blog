@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -78,7 +78,7 @@
     (function ($, undefined) {
         var kendo = window.kendo, ui = kendo.ui, Class = kendo.Class, Widget = ui.Widget, DataSource = kendo.data.DataSource, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, toString = {}.toString, identity = function (o) {
                 return o;
-            }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, CHANGE = 'change', ERROR = 'error', MEASURES = 'Measures', PROGRESS = 'progress', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div/>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-arrow-s', STATE_COLLAPSED = 'k-i-arrow-e', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-kpi-#=data.dataItem.value > 0 ? "open" : data.dataItem.value < 0 ? "denied" : "hold"#">#:data.dataItem.value#</span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-kpi-#=data.dataItem.value > 0 ? "increase" : data.dataItem.value < 0 ? "decrease" : "equal"#">#:data.dataItem.value#</span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
+            }, map = $.map, extend = $.extend, isFunction = kendo.isFunction, CHANGE = 'change', ERROR = 'error', MEASURES = 'Measures', PROGRESS = 'progress', STATERESET = 'stateReset', AUTO = 'auto', DIV = '<div/>', NS = '.kendoPivotGrid', ROW_TOTAL_KEY = '__row_total__', DATABINDING = 'dataBinding', DATABOUND = 'dataBound', EXPANDMEMBER = 'expandMember', COLLAPSEMEMBER = 'collapseMember', STATE_EXPANDED = 'k-i-collapse', STATE_COLLAPSED = 'k-i-expand', HEADER_TEMPLATE = '<span>#: data.member.caption || data.member.name #</span>', KPISTATUS_TEMPLATE = '<span class="k-icon k-i-#=data.dataItem.value > 0 ? "circle" : data.dataItem.value < 0 ? "stop" : "arrow-60-up k-i-hold"#" title="#:data.dataItem.value#"></span>', KPITREND_TEMPLATE = '<span class="k-icon k-i-#=data.dataItem.value > 0 ? "arrow-60-up" : data.dataItem.value < 0 ? "arrow-60-down" : "minus"#" title="#:data.dataItem.value#"></span>', DATACELL_TEMPLATE = '#= data.dataItem ? kendo.htmlEncode(data.dataItem.fmtValue || data.dataItem.value) || "&nbsp;" : "&nbsp;" #', LAYOUT_TABLE = '<table class="k-pivot-layout">' + '<tr>' + '<td>' + '<div class="k-pivot-rowheaders"></div>' + '</td>' + '<td>' + '<div class="k-pivot-table k-state-default"></div>' + '</td>' + '</tr>' + '</table>';
         function normalizeMeasures(measure) {
             var descriptor = typeof measure === 'string' ? [{ name: measure }] : measure;
             var descriptors = toString.call(descriptor) === '[object Array]' ? descriptor : descriptor !== undefined ? [descriptor] : [];
@@ -1022,7 +1022,9 @@
                 this.query({
                     columns: val,
                     rows: this.rowsAxisDescriptors(),
-                    measures: this.measures()
+                    measures: this.measures(),
+                    sort: this.sort(),
+                    filter: this.filter()
                 });
             },
             rows: function (val) {
@@ -1035,7 +1037,9 @@
                 this.query({
                     columns: this.columnsAxisDescriptors(),
                     rows: val,
-                    measures: this.measures()
+                    measures: this.measures(),
+                    sort: this.sort(),
+                    filter: this.filter()
                 });
             },
             measures: function (val) {
@@ -1047,7 +1051,9 @@
                 this.query({
                     columns: this.columnsAxisDescriptors(),
                     rows: this.rowsAxisDescriptors(),
-                    measures: normalizeMeasures(val)
+                    measures: normalizeMeasures(val),
+                    sort: this.sort(),
+                    filter: this.filter()
                 });
             },
             measuresAxis: function () {
@@ -2254,11 +2260,11 @@
         }
         var filterFunctionFormats = {
             contains: ', InStr({0}.CurrentMember.MEMBER_CAPTION,"{1}") > 0',
-            doesnotcontain: ', InStr({0}.CurrentMember.MEMBER_CAPTION,"{1}") = 0',
+            doesnotcontain: ', InStr({0}.CurrentMember.MEMBER_CAPTION,"{1}")',
             startswith: ', Left({0}.CurrentMember.MEMBER_CAPTION,Len("{1}"))="{1}"',
             endswith: ', Right({0}.CurrentMember.MEMBER_CAPTION,Len("{1}"))="{1}"',
             eq: ', {0}.CurrentMember.MEMBER_CAPTION = "{1}"',
-            neq: ', NOT {0}.CurrentMember.MEMBER_CAPTION = "{1}"'
+            neq: ', {0}.CurrentMember.MEMBER_CAPTION = "{1}"'
         };
         function serializeExpression(expression) {
             var command = '';
@@ -2270,6 +2276,7 @@
                 command += value;
                 command += '}';
             } else {
+                command += operator == 'neq' || operator == 'doesnotcontain' ? '-' : '';
                 command += 'Filter(';
                 command += field + '.MEMBERS';
                 command += kendo.format(filterFunctionFormats[operator], field, value);
@@ -2682,7 +2689,7 @@
                 that._refreshHandler = $.proxy(that.refresh, that);
                 that.dataSource.first(CHANGE, that._refreshHandler);
                 if (!options.template) {
-                    that.options.template = '<div data-' + kendo.ns + 'name="${data.name || data}">${data.name || data}' + (that.options.enabled ? '<a class="k-button k-button-icon k-button-bare"><span class="k-icon k-setting-delete"></span></a>' : '') + '</div>';
+                    that.options.template = '<div data-' + kendo.ns + 'name="${data.name || data}">${data.name || data}' + (that.options.enabled ? '<a class="k-button k-button-icon k-button-bare"><span class="k-icon k-i-close k-setting-delete"></span></a>' : '') + '</div>';
                 }
                 that.template = kendo.template(that.options.template);
                 that.emptyTemplate = kendo.template(that.options.emptyTemplate);
@@ -2693,12 +2700,12 @@
                     if (!name) {
                         return;
                     }
-                    if (target.hasClass('k-setting-delete')) {
+                    if (target.hasClass('k-i-close')) {
                         that.remove(name);
                     } else if (that.options.sortable && target[0] === e.currentTarget) {
                         that.sort({
                             field: name,
-                            dir: target.find('.k-i-sort-asc')[0] ? 'desc' : 'asc'
+                            dir: target.find('.k-i-sort-asc-sm')[0] ? 'desc' : 'asc'
                         });
                     }
                 });
@@ -2737,7 +2744,6 @@
                 if (that.options.enabled) {
                     this.sortable = this.element.kendoSortable({
                         connectWith: this.options.connectWith,
-                        filter: '>:not(.k-empty)',
                         hint: that.options.hint,
                         cursor: 'move',
                         start: function (e) {
@@ -2816,7 +2822,20 @@
             remove: function (name) {
                 var items = this.dataSource[this.options.setting]();
                 var idx = this._indexOf(name, items);
+                var sortExpressions = this.dataSource.sort();
+                var filter = this.dataSource.filter();
                 if (idx > -1) {
+                    if (filter) {
+                        filter.filters = removeExpr(filter.filters, name);
+                        this.dataSource._filter.filters = filter.filters;
+                        if (!filter.filters.length) {
+                            this.dataSource._filter = null;
+                        }
+                    }
+                    if (sortExpressions) {
+                        sortExpressions = removeExpr(sortExpressions, name);
+                        this.dataSource._sort = sortExpressions;
+                    }
                     items.splice(idx, 1);
                     this.dataSource[this.options.setting](items);
                 }
@@ -3059,14 +3078,14 @@
                 var icons = '';
                 if (sortable) {
                     icons += '#if (data.sortIcon) {#';
-                    icons += '<span class="k-icon ${data.sortIcon} k-setting-sort"></span>';
+                    icons += '<span class="k-icon ${data.sortIcon}-sm"></span>';
                     icons += '#}#';
                 }
                 if (options.filterable || sortable) {
-                    icons += '<span class="k-icon k-i-arrowhead-s k-setting-fieldmenu"></span>';
+                    icons += '<span class="k-icon k-i-more-vertical k-setting-fieldmenu"></span>';
                 }
                 if (this.options.reorderable) {
-                    icons += '<span class="k-icon k-si-close k-setting-delete"></span>';
+                    icons += '<span class="k-icon k-i-close k-setting-delete"></span>';
                 }
                 if (icons) {
                     template += '<span class="k-field-actions">' + icons + '</span>';

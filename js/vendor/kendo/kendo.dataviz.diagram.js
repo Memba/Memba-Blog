@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -23,43 +23,59 @@
 
 */
 (function (f, define) {
-    define('util/main', ['kendo.core'], f);
+    define('util/text-metrics', ['kendo.core'], f);
 }(function () {
-    (function () {
-        var math = Math, kendo = window.kendo, deepExtend = kendo.deepExtend;
-        var DEG_TO_RAD = math.PI / 180, MAX_NUM = Number.MAX_VALUE, MIN_NUM = -Number.MAX_VALUE, UNDEFINED = 'undefined';
-        function defined(value) {
-            return typeof value !== UNDEFINED;
-        }
-        function round(value, precision) {
-            var power = pow(precision);
-            return math.round(value * power) / power;
-        }
-        function pow(p) {
-            if (p) {
-                return math.pow(10, p);
-            } else {
-                return 1;
+    (function ($) {
+        window.kendo.util = window.kendo.util || {};
+        var LRUCache = kendo.Class.extend({
+            init: function (size) {
+                this._size = size;
+                this._length = 0;
+                this._map = {};
+            },
+            put: function (key, value) {
+                var map = this._map;
+                var entry = {
+                    key: key,
+                    value: value
+                };
+                map[key] = entry;
+                if (!this._head) {
+                    this._head = this._tail = entry;
+                } else {
+                    this._tail.newer = entry;
+                    entry.older = this._tail;
+                    this._tail = entry;
+                }
+                if (this._length >= this._size) {
+                    map[this._head.key] = null;
+                    this._head = this._head.newer;
+                    this._head.older = null;
+                } else {
+                    this._length++;
+                }
+            },
+            get: function (key) {
+                var entry = this._map[key];
+                if (entry) {
+                    if (entry === this._head && entry !== this._tail) {
+                        this._head = entry.newer;
+                        this._head.older = null;
+                    }
+                    if (entry !== this._tail) {
+                        if (entry.older) {
+                            entry.older.newer = entry.newer;
+                            entry.newer.older = entry.older;
+                        }
+                        entry.older = this._tail;
+                        entry.newer = null;
+                        this._tail.newer = entry;
+                        this._tail = entry;
+                    }
+                    return entry.value;
+                }
             }
-        }
-        function limitValue(value, min, max) {
-            return math.max(math.min(value, max), min);
-        }
-        function rad(degrees) {
-            return degrees * DEG_TO_RAD;
-        }
-        function deg(radians) {
-            return radians / DEG_TO_RAD;
-        }
-        function isNumber(val) {
-            return typeof val === 'number' && !isNaN(val);
-        }
-        function valueOrDefault(value, defaultValue) {
-            return defined(value) ? value : defaultValue;
-        }
-        function sqr(value) {
-            return value * value;
-        }
+        });
         function objectKey(object) {
             var parts = [];
             for (var key in object) {
@@ -75,381 +91,6 @@
             }
             return hash >>> 0;
         }
-        function hashObject(object) {
-            return hashKey(objectKey(object));
-        }
-        var now = Date.now;
-        if (!now) {
-            now = function () {
-                return new Date().getTime();
-            };
-        }
-        function arrayLimits(arr) {
-            var length = arr.length, i, min = MAX_NUM, max = MIN_NUM;
-            for (i = 0; i < length; i++) {
-                max = math.max(max, arr[i]);
-                min = math.min(min, arr[i]);
-            }
-            return {
-                min: min,
-                max: max
-            };
-        }
-        function arrayMin(arr) {
-            return arrayLimits(arr).min;
-        }
-        function arrayMax(arr) {
-            return arrayLimits(arr).max;
-        }
-        function sparseArrayMin(arr) {
-            return sparseArrayLimits(arr).min;
-        }
-        function sparseArrayMax(arr) {
-            return sparseArrayLimits(arr).max;
-        }
-        function sparseArrayLimits(arr) {
-            var min = MAX_NUM, max = MIN_NUM;
-            for (var i = 0, length = arr.length; i < length; i++) {
-                var n = arr[i];
-                if (n !== null && isFinite(n)) {
-                    min = math.min(min, n);
-                    max = math.max(max, n);
-                }
-            }
-            return {
-                min: min === MAX_NUM ? undefined : min,
-                max: max === MIN_NUM ? undefined : max
-            };
-        }
-        function last(array) {
-            if (array) {
-                return array[array.length - 1];
-            }
-        }
-        function append(first, second) {
-            first.push.apply(first, second);
-            return first;
-        }
-        function renderTemplate(text) {
-            return kendo.template(text, {
-                useWithBlock: false,
-                paramName: 'd'
-            });
-        }
-        function renderAttr(name, value) {
-            return defined(value) && value !== null ? ' ' + name + '=\'' + value + '\' ' : '';
-        }
-        function renderAllAttr(attrs) {
-            var output = '';
-            for (var i = 0; i < attrs.length; i++) {
-                output += renderAttr(attrs[i][0], attrs[i][1]);
-            }
-            return output;
-        }
-        function renderStyle(attrs) {
-            var output = '';
-            for (var i = 0; i < attrs.length; i++) {
-                var value = attrs[i][1];
-                if (defined(value)) {
-                    output += attrs[i][0] + ':' + value + ';';
-                }
-            }
-            if (output !== '') {
-                return output;
-            }
-        }
-        function renderSize(size) {
-            if (typeof size !== 'string') {
-                size += 'px';
-            }
-            return size;
-        }
-        function renderPos(pos) {
-            var result = [];
-            if (pos) {
-                var parts = kendo.toHyphens(pos).split('-');
-                for (var i = 0; i < parts.length; i++) {
-                    result.push('k-pos-' + parts[i]);
-                }
-            }
-            return result.join(' ');
-        }
-        function isTransparent(color) {
-            return color === '' || color === null || color === 'none' || color === 'transparent' || !defined(color);
-        }
-        function arabicToRoman(n) {
-            var literals = {
-                1: 'i',
-                10: 'x',
-                100: 'c',
-                2: 'ii',
-                20: 'xx',
-                200: 'cc',
-                3: 'iii',
-                30: 'xxx',
-                300: 'ccc',
-                4: 'iv',
-                40: 'xl',
-                400: 'cd',
-                5: 'v',
-                50: 'l',
-                500: 'd',
-                6: 'vi',
-                60: 'lx',
-                600: 'dc',
-                7: 'vii',
-                70: 'lxx',
-                700: 'dcc',
-                8: 'viii',
-                80: 'lxxx',
-                800: 'dccc',
-                9: 'ix',
-                90: 'xc',
-                900: 'cm',
-                1000: 'm'
-            };
-            var values = [
-                1000,
-                900,
-                800,
-                700,
-                600,
-                500,
-                400,
-                300,
-                200,
-                100,
-                90,
-                80,
-                70,
-                60,
-                50,
-                40,
-                30,
-                20,
-                10,
-                9,
-                8,
-                7,
-                6,
-                5,
-                4,
-                3,
-                2,
-                1
-            ];
-            var roman = '';
-            while (n > 0) {
-                if (n < values[0]) {
-                    values.shift();
-                } else {
-                    roman += literals[values[0]];
-                    n -= values[0];
-                }
-            }
-            return roman;
-        }
-        function romanToArabic(r) {
-            r = r.toLowerCase();
-            var digits = {
-                i: 1,
-                v: 5,
-                x: 10,
-                l: 50,
-                c: 100,
-                d: 500,
-                m: 1000
-            };
-            var value = 0, prev = 0;
-            for (var i = 0; i < r.length; ++i) {
-                var v = digits[r.charAt(i)];
-                if (!v) {
-                    return null;
-                }
-                value += v;
-                if (v > prev) {
-                    value -= 2 * prev;
-                }
-                prev = v;
-            }
-            return value;
-        }
-        function memoize(f) {
-            var cache = Object.create(null);
-            return function () {
-                var id = '';
-                for (var i = arguments.length; --i >= 0;) {
-                    id += ':' + arguments[i];
-                }
-                return id in cache ? cache[id] : cache[id] = f.apply(this, arguments);
-            };
-        }
-        function ucs2decode(string) {
-            var output = [], counter = 0, length = string.length, value, extra;
-            while (counter < length) {
-                value = string.charCodeAt(counter++);
-                if (value >= 55296 && value <= 56319 && counter < length) {
-                    extra = string.charCodeAt(counter++);
-                    if ((extra & 64512) == 56320) {
-                        output.push(((value & 1023) << 10) + (extra & 1023) + 65536);
-                    } else {
-                        output.push(value);
-                        counter--;
-                    }
-                } else {
-                    output.push(value);
-                }
-            }
-            return output;
-        }
-        function ucs2encode(array) {
-            return array.map(function (value) {
-                var output = '';
-                if (value > 65535) {
-                    value -= 65536;
-                    output += String.fromCharCode(value >>> 10 & 1023 | 55296);
-                    value = 56320 | value & 1023;
-                }
-                output += String.fromCharCode(value);
-                return output;
-            }).join('');
-        }
-        function mergeSort(a, cmp) {
-            if (a.length < 2) {
-                return a.slice();
-            }
-            function merge(a, b) {
-                var r = [], ai = 0, bi = 0, i = 0;
-                while (ai < a.length && bi < b.length) {
-                    if (cmp(a[ai], b[bi]) <= 0) {
-                        r[i++] = a[ai++];
-                    } else {
-                        r[i++] = b[bi++];
-                    }
-                }
-                if (ai < a.length) {
-                    r.push.apply(r, a.slice(ai));
-                }
-                if (bi < b.length) {
-                    r.push.apply(r, b.slice(bi));
-                }
-                return r;
-            }
-            return function sort(a) {
-                if (a.length <= 1) {
-                    return a;
-                }
-                var m = Math.floor(a.length / 2);
-                var left = a.slice(0, m);
-                var right = a.slice(m);
-                left = sort(left);
-                right = sort(right);
-                return merge(left, right);
-            }(a);
-        }
-        deepExtend(kendo, {
-            util: {
-                MAX_NUM: MAX_NUM,
-                MIN_NUM: MIN_NUM,
-                append: append,
-                arrayLimits: arrayLimits,
-                arrayMin: arrayMin,
-                arrayMax: arrayMax,
-                defined: defined,
-                deg: deg,
-                hashKey: hashKey,
-                hashObject: hashObject,
-                isNumber: isNumber,
-                isTransparent: isTransparent,
-                last: last,
-                limitValue: limitValue,
-                now: now,
-                objectKey: objectKey,
-                round: round,
-                rad: rad,
-                renderAttr: renderAttr,
-                renderAllAttr: renderAllAttr,
-                renderPos: renderPos,
-                renderSize: renderSize,
-                renderStyle: renderStyle,
-                renderTemplate: renderTemplate,
-                sparseArrayLimits: sparseArrayLimits,
-                sparseArrayMin: sparseArrayMin,
-                sparseArrayMax: sparseArrayMax,
-                sqr: sqr,
-                valueOrDefault: valueOrDefault,
-                romanToArabic: romanToArabic,
-                arabicToRoman: arabicToRoman,
-                memoize: memoize,
-                ucs2encode: ucs2encode,
-                ucs2decode: ucs2decode,
-                mergeSort: mergeSort
-            }
-        });
-        kendo.drawing.util = kendo.util;
-        kendo.dataviz.util = kendo.util;
-    }());
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('util/text-metrics', [
-        'kendo.core',
-        'util/main'
-    ], f);
-}(function () {
-    (function ($) {
-        var doc = document, kendo = window.kendo, Class = kendo.Class, util = kendo.util, defined = util.defined;
-        var LRUCache = Class.extend({
-            init: function (size) {
-                this._size = size;
-                this._length = 0;
-                this._map = {};
-            },
-            put: function (key, value) {
-                var lru = this, map = lru._map, entry = {
-                        key: key,
-                        value: value
-                    };
-                map[key] = entry;
-                if (!lru._head) {
-                    lru._head = lru._tail = entry;
-                } else {
-                    lru._tail.newer = entry;
-                    entry.older = lru._tail;
-                    lru._tail = entry;
-                }
-                if (lru._length >= lru._size) {
-                    map[lru._head.key] = null;
-                    lru._head = lru._head.newer;
-                    lru._head.older = null;
-                } else {
-                    lru._length++;
-                }
-            },
-            get: function (key) {
-                var lru = this, entry = lru._map[key];
-                if (entry) {
-                    if (entry === lru._head && entry !== lru._tail) {
-                        lru._head = entry.newer;
-                        lru._head.older = null;
-                    }
-                    if (entry !== lru._tail) {
-                        if (entry.older) {
-                            entry.older.newer = entry.newer;
-                            entry.newer.older = entry.older;
-                        }
-                        entry.older = lru._tail;
-                        entry.newer = null;
-                        lru._tail.newer = entry;
-                        lru._tail = entry;
-                    }
-                    return entry.value;
-                }
-            }
-        });
-        var defaultMeasureBox = $('<div style=\'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;\' />')[0];
         function zeroSize() {
             return {
                 width: 0,
@@ -457,33 +98,40 @@
                 baseline: 0
             };
         }
-        var TextMetrics = Class.extend({
+        var DEFAULT_OPTIONS = { baselineMarkerSize: 1 };
+        var defaultMeasureBox;
+        if (typeof document !== 'undefined') {
+            defaultMeasureBox = document.createElement('div');
+            defaultMeasureBox.style.cssText = 'position: absolute !important; top: -4000px !important; width: auto !important; height: auto !important;' + 'padding: 0 !important; margin: 0 !important; border: 0 !important;' + 'line-height: normal !important; visibility: hidden !important; white-space: nowrap!important;';
+        }
+        var TextMetrics = kendo.Class.extend({
             init: function (options) {
                 this._cache = new LRUCache(1000);
-                this._initOptions(options);
+                this.options = $.extend({}, DEFAULT_OPTIONS, options);
             },
-            options: { baselineMarkerSize: 1 },
             measure: function (text, style, box) {
                 if (!text) {
                     return zeroSize();
                 }
-                var styleKey = util.objectKey(style), cacheKey = util.hashKey(text + styleKey), cachedResult = this._cache.get(cacheKey);
+                var styleKey = objectKey(style);
+                var cacheKey = hashKey(text + styleKey);
+                var cachedResult = this._cache.get(cacheKey);
                 if (cachedResult) {
                     return cachedResult;
                 }
                 var size = zeroSize();
-                var measureBox = box ? box : defaultMeasureBox;
+                var measureBox = box || defaultMeasureBox;
                 var baselineMarker = this._baselineMarker().cloneNode(false);
                 for (var key in style) {
                     var value = style[key];
-                    if (defined(value)) {
+                    if (typeof value !== 'undefined') {
                         measureBox.style[key] = value;
                     }
                 }
-                $(measureBox).text(text);
+                measureBox.textContent = text;
                 measureBox.appendChild(baselineMarker);
-                doc.body.appendChild(measureBox);
-                if ((text + '').length) {
+                document.body.appendChild(measureBox);
+                if (String(text).length) {
                     size.width = measureBox.offsetWidth - this.options.baselineMarkerSize;
                     size.height = measureBox.offsetHeight;
                     size.baseline = baselineMarker.offsetTop + this.options.baselineMarkerSize;
@@ -495,157 +143,23 @@
                 return size;
             },
             _baselineMarker: function () {
-                return $('<div class=\'k-baseline-marker\' ' + 'style=\'display: inline-block; vertical-align: baseline;' + 'width: ' + this.options.baselineMarkerSize + 'px; height: ' + this.options.baselineMarkerSize + 'px;' + 'overflow: hidden;\' />')[0];
+                var marker = document.createElement('div');
+                marker.style.cssText = 'display: inline-block; vertical-align: baseline;width: ' + this.options.baselineMarkerSize + 'px; height: ' + this.options.baselineMarkerSize + 'px;overflow: hidden;';
+                return marker;
             }
         });
         TextMetrics.current = new TextMetrics();
         function measureText(text, style, measureBox) {
             return TextMetrics.current.measure(text, style, measureBox);
         }
-        function loadFonts(fonts, callback) {
-            var promises = [];
-            if (fonts.length > 0 && document.fonts) {
-                try {
-                    promises = fonts.map(function (font) {
-                        return document.fonts.load(font);
-                    });
-                } catch (e) {
-                    kendo.logToConsole(e);
-                }
-                Promise.all(promises).then(callback, callback);
-            } else {
-                callback();
-            }
-        }
-        kendo.util.TextMetrics = TextMetrics;
-        kendo.util.LRUCache = LRUCache;
-        kendo.util.loadFonts = loadFonts;
-        kendo.util.measureText = measureText;
-    }(window.kendo.jQuery));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('util/base64', ['util/main'], f);
-}(function () {
-    (function () {
-        var kendo = window.kendo, deepExtend = kendo.deepExtend, fromCharCode = String.fromCharCode;
-        var KEY_STR = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-        function encodeBase64(input) {
-            var output = '';
-            var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-            var i = 0;
-            input = encodeUTF8(input);
-            while (i < input.length) {
-                chr1 = input.charCodeAt(i++);
-                chr2 = input.charCodeAt(i++);
-                chr3 = input.charCodeAt(i++);
-                enc1 = chr1 >> 2;
-                enc2 = (chr1 & 3) << 4 | chr2 >> 4;
-                enc3 = (chr2 & 15) << 2 | chr3 >> 6;
-                enc4 = chr3 & 63;
-                if (isNaN(chr2)) {
-                    enc3 = enc4 = 64;
-                } else if (isNaN(chr3)) {
-                    enc4 = 64;
-                }
-                output = output + KEY_STR.charAt(enc1) + KEY_STR.charAt(enc2) + KEY_STR.charAt(enc3) + KEY_STR.charAt(enc4);
-            }
-            return output;
-        }
-        function encodeUTF8(input) {
-            var output = '';
-            for (var i = 0; i < input.length; i++) {
-                var c = input.charCodeAt(i);
-                if (c < 128) {
-                    output += fromCharCode(c);
-                } else if (c < 2048) {
-                    output += fromCharCode(192 | c >>> 6);
-                    output += fromCharCode(128 | c & 63);
-                } else if (c < 65536) {
-                    output += fromCharCode(224 | c >>> 12);
-                    output += fromCharCode(128 | c >>> 6 & 63);
-                    output += fromCharCode(128 | c & 63);
-                }
-            }
-            return output;
-        }
-        deepExtend(kendo.util, {
-            encodeBase64: encodeBase64,
-            encodeUTF8: encodeUTF8
+        kendo.deepExtend(kendo.util, {
+            LRUCache: LRUCache,
+            TextMetrics: TextMetrics,
+            measureText: measureText,
+            objectKey: objectKey,
+            hashKey: hashKey
         });
-    }());
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('mixins/observers', ['kendo.core'], f);
-}(function () {
-    (function ($) {
-        var math = Math, kendo = window.kendo, deepExtend = kendo.deepExtend, inArray = $.inArray;
-        var ObserversMixin = {
-            observers: function () {
-                this._observers = this._observers || [];
-                return this._observers;
-            },
-            addObserver: function (element) {
-                if (!this._observers) {
-                    this._observers = [element];
-                } else {
-                    this._observers.push(element);
-                }
-                return this;
-            },
-            removeObserver: function (element) {
-                var observers = this.observers();
-                var index = inArray(element, observers);
-                if (index != -1) {
-                    observers.splice(index, 1);
-                }
-                return this;
-            },
-            trigger: function (methodName, event) {
-                var observers = this._observers;
-                var observer;
-                var idx;
-                if (observers && !this._suspended) {
-                    for (idx = 0; idx < observers.length; idx++) {
-                        observer = observers[idx];
-                        if (observer[methodName]) {
-                            observer[methodName](event);
-                        }
-                    }
-                }
-                return this;
-            },
-            optionsChange: function (e) {
-                e = e || {};
-                e.element = this;
-                this.trigger('optionsChange', e);
-            },
-            geometryChange: function () {
-                this.trigger('geometryChange', { element: this });
-            },
-            suspend: function () {
-                this._suspended = (this._suspended || 0) + 1;
-                return this;
-            },
-            resume: function () {
-                this._suspended = math.max((this._suspended || 0) - 1, 0);
-                return this;
-            },
-            _observerField: function (field, value) {
-                if (this[field]) {
-                    this[field].removeObserver(this);
-                }
-                this[field] = value;
-                value.addObserver(this);
-            }
-        };
-        deepExtend(kendo, { mixins: { ObserversMixin: ObserversMixin } });
     }(window.kendo.jQuery));
-    return window.kendo;
 }, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
     (a3 || a2)();
 }));
@@ -3204,7 +2718,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, diagram = kendo.dataviz.diagram, Class = kendo.Class, deepExtend = kendo.deepExtend, Point = diagram.Point, Rect = diagram.Rect, Matrix = diagram.Matrix, Utils = diagram.Utils, isNumber = Utils.isNumber, isString = Utils.isString, MatrixVector = diagram.MatrixVector, g = kendo.geometry, d = kendo.drawing, defined = kendo.util.defined, inArray = $.inArray;
+        var kendo = window.kendo, diagram = kendo.dataviz.diagram, Class = kendo.Class, deepExtend = kendo.deepExtend, Point = diagram.Point, Rect = diagram.Rect, Matrix = diagram.Matrix, Utils = diagram.Utils, isNumber = Utils.isNumber, isString = Utils.isString, MatrixVector = diagram.MatrixVector, g = kendo.geometry, d = kendo.drawing, defined = d.util.defined, inArray = $.inArray;
         var TRANSPARENT = 'transparent', Markers = {
                 none: 'none',
                 arrowStart: 'ArrowStart',
@@ -4393,7 +3907,7 @@
         function lineAngle(p1, p2) {
             var xDiff = p2.x - p1.x;
             var yDiff = p2.y - p1.y;
-            var angle = kendo.util.deg(Math.atan2(yDiff, xDiff));
+            var angle = d.util.deg(Math.atan2(yDiff, xDiff));
             return angle;
         }
         function createSegment(x, y) {
@@ -4446,7 +3960,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var kendo = window.kendo, dataviz = kendo.dataviz, diagram = dataviz.diagram, Class = kendo.Class, Group = diagram.Group, Rect = diagram.Rect, Rectangle = diagram.Rectangle, Utils = diagram.Utils, isUndefined = Utils.isUndefined, Point = diagram.Point, Circle = diagram.Circle, Ticker = diagram.Ticker, deepExtend = kendo.deepExtend, Movable = kendo.ui.Movable, browser = kendo.support.browser, defined = kendo.util.defined, inArray = $.inArray, proxy = $.proxy;
+        var kendo = window.kendo, dataviz = kendo.dataviz, diagram = dataviz.diagram, Class = kendo.Class, Group = diagram.Group, Rect = diagram.Rect, Rectangle = diagram.Rectangle, Utils = diagram.Utils, isUndefined = Utils.isUndefined, Point = diagram.Point, Circle = diagram.Circle, Ticker = diagram.Ticker, deepExtend = kendo.deepExtend, Movable = kendo.ui.Movable, browser = kendo.support.browser, util = kendo.drawing.util, defined = util.defined, inArray = $.inArray, proxy = $.proxy;
         var Cursors = {
                 arrow: 'default',
                 grip: 'pointer',
@@ -5550,7 +5064,7 @@
                     bottomRight: shapeBounds.bottomRight()
                 };
                 var sides = this._connectorSides;
-                var min = kendo.util.MAX_NUM;
+                var min = util.MAX_NUM;
                 var sideDistance;
                 var minSide;
                 var axis;
@@ -9172,7 +8686,7 @@
     ], f);
 }(function () {
     (function ($, undefined) {
-        var dataviz = kendo.dataviz, draw = kendo.drawing, geom = kendo.geometry, diagram = dataviz.diagram, Widget = kendo.ui.Widget, Class = kendo.Class, proxy = $.proxy, deepExtend = kendo.deepExtend, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, extend = $.extend, HierarchicalDataSource = kendo.data.HierarchicalDataSource, Canvas = diagram.Canvas, Group = diagram.Group, Rectangle = diagram.Rectangle, Circle = diagram.Circle, CompositeTransform = diagram.CompositeTransform, Rect = diagram.Rect, Path = diagram.Path, DeleteShapeUnit = diagram.DeleteShapeUnit, DeleteConnectionUnit = diagram.DeleteConnectionUnit, TextBlock = diagram.TextBlock, Image = diagram.Image, Point = diagram.Point, Intersect = diagram.Intersect, ConnectionEditAdorner = diagram.ConnectionEditAdorner, UndoRedoService = diagram.UndoRedoService, ToolService = diagram.ToolService, Selector = diagram.Selector, ResizingAdorner = diagram.ResizingAdorner, ConnectorsAdorner = diagram.ConnectorsAdorner, Cursors = diagram.Cursors, Utils = diagram.Utils, Observable = kendo.Observable, ToBackUnit = diagram.ToBackUnit, ToFrontUnit = diagram.ToFrontUnit, PolylineRouter = diagram.PolylineRouter, CascadingRouter = diagram.CascadingRouter, isUndefined = Utils.isUndefined, isDefined = Utils.isDefined, defined = kendo.util.defined, isArray = $.isArray, isFunction = kendo.isFunction, isString = Utils.isString, isPlainObject = $.isPlainObject, math = Math;
+        var dataviz = kendo.dataviz, draw = kendo.drawing, geom = kendo.geometry, diagram = dataviz.diagram, Widget = kendo.ui.Widget, Class = kendo.Class, proxy = $.proxy, deepExtend = kendo.deepExtend, outerWidth = kendo._outerWidth, outerHeight = kendo._outerHeight, extend = $.extend, HierarchicalDataSource = kendo.data.HierarchicalDataSource, Canvas = diagram.Canvas, Group = diagram.Group, Rectangle = diagram.Rectangle, Circle = diagram.Circle, CompositeTransform = diagram.CompositeTransform, Rect = diagram.Rect, Path = diagram.Path, DeleteShapeUnit = diagram.DeleteShapeUnit, DeleteConnectionUnit = diagram.DeleteConnectionUnit, TextBlock = diagram.TextBlock, Image = diagram.Image, Point = diagram.Point, Intersect = diagram.Intersect, ConnectionEditAdorner = diagram.ConnectionEditAdorner, UndoRedoService = diagram.UndoRedoService, ToolService = diagram.ToolService, Selector = diagram.Selector, ResizingAdorner = diagram.ResizingAdorner, ConnectorsAdorner = diagram.ConnectorsAdorner, Cursors = diagram.Cursors, Utils = diagram.Utils, Observable = kendo.Observable, ToBackUnit = diagram.ToBackUnit, ToFrontUnit = diagram.ToFrontUnit, PolylineRouter = diagram.PolylineRouter, CascadingRouter = diagram.CascadingRouter, isUndefined = Utils.isUndefined, isDefined = Utils.isDefined, defined = draw.util.defined, isArray = $.isArray, isFunction = kendo.isFunction, isString = Utils.isString, isPlainObject = $.isPlainObject, math = Math;
         var NS = '.kendoDiagram', CASCADING = 'cascading', ITEMBOUNDSCHANGE = 'itemBoundsChange', CHANGE = 'change', CLICK = 'click', DRAG = 'drag', DRAG_END = 'dragEnd', DRAG_START = 'dragStart', MOUSE_ENTER = 'mouseEnter', MOUSE_LEAVE = 'mouseLeave', ERROR = 'error', AUTO = 'Auto', TOP = 'Top', RIGHT = 'Right', LEFT = 'Left', BOTTOM = 'Bottom', MAXINT = 9007199254740992, SELECT = 'select', ITEMROTATE = 'itemRotate', PAN = 'pan', ZOOM_START = 'zoomStart', ZOOM_END = 'zoomEnd', NONE = 'none', DEFAULT_CANVAS_WIDTH = 600, DEFAULT_CANVAS_HEIGHT = 600, DEFAULT_SHAPE_TYPE = 'rectangle', DEFAULT_SHAPE_WIDTH = 100, DEFAULT_SHAPE_HEIGHT = 100, DEFAULT_SHAPE_MINWIDTH = 20, DEFAULT_SHAPE_MINHEIGHT = 20, DEFAULT_SHAPE_POSITION = 0, DEFAULT_CONNECTION_BACKGROUND = 'Yellow', MAX_VALUE = Number.MAX_VALUE, MIN_VALUE = -Number.MAX_VALUE, ABSOLUTE = 'absolute', TRANSFORMED = 'transformed', ROTATED = 'rotated', TRANSPARENT = 'transparent', WIDTH = 'width', HEIGHT = 'height', X = 'x', Y = 'y', MOUSEWHEEL_NS = 'DOMMouseScroll' + NS + ' mousewheel' + NS, MOBILE_ZOOM_RATE = 0.05, MOBILE_PAN_DISTANCE = 5, BUTTON_TEMPLATE = '<a class="k-button k-button-icontext #=className#" href="\\#"><span class="#=iconClass# #=imageClass#"></span>#=text#</a>', CONNECTION_CONTENT_OFFSET = 5;
         diagram.DefaultConnectors = [
             { name: TOP },
@@ -9195,7 +8709,7 @@
             },
             update: {
                 text: 'Update',
-                imageClass: 'k-i-update',
+                imageClass: 'k-i-checkmark',
                 className: 'k-diagram-update',
                 iconClass: 'k-icon'
             }
@@ -9857,7 +9371,7 @@
                 points: [],
                 selectable: true,
                 fromConnector: AUTO,
-                toConenctor: AUTO
+                toConnector: AUTO
             },
             _setOptionsFromModel: function (model) {
                 this.updateOptionsFromModel(model || this.dataItem);
@@ -10177,7 +9691,7 @@
                     }
                     var point;
                     if (alignToPath) {
-                        var angle = kendo.util.deg(math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x));
+                        var angle = draw.util.deg(math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x));
                         point = new Point((endPoint.x - startPoint.x) / 2 + startPoint.x, (endPoint.y - startPoint.y) / 2 + startPoint.y);
                         if (math.abs(angle) === 90) {
                             point.x += offset;
@@ -10377,7 +9891,8 @@
                 var router = this._router;
                 var passRoute = true;
                 if (router instanceof CascadingRouter) {
-                    var points = router.routePoints(sourcePoint, targetPoint, sourceConnector, targetConnector), start, end, rect;
+                    var points = router.routePoints(sourcePoint, targetPoint, sourceConnector, targetConnector), start, end, rect, exclude;
+                    exclude = this._getRouteExclude(sourcePoint, targetPoint, sourceConnector.shape, targetConnector.shape);
                     points.unshift(sourcePoint);
                     points.push(targetPoint);
                     for (var idx = 1; idx < points.length; idx++) {
@@ -10392,13 +9907,30 @@
                             rect.y++;
                             rect.height -= 2;
                         }
-                        if (!rect.isEmpty() && this.diagram._shapesQuadTree.hitTestRect(rect)) {
+                        if (!rect.isEmpty() && this.diagram._shapesQuadTree.hitTestRect(rect, exclude)) {
                             passRoute = false;
                             break;
                         }
                     }
                 }
                 return passRoute;
+            },
+            _getRouteExclude: function (sourcePoint, targetPoint, sourceShape, targetShape) {
+                var exclude = [];
+                if (this._isPointInsideShape(sourcePoint, sourceShape)) {
+                    exclude.push(sourceShape);
+                }
+                if (this._isPointInsideShape(targetPoint, targetShape)) {
+                    exclude.push(targetShape);
+                }
+                return exclude;
+            },
+            _isPointInsideShape: function (point, shape) {
+                var bounds = shape.bounds(), rotatedPoint, angle = shape.rotate().angle, pointX, pointY, boundsX = bounds.x, boundsY = bounds.y;
+                rotatedPoint = point.clone().rotate(bounds.center(), angle);
+                pointX = rotatedPoint.x;
+                pointY = rotatedPoint.y;
+                return pointX > boundsX && pointX < boundsX + bounds.width && pointY > boundsY && pointY < boundsY + bounds.height;
             },
             redraw: function (options) {
                 if (options) {
@@ -10931,7 +10463,8 @@
                     var field = start ? 'startLocation' : 'location';
                     point = new Point(e.x[field], e.y[field]);
                 } else {
-                    point = new Point(e.pageX, e.pageY);
+                    var event = e.originalEvent;
+                    point = new Point(event.pageX, event.pageY);
                 }
                 return this.documentToModel(point);
             },
@@ -12078,17 +11611,17 @@
                             var popupHeight = outerHeight(this.singleToolBar._popup.element);
                             if (element instanceof Shape) {
                                 var shapeBounds = this.modelToView(element.bounds(ROTATED));
-                                point = Point(shapeBounds.x, shapeBounds.y).minus(Point((popupWidth - shapeBounds.width) / 2, popupHeight + padding));
+                                point = new Point(shapeBounds.x, shapeBounds.y).minus(new Point((popupWidth - shapeBounds.width) / 2, popupHeight + padding));
                             } else if (element instanceof Connection) {
                                 var connectionBounds = this.modelToView(element.bounds());
-                                point = Point(connectionBounds.x, connectionBounds.y).minus(Point((popupWidth - connectionBounds.width - 20) / 2, popupHeight + padding));
+                                point = new Point(connectionBounds.x, connectionBounds.y).minus(new Point((popupWidth - connectionBounds.width - 20) / 2, popupHeight + padding));
                             }
                             if (point) {
                                 if (!this.canvas.translate) {
-                                    point = point.minus(Point(this.scroller.scrollLeft, this.scroller.scrollTop));
+                                    point = point.minus(new Point(this.scroller.scrollLeft, this.scroller.scrollTop));
                                 }
                                 point = this.viewToDocument(point);
-                                point = Point(math.max(point.x, 0), math.max(point.y, 0));
+                                point = new Point(math.max(point.x, 0), math.max(point.y, 0));
                                 this.singleToolBar.showAt(point);
                                 if (preventClosing) {
                                     this.singleToolBar._popup.one('close', preventDefault);
@@ -12596,7 +12129,7 @@
             },
             editTool: function () {
                 this._tools.push({
-                    spriteCssClass: 'k-icon k-i-pencil',
+                    icon: 'edit',
                     showText: 'overflow',
                     type: 'button',
                     text: 'Edit',
@@ -12605,7 +12138,7 @@
             },
             deleteTool: function () {
                 this._tools.push({
-                    spriteCssClass: 'k-icon k-i-close',
+                    icon: 'close',
                     showText: 'overflow',
                     type: 'button',
                     text: 'Delete',
@@ -12615,7 +12148,7 @@
             rotateAnticlockwiseTool: function (options) {
                 this._appendGroup('rotate');
                 this._rotateGroup.buttons.push({
-                    spriteCssClass: 'k-icon k-i-rotateccw',
+                    icon: 'rotate-left',
                     showText: 'overflow',
                     text: 'RotateAnticlockwise',
                     group: 'rotate',
@@ -12628,7 +12161,7 @@
             rotateClockwiseTool: function (options) {
                 this._appendGroup('rotate');
                 this._rotateGroup.buttons.push({
-                    spriteCssClass: 'k-icon k-i-rotatecw',
+                    icon: 'rotate-right',
                     attributes: this._setAttributes({
                         action: 'rotateClockwise',
                         step: options.step
@@ -12641,7 +12174,7 @@
             createShapeTool: function () {
                 this._appendGroup('create');
                 this._createGroup.buttons.push({
-                    spriteCssClass: 'k-icon k-i-shape',
+                    icon: 'shape',
                     showText: 'overflow',
                     text: 'CreateShape',
                     group: 'create',
@@ -12651,7 +12184,7 @@
             createConnectionTool: function () {
                 this._appendGroup('create');
                 this._createGroup.buttons.push({
-                    spriteCssClass: 'k-icon k-i-connector',
+                    icon: 'connector',
                     showText: 'overflow',
                     text: 'CreateConnection',
                     group: 'create',
@@ -12661,7 +12194,7 @@
             undoTool: function () {
                 this._appendGroup('history');
                 this._historyGroup.buttons.push({
-                    spriteCssClass: 'k-icon k-i-undo',
+                    icon: 'undo',
                     showText: 'overflow',
                     text: 'Undo',
                     group: 'history',
@@ -12671,7 +12204,7 @@
             redoTool: function () {
                 this._appendGroup('history');
                 this._historyGroup.buttons.push({
-                    spriteCssClass: 'k-icon k-i-redo',
+                    icon: 'redo',
                     showText: 'overflow',
                     text: 'Redo',
                     group: 'history',
@@ -13018,11 +12551,11 @@
                     }
                 }
             },
-            hitTestRect: function (rect) {
+            hitTestRect: function (rect, exclude) {
                 var shapes = this.shapes;
                 var length = shapes.length;
                 for (var i = 0; i < length; i++) {
-                    if (this._testRect(shapes[i].shape, rect)) {
+                    if (this._testRect(shapes[i].shape, rect) && !dataviz.inArray(shapes[i].shape, exclude)) {
                         return true;
                     }
                 }
@@ -13092,17 +12625,17 @@
                     }
                 }
             },
-            hitTestRect: function (rect) {
+            hitTestRect: function (rect, exclude) {
                 var idx;
                 var children = this.children;
                 var length = children.length;
                 var hit = false;
                 if (this.overlapsBounds(rect)) {
-                    if (QuadRoot.fn.hitTestRect.call(this, rect)) {
+                    if (QuadRoot.fn.hitTestRect.call(this, rect, exclude)) {
                         hit = true;
                     } else {
                         for (idx = 0; idx < length; idx++) {
-                            if (children[idx].hitTestRect(rect)) {
+                            if (children[idx].hitTestRect(rect, exclude)) {
                                 hit = true;
                                 break;
                             }
@@ -13176,11 +12709,11 @@
                 }
                 return sectors;
             },
-            hitTestRect: function (rect) {
+            hitTestRect: function (rect, exclude) {
                 var sectors = this.getSectors(rect);
                 var xIdx, yIdx, x, y;
                 var root;
-                if (this.root.hitTestRect(rect)) {
+                if (this.root.hitTestRect(rect, exclude)) {
                     return true;
                 }
                 for (xIdx = 0; xIdx < sectors[0].length; xIdx++) {
@@ -13188,7 +12721,7 @@
                     for (yIdx = 0; yIdx < sectors[1].length; yIdx++) {
                         y = sectors[1][yIdx];
                         root = (this.rootMap[x] || {})[y];
-                        if (root && root.hitTestRect(rect)) {
+                        if (root && root.hitTestRect(rect, exclude)) {
                             return true;
                         }
                     }

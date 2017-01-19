@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -159,15 +159,15 @@
                         this._movePlaceholder(target, 'next', eventData);
                     }
                     if (this._isFloating(target.element)) {
-                        if (axisDelta.x < 0 && (moveOnDragEnter || offsetDelta.left < 0)) {
+                        if (axisDelta.x < 0 && moveOnDragEnter || !moveOnDragEnter && offsetDelta.left < 0) {
                             direction = 'prev';
-                        } else if (axisDelta.x > 0 && (moveOnDragEnter || offsetDelta.left > 0)) {
+                        } else if (axisDelta.x > 0 && moveOnDragEnter || !moveOnDragEnter && offsetDelta.left > 0) {
                             direction = 'next';
                         }
                     } else {
-                        if (axisDelta.y < 0 && (moveOnDragEnter || offsetDelta.top < 0)) {
+                        if (axisDelta.y < 0 && moveOnDragEnter || !moveOnDragEnter && offsetDelta.top < 0) {
                             direction = 'prev';
-                        } else if (axisDelta.y > 0 && (moveOnDragEnter || offsetDelta.top > 0)) {
+                        } else if (axisDelta.y > 0 && moveOnDragEnter || !moveOnDragEnter && offsetDelta.top > 0) {
                             direction = 'next';
                         }
                     }

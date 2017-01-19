@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -321,10 +321,6 @@
                     that._fetchData();
                 }
                 listView.value(value).done(function () {
-                    if (that.selectedIndex === -1 && that.text()) {
-                        that.text('');
-                        that._accessor('', -1);
-                    }
                     that._old = that._accessor();
                     that._oldIndex = that.selectedIndex;
                 });
@@ -912,7 +908,7 @@
                     this.filterInput = null;
                 }
                 if (this._isFilterEnabled()) {
-                    icon = '<span class="k-icon k-i-search"></span>';
+                    icon = '<span class="k-icon k-i-zoom"></span>';
                     this.filterInput = $('<input class="k-textbox"/>').attr({
                         placeholder: this.element.attr('placeholder'),
                         title: this.element.attr('title'),
@@ -927,7 +923,7 @@
                 var that = this, wrapper = that.wrapper, SELECTOR = 'span.k-input', span;
                 span = wrapper.find(SELECTOR);
                 if (!span[0]) {
-                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span unselectable="on" class="k-input">&nbsp;</span><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-s"></span></span></span>').append(that.element);
+                    wrapper.append('<span unselectable="on" class="k-dropdown-wrap k-state-default"><span unselectable="on" class="k-input">&nbsp;</span><span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-arrow-60-down"></span></span></span>').append(that.element);
                     span = wrapper.find(SELECTOR);
                 }
                 that.span = span;

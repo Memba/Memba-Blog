@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.3.1118'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2017.1.118'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1341,7 +1341,7 @@
                 } else {
                     propInit = null;
                 }
-                if (propInit && propInit !== Array && propInit !== ObservableArray && propInit !== LazyObservableArray && propInit !== DataSource && propInit !== HierarchicalDataSource) {
+                if (propInit && propInit !== Array && propInit !== ObservableArray && propInit !== LazyObservableArray && propInit !== DataSource && propInit !== HierarchicalDataSource && propInit !== RegExp) {
                     if (propValue instanceof Date) {
                         destination[property] = new Date(propValue.getTime());
                     } else if (isFunction(propValue.clone)) {
@@ -1459,10 +1459,10 @@
                 support.tbodyInnerHtml = false;
             }
             support.touch = 'ontouchstart' in window;
-            support.msPointers = window.MSPointerEvent;
-            support.pointers = window.PointerEvent;
+            var docStyle = document.documentElement.style;
             var transitions = support.transitions = false, transforms = support.transforms = false, elementProto = 'HTMLElement' in window ? HTMLElement.prototype : [];
-            support.hasHW3D = 'WebKitCSSMatrix' in window && 'm11' in new window.WebKitCSSMatrix() || 'MozPerspective' in document.documentElement.style || 'msPerspective' in document.documentElement.style;
+            support.hasHW3D = 'WebKitCSSMatrix' in window && 'm11' in new window.WebKitCSSMatrix() || 'MozPerspective' in docStyle || 'msPerspective' in docStyle;
+            support.cssFlexbox = 'flexWrap' in docStyle || 'WebkitFlexWrap' in docStyle || 'msFlexWrap' in docStyle;
             each([
                 'Moz',
                 'webkit',
@@ -1557,7 +1557,6 @@
             };
             var mobileOS = support.mobileOS = support.detectOS(navigator.userAgent);
             support.wpDevicePixelRatio = mobileOS.wp ? screen.width / 320 : 0;
-            support.kineticScrollNeeded = mobileOS && (support.touch || support.msPointers || support.pointers);
             support.hasNativeScrolling = false;
             if (mobileOS.ios || mobileOS.android && mobileOS.majorVersion > 2 || mobileOS.wp) {
                 support.hasNativeScrolling = mobileOS;
@@ -1633,7 +1632,7 @@
                     return 1;
                 }
             };
-            support.cssBorderSpacing = typeof document.documentElement.style.borderSpacing != 'undefined' && !(support.browser.msie && support.browser.version < 8);
+            support.cssBorderSpacing = typeof docStyle.borderSpacing != 'undefined' && !(support.browser.msie && support.browser.version < 8);
             (function (browser) {
                 var cssClass = '', docElement = $(document.documentElement), majorVersion = parseInt(browser.version, 10);
                 if (browser.msie) {
@@ -1654,6 +1653,9 @@
                 }
                 if (support.mobileOS) {
                     cssClass += ' k-mobile';
+                }
+                if (!support.cssFlexbox) {
+                    cssClass += ' k-no-flexbox';
                 }
                 docElement.addClass(cssClass);
             }(support.browser));
@@ -1717,6 +1719,10 @@
             var documentMode = document.documentMode;
             support.hashChange = 'onhashchange' in window && !(support.browser.msie && (!documentMode || documentMode <= 8));
             support.customElements = 'registerElement' in window.document;
+            var chrome = support.browser.chrome;
+            support.msPointers = !chrome && window.MSPointerEvent;
+            support.pointers = !chrome && window.PointerEvent;
+            support.kineticScrollNeeded = mobileOS && (support.touch || support.msPointers || support.pointers);
         }());
         function size(obj) {
             var result = 0, key;
@@ -2230,7 +2236,11 @@
                 value = parseOption(element, option);
                 if (value !== undefined) {
                     if (templateRegExp.test(option)) {
-                        value = kendo.template($('#' + value).html());
+                        if (typeof value === 'string') {
+                            value = kendo.template($('#' + value).html());
+                        } else {
+                            value = element.getAttribute(option);
+                        }
                     }
                     result[option] = value;
                 }
@@ -2956,6 +2966,21 @@
                 }
                 return last;
             }
+            function weekInYear(date, weekStart) {
+                var year, days;
+                date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                adjustDST(date, 0);
+                year = date.getFullYear();
+                if (weekStart !== undefined) {
+                    setDayOfWeek(date, weekStart, -1);
+                    date.setDate(date.getDate() + 4);
+                } else {
+                    date.setDate(date.getDate() + (4 - (date.getDay() || 7)));
+                }
+                adjustDST(date, 0);
+                days = Math.floor((date.getTime() - new Date(year, 0, 1, -6)) / 86400000);
+                return 1 + Math.floor(days / 7);
+            }
             function getDate(date) {
                 date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
                 adjustDST(date, 0);
@@ -3051,6 +3076,7 @@
                 toInvariantTime: toInvariantTime,
                 firstDayOfMonth: firstDayOfMonth,
                 lastDayOfMonth: lastDayOfMonth,
+                weekInYear: weekInYear,
                 getMilliseconds: getMilliseconds
             };
         }();
@@ -5005,7 +5031,7 @@
                 DESTROY
             ], identity = function (o) {
                 return o;
-            }, getter = kendo.getter, stringify = kendo.stringify, math = Math, push = [].push, join = [].join, pop = [].pop, splice = [].splice, shift = [].shift, slice = [].slice, unshift = [].unshift, toString = {}.toString, stableSort = kendo.support.stableSort, dateRegExp = /^\/Date\((.*?)\)\/$/, newLineRegExp = /(\r+|\n+)/g, quoteRegExp = /(?=['\\])/g;
+            }, getter = kendo.getter, stringify = kendo.stringify, math = Math, push = [].push, join = [].join, pop = [].pop, splice = [].splice, shift = [].shift, slice = [].slice, unshift = [].unshift, toString = {}.toString, stableSort = kendo.support.stableSort, dateRegExp = /^\/Date\((.*?)\)\/$/;
         var ObservableArray = Observable.extend({
             init: function (array, type) {
                 var that = this;
@@ -5698,22 +5724,33 @@
             return result;
         };
         var operators = function () {
-            function quote(value) {
-                return value.replace(quoteRegExp, '\\').replace(newLineRegExp, '');
+            function quote(str) {
+                if (typeof str == 'string') {
+                    str = str.replace(/[\r\n]+/g, '');
+                }
+                return JSON.stringify(str);
+            }
+            function textOp(impl) {
+                return function (a, b, ignore) {
+                    b += '';
+                    if (ignore) {
+                        a = '(' + a + ' || \'\').toLowerCase()';
+                        b = b.toLowerCase();
+                    }
+                    return impl(a, quote(b), ignore);
+                };
             }
             function operator(op, a, b, ignore) {
-                var date;
                 if (b != null) {
                     if (typeof b === STRING) {
-                        b = quote(b);
-                        date = dateRegExp.exec(b);
+                        var date = dateRegExp.exec(b);
                         if (date) {
                             b = new Date(+date[1]);
                         } else if (ignore) {
-                            b = '\'' + b.toLowerCase() + '\'';
+                            b = quote(b.toLowerCase());
                             a = '((' + a + ' || \'\')+\'\').toLowerCase()';
                         } else {
-                            b = '\'' + b + '\'';
+                            b = quote(b);
                         }
                     }
                     if (b.getTime) {
@@ -5723,15 +5760,33 @@
                 }
                 return a + ' ' + op + ' ' + b;
             }
+            function getMatchRegexp(pattern) {
+                for (var rx = '/^', esc = false, i = 0; i < pattern.length; ++i) {
+                    var ch = pattern.charAt(i);
+                    if (esc) {
+                        rx += '\\' + ch;
+                    } else if (ch == '~') {
+                        esc = true;
+                        continue;
+                    } else if (ch == '*') {
+                        rx += '.*';
+                    } else if (ch == '?') {
+                        rx += '.';
+                    } else if ('.+^$()[]{}|\\/\n\r\u2028\u2029\xA0'.indexOf(ch) >= 0) {
+                        rx += '\\' + ch;
+                    } else {
+                        rx += ch;
+                    }
+                    esc = false;
+                }
+                return rx + '$/';
+            }
             return {
                 quote: function (value) {
                     if (value && value.getTime) {
                         return 'new Date(' + value.getTime() + ')';
                     }
-                    if (typeof value == 'string') {
-                        return '\'' + quote(value) + '\'';
-                    }
-                    return '' + value;
+                    return quote(value);
                 },
                 eq: function (a, b, ignore) {
                     return operator('==', a, b, ignore);
@@ -5751,78 +5806,34 @@
                 lte: function (a, b, ignore) {
                     return operator('<=', a, b, ignore);
                 },
-                startswith: function (a, b, ignore) {
-                    if (ignore) {
-                        a = '(' + a + ' || \'\').toLowerCase()';
-                        if (b) {
-                            b = b.toLowerCase();
-                        }
-                    }
-                    if (b) {
-                        b = quote(b);
-                    }
-                    return a + '.lastIndexOf(\'' + b + '\', 0) == 0';
-                },
-                doesnotstartwith: function (a, b, ignore) {
-                    if (ignore) {
-                        a = '(' + a + ' || \'\').toLowerCase()';
-                        if (b) {
-                            b = b.toLowerCase();
-                        }
-                    }
-                    if (b) {
-                        b = quote(b);
-                    }
-                    return a + '.lastIndexOf(\'' + b + '\', 0) == -1';
-                },
-                endswith: function (a, b, ignore) {
-                    if (ignore) {
-                        a = '(' + a + ' || \'\').toLowerCase()';
-                        if (b) {
-                            b = b.toLowerCase();
-                        }
-                    }
-                    if (b) {
-                        b = quote(b);
-                    }
-                    return a + '.indexOf(\'' + b + '\', ' + a + '.length - ' + (b || '').length + ') >= 0';
-                },
-                doesnotendwith: function (a, b, ignore) {
-                    if (ignore) {
-                        a = '(' + a + ' || \'\').toLowerCase()';
-                        if (b) {
-                            b = b.toLowerCase();
-                        }
-                    }
-                    if (b) {
-                        b = quote(b);
-                    }
-                    return a + '.indexOf(\'' + b + '\', ' + a + '.length - ' + (b || '').length + ') < 0';
-                },
-                contains: function (a, b, ignore) {
-                    if (ignore) {
-                        a = '(' + a + ' || \'\').toLowerCase()';
-                        if (b) {
-                            b = b.toLowerCase();
-                        }
-                    }
-                    if (b) {
-                        b = quote(b);
-                    }
-                    return a + '.indexOf(\'' + b + '\') >= 0';
-                },
-                doesnotcontain: function (a, b, ignore) {
-                    if (ignore) {
-                        a = '(' + a + ' || \'\').toLowerCase()';
-                        if (b) {
-                            b = b.toLowerCase();
-                        }
-                    }
-                    if (b) {
-                        b = quote(b);
-                    }
-                    return a + '.indexOf(\'' + b + '\') == -1';
-                },
+                startswith: textOp(function (a, b) {
+                    return a + '.lastIndexOf(' + b + ', 0) == 0';
+                }),
+                doesnotstartwith: textOp(function (a, b) {
+                    return a + '.lastIndexOf(' + b + ', 0) == -1';
+                }),
+                endswith: textOp(function (a, b) {
+                    var n = b ? b.length - 2 : 0;
+                    return a + '.indexOf(' + b + ', ' + a + '.length - ' + n + ') >= 0';
+                }),
+                doesnotendwith: textOp(function (a, b) {
+                    var n = b ? b.length - 2 : 0;
+                    return a + '.indexOf(' + b + ', ' + a + '.length - ' + n + ') < 0';
+                }),
+                contains: textOp(function (a, b) {
+                    return a + '.indexOf(' + b + ') >= 0';
+                }),
+                doesnotcontain: textOp(function (a, b) {
+                    return a + '.indexOf(' + b + ') == -1';
+                }),
+                matches: textOp(function (a, b) {
+                    b = b.substring(1, b.length - 1);
+                    return getMatchRegexp(b) + '.test(' + a + ')';
+                }),
+                doesnotmatch: textOp(function (a, b) {
+                    b = b.substring(1, b.length - 1);
+                    return '!' + getMatchRegexp(b) + '.test(' + a + ')';
+                }),
                 isempty: function (a) {
                     return a + ' === \'\'';
                 },
@@ -5830,10 +5841,10 @@
                     return a + ' !== \'\'';
                 },
                 isnull: function (a) {
-                    return '(' + a + ' === null || ' + a + ' === undefined)';
+                    return '(' + a + ' == null)';
                 },
                 isnotnull: function (a) {
-                    return '(' + a + ' !== null && ' + a + ' !== undefined)';
+                    return '(' + a + ' != null)';
                 }
             };
         }();
@@ -10265,7 +10276,7 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', emailRegExp = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', proxy = $.proxy, patternMatcher = function (value, pattern) {
+        var kendo = window.kendo, Widget = kendo.ui.Widget, NS = '.kendoValidator', INVALIDMSG = 'k-invalid-msg', invalidMsgRegExp = new RegExp(INVALIDMSG, 'i'), INVALIDINPUT = 'k-invalid', VALIDINPUT = 'k-valid', emailRegExp = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/i, urlRegExp = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i, INPUTSELECTOR = ':input:not(:button,[type=submit],[type=reset],[disabled],[readonly])', CHECKBOXSELECTOR = ':checkbox:not([disabled],[readonly])', NUMBERINPUTSELECTOR = '[type=number],[type=range]', BLUR = 'blur', NAME = 'name', FORM = 'form', NOVALIDATE = 'novalidate', VALIDATE = 'validate', CHANGE = 'change', VALIDATE_INPUT = 'validateInput', proxy = $.proxy, patternMatcher = function (value, pattern) {
                 if (typeof pattern === 'string') {
                     pattern = new RegExp('^(?:' + pattern + ')$');
                 }
@@ -10342,8 +10353,9 @@
                 that._isValidated = false;
             },
             events: [
-                'validate',
-                'change'
+                VALIDATE,
+                CHANGE,
+                VALIDATE_INPUT
             ],
             options: {
                 name: 'Validator',
@@ -10433,7 +10445,7 @@
                 var state = this.value();
                 this.validateInput(element);
                 if (this.value() !== state) {
-                    this.trigger('change');
+                    this.trigger(CHANGE);
                 }
             },
             _attachEvents: function () {
@@ -10480,9 +10492,9 @@
                 } else {
                     result = this.validateInput(this.element);
                 }
-                this.trigger('validate', { valid: result });
+                this.trigger(VALIDATE, { valid: result });
                 if (isValid !== result) {
-                    this.trigger('change');
+                    this.trigger(CHANGE);
                 }
                 return result;
             },
@@ -10495,7 +10507,7 @@
                             return element.attr(kendo.attr('for')) === fieldName;
                         }
                         return true;
-                    })).hide(), messageText;
+                    })).hide(), messageText, wasValid = !input.attr('aria-invalid');
                 input.removeAttr('aria-invalid');
                 if (!valid) {
                     messageText = that._extractMessage(input, result.key);
@@ -10513,6 +10525,12 @@
                     input.attr('aria-invalid', true);
                 } else {
                     delete that._errors[fieldName];
+                }
+                if (wasValid !== valid) {
+                    this.trigger(VALIDATE_INPUT, {
+                        valid: valid,
+                        input: input
+                    });
                 }
                 input.toggleClass(INVALIDINPUT, !valid);
                 input.toggleClass(VALIDINPUT, valid);
@@ -12629,7 +12647,7 @@
                     that.collisions.push(that.collisions[0]);
                 }
                 parentPopup = $(that.options.anchor).closest('.k-popup,.k-group').filter(':not([class^=km-])');
-                options.appendTo = $($(options.appendTo)[0] || parentPopup[0] || BODY);
+                options.appendTo = $($(options.appendTo)[0] || parentPopup[0] || document.body);
                 that.element.hide().addClass('k-popup k-group k-reset').toggleClass('k-rtl', !!options.isRtl).css({ position: ABSOLUTE }).appendTo(options.appendTo).on('mouseenter' + NS, function () {
                     that._hovered = true;
                 }).on('mouseleave' + NS, function () {
@@ -16123,21 +16141,24 @@
         depends: ['core']
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.mobile.ui, Widget = ui.Widget, ACTIVE = 'km-state-active', DISABLE = 'km-state-disabled', SELECT = 'select', SELECTOR = 'li:not(.' + ACTIVE + ')';
+        var kendo = window.kendo, ui = kendo.mobile.ui, Widget = ui.Widget, ACTIVE = 'state-active', DISABLE = 'state-disabled', SELECT = 'select', SELECTOR = 'li:not(.km-' + ACTIVE + ')';
+        function className(name) {
+            return 'k-' + name + ' km-' + name;
+        }
         function createBadge(value) {
-            return $('<span class="km-badge">' + value + '</span>');
+            return $('<span class="' + className('badge') + '">' + value + '</span>');
         }
         var ButtonGroup = Widget.extend({
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
-                that.element.addClass('km-buttongroup').find('li').each(that._button);
+                that.element.addClass('km-buttongroup k-widget k-button-group').find('li').each(that._button);
                 that.element.on(that.options.selectOn, SELECTOR, '_select');
                 that._enable = true;
                 that.select(that.options.index);
                 if (!that.options.enable) {
                     that._enable = false;
-                    that.wrapper.addClass(DISABLE);
+                    that.wrapper.addClass(className(DISABLE));
                 }
             },
             events: [SELECT],
@@ -16148,14 +16169,14 @@
                 enable: true
             },
             current: function () {
-                return this.element.find('.' + ACTIVE);
+                return this.element.find('.km-' + ACTIVE);
             },
             select: function (li) {
                 var that = this, index = -1;
-                if (li === undefined || li === -1 || !that._enable || $(li).is('.' + DISABLE)) {
+                if (li === undefined || li === -1 || !that._enable || $(li).is('.km-' + DISABLE)) {
                     return;
                 }
-                that.current().removeClass(ACTIVE);
+                that.current().removeClass(className(ACTIVE));
                 if (typeof li === 'number') {
                     index = li;
                     li = $(that.element[0].children[li]);
@@ -16163,7 +16184,7 @@
                     li = $(li);
                     index = li.index();
                 }
-                li.addClass(ACTIVE);
+                li.addClass(className(ACTIVE));
                 that.selectedIndex = index;
             },
             badge: function (item, value) {
@@ -16184,25 +16205,20 @@
                 return badge.html();
             },
             enable: function (enable) {
-                var wrapper = this.wrapper;
                 if (typeof enable == 'undefined') {
                     enable = true;
                 }
-                if (enable) {
-                    wrapper.removeClass(DISABLE);
-                } else {
-                    wrapper.addClass(DISABLE);
-                }
+                this.wrapper.toggleClass(className(DISABLE), !enable);
                 this._enable = this.options.enable = enable;
             },
             _button: function () {
-                var button = $(this).addClass('km-button'), icon = kendo.attrValue(button, 'icon'), badge = kendo.attrValue(button, 'badge'), span = button.children('span'), image = button.find('img').addClass('km-image');
+                var button = $(this).addClass(className('button')), icon = kendo.attrValue(button, 'icon'), badge = kendo.attrValue(button, 'badge'), span = button.children('span'), image = button.find('img').addClass(className('image'));
                 if (!span[0]) {
                     span = button.wrapInner('<span/>').children('span');
                 }
-                span.addClass('km-text');
+                span.addClass(className('text'));
                 if (!image[0] && icon) {
-                    button.prepend($('<span class="km-icon km-' + icon + '"/>'));
+                    button.prepend($('<span class="' + className('icon') + ' ' + className(icon) + '"/>'));
                 }
                 if (badge || badge === 0) {
                     createBadge(badge).appendTo(button);
@@ -17416,10 +17432,13 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, proxy = $.proxy, Transition = kendo.effects.Transition, Pane = kendo.ui.Pane, PaneDimensions = kendo.ui.PaneDimensions, Widget = ui.DataBoundWidget, DataSource = kendo.data.DataSource, Buffer = kendo.data.Buffer, BatchBuffer = kendo.data.BatchBuffer, math = Math, abs = math.abs, ceil = math.ceil, round = math.round, max = math.max, min = math.min, floor = math.floor, CHANGE = 'change', CHANGING = 'changing', REFRESH = 'refresh', CURRENT_PAGE_CLASS = 'km-current-page', VIRTUAL_PAGE_CLASS = 'km-virtual-page', FUNCTION = 'function', ITEM_CHANGE = 'itemChange', CLEANUP = 'cleanup', VIRTUAL_PAGE_COUNT = 3, LEFT_PAGE = -1, CETER_PAGE = 0, RIGHT_PAGE = 1, LEFT_SWIPE = -1, NUDGE = 0, RIGHT_SWIPE = 1;
+        var kendo = window.kendo, mobile = kendo.mobile, ui = mobile.ui, proxy = $.proxy, Transition = kendo.effects.Transition, Pane = kendo.ui.Pane, PaneDimensions = kendo.ui.PaneDimensions, Widget = ui.DataBoundWidget, DataSource = kendo.data.DataSource, Buffer = kendo.data.Buffer, BatchBuffer = kendo.data.BatchBuffer, math = Math, abs = math.abs, ceil = math.ceil, round = math.round, max = math.max, min = math.min, floor = math.floor, CHANGE = 'change', CHANGING = 'changing', REFRESH = 'refresh', CURRENT_PAGE_CLASS = 'current-page', VIRTUAL_PAGE_CLASS = 'virtual-page', FUNCTION = 'function', ITEM_CHANGE = 'itemChange', CLEANUP = 'cleanup', VIRTUAL_PAGE_COUNT = 3, LEFT_PAGE = -1, CETER_PAGE = 0, RIGHT_PAGE = 1, LEFT_SWIPE = -1, NUDGE = 0, RIGHT_SWIPE = 1;
+        function className(name) {
+            return 'k-' + name + ' km-' + name;
+        }
         var Pager = kendo.Class.extend({
             init: function (scrollView) {
-                var that = this, element = $('<ol class=\'km-pages\'/>');
+                var that = this, element = $('<ol class=\'' + className('pages') + '\'/>');
                 scrollView.element.append(element);
                 this._changeProxy = proxy(that, '_change');
                 this._refreshProxy = proxy(that, '_refresh');
@@ -17439,10 +17458,10 @@
                     pageHTML += '<li/>';
                 }
                 this.element.html(pageHTML);
-                this.items().eq(e.page).addClass(CURRENT_PAGE_CLASS);
+                this.items().eq(e.page).addClass(className(CURRENT_PAGE_CLASS));
             },
             _change: function (e) {
-                this.items().removeClass(CURRENT_PAGE_CLASS).eq(e.page).addClass(CURRENT_PAGE_CLASS);
+                this.items().removeClass(className(CURRENT_PAGE_CLASS)).eq(e.page).addClass(className(CURRENT_PAGE_CLASS));
             },
             destroy: function () {
                 this.scrollView.unbind(CHANGE, this._changeProxy);
@@ -17854,7 +17873,7 @@
         kendo.mobile.ui.VirtualScrollViewContent = VirtualScrollViewContent;
         var Page = kendo.Class.extend({
             init: function (container) {
-                this.element = $('<div class=\'' + VIRTUAL_PAGE_CLASS + '\'></div>');
+                this.element = $('<div class=\'' + className(VIRTUAL_PAGE_CLASS) + '\'></div>');
                 this.width = container.width();
                 this.element.width(this.width);
                 container.append(this.element);
@@ -17878,11 +17897,11 @@
                 options = that.options;
                 element = that.element;
                 kendo.stripWhitespace(element[0]);
-                element.wrapInner('<div/>').addClass('km-scrollview');
+                element.wrapInner('<div/>').addClass('k-widget ' + className('scrollview'));
                 if (this.options.enablePager) {
                     this.pager = new Pager(this);
                     if (this.options.pagerOverlay) {
-                        element.addClass('km-scrollview-overlay');
+                        element.addClass(className('scrollview-overlay'));
                     }
                 }
                 that.inner = element.children().first();
@@ -18030,7 +18049,7 @@
                 }
             },
             items: function () {
-                return this.element.find('.' + VIRTUAL_PAGE_CLASS);
+                return this.element.find('.km-' + VIRTUAL_PAGE_CLASS);
             },
             _syncWithContent: function () {
                 var pages = this._content.pages, buffer = this._content.buffer, data, element;
@@ -18091,11 +18110,14 @@
         ]
     };
     (function ($, undefined) {
-        var kendo = window.kendo, ui = kendo.mobile.ui, outerWidth = kendo._outerWidth, Widget = ui.Widget, support = kendo.support, CHANGE = 'change', SWITCHON = 'km-switch-on', SWITCHOFF = 'km-switch-off', MARGINLEFT = 'margin-left', ACTIVE_STATE = 'km-state-active', DISABLED_STATE = 'km-state-disabled', DISABLED = 'disabled', TRANSFORMSTYLE = support.transitions.css + 'transform', proxy = $.proxy;
+        var kendo = window.kendo, ui = kendo.mobile.ui, outerWidth = kendo._outerWidth, Widget = ui.Widget, support = kendo.support, CHANGE = 'change', SWITCHON = 'switch-on', SWITCHOFF = 'switch-off', MARGINLEFT = 'margin-left', ACTIVE_STATE = 'state-active', DISABLED_STATE = 'state-disabled', DISABLED = 'disabled', TRANSFORMSTYLE = support.transitions.css + 'transform', proxy = $.proxy;
+        function className(name) {
+            return 'k-' + name + ' km-' + name;
+        }
         function limitValue(value, minLimit, maxLimit) {
             return Math.max(minLimit, Math.min(maxLimit, value));
         }
-        var SWITCH_MARKUP = '<span class="km-switch km-widget">        <span class="km-switch-wrapper"><span class="km-switch-background"></span></span>         <span class="km-switch-container"><span class="km-switch-handle" >             <span class="km-switch-label-on">{0}</span>             <span class="km-switch-label-off">{1}</span>         </span>     </span>';
+        var SWITCH_MARKUP = '<span class="' + className('switch') + ' ' + className('widget') + '">        <span class="' + className('switch-wrapper') + '">            <span class="' + className('switch-background') + '"></span>        </span>         <span class="' + className('switch-container') + '">            <span class="' + className('switch-handle') + '">                 <span class="' + className('switch-label-on') + '">{0}</span>                 <span class="' + className('switch-label-off') + '">{1}</span>             </span>         </span>    </span>';
         var Switch = Widget.extend({
             init: function (element, options) {
                 var that = this, checked;
@@ -18148,7 +18170,7 @@
                 }
                 that._position(check ? that.constrain : 0);
                 element.checked = check;
-                that.wrapper.toggleClass(SWITCHON, check).toggleClass(SWITCHOFF, !check);
+                that.wrapper.toggleClass(className(SWITCHON), check).toggleClass(className(SWITCHOFF), !check);
             },
             value: function () {
                 return this.check.apply(this, arguments);
@@ -18172,7 +18194,7 @@
                 } else {
                     element.attr(DISABLED, DISABLED);
                 }
-                wrapper.toggleClass(DISABLED_STATE, !enable);
+                wrapper.toggleClass(className(DISABLED_STATE), !enable);
             },
             _resize: function () {
                 this.refresh();
@@ -18195,17 +18217,17 @@
                     this.userEvents.cancel();
                 } else {
                     this.userEvents.capture();
-                    this.handle.addClass(ACTIVE_STATE);
+                    this.handle.addClass(className(ACTIVE_STATE));
                 }
             },
             _stop: function () {
                 var that = this;
-                that.handle.removeClass(ACTIVE_STATE);
+                that.handle.removeClass(className(ACTIVE_STATE));
                 that._toggle(that.position > that.snapPoint);
             },
             _toggle: function (checked) {
                 var that = this, handle = that.handle, element = that.element[0], value = element.checked, duration = kendo.mobile.application && kendo.mobile.application.os.wp ? 100 : 200, distance;
-                that.wrapper.toggleClass(SWITCHON, checked).toggleClass(SWITCHOFF, !checked);
+                that.wrapper.toggleClass(className(SWITCHON), checked).toggleClass(className(SWITCHOFF), !checked);
                 that.position = distance = checked * that.constrain;
                 if (that._animateBackground) {
                     that.background.kendoStop(true, true).kendoAnimate({
@@ -18410,7 +18432,7 @@
                 Scheduler: 'SchedulerDataSource',
                 PivotGrid: 'PivotDataSource',
                 PivotConfigurator: 'PivotDataSource',
-                PanelBar: '$PLAIN',
+                PanelBar: 'HierarchicalDataSource',
                 Menu: '$PLAIN',
                 ContextMenu: '$PLAIN'
             };
@@ -18980,6 +19002,7 @@
             MobileDetailButton: 'a',
             ListView: 'ul',
             MobileListView: 'ul',
+            PanelBar: 'ul',
             TreeView: 'ul',
             Menu: 'ul',
             ContextMenu: 'ul',
@@ -19322,7 +19345,8 @@
         defadvice([
             'ui.Grid',
             'ui.ListView',
-            'ui.TreeView'
+            'ui.TreeView',
+            'ui.PanelBar'
         ], '$angular_makeEventHandler', function (event, scope, handler) {
             if (event != 'change') {
                 return this.next();
@@ -19575,6 +19599,7 @@
                 'MajorTimeHeaderTemplate',
                 'MinorTimeHeaderTemplate'
             ],
+            'PanelBar': ['Template'],
             'TreeView': ['Template'],
             'Validator': ['ErrorTemplate']
         };
@@ -19625,275 +19650,6 @@
     (a3 || a2)();
 }));
 (function (f, define) {
-    define('kendo.webcomponents', ['kendo.core'], f);
-}(function () {
-    var __meta__ = {
-        id: 'webcomponents',
-        name: 'Web Components',
-        category: 'framework',
-        description: 'Adds Kendo UI custom elements for Web Components',
-        depends: ['core']
-    };
-    (function ($, angular, undefined) {
-        if (!kendo.support.customElements || kendo.webComponents.length) {
-            return;
-        }
-        if (angular && (angular.version.major == 1 || angular.injector)) {
-            return;
-        }
-        var TAGNAMES = {
-            editor: 'textarea',
-            numerictextbox: 'input',
-            datepicker: 'input',
-            datetimepicker: 'input',
-            timepicker: 'input',
-            autocomplete: 'input',
-            colorpicker: 'input',
-            maskedtextbox: 'input',
-            dropdownlist: 'select',
-            multiselect: 'select',
-            upload: 'input',
-            validator: 'form',
-            button: 'button',
-            mobilebutton: 'a',
-            mobilebackbutton: 'a',
-            mobiledetailbutton: 'a',
-            listview: 'ul',
-            mobilelistview: 'ul',
-            treeview: 'ul',
-            menu: 'ul',
-            contextmenu: 'ul',
-            actionsheet: 'ul'
-        };
-        var EVENT_PREFIX = 'on-';
-        var registered = [];
-        kendo.onWidgetRegistered(function (entry) {
-            var elementName = entry.prefix + entry.widget.prototype.options.name.toLowerCase();
-            if (registered.indexOf(elementName) === -1) {
-                registered.push(elementName);
-                registerElement(elementName, entry.widget);
-            }
-        });
-        var jsonRegExp = /^\s*(?:\{(?:.|\r\n|\n)*\}|\[(?:.|\r\n|\n)*\])\s*$/;
-        var jsonFormatRegExp = /^\{(\d+)(:[^\}]+)?\}|^\[[A-Za-z_]*\]$/;
-        var numberRegExp = /^(\+|-?)\d+(\.?)\d*$/;
-        function parseOption(element, option) {
-            var value = element.getAttribute(option);
-            if (value === null) {
-                value = undefined;
-            } else if (value === 'null') {
-                value = null;
-            } else if (value === 'true') {
-                value = true;
-            } else if (value === 'false') {
-                value = false;
-            } else if (numberRegExp.test(value)) {
-                value = parseFloat(value);
-            } else if (jsonRegExp.test(value) && !jsonFormatRegExp.test(value)) {
-                value = new Function('return (' + value + ')')();
-            }
-            return value;
-        }
-        function parseOptions(element, options) {
-            var result = {};
-            Object.keys(options).concat('dataSource').forEach(function (name) {
-                if (element.hasAttribute(kendo.toHyphens(name))) {
-                    result[name] = parseOption(element, kendo.toHyphens(name));
-                }
-            });
-            return result;
-        }
-        function cloneEvent(e) {
-            var result = {};
-            Object.keys(e).forEach(function (key) {
-                if (key[0] != '_') {
-                    result[key] = e[key];
-                }
-            });
-            return result;
-        }
-        function eventHandler(eventName, e) {
-            var event = document.createEvent('CustomEvent');
-            event.initCustomEvent(eventName, false, true, cloneEvent(e));
-            this.dispatchEvent(event);
-            if (event.defaultPrevented) {
-                e.preventDefault();
-            }
-        }
-        function expose(component, obj) {
-            var props = Object.keys(obj);
-            for (var idx = 0; idx <= props.length; idx++) {
-                if (typeof obj[props[idx]] === 'function') {
-                    if (!component[props[idx]]) {
-                        component[props[idx]] = obj[props[idx]].bind(component.widget);
-                    }
-                } else {
-                    if (props[idx] === 'options') {
-                        continue;
-                    }
-                    component[props[idx]] = component[props[idx]] || obj[props[idx]];
-                }
-            }
-        }
-        function registerElement(name, widget) {
-            var options = widget.prototype.options;
-            var prototype = Object.create(HTMLElement.prototype);
-            Object.defineProperty(prototype, 'options', {
-                get: function () {
-                    return this.widget.options;
-                },
-                set: function (options) {
-                    var instance = this.widget;
-                    options = $.extend(true, {}, instance.options, options);
-                    var _wrapper = $(instance.wrapper)[0];
-                    var _element = $(instance.element)[0];
-                    instance._destroy();
-                    var newElement = document.createElement(TAGNAMES[name] || 'div');
-                    if (_wrapper && _element) {
-                        _wrapper.parentNode.replaceChild(_element, _wrapper);
-                        $(_element).replaceWith(newElement);
-                    }
-                    if (instance.value) {
-                        options.value = instance.value();
-                    }
-                    instance.init(newElement, options);
-                    this.bindEvents();
-                }
-            });
-            prototype.bindEvents = function () {
-                if (widget.prototype.events.indexOf('init') < 0) {
-                    widget.prototype.events.push('init');
-                }
-                widget.prototype.events.forEach(function (eventName) {
-                    this.widget.bind(eventName, eventHandler.bind(this, eventName));
-                    if (this.hasAttribute(EVENT_PREFIX + eventName)) {
-                        this.bind(eventName, function (e) {
-                            window[this.getAttribute(EVENT_PREFIX + eventName)].call(this, e);
-                        }.bind(this));
-                    }
-                }.bind(this));
-            };
-            prototype.attachedCallback = function () {
-                var that = this;
-                var element = document.createElement(TAGNAMES[name] || 'div');
-                $(element).append(that.childNodes);
-                $(element).attr('class', $(that).attr('class'));
-                $(element).attr('style', $(that).attr('style'));
-                that.appendChild(element);
-                that.widget = new widget(element, parseOptions(that, options));
-                var obj = that.widget;
-                do {
-                    expose(that, obj);
-                } while (obj = Object.getPrototypeOf(obj));
-                this.bindEvents();
-                that.widget.trigger('init');
-            };
-            prototype.detachedCallback = function () {
-                kendo.destroy(this.element);
-            };
-            kendo.webComponents.push('kendo-' + name);
-            document.registerElement('kendo-' + name, { prototype: prototype });
-        }
-    }(window.kendo.jQuery, window.angular));
-    return window.kendo;
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
-    define('kendo.angular2', [
-        'kendo.core',
-        'kendo.webcomponents'
-    ], f);
-}(function () {
-    var __meta__ = {
-        id: 'angular2',
-        name: 'Angular 2',
-        category: 'framework',
-        description: 'Supports angular2 value accessors',
-        depends: ['core']
-    };
-    (function (kendo, System) {
-        if (!System || !System.register) {
-            return;
-        }
-        var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
-            if (typeof Reflect === 'object' && typeof Reflect.decorate === 'function') {
-                return Reflect.decorate(decorators, target, key, desc);
-            }
-            switch (arguments.length) {
-            case 2:
-                return decorators.reduceRight(function (o, d) {
-                    return d && d(o) || o;
-                }, target);
-            case 3:
-                return decorators.reduceRight(function (o, d) {
-                    return d && d(target, key), void 0;
-                }, void 0);
-            case 4:
-                return decorators.reduceRight(function (o, d) {
-                    return d && d(target, key, o) || o;
-                }, desc);
-            }
-        };
-        var __metadata = this && this.__metadata || function (k, v) {
-            if (typeof Reflect === 'object' && typeof Reflect.metadata === 'function') {
-                return Reflect.metadata(k, v);
-            }
-        };
-        System.register('kendo/angular2', ['angular2/angular2'], function (exports_1) {
-            var angular2_1;
-            var KendoValueAccessor;
-            return {
-                setters: [function (_angular2_1) {
-                        angular2_1 = _angular2_1;
-                    }],
-                execute: function () {
-                    KendoValueAccessor = function () {
-                        function KendoValueAccessor(cd, elementRef) {
-                            var _this = this;
-                            this.elementRef = elementRef;
-                            this.onChange = function (_) {
-                            };
-                            this.onTouched = function () {
-                            };
-                            this.element = elementRef.nativeElement;
-                            this.element.addEventListener('change', function () {
-                                _this.onChange(_this.element.value());
-                            });
-                            this.element.addEventListener('spin', function () {
-                                _this.onChange(_this.element.value());
-                            });
-                            cd.valueAccessor = this;
-                            this.cd = cd;
-                            cd.valueAccessor = this;
-                        }
-                        KendoValueAccessor.prototype.writeValue = function (value) {
-                            this.element.value(value);
-                        };
-                        KendoValueAccessor.prototype.registerOnChange = function (fn) {
-                            this.onChange = fn;
-                        };
-                        KendoValueAccessor.prototype.registerOnTouched = function (fn) {
-                            this.onTouched = fn;
-                        };
-                        KendoValueAccessor = __decorate([
-                            angular2_1.Directive({ selector: kendo.webComponents.join(',') }),
-                            __metadata('design:paramtypes', [
-                                angular2_1.NgControl,
-                                angular2_1.ElementRef
-                            ])
-                        ], KendoValueAccessor);
-                        return KendoValueAccessor;
-                    }();
-                    exports_1('KendoValueAccessor', KendoValueAccessor);
-                }
-            };
-        });
-    }(window.kendo, window.System));
-}, typeof define == 'function' && define.amd ? define : function (a1, a2, a3) {
-    (a3 || a2)();
-}));
-(function (f, define) {
     define('kendo.mobile', [
         'kendo.core',
         'kendo.fx',
@@ -19928,9 +19684,7 @@
         'kendo.mobile.scrollview',
         'kendo.mobile.switch',
         'kendo.mobile.tabstrip',
-        'kendo.angular',
-        'kendo.webcomponents',
-        'kendo.angular2'
+        'kendo.angular'
     ], f);
 }(function () {
     'bundle all';

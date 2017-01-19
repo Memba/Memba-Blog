@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -43,9 +43,9 @@
         function toggleHintClass(hint, denied) {
             hint = $(hint);
             if (denied) {
-                hint.find('.k-drag-status').removeClass('k-i-add').addClass('k-i-denied');
+                hint.find('.k-drag-status').removeClass('k-i-plus').addClass('k-i-cancel');
             } else {
-                hint.find('.k-drag-status').removeClass('k-i-denied').addClass('k-i-add');
+                hint.find('.k-drag-status').removeClass('k-i-cancel').addClass('k-i-plus');
             }
         }
         var Reorderable = Widget.extend({
@@ -60,7 +60,7 @@
                     filter: options.filter,
                     hint: options.hint
                 });
-                that.reorderDropCue = $('<div class="k-reorder-cue"><div class="k-icon k-i-arrow-s"></div><div class="k-icon k-i-arrow-n"></div></div>');
+                that.reorderDropCue = $('<div class="k-reorder-cue"><div class="k-icon k-i-arrow-60-down"></div><div class="k-icon k-i-arrow-60-up"></div></div>');
                 element.find(draggable.options.filter).kendoDropTarget({
                     group: draggable.options.group,
                     dragenter: function (e) {
@@ -136,7 +136,7 @@
                         that._elements = that.element.find(that.draggable.options.filter);
                     },
                     drag: function (e) {
-                        if (!that._dropTarget || this.hint.find('.k-drag-status').hasClass('k-i-denied')) {
+                        if (!that._dropTarget || this.hint.find('.k-drag-status').hasClass('k-i-cancel')) {
                             return;
                         }
                         var dropStartOffset = getOffset(that._dropTarget).left;

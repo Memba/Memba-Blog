@@ -124,7 +124,7 @@
     margin-top: 0;
     text-decoration: none;
     vertical-align: middle;
-    position: static;
+    position: relative;
 }
 
 .k-breadcrumbs .k-link:hover
@@ -134,7 +134,15 @@
 
 .k-filebrowser
 {
-    .k-breadcrumbs .k-i-seek-w
+    .k-tile .k-folder,
+    .k-tile .k-file,
+    .k-tile .k-i-folder,
+    .k-tile .k-i-file
+    {
+        font-size: 5em;
+    }
+
+    .k-breadcrumbs .k-i-arrow-end-left
     {
         text-decoration: none;
         cursor: default;
@@ -241,7 +249,8 @@
     .prohibit-selection;
 }
 
-.k-filebrowser .k-file
+.k-filebrowser .k-file,
+.k-filebrowser .k-i-file
 {
     width: 80px;
     height: 80px;
@@ -252,7 +261,8 @@
     margin: 2px 0 0 2px;
 }
 
-.k-filebrowser .k-folder
+.k-filebrowser .k-folder,
+.k-filebrowser .k-i-folder
 {
     width: 80px;
     height: 80px;
@@ -291,7 +301,7 @@
     display: block;
 }
 
-.k-tile .k-filesize 
+.k-tile .k-filesize
 {
     display: inline-block;
 }

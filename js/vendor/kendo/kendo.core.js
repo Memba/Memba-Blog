@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -33,7 +33,7 @@
     };
     (function ($, window, undefined) {
         var kendo = window.kendo = window.kendo || { cultures: {} }, extend = $.extend, each = $.each, isArray = $.isArray, proxy = $.proxy, noop = $.noop, math = Math, Template, JSON = window.JSON || {}, support = {}, percentRegExp = /%/, formatRegExp = /\{(\d+)(:[^\}]+)?\}/g, boxShadowRegExp = /(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+(?:\.?)\d*)px\s*(\d+)?/i, numberRegExp = /^(\+|-?)\d+(\.?)\d*$/, FUNCTION = 'function', STRING = 'string', NUMBER = 'number', OBJECT = 'object', NULL = 'null', BOOLEAN = 'boolean', UNDEFINED = 'undefined', getterCache = {}, setterCache = {}, slice = [].slice;
-        kendo.version = '2016.3.1118'.replace(/^\s+|\s+$/g, '');
+        kendo.version = '2017.1.118'.replace(/^\s+|\s+$/g, '');
         function Class() {
         }
         Class.extend = function (proto) {
@@ -1341,7 +1341,7 @@
                 } else {
                     propInit = null;
                 }
-                if (propInit && propInit !== Array && propInit !== ObservableArray && propInit !== LazyObservableArray && propInit !== DataSource && propInit !== HierarchicalDataSource) {
+                if (propInit && propInit !== Array && propInit !== ObservableArray && propInit !== LazyObservableArray && propInit !== DataSource && propInit !== HierarchicalDataSource && propInit !== RegExp) {
                     if (propValue instanceof Date) {
                         destination[property] = new Date(propValue.getTime());
                     } else if (isFunction(propValue.clone)) {
@@ -1459,10 +1459,10 @@
                 support.tbodyInnerHtml = false;
             }
             support.touch = 'ontouchstart' in window;
-            support.msPointers = window.MSPointerEvent;
-            support.pointers = window.PointerEvent;
+            var docStyle = document.documentElement.style;
             var transitions = support.transitions = false, transforms = support.transforms = false, elementProto = 'HTMLElement' in window ? HTMLElement.prototype : [];
-            support.hasHW3D = 'WebKitCSSMatrix' in window && 'm11' in new window.WebKitCSSMatrix() || 'MozPerspective' in document.documentElement.style || 'msPerspective' in document.documentElement.style;
+            support.hasHW3D = 'WebKitCSSMatrix' in window && 'm11' in new window.WebKitCSSMatrix() || 'MozPerspective' in docStyle || 'msPerspective' in docStyle;
+            support.cssFlexbox = 'flexWrap' in docStyle || 'WebkitFlexWrap' in docStyle || 'msFlexWrap' in docStyle;
             each([
                 'Moz',
                 'webkit',
@@ -1557,7 +1557,6 @@
             };
             var mobileOS = support.mobileOS = support.detectOS(navigator.userAgent);
             support.wpDevicePixelRatio = mobileOS.wp ? screen.width / 320 : 0;
-            support.kineticScrollNeeded = mobileOS && (support.touch || support.msPointers || support.pointers);
             support.hasNativeScrolling = false;
             if (mobileOS.ios || mobileOS.android && mobileOS.majorVersion > 2 || mobileOS.wp) {
                 support.hasNativeScrolling = mobileOS;
@@ -1633,7 +1632,7 @@
                     return 1;
                 }
             };
-            support.cssBorderSpacing = typeof document.documentElement.style.borderSpacing != 'undefined' && !(support.browser.msie && support.browser.version < 8);
+            support.cssBorderSpacing = typeof docStyle.borderSpacing != 'undefined' && !(support.browser.msie && support.browser.version < 8);
             (function (browser) {
                 var cssClass = '', docElement = $(document.documentElement), majorVersion = parseInt(browser.version, 10);
                 if (browser.msie) {
@@ -1654,6 +1653,9 @@
                 }
                 if (support.mobileOS) {
                     cssClass += ' k-mobile';
+                }
+                if (!support.cssFlexbox) {
+                    cssClass += ' k-no-flexbox';
                 }
                 docElement.addClass(cssClass);
             }(support.browser));
@@ -1717,6 +1719,10 @@
             var documentMode = document.documentMode;
             support.hashChange = 'onhashchange' in window && !(support.browser.msie && (!documentMode || documentMode <= 8));
             support.customElements = 'registerElement' in window.document;
+            var chrome = support.browser.chrome;
+            support.msPointers = !chrome && window.MSPointerEvent;
+            support.pointers = !chrome && window.PointerEvent;
+            support.kineticScrollNeeded = mobileOS && (support.touch || support.msPointers || support.pointers);
         }());
         function size(obj) {
             var result = 0, key;
@@ -2230,7 +2236,11 @@
                 value = parseOption(element, option);
                 if (value !== undefined) {
                     if (templateRegExp.test(option)) {
-                        value = kendo.template($('#' + value).html());
+                        if (typeof value === 'string') {
+                            value = kendo.template($('#' + value).html());
+                        } else {
+                            value = element.getAttribute(option);
+                        }
                     }
                     result[option] = value;
                 }
@@ -2956,6 +2966,21 @@
                 }
                 return last;
             }
+            function weekInYear(date, weekStart) {
+                var year, days;
+                date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                adjustDST(date, 0);
+                year = date.getFullYear();
+                if (weekStart !== undefined) {
+                    setDayOfWeek(date, weekStart, -1);
+                    date.setDate(date.getDate() + 4);
+                } else {
+                    date.setDate(date.getDate() + (4 - (date.getDay() || 7)));
+                }
+                adjustDST(date, 0);
+                days = Math.floor((date.getTime() - new Date(year, 0, 1, -6)) / 86400000);
+                return 1 + Math.floor(days / 7);
+            }
             function getDate(date) {
                 date = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
                 adjustDST(date, 0);
@@ -3051,6 +3076,7 @@
                 toInvariantTime: toInvariantTime,
                 firstDayOfMonth: firstDayOfMonth,
                 lastDayOfMonth: lastDayOfMonth,
+                weekInYear: weekInYear,
                 getMilliseconds: getMilliseconds
             };
         }();

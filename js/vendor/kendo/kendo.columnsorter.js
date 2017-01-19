@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -51,6 +51,13 @@
                 Widget.fn.init.call(that, element, options);
                 that._refreshHandler = proxy(that.refresh, that);
                 that.dataSource = that.options.dataSource.bind('change', that._refreshHandler);
+                that.directions = that.options.initialDirection === ASC ? [
+                    ASC,
+                    DESC
+                ] : [
+                    DESC,
+                    ASC
+                ];
                 link = that.element.find(TLINK);
                 if (!link[0]) {
                     link = that.element.wrapInner('<a class="k-link" href="#"/>').find(TLINK);
@@ -63,7 +70,8 @@
                 mode: SINGLE,
                 allowUnsort: true,
                 compare: null,
-                filter: ''
+                filter: '',
+                initialDirection: ASC
             },
             events: ['change'],
             destroy: function () {
@@ -84,14 +92,21 @@
                     }
                 }
                 dir = element.attr(kendo.attr(DIR));
-                element.find('.k-i-arrow-n,.k-i-arrow-s').remove();
+                element.find('.k-i-sort-asc-sm,.k-i-sort-desc-sm').remove();
                 if (dir === ASC) {
-                    $('<span class="k-icon k-i-arrow-n" />').appendTo(that.link);
+                    $('<span class="k-icon k-i-sort-asc-sm" />').appendTo(that.link);
                     element.attr(ARIASORT, 'ascending');
                 } else if (dir === DESC) {
-                    $('<span class="k-icon k-i-arrow-s" />').appendTo(that.link);
+                    $('<span class="k-icon k-i-sort-desc-sm" />').appendTo(that.link);
                     element.attr(ARIASORT, 'descending');
                 }
+            },
+            _toggleSortDirection: function (dir) {
+                var directions = this.directions;
+                if (dir === directions[directions.length - 1] && this.options.allowUnsort) {
+                    return undefined;
+                }
+                return directions[0] === dir ? directions[1] : directions[0];
             },
             _click: function (e) {
                 var that = this, element = that.element, field = element.attr(kendo.attr(FIELD)), dir = element.attr(kendo.attr(DIR)), options = that.options, compare = that.options.compare === null ? undefined : that.options.compare, sort = that.dataSource.sort() || [], idx, length;
@@ -99,13 +114,7 @@
                 if (options.filter && !element.is(options.filter)) {
                     return;
                 }
-                if (dir === ASC) {
-                    dir = DESC;
-                } else if (dir === DESC && options.allowUnsort) {
-                    dir = undefined;
-                } else {
-                    dir = ASC;
-                }
+                dir = this._toggleSortDirection(dir);
                 if (this.trigger('change', {
                         sort: {
                             field: field,

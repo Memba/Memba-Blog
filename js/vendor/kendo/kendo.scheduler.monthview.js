@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -34,7 +34,7 @@
         hidden: true
     };
     (function ($) {
-        var kendo = window.kendo, ui = kendo.ui, SchedulerView = ui.SchedulerView, NS = '.kendoMonthView', extend = $.extend, getDate = kendo.date.getDate, MS_PER_DAY = kendo.date.MS_PER_DAY, NUMBER_OF_ROWS = 6, NUMBER_OF_COLUMNS = 7, DAY_TEMPLATE = kendo.template('<span class="k-link k-nav-day">#:kendo.toString(date, "dd")#</span>'), EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event#=inverseColor ? " k-event-inverse" : ""#"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-w"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-exception"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-refresh"></span>' + '#}#' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-si-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-e"></span>' + '#}#' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_TEMPLATE = kendo.template('<div title="#=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">#:title#</div>' + '</div>');
+        var kendo = window.kendo, ui = kendo.ui, SchedulerView = ui.SchedulerView, NS = '.kendoMonthView', extend = $.extend, getDate = kendo.date.getDate, MS_PER_DAY = kendo.date.MS_PER_DAY, NUMBER_OF_ROWS = 6, NUMBER_OF_COLUMNS = 7, DAY_TEMPLATE = kendo.template('<span class="k-link k-nav-day">#:kendo.toString(date, "dd")#</span>'), EVENT_WRAPPER_STRING = '<div role="gridcell" aria-selected="false" data-#=ns#uid="#=uid#"' + '#if (resources[0]) { #' + 'style="background-color:#=resources[0].color #; border-color: #=resources[0].color#"' + 'class="k-event#=inverseColor ? " k-event-inverse" : ""#"' + '#} else {#' + 'class="k-event"' + '#}#' + '>' + '<span class="k-event-actions">' + '# if(data.tail || data.middle) {#' + '<span class="k-icon k-i-arrow-60-left"></span>' + '#}#' + '# if(data.isException()) {#' + '<span class="k-icon k-i-warning"></span>' + '# } else if(data.isRecurring()) {#' + '<span class="k-icon k-i-reload"></span>' + '#}#' + '</span>' + '{0}' + '<span class="k-event-actions">' + '#if (showDelete) {#' + '<a href="\\#" class="k-link k-event-delete"><span class="k-icon k-i-close"></span></a>' + '#}#' + '# if(data.head || data.middle) {#' + '<span class="k-icon k-i-arrow-60-right"></span>' + '#}#' + '</span>' + '# if(resizable && !data.tail && !data.middle) {#' + '<span class="k-resize-handle k-resize-w"></span>' + '#}#' + '# if(resizable && !data.head && !data.middle) {#' + '<span class="k-resize-handle k-resize-e"></span>' + '#}#' + '</div>', EVENT_TEMPLATE = kendo.template('<div title="#=title.replace(/"/g,"&\\#34;")#">' + '<div class="k-event-template">#:title#</div>' + '</div>');
         var MORE_BUTTON_TEMPLATE = kendo.template('<div style="width:#=width#px;left:#=left#px;top:#=top#px" class="k-more-events k-button"><span>...</span></div>');
         var MonthGroupedView = kendo.Class.extend({
             init: function (view) {
@@ -567,7 +567,7 @@
             },
             _mouseEditable: function () {
                 var that = this;
-                that.element.on('click' + NS, '.k-scheduler-monthview .k-event a:has(.k-si-close)', function (e) {
+                that.element.on('click' + NS, '.k-scheduler-monthview .k-event a:has(.k-i-close)', function (e) {
                     that.trigger('remove', { uid: $(this).closest('.k-event').attr(kendo.attr('uid')) });
                     e.preventDefault();
                 });
@@ -627,7 +627,7 @@
                         threshold: threshold,
                         filter: '.k-scheduler-monthview .k-event',
                         tap: function (e) {
-                            if ($(e.event.target).closest('a:has(.k-si-close)').length === 0) {
+                            if ($(e.event.target).closest('a:has(.k-i-close)').length === 0) {
                                 that.trigger('edit', { uid: $(e.target).closest('.k-event').attr(kendo.attr('uid')) });
                                 e.preventDefault();
                             }

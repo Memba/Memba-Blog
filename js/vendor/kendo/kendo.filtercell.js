@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -222,7 +222,7 @@
                     },
                     valuePrimitive: true
                 }).data('kendoDropDownList');
-                this.operatorDropDown.wrapper.find('.k-i-arrow-s').removeClass('k-i-arrow-s').addClass('k-i-filter');
+                this.operatorDropDown.wrapper.find('.k-i-arrow-60-down').removeClass('k-i-arrow-60-down').addClass('k-i-filter');
             },
             initSuggestDataSource: function (options) {
                 var suggestDataSource = options.suggestDataSource;

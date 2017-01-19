@@ -1,6 +1,6 @@
 /** 
- * Kendo UI v2016.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
- * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
+ * Kendo UI v2017.1.118 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Copyright 2017 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete                                                                                                                                  
@@ -98,12 +98,12 @@
             link: 'k-link',
             resizeHandle: 'k-resize-handle',
             resizeHandleInner: 'k-resize-handle-inner',
-            dropPositions: 'k-i-insert-top k-i-insert-bottom k-i-add k-i-insert-middle',
-            dropTop: 'k-i-insert-top',
-            dropBottom: 'k-i-insert-bottom',
-            dropAdd: 'k-i-add',
+            dropPositions: 'k-i-insert-up k-i-insert-down k-i-plus k-i-insert-middle',
+            dropTop: 'k-i-insert-up',
+            dropBottom: 'k-i-insert-down',
+            dropAdd: 'k-i-plus',
             dropMiddle: 'k-i-insert-middle',
-            dropDenied: 'k-i-denied',
+            dropDenied: 'k-i-cancel',
             dragStatus: 'k-drag-status',
             dragClue: 'k-drag-clue',
             dragClueText: 'k-clue-text'

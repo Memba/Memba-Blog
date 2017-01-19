@@ -106,7 +106,7 @@ html .k-upload
     padding: 0;
 }
 
-.k-upload-status .k-warning {
+.k-upload-status .k-i-warning {
     display: none;
 }
 
@@ -163,6 +163,12 @@ html .k-upload
     border-style: solid;
     border-width: 0 0 1px;
     padding: .65em .17em .65em 1em;
+
+    .k-upload-action {
+        background: 0 0;
+        border-width: 0;
+        box-shadow: none;
+    }
 }
 
 .k-file .k-icon
@@ -231,9 +237,9 @@ html .k-upload
 .k-file-extension-wrapper:before,
 .k-multiple-files-extension-wrapper:before,
 .k-file-invalid-extension-wrapper:before,
-.k-multiple-files-invalid-extension-wrapper:before {    
+.k-multiple-files-invalid-extension-wrapper:before {
     top: -1px;
-    right: -1px;    
+    right: -1px;
     width: 0;
     height: 0;
     border-width: 6px;
@@ -247,7 +253,7 @@ html .k-upload
     left: -6px;
     width: 15px;
     height: 35px;
-    border-width: 2px 0 0 2px;   
+    border-width: 2px 0 0 2px;
 }
 
 .k-file-extension,
@@ -273,7 +279,7 @@ html .k-upload
 .k-file-size,
 .k-file-validation-message,
 .k-file-information {
-    display: block;   
+    display: block;
 }
 
 .k-file-name {
@@ -313,6 +319,7 @@ html .k-upload
 .k-upload-status .k-button
 {
     vertical-align: text-bottom;
+    border-radius: 50%;
 }
 
 .k-dropzone .k-upload-status
