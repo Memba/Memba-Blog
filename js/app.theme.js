@@ -56,8 +56,8 @@
         };
 
         var localStorage; // = window.localStorage;
-        // The following is necessary when localStorage is explicitly disabled in browser settings
-        try { localStorage = window.localStorage; } catch (ex) {}
+        // An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
+        try { localStorage = window.localStorage } catch (ex) {}
 
         app.theme = {
 
@@ -88,7 +88,7 @@
                         try {
                             localStorage.setItem(THEME, theme);
                         } catch (exception) {
-                            // A QoutaExceededError in raised in private browsing, which we do not care about
+                            // A QuotaExceededError in raised in private browsing, which we do not care about
                             // @see https://github.com/jlchereau/Kidoju-Webapp/issues/181
                             // @see http://chrisberkhout.com/blog/localstorage-errors/
                             if (!window.DOMException || !(exception instanceof window.DOMException) || exception.code !== window.DOMException.QUOTA_EXCEEDED_ERR) {
@@ -173,7 +173,7 @@
         };
 
         // find a match in querystring (embedded player)
-        var matches = /theme=([^&]+)/.exec(window.location.search.substr(1));
+        var matches = /[\?|&]theme=([^&]+)/.exec(window.location.search);
         // get theme from match or from localstorage ur use DEFAULT
         var theme = app.theme.name();
         // load theme
