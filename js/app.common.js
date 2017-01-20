@@ -114,7 +114,12 @@ if (typeof(require) === 'function') {
                     // show a hide button
                     button: true,
                     // prevent hiding by clicking on the notification content
-                    hideOnClick: false
+                    hideOnClick: false,
+                    // event handler for the show event - display on top of dialogs
+                    show: function (e) {
+                        // @see https://github.com/telerik/kendo-ui-core/issues/2212
+                        e.element.closest('.k-animation-container').css({ zIndex: 10005 });
+                    }
                 }).data('kendoNotification');
             }
 

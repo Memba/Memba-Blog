@@ -212,9 +212,7 @@
                     }
                     popup.open(x, y);
                 }
-                // https://github.com/telerik/kendo-ui-core/issues/2212
-                // popup.wrapper.addClass(that._guid).css(extend({ margin: 0 }, that._popupPaddings));
-                popup.wrapper.addClass(that._guid).css(extend({ margin:0, zIndex:10050 }, that._popupPaddings));
+                popup.wrapper.addClass(that._guid).css(extend({ margin: 0 }, that._popupPaddings));
                 if (options.position.pinned) {
                     popup.wrapper.css('position', 'fixed');
                     if (openPopup[0]) {
