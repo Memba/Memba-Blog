@@ -26,7 +26,7 @@ if (/^win/.test(process.platform)) {
             '-Dwebdriver.edge.driver=' + path.join(__dirname, './test/bin/MicrosoftWebDriver.exe'),
             // Add opera driver
             // '-Dwebdriver.opera.driver=' + path.join(__dirname, './test/bin/operadriver.exe')
-            '-Dwebdriver.opera.driver=' + path.join(__dirname, './node_modules/selenium-standalone/.selenium/chromedriver/2.25-x64-chromedriver')
+            '-Dwebdriver.opera.driver=' + path.join(__dirname, './node_modules/selenium-standalone/.selenium/chromedriver/2.27-x64-chromedriver')
         ]
         // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
         // seleniumArgs: [],
