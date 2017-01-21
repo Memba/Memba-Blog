@@ -57,7 +57,7 @@
 
         var localStorage; // = window.localStorage;
         // An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
-        try { localStorage = window.localStorage } catch (ex) {}
+        try { localStorage = window.localStorage; } catch (ex) {}
 
         app.theme = {
 

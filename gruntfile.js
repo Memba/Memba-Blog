@@ -84,7 +84,7 @@ module.exports = function (grunt) {
             }
         },
         nsp: {
-           package: grunt.file.readJSON('package.json')
+            package: grunt.file.readJSON('package.json')
         },
         uglify: {
             build: {

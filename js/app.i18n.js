@@ -33,7 +33,7 @@
 
         var localStorage; // = window.localStorage;
         // An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
-        try { localStorage = window.localStorage } catch (ex) {}
+        try { localStorage = window.localStorage; } catch (ex) {}
 
         /**
          * localization functions
@@ -145,7 +145,7 @@
             });
         } else { // In Kidoju-Mobile
             // Wait for Cordova to load
-            document.addEventListener('deviceready', function() {
+            document.addEventListener('deviceready', function () {
                 if (window.navigator && window.navigator.globalization) {
                     window.navigator.globalization.getLocaleName(
                         function (locale) {
