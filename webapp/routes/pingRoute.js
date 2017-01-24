@@ -23,7 +23,8 @@ module.exports = {
     get: function (req, res) {
 
         // Log the request
-        logger.info({
+        // logger.info({ // otherwise our logs get crowded with ping requests from AWS load balancer
+        logger.debug({
             message: 'get a ping',
             method: 'get',
             module: 'routes/pingRoute',
