@@ -85,7 +85,7 @@
     "url-loader": "^0.5.7",
     "wdio-mocha-framework": "^0.5.8",
     "wdio-selenium-standalone-service": "0.0.7",
-    "webdriverio": "^4.6.1",
+    "webdriverio": "^4.6.2",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2"
   },
