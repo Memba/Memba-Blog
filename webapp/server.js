@@ -135,13 +135,23 @@ config.load(function (error/*, store*/) {
     // Without this one would need to supply the extension to res.render(), ex: res.render('users.html').
     app.set('view engine', 'ejs');
 
+    // compression (before static files otherwise they are not compressed)
+    app.use(compression({ filter: function (req, res) {
+            if (req.headers['x-no-compression']) {
+                // don't compress responses with this request header
+                return false;
+            }
+            // fallback to standard filter function
+            return compression.filter(req, res);
+        }
+    }));
+
     // Static files (before routing)
     // Cache-Control maxAge requires a string in MS format - see https://www.npmjs.com/package/ms
     app.use(
         util.format(config.get('uris:webapp:public'), ''),
         cors({ origin: config.get('uris:webapp:root') }),
-        express.static(path.join(__dirname, 'public'), { maxAge: '1d' }),
-        compression()
+        express.static(path.join(__dirname, 'public'), { maxAge: '1d' })
     );
 
     // Routing
