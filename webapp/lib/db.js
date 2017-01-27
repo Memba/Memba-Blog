@@ -90,7 +90,7 @@ Collection.prototype.load = function () {
             // data: this.data.slice(0, 1) <-- clutters logs
         });
     } catch (exception) {
-        logger.error({
+        logger.warn({
             message: 'Error loading index from ' + indexFile,
             module: 'lib/db',
             method: 'Collection.prototype.load',
