@@ -79,6 +79,7 @@ process.on('exit', function (code) {
 
 var express = require('express');
 var app = express();
+var compression = require('compression');
 var cors = require('cors');
 var helmet = require('helmet');
 var http = require('http');
@@ -104,7 +105,7 @@ config.load(function (error/*, store*/) {
 
     // Secure expressJS with helmet from https://github.com/helmetjs/helmet
     // app.disable('x-powered-by');
-    app.use(helmet());
+    app.use(helmet()); // TODO https://github.com/jlchereau/Kidoju-Webapp/issues/199
 
     // handle requests while closing
     app.use(function (req, res, next) {
@@ -139,7 +140,8 @@ config.load(function (error/*, store*/) {
     app.use(
         util.format(config.get('uris:webapp:public'), ''),
         cors({ origin: config.get('uris:webapp:root') }),
-        express.static(path.join(__dirname, 'public'), { maxAge: '1d' })
+        express.static(path.join(__dirname, 'public'), { maxAge: '1d' }),
+        compression()
     );
 
     // Routing
