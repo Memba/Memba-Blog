@@ -11,7 +11,7 @@
         "branch": "master",
         "language": "%s/"
     },
-    "level": 0,
+    "level": 2,
     "slack": {
         "channel": "#weberrors",
         "webhook": "https://hooks.slack.com/services/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"
