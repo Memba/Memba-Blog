@@ -121,7 +121,7 @@ module.exports = {
                     { loader: 'bundle-loader?name=[name]' },
                     // { loader: "style-loader", options: { useable: true } },
                     { loader: "style-loader/useable" },
-                    { loader: 'css-loader', options: { importLoaders: 1 } },
+                    { loader: 'css-loader', options: { importLoaders: 2 } },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
                     // { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }

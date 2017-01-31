@@ -114,8 +114,8 @@ module.exports = function (grunt) {
                             screw_ie8: true,
                             warnings: false
                         },
-                        comments: false
-                        // sourceMap: true
+                        comments: false,
+                        sourceMap: true
                     })
                 )
             }
