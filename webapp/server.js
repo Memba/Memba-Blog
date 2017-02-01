@@ -127,6 +127,7 @@ config.load(function (error/*, store*/) {
             ],
             connectSrc: [
                 '\'self\'',
+                'js.leadin.com',
                 'https://api.getsidekick.com'
             ],
             fontSrc: [
