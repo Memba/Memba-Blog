@@ -55,7 +55,6 @@ module.exports = {
                         keywords: config.home.keywords,
                         language: language,
                         menu: data,
-                        results: false, // trick header into not displaying robots noindex directive
                         trace: req.trace,
                         /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                         site_url: url.join(config.uris.webapp.root, config.uris.webapp.home), // canonical link

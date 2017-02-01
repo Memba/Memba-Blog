@@ -103,10 +103,6 @@ config.load(function (error/*, store*/) {
     // set version (to invalidate cache when loading new versions of scripts)
     config.set('application:version', pkg.version);
 
-    // Secure expressJS with helmet from https://github.com/helmetjs/helmet
-    // app.disable('x-powered-by');
-    app.use(helmet()); // TODO https://github.com/jlchereau/Kidoju-Webapp/issues/199
-
     // handle requests while closing
     app.use(function (req, res, next) {
         if (closingInProgress) {
@@ -116,6 +112,60 @@ config.load(function (error/*, store*/) {
             return next();
         }
     });
+
+    // Secure expressJS with helmet from https://github.com/helmetjs/helmet
+    // app.disable('x-powered-by');
+    app.use(helmet()); // TODO https://github.com/jlchereau/Kidoju-Webapp/issues/199
+
+    // @see https://helmetjs.github.io/docs/csp/
+    // @see https://content-security-policy.com/
+    var cdnRoot = config.get('uris:cdn:root');
+    app.use(helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [
+                '\'self\''
+            ],
+            connectSrc: [
+                '\'self\'',
+                'https://api.getsidekick.com'
+            ],
+            fontSrc: [
+                '\'self\'',
+                'data:',
+                cdnRoot
+            ],
+            imgSrc: [
+                'data:',
+                '*'
+            ],
+            mediaSrc: [
+                '*'
+            ],
+            scriptSrc: [
+                '\'self\'',
+                '\'unsafe-eval\'',
+                '\'unsafe-inline\'',
+                cdnRoot,
+                'https://code.jquery.com',
+                'www.googletagmanager.com', // Note: we cannot target https because we need http://localhost
+                'www.google-analytics.com',
+                'js.hs-analytics.net',
+                'js.hs-scripts.com',
+                'js.leadin.com'
+            ],
+            styleSrc: [
+                '\'self\'',
+                '\'unsafe-inline\'',
+                cdnRoot
+            ],
+            // sandbox: ['allow-forms', 'allow-scripts'],
+            // reportUri: '/report-violation',
+            objectSrc: [
+                '\'none\''
+            ]
+        },
+        browserSniff: false
+    }));
 
     // i18n
     i18n.configure({

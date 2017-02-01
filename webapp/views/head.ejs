@@ -7,14 +7,13 @@
     <meta name="author" content="<%= author %>">
     <meta name="description" content="<%= description %>">
     <meta name="keywords" content="<%= keywords %>">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' *.kidoju.com *.memba.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.kidoju.com *.memba.com code.jquery.com www.googletagmanager.com www.google-analytics.com js.hs-analytics.net js.hs-scripts.com js.leadin.com; connect-src 'self' *.kidoju.com *.memba.com api.getsidekick.com; style-src 'self' 'unsafe-inline' *.kidoju.com *.memba.com; font-src 'self' data: *.kidoju.com *.memba.com; img-src data: *; media-src *">
     <% // Facebook %>
-    <meta property="fb:app_id" content="<%= config.facebook.clientID %>" />
+    <meta property="fb:app_id" content="<%- config.facebook.clientID %>" />
     <% // Open graph protocol - https://developers.facebook.com/tools/debug/og/object/ %>
     <meta property="og:title" content="<%= title %>" />
     <meta property="og:description" content="<%= description %>" />
     <meta property="og:image" content="<%= image %>" />
-    <meta property="og:site_name" content="<%= config.application.siteName %>" />
+    <meta property="og:site_name" content="<%- config.application.siteName %>" />
     <meta property="og:type" content="article" />
     <% if (typeof site_url === 'string' ) { %>
     <meta property="og:url" content="<%= site_url %>" />
@@ -22,36 +21,34 @@
     <% } %>
     <% // Twitter card - https://dev.twitter.com/cards/markup %>
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@<%= config.twitter.account %>">
+    <meta name="twitter:site" content="@<%- config.twitter.account %>">
     <% // Google Tag Manager %>
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','GTM-KMDMQ9');</script>
+        })(window,document,'script','dataLayer','<%- config.google.tagManager %>');</script>
     <% // Favicon and apple touch icons %>
-    <link rel="shortcut icon" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'favicon.ico')) %>">
-    <link rel="apple-touch-icon" sizes="57x57" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-57x57.png')) %>">
-    <link rel="apple-touch-icon" sizes="72x72" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-72x72.png')) %>">
-    <link rel="apple-touch-icon" sizes="76x76" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-76x76.png')) %>">
-    <link rel="apple-touch-icon" sizes="114x114" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-114x114.png')) %>">
-    <link rel="apple-touch-icon" sizes="120x120" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-120x120.png')) %>">
-    <link rel="apple-touch-icon" sizes="144x144" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-144x144.png')) %>">
-    <link rel="apple-touch-icon" sizes="152x152" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-152x152.png')) %>">
-    <link rel="apple-touch-icon" sizes="180x180" href="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'apple-touch-icon-180x180.png')) %>">
+    <link rel="shortcut icon" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'favicon.ico')) %>">
+    <link rel="apple-touch-icon" sizes="57x57" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-57x57.png')) %>">
+    <link rel="apple-touch-icon" sizes="72x72" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-72x72.png')) %>">
+    <link rel="apple-touch-icon" sizes="76x76" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-76x76.png')) %>">
+    <link rel="apple-touch-icon" sizes="114x114" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-114x114.png')) %>">
+    <link rel="apple-touch-icon" sizes="120x120" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-120x120.png')) %>">
+    <link rel="apple-touch-icon" sizes="144x144" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-144x144.png')) %>">
+    <link rel="apple-touch-icon" sizes="152x152" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-152x152.png')) %>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-180x180.png')) %>">
     <% // Other apple meta tags %>
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <% // Robots: do not index/archive search pages %>
-    <% if (Array.isArray(results)) { %>
-    <meta name="robots" content="noindex, noarchive">
-    <% } %>
+    <% // Robots %>
+    <meta name="robots" content="noarchive">
     <% // Config head in ./webapp/config/default.json, for example to add site verification tags %>
     <% if (typeof config.head === 'string' ) { %>
     <%- config.head %>
     <% } %>
     <% // IE10 viewport hack for Surface/desktop Windows 8 bug %>
     <!--script src="//getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script-->
-    <script src="<%- url.join(config.uris.webpack.root, 'init.bundle.js') + '?v=' + config.application.version %>"></script>
+    <script src="<%- url.join(config.uris.webpack.root, 'init.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <style>
         html,body{

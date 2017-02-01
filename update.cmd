@@ -283,10 +283,14 @@ ATTRIB +R .\webapp\routes\pingRoute.js
 
 REM Copy ./webapp/views files
 ATTRIB -R .\webapp\views\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\views\common.ejs .\webapp\views /Y
+ATTRIB +R .\webapp\views\common.ejs
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\views\error.ejs .\webapp\views /Y
 ATTRIB +R .\webapp\views\error.ejs
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\views\footer.ejs .\webapp\views /Y
 ATTRIB +R .\webapp\views\footer.ejs
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\views\head.ejs .\webapp\views /Y
+ATTRIB +R .\webapp\views\head.ejs
 
 REM Copy ./webapp/server.js
 ATTRIB -R .\webapp\server.js

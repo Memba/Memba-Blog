@@ -32,7 +32,8 @@
     "uris" : {
         "cdn": {
             "root":  "https://cdn.kidoju.com",
-            "icons": "/images/o_collection/svg/office/%s.svg"
+            "icons": "/images/o_collection/svg/office/%s.svg",
+            "images": "/memba/%s"
         },
         "webapp": {
             "error": "/%s/error",

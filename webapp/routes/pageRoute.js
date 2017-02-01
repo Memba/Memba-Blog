@@ -87,7 +87,6 @@ module.exports = {
                             language: language,
                             menu: responses[0],
                             months: responses[4],
-                            results: false, // trick header into not displaying robots noindex directive
                             trace: req.trace
                         });
                         res
