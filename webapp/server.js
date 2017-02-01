@@ -115,25 +115,36 @@ config.load(function (error/*, store*/) {
 
     // Secure expressJS with helmet from https://github.com/helmetjs/helmet
     // app.disable('x-powered-by');
-    app.use(helmet()); // TODO https://github.com/jlchereau/Kidoju-Webapp/issues/199
+    app.use(helmet());
 
     // @see https://helmetjs.github.io/docs/csp/
     // @see https://content-security-policy.com/
     var cdnRoot = config.get('uris:cdn:root');
+    var connectSrc = [
+            '\'self\'',
+            'js.leadin.com'
+            // 'https://api.getsidekick.com'
+        ];
+    if (typeof config.get('uris:rapi:root') === 'string' && config.get('uris:rapi:root') !== config.get('uris:webapp:root')) {
+        // Note: config.get('uris:webapp:root') is covered by 'self'
+        connectSrc.push(config.get('uris:rapi:root'));
+    }
     app.use(helmet.contentSecurityPolicy({
         directives: {
             defaultSrc: [
-                '\'self\''
-            ],
-            connectSrc: [
                 '\'self\'',
-                'js.leadin.com',
-                'https://api.getsidekick.com'
+                'blob:'                             // This is for web workers as workerSrc is not supported by helmet.contentSecurityPolicy
             ],
+            connectSrc: connectSrc,
             fontSrc: [
                 '\'self\'',
                 'data:',
-                cdnRoot
+                cdnRoot,
+                'https://fonts.gstatic.com'         // Google fonts
+            ],
+            frameSrc: [
+                'https://accounts.google.com',
+                'https://www.gstatic.com'           // Google classroom button
             ],
             imgSrc: [
                 'data:',
@@ -148,16 +159,18 @@ config.load(function (error/*, store*/) {
                 '\'unsafe-inline\'',
                 cdnRoot,
                 'https://code.jquery.com',
-                'www.googletagmanager.com', // Note: we cannot target https because we need http://localhost
-                'www.google-analytics.com',
-                'js.hs-analytics.net',
-                'js.hs-scripts.com',
-                'js.leadin.com'
+                'https://www.googletagmanager.com', // GTM
+                'https://apis.google.com',          //
+                'www.google-analytics.com',         // Note: we cannot target https because we need http://localhost
+                'js.hs-analytics.net',              // Hubspot
+                'js.hs-scripts.com',                // Hubspot
+                'js.leadin.com'                     // Hubspot
             ],
             styleSrc: [
                 '\'self\'',
                 '\'unsafe-inline\'',
-                cdnRoot
+                cdnRoot,
+                'https://fonts.googleapis.com'      // Google fonts
             ],
             // sandbox: ['allow-forms', 'allow-scripts'],
             // reportUri: '/report-violation',
