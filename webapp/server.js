@@ -122,7 +122,9 @@ config.load(function (error/*, store*/) {
     var cdnRoot = config.get('uris:cdn:root');
     var connectSrc = [
             '\'self\'',
-            'js.leadin.com'
+            cdnRoot,                                // Required to load index.json on CDN
+            'https://s3.amazonaws.com',             // Required to upload images to Amazon S3
+            'https://js.leadin.com'                 // Hubspot
             // 'https://api.getsidekick.com'
         ];
     if (typeof config.get('uris:rapi:root') === 'string' && config.get('uris:rapi:root') !== config.get('uris:webapp:root')) {
@@ -143,7 +145,7 @@ config.load(function (error/*, store*/) {
                 'https://fonts.gstatic.com'         // Google fonts
             ],
             frameSrc: [
-                'https://accounts.google.com',
+                'https://accounts.google.com',      // Google classroom button
                 'https://www.gstatic.com'           // Google classroom button
             ],
             imgSrc: [
@@ -160,11 +162,11 @@ config.load(function (error/*, store*/) {
                 cdnRoot,
                 'https://code.jquery.com',
                 'https://www.googletagmanager.com', // GTM
-                'https://apis.google.com',          //
-                'www.google-analytics.com',         // Note: we cannot target https because we need http://localhost
-                'js.hs-analytics.net',              // Hubspot
-                'js.hs-scripts.com',                // Hubspot
-                'js.leadin.com'                     // Hubspot
+                'https://apis.google.com',          // Google classroom button
+                'www.google-analytics.com',         // Google Analytics (Loaded via http on http://localhost)
+                'js.hs-analytics.net',              // Hubspot (Loaded via http on http://localhost)
+                'https://js.hs-scripts.com',        // Hubspot
+                'https://js.leadin.com'             // Hubspot
             ],
             styleSrc: [
                 '\'self\'',
