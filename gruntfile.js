@@ -110,11 +110,11 @@ module.exports = function (grunt) {
                 cache: false,
                 plugins: webpackConfig.plugins.concat(
                     new webpack.optimize.UglifyJsPlugin({
+                        comments: false,
                         compress: {
                             screw_ie8: true,
                             warnings: false
                         },
-                        comments: false,
                         sourceMap: true
                     })
                 )
