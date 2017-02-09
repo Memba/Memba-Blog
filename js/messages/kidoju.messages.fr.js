@@ -273,6 +273,7 @@
                         invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro dans la logique de test.',
                         invalidFormula: 'Un(e) {0} on page {1} nécessite une formule dans les attributs d\'affichage.',
                         invalidImageFile: 'Un(e) {0} en page {1} nécessite un fichier image dans les attributs d\'affichage.',
+                        invalidName: 'Un(e) {0} nommé(e) `{1}` on page {2} a un nom invalide.',
                         invalidSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution dans la logique de test.',
                         invalidStyle: 'Un(e) {0} en page {1} a un style invalide dans les attributs d\'affichage.',
                         invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d\'omission ou zéro dans la logique de test.',
@@ -373,6 +374,7 @@
                     properties.success.title = 'Succès';
                     properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
+                    properties.disabled.title = 'Désactiver';
                 }
 
                 if (tools.dropzone instanceof Tool) {
@@ -458,6 +460,25 @@
                     properties.success.title = 'Succès';
                     properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
+                }
+
+                if (tools.selector instanceof Tool) {
+                    // Description
+                    tools.selector.constructor.prototype.description = 'Selecteur';
+                    // Attributes
+                    attributes = tools.selector.constructor.prototype.attributes;
+                    attributes.color.title = 'Couleur';
+                    attributes.shape.title = 'Forme';
+                    // Properties
+                    properties = tools.selector.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.description.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
+                    properties.disabled.title = 'Désactiver';
                 }
 
                 if (tools.table instanceof Tool) {
