@@ -46,11 +46,24 @@
     <% if (typeof config.head === 'string' ) { %>
     <%- config.head %>
     <% } %>
-    <% // IE10 viewport hack for Surface/desktop Windows 8 bug %>
-    <!--script src="//getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script-->
+    <% // IE10 viewport hack for Surface/desktop Windows 8 bug - http://getbootstrap.com/getting-started/#support-ie10-width %>
+    <script>
+        if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+            var msViewportStyle = document.createElement('style');
+            msViewportStyle.appendChild(document.createTextNode('@-ms-viewport{width:auto!important}'));
+            document.querySelector('head').appendChild(msViewportStyle);
+        }
+    </script>
+    <% // Promise polyfill for webpack v2 - https://github.com/Memba/Memba-Blog/issues/113 %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.4.7/bluebird.core.min.js" integrity="sha256-9KoDXZ8/jhRqS91q14PABCz1lxYsC5fAR0Q8pa1JKUI=" crossorigin="anonymous"></script>
     <script src="<%- url.join(config.uris.webpack.root, 'init.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <style>
+        @-webkit-viewport{width:device-width}
+        @-moz-viewport{width:device-width}
+        @-ms-viewport{width:device-width}
+        @-o-viewport{width:device-width}
+        @viewport{width:device-width}
         html,body{
             width:100%;
             margin:0;
