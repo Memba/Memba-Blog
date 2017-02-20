@@ -37,27 +37,27 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "async": "^2.1.4",
-    "body-parser": "^1.16.0",
+    "async": "^2.1.5",
+    "body-parser": "^1.16.1",
     "chokidar": "^1.6.1",
     "compression": "^1.6.2",
     "cors": "^2.8.1",
     "deep-extend": "^0.4.1",
-    "ejs": "^2.5.5",
+    "ejs": "^2.5.6",
     "express": "^4.14.1",
     "helmet": "^3.4.0",
     "highlight.js": "^9.9.0",
     "i18n": "^0.8.3",
-    "markdown-it": "^8.2.2",
+    "markdown-it": "^8.3.0",
     "markdown-it-video": "^0.4.0",
     "moment": "^2.17.1",
     "nconf": "^0.8.4",
-    "qs": "^6.3.0",
+    "qs": "^6.3.1",
     "request": "^2.79.0",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
-    "autoprefixer": "^6.7.2",
+    "autoprefixer": "^6.7.3",
     "bundle-loader": "^0.5.4",
     "chai": "^3.5.0",
     "css-loader": "^0.26.1",
@@ -79,7 +79,7 @@
     "mocha": "^3.2.0",
     "node-libs-browser": "^2.0.0",
     "phantomjs-prebuilt": "^2.1.14",
-    "postcss-loader": "^1.2.2",
+    "postcss-loader": "^1.3.1",
     "selenium-standalone": "^6.0.1",
     "style-loader": "^0.13.1",
     "supertest": "^3.0.0",
@@ -88,7 +88,7 @@
     "wdio-selenium-standalone-service": "0.0.8",
     "webdriverio": "^4.6.2",
     "webpack": "^2.2.1",
-    "webpack-dev-server": "^2.3.0"
+    "webpack-dev-server": "^2.4.1"
   },
   "engines": {
     "node": ">=0.11"
