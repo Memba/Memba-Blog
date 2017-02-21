@@ -214,6 +214,29 @@ exports.config = {
     // @see http://webdriver.io/guide/services/selenium-standalone.html
     // @see https://www.npmjs.com/package/selenium-standalone
     seleniumArgs: seleniumArgs,
+    seleniumInstallArgs: {
+        // Use https://github.com/vvo/selenium-standalone/blob/4cf881bb6ed7b3695afa6c8c4ed333c9bdeeaecf/lib/default-config.js
+        // As we wait for a fix to https://github.com/webdriverio/wdio-selenium-standalone-service/issues/19
+        baseURL: 'https://selenium-release.storage.googleapis.com',
+        version: '3.0.1',
+        drivers: {
+            chrome: {
+                version: '2.27',
+                arch: process.arch,
+                baseURL: 'https://chromedriver.storage.googleapis.com'
+            },
+            ie: {
+                version: '3.0.0',
+                arch: process.arch,
+                baseURL: 'https://selenium-release.storage.googleapis.com'
+            },
+            firefox: {
+                version: '0.13.0',
+                arch: process.arch,
+                baseURL: 'https://github.com/mozilla/geckodriver/releases/download'
+            }
+        }
+    },
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
     // see also: http://webdriver.io/guide/testrunner/frameworks.html
