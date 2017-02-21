@@ -18,7 +18,5 @@ addons:
 before_install:
   - "npm install -g npm"
   - "npm install -g grunt-cli"
-  - "npm install -g selenium-standalone"
-  - "selenium-standalone install"
 before_script:
   - "grunt build"
