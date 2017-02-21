@@ -13,6 +13,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
+      - oracle-java8-installer
 before_install:
   - "npm install -g npm"
   - "npm install -g grunt-cli"
