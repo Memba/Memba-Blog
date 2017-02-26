@@ -16,8 +16,8 @@ var webpack = require('webpack'),
     deepExtend = require('deep-extend');
 
 module.exports = function(source) {
-    var opts = loaderUtils.parseQuery(this.query),
-        params = loaderUtils.parseQuery(this.resourceQuery),
+    var opts = loaderUtils.getOptions(this), // loaderUtils.parseQuery(this.query),
+        params = loaderUtils.getOptions({ query: this.resourceQuery }), // loaderUtils.parseQuery(this.resourceQuery),
         configDir = path.join(__dirname, '../..', opts.config), //go up from `/web_modules/jsx-loader` to project root `/` and then down to 'webapp/config'
         configEnv = (params.env || 'production').toLowerCase(),
         callback = this.async();
