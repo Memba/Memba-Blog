@@ -73,6 +73,16 @@
             });
         }
 
+        /* kidoju.widgets.listeditor */
+        if (ui.ListEditor) {
+            options = ui.ListEditor.prototype.options;
+            options.messages = $.extend(true, options.messages, {
+                toolbar: {
+                    add: 'Add'
+                }
+            });
+        }
+
         /* kidoju.widgets.mediaplayer */
         if (ui.MediaPlayer) {
             options = ui.MediaPlayer.prototype.options;
@@ -89,6 +99,14 @@
             options = ui.MultiInput.prototype.options;
             options.messages = $.extend(true, options.messages, {
                 delete: 'Delete'
+            });
+        }
+
+        /* kidoju.widgets.multiquiz */
+        if (ui.MultiQuiz) {
+            options = ui.MultiQuiz.prototype.options;
+            options.messages = $.extend(true, options.messages, {
+                placeholder: 'Select...'
             });
         }
 
@@ -330,28 +348,7 @@
                     // Properties
                     properties = tools.chargrid.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
-                    properties.solution.title = 'Solution';
-                    properties.validation.title = 'Validation';
-                    properties.success.title = 'Success';
-                    properties.failure.title = 'Failure';
-                    properties.omit.title = 'Omit';
-                }
-
-                if (tools.checkbox instanceof Tool) {
-                    // Description
-                    tools.checkbox.constructor.prototype.description = 'CheckBox';
-                    // Attributes
-                    attributes = tools.checkbox.constructor.prototype.attributes;
-                    attributes.data.title = 'Values';
-                    attributes.data.defaultValue = 'Option 1\nOption 2';
-                    attributes.groupStyle.title = 'Group Style';
-                    attributes.itemStyle.title = 'Item Style';
-                    attributes.selectedStyle.title = 'Select. Style';
-                    // Properties
-                    properties = tools.checkbox.constructor.prototype.properties;
-                    properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -368,7 +365,7 @@
                     // Properties
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -390,7 +387,7 @@
                     // Properties
                     properties = tools.dropzone.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -440,21 +437,22 @@
                     attributes.style.title = 'Style';
                 }
 
-                if (tools.quiz instanceof Tool) {
+                if (tools.multiquiz instanceof Tool) {
                     // Description
-                    tools.quiz.constructor.prototype.description = 'Quiz';
+                    tools.multiquiz.constructor.prototype.description = 'MultiQuiz';
                     // Attributes
-                    attributes = tools.quiz.constructor.prototype.attributes;
+                    attributes = tools.multiquiz.constructor.prototype.attributes;
                     attributes.data.title = 'Values';
-                    attributes.data.defaultValue = 'True\nFalse';
+                    attributes.data.defaultValue = [{ text: 'Option 1', image: 'cdn://images/o_collection/svg/office/hand_count_one.svg' }, { text: 'Option 2', image: 'cdn://images/o_collection/svg/office/hand_point_up.svg' }];
                     attributes.groupStyle.title = 'Group Style';
                     attributes.itemStyle.title = 'Item Style';
                     attributes.mode.title = 'Mode';
                     attributes.selectedStyle.title = 'Select. Style';
+                    attributes.shuffle.title = 'Shuffle';
                     // Properties
-                    properties = tools.quiz.constructor.prototype.properties;
+                    properties = tools.multiquiz.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -462,6 +460,28 @@
                     properties.omit.title = 'Omit';
                 }
 
+                if (tools.quiz instanceof Tool) {
+                    // Description
+                    tools.quiz.constructor.prototype.description = 'Quiz';
+                    // Attributes
+                    attributes = tools.quiz.constructor.prototype.attributes;
+                    attributes.data.title = 'Values';
+                    attributes.data.defaultValue = [{ text: 'True', image: 'cdn://images/o_collection/svg/office/ok.svg' }, { text: 'False', image: 'cdn://images/o_collection/svg/office/error.svg' }];
+                    attributes.groupStyle.title = 'Group Style';
+                    attributes.itemStyle.title = 'Item Style';
+                    attributes.mode.title = 'Mode';
+                    attributes.selectedStyle.title = 'Select. Style';
+                    attributes.shuffle.title = 'Shuffle';
+                    // Properties
+                    properties = tools.quiz.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
+                }
 
                 if (tools.selector instanceof Tool) {
                     // Description
@@ -473,7 +493,7 @@
                     // Properties
                     properties = tools.selector.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -501,7 +521,7 @@
                     // Properties
                     properties = tools.textarea.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
@@ -519,7 +539,7 @@
                     // Properties
                     properties = tools.textbox.constructor.prototype.properties;
                     properties.name.title = 'Name';
-                    properties.description.title = 'Question';
+                    properties.question.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Success';
