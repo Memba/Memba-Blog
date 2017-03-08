@@ -124,7 +124,8 @@ config.load(function (error/*, store*/) {
             '\'self\'',
             cdnRoot,                                // Required to load index.json on CDN
             'https://s3.amazonaws.com',             // Required to upload images to Amazon S3
-            'https://js.leadin.com'                 // Hubspot
+            'https://js.leadin.com',                // Hubspot
+            'https://forms.hubspot.com'             // Hubspot
             // 'https://api.getsidekick.com'
         ];
     if (typeof config.get('uris:rapi:root') === 'string' && config.get('uris:rapi:root') !== config.get('uris:webapp:root')) {
@@ -166,7 +167,9 @@ config.load(function (error/*, store*/) {
                 'https://apis.google.com',          // Google classroom button
                 'www.google-analytics.com',         // Google Analytics (Loaded via http on http://localhost)
                 'js.hs-analytics.net',              // Hubspot (Loaded via http on http://localhost)
+                'https://js.hscollectedforms.net',  // Hubspot
                 'https://js.hsleadflows.net',       // Hubspot
+                'https://js.hsleadflowsqa.net',     // Hubspot
                 'https://js.hs-scripts.com',        // Hubspot
                 'https://js.leadin.com'             // Hubspot
             ],
