@@ -244,7 +244,7 @@ exports.config = {
     //
     // Gets executed once before all workers get launched.
     onPrepare: function (config, capabilities) {
-        // var app = require('./webapp/server'); // Start the web application
+        var app = require('./webapp/server'); // Start the web application
     }
     //
     // Gets executed before test execution begins. At this point you can access all global
