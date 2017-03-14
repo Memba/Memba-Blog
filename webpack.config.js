@@ -43,13 +43,6 @@ console.log('building version ' + pkg.version);
 var commonsChunkPlugin =
     new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['error', 'home', 'post', 'page', 'search'] });
 
-
-/**
- * Add banner at the top of every bundle/chunk
- */
-var bannerPlugin =
-    new webpack.BannerPlugin({ banner: '/*! ' + pkg.copyright + ' - Version ' + pkg.version + ' dated ' + new Date().toLocaleDateString() + ' */', raw: true, entryOnly: true });
-
 /**
  * SourceMapDevToolPlugin builds source maps
  * For debugging in WebStorm see https://github.com/webpack/webpack/issues/238
@@ -172,7 +165,6 @@ module.exports = {
     },
     plugins: [
         definePlugin,
-        commonsChunkPlugin,
-        bannerPlugin
+        commonsChunkPlugin
     ]
 };

@@ -111,13 +111,18 @@ module.exports = function (grunt) {
                 cache: false,
                 plugins: webpackConfig.plugins.concat(
                     new webpack.optimize.UglifyJsPlugin({
-                        banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                        // banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
                         comments: false,
                         compress: {
                             screw_ie8: true,
                             warnings: false
                         },
                         sourceMap: false
+                    }),
+                    new webpack.BannerPlugin({
+                        banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                        raw: true
+                        // entryOnly: true
                     })
                 )
             }
