@@ -48,7 +48,7 @@ var commonsChunkPlugin =
  * Add banner at the top of every bundle/chunk
  */
 var bannerPlugin =
-    new webpack.BannerPlugin({ banner: pkg.copyright + ' - Version ' + pkg.version + ' dated ' + new Date().toLocaleDateString(), raw: true, entryOnly: true });
+    new webpack.BannerPlugin({ banner: '/*! ' + pkg.copyright + ' - Version ' + pkg.version + ' dated ' + new Date().toLocaleDateString() + ' */', raw: true, entryOnly: true });
 
 /**
  * SourceMapDevToolPlugin builds source maps
@@ -172,7 +172,7 @@ module.exports = {
     },
     plugins: [
         definePlugin,
-        commonsChunkPlugin
-        // bannerPlugin breaks uglifyJS
+        commonsChunkPlugin,
+        bannerPlugin
     ]
 };

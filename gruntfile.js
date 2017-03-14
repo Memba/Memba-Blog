@@ -90,8 +90,9 @@ module.exports = function (grunt) {
             build: {
                 options: {
                     banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
-                    sourceMap: true,
-                    sourceMapName: 'webapp/public/build/workerlib.bundle.js.map'
+                    sourceMap: false
+                    // sourceMap: true,
+                    // sourceMapName: 'webapp/public/build/workerlib.bundle.js.map'
                 },
                 files: {
                     'webapp/public/build/workerlib.bundle.js': ['js/kidoju.data.workerlib.js']
@@ -110,12 +111,13 @@ module.exports = function (grunt) {
                 cache: false,
                 plugins: webpackConfig.plugins.concat(
                     new webpack.optimize.UglifyJsPlugin({
+                        banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
                         comments: false,
                         compress: {
                             screw_ie8: true,
                             warnings: false
                         },
-                        sourceMap: true
+                        sourceMap: false
                     })
                 )
             }
