@@ -90,7 +90,7 @@
     "webpack-dev-server": "^2.4.5"
   },
   "engines": {
-    "node": ">=0.11"
+    "node": ">=4"
   },
   "config": {
     "msvs_version": "2015"
