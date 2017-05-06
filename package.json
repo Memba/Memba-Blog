@@ -57,7 +57,7 @@
     "uuid": "^3.0.1"
   },
   "devDependencies": {
-    "autoprefixer": "^6.7.7",
+    "autoprefixer": "^7.0.0",
     "bundle-loader": "^0.5.5",
     "chai": "^3.5.0",
     "css-loader": "^0.28.1",
@@ -71,7 +71,7 @@
     "grunt-mocha-test": "^0.13.2",
     "grunt-nsp": "^2.3.1",
     "grunt-webdriver": "^2.0.3",
-    "grunt-webpack": "^2.0.1",
+    "grunt-webpack": "^3.0.0",
     "json-loader": "^0.5.4",
     "less": "^2.7.2",
     "less-loader": "^4.0.3",
