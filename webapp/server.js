@@ -167,6 +167,7 @@ config.load(function (error/*, store*/) {
                 'https://apis.google.com',          // Google classroom button
                 'www.google-analytics.com',         // Google Analytics (Loaded via http on http://localhost)
                 'js.hs-analytics.net',              // Hubspot (Loaded via http on http://localhost)
+                'https://api.usemessages.com',      // Hubspot
                 'https://js.hscollectedforms.net',  // Hubspot
                 'https://js.hsleadflows.net',       // Hubspot
                 'https://js.hsleadflowsqa.net',     // Hubspot
