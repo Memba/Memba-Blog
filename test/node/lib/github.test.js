@@ -24,12 +24,12 @@ describe('lib/github', function () {
     it('it should create content', function (done) {
         github.createContent(content.path, content.markdown, function (error, response) {
             expect(error).to.be.null;
-            expect(response).to.have.deep.property('commit.committer.name', NAME);
-            // expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
-            expect(response).to.have.deep.property('commit.message', 'System creation');
-            expect(response).to.have.deep.property('content.path', content.path);
-            expect(response).to.have.deep.property('content.html_url');
-            expect(response).to.have.deep.property('content.sha');
+            expect(response).to.have.nested.property('commit.committer.name', NAME);
+            // expect(response).to.have.nested.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+            expect(response).to.have.nested.property('commit.message', 'System creation');
+            expect(response).to.have.nested.property('content.path', content.path);
+            expect(response).to.have.nested.property('content.html_url');
+            expect(response).to.have.nested.property('content.sha');
             content.sha = response.content.sha;
             done();
         });
@@ -57,12 +57,12 @@ describe('lib/github', function () {
         expect(content.sha).not.to.be.undefined;
         github.updateContent(content.path, content.update, content.sha, function (error, response) {
             expect(error).to.be.null;
-            expect(response).to.have.deep.property('commit.committer.name', NAME);
-            // expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
-            expect(response).to.have.deep.property('commit.message', 'System update');
-            expect(response).to.have.deep.property('content.path', content.path);
-            expect(response).to.have.deep.property('content.html_url');
-            expect(response).to.have.deep.property('content.sha');
+            expect(response).to.have.nested.property('commit.committer.name', NAME);
+            // expect(response).to.have.nested.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+            expect(response).to.have.nested.property('commit.message', 'System update');
+            expect(response).to.have.nested.property('content.path', content.path);
+            expect(response).to.have.nested.property('content.html_url');
+            expect(response).to.have.nested.property('content.sha');
             // content.sha changes which each update
             content.sha = response.content.sha;
             done();
@@ -81,9 +81,9 @@ describe('lib/github', function () {
         expect(content.sha).not.to.be.undefined;
         github.deleteContent(content.path, content.sha, function (error, response) {
             expect(error).to.be.null;
-            expect(response).to.have.deep.property('commit.committer.name', NAME);
-            // expect(response).to.have.deep.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
-            expect(response).to.have.deep.property('commit.message', 'System deletion');
+            expect(response).to.have.nested.property('commit.committer.name', NAME);
+            // expect(response).to.have.nested.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+            expect(response).to.have.nested.property('commit.message', 'System deletion');
             expect(response).to.have.property('content', null);
             done();
         });

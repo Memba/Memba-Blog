@@ -35,9 +35,9 @@ describe('lib/error', function () {
             expect(error).to.have.property('i18n', 'errors.http.400');
             expect(error).to.have.property('message').that.is.a('string');
             expect(error).to.have.property('name', 'ApplicationError');
-            expect(error).to.have.deep.property('originalError.message', 'Validation failed');
-            expect(error).to.have.deep.property('originalError.name', 'ValidationError');
-            expect(error).to.have.deep.property('originalError.stack');
+            expect(error).to.have.nested.property('originalError.message', 'Validation failed');
+            expect(error).to.have.nested.property('originalError.name', 'ValidationError');
+            expect(error).to.have.nested.property('originalError.stack');
             expect(error).to.have.property('stack').that.is.a('string');
             expect(error).to.have.property('status', 400);
             if (webapp) {
@@ -53,9 +53,9 @@ describe('lib/error', function () {
         expect(error).to.have.property('i18n', 'errors.http.500');
         expect(error).to.have.property('message').that.is.a('string');
         expect(error).to.have.property('name', 'ApplicationError');
-        expect(error).to.have.deep.property('originalError.message').that.is.a('string');
-        expect(error).to.have.deep.property('originalError.name').that.is.a('string');
-        expect(error).to.have.deep.property('originalError.stack').that.is.a('string');
+        expect(error).to.have.nested.property('originalError.message').that.is.a('string');
+        expect(error).to.have.nested.property('originalError.name').that.is.a('string');
+        expect(error).to.have.nested.property('originalError.stack').that.is.a('string');
         expect(error).to.have.property('stack').that.is.a('string');
         expect(error).to.have.property('status', 500);
         if (webapp) {
