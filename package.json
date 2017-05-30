@@ -59,8 +59,8 @@
   "devDependencies": {
     "autoprefixer": "^7.1.1",
     "bundle-loader": "^0.5.5",
-    "chai": "^3.5.0",
-    "css-loader": "^0.28.2",
+    "chai": "^4.0.0",
+    "css-loader": "^0.28.4",
     "file-loader": "^0.11.1",
     "grunt": "^1.0.1",
     "grunt-contrib-copy": "^1.0.0",
@@ -74,7 +74,7 @@
     "grunt-webpack": "^3.0.0",
     "json-loader": "^0.5.4",
     "less": "^2.7.2",
-    "less-loader": "^4.0.3",
+    "less-loader": "^4.0.4",
     "loader-utils": "^1.1.0",
     "mocha": "^3.4.2",
     "node-libs-browser": "^2.0.0",
@@ -86,7 +86,7 @@
     "wdio-mocha-framework": "^0.5.10",
     "wdio-selenium-standalone-service": "0.0.8",
     "webdriverio": "^4.8.0",
-    "webpack": "^2.6.0",
+    "webpack": "^2.6.1",
     "webpack-dev-server": "^2.4.5"
   },
   "engines": {
