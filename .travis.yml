@@ -7,13 +7,13 @@ node_js:
   - "5"
   - "4"
 env:
-  - NODE_ENV=test CXX=g++-6.2 CFLAGS=-std=gnu11 -fgnu89-inline
+  - NODE_ENV=test CC=gcc-6 CXX=g++-6 CFLAGS=-std=gnu11 -fgnu89-inline
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-6.2
+      - g++-6
       - oracle-java8-set-default
 before_install:
   - "npm install -g npm"
