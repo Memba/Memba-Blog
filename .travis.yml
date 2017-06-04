@@ -7,7 +7,7 @@ node_js:
   - "5"
   - "4"
 env:
-  - NODE_ENV=test CXX=g++-4.9
+  - NODE_ENV=test CXX=g++-4.9 CFLAGS=-std=gnu11
 addons:
   apt:
     sources:
