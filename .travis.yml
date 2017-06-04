@@ -7,7 +7,7 @@ node_js:
   - "5"
   - "4"
 env:
-  - NODE_ENV=test CXX=g++-6
+  - NODE_ENV=test CC=gcc-6 CXX=g++-6
 addons:
   apt:
     sources:
