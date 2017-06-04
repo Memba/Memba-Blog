@@ -7,13 +7,13 @@ node_js:
   - "5"
   - "4"
 env:
-  - NODE_ENV=test CXX=g++-4.8
+  - NODE_ENV=test CXX=g++-4.9
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-4.8
+      - g++-4.9
       - oracle-java8-set-default
 before_install:
   - "npm install -g npm"
