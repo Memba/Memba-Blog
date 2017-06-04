@@ -128,9 +128,11 @@ config.load(function (error/*, store*/) {
             'https://forms.hubspot.com'             // Hubspot
             // 'https://api.getsidekick.com'
         ];
-    if (typeof config.get('uris:rapi:root') === 'string' && config.get('uris:rapi:root') !== config.get('uris:webapp:root')) {
+    var rapiRoot = config.get('uris:rapi:root');
+    if (typeof rapiRoot === 'string' && rapiRoot !== config.get('uris:webapp:root')) {
         // Note: config.get('uris:webapp:root') is covered by 'self'
-        connectSrc.push(config.get('uris:rapi:root'));
+        // connectSrc.push(config.get('uris:rapi:root'));
+        connectSrc.unshift(rapiRoot);
     }
     app.use(helmet.contentSecurityPolicy({
         directives: {
@@ -145,7 +147,7 @@ config.load(function (error/*, store*/) {
                 cdnRoot,
                 'https://fonts.gstatic.com'         // Google fonts
             ],
-            frameSrc: [
+            childSrc: [ // was frameSrc: [
                 'https://accounts.google.com',      // Google classroom button
                 'https://www.gstatic.com'           // Google classroom button
             ],
