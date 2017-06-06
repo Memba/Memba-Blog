@@ -433,9 +433,16 @@ form {
         border-top-color: @notification-info-border-color;
     }
 }
-
 //---------------------------------------------
-// inobounce
+// Button sets (age group)
+.km-widget.km-buttongroup.kj-buttonset.k-state-disabled {
+    color: @widget-text-color;
+    .km-button.k-button, .km-button.k-button:active, .km-button.k-button.k-state-active {
+        border-color: @disabled-border-color;
+    }
+}
+//---------------------------------------------
+// no-bounce
 .k-list-scroller {
     -webkit-overflow-scrolling: touch;
 }
