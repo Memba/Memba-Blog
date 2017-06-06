@@ -16,9 +16,9 @@
     },
     "level": 0,
     "slack": {
-        "channel": "#devtest",
-        "disabled": true,
-        "webhook": "https://hooks.slack.com/services/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"
+        "channels": {
+            "weberrors": "#devtest"
+        }
     },
     "twitter": {
         "account": "memba"

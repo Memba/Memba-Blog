@@ -20,9 +20,9 @@ node_modules/
 
 # Ignore cordova
 # http://stackoverflow.com/questions/29970885/cordova-5-0-0-which-files-should-i-commit-to-git
-.cordova/
-platforms/
-plugins/
+/.cordova/
+/platforms/
+/plugins/
 
 # Ignore Grunt Files
 validation-status.json

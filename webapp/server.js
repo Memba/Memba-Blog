@@ -87,6 +87,7 @@ var i18n = require('i18n');
 var path = require('path');
 var config = require('./config');
 var pkg = require('../package.json');
+var plugins = require('./plugins');
 var server;
 
 logger.info({
@@ -100,9 +101,6 @@ config.load(function (error/*, store*/) {
         throw error;
     }
 
-    // set version (to invalidate cache when loading new versions of scripts)
-    config.set('application:version', pkg.version);
-
     // handle requests while closing
     app.use(function (req, res, next) {
         if (closingInProgress) {
@@ -112,6 +110,12 @@ config.load(function (error/*, store*/) {
             return next();
         }
     });
+
+    // set version (to invalidate cache when loading new versions of scripts)
+    config.set('application:version', pkg.version);
+
+    // plugins
+    plugins.load();
 
     // Secure expressJS with helmet from https://github.com/helmetjs/helmet
     // app.disable('x-powered-by');

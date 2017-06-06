@@ -29,6 +29,9 @@
     },
     "images": ["http://www.memba.com/build/9e0bdff4970e28b99fd7c45d700c20fa.jpg"],
     "locales": [ "en", "fr" ],
+    "slack": {
+        "webhook": "https://hooks.slack.com/services/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"
+    },
     "uris" : {
         "cdn": {
             "root":  "https://cdn.kidoju.com",

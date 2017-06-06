@@ -8,11 +8,9 @@
 'use strict';
 
 var assert = require('assert');
+var chalk = require('chalk');
 var config = require('../config');
-var slack = require('./slack');
-var utils = require('./utils');
 
-var environment = config.environment || 'production';
 var RX_LEVELS = /^(debug|info|warn|error|crit)$/i;
 var level = config.get('level') || 0;
 var levels = {
@@ -20,24 +18,18 @@ var levels = {
         info: 2,
         warn: 4,
         error: 5,
-        critical: 6
+        crit: 6
     };
-var eq;
-var qt;
-var prefix;
-var separator;
+var eq = ': ';
+var qt = '';
+var prefix = ' ';
+var separator = '; ';
 
-if (config.production) {
-    eq = ': ';
-    qt = '';
-    prefix = ' ';
-    separator = '; ';
-} else {
-    eq = ': ';
-    qt = '';
-    prefix = ' ';
-    separator = '; ';
-}
+chalk.debug = chalk.gray;
+chalk.info = chalk.green;
+chalk.warn = chalk.yellow;
+chalk.error = chalk.magenta;
+chalk.crit = chalk.red;
 
 /* This function has too many statements. */
 /* jshint -W071 */
@@ -46,65 +38,86 @@ if (config.production) {
 /* jshint -W074 */
 
 /**
- * Enhance log entry with request data
+ * Format log entry with request data
  * @param entry
  * @param level
  * @returns {*}
  */
-function enhance(entry, level) {
-    // assert.ok(utils.isObject(entry), '`entry` is expected to be an object');
+function format(entry, level) {
     assert.ok(typeof entry === 'object', '`entry` is expected to be an object');
-    assert.ok(typeof level === 'string', '`level` is expected to be a string');
     assert.ok(RX_LEVELS.test(level), '`level` is expected to be any of `debug`, `info`, `warn`, `error` or `crit`');
-    if (entry instanceof Error) {
-        entry = { error: entry };
+    // JSON.stringify(new Error('Oops)) === {} and we do not want to clutter our logs with 'undefined'
+    // So we need to capture the properties we want after testing that they exist
+    var ret = {};
+    // Message
+    if (entry.message) {
+        ret.message = entry.message;
+    } else if (entry.error instanceof Error) {
+        ret.message = entry.error.message;
     }
-    entry.level = level.toLowerCase();
-    // JSON.stringify(new Error('Oops)) === {}
-    // So we need to capture the properties we want
-    if (entry.error instanceof Error) {
-        entry.message = entry.message || entry.error.message;
-        if (entry.error.originalError) {
-            // entry.error.originalError is not necessarily an instance of Error because we use deepExtend
-            // if (entry.error.originalError instanceof Error) {
-            entry.originalError = entry.error.originalError;
-            delete entry.error.originalError;
-            entry.originalMessage = entry.originalError.message;
-            entry.stack = entry.originalError.stack;
-        } else {
-            entry.stack = entry.error.stack;
-        }
-    }
+    // Level
+    ret.level = level.toLowerCase();
+    // Application
     var application = config.get('application:name');
     if (application) {
-        entry.application = application;
+        ret.application = application;
     }
+    if (entry.module) {
+        ret.module = entry.module;
+    }
+    if (entry.method) {
+        ret.method = entry.method;
+    }
+    // Host
     if (process.env.HOSTNAME) {
-        entry.host = process.env.HOSTNAME;
+        ret.host = process.env.HOSTNAME;
     }
-    if (entry.request) {
-        var request = entry.request;
-        // utils.deepExtends adds undefined values and we do not want to clutter our logs with undefined
-        if (request.header && request.headers['user-agent']) {
-            entry.agent = request.headers['user-agent'];
+    var request = entry.request;
+    // IP Address
+    if (request && request.ip) {
+        ret.ip = request.ip;
+    }
+    // User Agent
+    if (request && request.header && request.headers['user-agent']) {
+        ret.agent = request.headers['user-agent'];
+    }
+    // Trace
+    if (entry.trace) {
+        ret.trace = entry.trace;
+    } else if (request && request.trace) {
+        ret.trace = request.trace;
+    }
+    // Url
+    if (entry.url) {
+        ret.url = entry.url;
+    } else if (request && request.url) {
+        ret.url = request.url;
+    }
+    // Query
+    if (entry.query) {
+        ret.query = entry.query;
+    } else if (request && request.query) {
+        ret.query = request.query;
+    }
+    // Error message and stack
+    if (entry.stack) {
+        if (entry.message) {
+            ret.error = entry.message;
         }
-        if (request.ip) {
-            entry.ip = request.ip;
+        ret.stack = entry.stack;
+    } else if (entry.error && entry.error.stack) {
+        if (entry.error.message) {
+            ret.error = entry.error.message;
+        } else if (entry.error.originalError && entry.error.originalError.message) {
+            // entry.error.originalError is not necessarily an instance of Error because we use deepExtend
+            // TODO: CHeck that this actually occurs
+            ret.error = entry.error.originalError.message;
         }
-        if (!entry.trace && request.trace) {
-            entry.trace = request.trace;
-        }
-        if (!entry.url && request.url) {
-            entry.url = request.url;
-        }
-        if (!entry.query && request.query) {
-            entry.query = request.query;
-        }
-        delete entry.request;
+        ret.stack = entry.error.stack;
     }
     // entry.date = (new Date()).toISOString();
     // Note: such an entry is not only ready to print to console but also to be sent as JSON
-    return entry;
+    return ret;
 }
 
 /**
@@ -181,15 +194,7 @@ function print(entry) {
     if (entry.stack) {
         message += (first ? prefix : separator) + 'stack' + eq + qt + entry.stack.split('\n').join(', ').replace(/\s+/g, ' ') + qt;
     }
-    console.log(message);
-    /*
-    if (entry.error) {
-        console.error(entry.error);
-    }
-    if (entry.originalError) {
-        console.error(entry.originalError);
-    }
-    */
+    console.log(chalk.supportsColor ? chalk[entry.level || 'debug'](message) : message);
     return message;
 }
 
@@ -212,7 +217,7 @@ module.exports = exports = {
         if (exports.level > levels.debug) {
             return false;
         }
-        print(enhance(entry, 'debug'));
+        print(format(entry, 'debug'));
         return true;
     },
 
@@ -224,7 +229,7 @@ module.exports = exports = {
         if (exports.level > levels.info) {
             return false;
         }
-        print(enhance(entry, 'info'));
+        print(format(entry, 'info'));
         return true;
     },
 
@@ -236,7 +241,7 @@ module.exports = exports = {
         if (exports.level > levels.warn) {
             return false;
         }
-        print(enhance(entry, 'warn'));
+        print(format(entry, 'warn'));
         return true;
     },
 
@@ -248,7 +253,7 @@ module.exports = exports = {
         if (exports.level > levels.error) {
             return false;
         }
-        print(enhance(entry, 'error'));
+        print(format(entry, 'error'));
         return true;
     },
 
@@ -257,12 +262,20 @@ module.exports = exports = {
      * @param entry
      */
     critical: function (entry) {
-        if (exports.level > levels.critical) {
+        if (exports.level > levels.crit) {
             return false;
         }
-        var enhanced = enhance(entry, 'crit');
-        print(enhanced);
-        slack.notify(enhanced); // no callback
+        var plugins = require('../plugins');
+        var formatted = format(entry, 'crit');
+        print(formatted);
+        plugins.emit('slack', {
+            slack: {
+                channel: config.get('slack:channels:weberrors'),
+                level: formatted.level,
+                text: formatted.message
+            },
+            model: formatted
+        });
         return true;
     },
 

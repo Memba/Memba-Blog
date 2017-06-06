@@ -204,8 +204,6 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\error.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\error.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\logger.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\logger.test.js
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\slack.test.js .\test\node\lib /Y
-ATTRIB +R .\test\node\lib\slack.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\url.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\url.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\utils.test.js .\test\node\lib /Y
@@ -219,6 +217,13 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\notFound.test.js .\test\nod
 ATTRIB +R .\test\node\middleware\notFound.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.js .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\params.test.js
+
+REM Copy ./test/node/plugins files
+ATTRIB -R .\webapp\routes\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\index.test.js .\test\node\plugins /Y
+ATTRIB +R .\test\node\plugins\index.test.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\slack.test.js .\test\node\plugins /Y
+ATTRIB +R .\test\node\plugins\slack.test.js
 
 REM Copy ./test/selenium files
 ATTRIB -R .\test\selenium\selenium.js
@@ -254,8 +259,6 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\httpStatus.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\httpStatus.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\logger.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\logger.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\slack.js .\webapp\lib /Y
-ATTRIB +R .\webapp\lib\slack.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\url.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\url.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\utils.js .\webapp\lib /Y
@@ -271,6 +274,13 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\notFound.js .\webapp\middlewar
 ATTRIB +R .\webapp\middleware\notFound.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\params.js
+
+REM Copy ./webapp/plugins files
+ATTRIB -R .\webapp\routes\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\plugins\index.js .\webapp\plugins /Y
+ATTRIB +R .\webapp\plugins\index.js
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\plugins\slack.js .\webapp\plugins /Y
+ATTRIB +R .\webapp\plugins\slack.js
 
 REM Copy ./webapp/routes files
 ATTRIB -R .\webapp\routes\*.*
