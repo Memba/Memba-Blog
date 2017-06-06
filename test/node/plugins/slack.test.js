@@ -8,7 +8,13 @@
 'use strict';
 
 var expect = require('chai').expect;
-var plugins = require('../../../api/plugins');
+var plugins;
+try {
+    plugins = require('../../../webapp/plugins');
+} catch (exception) {
+    plugins = require('../../../api/plugins');
+}
+
 
 describe('plugins/slack', function () {
 

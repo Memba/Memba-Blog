@@ -219,7 +219,7 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.js .\test\node\
 ATTRIB +R .\test\node\middleware\params.test.js
 
 REM Copy ./test/node/plugins files
-ATTRIB -R .\webapp\routes\*.*
+ATTRIB -R .\test\node\plugins\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\index.test.js .\test\node\plugins /Y
 ATTRIB +R .\test\node\plugins\index.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\slack.test.js .\test\node\plugins /Y
@@ -276,7 +276,7 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware 
 ATTRIB +R .\webapp\middleware\params.js
 
 REM Copy ./webapp/plugins files
-ATTRIB -R .\webapp\routes\*.*
+ATTRIB -R .\webapp\plugins\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\plugins\index.js .\webapp\plugins /Y
 ATTRIB +R .\webapp\plugins\index.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\plugins\slack.js .\webapp\plugins /Y
