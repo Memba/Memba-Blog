@@ -23,7 +23,7 @@ var COLORS = {
 };
 
 /**
- * Sample plugin
+ * Slack plugin
  * @type {{event: string, handler: module.exports.handler}}
  */
 module.exports = exports = {
@@ -70,7 +70,7 @@ module.exports = exports = {
                     if (!error && response) {
                         assert.equal('ok', body, '`body` should equal `ok`');
                         logger.debug({
-                            message: 'Slack message added',
+                            message: 'Slack message posted',
                             method: 'handler',
                             module: 'plugins/slack',
                             data: { channel: slack.channel, level: slack.level, text: slack.text }

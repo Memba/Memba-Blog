@@ -5,28 +5,39 @@
 @import "./vendor/kendo/web/kendo.nova.less";
 
 /* missing from nova theme */
-@widget-gradient: none;
-@primary-gradient: none;
-@primary-shadow: none;
-@content-background-color: @background;
 @active-text-color: @normal-text-color;
-@primary-button-text-color: @selected-text-color;
-@primary-button-background-color: @accent;
-@primary-button-border-color: @accent;
-@hover-background-color: @hover-background;
-@hover-border-color: @hover-background;
-@selected-border-color: @accent;
-@focused-shadow: none;
-@drop-down-text-color: @normal-text-color;
+@calendar-border-radius: @border-radius;
+@content-background-color: @background;
+// @disabled-text-color
+@disabled-background-color: @widget-background-color;
+@disabled-border-color: lighten(@hover-text-color, 20%);
+@disabled-gradient: none;
 @drop-down-background: @base;
 @drop-down-border-color: @accent;
-@shadow-color: rgba(0, 0, 0, .2);
-@window-shadow-style: 0 0 0 1px;
+@drop-down-text-color: @normal-text-color;
+@focused-shadow: none;
+@hover-background-color: @hover-background;
+@hover-border-color: @hover-background;
 @inner-border-radius: @main-border-radius - 1.2;
-@calendar-border-radius: @border-radius;
+@input-text-color: @normal-text-color;
+@input-background-color: @background;
+@primary-button-background-color: @accent;
+@primary-button-border-color: @accent;
+@primary-button-text-color: @selected-text-color;
+@primary-disabled-background-color: lighten(@accent, 18%);
+@primary-disabled-border-color: lighten(@accent, 18%);
+@primary-disabled-text-color: @selected-text-color;
+@primary-disabled-gradient: none;
+@primary-gradient: none;
+@primary-shadow: none;
 @notification-info-background-color: @info;
 @notification-info-text-color: darken(@info, 25%);
 @notification-info-border-color: @info;
+@shadow-color: rgba(0, 0, 0, .2);
+@selected-border-color: @accent;
+@selected-shadow: none;
+@widget-gradient: none;
+@window-shadow-style: 0 0 0 1px;
 
 @import "app.template.less";
 

@@ -142,7 +142,7 @@ config.load(function (error/*, store*/) {
         directives: {
             defaultSrc: [
                 '\'self\'',
-                'blob:'                             // This is for web workers as workerSrc is not supported by helmet.contentSecurityPolicy
+                'blob:'                             // Fallback for workerSrc
             ],
             connectSrc: connectSrc,
             fontSrc: [
@@ -152,6 +152,7 @@ config.load(function (error/*, store*/) {
                 'https://fonts.gstatic.com'         // Google fonts
             ],
             childSrc: [ // was frameSrc: [
+                'blob:',                            // Fallback for workerSrc
                 'https://accounts.google.com',      // Google classroom button
                 'https://www.gstatic.com'           // Google classroom button
             ],
@@ -190,7 +191,11 @@ config.load(function (error/*, store*/) {
             // reportUri: '/report-violation',
             objectSrc: [
                 '\'none\''
+            ] /*,
+            workerSrc: [  // Not supported by helmet.contentSecurityPolicy
+                'blob:'
             ]
+            */
         },
         browserSniff: false
     }));

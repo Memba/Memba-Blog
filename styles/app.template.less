@@ -387,6 +387,7 @@ form {
     label {
         .tertiary-text-color(@widget-background-color);
     }
+
 }
 
 //---------------------------------------------
@@ -435,14 +436,42 @@ form {
 }
 //---------------------------------------------
 // Button sets (age group)
-.km-widget.km-buttongroup.kj-buttonset.k-state-disabled {
-    color: @widget-text-color;
-    .km-button.k-button, .km-button.k-button:active, .km-button.k-button.k-state-active {
-        border-color: @disabled-border-color;
+.kj-buttonset {
+    .km-widget.km-buttongroup.k-widget.k-button-group {
+        .km-button.k-button {
+            background: none;
+            background-color: @input-background-color;
+            border-color: @widget-border-color;
+            color: @input-text-color;
+        }
+        .km-button.k-button:active,
+        .km-button.k-button.k-state-active {
+            background-color: @selected-background-color;
+            border-color: @selected-border-color;
+            color: @selected-text-color;
+        }
+        &.km-state-disabled.k-state-disabled {
+            .km-button.k-button,
+            .km-button.k-button:active,
+            .km-button.k-button:focus,
+            .km-button.k-button:hover {
+                background: none;
+                background-color: @widget-background-color;
+                border-color: @disabled-border-color;
+                color: @disabled-text-color;
+            }
+            .km-button.k-button.k-state-active,
+            .km-button.k-button.k-state-active:focus,
+            .km-button.k-button.k-state-active:hover {
+                border-color: @disabled-border-color;
+                color: @primary-disabled-text-color;
+                background-color: @primary-disabled-background-color
+            }
+        }
     }
 }
 //---------------------------------------------
-// no-bounce
+// prevent from bouncing
 .k-list-scroller {
     -webkit-overflow-scrolling: touch;
 }
