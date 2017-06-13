@@ -12,7 +12,6 @@ var chalk = require('chalk');
 var config = require('../config');
 
 var RX_LEVELS = /^(debug|info|warn|error|crit)$/i;
-var level = config.get('level') || 0;
 var levels = {
         debug: 1,
         info: 2,
@@ -204,17 +203,13 @@ function print(entry) {
 module.exports = exports = {
 
     /**
-     * Export level for tests
-     */
-    level: level,
-
-    /**
      * Log a debug entry
      * Only output if debug===true
      * @param entry
      */
     debug: function (entry) {
-        if (exports.level > levels.debug) {
+        // Note: config.get('level') cannot be cached in a module variable because it is not available when the module loads when loading production.json from AWS S3
+        if ((config.get('level') || 0) > levels.debug) {
             return false;
         }
         print(format(entry, 'debug'));
@@ -226,7 +221,7 @@ module.exports = exports = {
      * @param entry
      */
     info: function (entry) {
-        if (exports.level > levels.info) {
+        if ((config.get('level') || 0) > levels.info) {
             return false;
         }
         print(format(entry, 'info'));
@@ -238,7 +233,7 @@ module.exports = exports = {
      * @param entry
      */
     warn: function (entry) {
-        if (exports.level > levels.warn) {
+        if ((config.get('level') || 0) > levels.warn) {
             return false;
         }
         print(format(entry, 'warn'));
@@ -250,7 +245,7 @@ module.exports = exports = {
      * @param entry
      */
     error: function (entry) {
-        if (exports.level > levels.error) {
+        if ((config.get('level') || 0) > levels.error) {
             return false;
         }
         print(format(entry, 'error'));
