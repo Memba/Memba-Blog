@@ -95,6 +95,9 @@ logger.info({
     module: 'server'
 });
 
+/* This function has too many statements. */
+/* jshint -W071 */
+
 config.load(function (error/*, store*/) {
 
     if (error instanceof Error) {
@@ -151,7 +154,8 @@ config.load(function (error/*, store*/) {
                 cdnRoot,
                 'https://fonts.gstatic.com'         // Google fonts
             ],
-            childSrc: [ // was frameSrc: [
+            // was frameSrc: [
+            childSrc: [
                 'blob:',                            // Fallback for workerSrc
                 'https://accounts.google.com',      // Google classroom button
                 'https://www.gstatic.com'           // Google classroom button
@@ -255,6 +259,8 @@ config.load(function (error/*, store*/) {
     });
 
 });
+
+/* jshint +W071 */
 
 // Export app for unit tests
 // It is fine, because app does not accept requests

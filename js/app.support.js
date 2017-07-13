@@ -67,7 +67,7 @@
          */
         var ModernizrProto = {
             // The current version, dummy
-            _version: '3.3.1',
+            _version: '3.5.0',
 
             // Any settings that don't work as separate modules
             // can go in here as configuration.
@@ -104,8 +104,6 @@
             }
         };
 
-
-
         // Fake some of Object.create so we can force non test results to be non "own" properties.
         var Modernizr = function () {};
         Modernizr.prototype = ModernizrProto;
@@ -116,16 +114,16 @@
 
         /*!
          {
-             "name": "Blob constructor",
-             "property": "blobconstructor",
-             "aliases": ["blob-constructor"],
-             "builderAliases": ["blob_constructor"],
-             "caniuse": "blobbuilder",
-             "notes": [{
-                 "name": "W3C spec",
-                 "href": "https://w3c.github.io/FileAPI/#constructorBlob"
-             }],
-             "polyfills": ["blobjs"]
+         "name": "Blob constructor",
+         "property": "blobconstructor",
+         "aliases": ["blob-constructor"],
+         "builderAliases": ["blob_constructor"],
+         "caniuse": "blobbuilder",
+         "notes": [{
+         "name": "W3C spec",
+         "href": "https://w3c.github.io/FileAPI/#constructorBlob"
+         }],
+         "polyfills": ["blobjs"]
          }
          !*/
         /* DOC
@@ -144,19 +142,19 @@
 
         /*!
          {
-             "name": "History API",
-             "property": "history",
-             "caniuse": "history",
-             "tags": ["history"],
-             "authors": ["Hay Kranen", "Alexander Farkas"],
-             "notes": [{
-                 "name": "W3C Spec",
-                 "href": "https://www.w3.org/TR/html51/browsers.html#the-history-interface"
-             }, {
-                 "name": "MDN documentation",
-                 "href": "https://developer.mozilla.org/en-US/docs/Web/API/window.history"
-             }],
-             "polyfills": ["historyjs", "html5historyapi"]
+         "name": "History API",
+         "property": "history",
+         "caniuse": "history",
+         "tags": ["history"],
+         "authors": ["Hay Kranen", "Alexander Farkas"],
+         "notes": [{
+         "name": "W3C Spec",
+         "href": "https://www.w3.org/TR/html51/browsers.html#the-history-interface"
+         }, {
+         "name": "MDN documentation",
+         "href": "https://developer.mozilla.org/en-US/docs/Web/API/window.history"
+         }],
+         "polyfills": ["historyjs", "html5historyapi"]
          }
          !*/
         /* DOC
@@ -176,7 +174,11 @@
                 (ua.indexOf('Android 4.0') !== -1)) &&
                 ua.indexOf('Mobile Safari') !== -1 &&
                 ua.indexOf('Chrome') === -1 &&
-                ua.indexOf('Windows Phone') === -1) {
+                ua.indexOf('Windows Phone') === -1 &&
+                // Since all documents on file:// share an origin, the History apis are
+                // blocked there as well
+                location.protocol !== 'file:'
+            ) {
                 return false;
             }
 
@@ -186,20 +188,20 @@
 
         /*!
          {
-             "name": "SVG",
-             "property": "svg",
-             "caniuse": "svg",
-             "tags": ["svg"],
-             "authors": ["Erik Dahlstrom"],
-             "polyfills": [
-             "svgweb",
-             "raphael",
-             "amplesdk",
-             "canvg",
-             "svg-boilerplate",
-             "sie",
-             "dojogfx",
-             "fabricjs"
+         "name": "SVG",
+         "property": "svg",
+         "caniuse": "svg",
+         "tags": ["svg"],
+         "authors": ["Erik Dahlstrom"],
+         "polyfills": [
+         "svgweb",
+         "raphael",
+         "amplesdk",
+         "canvg",
+         "svg-boilerplate",
+         "sie",
+         "dojogfx",
+         "fabricjs"
          ]
          }
          !*/
@@ -211,16 +213,16 @@
 
         /*!
          {
-             "name": "File API",
-             "property": "filereader",
-             "caniuse": "fileapi",
-             "notes": [{
-                 "name": "W3C Working Draft",
-                 "href": "https://www.w3.org/TR/FileAPI/"
-             }],
-             "tags": ["file"],
-             "builderAliases": ["file_api"],
-             "knownBugs": ["Will fail in Safari 5 due to its lack of support for the standards defined FileReader object"]
+         "name": "File API",
+         "property": "filereader",
+         "caniuse": "fileapi",
+         "notes": [{
+         "name": "W3C Working Draft",
+         "href": "https://www.w3.org/TR/FileAPI/"
+         }],
+         "tags": ["file"],
+         "builderAliases": ["file_api"],
+         "knownBugs": ["Will fail in Safari 5 due to its lack of support for the standards defined FileReader object"]
          }
          !*/
         /* DOC
@@ -235,19 +237,19 @@
 
         /*!
          {
-             "name": "Local Storage",
-             "property": "localstorage",
-             "caniuse": "namevalue-storage",
-             "tags": ["storage"],
-             "knownBugs": [],
-             "notes": [],
-             "warnings": [],
-             "polyfills": [
-             "joshuabell-polyfill",
-             "cupcake",
-             "storagepolyfill",
-             "amplifyjs",
-             "yui-cacheoffline"
+         "name": "Local Storage",
+         "property": "localstorage",
+         "caniuse": "namevalue-storage",
+         "tags": ["storage"],
+         "knownBugs": [],
+         "notes": [],
+         "warnings": [],
+         "polyfills": [
+         "joshuabell-polyfill",
+         "cupcake",
+         "storagepolyfill",
+         "amplifyjs",
+         "yui-cacheoffline"
          ]
          }
          !*/
@@ -255,8 +257,11 @@
         // In FF4, if disabled, window.localStorage should === null.
 
         // Normally, we could not test that directly and need to do a
-        //   `('localStorage' in window) && ` test first because otherwise Firefox will
+        //   `('localStorage' in window)` test first because otherwise Firefox will
         //   throw bugzil.la/365772 if cookies are disabled
+
+        // Similarly, in Chrome with "Block third-party cookies and site data" enabled,
+        // attempting to access `window.sessionStorage` will throw an exception. crbug.com/357625
 
         // Also in iOS5 Private Browsing mode, attempting to use localStorage.setItem
         // will throw the exception:
@@ -282,10 +287,10 @@
 
         /*!
          {
-             "name": "Session Storage",
-             "property": "sessionstorage",
-             "tags": ["storage"],
-             "polyfills": ["joshuabell-polyfill", "cupcake", "sessionstorage"]
+         "name": "Session Storage",
+         "property": "sessionstorage",
+         "tags": ["storage"],
+         "polyfills": ["joshuabell-polyfill", "cupcake", "sessionstorage"]
          }
          !*/
 
@@ -307,20 +312,20 @@
 
         /*!
          {
-             "name": "Base 64 encoding/decoding",
-             "property": ["atobbtoa"],
-             "builderAliases": ["atob-btoa"],
-             "caniuse" : "atob-btoa",
-             "tags": ["atob", "base64", "WindowBase64", "btoa"],
-             "authors": ["Christian Ulbrich"],
-             "notes": [{
-                 "name": "WindowBase64",
-                 "href": "https://www.w3.org/TR/html5/webappapis.html#windowbase64"
-             }, {
-                 "name": "MDN documentation",
-                 "href": "https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/atob"
-             }],
-             "polyfills": ["base64js"]
+         "name": "Base 64 encoding/decoding",
+         "property": ["atobbtoa"],
+         "builderAliases": ["atob-btoa"],
+         "caniuse" : "atob-btoa",
+         "tags": ["atob", "base64", "WindowBase64", "btoa"],
+         "authors": ["Christian Ulbrich"],
+         "notes": [{
+         "name": "WindowBase64",
+         "href": "https://www.w3.org/TR/html5/webappapis.html#windowbase64"
+         }, {
+         "name": "MDN documentation",
+         "href": "https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/atob"
+         }],
+         "polyfills": ["base64js"]
          }
          !*/
         /* DOC
@@ -333,21 +338,21 @@
 
         /*!
          {
-             "name": "Web Workers",
-             "property": "webworkers",
-             "caniuse" : "webworkers",
-             "tags": ["performance", "workers"],
-             "notes": [{
-                 "name": "W3C Reference",
-                 "href": "https://www.w3.org/TR/workers/"
-             }, {
-                 "name": "HTML5 Rocks article",
-                 "href": "http://www.html5rocks.com/en/tutorials/workers/basics/"
-             }, {
-                 "name": "MDN documentation",
-                 "href": "https://developer.mozilla.org/en-US/docs/Web/Guide/Performance/Using_web_workers"
-             }],
-             "polyfills": ["fakeworker", "html5shims"]
+         "name": "Web Workers",
+         "property": "webworkers",
+         "caniuse" : "webworkers",
+         "tags": ["performance", "workers"],
+         "notes": [{
+         "name": "W3C Reference",
+         "href": "https://www.w3.org/TR/workers/"
+         }, {
+         "name": "HTML5 Rocks article",
+         "href": "http://www.html5rocks.com/en/tutorials/workers/basics/"
+         }, {
+         "name": "MDN documentation",
+         "href": "https://developer.mozilla.org/en-US/docs/Web/Guide/Performance/Using_web_workers"
+         }],
+         "polyfills": ["fakeworker", "html5shims"]
          }
          !*/
         /* DOC
@@ -355,7 +360,6 @@
          */
 
         Modernizr.addTest('webworkers', 'Worker' in window);
-
 
         /**
          * is returns a boolean if the typeof an obj is exactly type.
@@ -427,9 +431,11 @@
                             Modernizr[featureNameSplit[0]] = result;
                         } else {
                             // cast to a Boolean, if not one already
-                            /* jshint -W053 */
                             if (Modernizr[featureNameSplit[0]] && !(Modernizr[featureNameSplit[0]] instanceof Boolean)) {
+                                /* Do not use Boolean as a constructor. */
+                                /* jshint -W053 */
                                 Modernizr[featureNameSplit[0]] = new Boolean(Modernizr[featureNameSplit[0]]);
+                                /* jshint +W053 */
                             }
 
                             Modernizr[featureNameSplit[0]][featureNameSplit[1]] = result;
@@ -487,7 +493,11 @@
             if (Modernizr._config.enableClasses) {
                 // Add the new classes
                 className += ' ' + classPrefix + classes.join(' ' + classPrefix);
-                isSVG ? docElement.className.baseVal = className : docElement.className = className;
+                if (isSVG) {
+                    docElement.className.baseVal = className;
+                } else {
+                    docElement.className = className;
+                }
             }
 
         }
@@ -517,9 +527,9 @@
 
         /*!
          {
-             "name" : "HTML5 Audio Element",
-             "property": "audio",
-             "tags" : ["html5", "audio", "media"]
+         "name" : "HTML5 Audio Element",
+         "property": "audio",
+         "tags" : ["html5", "audio", "media"]
          }
          !*/
         /* DOC
@@ -540,13 +550,16 @@
         //   It was live in FF3.5.0 and 3.5.1, but fixed in 3.5.2
         //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5
         Modernizr.addTest('audio', function () {
-            /* jshint -W053 */
             var elem = createElement('audio');
             var bool = false;
 
             try {
-                if (bool = !!elem.canPlayType) {
+                bool = !!elem.canPlayType;
+                if (bool) {
+                    /* Do not use Boolean as a constructor. */
+                    /* jshint -W053 */
                     bool      = new Boolean(bool);
+                    /* jshint +W053 */
                     bool.ogg  = elem.canPlayType('audio/ogg; codecs="vorbis"') .replace(/^no$/, '');
                     bool.mp3  = elem.canPlayType('audio/mpeg; codecs="mp3"')   .replace(/^no$/, '');
                     bool.opus  = elem.canPlayType('audio/ogg; codecs="opus"')  ||
@@ -566,11 +579,11 @@
 
         /*!
          {
-             "name": "Canvas",
-             "property": "canvas",
-             "caniuse": "canvas",
-             "tags": ["canvas", "graphics"],
-             "polyfills": ["flashcanvas", "excanvas", "slcanvas", "fxcanvas"]
+         "name": "Canvas",
+         "property": "canvas",
+         "caniuse": "canvas",
+         "tags": ["canvas", "graphics"],
+         "polyfills": ["flashcanvas", "excanvas", "slcanvas", "fxcanvas"]
          }
          !*/
         /* DOC
@@ -587,11 +600,11 @@
 
         /*!
          {
-             "name": "Canvas text",
-             "property": "canvastext",
-             "caniuse": "canvas-text",
-             "tags": ["canvas", "graphics"],
-             "polyfills": ["canvastext"]
+         "name": "Canvas text",
+         "property": "canvastext",
+         "caniuse": "canvas-text",
+         "tags": ["canvas", "graphics"],
+         "polyfills": ["canvastext"]
          }
          !*/
         /* DOC
@@ -607,21 +620,21 @@
 
         /*!
          {
-             "name": "HTML5 Video",
-             "property": "video",
-             "caniuse": "video",
-             "tags": ["html5"],
-             "knownBugs": [
-                "Without QuickTime, `Modernizr.video.h264` will be `undefined`; https://github.com/Modernizr/Modernizr/issues/546"
-             ],
-             "polyfills": [
-                 "html5media",
-                 "mediaelementjs",
-                 "sublimevideo",
-                 "videojs",
-                 "leanbackplayer",
-                 "videoforeverybody"
-             ]
+         "name": "HTML5 Video",
+         "property": "video",
+         "caniuse": "video",
+         "tags": ["html5"],
+         "knownBugs": [
+         "Without QuickTime, `Modernizr.video.h264` will be `undefined`; https://github.com/Modernizr/Modernizr/issues/546"
+         ],
+         "polyfills": [
+         "html5media",
+         "mediaelementjs",
+         "sublimevideo",
+         "videojs",
+         "leanbackplayer",
+         "videoforeverybody"
+         ]
          }
          !*/
         /* DOC
@@ -643,14 +656,17 @@
         //   It was also live in Safari 4.0.0 - 4.0.4, but fixed in 4.0.5
 
         Modernizr.addTest('video', function () {
-            /* jshint -W053 */
             var elem = createElement('video');
             var bool = false;
 
             // IE9 Running on Windows Server SKU can cause an exception to be thrown, bug #224
             try {
-                if (bool = !!elem.canPlayType) {
+                bool = !!elem.canPlayType;
+                if (bool) {
+                    /* Do not use Boolean as a constructor. */
+                    /* jshint -W053 */
                     bool = new Boolean(bool);
+                    /* jshint +W053 */
                     bool.ogg = elem.canPlayType('video/ogg; codecs="theora"').replace(/^no$/, '');
 
                     // Without QuickTime, this value will be `undefined`. github.com/Modernizr/Modernizr/issues/546
@@ -669,19 +685,19 @@
 
         /*!
          {
-             "name": "Inline SVG",
-             "property": "inlinesvg",
-             "caniuse": "svg-html5",
-             "tags": ["svg"],
-             "notes": [{
-                 "name": "Test page",
-                 "href": "https://paulirish.com/demo/inline-svg"
-             }, {
-                 "name": "Test page and results",
-                 "href": "https://codepen.io/eltonmesquita/full/GgXbvo/"
-             }],
-             "polyfills": ["inline-svg-polyfill"],
-             "knownBugs": ["False negative on some Chromia browsers."]
+         "name": "Inline SVG",
+         "property": "inlinesvg",
+         "caniuse": "svg-html5",
+         "tags": ["svg"],
+         "notes": [{
+         "name": "Test page",
+         "href": "https://paulirish.com/demo/inline-svg"
+         }, {
+         "name": "Test page and results",
+         "href": "https://codepen.io/eltonmesquita/full/GgXbvo/"
+         }],
+         "polyfills": ["inline-svg-polyfill"],
+         "knownBugs": ["False negative on some Chromia browsers."]
          }
          !*/
         /* DOC
@@ -693,7 +709,6 @@
             div.innerHTML = '<svg/>';
             return (typeof SVGRect !== 'undefined' && div.firstChild && div.firstChild.namespaceURI) === 'http://www.w3.org/2000/svg';
         });
-
 
         /**
          * Modernizr.hasEvent() detects support for a given event
@@ -767,29 +782,27 @@
             return inner;
         })();
 
-
         ModernizrProto.hasEvent = hasEvent;
 
         /*!
          {
-             "name": "Hashchange event",
-             "property": "hashchange",
-             "caniuse": "hashchange",
-             "tags": ["history"],
-             "notes": [{
-                 "name": "MDN documentation",
-                 "href": "https://developer.mozilla.org/en-US/docs/Web/API/window.onhashchange"
-             }],
-             "polyfills": [
-                 "jquery-hashchange",
-                 "moo-historymanager",
-                 "jquery-ajaxy",
-                 "hasher",
-                 "shistory"
-             ]
+         "name": "Hashchange event",
+         "property": "hashchange",
+         "caniuse": "hashchange",
+         "tags": ["history"],
+         "notes": [{
+         "name": "MDN documentation",
+         "href": "https://developer.mozilla.org/en-US/docs/Web/API/window.onhashchange"
+         }],
+         "polyfills": [
+         "jquery-hashchange",
+         "moo-historymanager",
+         "jquery-ajaxy",
+         "hasher",
+         "shistory"
+         ]
          }
          !*/
-
         /* DOC
          Detects support for the `hashchange` event, fired when the current location fragment changes.
          */
@@ -893,14 +906,15 @@
          *
          * ```js
          * Modernizr.on('flash', function ( result ) {
-         *     if (result) {
-         *         // the browser has flash
-         *     } else {
-         *         // the browser does not have flash
-         *     }
+         *   if (result) {
+         *    // the browser has flash
+         *   } else {
+         *     // the browser does not have flash
+         *   }
          * });
          * ```
          */
+
         ModernizrProto.on = function (feature, cb) {
             // Create the list of listeners if it doesn't exist
             if (!this._l[feature]) {
@@ -931,6 +945,7 @@
          * @param {function|boolean} [res] - A feature detection function, or the boolean =
          * result of a feature detection function
          */
+
         ModernizrProto._trigger = function (feature, res) {
             if (!this._l[feature]) {
                 return;
@@ -977,8 +992,8 @@
          *
          * ```js
          * Modernizr.addTest('itsTuesday', function () {
-         *     var d = new Date();
-         *     return d.getDay() === 2;
+         *  var d = new Date();
+         *  return d.getDay() === 2;
          * });
          * ```
          *
@@ -1020,6 +1035,7 @@
          * There is really no difference between the first methods and this one, it is
          * just a convenience to let you write more readable code.
          */
+
         function addTest(feature, test) {
 
             if (typeof feature === 'object') {
@@ -1055,18 +1071,18 @@
                     Modernizr[featureNameSplit[0]] = test;
                 } else {
                     // cast to a Boolean, if not one already
-                    /* jshint -W053 */
                     if (Modernizr[featureNameSplit[0]] && !(Modernizr[featureNameSplit[0]] instanceof Boolean)) {
+                        /* Do not use Boolean as a constructor. */
+                        /* jshint -W053 */
                         Modernizr[featureNameSplit[0]] = new Boolean(Modernizr[featureNameSplit[0]]);
+                        /* jshint +W053 */
                     }
 
                     Modernizr[featureNameSplit[0]][featureNameSplit[1]] = test;
                 }
 
                 // Set a single class (either `feature` or `no-feature`)
-                /* jshint -W041 */
                 setClasses([(!!test && test !== false ? '' : 'no-') + featureNameSplit.join('-')]);
-                /* jshint +W041 */
 
                 // Trigger the event
                 Modernizr._trigger(feature, test);
@@ -1080,18 +1096,17 @@
             ModernizrProto.addTest = addTest;
         });
 
-
-
         /*!
          {
-             "name": "SVG as an <img> tag source",
-             "property": "svgasimg",
-             "caniuse" : "svg-img",
-             "tags": ["svg"],
-             "authors": ["Chris Coyier"],
-             "notes": [{
-             "name": "HTML5 Spec",
-             "href": "http://www.w3.org/TR/html5/embedded-content-0.html#the-img-element"
+         "name": "SVG as an <img> tag source",
+         "property": "svgasimg",
+         "caniuse" : "svg-img",
+         "tags": ["svg"],
+         "aliases": ["svgincss"],
+         "authors": ["Chris Coyier"],
+         "notes": [{
+         "name": "HTML5 Spec",
+         "href": "http://www.w3.org/TR/html5/embedded-content-0.html#the-img-element"
          }]
          }
          !*/
@@ -1110,17 +1125,17 @@
 
         /*!
          {
-             "name": "Data URI",
-             "property": "datauri",
-             "caniuse": "datauri",
-             "tags": ["url"],
-             "builderAliases": ["url_data_uri"],
-             "async": true,
-             "notes": [{
-                 "name": "Wikipedia article",
-                 "href": "https://en.wikipedia.org/wiki/Data_URI_scheme"
-             }],
-             "warnings": ["Support in Internet Explorer 8 is limited to images and linked resources like CSS files, not HTML files"]
+         "name": "Data URI",
+         "property": "datauri",
+         "caniuse": "datauri",
+         "tags": ["url"],
+         "builderAliases": ["url_data_uri"],
+         "async": true,
+         "notes": [{
+         "name": "Wikipedia article",
+         "href": "https://en.wikipedia.org/wiki/Data_URI_scheme"
+         }],
+         "warnings": ["Support in Internet Explorer 8 is limited to images and linked resources like CSS files, not HTML files"]
          }
          !*/
         /* DOC
@@ -1134,7 +1149,6 @@
 
         // https://github.com/Modernizr/Modernizr/issues/14
         Modernizr.addAsyncTest(function () {
-            /* jshint -W053 */
 
             // IE7 throw a mixed content warning on HTTPS for this test, so we'll
             // just blacklist it (we know it doesn't support data URIs anyway)
@@ -1170,12 +1184,18 @@
 
                 datauriBig.onerror = function () {
                     addTest('datauri', true);
+                    /* Do not use Boolean as a constructor. */
+                    /* jshint -W053 */
                     Modernizr.datauri = new Boolean(true);
+                    /* jshint +W053 */
                     Modernizr.datauri.over32kb = false;
                 };
                 datauriBig.onload = function () {
                     addTest('datauri', true);
+                    /* Do not use Boolean as a constructor. */
+                    /* jshint -W053 */
                     Modernizr.datauri = new Boolean(true);
+                    /* jshint +W053 */
                     Modernizr.datauri.over32kb = (datauriBig.width === 1 && datauriBig.height === 1);
                 };
 
@@ -1187,7 +1207,6 @@
             }
 
         });
-
 
         /**
          * cssToDOM takes a kebab-case string and converts it to camelCase
@@ -1291,6 +1310,7 @@
                 body.parentNode.removeChild(body);
                 docElement.style.overflow = docOverflow;
                 // Trigger layout so kinetic scrolling isn't disabled in iOS6+
+                // eslint-disable-next-line
                 docElement.offsetHeight;
             } else {
                 div.parentNode.removeChild(div);
@@ -1361,21 +1381,21 @@
 
         /*!
          {
-             "name": "Touch Events",
-             "property": "touchevents",
-             "caniuse" : "touch",
-             "tags": ["media", "attribute"],
-             "notes": [{
-                 "name": "Touch Events spec",
-                 "href": "https://www.w3.org/TR/2013/WD-touch-events-20130124/"
-             }],
-             "warnings": [
-                 "Indicates if the browser supports the Touch Events spec, and does not necessarily reflect a touchscreen device"
-             ],
-             "knownBugs": [
-                 "False-positive on some configurations of Nokia N900",
-                 "False-positive on some BlackBerry 6.0 builds – https://github.com/Modernizr/Modernizr/issues/372#issuecomment-3112695"
-             ]
+         "name": "Touch Events",
+         "property": "touchevents",
+         "caniuse" : "touch",
+         "tags": ["media", "attribute"],
+         "notes": [{
+         "name": "Touch Events spec",
+         "href": "https://www.w3.org/TR/2013/WD-touch-events-20130124/"
+         }],
+         "warnings": [
+         "Indicates if the browser supports the Touch Events spec, and does not necessarily reflect a touchscreen device"
+         ],
+         "knownBugs": [
+         "False-positive on some configurations of Nokia N900",
+         "False-positive on some BlackBerry 6.0 builds – https://github.com/Modernizr/Modernizr/issues/372#issuecomment-3112695"
+         ]
          }
          !*/
         /* DOC
@@ -1411,17 +1431,16 @@
             return bool;
         });
 
-
         /**
-         * If the browsers follow the spec, then they would expose vendor-specific style as:
+         * If the browsers follow the spec, then they would expose vendor-specific styles as:
          *   elem.style.WebkitBorderRadius
-         * instead of something like the following, which would be technically incorrect:
+         * instead of something like the following (which is technically incorrect):
          *   elem.style.webkitBorderRadius
-
-         * Webkit ghosts their properties in lowercase but Opera & Moz do not.
+         *
+         * WebKit ghosts their properties in lowercase but Opera & Moz do not.
          * Microsoft uses a lowercase `ms` instead of the correct `Ms` in IE8+
          *   erik.eae.net/archives/2008/03/10/21.48.10/
-
+         *
          * More here: github.com/Modernizr/Modernizr/issues/issue/21
          *
          * @access private
@@ -1430,10 +1449,8 @@
 
         var omPrefixes = 'Moz O ms Webkit';
 
-
         var cssomPrefixes = (ModernizrProto._config.usePrefixes ? omPrefixes.split(' ') : []);
         ModernizrProto._cssomPrefixes = cssomPrefixes;
-
 
         /**
          * atRule returns a given CSS property at-rule (eg @keyframes), possibly in
@@ -1500,8 +1517,6 @@
 
         ModernizrProto.atRule = atRule;
 
-
-
         /**
          * List of JavaScript DOM values used for tests
          *
@@ -1519,6 +1534,7 @@
          * Modernizr._domPrefixes === [ "Moz", "O", "ms", "Webkit" ];
          * ```
          */
+
         var domPrefixes = (ModernizrProto._config.usePrefixes ? omPrefixes.toLowerCase().split(' ') : []);
         ModernizrProto._domPrefixes = domPrefixes;
 
@@ -1531,6 +1547,7 @@
          * @param {string} substr - The substring we want to search the first string for
          * @returns {boolean}
          */
+
         function contains(str, substr) {
             return !!~('' + str).indexOf(substr);
         }
@@ -1544,6 +1561,7 @@
          * @param {object} that - the `this` you want to call the function with
          * @returns {function} The wrapped version of the supplied function
          */
+
         function fnBind(fn, that) {
             return function () {
                 return fn.apply(that, arguments);
@@ -1559,7 +1577,9 @@
          * @param {array.<string>} props - An array of properties to test for
          * @param {object} obj - An object or Element you want to use to test the parameters again
          * @param {boolean|object} elem - An Element to bind the property lookup again. Use `false` to prevent the check
+         * @returns {false|*} returns false if the prop is unsupported, otherwise the value that is supported
          */
+
         function testDOMProps(props, obj, elem) {
             var item;
 
@@ -1591,6 +1611,7 @@
          *
          * @access private
          */
+
         var modElem = {
             elem: createElement('modernizr')
         };
@@ -1599,6 +1620,8 @@
         Modernizr._q.push(function () {
             delete modElem.elem;
         });
+
+
 
         var mStyle = {
             style: modElem.elem.style
@@ -1619,10 +1642,46 @@
          * @param {string} name - String name of camelCase prop we want to convert
          * @returns {string} The kebab-case version of the supplied name
          */
+
         function domToCSS(name) {
             return name.replace(/([A-Z])/g, function (str, m1) {
                 return '-' + m1.toLowerCase();
             }).replace(/^ms-/, '-ms-');
+        }
+
+        /**
+         * wrapper around getComputedStyle, to fix issues with Firefox returning null when
+         * called inside of a hidden iframe
+         *
+         * @access private
+         * @function computedStyle
+         * @param {HTMLElement|SVGElement} - The element we want to find the computed styles of
+         * @param {string|null} [pseudoSelector]- An optional pseudo element selector (e.g. :before), of null if none
+         * @returns {CSSStyleDeclaration}
+         */
+
+        function computedStyle(elem, pseudo, prop) {
+            var result;
+
+            if ('getComputedStyle' in window) {
+                result = getComputedStyle.call(window, elem, pseudo);
+                var console = window.console;
+
+                if (result !== null) {
+                    if (prop) {
+                        result = result.getPropertyValue(prop);
+                    }
+                } else {
+                    if (console) {
+                        var method = console.error ? 'error' : 'log';
+                        console[method].call(console, 'getComputedStyle returning null, its possible modernizr test results are inaccurate');
+                    }
+                }
+            } else {
+                result = !pseudo && elem.currentStyle && elem.currentStyle[prop];
+            }
+
+            return result;
         }
 
         /**
@@ -1635,6 +1694,7 @@
          * @param {string} value - A string representing the value we want to check via @supports
          * @returns {boolean|undefined} A boolean when @supports exists, undefined otherwise
          */
+
         // Accepts a list of property names and a single value
         // Returns `undefined` if native detection not available
         function nativeTestProps(props, value) {
@@ -1658,7 +1718,7 @@
                 }
                 conditionText = conditionText.join(' or ');
                 return injectElementWithStyles('@supports (' + conditionText + ') { #modernizr { position: absolute; } }', function (node) {
-                    return getComputedStyle(node, null).position === 'absolute';
+                    return computedStyle(node, null, 'position') === 'absolute';
                 });
             }
             return undefined;
@@ -1841,17 +1901,17 @@
 
         /*!
          {
-             "name": "Flexbox",
-             "property": "flexbox",
-             "caniuse": "flexbox",
-             "tags": ["css"],
-             "notes": [{
-                 "name": "The _new_ flexbox",
-                 "href": "http://dev.w3.org/csswg/css3-flexbox"
-             }],
-             "warnings": [
-                "A `true` result for this detect does not imply that the `flex-wrap` property is supported; see the `flexwrap` detect."
-             ]
+         "name": "Flexbox",
+         "property": "flexbox",
+         "caniuse": "flexbox",
+         "tags": ["css"],
+         "notes": [{
+         "name": "The _new_ flexbox",
+         "href": "http://dev.w3.org/csswg/css3-flexbox"
+         }],
+         "warnings": [
+         "A `true` result for this detect does not imply that the `flex-wrap` property is supported; see the `flexwrap` detect."
+         ]
          }
          !*/
         /* DOC
@@ -1861,10 +1921,10 @@
 
         /*!
          {
-             "name": "CSS Transforms",
-             "property": "csstransforms",
-             "caniuse": "transforms2d",
-             "tags": ["css"]
+         "name": "CSS Transforms",
+         "property": "csstransforms",
+         "caniuse": "transforms2d",
+         "tags": ["css"]
          }
          !*/
 
@@ -1957,21 +2017,19 @@
             }
         };
 
-
         /*!
          {
-             "name": "Blob URLs",
-             "property": "bloburls",
-             "caniuse": "bloburls",
-             "notes": [{
-                 "name": "W3C Working Draft",
-                 "href": "https://www.w3.org/TR/FileAPI/#creating-revoking"
-             }],
-             "tags": ["file", "url"],
-             "authors": ["Ron Waldon (@jokeyrhyme)"]
+         "name": "Blob URLs",
+         "property": "bloburls",
+         "caniuse": "bloburls",
+         "notes": [{
+         "name": "W3C Working Draft",
+         "href": "https://www.w3.org/TR/FileAPI/#creating-revoking"
+         }],
+         "tags": ["file", "url"],
+         "authors": ["Ron Waldon (@jokeyrhyme)"]
          }
          !*/
-
         /* DOC
          Detects support for creating Blob URLs
          */

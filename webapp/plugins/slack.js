@@ -94,6 +94,9 @@ module.exports = exports = {
         }
     },
 
+    /* This function's cyclomatic complexity is too high. */
+    /* jshint -W074 */
+
     /**
      * Format as attachment
      * @param level
@@ -102,6 +105,7 @@ module.exports = exports = {
      * @private
      */
     _format: function (level, text, model) {
+        /* jshint maxcomplexity: 7 */
         var fields = [{
             title: 'Level',
             value: level,
@@ -134,5 +138,7 @@ module.exports = exports = {
             }];
         }
     }
+
+    /* jshint +W074 */
 
 };
