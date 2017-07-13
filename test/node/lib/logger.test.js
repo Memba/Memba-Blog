@@ -8,6 +8,7 @@
 'use strict';
 
 var expect = require('chai').expect;
+var config = require('../../../webapp/config');
 
 var logger;
 try {
@@ -33,7 +34,7 @@ describe('lib/logger', function () {
     describe('Test logging at level 0', function () {
 
         before(function ()  {
-            logger.level = 0;
+            config.set('level', 0);
         });
 
         it('DEBUG should log', function () {
@@ -64,7 +65,7 @@ describe('lib/logger', function () {
     describe('Test logging at level 2', function () {
 
         before(function ()  {
-            logger.level = 2;
+            config.set('level', 2);
         });
 
         it('DEBUG should not log', function () {
@@ -94,7 +95,7 @@ describe('lib/logger', function () {
     describe('Test logging at level 4', function () {
 
         before(function ()  {
-            logger.level = 4;
+            config.set('level', 4);
         });
 
         it('DEBUG should not log', function () {
@@ -124,7 +125,7 @@ describe('lib/logger', function () {
     describe('Test logging at level 8', function () {
 
         before(function ()  {
-            logger.level = 8;
+            config.set('level', 8);
         });
 
         it('DEBUG should not log', function () {

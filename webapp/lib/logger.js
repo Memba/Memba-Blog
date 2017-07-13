@@ -257,7 +257,7 @@ module.exports = exports = {
      * @param entry
      */
     critical: function (entry) {
-        if (exports.level > levels.crit) {
+        if ((config.get('level') || 0) > levels.crit) {
             return false;
         }
         var plugins = require('../plugins');
