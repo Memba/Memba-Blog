@@ -82,12 +82,16 @@
             });
         }
 
-        /* kidoju.widgets.listeditor */
-        if (ui.ListEditor) {
-            options = ui.ListEditor.prototype.options;
+        /* kidoju.widgets.imagelist */
+        if (ui.ImageList) {
+            options = ui.ImageList.prototype.options;
             options.messages = $.extend(true, options.messages, {
                 toolbar: {
                     add: 'Add'
+                },
+                validation: {
+                    image: 'An image url is required.',
+                    text: 'Some text is required.'
                 }
             });
         }
@@ -402,6 +406,7 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
+                    properties.disabled.title = 'Disable';
                 }
 
                 if (tools.image instanceof Tool) {
@@ -418,6 +423,25 @@
                     properties = tools.image.constructor.prototype.properties;
                     properties.draggable.title = 'Draggable';
                     properties.dropValue.title = 'Value';
+                }
+
+                if (tools.imageset instanceof Tool) {
+                    // Description
+                    tools.imageset.constructor.prototype.description = 'Image';
+                    // Attributes
+                    attributes = tools.imageset.constructor.prototype.attributes;
+                    attributes.style.title = 'Style';
+                    attributes.data.title = 'Images';
+                    attributes.data.defaultValue = [{ text: 'Image set', image: 'cdn://images/o_collection/svg/office/photos.svg' }];
+                    // Properties
+                    properties = tools.imageset.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
                 }
 
                 if (tools.label instanceof Tool) {
@@ -554,6 +578,7 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
+                    properties.disabled.title = 'Disable';
                 }
 
                 if (tools.video instanceof Tool) {
