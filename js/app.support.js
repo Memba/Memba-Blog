@@ -1167,7 +1167,8 @@
             };
             datauri.onload = function () {
                 if (datauri.width === 1 && datauri.height === 1) {
-                    testOver32kb();
+                    // https://github.com/Modernizr/Modernizr/issues/2228
+                    addTest('datauri', true); // was testOver32kb();
                 }
                 else {
                     addTest('datauri', false);
@@ -1178,24 +1179,26 @@
 
             // Once we have datauri, let's check to see if we can use data URIs over
             // 32kb (IE8 can't). https://github.com/Modernizr/Modernizr/issues/321
+
+            /*
             function testOver32kb() {
 
                 var datauriBig = new Image();
 
                 datauriBig.onerror = function () {
                     addTest('datauri', true);
-                    /* Do not use Boolean as a constructor. */
-                    /* jshint -W053 */
+                    // Do not use Boolean as a constructor.
+                    // jshint -W053
                     Modernizr.datauri = new Boolean(true);
-                    /* jshint +W053 */
+                    // jshint +W053
                     Modernizr.datauri.over32kb = false;
                 };
                 datauriBig.onload = function () {
                     addTest('datauri', true);
-                    /* Do not use Boolean as a constructor. */
-                    /* jshint -W053 */
+                    // Do not use Boolean as a constructor.
+                    // jshint -W053
                     Modernizr.datauri = new Boolean(true);
-                    /* jshint +W053 */
+                    // jshint +W053
                     Modernizr.datauri.over32kb = (datauriBig.width === 1 && datauriBig.height === 1);
                 };
 
@@ -1205,6 +1208,7 @@
                 }
                 datauriBig.src = 'data:image/gif;base64,' + base64str;
             }
+            */
 
         });
 

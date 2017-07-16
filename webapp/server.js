@@ -121,9 +121,6 @@ config.load(function (error/*, store*/) {
     plugins.load();
 
     // Secure expressJS with helmet from https://github.com/helmetjs/helmet
-    // app.disable('x-powered-by');
-    app.use(helmet());
-
     // @see https://helmetjs.github.io/docs/csp/
     // @see https://content-security-policy.com/
     var cdnRoot = config.get('uris:cdn:root');
@@ -141,8 +138,9 @@ config.load(function (error/*, store*/) {
         // connectSrc.push(config.get('uris:rapi:root'));
         connectSrc.unshift(rapiRoot);
     }
-    app.use(helmet.contentSecurityPolicy({
-        directives: {
+    app.use(helmet({
+        contentSecurityPolicy: {
+            directives: {
             defaultSrc: [
                 '\'self\'',
                 'blob:'                             // Fallback for workerSrc
@@ -201,7 +199,9 @@ config.load(function (error/*, store*/) {
             ]
             */
         },
-        browserSniff: false
+            browserSniff: false
+        },
+        frameguard: false
     }));
 
     // i18n
