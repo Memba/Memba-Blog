@@ -141,64 +141,64 @@ config.load(function (error/*, store*/) {
     app.use(helmet({
         contentSecurityPolicy: {
             directives: {
-            defaultSrc: [
-                '\'self\'',
-                'blob:'                             // Fallback for workerSrc
-            ],
-            connectSrc: connectSrc,
-            fontSrc: [
-                '\'self\'',
-                'data:',
-                cdnRoot,
-                'https://fonts.gstatic.com'         // Google fonts
-            ],
-            // was frameSrc: [
-            childSrc: [
-                'blob:',                            // Fallback for workerSrc
-                'https://accounts.google.com',      // Google classroom button
-                'https://www.gstatic.com'           // Google classroom button
-            ],
-            imgSrc: [
-                'data:',
-                '*'
-            ],
-            mediaSrc: [
-                '*'
-            ],
-            scriptSrc: [
-                '\'self\'',
-                '\'unsafe-eval\'',
-                '\'unsafe-inline\'',
-                cdnRoot,
-                'https://code.jquery.com',
-                'https://cdnjs.cloudflare.com',     // Promise polyfill for webpack
-                'https://www.googletagmanager.com', // GTM
-                'https://apis.google.com',          // Google classroom button
-                'www.google-analytics.com',         // Google Analytics (Loaded via http on http://localhost)
-                'js.hs-analytics.net',              // Hubspot (Loaded via http on http://localhost)
-                'https://api.usemessages.com',      // Hubspot
-                'https://js.hscollectedforms.net',  // Hubspot
-                'https://js.hsleadflows.net',       // Hubspot
-                'https://js.hsleadflowsqa.net',     // Hubspot
-                'https://js.hs-scripts.com',        // Hubspot
-                'https://js.leadin.com'             // Hubspot
-            ],
-            styleSrc: [
-                '\'self\'',
-                '\'unsafe-inline\'',
-                cdnRoot,
-                'https://fonts.googleapis.com'      // Google fonts
-            ],
-            // sandbox: ['allow-forms', 'allow-scripts'],
-            // reportUri: '/report-violation',
-            objectSrc: [
-                '\'none\''
-            ] /*,
-            workerSrc: [  // Not supported by helmet.contentSecurityPolicy
-                'blob:'
-            ]
-            */
-        },
+                defaultSrc: [
+                    '\'self\'',
+                    'blob:'                             // Fallback for workerSrc
+                ],
+                connectSrc: connectSrc,
+                fontSrc: [
+                    '\'self\'',
+                    'data:',
+                    cdnRoot,
+                    'https://fonts.gstatic.com'         // Google fonts
+                ],
+                // was frameSrc: [
+                childSrc: [
+                    'blob:',                            // Fallback for workerSrc
+                    'https://accounts.google.com',      // Google classroom button
+                    'https://www.gstatic.com'           // Google classroom button
+                ],
+                imgSrc: [
+                    'data:',
+                    '*'
+                ],
+                mediaSrc: [
+                    '*'
+                ],
+                scriptSrc: [
+                    '\'self\'',
+                    '\'unsafe-eval\'',
+                    '\'unsafe-inline\'',
+                    cdnRoot,
+                    'https://code.jquery.com',
+                    'https://cdnjs.cloudflare.com',     // Promise polyfill for webpack
+                    'https://www.googletagmanager.com', // GTM
+                    'https://apis.google.com',          // Google classroom button
+                    'www.google-analytics.com',         // Google Analytics (Loaded via http on http://localhost)
+                    'js.hs-analytics.net',              // Hubspot (Loaded via http on http://localhost)
+                    'https://api.usemessages.com',      // Hubspot
+                    'https://js.hscollectedforms.net',  // Hubspot
+                    'https://js.hsleadflows.net',       // Hubspot
+                    'https://js.hsleadflowsqa.net',     // Hubspot
+                    'https://js.hs-scripts.com',        // Hubspot
+                    'https://js.leadin.com'             // Hubspot
+                ],
+                styleSrc: [
+                    '\'self\'',
+                    '\'unsafe-inline\'',
+                    cdnRoot,
+                    'https://fonts.googleapis.com'      // Google fonts
+                ],
+                // sandbox: ['allow-forms', 'allow-scripts'],
+                // reportUri: '/report-violation',
+                objectSrc: [
+                    '\'none\''
+                ] /*,
+                workerSrc: [  // Not supported by helmet.contentSecurityPolicy
+                    'blob:'
+                ]
+                */
+            },
             browserSniff: false
         },
         frameguard: false
