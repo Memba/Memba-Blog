@@ -6,6 +6,7 @@
 
 /* missing from nova theme */
 @active-text-color: @normal-text-color;
+@alt-background-color: @secondary-widget-background-color;
 @calendar-border-radius: @border-radius;
 @content-background-color: @background;
 // @disabled-text-color
@@ -40,6 +41,9 @@
 @window-shadow-style: 0 0 0 1px;
 
 @import "app.template.less";
+@import (optional) "codemirror.custom.less";
+@import (optional) "highlightjs.custom.less";
+@import (optional) "mathquill.custom.less";
 
 // Fix button images
 .k-button {

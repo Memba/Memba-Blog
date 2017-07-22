@@ -494,36 +494,19 @@ form {
     border-color: @primary-button-border-color;
 }
 //---------------------------------------------
-// MathQuill
-.mq-editable-field, .mq-math-mode {
-    background-color: @input-background-color; // @select-background-color;
-    border-color: @widget-border-color;
-    border-radius: @main-border-radius;
-    color: @input-text-color;
-    .mq-selection {
-        color: #fff;
-        background-color: #0561d1 !important;
-        border: none;
-    }
-    .mq-selection.mq-blur {
-        color: #fff;
-        background-color: #0561d1 !important;
-        border: none;
+// Tables
+.kj-markdown {
+    table {
+        th, td {
+            border-color: @widget-border-color;
+        }
+        tbody {
+            tr:nth-child(odd) {
+                background: @alt-background-color;
+            }
+        }
     }
 }
-.mq-editable-field:hover, .mq-math-mode:hover  {
-    border-color: @hover-border-color;
-}
-.mq-editable-field:focus, .mq-editable-field.mq-focused,
-.mq-math-mode:focus, .mq-math-mode.mq-focused {
-    .box-shadow('none');
-}
-.mq-editable-field:focus, .mq-editable-field.mq-focused,
-.mq-math-mode:focus, .mq-math-mode.mq-focused {
-    .box-shadow(@focused-shadow);
-    border-radius: @main-border-radius;
-}
-//---------------------------------------------
 // Footer
 footer {
     border-top: solid 1px @widget-border-color;
