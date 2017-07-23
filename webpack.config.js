@@ -101,12 +101,14 @@ module.exports = {
                     { loader: './web_modules/jsx-loader', options: { config: 'webapp/config' } }
                 ]
             },
+            /* https://webpack.js.org/guides/migrating/#json-loader-is-not-required-anymore
             {
                 test: /\.json$/,
                 use: [
                     { loader: 'json-loader' }
                 ]
             },
+            */
             {
                 test: /app\.theme\.[a-z0-9]+\.less$/,
                 use: [
