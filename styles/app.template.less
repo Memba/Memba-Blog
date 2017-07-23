@@ -301,9 +301,6 @@ h1, h2, h3, h4, h5, h6 {
         color: @widget-text-color;
         background-color: transparent;
         border-color: @widget-border-color;
-        span.badge {
-            // TODO
-        }
     }
     a.list-group-item:hover {
         color: @hover-text-color;
@@ -433,6 +430,24 @@ form {
     .k-callout-s {
         border-top-color: @notification-info-border-color;
     }
+}
+//---------------------------------------------
+// Badges
+.km-badge-error {
+    background-color: @notification-error-background-color;
+    color: @notification-error-text-color !important;
+}
+.km-badge-info {
+    background-color: @notification-info-background-color;
+    color: @notification-info-text-color !important;
+}
+.km-badge-success {
+    background-color: @notification-success-background-color;
+    color: @notification-success-text-color !important;
+}
+.km-badge-warning {
+    background-color: @notification-warning-background-color;
+    color: @notification-warning-text-color !important;
 }
 //---------------------------------------------
 // Button sets (age group)
