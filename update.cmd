@@ -178,6 +178,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.template.less .\styles\ /Y
 ATTRIB +R .\styles\app.template.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.theme.*.less .\styles\ /Y
 ATTRIB +R .\styles\app.theme.*.less
+COPY ..\..\Kidoju\Kidoju.Webapp\styles\highlightjs.custom.less .\styles\ /Y
+ATTRIB +R .\styles\highlightjs.custom.less
 
 REM Consider merging with app.page.common.less
 ATTRIB -R .\styles\kidoju.tools.less
