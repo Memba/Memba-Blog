@@ -8,8 +8,12 @@
 'use strict';
 
 var expect = require('chai').expect;
-var config = require('../../../webapp/config');
-
+var config;
+try {
+    config = require('../../../webapp/config');
+} catch (exception) {
+    config = require('../../../api/config');
+}
 var logger;
 try {
     logger = require('../../../webapp/lib/logger');
