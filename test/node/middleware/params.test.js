@@ -125,4 +125,20 @@ describe('middleware/params', function () {
 
     });
 
+    describe('validateFileId', function () {
+
+        it('A name made of 3 to 50 alphanumeric characters and an extension made of 2 to 7 alphanumeric characters is a valid file id', function () {
+            params.validateFileId(undefined, undefined, nextOK, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX.abcd');
+            params.validateFileId(undefined, undefined, nextOK, '12345678901234567890123456789012345678901234567890.1234567');
+        });
+
+        it('The following are not valid fiel ids', function () {
+            params.validateFileId(undefined, undefined, nextErr, 'a.bcde');
+            params.validateFileId(undefined, undefined, nextErr, 'abcdefg.h');
+            params.validateFileId(undefined, undefined, nextErr, '######.?????');
+            params.validateFileId(undefined, undefined, nextErr, 'dummy.longextension');
+        });
+
+    });
+
 });

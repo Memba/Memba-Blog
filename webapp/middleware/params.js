@@ -115,7 +115,23 @@ module.exports = {
             // otherwise proceed
             next();
         }
-    }
+    },
 
+    /**
+     * Validation of file id
+     * @param req
+     * @param res
+     * @param next
+     * @param fileId
+     * @returns {*}
+     */
+    validateFileId: function (req, res, next, fileId) {
+        // Beware, this regular expression should match the one in routes/fileRoute
+        if (/^[\w]{3,50}\.[a-z0-9]{2,7}$/i.test(fileId)) {
+            next();
+        } else {
+            next(new ApplicationError('errors.params.invalidFileId'));
+        }
+    }
 
 };
