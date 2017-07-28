@@ -39,14 +39,12 @@ try {
     redirect = require('../../../api/middleware/redirect');
 }
 
-function Response() {}
+function Response() {
+    this.redirect.reset();
+}
 Response.prototype.redirect = sinon.spy();
 
 describe('middleware/redirect', function () {
-
-    beforeEach(function () {
-        Response.prototype.redirect.reset();
-    });
 
     it('redirection with rule', function () {
         var req = {
