@@ -22,16 +22,6 @@ try {
     config = require('../../../api/config');
 }
 
-// Config before redirect loads rules
-// Note this will be ignore if a rule is set in json files
-// So our tests need to be compatible
-config.set('redirect', {
-    http: {
-        match: 'kidoju.com$',
-        forward: 'https://www.kidoju.com'
-    }
-});
-
 var redirect;
 try {
     redirect = require('../../../webapp/middleware/redirect');
@@ -46,12 +36,25 @@ Response.prototype.redirect = sinon.spy();
 
 describe('middleware/redirect', function () {
 
+    before(function () {
+        // redirect.js reloads rules in testing environment
+        if (process.env.NODE_ENV !== 'test') {
+            throw new Error('set NODE_ENV=test');
+        }
+        config.set('redirect', {
+            http: {
+                match: 'memba.com$',
+                forward: 'https://www.kidoju.com'
+            }
+        });
+    });
+
     it('redirection with rule', function () {
         var req = {
             headers: {
                 // Note: we have configured a rule for http
                 'x-forwarded-proto' : 'http',
-                host: 'blog.kidoju.com'
+                host: 'www.memba.com'
             },
             originalUrl: '/blog/posts?id=100'
         };
@@ -68,7 +71,7 @@ describe('middleware/redirect', function () {
             headers: {
                 // Note: we have not configured a rule for https
                 'x-forwarded-proto' : 'https',
-                host: 'blog.kidoju.com'
+                host: 'www.memba.com'
             },
             originalUrl: 'favicon.ico'
         };

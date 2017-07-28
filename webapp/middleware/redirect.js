@@ -31,6 +31,10 @@ module.exports = {
      * @param next
      */
     handler: function (req, res, next) {
+        if (config.environment === 'test') {
+            // reload rules for our unit tests
+            rules = config.get('redirect');
+        }
         var protocol = req.headers['x-forwarded-proto'];
         if (rules && typeof protocol === 'string') {
             var rule = rules[protocol];
