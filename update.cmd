@@ -219,6 +219,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\notFound.test.js .\test\nod
 ATTRIB +R .\test\node\middleware\notFound.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.js .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\params.test.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\redirect.test.js .\test\node\middleware /Y
+ATTRIB +R .\test\node\middleware\redirect.test.js
 
 REM Copy ./test/node/plugins files
 ATTRIB -R .\test\node\plugins\*.*
@@ -276,6 +278,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\notFound.js .\webapp\middlewar
 ATTRIB +R .\webapp\middleware\notFound.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\params.js
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\redirect.js .\webapp\middleware /Y
+ATTRIB +R .\webapp\middleware\redirect.js
 
 REM Copy ./webapp/plugins files
 ATTRIB -R .\webapp\plugins\*.*

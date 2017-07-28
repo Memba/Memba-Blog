@@ -88,6 +88,7 @@ var path = require('path');
 var config = require('./config');
 var pkg = require('../package.json');
 var plugins = require('./plugins');
+var redirect = require('./middleware/redirect');
 var server;
 
 logger.info({
@@ -103,6 +104,9 @@ config.load(function (error/*, store*/) {
     if (error instanceof Error) {
         throw error;
     }
+
+    // Redirect when necessary
+    app.use(redirect.handler);
 
     // handle requests while closing
     app.use(function (req, res, next) {
