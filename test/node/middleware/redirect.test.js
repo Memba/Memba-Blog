@@ -23,9 +23,11 @@ try {
 }
 
 // Config before redirect loads rules
+// Note this will be ignore if a rule is set in json files
+// So our tests need to be compatible
 config.set('redirect', {
     http: {
-        match: 'memba.com$',
+        match: 'kidoju.com$',
         forward: 'https://www.kidoju.com'
     }
 });
@@ -51,7 +53,7 @@ describe('middleware/redirect', function () {
             headers: {
                 // Note: we have configured a rule for http
                 'x-forwarded-proto' : 'http',
-                host: 'www.memba.com'
+                host: 'blog.kidoju.com'
             },
             originalUrl: '/blog/posts?id=100'
         };
@@ -68,7 +70,7 @@ describe('middleware/redirect', function () {
             headers: {
                 // Note: we have not configured a rule for https
                 'x-forwarded-proto' : 'https',
-                host: 'www.memba.com'
+                host: 'blog.kidoju.com'
             },
             originalUrl: 'favicon.ico'
         };
