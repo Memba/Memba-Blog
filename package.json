@@ -60,7 +60,7 @@
   "devDependencies": {
     "autoprefixer": "^7.1.2",
     "bundle-loader": "^0.5.5",
-    "chai": "^4.1.0",
+    "chai": "^4.1.1",
     "css-loader": "^0.28.4",
     "file-loader": "^0.11.2",
     "grunt": "^1.0.1",
