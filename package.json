@@ -80,7 +80,7 @@
     "mocha": "^3.5.0",
     "phantomjs-prebuilt": "^2.1.15",
     "postcss-loader": "^2.0.6",
-    "sinon": "^3.2.1",
+    "sinon": "^3.3.0",
     "sinon-chai": "^2.13.0",
     "style-loader": "^0.18.2",
     "supertest": "^3.0.0",
