@@ -40,6 +40,8 @@
     <link rel="apple-touch-icon" sizes="180x180" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-180x180.png')) %>">
     <% // Other apple meta tags %>
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <% // Google PWA manifest %>
+    <link rel="manifest" href="/manifest.json">
     <% // Robots %>
     <meta name="robots" content="noarchive">
     <% // Config head in ./webapp/config/default.json, for example to add site verification tags %>
