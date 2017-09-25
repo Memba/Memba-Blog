@@ -314,7 +314,7 @@ h1, h2, h3, h4, h5, h6 {
 // Panels (user and summary details)
 .panel { //=== .panel-default
     .window-shadow(@shadow-color);
-    border-radius: @main-border-radius @main-border-radius @main-border-radius @main-border-radius;
+    border-radius: @border-radius @border-radius @border-radius @border-radius;
     border-color: @widget-border-color;
     .panel-heading {
         .header();
@@ -395,19 +395,44 @@ form {
     }
 }
 //---------------------------------------------
+// Window to match Dialog
+.k-window {
+    .k-window-titlebar {
+        padding: .6em .8em 1em .8em;
+        position: static;
+        width: auto;
+        .k-window-title {
+            position: static;
+            margin: 0;
+            padding: 0;
+            width: auto;
+            max-width: 98%;
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 1.2em;
+            line-height: 1.2em;
+        }
+        .k-window-actions {
+            top: .6em;
+            right: .8em;
+            padding: 0;
+        }
+    }
+}
+//---------------------------------------------
 // Dialog
 .k-dialog {
-    .k-dialog-buttongroup.k-dialog-button-layout-normal {
-        // border-top: solid 1px @active-border-color;
-        // background-color: @active-background-color;
-        // border-top: solid 1px @primary-active-border-color;
-        // background-color: @primary-active-background-color;
-        border-top: solid 1px @widget-border-color;
-        background-color: @widget-background-color;
-        // border-top: solid 1px @selected-border-color;
-        // background-color: @selected-background-color;
-    }
     .k-dialog-buttongroup {
+        &.k-dialog-button-layout-normal {
+            border-top: solid 1px @widget-border-color;
+            // background-color: @widget-background-color; // @selected-background-color; // @active-background-color;
+            // border-radius: 0 0 @inner-border-radius @inner-border-radius;
+            // And in order to fix https://github.com/telerik/kendo-ui-core/issues/3603
+            display: flex;
+            justify-content: flex-end;
+        }
         .k-button {
             .k-image {
                 height: 1.5em;
@@ -415,6 +440,8 @@ form {
                 margin-right: 0.25em;
                 vertical-align: middle;
             }
+            // And in order to fix https://github.com/telerik/kendo-ui-core/issues/3603
+            border-radius: @border-radius @border-radius @border-radius @border-radius; // .border-radius();
         }
     }
 }

@@ -156,8 +156,7 @@ config.load(function (error/*, store*/) {
                     cdnRoot,
                     'https://fonts.gstatic.com'         // Google fonts
                 ],
-                // was frameSrc: [
-                childSrc: [
+                childSrc: [ // was frameSrc
                     'blob:',                            // Fallback for workerSrc
                     'https://accounts.google.com',      // Google classroom button
                     'https://www.gstatic.com'           // Google classroom button
@@ -170,6 +169,7 @@ config.load(function (error/*, store*/) {
                     '*'
                 ],
                 scriptSrc: [
+                    'blob:',                            // for workerSrc considering the 'child-src' directive is deprecated and will be removed in Chrome M60, around August 2017. Please use the 'script-src' directive for Workers instead.
                     '\'self\'',
                     '\'unsafe-eval\'',
                     '\'unsafe-inline\'',
