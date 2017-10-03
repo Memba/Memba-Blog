@@ -422,7 +422,7 @@ form {
     .k-image {
         height: 1.5em;
         width: 1.5em;
-        margin-right: 0.5em;
+        // margin-right: 0.5em;
         vertical-align: middle;
     }
 }
@@ -481,9 +481,14 @@ form {
         min-width: 30px;
         text-align: center;
         .k-button {
-            width: 26px;
-            margin-top: 1px;
-            padding: 7px;
+            margin-top: 0.3em;
+            margin-right: 0.25em;
+            padding: 0.5em;
+            &.k-button-icontext {
+                .k-icon {
+                    margin: 0;
+                }
+            }
         }
     }
 }
