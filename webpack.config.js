@@ -144,15 +144,15 @@ module.exports = {
             {
                 test: /\.(gif|png|jpe?g)$/,
                 use: [
-                    // { loader: 'url-loader', options: { limit: 8192 } }
-                    { loader: 'url-loader?limit=8192' }
+                    // { loader: 'url-loader?limit=8192' }
+                    { loader: 'url-loader', options: { limit: 8192 } }
                 ]
             },
             {
                 test: /\.woff(2)?/,
                 use: [
-                    // { loader: 'url-loader', options: { limit: 10000, mimetype: 'application/font-woff' } }
-                    { loader: 'url-loader?limit=10000&mimetype=application/font-woff' }
+                    // { loader: 'url-loader?limit=10000&mimetype=application/font-woff' }
+                    { loader: 'url-loader', options: { limit: 10000, mimetype: 'application/font-woff' } }
                 ]
             },
             {
