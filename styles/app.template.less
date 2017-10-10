@@ -446,6 +446,15 @@ form {
     }
 }
 //---------------------------------------------
+// Tabstrips, especially in asset manager
+.k-tabstrip.k-tabstrip-left {
+    .k-tabstrip-items {
+        .k-item:not(.k-state-active) {
+            margin: 0 0 -1px 0;
+        }
+    }
+}
+//---------------------------------------------
 // Tooltips
 .k-tooltip.k-popup.k-group {
     background-color: @notification-info-background-color;
