@@ -13,16 +13,20 @@ ENV NODE_ENV production
 # Install prerequisites (especially to build mongoose)
 # RUN apt-get update && apt-get install -y build-essential python
 
-# Copy our application and install nodeJS modules
+# Copy our application
 RUN mkdir -p /usr/src/
 COPY . /usr/src/
 WORKDIR /usr/src/
+
+# Upgrade npm
 RUN npm install -g npm
-RUN npm install
 
 # Add forever
 # see https://github.com/foreverjs/forever
 RUN npm install -g forever
+
+# Install application modules
+RUN npm install
 
 # Delete cache (memba-blog and kidoju-blog)
 # Do not comment as blog Dockerfile is copied from here
