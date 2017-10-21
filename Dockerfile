@@ -17,6 +17,7 @@ ENV NODE_ENV production
 RUN mkdir -p /usr/src/
 COPY . /usr/src/
 WORKDIR /usr/src/
+RUN npm install -g npm
 RUN npm install
 
 # Add forever
