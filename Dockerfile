@@ -12,14 +12,15 @@ ENV NODE_ENV production
 
 # Install prerequisites (especially to build mongoose)
 # RUN apt-get update && apt-get install -y build-essential python
+RUN apt-get update
 
 # Copy our application
 RUN mkdir -p /usr/src/
 COPY . /usr/src/
 WORKDIR /usr/src/
 
-# Upgrade npm
-RUN npm install -g npm
+# Upgrade npm - does not work: https://github.com/npm/npm/issues/15558
+# RUN npm install -g npm
 
 # Add forever
 # see https://github.com/foreverjs/forever
