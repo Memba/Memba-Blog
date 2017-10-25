@@ -22,7 +22,7 @@ RUN mkdir -p /usr/src/
 COPY . /usr/src/
 WORKDIR /usr/src/
 
-# Upgrade npm
+# Upgrade npm - required because anything between v5.2 and v5.5 does not work properly
 # RUN npm install -g npm  - does not work: https://github.com/npm/npm/issues/15558
 RUN yarn global add npm
 
