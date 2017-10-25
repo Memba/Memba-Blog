@@ -39,7 +39,7 @@
   "dependencies": {
     "async": "^2.5.0",
     "body-parser": "^1.18.2",
-    "chalk": "^2.2.0",
+    "chalk": "^2.3.0",
     "chokidar": "^1.7.0",
     "compression": "^1.7.1",
     "cors": "^2.8.4",
@@ -58,7 +58,7 @@
     "uuid": "^3.1.0"
   },
   "devDependencies": {
-    "autoprefixer": "^7.1.5",
+    "autoprefixer": "^7.1.6",
     "bundle-loader": "^0.5.5",
     "chai": "^4.1.2",
     "css-loader": "^0.28.7",
@@ -74,7 +74,7 @@
     "grunt-webdriver": "^2.0.3",
     "grunt-webpack": "^3.0.2",
     "json-loader": "^0.5.7",
-    "less": "^2.7.2",
+    "less": "^2.7.3",
     "less-loader": "^4.0.5",
     "loader-utils": "^1.1.0",
     "mocha": "^4.0.1",
