@@ -11,7 +11,7 @@ MAINTAINER jlchereau
 ENV NODE_ENV production
 
 # Best practice documented at https://github.com/nodejs/docker-node/blob/master/docs/BestPractices.md#global-npm-dependencies
-ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+# ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 
 # Install prerequisites (especially to build mongoose)
 # RUN apt-get update && apt-get install -y build-essential python
