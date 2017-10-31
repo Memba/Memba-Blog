@@ -8,6 +8,7 @@
 'use strict';
 
 var logger = require('../lib/logger');
+var version = require('../../package.json').version;
 
 /**
  * Ping route
@@ -31,7 +32,7 @@ module.exports = {
             request: req
         });
 
-        res.json({ ping: 'OK' });
+        res.json({ ping: 'OK', version : version });
 
     }
 };
