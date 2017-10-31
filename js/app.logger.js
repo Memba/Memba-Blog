@@ -16,9 +16,10 @@
 
     'use strict';
 
+    var app = window.app = window.app || {};
+
     (function ($, undefined) {
 
-        var app = window.app = window.app || {};
         var assert = window.assert;
         var logger = app.logger = app.logger || {};
         var LEVELS = {
@@ -116,6 +117,6 @@
 
     }(window.jQuery));
 
-    return window.app;
+    return app;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
