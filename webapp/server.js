@@ -156,7 +156,7 @@ config.load(function (error/*, store*/) {
                     cdnRoot,
                     'https://fonts.gstatic.com'         // Google fonts
                 ],
-                childSrc: [ // was frameSrc
+                childSrc: [// was frameSrc
                     'blob:',                            // Fallback for workerSrc
                     'https://accounts.google.com',      // Google classroom button
                     'https://www.gstatic.com'           // Google classroom button
