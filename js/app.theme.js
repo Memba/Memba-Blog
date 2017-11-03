@@ -29,21 +29,23 @@
         var THEME = 'theme';
         var DEFAULT = 'flat';
         // This list list the web theme to load for a mobile or web theme
-        // Attention! this theme should be important in the corresponding app.theme.* file
+        // Attention! this theme should be imported in the corresponding app.theme.* file
         var THEMES = {
-            andark: 'black', // <------- mobile only
-            anlight: 'fiori', // <------- mobile only
+            'android-dark': 'black',            // <------- mobile only
+            'android-light': 'fiori',           // <------- mobile only
             black: 'black',
-            blackberry: 'black', // <------- mobile only
+            blackberry: 'black',                // <------- mobile only
             blueopal: 'blueopal',
             bootstrap: 'bootstrap',
             default: 'default',
             fiori: 'fiori',
             flat: 'flat',
             highcontrast: 'highcontrast',
-            ios: 'bootstrap', // <------- mobile only
-            ios7: 'bootstrap', // <------- mobile only
+            ios: 'bootstrap',                   // <------- mobile only
+            ios7: 'bootstrap',                  // <------- mobile only
             material: 'material',
+            'material-dark': 'materialblack',   // <------- mobile only
+            'material-light': 'material',       // <------- mobile only
             materialblack: 'materialblack',
             metro: 'metro',
             metroblack: 'metroblack',
@@ -52,7 +54,8 @@
             office365: 'office365',
             silver: 'silver',
             uniform: 'uniform',
-            wp: 'metroblack' // <------- mobile only
+            'wp-dark': 'metroblack',            // <------- mobile only
+            'wp-light': 'metro'                 // <------- mobile only
         };
 
         var localStorage; // = window.localStorage;
@@ -97,9 +100,9 @@
                         }
                     }
                     // The mobile application skin is set in app.mobile.js when initializing kendo.mobile.Application
-                    // Web application
-                    $(document.documentElement).removeClass('k-' + THEMES[oldTheme]).addClass('k-' + THEMES[theme]);
+                    $(document.documentElement).removeClass('k-' + THEMES[oldTheme]).addClass('k-' + THEMES[theme]); // Web Application
                     app.theme.updateCharts(THEMES[theme]);
+                    app.theme.updateQRCodes(THEMES[theme]);
                     logger.debug({
                         message: 'theme changed to ' + theme,
                         method: 'load'
@@ -147,24 +150,55 @@
              * QR Codes are not themable, so we need to set color and background
              * @param theme
              */
-            updateQRCodes: function (theme) {
-                // TODO
-            },
+            updateQRCodes: $.noop,
 
             /**
              * Get/set theme name
              * @param theme
              */
             name: function (theme) {
+
                 if ($.type(theme) === STRING) {
+
                     app.theme.load(theme);
-                } else if (theme === undefined) {
+
+                } else if ($.type(theme) === UNDEFINED && $.type(window.cordova) === UNDEFINED) { // Kidoju.WebApp
+
                     if ($.isArray(matches) && matches.length === 2 && $.type(matches[1] === STRING)) {
+
+                        // Find in query string
                         return matches[1].trim().toLowerCase();
+
                     } else {
-                        theme = localStorage && localStorage.getItem(THEME);
-                        return ($.type(theme) === STRING) ? theme : DEFAULT;
+
+                        // Or get from localstorage
+                        try {
+                            theme = localStorage && localStorage.getItem(THEME);
+                        } catch (ex) {}
+                        return ($.type(theme) === STRING && $.type(THEMES[theme]) === STRING) ? theme : DEFAULT;
+
                     }
+
+                } else if ($.type(theme) === UNDEFINED) {  // Kidoju.Mobile
+                    try {
+                        theme = localStorage && localStorage.getItem(THEME);
+                    } catch (ex) {}
+
+                    if ($.type(theme) !== STRING || $.type(THEMES[theme]) !== STRING) {
+
+                        if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion < 7) {
+                            theme = 'ios';
+                        } else if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion >= 7 ) {
+                            theme = 'ios7';
+                        } else if (THEMES[kendo.support.mobileOS.name + '-dark']) {
+                            theme = kendo.support.mobileOS.name + '-dark';
+                        } else {
+                            theme = kendo.support.mobileOS.name;
+                        }
+                    }
+
+                    return theme;
+
                 } else {
                     throw new TypeError('bad theme');
                 }

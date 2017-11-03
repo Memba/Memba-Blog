@@ -109,14 +109,16 @@
                         window.top.location.assign(href);
                     }
 
-                } else if ($.type(locale) === UNDEFINED && $.isPlainObject(app.mobile)) { // Kidoju-Mobile
+                } else if ($.type(locale) === UNDEFINED && $.type(window.cordova) === UNDEFINED) { // Kidoju-WebApp
+
+                    return document.getElementsByTagName('html')[0].getAttribute('lang') || DEFAULT;
+
+                } else if ($.type(locale) === UNDEFINED) { // Kidoju-Mobile
 
                     // Note: cordova-plugin-globalization has method navigator.globalization.getLocaleName
                     // but this method is asynchronous, so it is called in onDeviceReady to set LANGUAGE in window.localStorage
                     return (localStorage && localStorage.getItem(LANGUAGE)) || DEFAULT;
 
-                } else if ($.type(locale) === UNDEFINED) { // Kidoju-WebApp
-                    return document.getElementsByTagName('html')[0].getAttribute('lang') || DEFAULT;
                 } else {
                     throw new TypeError('Bad locale');
                 }
@@ -150,7 +152,7 @@
                     window.navigator.globalization.getLocaleName(
                         function (locale) {
                             // Device locale found
-                            locale = locale.value.substr(0, 2);
+                            locale = i18n.locale() || locale.value.substr(0, 2);
                             if (app.locales.indexOf(locale) === -1) {
                                 locale = DEFAULT;
                             }
@@ -169,7 +171,7 @@
                     );
                 } else {
                     // Without cordova-plugin-globalization, use default language
-                    i18n.load(DEFAULT).done(function () {
+                    i18n.load(i18n.locale() || DEFAULT).done(function () {
                         // trigger event for localization
                         $(document).trigger(LOADED);
                     });
