@@ -47,6 +47,7 @@
             'material-dark': 'materialblack',   // <------- mobile only
             'material-light': 'material',       // <------- mobile only
             materialblack: 'materialblack',
+            meego: 'bootstrap',                 // <------- mobile only
             metro: 'metro',
             metroblack: 'metroblack',
             moonlight: 'moonlight',
@@ -152,11 +153,15 @@
              */
             updateQRCodes: $.noop,
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Get/set theme name
              * @param theme
              */
             name: function (theme) {
+                /* jshint maxcomplexity: 13 */
 
                 if ($.type(theme) === STRING) {
 
@@ -188,7 +193,7 @@
 
                         if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion < 7) {
                             theme = 'ios';
-                        } else if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion >= 7 ) {
+                        } else if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion >= 7) {
                             theme = 'ios7';
                         } else if (THEMES[kendo.support.mobileOS.name + '-dark']) {
                             theme = kendo.support.mobileOS.name + '-dark';
@@ -203,6 +208,8 @@
                     throw new TypeError('bad theme');
                 }
             }
+
+            /* jshint +W074 */
 
         };
 
