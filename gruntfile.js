@@ -63,6 +63,7 @@ module.exports = function (grunt) {
         mocha: {
             browser: { // In browser (phantomJS) unit tests
                 options: {
+                    growlOnSuccess: false,
                     log: true,
                     logErrors: true,
                     reporter: 'Spec',

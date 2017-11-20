@@ -17,7 +17,8 @@ addons:
       - g++-6
       - oracle-java8-set-default
 before_install:
-  - "npm install -g npm"
-  - "npm install -g grunt-cli"
+  - if [ $(echo $TRAVIS_NODE_VERSION | cut -d. -f1) -lt 9 ]; then npm install -g npm; fi
+  - npm --version
+  - npm install -g grunt-cli
 before_script:
-  - "grunt build"
+  - grunt build
