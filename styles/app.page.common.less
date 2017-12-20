@@ -23,6 +23,12 @@ label {
 /*********************************************
  * Images
  *********************************************/
+
+// Helper to assist in identifying img tags missing alt attribute
+img[alt=""], img:not([alt]) {
+    border: dashed 5px red !important;
+}
+
 .img-28 {
     // For medals
     height: 28px;
