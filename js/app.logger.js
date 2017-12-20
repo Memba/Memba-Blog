@@ -55,18 +55,23 @@
                 // Return false if the ajax call was not made, considering the logging level
                 return dfd.resolve(false);
             }
-            $.ajax({
-                type: 'POST',
-                url: logger.endPoint || options.endPoint,
-                contentType: 'application/json',
-                // dataType: 'json', // <-- do not set the dataType since the response is always empty
-                data: JSON.stringify($.extend(entry, { date: new Date(), level: level.toLowerCase() }))
-            })
-                .done(function () {
-                    // Return true if the ajax call was successful
-                    return dfd.resolve(true);
+            if (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) ||
+                (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
+                return dfd.resolve(false);
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: logger.endPoint || options.endPoint,
+                    contentType: 'application/json',
+                    // dataType: 'json', // <-- do not set the dataType since the response is always empty
+                    data: JSON.stringify($.extend(entry, { date: new Date(), level: level.toLowerCase() }))
                 })
-                .fail(dfd.reject);
+                    .done(function () {
+                        // Return true if the ajax call was successful
+                        return dfd.resolve(true);
+                    })
+                    .fail(dfd.reject);
+            }
             return dfd.promise();
         };
 
