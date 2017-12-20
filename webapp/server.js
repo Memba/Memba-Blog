@@ -159,7 +159,8 @@ config.load(function (error/*, store*/) {
                 childSrc: [// was frameSrc
                     'blob:',                            // Fallback for workerSrc
                     'https://accounts.google.com',      // Google classroom button
-                    'https://www.gstatic.com'           // Google classroom button
+                    'https://www.gstatic.com',          // Google classroom button
+                    'https://www.youtube.com'           // Youtube videos (tutorials)
                 ],
                 imgSrc: [
                     'data:',
