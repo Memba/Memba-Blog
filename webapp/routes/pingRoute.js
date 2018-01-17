@@ -10,7 +10,7 @@
 var logger = require('../lib/logger');
 var pkg = require('../../package.json');
 var version = pkg.version;
-var compatible = pkg.compatible;
+var compatible = pkg.compatible; // This is the minimum compatible ui version
 
 /**
  * Ping route
