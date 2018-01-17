@@ -135,9 +135,9 @@
 
                 // Add event handler to hide preload
                 $(document)
-                    .one(LOADED, function () {
-                        $('body>div.k-loading-image').delay(400).fadeOut();
-                    });
+                .one(LOADED, function () {
+                    $('body>div.k-loading-image').delay(400).fadeOut();
+                });
 
                 // Load i18n locale
                 i18n.load(locale).done(function () {
@@ -148,29 +148,19 @@
         } else { // In Kidoju-Mobile
             // Wait for Cordova to load
             document.addEventListener('deviceready', function () {
-                if (window.navigator && window.navigator.globalization) {
-                    window.navigator.globalization.getLocaleName(
-                        function (locale) {
-                            // Device locale found
-                            locale = i18n.locale() || locale.value.substr(0, 2);
-                            if (app.locales.indexOf(locale) === -1) {
-                                locale = DEFAULT;
-                            }
-                            i18n.load(locale).done(function () {
-                                // trigger event for localization
-                                $(document).trigger(LOADED);
-                            });
-                        },
-                        function () {
-                            // In case of error, use default language
-                            i18n.load(DEFAULT).done(function () {
-                                // trigger event for localization
-                                $(document).trigger(LOADED);
-                            });
-                        }
-                    );
+                if (window.navigator && window.navigator.language) {
+                    // We have migrated from cordova-plugin-globalization
+                    // as recommended at https://cordova.apache.org/news/2017/11/20/migrate-from-cordova-globalization-plugin.html
+                    var locale = i18n.locale() || window.navigator.language.substr(0, 2);
+                    if (app.locales.indexOf(locale) === -1) {
+                        locale = DEFAULT;
+                    }
+                    i18n.load(locale).done(function () {
+                        // trigger event for localization
+                        $(document).trigger(LOADED);
+                    });
                 } else {
-                    // Without cordova-plugin-globalization, use default language
+                    // Without window.navigator.language
                     i18n.load(i18n.locale() || DEFAULT).done(function () {
                         // trigger event for localization
                         $(document).trigger(LOADED);
