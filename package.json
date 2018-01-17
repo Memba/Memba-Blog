@@ -62,7 +62,7 @@
     "autoprefixer": "^7.2.5",
     "bundle-loader": "^0.5.5",
     "chai": "^4.1.2",
-    "css-loader": "^0.28.8",
+    "css-loader": "^0.28.9",
     "file-loader": "^1.1.6",
     "grunt": "^1.0.1",
     "grunt-contrib-copy": "^1.0.0",
