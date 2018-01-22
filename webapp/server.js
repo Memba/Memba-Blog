@@ -176,7 +176,7 @@ config.load(function (error/*, store*/) {
                     '\'unsafe-inline\'',
                     cdnRoot,
                     'https://code.jquery.com',
-                    'https://cdnjs.cloudflare.com',     // Promise polyfill for webpack
+                    'https://cdnjs.cloudflare.com',     // bluebird promise polyfill for webpack and insites cookie consent
                     'https://www.googletagmanager.com', // GTM
                     'https://apis.google.com',          // Google classroom button
                     'www.google-analytics.com',         // Google Analytics (Loaded via http on http://localhost)
@@ -192,7 +192,8 @@ config.load(function (error/*, store*/) {
                     '\'self\'',
                     '\'unsafe-inline\'',
                     cdnRoot,
-                    'https://fonts.googleapis.com'      // Google fonts
+                    'https://fonts.googleapis.com',     // Google fonts
+                    'https://cdnjs.cloudflare.com'      // Insites cookie consent
                 ],
                 // sandbox: ['allow-forms', 'allow-scripts'],
                 // reportUri: '/report-violation',
