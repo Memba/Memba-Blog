@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -30,7 +30,8 @@ describe('plugins/slack', function () {
                 text: 'Slack test'
             },
             model: {
-                name: 'world'
+                name: 'world',
+                dummy: 'toto'
             }
         });
         setTimeout(done, 500);

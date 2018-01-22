@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -13,13 +13,14 @@ var config = require('../config');
 var logger = require('../lib/logger');
 
 var SHORT_LENGTH = 15;
-var RX_LEVELS = /^(debug|info|warn|error|crit)$/i;
+var RX_LEVELS = /^(debug|info|warn|error|crit|success)$/i;
 var COLORS = {
-    DEBUG: '#91A3B0', // grey
-    INFO: '#0073CF',  // blue
-    WARN: '#FFB347',  // orange
-    ERROR: '#DB7093', // pale red (pink)
-    CRIT: '#C80815'   // bright red
+    DEBUG: '#91A3B0',   // grey
+    INFO: '#0073CF',    // blue
+    WARN: '#FFB347',    // orange
+    ERROR: '#DB7093',   // pale red (pink)
+    CRIT: '#C80815',    // bright red
+    SUCCESS: '#0CA80C'  // green
 };
 
 /**
