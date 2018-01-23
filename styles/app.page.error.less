@@ -29,14 +29,14 @@
  ********************************************/
 // See http://getbootstrap.com/css/#responsive-utilities-print
 @media print {
+    //Make sure we fit page width
+    .container {
+        width: auto;
+    }
     //Reposition content for hiding header, footer and toolbar
     #error-wrapper {
+        overflow: visible !important;
         position: relative;
-        top: 0px;
-        overflow: visible;
-        //Make sure we fit page width
-        .container {
-            width: auto;
-        }
+        top: 0;
     }
 }

@@ -46,53 +46,76 @@
 @import (optional) "highlightjs.custom.less";
 @import (optional) "mathquill.custom.less";
 
-// Fix button images
-.k-button {
-    .k-image {
-        opacity: 1;
-    }
-}
-
-// Fix dialog buttons
-.k-dialog {
-    .k-dialog-buttongroup {
-        .k-button {
-            color: #000000;
-        }
-    }
-}
-
-// Fix editor splitter
-.k-splitbar {
-    border-color: @widget-border-color;
-}
-
-// Fix tabstrip (spreadsheet, formatting toolbar and file upload dialog)
-.k-tabstrip {
+.k-nova {
+    // Fix button images
     .k-button {
-        .k-icon {
+        .k-image {
             opacity: 1;
         }
     }
-    .k-state-disabled {
 
-    }
-}
-.k-tabstrip.k-header {
-    .composite-background(@tabs-normal-gradient);
-    .k-tabstrip-items {
-        .k-item, .k-link {
-            color: @selected-text-color;
+    // Fix dialog buttons
+    .k-dialog {
+        .k-dialog-buttongroup {
+            .k-button {
+                color: #000000;
+            }
         }
     }
-}
 
-// Fix spreadsheet
-.k-spreadsheet {
-    .k-spreadsheet-quick-access-toolbar {
+    // Fix editor splitter
+    .k-splitbar {
+        border-color: @widget-border-color;
+    }
+
+    // Fix tabstrip (spreadsheet, formatting toolbar and file upload dialog)
+    .k-tabstrip {
         .k-button {
-            color: @selected-text-color;
-            line-height: normal;
+            .k-icon {
+                opacity: 1;
+            }
+        }
+        .k-state-disabled {
+
+        }
+    }
+    .k-tabstrip.k-header {
+        .composite-background(@tabs-normal-gradient);
+        .k-tabstrip-items {
+            .k-item, .k-link {
+                color: @selected-text-color;
+            }
+        }
+    }
+
+    // Fix spreadsheet
+    .k-spreadsheet {
+        .k-spreadsheet-quick-access-toolbar {
+            .k-button {
+                color: @selected-text-color;
+                line-height: normal;
+            }
+        }
+    }
+
+}
+
+// The following fixes type-fiori.less to be used with kendo.common.less
+// instead of kendo.common-fiori.less
+@media only screen and (max-width: 1024px) {
+    .k-nova {
+        // Fix the grid pager
+        .k-pager-wrap {
+            min-height: 2.1em;
+            .k-pager-numbers {
+                .k-current-page {
+                    .k-link {
+                        padding: .17857143em 0;
+                        line-height: 1.65em;
+                    }
+                }
+            }
         }
     }
 }
+

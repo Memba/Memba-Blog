@@ -7,36 +7,49 @@
 @import (optional) "highlightjs.custom.less";
 @import (optional) "mathquill.custom.less";
 
-// Search glyphicon
-.navbar {
-    .form-control-feedback {
-        color: @normal-text-color;
+.k-material {
+
+    // Search glyphicon
+    .navbar {
+        .form-control-feedback {
+            color: @normal-text-color;
+        }
     }
+
+    // Panel buttons
+    .panel {
+        .panel-actions {
+            a:not(.k-state-hover) {
+                color: @header-text-color;
+            }
+        }
+    }
+
+    // The following fixes type-material.less to be used with kendo.common.less
+    // instead of kendo.common-material.less
+    .k-tabstrip-items .k-state-default .k-link
+        // .k-tabstrip-items .k-item .k-link
+    {
+        color: @tabstrip-tabs-color;
+    }
+
 }
 
-// The following fixes type-material.less to be used with kendo.common.less
-// instead of kendo.common-material.less
-.k-tabstrip-items .k-state-default .k-link
-// .k-tabstrip-items .k-item .k-link
-{
-    color: @tabstrip-tabs-color;
-}
-
+// The following fixes type-fiori.less to be used with kendo.common.less
+// instead of kendo.common-fiori.less
 @media only screen and (max-width: 1024px) {
-    .k-webkit,
-    .k-ff,
-    .k-ie11,
-    .k-edge,
-    .k-safari {
-        /* Responsive Pager */
+    .k-material {
+        // Fix the grid pager
         .k-pager-wrap {
-            min-height: 2.2em; // 2.56em;
-        }
-        .k-pager-numbers .k-current-page .k-link {
-            line-height: 1.65em; // 2.564em;
-        }
-        .k-pager-wrap .k-pager-numbers .k-current-page .k-link {
-            padding: .3em .429em .3em .8em; // .643em .429em .643em .8em;
+            min-height: 2.1em;
+            .k-pager-numbers {
+                .k-current-page {
+                    .k-link {
+                        padding: .17857143em 0;
+                        line-height: 1.65em;
+                    }
+                }
+            }
         }
     }
 }

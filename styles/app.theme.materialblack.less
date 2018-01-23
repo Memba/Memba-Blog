@@ -8,6 +8,7 @@
 @import (optional) "mathquill.custom.less";
 
 .k-materialblack {
+
     // ColorPicker
     .k-flatcolorpicker {
         // text input color
@@ -15,11 +16,31 @@
             color: @background; // @base;
         }
     }
+
     // Fix stage styles
     .kj-stage {
         .kj-quiz-image.k-state-selected {
             background-color: @accent;
             color: @base;
+        }
+    }
+}
+
+// The following fixes type-fiori.less to be used with kendo.common.less
+// instead of kendo.common-fiori.less
+@media only screen and (max-width: 1024px) {
+    .k-materialblack {
+        // Fix the grid pager
+        .k-pager-wrap {
+            min-height: 2.1em;
+            .k-pager-numbers {
+                .k-current-page {
+                    .k-link {
+                        padding: .17857143em 0;
+                        line-height: 1.65em;
+                    }
+                }
+            }
         }
     }
 }

@@ -9,23 +9,21 @@
 
 // The following fixes type-fiori.less to be used with kendo.common.less
 // instead of kendo.common-fiori.less
-
 @media only screen and (max-width: 1024px) {
-    .k-webkit,
-    .k-ff,
-    .k-ie11,
-    .k-edge,
-    .k-safari {
-        /* Responsive Pager */
+    .k-fiori {
+        // Fix the grid pager
         .k-pager-wrap {
-            min-height: 2.2em; // 3.8em;
-        }
-        .k-pager-numbers,
-        .k-grid .k-pager-numbers {
-            margin-top: 0; // 6px;
-        }
-        .k-pager-wrap .k-pager-numbers .k-current-page .k-link {
-            padding: .25em .429em .25em .8em; // .5em .429em .5em .8em;
+            min-height: 2.1em;
+            .k-pager-numbers {
+                margin-top: 0; // 6px;
+                .k-current-page {
+                    .k-link {
+                        height: initial;
+                        line-height: 1.65em;
+                        padding: .17857143em 0;
+                    }
+                }
+            }
         }
     }
 }
