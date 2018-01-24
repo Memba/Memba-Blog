@@ -176,9 +176,9 @@ config.load(function (error/*, store*/) {
                     '\'unsafe-inline\'',
                     cdnRoot,
                     'https://code.jquery.com',
-                    'https://cdnjs.cloudflare.com',     // bluebird promise polyfill for webpack and insites cookie consent
-                    'https://www.googletagmanager.com', // GTM
-                    'https://apis.google.com',          // Google classroom button
+                    'cdnjs.cloudflare.com',     // bluebird promise polyfill for webpack and insites cookie consent
+                    'www.googletagmanager.com', // GTM
+                    'apis.google.com',          // Google classroom button
                     'www.google-analytics.com',         // Google Analytics (Loaded via http on http://localhost)
                     'js.hs-analytics.net',              // Hubspot (Loaded via http on http://localhost)
                     'https://api.usemessages.com',      // Hubspot
@@ -192,8 +192,8 @@ config.load(function (error/*, store*/) {
                     '\'self\'',
                     '\'unsafe-inline\'',
                     cdnRoot,
-                    'https://fonts.googleapis.com',     // Google fonts
-                    'https://cdnjs.cloudflare.com'      // Insites cookie consent
+                    'fonts.googleapis.com',     // Google fonts
+                    'cdnjs.cloudflare.com'      // Insites cookie consent
                 ],
                 // sandbox: ['allow-forms', 'allow-scripts'],
                 // reportUri: '/report-violation',
