@@ -16,6 +16,7 @@ var mongoose;
 try {
     mongoose = require('mongoose');
 } catch (ex) {
+    // This is a generic error handler which can be used without mongoose
     mongoose = { Error: { ValidationError: function () {} } };
 }
 
@@ -34,8 +35,8 @@ try {
  * @param error
  * @constructor
  */
-function ApplicationError(error) {
-    /* jshint maxcomplexity: 8 */
+function ApplicationError (error) {
+    /* jshint maxcomplexity: 9 */
     Error.call(this);
     /* jshint -W059 */
     /* jshint -W030 */
@@ -48,9 +49,16 @@ function ApplicationError(error) {
         this.i18n = 'errors.http.' + httpStatus.badRequest;
         // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
         utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
+    } else if (error instanceof Error && typeof error.code === 'number') {
+        this.i18n = 'errors.http.' + error.code;
+        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
+        utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
+    } else if (error instanceof Error && typeof error.status === 'number') {
+        this.i18n = 'errors.http.' + error.status;
+        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
+        utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
     } else if (error instanceof Error) {
-        // Any other error is an internal server error unless there is an error.status
-        this.i18n = 'errors.http.' + (typeof error.status === 'number' ? error.status : httpStatus.internalServerError);
+        this.i18n = 'errors.http.' + httpStatus.internalServerError;
         // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
         utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
     } else if (utils.isObject(error)) {

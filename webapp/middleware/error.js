@@ -16,6 +16,14 @@ var format;
 var url;
 var language;
 
+var mongoose;
+try {
+    mongoose = require('mongoose');
+} catch (ex) {
+    // This is a generic error handler which can be used without mongoose
+    mongoose = { Error: { ValidationError: function () {} } };
+}
+
 module.exports = {
 
     /* This function has too many statements. */
@@ -41,9 +49,11 @@ module.exports = {
         var critical = false;
         if (err instanceof ApplicationError) {
             error = err;
+        } else if (err instanceof mongoose.Error.ValidationError) {
+            error = new ApplicationError(err);
         } else if (err instanceof SyntaxError && err.body && err.status === 400) {
             error = new ApplicationError(err);
-            // This is a body-parser error and considering all the people that may try to post garbage
+            // SyntaxError is a body-parser error and considering all the people that may try to post garbage
             // we do not want to treat as critical and restart the server or this would allow a DOS attack
         } else {
             error = new ApplicationError(err);
