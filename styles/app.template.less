@@ -523,15 +523,16 @@ form {
             .km-button.k-button:hover {
                 background: none;
                 background-color: @widget-background-color;
-                border-color: @disabled-border-color;
+                border-color: @widget-border-color;
                 color: @disabled-text-color;
             }
             .km-button.k-button.k-state-active,
             .km-button.k-button.k-state-active:focus,
             .km-button.k-button.k-state-active:hover {
-                border-color: @disabled-border-color;
-                color: @primary-disabled-text-color;
-                background-color: @primary-disabled-background-color
+                background: none;
+                background-color: @alt-background-color;
+                border-color: @widget-border-color;
+                color: @normal-text-color;
             }
         }
     }
