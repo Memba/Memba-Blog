@@ -52,16 +52,21 @@
         app.locales = JSON.parse('<%- JSON.stringify(locales) %>');
 
         /**
-         * Facebook
-         * @type {{clientId: string}}
+         * Constants
+         * @type {{gaTrackingId: string, facebookAppId: string, twitterAccount: string}}
          */
-        app.facebook = { clientID: '<%- facebook.clientID %>' };
+        app.constants = {
 
-        /**
-         * Twitter
-         * @type {{clientId: string}}
-         */
-        app.twitter = { account: '<%- twitter.account %>' };
+            // Application scheme
+            // appScheme: '<%- application.scheme %>',
+
+            // Facebook clientID
+            facebookAppId: '<%- facebook.clientID %>',
+
+            // Twitter account
+            twitterAccount: '<%- twitter.account %>'
+
+        };
 
         /**
          * Convert nodejs printf like formatting strings into Kendo UI formatting strings

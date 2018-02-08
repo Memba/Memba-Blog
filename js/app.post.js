@@ -71,7 +71,7 @@ require('../styles/app.page.post.less');
                             // @see https://developers.facebook.com/tools/debug/ <---------------- DEBUG
                             openUrl = 'https://www.facebook.com/dialog/share' +
                                 '?display=popup' +
-                                '&app_id=' + app.facebook.clientID +
+                                '&app_id=' + app.constants.facebookAppId +
                                 '&href=' + sharedUrl +
                                 '&redirect_uri=' + sharedUrl;
                             /*
@@ -109,7 +109,7 @@ require('../styles/app.page.post.less');
                             openUrl = 'https://twitter.com/intent/tweet' +
                                 '?text=' + title +
                                 '&url=' + sharedUrl +
-                                '&via=' + app.twitter.account;
+                                '&via=' + app.constants.twitterAccount;
                             // TODO: hashtags (message size limit)?
                             break;
                         case COMMAND.EMAIL:
