@@ -28,6 +28,10 @@ module.exports = {
 
         try {
 
+            // Read the trace id and app scheme from headers
+            req.trace = req.headers['x-trace-id'];
+            req.appScheme = req.headers['x-app-scheme'];
+
             // Assert body (after being parsed by body-parser)
             var body = req.body;
 
@@ -35,9 +39,6 @@ module.exports = {
                 typeof body.date === 'string' &&
                 RX_LEVEL.test(body.level) &&
                 typeof body.message === 'string') { // We could also check that we have either (i) module + method, or (ii) error stack
-
-                // Read the trace from headers
-                req.trace = req.headers['x-trace-id'];
 
                 // Log the request
                 body.request = req;
