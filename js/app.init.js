@@ -73,10 +73,11 @@ if (typeof(require) === 'function') {
     // Note: jQuery, kendo and app.i18n are not yet loaded
     var lang = window.document.getElementsByTagName('html')[0].getAttribute('lang');
     var errorUrl = app.uris.webapp.error.replace('{0}', lang);
-    var qaEnvironment = app.DEBUG && (navigator.userAgent.indexOf('PhantomJS') >= 0); // window.PHANTOMJS and window.phantom do not seem to work
+    var isQaEnvironment = app.DEBUG && (navigator.userAgent.indexOf('PhantomJS') >= 0); // window.PHANTOMJS and window.phantom do not seem to work
+    var isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(navigator.userAgent);
 
-    // Make sure we are not debugging/testing in PhantomJS and we are not yet on the error page
-    if (!qaEnvironment && location.href.substr(0, errorUrl.length) !== errorUrl) {
+    // Make sure this is not a web crawler, we are not testing in PhantomJS and we are not yet on the error page
+    if (!isQaEnvironment && !isBot && location.href.substr(0, errorUrl.length) !== errorUrl) {
 
         // Check browser features
         // TODO consider testing javascript enabled
@@ -106,9 +107,11 @@ if (typeof(require) === 'function') {
 
 } ());
 
-/*! iNoBounce - v0.1.0
+/**
+ * iNoBounce - v0.1.5
  * https://github.com/lazd/iNoBounce/
- * Copyright (c) 2013 Larry Davis <lazdnet@gmail.com>; Licensed BSD */
+ * Copyright (c) 2013 Larry Davis <lazdnet@gmail.com>; Licensed BSD
+ */
 (function (global) {
 
     'use strict';
@@ -127,7 +130,7 @@ if (typeof(require) === 'function') {
         var el = evt.target;
 
         // Check all parent elements for scrollability
-        while (el !== document.body) {
+        while (el !== document.body && el !== document) {
             // Get some style properties
             var style = window.getComputedStyle(el);
 
@@ -235,4 +238,3 @@ if (typeof(require) === 'function') {
         global.iNoBounce = iNoBounce;
     }
 }(this));
-
