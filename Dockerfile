@@ -1,8 +1,8 @@
 # nodeJS official image
 # built on debian 8 "jessie" (current stable release)
 # see https://hub.docker.com/_/node/
-# see also https://github.com/nodejs/docker-node/blob/master/6.4/Dockerfile
-FROM node:8
+# see also https://github.com/nodejs/docker-node/blob/master/9/Dockerfile
+FROM node:9
 
 # Maintained by Jacques L. Chereau
 MAINTAINER jlchereau
