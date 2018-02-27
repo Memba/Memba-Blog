@@ -77,7 +77,7 @@ module.exports = {
             logger.error(entry);
         }
 
-        // If requesting a web page
+        // If requesting a web page on Kidoju-WebApp
         if (req.method === 'GET' && typeof res.getLocale === 'function' && typeof res.__ === 'function') {
 
             config = res.locals.config;
@@ -114,7 +114,9 @@ module.exports = {
                     trace: req.trace
                 });
 
-        } else if (err.status === 401 && err.i18n === 'token.accessDenied') { // In the specific case where authentication is denied by provider
+        } else if (err.i18n === 'token.accessDenied' || // Authentication is denied by provider
+            err.i18n === 'token.invalidCallback' || // Authentication has most probably been cancelled by the user
+            err.i18n === 'account.userBlocked') { // User is blocked
 
             config = require('../config');
             url = require('url');
