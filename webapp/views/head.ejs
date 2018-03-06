@@ -7,6 +7,9 @@
     <meta name="author" content="<%= author %>">
     <meta name="description" content="<%= description %>">
     <meta name="keywords" content="<%= keywords %>">
+    <% // Twitter card - https://dev.twitter.com/cards/markup %>
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@<%- config.twitter.account %>">
     <% // Facebook %>
     <meta property="fb:app_id" content="<%- config.facebook.clientID %>" />
     <% // Open graph protocol - https://developers.facebook.com/tools/debug/og/object/ %>
@@ -19,9 +22,6 @@
     <meta property="og:url" content="<%= site_url %>" />
     <link rel="canonical" href="<%= site_url %>" />
     <% } %>
-    <% // Twitter card - https://dev.twitter.com/cards/markup %>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@<%- config.twitter.account %>">
     <% // Google Tag Manager %>
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
