@@ -110,6 +110,7 @@ module.exports = function (grunt) {
             options: webpackConfig,
             build: {
                 cache: false,
+                devtool: false,
                 plugins: webpackConfig.plugins.concat(
                     new webpack.optimize.UglifyJsPlugin({
                         // banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',

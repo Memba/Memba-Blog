@@ -16,29 +16,34 @@
 
 var path = require('path');
 var util = require('util');
-
 var webpack = require('webpack');
 var config = require('./webapp/config');
+var cleanPlugin = require('./web_modules/less-plugin');
+var pkg = require('./package.json');
+var environment = config.environment || 'development';
+
+console.log('webpack environment is ' + environment);
+console.log('webpack public path is ' + config.get('uris:webpack:root'));
+console.log('building version ' + pkg.version);
 
 /**
+ * DefinePlugin
  * definePlugin defines a global variable which is only available when running webpack
  * We use it to merge app.config.jsx with the proper
  * @type {webpack.DefinePlugin}
  * @see http://webpack.github.io/docs/list-of-plugins.html#defineplugin
  * @see https://github.com/petehunt/webpack-howto#6-feature-flags
  */
-var pkg = require('./package.json');
-var environment = config.environment || 'development';
 var definePlugin = new webpack.DefinePlugin({
     __NODE_ENV__: JSON.stringify(environment),
     __VERSION__: JSON.stringify(pkg.version)
 });
-console.log('webpack environment is ' + environment);
-console.log('webpack public path is ' + config.get('uris:webpack:root'));
-console.log('building version ' + pkg.version);
 
 /**
  * commonsChunkPlugin builds a common denominator of the designated chunks
+ * Note: This needs to be replaced in webpack 4
+ * @see https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
+ * @see https://github.com/webpack/webpack/issues/6701
  */
 var commonsChunkPlugin =
     new webpack.optimize.CommonsChunkPlugin({ name: 'common', filename: 'common.bundle.js', chunks: ['error', 'home', 'post', 'page', 'search'] });
@@ -55,6 +60,15 @@ var commonsChunkPlugin =
  * We are not using the source map plugin since webpack -d on the command line
  * produces sourcemaps in our development environment and we do not want sourcemaps in production.
  */
+
+/**
+ * BundleAnalyzerPlugin
+ */
+var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+var bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
+    analyzerMode: 'static'
+    // analyzerPort: 7000 <-- Fatal error: listen EADDRINUSE 127.0.0.1:7000
+});
 
 /**
  * Webpack configuration
@@ -101,25 +115,15 @@ module.exports = {
                     { loader: './web_modules/jsx-loader', options: { config: 'webapp/config' } }
                 ]
             },
-            /* https://webpack.js.org/guides/migrating/#json-loader-is-not-required-anymore
-            {
-                test: /\.json$/,
-                use: [
-                    { loader: 'json-loader' }
-                ]
-            },
-            */
             {
                 test: /app\.theme\.[a-z0-9]+\.less$/,
                 use: [
-                    // { loader: 'bundle-loader', options: { name: '[name]' } },
-                    { loader: 'bundle-loader?name=[name]' },
-                    // { loader: "style-loader", options: { useable: true } },
+                    { loader: 'bundle-loader', options: { name: '[name]' } }, // { loader: 'bundle-loader?name=[name]' },
                     { loader: 'style-loader/useable' },
                     { loader: 'css-loader', options: { importLoaders: 2 } },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
-                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
+                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true, plugins: [cleanPlugin] } }
                 ]
             },
             {
@@ -130,7 +134,7 @@ module.exports = {
                     { loader: 'css-loader', options: { importLoaders: 1 } },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
-                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
+                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true, plugins: [cleanPlugin] } }
                 ]
             },
             {
@@ -144,14 +148,12 @@ module.exports = {
             {
                 test: /\.(gif|png|jpe?g)$/,
                 use: [
-                    // { loader: 'url-loader?limit=8192' }
                     { loader: 'url-loader', options: { limit: 8192 } }
                 ]
             },
             {
                 test: /\.woff(2)?/,
                 use: [
-                    // { loader: 'url-loader?limit=10000&mimetype=application/font-woff' }
                     { loader: 'url-loader', options: { limit: 10000, mimetype: 'application/font-woff' } }
                 ]
             },
@@ -166,5 +168,6 @@ module.exports = {
     plugins: [
         definePlugin,
         commonsChunkPlugin
+        // bundleAnalyzerPlugin
     ]
 };
