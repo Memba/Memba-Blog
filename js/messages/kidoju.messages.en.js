@@ -803,7 +803,7 @@
                         invalidColor: 'A(n) {0} on page {1} has an invalid color in display attributes.',
                         invalidData: 'A(n) {0} on page {1} requires values in display attributes.',
                         invalidDescription: 'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
-                        invalidDropValue: 'A(n) {0} on page {1} requires a drop value in test logic.',
+                        invalidConstant: 'A(n) {0} on page {1} requires a drop value in test logic.',
                         invalidFailure: 'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
                         invalidFormula: 'A(n) {0} on page {1} requires a formula in display attributes.',
                         invalidImageFile: 'A(n) {0} on page {1} requires an image file in display attributes.',
@@ -896,7 +896,8 @@
                     // Attributes
                     attributes = tools.dropzone.constructor.prototype.attributes;
                     attributes.center.title = 'Centre';
-                    attributes.text.defaultValue = false;
+                    attributes.center.defaultValue = false;
+                    attributes.empty.title = 'Empty';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Text';
                     attributes.text.defaultValue = 'Please drop here.';
@@ -909,7 +910,28 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
-                    properties.disabled.title = 'Disable';
+                    properties.disabled.title = 'Disabled';
+                }
+
+                if (tools.highlighter instanceof Tool) {
+                    // Description
+                    tools.highlighter.constructor.prototype.description = 'Highlighter';
+                    // Attributes
+                    attributes = tools.highlighter.constructor.prototype.attributes;
+                    attributes.highlightStyle.title = 'Highlight';
+                    attributes.split.title = 'Split';
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Text';
+                    attributes.text.defaultValue = 'Some text you can highlight.';
+                    // Properties
+                    properties = tools.highlighter.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
                 }
 
                 if (tools.image instanceof Tool) {
@@ -924,8 +946,8 @@
                     attributes.style.title = 'Style';
                     // Properties
                     properties = tools.image.constructor.prototype.properties;
-                    properties.draggable.title = 'Draggable';
-                    properties.dropValue.title = 'Value';
+                    properties.behavior.title = 'Behaviour';
+                    properties.constant.title = 'Constant';
                 }
 
                 if (tools.imageset instanceof Tool) {
@@ -957,8 +979,8 @@
                     attributes.text.defaultValue = 'Label';
                     // Properties
                     properties = tools.label.constructor.prototype.properties;
-                    properties.draggable.title = 'Draggable';
-                    properties.dropValue.title = 'Value';
+                    properties.behavior.title = 'Behaviour';
+                    properties.constant.title = 'Constant';
                 }
 
                 if (tools.mathexpression instanceof Tool) {
@@ -1035,7 +1057,7 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
-                    properties.disabled.title = 'Disable';
+                    properties.disabled.title = 'Disabled';
                 }
 
                 if (tools.table instanceof Tool) {
@@ -1081,7 +1103,26 @@
                     properties.success.title = 'Success';
                     properties.failure.title = 'Failure';
                     properties.omit.title = 'Omit';
-                    properties.disabled.title = 'Disable';
+                }
+
+                if (tools.textgaps instanceof Tool) {
+                    // Description
+                    tools.textgaps.constructor.prototype.description = 'Text gaps';
+                    // Attributes
+                    attributes = tools.textgaps.constructor.prototype.attributes;
+                    attributes.inputStyle.title = 'Input Style';
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Text';
+                    attributes.text.defaultValue = 'Some text with gaps like [] or [] to fill.';
+                    // Properties
+                    properties = tools.textgaps.constructor.prototype.properties;
+                    properties.name.title = 'Name';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Success';
+                    properties.failure.title = 'Failure';
+                    properties.omit.title = 'Omit';
                 }
 
                 if (tools.video instanceof Tool) {

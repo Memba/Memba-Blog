@@ -800,7 +800,7 @@
                         invalidColor: 'Un(e) {0} on page {1} a une couleur invalide dans les attributs d\'affichage.',
                         invalidData: 'Un(e) {0} en page {1} nécessite des valeurs dans les attributs d\'affichage.',
                         invalidDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une question dans la logique de test.',
-                        invalidDropValue: 'Une {0} en page {1} nécessite une valeur de dépôt dans la logique de test.',
+                        invalidConstant: 'Une {0} en page {1} nécessite une valeur de dépôt dans la logique de test.',
                         invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro dans la logique de test.',
                         invalidFormula: 'Un(e) {0} on page {1} nécessite une formule dans les attributs d\'affichage.',
                         invalidImageFile: 'Un(e) {0} en page {1} nécessite un fichier image dans les attributs d\'affichage.',
@@ -893,7 +893,8 @@
                     // Attributes
                     attributes = tools.dropzone.constructor.prototype.attributes;
                     attributes.center.title = 'Centrer';
-                    attributes.text.defaultValue = false;
+                    attributes.center.defaultValue = false;
+                    attributes.empty.title = 'Vide';
                     attributes.style.title = 'Style';
                     attributes.text.title = 'Texte';
                     attributes.text.defaultValue = 'Veuillez déposer ici.';
@@ -909,6 +910,27 @@
                     properties.disabled.title = 'Désactivé';
                 }
 
+                if (tools.highlighter instanceof Tool) {
+                    // Description
+                    tools.highlighter.constructor.prototype.description = 'Surligneur';
+                    // Attributes
+                    attributes = tools.highlighter.constructor.prototype.attributes;
+                    attributes.highlightStyle.title = 'Surligne';
+                    attributes.split.title = 'Césure';
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Texte';
+                    attributes.text.defaultValue = 'Un peu de texte à surligner.';
+                    // Properties
+                    properties = tools.highlighter.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
+                }
+
                 if (tools.image instanceof Tool) {
                     // Description
                     tools.image.constructor.prototype.description = 'Image';
@@ -921,8 +943,8 @@
                     attributes.style.title = 'Style';
                     // Properties
                     properties = tools.image.constructor.prototype.properties;
-                    properties.draggable.title = 'Déplaçable';
-                    properties.dropValue.title = 'Valeur';
+                    properties.behavior.title = 'Comportement';
+                    properties.constant.title = 'Constante';
                 }
 
                 if (tools.imageset instanceof Tool) {
@@ -954,8 +976,8 @@
                     attributes.text.defaultValue = 'Label';
                     // Properties
                     properties = tools.label.constructor.prototype.properties;
-                    properties.draggable.title = 'Déplaçable';
-                    properties.dropValue.title = 'Valeur';
+                    properties.behavior.title = 'Comportement';
+                    properties.constant.title = 'Constante';
                 }
 
                 if (tools.mathexpression instanceof Tool) {
@@ -1078,7 +1100,26 @@
                     properties.success.title = 'Succès';
                     properties.failure.title = 'Échec';
                     properties.omit.title = 'Omission';
-                    properties.disabled.title = 'Désactivé';
+                }
+
+                if (tools.textgaps instanceof Tool) {
+                    // Description
+                    tools.textgaps.constructor.prototype.description = 'Texte à trous';
+                    // Attributes
+                    attributes = tools.textgaps.constructor.prototype.attributes;
+                    attributes.inputStyle.title = 'Style saisie';
+                    attributes.style.title = 'Style';
+                    attributes.text.title = 'Texte';
+                    attributes.text.defaultValue = 'Un peu de texte avec un trou comme [] ou [] à remplir.';
+                    // Properties
+                    properties = tools.textgaps.constructor.prototype.properties;
+                    properties.name.title = 'Nom';
+                    properties.question.title = 'Question';
+                    properties.solution.title = 'Solution';
+                    properties.validation.title = 'Validation';
+                    properties.success.title = 'Succès';
+                    properties.failure.title = 'Échec';
+                    properties.omit.title = 'Omission';
                 }
 
                 if (tools.video instanceof Tool) {
