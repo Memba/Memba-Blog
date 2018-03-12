@@ -800,7 +800,7 @@
                         invalidColor: 'Un(e) {0} on page {1} a une couleur invalide dans les attributs d\'affichage.',
                         invalidData: 'Un(e) {0} en page {1} nécessite des valeurs dans les attributs d\'affichage.',
                         invalidDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une question dans la logique de test.',
-                        invalidConstant: 'Une {0} en page {1} nécessite une valeur de dépôt dans la logique de test.',
+                        invalidConstant: 'Une {0} en page {1} nécessite une constante dans la logique de test.',
                         invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro dans la logique de test.',
                         invalidFormula: 'Un(e) {0} on page {1} nécessite une formule dans les attributs d\'affichage.',
                         invalidImageFile: 'Un(e) {0} en page {1} nécessite un fichier image dans les attributs d\'affichage.',
