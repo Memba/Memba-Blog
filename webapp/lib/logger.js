@@ -131,8 +131,8 @@ function format(entry, level) {
 * @param entry
 */
 function print(entry) {
-    /* jshint maxstatements: 49 */
-    /* jshint maxcomplexity: 37 */
+    /* jshint maxstatements: 52 */
+    /* jshint maxcomplexity: 39 */
     var message = (isNaN(Date.parse(entry.date)) ? new Date() : new Date(entry.date)).toISOString();
     message += prefix + '[' + entry.level.toUpperCase() + ']' + (entry.level.length > 4 ? '' : ' ');
     var first = true;
