@@ -80,6 +80,12 @@ function format(entry, level) {
     if (request && request.header && request.headers['user-agent']) {
         ret.agent = request.headers['user-agent'];
     }
+    // Scheme
+    if (entry.scheme) {
+        ret.scheme = entry.scheme;
+    } else if (request && request.scheme) {
+        ret.scheme = request.scheme;
+    }
     // Trace
     if (entry.trace) {
         ret.trace = entry.trace;
@@ -176,6 +182,10 @@ function print(entry) {
                 message += (first ? prefix : separator) + 'query' + eq + qt + entry.query.toString() + qt;
             }
         }
+        first = false;
+    }
+    if (entry.scheme) {
+        message += (first ? prefix : separator) + 'scheme' + eq + qt + entry.scheme + qt;
         first = false;
     }
     if (entry.trace) {

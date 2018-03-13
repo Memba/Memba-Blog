@@ -30,7 +30,7 @@ module.exports = {
 
             // Read the trace id and app scheme from headers
             req.trace = req.headers['x-trace-id'];
-            req.appScheme = req.headers['x-app-scheme'];
+            req.scheme = req.headers['x-app-scheme'];
 
             // Assert body (after being parsed by body-parser)
             var body = req.body;
