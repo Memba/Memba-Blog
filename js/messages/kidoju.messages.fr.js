@@ -59,8 +59,8 @@
                 omit: 'Omission',
                 error: 'Erreur',
                 ajaxError: 'Erreur de chargement de la librairie de validation.',
-                jsonError: 'Erreur d\'analyse de la valeur par json. Placez les chaînes de caractères entre guillemets.',
-                timeoutError: 'L\'exécution du processus de validation a pris trop de temps.'
+                jsonError: 'Erreur d’analyse de la valeur par json. Placez les chaînes de caractères entre guillemets.',
+                timeoutError: 'L’exécution du processus de validation a pris trop de temps.'
             });
         }
 
@@ -330,13 +330,13 @@
                             emptyset: 'Ensemble vide',
                             forall: 'Quel que soit',
                             exists: 'Il existe',
-                            nexists: 'Il n\'existe pas',
+                            nexists: 'Il n’existe pas',
                             in: 'Appartient',
-                            nin: 'N\'appartient pas',
+                            nin: 'N’appartient pas',
                             subset: 'Est inclus dans (sous-ensemble)',
                             supset: 'Inclut (sur-ensemble)',
-                            nsubset: 'N\'est pas inclus dans',
-                            nsupset: 'N\'inclut pas',
+                            nsubset: 'N’est pas inclus dans',
+                            nsupset: 'N’inclut pas',
                             intersection: 'Intersection',
                             union: 'Union',
                             to: 'To',
@@ -544,13 +544,13 @@
                             emptyset: 'Ensemble vide',
                             forall: 'Quel que soit',
                             exists: 'Il existe',
-                            nexists: 'Il n\'existe pas',
+                            nexists: 'Il n’existe pas',
                             in: 'Appartient',
-                            nin: 'N\'appartient pas',
+                            nin: 'N’appartient pas',
                             subset: 'Est inclus dans (sous-ensemble)',
                             supset: 'Inclut (sur-ensemble)',
-                            nsubset: 'N\'est pas inclus dans',
-                            nsupset: 'N\'inclut pas',
+                            nsubset: 'N’est pas inclus dans',
+                            nsupset: 'N’inclut pas',
                             intersection: 'Intersection',
                             union: 'Union',
                             to: 'To',
@@ -744,7 +744,7 @@
 
             if (adapters && adapters.CharGridAdapter) {
                 adapters.CharGridAdapter.prototype.messages = {
-                    layout: '<h3>Concevez la grille</h3><p>Chaque caractère saisi dans la grille est verrouillé et ne peut être modifié  en mode d\'exécution.</p><p>Utilisez le caractère `{0}` pour désigner les cellules vides.</p>',
+                    layout: '<h3>Concevez la grille</h3><p>Chaque caractère saisi dans la grille est verrouillé et ne peut être modifié  en mode d’exécution.</p><p>Utilisez le caractère `{0}` pour désigner les cellules vides.</p>',
                     solution: '<h3>Saisissez la solution</h3><p>Utilisez les caractères autorisés de la liste blanche, i.e. `{0}`.</p>'
                 };
             }
@@ -760,11 +760,13 @@
                 data.Page.prototype.messages = {
                     emptyPage: 'La page {0} ne doit pas être vide.',
                     minConnectors: 'Au moins {0} Connecteurs sont nécessaires pour faire une question en page {1}.',
-                    missingDraggable: 'Des Étiquettes et Images déplaçables sont requis pour la/les Zone(s) de Dépôt en page {0}.',
+                    missingDraggable: 'Des Étiquettes et Images déplaçables sont requises pour la/les Zone(s) de Dépôt en page {0}.',
                     missingDropZone: 'Une Zone de Dépôt est requise pour les Étiquettes et Images déplaçables en page {0}.',
                     missingLabel: 'Une Étiquettes est recommandée en page {0}.',
                     missingMultimedia: 'Un élément multimédia (Image, Audio, Vidéo) est recommandé en page {0}.',
                     missingQuestion: 'Une question est recommandé en page {0}.',
+                    missingSelectable: 'Des Étiquettes et Images sélectables sont requises pour le Sélecteur en page {0}.',
+                    missingSelector: 'Un Sélecteur est requis pour les Étiquettes et Images sélectables en page {0}.',
                     missingInstructions: 'Des instructions sont recommandées en page {0}.',
                     missingExplanations: 'Des explications sont recommandées en page {0}.'
                 };
@@ -775,7 +777,7 @@
                     duplicateNames: 'Supprimez les composants utilisant le même nom `{0}` en pages {1}',
                     minPages: 'Il faut au moins {0} pages pour pouvoir publier.',
                     minQuestions: 'Il faut au moins {0} questions pour pouvoir publier.',
-                    typeVariety: 'On recommande l\'usage d\'au moins {0} types de questions (Choix Multiple, Boîte de Texte, Connecteurs ou autre).',
+                    typeVariety: 'On recommande l’usage d’au moins {0} types de questions (Choix Multiple, Boîte de Texte, Connecteurs ou autre).',
                     qtyVariety: 'On recommande plus de variété quand {0:p0} des questions sont du type {1}.'
                 };
             }
@@ -795,22 +797,23 @@
                         cancel: { text: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler' }
                     },
                     messages: {
-                        invalidAltText: 'Un(e) {0} en page {1} nécessite un texte alternatif dans les attributs d\'affichage.',
-                        invalidAudioFile: 'Un(e) {0} en page {1} nécessite un fichier mp3 dans les attributs d\'affichage.',
-                        invalidColor: 'Un(e) {0} on page {1} a une couleur invalide dans les attributs d\'affichage.',
-                        invalidData: 'Un(e) {0} en page {1} nécessite des valeurs dans les attributs d\'affichage.',
+                        invalidAltText: 'Un(e) {0} en page {1} nécessite un texte alternatif dans les attributs d’affichage.',
+                        invalidAudioFile: 'Un(e) {0} en page {1} nécessite un fichier mp3 dans les attributs d’affichage.',
+                        invalidColor: 'Un(e) {0} on page {1} a une couleur invalide dans les attributs d’affichage.',
+                        invalidData: 'Un(e) {0} en page {1} nécessite des valeurs dans les attributs d’affichage.',
                         invalidDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une question dans la logique de test.',
                         invalidConstant: 'Une {0} en page {1} nécessite une constante dans la logique de test.',
-                        invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro dans la logique de test.',
-                        invalidFormula: 'Un(e) {0} on page {1} nécessite une formule dans les attributs d\'affichage.',
-                        invalidImageFile: 'Un(e) {0} en page {1} nécessite un fichier image dans les attributs d\'affichage.',
+                        invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d’échec supérieur au score d’omission ou zéro dans la logique de test.',
+                        invalidFormula: 'Un(e) {0} on page {1} nécessite une formule dans les attributs d’affichage.',
+                        invalidImageFile: 'Un(e) {0} en page {1} nécessite un fichier image dans les attributs d’affichage.',
                         invalidName: 'Un(e) {0} nommé(e) `{1}` on page {2} a un nom invalide.',
+                        invalidShape: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une forme dans les attributs d’affichage.',
                         invalidSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution dans la logique de test.',
-                        invalidStyle: 'Un(e) {0} en page {1} a un style invalide dans les attributs d\'affichage.',
-                        invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d\'omission ou zéro dans la logique de test.',
-                        invalidText: 'Un(e) {0} en page {1} nécessite un texte dans les attributs d\'affichage.',
+                        invalidStyle: 'Un(e) {0} en page {1} a un style invalide dans les attributs d’affichage.',
+                        invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d’omission ou zéro dans la logique de test.',
+                        invalidText: 'Un(e) {0} en page {1} nécessite un texte dans les attributs d’affichage.',
                         invalidValidation: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation dans la logique de test.',
-                        invalidVideoFile: 'Un(e) {0} en page {1} nécessite un fichier mp4 dans les attributs d\'affichage.'
+                        invalidVideoFile: 'Un(e) {0} en page {1} nécessite un fichier mp4 dans les attributs d’affichage.'
                     }
                 });
             }
@@ -949,7 +952,7 @@
 
                 if (tools.imageset instanceof Tool) {
                     // Description
-                    tools.imageset.constructor.prototype.description = 'Image';
+                    tools.imageset.constructor.prototype.description = 'Jeu d’images';
                     // Attributes
                     attributes = tools.imageset.constructor.prototype.attributes;
                     attributes.style.title = 'Style';

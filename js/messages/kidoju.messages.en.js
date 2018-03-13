@@ -768,6 +768,8 @@
                     missingLabel: 'A Label is recommended on page {0}.',
                     missingMultimedia: 'A multimedia element (Image, Audio, Video) is recommended on page {0}.',
                     missingQuestion: 'A question is recommended on page {0}.',
+                    missingSelectable: 'Selectable Labels or Images are required for a Selector on page {0}.',
+                    missingSelector: 'A Selector is required for selectable Labels or Images on page {0}.',
                     missingInstructions: 'Instructions are recommended on page {0}.',
                     missingExplanations: 'Explanations are recommended on page {0}.'
                 };
@@ -808,6 +810,7 @@
                         invalidFormula: 'A(n) {0} on page {1} requires a formula in display attributes.',
                         invalidImageFile: 'A(n) {0} on page {1} requires an image file in display attributes.',
                         invalidName: 'A(n) {0} named `{1}` on page {2} has an invalid name.',
+                        invalidShape: 'A(n) {0} named `{1}` on page {2} requires a shape in display attributes.',
                         invalidSolution: 'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
                         invalidStyle: 'A(n) {0} on page {1} has an invalid style in display attributes.',
                         invalidSuccess: 'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
@@ -952,7 +955,7 @@
 
                 if (tools.imageset instanceof Tool) {
                     // Description
-                    tools.imageset.constructor.prototype.description = 'Image';
+                    tools.imageset.constructor.prototype.description = 'Image Set';
                     // Attributes
                     attributes = tools.imageset.constructor.prototype.attributes;
                     attributes.style.title = 'Style';
