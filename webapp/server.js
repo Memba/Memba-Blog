@@ -176,9 +176,10 @@ config.load(function (error/*, store*/) {
                     '\'unsafe-inline\'',
                     cdnRoot,
                     'https://code.jquery.com',
-                    'cdnjs.cloudflare.com',     // bluebird promise polyfill for webpack and insites cookie consent
-                    'www.googletagmanager.com', // GTM
-                    'apis.google.com',          // Google classroom button
+                    'https://cdnjs.cloudflare.com',     // bluebird promise polyfill for webpack and insites cookie consent
+                    'https://cdn.ampproject.org/v0.js', // AMP Pages
+                    'https://www.googletagmanager.com', // GTM
+                    'https://apis.google.com',          // Google classroom button
                     'www.google-analytics.com',         // Google Analytics (Loaded via http on http://localhost)
                     'js.hs-analytics.net',              // Hubspot (Loaded via http on http://localhost)
                     'https://api.usemessages.com',      // Hubspot
@@ -186,14 +187,15 @@ config.load(function (error/*, store*/) {
                     'https://js.hsleadflows.net',       // Hubspot
                     'https://js.hsleadflowsqa.net',     // Hubspot
                     'https://js.hs-scripts.com',        // Hubspot
-                    'https://js.leadin.com'             // Hubspot
+                    'https://js.leadin.com',            // Hubspot
+                    'https://cdn.ampproject.org'        // AMP Validator - https://www.ampproject.org/docs/getting_started/create/preview_and_validate (can be commented)
                 ],
                 styleSrc: [
                     '\'self\'',
                     '\'unsafe-inline\'',
                     cdnRoot,
-                    'fonts.googleapis.com',     // Google fonts
-                    'cdnjs.cloudflare.com'      // Insites cookie consent
+                    'https://fonts.googleapis.com',     // Google fonts
+                    'https://cdnjs.cloudflare.com'      // Insites cookie consent
                 ],
                 // sandbox: ['allow-forms', 'allow-scripts'],
                 // reportUri: '/report-violation',
