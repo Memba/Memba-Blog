@@ -39,6 +39,17 @@ module.exports = function (grunt) {
                 dest: 'webapp/public/build/gremlins.min.js'
             }
         },
+        cssmin: {
+            options: {
+                mergeIntoShorthands: false,
+                roundingPrecision: -1
+            },
+            target: {
+                files: {
+                    'webapp/views/amp/amp.min.css': ['webapp/views/amp/normalize.css', 'webapp/views/amp/amp.css']
+                }
+            }
+        },
         jscs: {
             files: ['gruntfile.js', 'webpack.config.js', 'js/**/app.*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
             options: {
@@ -133,6 +144,7 @@ module.exports = function (grunt) {
 
     // Load npm tasks
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-jscs');
@@ -145,7 +157,7 @@ module.exports = function (grunt) {
 
     // Custom
     grunt.registerTask('lint', ['jscs', 'jshint', 'nsp']); // , 'kendo_lint']);
-    grunt.registerTask('build', ['webpack:build', 'uglify:build']);
+    grunt.registerTask('build', ['webpack:build', 'uglify:build', 'cssmin']);
     grunt.registerTask('test', ['mocha', 'mochaTest', 'copy:gremlins', 'webdriver']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 

@@ -17,10 +17,11 @@ REM less module for Jetbrains plugin
 REM npm install -g less
 REM build with webpack
 npm install -g webpack
-npm install -g webpack-dev-server
+REM npm install -g webpack-cli
 REM phonegap and weinre
 npm install -g phonegap
 npm install -g weinre
+npm install -g cordova-check-plugins
 REM selenium
 npm install -g selenium-standalone
 selenium-standalone install
