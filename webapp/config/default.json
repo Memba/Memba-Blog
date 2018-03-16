@@ -6,6 +6,9 @@
     "db": {
         "index": "../cache/%s.json"
     },
+    "express": {
+        "port"  : 3000
+    },
     "github": {
         "menu": "menu.json",
         "pages": "pages",

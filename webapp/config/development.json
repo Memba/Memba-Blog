@@ -1,8 +1,5 @@
 {
     "debug": true,
-    "express": {
-        "port"  : 3000
-    },
     "facebook": {
         "clientID": "765158596920529"
     },
