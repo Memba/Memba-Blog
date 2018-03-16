@@ -21,13 +21,14 @@
     <% if (typeof site_url === 'string' ) { %>
     <meta property="og:url" content="<%= site_url %>" />
     <link rel="canonical" href="<%= site_url %>" />
+    <!--link rel="amphtml" href="<%= site_url %>?format=amp" /-->
     <% } %>
     <% // Google Tag Manager %>
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','<%- config.google.tagManager %>');</script>
+        })(window,document,'script','dataLayer','<%- config.google.tagManager.web %>');</script>
     <% // Favicon and apple touch icons %>
     <link rel="shortcut icon" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'favicon.ico')) %>">
     <link rel="apple-touch-icon" sizes="57x57" href="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-57x57.png')) %>">

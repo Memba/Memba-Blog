@@ -11,17 +11,11 @@
         "branch": "master",
         "language": "memba/%s/"
     },
-    "google": {
-        "tagManager": "GTM-KMDMQ9"
-    },
     "level": 0,
     "slack": {
         "channels": {
             "weberrors": "#devtest"
         }
-    },
-    "twitter": {
-        "account": "memba"
     },
     "uris" : {
         "webapp": {
