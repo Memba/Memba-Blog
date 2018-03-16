@@ -7,11 +7,10 @@
 
 'use strict';
 
-var http = require('http');
 var url = require('url');
+var util = require('util');
 var config = require('../config');
 var rules = config.get('redirect');
-var ApplicationError = require('../lib/error');
 
 module.exports = {
 
@@ -31,6 +30,9 @@ module.exports = {
      * @param next
      */
     handler: function (req, res, next) {
+        if (req.url === '/favicon.ico') { // Otherwise it might be handled as an invalid language
+            return res.redirect(301, url.resolve(config.get('uris:cdn:root'), util.format(config.get('uris:cdn:images'), 'favicon.ico')));
+        }
         if (config.environment === 'test') {
             // reload rules for our unit tests
             rules = config.get('redirect');
