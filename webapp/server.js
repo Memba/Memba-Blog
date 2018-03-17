@@ -132,6 +132,7 @@ config.load(function (error/*, store*/) {
             '\'self\'',
             cdnRoot,                                // Required to load index.json on CDN
             'https://s3.amazonaws.com',             // Required to upload images to Amazon S3
+            'https://www.googletagmanager.com',     // GTM (AMP Pages)
             'https://js.leadin.com',                // Hubspot
             'https://forms.hubspot.com'             // Hubspot
             // 'https://api.getsidekick.com'
@@ -176,7 +177,7 @@ config.load(function (error/*, store*/) {
                     '\'unsafe-inline\'',
                     cdnRoot,
                     'https://code.jquery.com',
-                    'https://cdnjs.cloudflare.com',     // bluebird promise polyfill for webpack and insites cookie consent
+                    'cdnjs.cloudflare.com',             // bluebird promise polyfill for webpack and insites cookie consent (the 2nd via http on localhost)
                     'https://cdn.ampproject.org/v0.js', // AMP Pages
                     'https://www.googletagmanager.com', // GTM
                     'https://apis.google.com',          // Google classroom button
@@ -195,7 +196,7 @@ config.load(function (error/*, store*/) {
                     '\'unsafe-inline\'',
                     cdnRoot,
                     'https://fonts.googleapis.com',     // Google fonts
-                    'https://cdnjs.cloudflare.com'      // Insites cookie consent
+                    'cdnjs.cloudflare.com'              // Insites cookie consent (via http on localhost)
                 ],
                 // sandbox: ['allow-forms', 'allow-scripts'],
                 // reportUri: '/report-violation',
