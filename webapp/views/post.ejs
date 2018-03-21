@@ -18,25 +18,35 @@
         <div class="container" role="document">
             <div class="page-header">
                 <h1>
-                    <% if (icon) { %><img src="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>" itemprop="image"><% } %>
+                    <% if (icon) { %><img src="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>"><% } %>
                     <span itemprop="name"><%= title %></span>
                 </h1>
             </div>
             <div class="row">
                 <div class="col-xs-12 col-sm-8 col-md-9">
                     <div>
-                        <div class="pull-left">
+                        <div class="pull-left" itemprop="author" itemscope itemtype="http://schema.org/Person">
                             <i class="kf kf-user"></i>&nbsp;
-                            <span itemprop="author"><%= author %></span>
+                            <span itemprop="name"><%= author %></span>
                         </div>
                         <div class="pull-right">
                             <i class="kf kf-datetime"></i>&nbsp;
-                            <time datetime="<%= creation_date %>" itemprop="datePublished"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
+                            <time itemprop="datePublished" datetime="<%= creation_date %>"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
                         </div>
                         <div hidden>
                             <span itemprop="articleSection"><%= category %></span>
-                            <span itemprop="inLanguage"><%= getLocale() %></span>
+                            <time itemprop="dateModified" datetime="<%= creation_date %>"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
                             <span itemprop="description"><%= description %></span>
+                            <span itemprop="headline"><%= description.substr(0, 100) + '...' %></span>
+                            <span itemprop="inLanguage"><%= getLocale() %></span>
+                            <img itemprop="image" src="<%= image %>" alt="<%= title %>">
+                            <span itemprop="mainEntityOfPage"><%= site_url %></span>
+                            <span itemscope itemtype="http://schema.org/Organization" itemprop="publisher">
+                                <span itemprop="name"><%- config.application.siteName %></span>
+                                <span itemscope itemtype="http://schema.org/ImageObject" itemprop="logo">
+                                    <span itemprop="url"><%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-180x180.png')) %></span>
+                                </span>
+                            </span>
                             <span itemprop="url"><%= site_url %></span>
                         </div>
                     </div>
