@@ -130,12 +130,14 @@ config.load(function (error/*, store*/) {
     var cdnRoot = config.get('uris:cdn:root');
     var connectSrc = [
             '\'self\'',
-            cdnRoot,                                // Required to load index.json on CDN
-            'https://s3.amazonaws.com',             // Required to upload images to Amazon S3
-            'https://www.googletagmanager.com',     // GTM (AMP Pages)
-            'https://js.leadin.com',                // Hubspot
-            'https://forms.hubspot.com'             // Hubspot
-            // 'https://api.getsidekick.com'
+            cdnRoot,                                    // Required to load index.json on CDN
+            'https://s3.amazonaws.com',                 // Required to upload images to Amazon S3
+            'https://www.googletagmanager.com',         // GTM (AMP Pages)
+            'https://js.leadin.com',                    // Hubspot
+            'https://forms.hubspot.com',                // Hubspot
+            // 'https://api.getsidekick.com'            // Hubspot
+            'https://cdn.ampproject.org',               // AMP
+            'https://amp-error-reporting.appspot.com'   // AMP
         ];
     var rapiRoot = config.get('uris:rapi:root');
     if (typeof rapiRoot === 'string' && rapiRoot !== config.get('uris:webapp:root')) {
