@@ -163,6 +163,7 @@ config.load(function (error/*, store*/) {
                     'blob:',                            // Fallback for workerSrc
                     'https://accounts.google.com',      // Google classroom button
                     'https://www.gstatic.com',          // Google classroom button
+                    'https://www.kidoju.com',           // Kidoju player (especially for www.memba.com)
                     'https://www.youtube.com'           // Youtube videos (tutorials)
                 ],
                 imgSrc: [
