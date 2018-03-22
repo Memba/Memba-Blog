@@ -59,7 +59,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "autoprefixer": "^8.1.0",
+    "autoprefixer": "^8.2.0",
     "bundle-loader": "^0.5.6",
     "chai": "^4.1.2",
     "css-loader": "^0.28.11",
