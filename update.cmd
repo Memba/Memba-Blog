@@ -74,10 +74,10 @@ REM ------------------------------------------------------------
 REM Javascript files
 REM ------------------------------------------------------------
 
-REM ./js/.jshintrc
-ATTRIB -R .\js\.jshintrc
-COPY ..\..\Kidoju\Kidoju.Webapp\js\.jshintrc .\js\ /Y
-ATTRIB +R .\js\.jshintrc
+REM ./js/.eslintrc and ./js/.jshintrc
+ATTRIB -R .\js\.*
+COPY ..\..\Kidoju\Kidoju.Webapp\js\.* .\js\ /Y
+ATTRIB +R .\js\.*
 
 REM Copy ./js/cultures files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\cultures\*.*  .\js\cultures\ /C /E /I /R /Y
@@ -90,10 +90,10 @@ ATTRIB +R .\js\messages\*.* /S
 REM Copy ./js/vendor files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\vendor\bootstrap\*.* .\js\vendor\bootstrap\ /C /E /I /R /Y
 ATTRIB +R .\js\vendor\bootstrap\*.* /S
+XCOPY ..\..\Kidoju\Kidoju.WebApp\js\vendor\jquery .\js\vendor\jquery /C /E /I /R /Y
+ATTRIB +R .\js\vendor\jquery\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\vendor\kendo\*.* .\js\vendor\kendo\ /C /E /I /R /Y
 ATTRIB +R .\js\vendor\kendo\*.* /S
-XCOPY ..\..\Kidoju\Kidoju.Webapp\js\vendor\logentries\*.* .\js\vendor\logentries\ /C /E /I /R /Y
-ATTRIB +R .\js\vendor\logentries\*.* /S
 
 REM ./js/window.*.js
 ATTRIB -R .\js\window.*.js

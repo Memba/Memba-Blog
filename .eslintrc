@@ -1,0 +1,26 @@
+{
+    "env": {
+        "node": true,
+        "es6": true
+    },
+    "extends": [
+        "airbnb-base",
+        "plugin:node/recommended"
+        // "prettier"
+    ],
+    "parser": "esprima",
+    "plugins": [
+        "node"
+        // "prettier"
+    ],
+    "root": true,
+    "rules": {
+        "indent": ["error", 4],
+        "no-underscore-dangle": 0,
+        "node/exports-style": ["error", "module.exports"]
+        // "prettier/prettier": ["error", {
+        //    "singleQuote": true,
+        //    "tabWidth": 4
+        // }]
+    }
+}

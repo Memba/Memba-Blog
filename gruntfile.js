@@ -39,6 +39,12 @@ module.exports = function (grunt) {
                 dest: 'webapp/public/build/gremlins.min.js'
             }
         },
+        eslint: {
+            files: ['./js/*.es6'],
+            options: {
+                config: '.eslintrc'
+            }
+        },
         jscs: {
             files: ['gruntfile.js', 'webpack.config.js', 'js/**/app.*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
             options: {
@@ -153,6 +159,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-eslint');
     grunt.loadNpmTasks('grunt-jscs');
     // grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-mocha');
@@ -162,7 +169,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-webpack');
 
     // Custom
-    grunt.registerTask('lint', ['jscs', 'jshint', 'nsp']); // , 'kendo_lint']);
+    grunt.registerTask('lint', ['jscs', 'jshint', 'eslint', 'nsp']); // , 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'less']);
     grunt.registerTask('test', ['mocha', 'mochaTest', 'copy:gremlins', 'webdriver']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
