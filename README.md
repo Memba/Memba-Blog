@@ -9,7 +9,7 @@
 
 ## Demo
 
-See a demo running at http://www.memba.com and https://kidoju.com/support.
+See a demo running at https://www.memba.com and https://kidoju.com/support.
 
 ## Why a new blog engine?
 

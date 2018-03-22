@@ -20,7 +20,7 @@ var FIRST_YEAR = '2015';
 var FIRST_MONTH = '05';
 var FIRST_FILE = 'premier-post';
 var FIRST_TITLE = 'Memba';
-// Links in the navbar are in the form /en/posts instead of http://www.memba.com/en/posts
+// Links in the navbar are in the form /en/posts instead of https://www.memba.com/en/posts
 var posts = util.format(config.get('uris:webapp:posts'), LOCALE, '', '', '').replace(/[\/]+/g, '/').replace(/\/$/, '');
 var webapp = {
     home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),

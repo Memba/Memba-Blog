@@ -16,10 +16,10 @@
     },
     "uris" : {
         "webapp": {
-            "root": "http://www.memba.com"
+            "root": "https://www.memba.com"
         },
         "webpack": {
-            "root": "http://www.memba.com/build/"
+            "root": "https://www.memba.com/build/"
         }
     }
 }

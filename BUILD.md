@@ -6,7 +6,7 @@
 
 ## Production
 
-```build p``` and (after commit to Github and deployment) open http://www.memba.com  or https://www.kidoju.com
+```build p``` and (after commit to Github and deployment) open https://www.memba.com  or https://www.kidoju.com
 
 ## Test
 

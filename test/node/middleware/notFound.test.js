@@ -34,7 +34,7 @@ Response.prototype.send = function (send) {
 describe('middleware/notFound', function () {
 
     it('asset not found (files with extensions)', function () {
-        var req = { originalUrl: 'http://www.memba.com/favicon.ico' };
+        var req = { originalUrl: 'https://www.memba.com/favicon.ico' };
         var res = new Response();
         var next = function () {};
         notFound.handler(req, res, next);
@@ -44,7 +44,7 @@ describe('middleware/notFound', function () {
     });
 
     it('resource not found (no file extension)', function () {
-        var req = { originalUrl: 'http://www.memba.com/zz' };
+        var req = { originalUrl: 'https://www.memba.com/zz' };
         var res = new Response();
         var next = function (err) {
                 expect(err).to.be.an.instanceof(Error);
