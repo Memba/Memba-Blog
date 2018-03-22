@@ -209,7 +209,7 @@ exports.config = {
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
     // services: [],//
-    services: ['selenium-standalone'],
+    services: ['selenium-standalone','phantomjs'],
     // selenium-standalone configuration
     // @see http://webdriver.io/guide/services/selenium-standalone.html
     // @see https://www.npmjs.com/package/selenium-standalone
