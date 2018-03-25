@@ -69,10 +69,13 @@ module.exports = function (grunt) {
             options: {
                 banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
                 // paths: ['webapp/views/amp/styles'],
+                /* Missing '()' invoking a constructor. */
+                /* jshint -W058 */
                 plugins: [
                     new (require('less-plugin-autoprefix')),
                     new (require('less-plugin-clean-css'))
                 ],
+                /* jshint +W058 */
                 sourceMap: false
             },
             files: {
