@@ -48,8 +48,8 @@ module.exports = grunt => {
             files: [
                 'js/**/app.*.js',
                 'js/**/*.jsx',
-                'webapp/**/*.js',
-                'test/**/*.js'
+                'test/**/*.js',
+                'webapp/**/*.js'
             ],
             options: {
                 config: '.jscsrc',
@@ -104,8 +104,8 @@ module.exports = grunt => {
             }
         },
         mocha: {
+            // In browser (phantomJS) unit tests
             browser: {
-                // In browser (phantomJS) unit tests
                 options: {
                     growlOnSuccess: false,
                     log: true,
@@ -202,7 +202,7 @@ module.exports = grunt => {
     grunt.loadNpmTasks('grunt-webdriver');
     grunt.loadNpmTasks('grunt-webpack');
 
-    // Custom
+    // Commands
     grunt.registerTask('lint', [
         'eslint',
         'jscs',

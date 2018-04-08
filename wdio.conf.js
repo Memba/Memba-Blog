@@ -2,8 +2,6 @@
  * On any platform including Travis-CI
  ************************************************************** */
 
-const path = require('path');
-
 let capabilities = [
     {
         // maxInstances can get overwritten per capability. So if you have an in-house Selenium
@@ -29,17 +27,13 @@ if (/^win/.test(process.platform)) {
         // Drivers can be downloaded at http://docs.seleniumhq.org/download/
         javaArgs: [
             // Add Microsoft Edge driver
-            `-Dwebdriver.edge.driver=${path.join(
-                __dirname,
-                './test/bin/MicrosoftWebDriver.exe'
-            )}`,
+            // `-Dwebdriver.edge.driver=${path.join(__dirname, './test/bin/MicrosoftWebDriver.exe')}`,
+            '-Dwebdriver.edge.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\edgedriver\\16299-MicrosoftEdgeDriver.exe',
 
             // Add opera driver
             // `-Dwebdriver.opera.driver=${path.join(__dirname, './test/bin/operadriver.exe')}`,
-            `-Dwebdriver.opera.driver=${path.join(
-                __dirname,
-                './node_modules/selenium-standalone/.selenium/chromedriver/2.32-x64-chromedriver'
-            )}`
+            // `-Dwebdriver.opera.driver=${path.join(__dirname,'./node_modules/selenium-standalone/.selenium/chromedriver/2.36-x64-chromedriver')}`
+            '-Dwebdriver.opera.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\chromedriver\\2.36-x64-chromedriver'
         ]
         // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
         // seleniumArgs: [],
