@@ -3,14 +3,14 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true */
+/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
 
-'use strict';
+// const smartImport = require('postcss-smart-import')({ /* ...options */ }),
+// const precss = require('precss')({ /* ...options */ }),
+const autoprefixer = require('autoprefixer')({
+    /* ...options */
+});
 
 module.exports = {
-    plugins: [
-        // require('postcss-smart-import')({ /* ...options */ }),
-        // require('precss')({ /* ...options */ }),
-        require('autoprefixer')({ /* ...options */ })
-    ]
+    plugins: [autoprefixer]
 };

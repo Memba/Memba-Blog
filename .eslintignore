@@ -7,5 +7,5 @@ styles/
 temp/
 test/vendor/
 webapp/public/
-**/*.es6
-*.js
+**/*.js
+!*.js

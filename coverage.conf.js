@@ -1,32 +1,44 @@
 // Karma configuration
-// Generated on Mon May 19 2014 13:48:20 GMT+0100 (GMT Summer Time)
-
-module.exports = function(config) {
-
-    'use strict';
-
+module.exports = config => {
     config.set({
+        // mocha configuration
+        client: {
+            mocha: {
+                ui: 'bdd',
+                timeout: 10000
+            }
+        },
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: '',
 
-        // frameworks to use
-        // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        //frameworks: ['mocha', 'requirejs', 'chai', 'sinon'],
-        frameworks: ['mocha', 'chai'],
+        // Increase timeout especially for phantomJS
+        browserDisconnectTimeout: 5000,
+
+        // Available frameworks: https://npmjs.org/browse/keyword/karma-adapter
+        frameworks: ['mocha', 'chai', 'sinon'],
 
         // list of files / patterns to load in the browser
         files: [
-            {pattern: 'js/2014.1.603/jquery.min.js', served: true, included: true},
-            {pattern: 'js/2014.1.603/kendo.all.min.js', served: true, included: true},
-            {pattern: 'test/unit/*.js', served: true, included: false},
-            {pattern: 'test/data/pageCollection.json', served: true, included: false}
+            {
+                pattern: 'js/vendor/jquery/jquery-3.3.1.min.js',
+                served: true,
+                included: true
+            },
+            {
+                pattern: 'js/vendor/kendo/kendo.all.min.js',
+                served: true,
+                included: true
+            },
+            {
+                pattern: 'test/unit/*.js',
+                served: true,
+                included: false
+            }
         ],
 
         // list of files to exclude
-        exclude: [
-
-        ],
+        exclude: [],
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
@@ -54,13 +66,12 @@ module.exports = function(config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['Chrome', 'IE', 'Safari', 'Firefox', 'PhantomJS'],
-        //browsers: ['PhantomJS'],
+        browsers: ['Chrome', 'Edge', 'IE', 'Safari', 'Firefox', 'PhantomJS'],
 
         // optionally, configure the reporter
         coverageReporter: {
-            type : 'html',
-            dir : 'coverage/'
+            type: 'html',
+            dir: 'coverage/'
         },
 
         // Continuous Integration mode

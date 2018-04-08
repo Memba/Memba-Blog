@@ -1,32 +1,45 @@
-/****************************************************************
+/** *************************************************************
  * On any platform including Travis-CI
- ****************************************************************/
-var seleniumArgs = {};
-var capabilities = [{
-    // maxInstances can get overwritten per capability. So if you have an in-house Selenium
-    // grid with only 5 firefox instance available you can make sure that not more than
-    // 5 instance gets started at a time.
-    maxInstances: 5,
-    // The following are the default drivers installed with selenium-standalone
-    // browserName: 'chrome'
-    // browserName: 'firefox' // gecko
-    // browserName: 'internet explorer'
-    // The following driver is installed with phantomjs-brebuilt
-    browserName: 'phantomjs'
-}];
-/****************************************************************
- * On our Windows environment
- ****************************************************************/
+ ************************************************************** */
+
+const path = require('path');
+
+let capabilities = [
+    {
+        // maxInstances can get overwritten per capability. So if you have an in-house Selenium
+        // grid with only 5 firefox instance available you can make sure that not more than
+        // 5 instance gets started at a time.
+        maxInstances: 5,
+        // The following are the default drivers installed with selenium-standalone
+        // browserName: 'chrome'
+        // browserName: 'firefox' // gecko
+        // browserName: 'internet explorer'
+        // The following driver is installed with phantomjs-brebuilt
+        browserName: 'phantomjs'
+    }
+];
+let seleniumArgs = {};
+
+/** **************************************************************
+ * In our Windows environment
+ *************************************************************** */
+
 if (/^win/.test(process.platform)) {
-    var path = require('path');
     seleniumArgs = {
         // Drivers can be downloaded at http://docs.seleniumhq.org/download/
         javaArgs: [
             // Add Microsoft Edge driver
-            '-Dwebdriver.edge.driver=' + path.join(__dirname, './test/bin/MicrosoftWebDriver.exe'),
+            `-Dwebdriver.edge.driver=${path.join(
+                __dirname,
+                './test/bin/MicrosoftWebDriver.exe'
+            )}`,
+
             // Add opera driver
-            // '-Dwebdriver.opera.driver=' + path.join(__dirname, './test/bin/operadriver.exe')
-            '-Dwebdriver.opera.driver=' + path.join(__dirname, './node_modules/selenium-standalone/.selenium/chromedriver/2.32-x64-chromedriver')
+            // `-Dwebdriver.opera.driver=${path.join(__dirname, './test/bin/operadriver.exe')}`,
+            `-Dwebdriver.opera.driver=${path.join(
+                __dirname,
+                './node_modules/selenium-standalone/.selenium/chromedriver/2.32-x64-chromedriver'
+            )}`
         ]
         // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
         // seleniumArgs: [],
@@ -62,8 +75,9 @@ if (/^win/.test(process.platform)) {
             maxInstances: 1,
             browserName: 'phantomjs',
             // Without the path, phantomJS is not found on Windows
-            'phantomjs.binary.path': 'C:\\Program Files (x86)\\PhantomJS\\bin\\phantomjs.EXE'
             // 'phantomjs.binary.path': path.join(__dirname, './node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe')
+            'phantomjs.binary.path':
+                'C:\\Program Files (x86)\\PhantomJS\\bin\\phantomjs.EXE'
         },
         {
             maxInstances: 1,
@@ -72,13 +86,14 @@ if (/^win/.test(process.platform)) {
                 args: [],
                 extensions: [],
                 // binary: 'C:\\Program Files (x86)\\Opera\\launcher.exe'
-                binary: 'C:\\Program Files (x86)\\Opera\\47.0.2631.80\\opera.exe'
+                binary:
+                    'C:\\Program Files (x86)\\Opera\\47.0.2631.80\\opera.exe'
             }
         }
     ];
 }
 
-exports.config = {
+module.exports.config = {
     // =====================
     // Server Configurations
     // =====================
@@ -111,9 +126,7 @@ exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
-    specs: [
-        './test/selenium/**/*.js'
-    ],
+    specs: ['./test/selenium/**/*.js'],
     // Patterns to exclude.
     exclude: [
         // 'path/to/excluded/files'
@@ -140,7 +153,7 @@ exports.config = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://docs.saucelabs.com/reference/platforms-configurator
     //
-    capabilities: capabilities, // See above
+    capabilities, // See above
     //
     // When enabled opens a debug port for node-inspector and pauses execution
     // on `debugger` statements. The node-inspector can be attached with:
@@ -213,7 +226,7 @@ exports.config = {
     // selenium-standalone configuration
     // @see http://webdriver.io/guide/services/selenium-standalone.html
     // @see https://www.npmjs.com/package/selenium-standalone
-    seleniumArgs: seleniumArgs,
+    seleniumArgs,
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
     // see also: http://webdriver.io/guide/testrunner/frameworks.html
@@ -243,9 +256,9 @@ exports.config = {
     // resolved to continue.
     //
     // Gets executed once before all workers get launched.
-    onPrepare: function (config, capabilities) {
-        var app = require('./webapp/server'); // Start the web application
-    }
+    // onPrepare: function (config, capabilities) {}
+    // Start the web application
+    onPrepare: () => require('./webapp/server') // eslint-disable-line global-require
     //
     // Gets executed before test execution begins. At this point you can access all global
     // variables, such as `browser`. It is the perfect place to define custom commands.
