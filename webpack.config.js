@@ -198,17 +198,21 @@ module.exports = {
     // Webpack 4 optimization
     // https://github.com/webpack/webpack/issues/6701
     /*
+    mode: 'development',
     optimization: {
         minimize: true,
-        splitChunks: { // https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
+        // runtimeChunk: 'single',
+        splitChunks: {
+            // https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
             cacheGroups: {
                 common: {
-                    chunks: 'initial',
+                    chunks: 'async',
                     // enforce: true,
-                    filename: '[name].bundle.js?v=' + pkg.version,
+                    filename: `[name].bundle.js?v=${pkg.version}`,
+                    minChunks: 2,
                     name: 'common',
+                    reuseExistingChunk: true,
                     test: /[\\/]js[\\/]/
-                    // reuseExistingChunk: true
                 }
             }
         }
