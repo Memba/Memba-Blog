@@ -114,7 +114,7 @@
     "webpack-bundle-analyzer": "^2.11.1"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
   "config": {
     "msvs_version": "2015"
