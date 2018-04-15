@@ -179,8 +179,7 @@ config.load(function (error/*, store*/) {
                     '\'unsafe-eval\'',
                     '\'unsafe-inline\'',
                     cdnRoot,
-                    'https://code.jquery.com',
-                    'cdnjs.cloudflare.com',             // bluebird promise polyfill for webpack and insites cookie consent (the 2nd via http on localhost)
+                    'cdnjs.cloudflare.com',             // jquery + bluebird promise polyfill for webpack + insites cookie consent (the 2nd via http on localhost)
                     'https://cdn.ampproject.org/v0.js', // AMP Pages
                     'https://www.googletagmanager.com', // GTM
                     'https://apis.google.com',          // Google classroom button
