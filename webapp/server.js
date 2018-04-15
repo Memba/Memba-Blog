@@ -190,7 +190,7 @@ config.load(function (error/*, store*/) {
                     'https://js.hsleadflows.net',       // Hubspot
                     'https://js.hsleadflowsqa.net',     // Hubspot
                     'https://js.hs-scripts.com',        // Hubspot
-                    'https://js.leadin.com',            // Hubspot
+                    'https://js.leadin.com',            // Hubspot (this is the only one which is not ipv6 ready)
                     'https://cdn.ampproject.org'        // AMP Validator - https://www.ampproject.org/docs/getting_started/create/preview_and_validate (can be commented)
                 ],
                 styleSrc: [
