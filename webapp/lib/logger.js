@@ -104,6 +104,10 @@ function format(entry, level) {
     } else if (request && request.query) {
         ret.query = request.query;
     }
+    // Data
+    if (entry.data) {
+        ret.data = entry.data;
+    }
     // Error message and stack
     if (entry.stack) {
         if (entry.message) {
@@ -178,7 +182,7 @@ function print(entry) {
         try {
             message += (first ? prefix : separator) + 'query' + eq + qt + JSON.stringify(entry.query) + qt;
         } catch (ex) {
-            if (typeof entry.data.toString === 'function') {
+            if (typeof entry.query.toString === 'function') {
                 message += (first ? prefix : separator) + 'query' + eq + qt + entry.query.toString() + qt;
             }
         }
