@@ -251,29 +251,34 @@
 			}
 		},
 		"params": {
-            "invalidObjectId": {
-                "status": 400,
-                "title": "400 - Bad Request",
-                "message": "Invalid object identifier: an identifier is an hexadecimal string of 24 characters."
+            "invalidFileId": {
+                "status": 404,
+                "title": "404 - Not Found",
+                "message": "Invalid file id: use a name of 3 to 50 and an extension of 2 to 7 alphanumeric characters"
             },
             "invalidLanguage": {
-                "status": 400,
-                "title": "400 - Bad Request",
+                "status": 404,
+                "title": "404 - Not Found",
                 "message": "Invalid language: this language is not implemented."
             },
-            "invalidProvider": {
-                "status": 400,
-                "title": "400 - Bad Request",
-                "message": "Invalid provider: use `facebook`, `google`, `live` or `twitter`"
-            },
             "invalidMonth": {
-                "status": 400,
-                "title": "400 - Bad Request",
+                "status": 404,
+                "title": "404 - Not Found",
                 "message": "Invalid month: use a two-digit number between 01 and 12"
             },
+            "invalidObjectId": {
+                "status": 404,
+                "title": "404 - Not Found",
+                "message": "Invalid object identifier: an identifier is an hexadecimal string of 24 characters."
+            },
+            "invalidProvider": {
+                "status": 404,
+                "title": "404 - Not Found",
+                "message": "Invalid provider: use `facebook`, `google`, `live` or `twitter`"
+            },
             "invalidYear": {
-                "status": 400,
-                "title": "400 - Bad Request",
+                "status": 404,
+                "title": "404 - Not Found",
                 "message": "Invalid year: use a four-digit number between 2014 and the current year"
             }
 		},
