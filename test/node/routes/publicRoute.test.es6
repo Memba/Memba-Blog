@@ -5,20 +5,15 @@
 
 /* jshint node: true, mocha: true, expr: true */
 
-'use strict';
+const request = require('supertest'); // eslint-disable-line node/no-unpublished-require
+const util = require('util');
+const config = require('../../../webapp/config');
 
-var request = require('supertest');
-var util = require('util');
+// We cannot define the app like follows because the server is already running
+// const app = request('../../../webapp/server');
+const app = config.get('uris:webapp:root');
 
-// We cannot define app like this because the server is already running
-// var app = request('../../../webapp/server');
-
-var config = require('../../../webapp/config');
-var app = config.get('uris:webapp:root');
-
-
-describe('routes/static', function () {
-
+describe('routes/static', () => {
     /*
     // This (and apple touch icons) won't work because CDN has CORS limitations
     it('it should return a favicon from cdn', function (done) {
@@ -30,7 +25,7 @@ describe('routes/static', function () {
     });
     */
 
-    it('it should return robots.txt', function (done) {
+    it('it should return robots.txt', done => {
         request(app)
             .get(util.format(config.get('uris:webapp:public'), 'robots.txt'))
             .expect(200)
@@ -38,7 +33,7 @@ describe('routes/static', function () {
             .end(done);
     });
 
-    it('it should return a simplified error page on missing js file', function (done) {
+    it('it should return a simplified error page on missing js file', done => {
         request(app)
             .get(util.format(config.get('uris:webapp:public'), 'dummy.js'))
             .expect(404)
@@ -46,5 +41,4 @@ describe('routes/static', function () {
             .expect('Not Found')
             .end(done);
     });
-
 });
