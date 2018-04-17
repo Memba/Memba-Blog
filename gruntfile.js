@@ -39,7 +39,7 @@ module.exports = grunt => {
             }
         },
         eslint: {
-            files: ['./**/*.es6', '*.js'],
+            files: ['**/*.es6', '*.js'],
             options: {
                 config: '.eslintrc'
             }
