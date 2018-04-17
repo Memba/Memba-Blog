@@ -108,21 +108,19 @@ function format(entry, level) {
     if (entry.data) {
         ret.data = entry.data;
     }
-    // Error message and stack
-    if (entry.stack) {
-        if (entry.message) {
-            ret.error = entry.message;
-        }
+    // Error stack
+    if (entry.stack) { // entry is an error object
+        // ret.originalMessage = entry.message; // no need to repeat
         ret.stack = entry.stack;
     } else if (entry.error && entry.error.stack) {
-        if (entry.error.message) {
-            ret.error = entry.error.message;
-        } else if (entry.error.originalError && entry.error.originalError.message) {
+        if (entry.error.originalError) {
             // entry.error.originalError is not necessarily an instance of Error because we use deepExtend
-            // TODO: CHeck that this actually occurs
-            ret.error = entry.error.originalError.message;
+            ret.originalMessage = entry.error.originalError.message;
+            ret.stack = entry.error.originalError.stack;
+        } else {
+            ret.originalMessage = entry.error.message;
+            ret.stack = entry.error.stack;
         }
-        ret.stack = entry.error.stack;
     }
     // entry.date = (new Date()).toISOString();
     // Note: such an entry is not only ready to print to console but also to be sent as JSON
