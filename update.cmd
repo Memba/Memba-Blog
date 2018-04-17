@@ -229,6 +229,11 @@ ATTRIB +R .\test\node\plugins\index.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\slack.test.js .\test\node\plugins /Y
 ATTRIB +R .\test\node\plugins\slack.test.js
 
+REM Copy ./test/node/route files
+ATTRIB -R .\test\node\routes\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\routes\pingRoute.test.es6 .\test\node\routes /Y
+ATTRIB +R .\test\node\routes\pingRoute.test.es6
+
 REM Copy ./test/selenium files
 ATTRIB -R .\test\selenium\selenium.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\selenium\selenium.js .\test\selenium /Y

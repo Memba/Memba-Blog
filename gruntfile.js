@@ -126,7 +126,7 @@ module.exports = grunt => {
                     timeout: 10000,
                     ui: 'bdd'
                 },
-                src: ['test/node/**/*.js']
+                src: ['test/node/**/*.{es6,js}']
             }
         },
         nsp: {
