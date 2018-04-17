@@ -24,7 +24,7 @@ var homeRoute = require('./homeRoute');
 var hookRoute = require('./hookRoute');
 var loggerRoute = require('./loggerRoute');
 var pageRoute = require('./pageRoute');
-var pingRoute = require('./pingRoute');
+var pingRoute = require('./pingRoute.es6');
 var postRoute = require('./postRoute');
 var sitemapRoute = require('./sitemapRoute');
 
