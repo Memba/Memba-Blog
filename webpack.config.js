@@ -196,11 +196,12 @@ module.exports = {
             }
         ]
     },
-    mode: process.env.NODE_ENV,
+    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     optimization: {
         minimize: true,
         splitChunks: {
             // https://github.com/webpack/webpack/issues/7085
+            // https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
             // https://gitter.im/webpack/webpack?at=5ad8d9b4109bb04332dd19c9
             cacheGroups: {
                 common: {
