@@ -45,7 +45,7 @@
     "compression": "^1.7.2",
     "cors": "^2.8.4",
     "deep-extend": "^0.5.0",
-    "ejs": "^2.5.8",
+    "ejs": "^2.5.9",
     "express": "^4.16.3",
     "helmet": "^3.12.0",
     "highlight.js": "^9.12.0",
@@ -95,13 +95,13 @@
     "less-plugin-autoprefix": "^1.5.1",
     "less-plugin-clean-css": "^1.5.1",
     "loader-utils": "^1.1.0",
-    "mocha": "^5.1.0",
+    "mocha": "^5.1.1",
     "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^2.1.4",
     "prettier": "^1.12.1",
     "sinon": "^4.5.0",
     "sinon-chai": "^3.0.0",
-    "style-loader": "^0.20.3",
+    "style-loader": "^0.21.0",
     "stylelint": "^9.2.0",
     "stylelint-config-standard": "^18.2.0",
     "supertest": "^3.0.0",
@@ -110,8 +110,9 @@
     "wdio-phantomjs-service": "^0.2.2",
     "wdio-selenium-standalone-service": "0.0.10",
     "webdriverio": "^4.12.0",
-    "webpack": "^3.11.0",
-    "webpack-bundle-analyzer": "^2.11.1"
+    "webpack": "^4.6.0",
+    "webpack-bundle-analyzer": "^2.11.1",
+    "webpack-cli": "^2.0.14"
   },
   "engines": {
     "node": ">=6"

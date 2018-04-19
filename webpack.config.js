@@ -42,12 +42,13 @@ const definePlugin = new webpack.DefinePlugin({
  * @see https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
  * @see https://github.com/webpack/webpack/issues/6701
  */
+/*
 const commonsChunkPlugin = new webpack.optimize.CommonsChunkPlugin({
     name: 'common',
     filename: 'common.bundle.js',
     chunks: ['error', 'home', 'post', 'page', 'search']
 });
-
+*/
 /**
  * SourceMapDevToolPlugin builds source maps
  * For debugging in WebStorm see https://github.com/webpack/webpack/issues/238
@@ -102,7 +103,7 @@ module.exports = {
             },
             {
                 // Do not put a $ at the end of the test regex
-                test: /\.jsx/, // see ./web_modules/jsx-loader
+                test: /\.jsx/, // see ./web_modules/jsx-loader?config=
                 use: [
                     {
                         loader: './web_modules/jsx-loader',
@@ -195,40 +196,35 @@ module.exports = {
             }
         ]
     },
-    // Webpack 4 optimization
-    // https://github.com/webpack/webpack/issues/6701
-    /*
-    mode: 'development',
+    mode: process.env.NODE_ENV,
     optimization: {
         minimize: true,
-        // runtimeChunk: 'single',
         splitChunks: {
-            // https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
+            // https://github.com/webpack/webpack/issues/7085
+            // https://gitter.im/webpack/webpack?at=5ad8d9b4109bb04332dd19c9
             cacheGroups: {
                 common: {
-                    chunks: 'async',
-                    // enforce: true,
+                    chunks: 'initial',
                     filename: `[name].bundle.js?v=${pkg.version}`,
                     minChunks: 2,
                     name: 'common',
                     reuseExistingChunk: true,
-                    test: /[\\/]js[\\/]/
+                    test: /[\\/](js|styles)[\\/]/
                 }
             }
         }
     },
-    */
     output: {
         // Unfortunately it is not possible to specialize output directories
         // See https://github.com/webpack/webpack/issues/882
         path: path.join(__dirname, '/webapp/public/build'),
         publicPath,
         filename: `[name].bundle.js?v=${pkg.version}`,
-        chunkFilename: `[name].chunk.js?v=${pkg.version}`
+        chunkFilename: `[name].bundle.js?v=${pkg.version}`
     },
     plugins: [
-        definePlugin,
-        commonsChunkPlugin
+        definePlugin
+        // commonsChunkPlugin
         // bundleAnalyzerPlugin
     ],
     resolve: {
