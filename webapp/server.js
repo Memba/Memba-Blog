@@ -133,6 +133,7 @@ config.load(function (error/*, store*/) {
             cdnRoot,                                    // Required to load index.json on CDN
             'https://s3.amazonaws.com',                 // Required to upload images to Amazon S3
             'https://www.googletagmanager.com',         // GTM (AMP Pages)
+            'https://www.google-analytics.com',         // Google Analytics
             'https://js.leadin.com',                    // Hubspot
             'https://forms.hubspot.com',                // Hubspot
             // 'https://api.getsidekick.com'            // Hubspot
