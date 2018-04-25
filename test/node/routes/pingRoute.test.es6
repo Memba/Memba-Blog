@@ -15,9 +15,20 @@ try {
     config = require('../../../api/config');
 }
 
-// We cannot define the app like follows because the server is already running
-// const app = request('../../../webapp/server');
-const app = config.get('uris:webapp:root');
+let app;
+try {
+    // We cannot define the app like follows because the server is already running
+    // const app = request('../../../webapp/server');
+    app = config.get('uris:webapp:root');
+} catch (exception) {
+    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
+    app = require('./../../../api/server');
+}
+
+const ping =
+    typeof app === 'string'
+        ? config.get('uris:webapp:ping')
+        : config.get('uris:rapi:ping');
 
 describe('routes/pingRoute', () => {
     /**
@@ -26,10 +37,10 @@ describe('routes/pingRoute', () => {
      * I want to visit an endpoint
      * So that I can confirm the server is responding
      */
-    describe('when requesting resource /api/ping', () => {
+    describe('when requesting a ping', () => {
         it('it should respond with 200', done => {
             request(app)
-                .get('/api/ping')
+                .get(ping)
                 .expect(200)
                 .expect('Content-Type', /json/)
                 .expect({ ping: 'OK', version, compatible })
