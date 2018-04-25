@@ -212,10 +212,9 @@ config.load(error => {
             },
             frameguard: false,
             hsts: {
-                // Must be at least 1 year to be approved
-                maxAge: 1 * 24 * 60 * 60, // Must be enabled to be approved
+                maxAge: 1 * 24 * 60 * 60, // Must be at least 365 days to be approved at https://hstspreload.org/
                 includeSubDomains: true,
-                preload: true,
+                preload: true, // Must be enabled to be approved at https://hstspreload.org/
                 setIf: req => req.secure
             }
         })

@@ -25,7 +25,7 @@ try {
     app = require('./../../../api/server');
 }
 
-const ping =
+const pingUri =
     typeof app === 'string'
         ? config.get('uris:webapp:ping')
         : config.get('uris:rapi:ping');
@@ -40,7 +40,7 @@ describe('routes/pingRoute', () => {
     describe('when requesting a ping', () => {
         it('it should respond with 200', done => {
             request(app)
-                .get(ping)
+                .get(pingUri)
                 .expect(200)
                 .expect('Content-Type', /json/)
                 .expect({ ping: 'OK', version, compatible })
