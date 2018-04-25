@@ -191,6 +191,8 @@
 
                     if ($.type(theme) !== STRING || $.type(THEMES[theme]) !== STRING) {
 
+                        /*
+                        // Match the theme to the OS
                         if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion < 7) {
                             theme = 'ios';
                         } else if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion >= 7) {
@@ -200,6 +202,9 @@
                         } else {
                             theme = kendo.support.mobileOS.name;
                         }
+                        */
+                        theme = 'flat';
+
                     }
 
                     return theme;
