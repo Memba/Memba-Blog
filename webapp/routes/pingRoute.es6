@@ -4,12 +4,10 @@
  */
 
 const logger = require('../lib/logger');
-const pkg = require('../../package.json');
-
 // `compatible` is the minimum compatible UI version
 // if `compatible` is '0.3.4', then versions '0.3.4' and above of Kidoju-WebApp and Kidoju-Mobile are compatible
 // if we update significantly Kidoju-Server, then we need to increase `compatible` in package.json to force UI upgrades
-const { version, compatible } = pkg;
+const { version, compatible } = require('../../package.json');
 
 /**
  * Ping route

@@ -9,3 +9,4 @@ test/vendor/
 webapp/public/
 **/*.es6
 *.js
+webapp/server.js

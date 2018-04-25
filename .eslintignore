@@ -9,3 +9,4 @@
 /webapp/public/
 **/*.js
 !/*.js
+!/webapp/server.js

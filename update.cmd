@@ -219,8 +219,10 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\notFound.test.js .\test\nod
 ATTRIB +R .\test\node\middleware\notFound.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.js .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\params.test.js
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\redirect.test.js .\test\node\middleware /Y
-ATTRIB +R .\test\node\middleware\redirect.test.js
+
+ATTRIB -R .\test\node\middleware\redirect.test.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\redirect.test.es6 .\test\node\middleware /Y
+ATTRIB +R .\test\node\middleware\redirect.test.es6
 
 REM Copy ./test/node/plugins files
 ATTRIB -R .\test\node\plugins\*.*
@@ -230,7 +232,7 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\slack.test.js .\test\node\plug
 ATTRIB +R .\test\node\plugins\slack.test.js
 
 REM Copy ./test/node/route files
-ATTRIB -R .\test\node\routes\*.*
+ATTRIB -R .\test\node\routes\pingRoute.test.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\routes\pingRoute.test.es6 .\test\node\routes /Y
 ATTRIB +R .\test\node\routes\pingRoute.test.es6
 
@@ -283,8 +285,10 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\notFound.js .\webapp\middlewar
 ATTRIB +R .\webapp\middleware\notFound.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\params.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\redirect.js .\webapp\middleware /Y
-ATTRIB +R .\webapp\middleware\redirect.js
+
+ATTRIB -R .\webapp\middleware\redirect.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\redirect.es6 .\webapp\middleware /Y
+ATTRIB +R .\webapp\middleware\redirect.es6
 
 REM Copy ./webapp/plugins files
 ATTRIB -R .\webapp\plugins\*.*
@@ -299,6 +303,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\errorRoute.js .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\errorRoute.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\loggerRoute.js .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\loggerRoute.js
+
+ATTRIB -R .\webapp\routes\pingRoute.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\pingRoute.es6 .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\pingRoute.es6
 
