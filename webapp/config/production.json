@@ -11,6 +11,7 @@
     "level": 2,
     "slack": {
         "channels": {
+            "forms": "#forms",
             "weberrors": "#weberrors"
         }
     },

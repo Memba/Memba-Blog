@@ -1,0 +1,69 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+const deepExtend = require('deep-extend');
+const config = require('../config');
+const httpStatus = require('../lib/httpStatus');
+const logger = require('../lib/logger');
+const plugins = require('../plugins');
+
+/**
+ * Ping route
+ * @type {{get: Function}}
+ */
+module.exports = {
+    /**
+     * Post handler
+     * @param req
+     * @param res
+     */
+    post(req, res) {
+        // Log the request
+        logger.debug({
+            message: 'post a form',
+            method: 'post',
+            module: 'routes/formRoute',
+            request: req
+        });
+        if (typeof req.body === 'object') {
+            // Clone body when parsed successfully
+            const model = deepExtend({}, req.body);
+
+            // Keep posters honest
+            const addition = (model.__a || '')
+                .split('+')
+                .map(num => parseInt(num, 10));
+            const total = parseInt(model.__b, 10);
+            if (
+                addition.length === 2 &&
+                !Number.isNaN(total) &&
+                addition[0] + addition[1] === total
+            ) {
+                delete model.__a;
+                delete model.__b;
+                // Send to slack
+                plugins.emit('slack', {
+                    slack: {
+                        channel: config.get('slack:channels:forms'),
+                        level: 'info',
+                        text: 'New form'
+                    },
+                    model
+                });
+            }
+        }
+
+        // Return success in all circumstances
+        res
+            .status(httpStatus.created)
+            .send(
+                `<html><head><meta http-equiv="refresh" content="0; url=${
+                    req.headers.referer
+                }#success=true"></head><script>window.location.href="${
+                    req.headers.referer
+                }#success=true"</script></html>`
+            );
+    }
+};

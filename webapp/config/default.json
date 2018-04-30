@@ -58,6 +58,7 @@
         "webapp": {
             "error": "/%s/error",
             "feed": "/%s/rss.xml",
+            "form": "/form",
             "home": "/",
             "hook": "/hook",
             "locale": "/%s",

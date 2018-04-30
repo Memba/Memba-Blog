@@ -9,7 +9,8 @@
 
 var bodyParser = require('body-parser');
 var express = require('express');
-var jsonParser = require('body-parser').json();
+var jsonParser = bodyParser.json();
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var util = require('util');
 var router = express.Router();
 var config = require('../config');
@@ -20,6 +21,7 @@ var notFound = require('../middleware/notFound');
 var params = require('../middleware/params');
 var errorRoute = require('./errorRoute.es6');
 var feedRoute = require('./feedRoute');
+var formRoute = require('./formRoute.es6');
 var homeRoute = require('./homeRoute');
 var hookRoute = require('./hookRoute');
 var loggerRoute = require('./loggerRoute');
@@ -52,6 +54,10 @@ router.route(config.get('uris:webapp:ping'))
 // Logger
 router.route(config.get('uris:webapp:logger'))
     .post(loggerRoute.createEntry);
+
+// Form posts
+router.route(config.get('uris:webapp:form'))
+    .post(urlencodedParser, formRoute.post);
 
 // Error page
 router.route(util.format(config.get('uris:webapp:error'), ':language'))

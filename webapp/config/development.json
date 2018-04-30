@@ -11,6 +11,7 @@
     "level": 0,
     "slack": {
         "channels": {
+            "forms": "#devtest",
             "weberrors": "#devtest"
         },
         "disabled": true
