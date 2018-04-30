@@ -26,7 +26,7 @@ module.exports = {
      * @param res
      * @param next
      */
-    handler: (req, res, next) => {
+    handler(req, res, next) {
         if (req.originalUrl === '/favicon.ico') {
             // Otherwise it might be handled as an invalid language
             return res.redirect(

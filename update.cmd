@@ -232,7 +232,11 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\slack.test.js .\test\node\plug
 ATTRIB +R .\test\node\plugins\slack.test.js
 
 REM Copy ./test/node/route files
-ATTRIB -R .\test\node\routes\pingRoute.test.es6
+ATTRIB -R .\test\node\routes\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\routes\errorRoute.test.es6 .\test\node\routes /Y
+ATTRIB +R .\test\node\routes\errorRoute.test.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\routes\loggerRoute.test.es6 .\test\node\routes /Y
+ATTRIB +R .\test\node\routes\loggerRoute.test.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\routes\pingRoute.test.es6 .\test\node\routes /Y
 ATTRIB +R .\test\node\routes\pingRoute.test.es6
 
@@ -286,7 +290,6 @@ ATTRIB +R .\webapp\middleware\notFound.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\params.js
 
-ATTRIB -R .\webapp\middleware\redirect.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\redirect.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\redirect.es6
 
@@ -299,12 +302,11 @@ ATTRIB +R .\webapp\plugins\slack.js
 
 REM Copy ./webapp/routes files
 ATTRIB -R .\webapp\routes\*.*
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\errorRoute.js .\webapp\routes /Y
-ATTRIB +R .\webapp\routes\errorRoute.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\loggerRoute.js .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\loggerRoute.js
 
-ATTRIB -R .\webapp\routes\pingRoute.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\errorRoute.es6 .\webapp\routes /Y
+ATTRIB +R .\webapp\routes\errorRoute.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\pingRoute.es6 .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\pingRoute.es6
 

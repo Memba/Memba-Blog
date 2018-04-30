@@ -19,7 +19,7 @@ module.exports = {
      * @param req
      * @param res
      */
-    get: (req, res) => {
+    get(req, res) {
         // Log the request
         logger.debug({
             message: 'get a ping',
