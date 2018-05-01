@@ -16,10 +16,7 @@
         "indent": ["error", 4, { "SwitchCase": 1 }],
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
         "no-underscore-dangle": 0,
-        "prettier/prettier": ["error", {
-            "singleQuote": true,
-            "tabWidth": 4
-        }]
+        "prettier/prettier": "error"
     },
     "settings": {
         "import/resolver": {

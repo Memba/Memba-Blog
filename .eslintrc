@@ -20,9 +20,6 @@
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
         "no-underscore-dangle": 0,
         "node/exports-style": ["error", "module.exports"],
-        "prettier/prettier": ["error", {
-            "singleQuote": true,
-            "tabWidth": 4
-        }]
+        "prettier/prettier": "error"
     }
 }
