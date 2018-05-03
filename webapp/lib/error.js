@@ -9,8 +9,8 @@
 
 var assert = require('assert');
 var util = require('util');
-var utils = require('./utils');
-var httpStatus = require('./httpStatus');
+var utils = require('./utils.es6');
+var httpStatus = require('./httpStatus.es6');
 
 var mongoose;
 try {

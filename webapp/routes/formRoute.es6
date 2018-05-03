@@ -5,7 +5,7 @@
 
 const deepExtend = require('deep-extend');
 const config = require('../config');
-const httpStatus = require('../lib/httpStatus');
+const httpStatus = require('../lib/httpStatus.es6');
 const logger = require('../lib/logger');
 const plugins = require('../plugins');
 

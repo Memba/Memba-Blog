@@ -5,6 +5,10 @@
 
 /* jshint node: true */
 
+// TODO Consider replacing with url.resolve
+// TODO: alternatively extend base url module
+// https://stackoverflow.com/questions/24517744/extending-or-adding-functions-to-modules-of-node
+
 'use strict';
 
 var url = require('url');

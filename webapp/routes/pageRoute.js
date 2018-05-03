@@ -15,7 +15,7 @@ var ApplicationError = require('../lib/error');
 var convert = require('../lib/convert');
 var logger = require('../lib/logger');
 var markdown = require('../lib/markdown');
-var utils = require('../lib/utils');
+var utils = require('../lib/utils.es6');
 var indexModel = require('../models/indexModel');
 var menuModel = require('../models/menuModel');
 

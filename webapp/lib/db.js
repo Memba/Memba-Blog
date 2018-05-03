@@ -14,7 +14,7 @@ var chokidar = require('chokidar');
 var config = require('../config');
 var convert = require('./convert');
 var logger = require('./logger');
-var utils = require('./utils');
+var utils = require('./utils.es6');
 var locales = config.get('locales');
 var indexer;
 

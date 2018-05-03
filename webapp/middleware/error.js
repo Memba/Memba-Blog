@@ -10,7 +10,7 @@
 var assert = require('assert');
 var ApplicationError = require('../lib/error');
 var logger = require('../lib/logger');
-var utils = require('../lib/utils');
+var utils = require('../lib/utils.es6');
 var config;
 var format;
 var url;

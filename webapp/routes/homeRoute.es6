@@ -4,7 +4,7 @@
  */
 
 const logger = require('../lib/logger');
-const utils = require('../lib/utils');
+const utils = require('../lib/utils.es6');
 const menuModel = require('../models/menuModel');
 
 module.exports = {

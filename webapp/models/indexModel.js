@@ -10,7 +10,7 @@
 var util = require('util');
 var convert = require('../lib/convert');
 var db = require('../lib/db');
-var utils = require('../lib/utils');
+var utils = require('../lib/utils.es6');
 var cache = {
     authors: {},
     categories: {},

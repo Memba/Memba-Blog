@@ -9,9 +9,9 @@
 
 var assert = require('assert');
 var config = require('../config');
-var httpStatus = require('../lib/httpStatus');
+var httpStatus = require('../lib/httpStatus.es6');
 var logger = require('../lib/logger');
-var utils = require('../lib/utils');
+var utils = require('../lib/utils.es6');
 
 var DEBUG = config.get('debug');
 var RX_LEVEL = /^(DEBUG|INFO|WARN|ERROR|CRIT)$/i;

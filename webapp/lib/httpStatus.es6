@@ -3,10 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true */
-
-'use strict';
-
 /* require('http').STATUS_CODES = {
  '100': 'Continue',
  '101': 'Switching Protocols',
@@ -66,7 +62,6 @@
  '511': 'Network Authentication Required'
  }
 */
-
 
 module.exports = {
     ok: 200,

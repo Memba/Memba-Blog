@@ -201,18 +201,20 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\common.js .\test\node /Y
 ATTRIB +R .\test\node\common.js
 
 REM Copy ./test/node/lib files
-ATTRIB -R .\test\node\lib\*.*
+ATTRIB -R .\test\node\lib\*.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\error.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\error.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\logger.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\logger.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\url.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\url.test.js
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\utils.test.js .\test\node\lib /Y
-ATTRIB +R .\test\node\lib\utils.test.js
+
+ATTRIB -R .\test\node\lib\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\utils.test.es6 .\test\node\lib /Y
+ATTRIB +R .\test\node\lib\utils.test.es6
 
 REM Copy ./test/node/middleware files
-ATTRIB -R .\test\node\middleware\*.*
+ATTRIB -R .\test\node\middleware\*.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\error.test.js .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\error.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\notFound.test.js .\test\node\middleware /Y
@@ -220,7 +222,7 @@ ATTRIB +R .\test\node\middleware\notFound.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.js .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\params.test.js
 
-ATTRIB -R .\test\node\middleware\redirect.test.es6
+ATTRIB -R .\test\node\middleware\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\redirect.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\redirect.test.es6
 
@@ -267,17 +269,19 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\config\index.js .\webapp\config /Y
 ATTRIB +R .\webapp\config\index.js
 
 REM Copy ./webapp/lib files
-ATTRIB -R .\webapp\lib\*.*
+ATTRIB -R .\webapp\lib\*.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\error.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\error.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\httpStatus.js .\webapp\lib /Y
-ATTRIB +R .\webapp\lib\httpStatus.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\logger.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\logger.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\url.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\url.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\utils.js .\webapp\lib /Y
-ATTRIB +R .\webapp\lib\utils.js
+
+ATTRIB -R .\webapp\lib\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\httpStatus.es6 .\webapp\lib /Y
+ATTRIB +R .\webapp\lib\httpStatus.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\utils.es6 .\webapp\lib /Y
+ATTRIB +R .\webapp\lib\utils.es6
 
 REM Copy ./webapp/middleware files
 ATTRIB -R .\webapp\middleware\*.*
