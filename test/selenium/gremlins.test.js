@@ -153,11 +153,11 @@ describe('Monkey testing with gremlins', function () {
             // Note: Mime type error when loading from https://raw.githubusercontent.com/marmelab/gremlins.js/master/gremlins.min.js
             // Note: Timeout when loading from https://rawgit.com/marmelab/gremlins.js/master/gremlins.min.js
             // So we need to load locally
-            browser.timeoutsAsyncScript(WAIT);
+            browser.timeouts('script', WAIT);
             browser.executeAsync(loadScript, './build/gremlins.min.js');
             browser.logger.info('Gremlins loaded');
             // And Unleash them
-            browser.timeoutsAsyncScript(MOCHA_TO);
+            browser.timeouts('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
 
@@ -165,11 +165,11 @@ describe('Monkey testing with gremlins', function () {
             browser.url(webapp.en);
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
-            browser.timeoutsAsyncScript(WAIT);
+            browser.timeouts('script', WAIT);
             browser.executeAsync(loadScript, './build/gremlins.min.js');
             browser.logger.info('Gremlins loaded');
             // And Unleash them
-            browser.timeoutsAsyncScript(MOCHA_TO);
+            browser.timeouts('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
 
@@ -177,11 +177,11 @@ describe('Monkey testing with gremlins', function () {
             browser.url(webapp.fr);
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
-            browser.timeoutsAsyncScript(WAIT);
+            browser.timeouts('script', WAIT);
             browser.executeAsync(loadScript, './build/gremlins.min.js');
             browser.logger.info('Gremlins loaded');
             // And Unleash them
-            browser.timeoutsAsyncScript(MOCHA_TO);
+            browser.timeouts('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
 
