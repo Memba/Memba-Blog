@@ -33,10 +33,10 @@ try {
 
 class Response {
     constructor() {
-        this._spy = sinon.spy();
+        this._redirect = sinon.spy();
     }
     get redirect() {
-        return this._spy;
+        return this._redirect;
     }
 }
 

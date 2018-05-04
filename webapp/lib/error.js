@@ -24,7 +24,7 @@ var i18n;
 try {
     i18n = require('i18n');
 } catch (ex) {
-    i18n = require('./i18n');
+    i18n = require('./i18n.es6');
 }
 
 /* This function's cyclomatic complexity is too high. */
