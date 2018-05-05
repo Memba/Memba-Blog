@@ -15,7 +15,7 @@ var util = require('util');
 var config = require('../../webapp/config');
 var webapp = {
     home: url.resolve(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
-    index: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', '')) + '/',
+    index: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', '')),
     faqs: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'faqs')),
     privacy: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'privacy')),
     terms: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'terms'))

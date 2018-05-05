@@ -43,7 +43,8 @@ function Response(options) {
         this.locals = {
             config: config.get(),
             format: util.format,
-            url: { join: url.resolve }
+            // moment: require('moment');
+            url: url
         };
     }
 }
