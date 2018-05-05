@@ -54,7 +54,7 @@
     "markdown-it-video": "^0.6.2",
     "moment": "^2.22.1",
     "nconf": "^0.10.0",
-    "qs": "^6.5.1",
+    "qs": "^6.5.2",
     "request": "^2.85.0",
     "uuid": "^3.2.1"
   },
@@ -97,7 +97,7 @@
     "loader-utils": "^1.1.0",
     "mocha": "^5.1.1",
     "phantomjs-prebuilt": "^2.1.16",
-    "postcss-loader": "^2.1.4",
+    "postcss-loader": "^2.1.5",
     "prettier": "^1.12.1",
     "sinon": "^5.0.3",
     "sinon-chai": "^3.0.0",
@@ -110,7 +110,7 @@
     "wdio-phantomjs-service": "^0.2.2",
     "wdio-selenium-standalone-service": "0.0.10",
     "webdriverio": "^4.12.0",
-    "webpack": "^4.6.0",
+    "webpack": "^4.7.0",
     "webpack-bundle-analyzer": "^2.11.1",
     "webpack-cli": "^2.1.2"
   },
