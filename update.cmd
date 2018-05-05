@@ -217,12 +217,12 @@ REM Copy ./test/node/middleware files
 ATTRIB -R .\test\node\middleware\*.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\error.test.js .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\error.test.js
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.js .\test\node\middleware /Y
-ATTRIB +R .\test\node\middleware\params.test.js
 
 ATTRIB -R .\test\node\middleware\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\notFound.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\notFound.test.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.es6 .\test\node\middleware /Y
+ATTRIB +R .\test\node\middleware\params.test.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\redirect.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\redirect.test.es6
 
@@ -278,6 +278,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\url.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\url.js
 
 ATTRIB -R .\webapp\lib\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\constants.es6 .\webapp\lib /Y
+ATTRIB +R .\webapp\lib\constants.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\httpStatus.es6 .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\httpStatus.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\utils.es6 .\webapp\lib /Y
@@ -289,12 +291,12 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\error.js .\webapp\middleware /
 ATTRIB +R .\webapp\middleware\error.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\locals.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\locals.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.js .\webapp\middleware /Y
-ATTRIB +R .\webapp\middleware\params.js
 
 ATTRIB -R .\webapp\middleware\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\notFound.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\notFound.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.es6 .\webapp\middleware /Y
+ATTRIB +R .\webapp\middleware\params.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\redirect.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\redirect.es6
 

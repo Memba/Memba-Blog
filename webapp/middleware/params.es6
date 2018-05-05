@@ -3,22 +3,46 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true */
+// const assert = require('assert');
+const ApplicationError = require('../lib/error');
+const config = require('../config');
+const CONSTANTS = require('../lib/constants.es6');
 
-'use strict';
+const locales = config.get('locales');
 
-var ApplicationError = require('../lib/error');
-var config = require('../config');
-var locales = config.get('locales');
-
-var mongoose;
+let mongoose;
 try {
+    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
     mongoose = require('mongoose');
 } catch (exception) {
-    mongoose = { Types: { ObjectId : { isValid: function (id) { return (/^[a-f0-9]{24}$/).test(id); } } } };
+    mongoose = {
+        Types: {
+            ObjectId: {
+                isValid(id) {
+                    return CONSTANTS.RX_MONGODB_ID.test(id);
+                }
+            }
+        }
+    };
 }
 
 module.exports = {
+    /**
+     * Validation of file id
+     * @param req
+     * @param res
+     * @param next
+     * @param fileId
+     * @returns {*}
+     */
+    validateFileId(req, res, next, fileId) {
+        // Beware, this regular expression should match the one in routes/fileRoute
+        if (CONSTANTS.RX_FILE_ID.test(fileId)) {
+            next();
+        } else {
+            next(new ApplicationError('errors.params.invalidFileId'));
+        }
+    },
 
     /**
      * Validation of language param
@@ -28,8 +52,8 @@ module.exports = {
      * @param next
      * @param language
      */
-    validateLanguage: function (req, res, next, language) {
-        // TODO we could assert that locales === res.locals.getLocales() (both are arrays)
+    validateLanguage(req, res, next, language) {
+        // assert.deepStrictEqual(locales, res.locals.getLocales());
         // if ((/^[a-z]{2}$/).test(language)) {
         if (locales.indexOf(language) > -1) {
             if (res && typeof res.setLocale === 'function') {
@@ -51,17 +75,20 @@ module.exports = {
     },
 
     /**
-     * Validation of provider param
+     * Validation of month param
      * @param req
      * @param res
      * @param next
-     * @param provider
+     * @param month
+     * @returns {*}
      */
-    validateProvider: function (req, res, next, provider) {
-        if (/^(facebook|google|live|twitter)$/.test(provider)) {
-            next();
+    validateMonth(req, res, next, month) {
+        const parsed = parseInt(month, 10) || -1;
+        if (!/^[0-1][0-9]$/.test(month) || parsed <= 0 || parsed >= 13) {
+            // If month is not between 1 and 12, raise an error
+            next(new ApplicationError('errors.params.invalidMonth'));
         } else {
-            next(new ApplicationError('errors.params.invalidProvider'));
+            next();
         }
     },
 
@@ -72,7 +99,7 @@ module.exports = {
      * @param next
      * @param id
      */
-    validateObjectId: function (req, res, next, id) {
+    validateObjectId(req, res, next, id) {
         if (mongoose.Types.ObjectId.isValid(id)) {
             next();
         } else {
@@ -81,20 +108,17 @@ module.exports = {
     },
 
     /**
-     * Validation of month param
+     * Validation of provider param
      * @param req
      * @param res
      * @param next
-     * @param month
-     * @returns {*}
+     * @param provider
      */
-    validateMonth: function (req, res, next, month) {
-        var parsed = parseInt(month, 10) || -1;
-        if (!/^[0-1][0-9]$/.test(month) || parsed <= 0 || parsed >= 13) {
-            // If month is not between 1 and 12, raise an error
-            next(new ApplicationError('errors.params.invalidMonth'));
-        } else {
+    validateProvider(req, res, next, provider) {
+        if (CONSTANTS.PROVIDERS.indexOf(provider) > -1) {
             next();
+        } else {
+            next(new ApplicationError('errors.params.invalidProvider'));
         }
     },
 
@@ -106,32 +130,18 @@ module.exports = {
      * @param year
      * @returns {*}
      */
-    validateYear: function (req, res, next, year) {
-        var parsed = parseInt(year, 10) || -1;
-        if (!/^20[1-2][0-9]$/.test(year) || parsed < 2014 || parsed > (new Date()).getUTCFullYear()) {
+    validateYear(req, res, next, year) {
+        const parsed = parseInt(year, 10) || -1;
+        if (
+            !/^20[1-2][0-9]$/.test(year) ||
+            parsed < 2014 ||
+            parsed > new Date().getUTCFullYear()
+        ) {
             // If year does not make sense, raise an error
             next(new ApplicationError('errors.params.invalidYear'));
         } else {
             // otherwise proceed
             next();
         }
-    },
-
-    /**
-     * Validation of file id
-     * @param req
-     * @param res
-     * @param next
-     * @param fileId
-     * @returns {*}
-     */
-    validateFileId: function (req, res, next, fileId) {
-        // Beware, this regular expression should match the one in routes/fileRoute
-        if (/^[\w]{3,50}\.[a-z0-9]{2,7}$/i.test(fileId)) {
-            next();
-        } else {
-            next(new ApplicationError('errors.params.invalidFileId'));
-        }
     }
-
 };
