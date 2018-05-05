@@ -8,13 +8,13 @@
 'use strict';
 
 var assert = require('assert');
+var url = require('url');
 var util = require('util');
 var config = require('../config');
 var logger = require('../lib/logger');
-var url = require('../lib/url');
 var indexModel = require('../models/indexModel');
-var SITE_URL = url.join(config.get('uris:webapp:root'), '%s');
-var FEED_URL = url.join(config.get('uris:webapp:root'), config.get('uris:webapp:feed'));
+var SITE_URL = url.resolve(config.get('uris:webapp:root'), '%s');
+var FEED_URL = url.resolve(config.get('uris:webapp:root'), config.get('uris:webapp:feed'));
 
 module.exports = {
 

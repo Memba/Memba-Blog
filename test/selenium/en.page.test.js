@@ -9,16 +9,16 @@
 'use strict';
 
 var expect = require('chai').expect;
+var url = require('url');
 var util = require('util');
 
 var config = require('../../webapp/config');
-var url = require('../../webapp/lib/url');
 var webapp = {
-    home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
-    index: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', '')) + '/',
-    faqs: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'faqs')),
-    privacy: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'privacy')),
-    terms: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'terms'))
+    home: url.resolve(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
+    index: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', '')) + '/',
+    faqs: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'faqs')),
+    privacy: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'privacy')),
+    terms: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:pages'), 'en', 'terms'))
 };
 var WAIT = 2000;
 var SCREEN = {

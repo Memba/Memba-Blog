@@ -51,7 +51,7 @@ module.exports = {
                         language,
                         menu: data,
                         trace: req.trace,
-                        site_url: url.join(
+                        site_url: url.resolve(
                             config.uris.webapp.root,
                             config.uris.webapp.home
                         ), // canonical link

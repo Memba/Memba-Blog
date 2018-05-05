@@ -101,7 +101,7 @@ module.exports = {
                 .render('error', {
                     author: res.__('meta.author'),
                     description: error.message,
-                    icon: url.join(config.uris.cdn.root, format(config.uris.cdn.icons, res.__('error.icon'))),
+                    icon: url.resolve(config.uris.cdn.root, format(config.uris.cdn.icons, res.__('error.icon'))),
                     image: config.images[Math.floor(config.images.length * Math.random())],
                     keywords: res.__('meta.keywords'),
                     language: language,

@@ -9,7 +9,7 @@
 
 var util = require('util');
 var paths = require('path');
-var url = require('./url');
+var url = require('url');
 var config = require('../config');
 var PAGES = 'pages';
 var POSTS = 'posts';
@@ -33,11 +33,11 @@ var webapp = {
 var SEPARATOR = '\\/';
 var ANY_BETWEEN_SEPARATORS = util.format('[^%s]+', SEPARATOR);
 var MATCH_BETWEEN_SEPARATORS = util.format('(%s)', ANY_BETWEEN_SEPARATORS);
-var SITE_URL_2_LANGUAGE = url.join(webapp.root, webapp.pages).replace(new RegExp(SEPARATOR, 'g'), SEPARATOR);
+var SITE_URL_2_LANGUAGE = url.resolve(webapp.root, webapp.pages).replace(new RegExp(SEPARATOR, 'g'), SEPARATOR);
 var RX_SITE_URL_2_LANGUAGE = new RegExp('^' + util.format(SITE_URL_2_LANGUAGE, MATCH_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS));
 var RX_MARKDOWN = new RegExp(util.format(config.get('github:markdown'), '') + '$');
 var RX_PATH_2_LANGUAGE = new RegExp('^' + util.format(github.language, MATCH_BETWEEN_SEPARATORS));
-var PATH_2_SECTION = url.join(github.language, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR);
+var PATH_2_SECTION = url.resolve(github.language, '%s').replace(new RegExp(SEPARATOR, 'g'), SEPARATOR);
 var RX_PATH_2_SECTION = new RegExp('^' + util.format(PATH_2_SECTION, ANY_BETWEEN_SEPARATORS, MATCH_BETWEEN_SEPARATORS));
 var RX_PATH_2_SLUG = new RegExp(util.format(github.markdown, MATCH_BETWEEN_SEPARATORS) + '$');
 
@@ -74,7 +74,7 @@ module.exports = {
      * @returns {*}
      */
     getMenuPath: function (language) {
-        return url.join(util.format(github.language, language), github.menu);
+        return url.resolve(util.format(github.language, language), github.menu);
     },
 
     /**
@@ -92,7 +92,10 @@ module.exports = {
      * @param slug
      */
     getPagePath: function (language, slug) {
-        return url.join(util.format(github.language, language), github.pages, (slug || 'index') + '.md');
+        return url.resolve(
+            util.format(github.language, language),
+            github.pages + '/' + (slug || 'index') + '.md' // TODO Could use normalize to convert // into /
+        );
     },
 
     /**
@@ -100,7 +103,7 @@ module.exports = {
      * @param language
      */
     getPostDir: function (language) {
-        return url.join(util.format(github.language, language), github.posts);
+        return url.resolve(util.format(github.language, language), github.posts);
     },
 
 
@@ -207,14 +210,14 @@ module.exports = {
             if (slug === 'index') {
                 slug = '';
             }
-            return url.join(webapp.root, util.format(webapp.pages, language, slug));
+            return url.resolve(webapp.root, util.format(webapp.pages, language, slug));
         } else if (section === POSTS && typeof date !== 'undefined') {
             if (typeof date === 'string') {
                 date = new Date(date);
             }
             var year = date.getUTCFullYear().toString();
             var month = ('0' + (date.getUTCMonth() + 1)).slice(-2);
-            return url.join(webapp.root, util.format(webapp.posts, language, year, month, slug));
+            return url.resolve(webapp.root, util.format(webapp.posts, language, year, month, slug));
         }
     }
 };

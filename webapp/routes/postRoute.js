@@ -11,11 +11,11 @@ var assert = require('assert');
 // var async = require('async');
 var parallel = require('async/parallel');
 var qs = require('qs');
+var url = require('url');
 var ApplicationError = require('../lib/error');
 var convert = require('../lib/convert');
 var logger = require('../lib/logger');
 var markdown = require('../lib/markdown');
-var url = require('../lib/url');
 var utils = require('../lib/utils.es6');
 var indexModel = require('../models/indexModel');
 var menuModel = require('../models/menuModel');
@@ -119,7 +119,7 @@ module.exports = {
                             results: responses[1],
                             trace: req.trace,
                             /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
-                            site_url: url.join(config.uris.webapp.root, format(config.uris.webapp.posts, language, req.params.year || '', req.params.month || '', ''), '?' + qs.stringify(req.query)),
+                            site_url: url.resolve(config.uris.webapp.root, format(config.uris.webapp.posts, language, req.params.year || '', req.params.month || '', '')) + '?' + qs.stringify(req.query),
                             /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                             title: res.__('search.title.heading')
                         };

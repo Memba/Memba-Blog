@@ -40,8 +40,8 @@
 <% // footer with language and theme %>
 <% include footer.ejs %>
 
-<script defer src="<%- url.join(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
-<script defer src="<%- url.join(config.uris.webpack.root, 'home.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- url.resolve(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- url.resolve(config.uris.webpack.root, 'home.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
 
 </body>
 </html>

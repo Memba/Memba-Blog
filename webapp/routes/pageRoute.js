@@ -113,7 +113,7 @@ module.exports = {
                             results: responses[1],
                             trace: req.trace,
                             /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
-                            site_url: url.join(config.uris.webapp.root, format(config.uris.webapp.pages, language, ''), '?' + qs.stringify(req.query)),
+                            site_url: url.resolve(config.uris.webapp.root, format(config.uris.webapp.pages, language, '')) + '?' + qs.stringify(req.query),
                             /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                             title: res.__('search.title.heading')
                         };

@@ -9,7 +9,7 @@
 
 var util = require('util');
 var http = require('http');
-var Url = require('url');
+var url = require('url');
 var config = require('../config');
 var SEPARATOR = '\\/';
 var webapp = {
@@ -27,7 +27,7 @@ webapp.sitemap = webapp.sitemap.replace(SEPARATOR + '(', '(' + SEPARATOR);
  * @param next
  */
 module.exports = function (req, res, next) {
-    var pathname = Url.parse(req.originalUrl).pathname;
+    var pathname = url.parse(req.originalUrl).pathname;
     if (/\/[^\/\.]+\.[\w]+$/i.test(pathname) && !/\.html?$/i.test(pathname) &&
         !(new RegExp(webapp.feed)).test(pathname) && !(new RegExp(webapp.sitemap)).test(pathname)) {
         // If pathname ends with a file extension (images, stylesheets, scripts, ...), spare bandwidth by returning an empty error for missing assets

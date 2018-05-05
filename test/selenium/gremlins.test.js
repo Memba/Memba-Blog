@@ -9,15 +9,15 @@
 'use strict';
 
 // var expect = require('chai').expect;
+var url = require('url');
 var util = require('util');
 
 var config = require('../../webapp/config');
-var url = require('../../webapp/lib/url');
 
 var webapp = {
-    home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
-    fr: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:locale'), 'fr')),
-    en: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:locale'), 'en'))
+    home: url.resolve(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
+    fr: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:locale'), 'fr')),
+    en: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:locale'), 'en'))
 };
 
 var WAIT = 5000;

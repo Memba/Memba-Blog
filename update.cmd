@@ -206,8 +206,6 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\error.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\error.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\logger.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\logger.test.js
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\url.test.js .\test\node\lib /Y
-ATTRIB +R .\test\node\lib\url.test.js
 
 ATTRIB -R .\test\node\lib\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\utils.test.es6 .\test\node\lib /Y
@@ -219,6 +217,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\error.test.js .\test\node\m
 ATTRIB +R .\test\node\middleware\error.test.js
 
 ATTRIB -R .\test\node\middleware\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\locals.test.es6 .\test\node\middleware /Y
+ATTRIB +R .\test\node\middleware\locals.test.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\notFound.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\notFound.test.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\params.test.es6 .\test\node\middleware /Y
@@ -274,8 +274,6 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\error.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\error.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\logger.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\logger.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\url.js .\webapp\lib /Y
-ATTRIB +R .\webapp\lib\url.js
 
 ATTRIB -R .\webapp\lib\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\constants.es6 .\webapp\lib /Y
@@ -289,10 +287,10 @@ REM Copy ./webapp/middleware files
 ATTRIB -R .\webapp\middleware\*.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\error.js .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\error.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\locals.js .\webapp\middleware /Y
-ATTRIB +R .\webapp\middleware\locals.js
 
 ATTRIB -R .\webapp\middleware\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\locals.es6 .\webapp\middleware /Y
+ATTRIB +R .\webapp\middleware\locals.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\notFound.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\notFound.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\params.es6 .\webapp\middleware /Y

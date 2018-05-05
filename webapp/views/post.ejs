@@ -18,7 +18,7 @@
         <div class="container" role="document">
             <div class="page-header">
                 <h1>
-                    <% if (icon) { %><img src="<%- url.join(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>"><% } %>
+                    <% if (icon) { %><img src="<%- url.resolve(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>"><% } %>
                     <span itemprop="name"><%= title %></span>
                 </h1>
             </div>
@@ -44,7 +44,7 @@
                             <span itemscope itemtype="http://schema.org/Organization" itemprop="publisher">
                                 <span itemprop="name"><%- config.application.siteName %></span>
                                 <span itemscope itemtype="http://schema.org/ImageObject" itemprop="logo">
-                                    <span itemprop="url"><%- url.join(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-180x180.png')) %></span>
+                                    <span itemprop="url"><%- url.resolve(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-180x180.png')) %></span>
                                 </span>
                             </span>
                             <span itemprop="url"><%= site_url %></span>
@@ -59,11 +59,11 @@
                 <div class="hidden-xs col-sm-4 col-md-3 hidden-print">
                     <% // Social buttons %>
                     <section>
-                        <a role="button" href="#" class="social" data-command="facebook"><img src="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'facebook.svg')) %>" alt="Facebook"></a>
-                        <a role="button" href="#" class="social" data-command="google"><img src="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'google.svg')) %>" alt="Google+"></a>
-                        <a role="button" href="#" class="social" data-command="linkedin"><img src="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'linkedin.svg')) %>" alt="Linkedin"></a>
-                        <a role="button" href="#" class="social" data-command="pinterest"><img src="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'pinterest.svg')) %>" alt="Pinterest"></a>
-                        <a role="button" href="#" class="social" data-command="twitter"><img src="<%- url.join(config.uris.webapp.root, format(config.uris.webapp.public, 'twitter.svg')) %>" alt="Twitter"></a>
+                        <a role="button" href="#" class="social" data-command="facebook"><img src="<%- url.resolve(config.uris.webapp.root, format(config.uris.webapp.public, 'facebook.svg')) %>" alt="Facebook"></a>
+                        <a role="button" href="#" class="social" data-command="google"><img src="<%- url.resolve(config.uris.webapp.root, format(config.uris.webapp.public, 'google.svg')) %>" alt="Google+"></a>
+                        <a role="button" href="#" class="social" data-command="linkedin"><img src="<%- url.resolve(config.uris.webapp.root, format(config.uris.webapp.public, 'linkedin.svg')) %>" alt="Linkedin"></a>
+                        <a role="button" href="#" class="social" data-command="pinterest"><img src="<%- url.resolve(config.uris.webapp.root, format(config.uris.webapp.public, 'pinterest.svg')) %>" alt="Pinterest"></a>
+                        <a role="button" href="#" class="social" data-command="twitter"><img src="<%- url.resolve(config.uris.webapp.root, format(config.uris.webapp.public, 'twitter.svg')) %>" alt="Twitter"></a>
                     </section>
                     <% // Side menus for calendar, categories and authors %>
                     <% include groups.ejs %>
@@ -76,8 +76,8 @@
 <% // footer with language and theme %>
 <% include footer.ejs %>
 
-<script defer src="<%- url.join(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
-<script defer src="<%- url.join(config.uris.webpack.root, 'post.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- url.resolve(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- url.resolve(config.uris.webpack.root, 'post.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
 
 </body>
 </html>

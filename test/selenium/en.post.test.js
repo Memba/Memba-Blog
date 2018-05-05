@@ -9,10 +9,10 @@
 'use strict';
 
 var expect = require('chai').expect;
+var url = require('url');
 var util = require('util');
 
 var config = require('../../webapp/config');
-var url = require('../../webapp/lib/url');
 var LOCALE = 'en';
 var LIST_TITLE = 'Search results';
 var FIRST_YEAR = '2015';
@@ -22,13 +22,13 @@ var FIRST_TITLE = 'My first blog post';
 // Links in the navbar are in the form /en/posts instead of https://www.memba.com/en/posts
 var posts = util.format(config.get('uris:webapp:posts'), LOCALE, '', '', '').replace(/[\/]+/g, '/').replace(/\/$/, '');
 var webapp = {
-    home: url.join(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
-    locale: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:locale'), LOCALE)),
-    posts: url.join(config.get('uris:webapp:root'), posts),
-    calendar: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:posts'), LOCALE, FIRST_YEAR, FIRST_MONTH, '').replace(/[\/]+/g, '/').replace(/\/$/, '')) + '/',
-    categories: url.join(config.get('uris:webapp:root'), posts) + '/?category=Students',
-    author: url.join(config.get('uris:webapp:root'), posts) + '/?author=jlchereau',
-    first: url.join(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:posts'), LOCALE, FIRST_YEAR, FIRST_MONTH, FIRST_FILE))
+    home: url.resolve(config.get('uris:webapp:root'), config.get('uris:webapp:home')),
+    locale: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:locale'), LOCALE)),
+    posts: url.resolve(config.get('uris:webapp:root'), posts),
+    calendar: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:posts'), LOCALE, FIRST_YEAR, FIRST_MONTH, '').replace(/[\/]+/g, '/').replace(/\/$/, '')) + '/',
+    categories: url.resolve(config.get('uris:webapp:root'), posts) + '/?category=Students',
+    author: url.resolve(config.get('uris:webapp:root'), posts) + '/?author=jlchereau',
+    first: url.resolve(config.get('uris:webapp:root'), util.format(config.get('uris:webapp:posts'), LOCALE, FIRST_YEAR, FIRST_MONTH, FIRST_FILE))
 };
 
 var WAIT = 2000;
