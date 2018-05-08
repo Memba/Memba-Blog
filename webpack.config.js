@@ -95,6 +95,7 @@ module.exports = {
         // CDN modules
         jquery: 'jQuery'
     },
+    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     module: {
         rules: [
             {
@@ -196,7 +197,6 @@ module.exports = {
             }
         ]
     },
-    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     optimization: {
         minimize: true,
         splitChunks: {
