@@ -85,7 +85,7 @@ module.exports = {
         // We need init especially because of FOUJI
         init: './js/app.init.js',
         // One entry per view
-        error: './js/app.error.js',
+        error: './js/app.error.es6',
         home: './js/app.home.js',
         page: './js/app.page.js',
         post: './js/app.post.js',
@@ -229,9 +229,11 @@ module.exports = {
         // bundleAnalyzerPlugin
     ],
     resolve: {
+        extensions: ['.js'],
         modules: [
-            path.resolve('.'),
-            path.resolve('./js/vendor/kendo'), // required since Kendo UI 2016.1.112
+            path.resolve(__dirname, 'js'),
+            path.resolve(__dirname, 'js/vendor/kendo'), // required since Kendo UI 2016.1.112
+            '.',
             'node_modules'
         ]
     }

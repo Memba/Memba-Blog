@@ -106,9 +106,9 @@ COPY ..\..\Kidoju\Kidoju.Webapp\js\app.common.js .\js\ /Y
 ATTRIB +R .\js\app.common.js
 
 REM ./js/app.error.js
-ATTRIB -R .\js\app.error.js
-COPY ..\..\Kidoju\Kidoju.Webapp\js\app.error.js .\js\ /Y
-ATTRIB +R .\js\app.error.js
+ATTRIB -R .\js\app.error.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\js\app.error.es6 .\js\ /Y
+ATTRIB +R .\js\app.error.es6
 
 REM ./js/app.init.js
 ATTRIB -R .\js\app.init.js
@@ -194,6 +194,11 @@ REM Copy ./test/bin files
 ATTRIB -R .\test\bin\*.*
 XCOPY ..\..\Kidoju\Kidoju.Webapp\test\bin\*.* .\test\bin\ /C /E /I /R /Y
 ATTRIB +R .\test\bin\*.*
+
+REM Copy ./test/browser files
+ATTRIB -R .\test\browser\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\test\browser\.eslintrc .\test\browser /Y
+ATTRIB +R .\test\browser\.eslintrc
 
 REM Copy ./test/node/common.js files
 ATTRIB -R .\test\node\*.*
