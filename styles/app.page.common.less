@@ -9,6 +9,7 @@ html {
     overflow: hidden;
     position: fixed; // Prevents bouncing in iOS Safari
 }
+
 body {
     margin-bottom: @footerHeight; /* Margin bottom = footer height */
     // http://css-tricks.com/snippets/css/better-helvetica - has issues with UTF-8 diacritics
@@ -16,6 +17,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: normal;
 }
+
 label {
     font-weight: normal;
 }
@@ -25,7 +27,8 @@ label {
  *********************************************/
 
 // Helper to assist in identifying img tags missing alt attribute
-img[alt=""], img:not([alt]) {
+img[alt=""],
+img:not([alt]) {
     border: dashed 5px red !important;
 }
 
@@ -34,16 +37,19 @@ img[alt=""], img:not([alt]) {
     height: 28px;
     width: 28px;
 }
+
 .img-32 {
     // For correction grid
     height: 32px;
     width: 32px;
 }
+
 .img-48 {
     // For user and summary thumbnails
     height: 48px;
     width: 48px;
 }
+
 .div-48 {
     min-height: 48px;
 }
@@ -59,41 +65,53 @@ img[alt=""], img:not([alt]) {
         height: 50px;
         width: 180px;
     }
+
     a {
         cursor: pointer;
     }
+
     ul.navbar-nav {
         margin: 0 -15px;
+
         > li > a {
             height: 50px;
             padding: 9px 9px; /* 9 + 32 + 9 = 50 */
+
             i.kf {
                 font-size: 30px;
                 height: 32px;
             }
+
             img {
                 height: 32px;
                 width: 32px;
             }
+
             span {
                 vertical-align: middle;
-                font-size: 16px
+                font-size: 16px;
             }
-            i.kf + span, img + span {
+
+            i.kf + span,
+            img + span {
                 padding-left: 0.2em;
             }
         }
+
         > li > a:hover {
             text-decoration: none;
+
             i.kf {
                 .scale(1.1); //from vendor/bootstrap/mixins/vendor-prefixes.less
             }
         }
     }
+
     #navbar-search-input.k-state-active {
         min-width: 250px;
     }
 }
+
 @media (max-width: 767px) {
     .navbar {
         .navbar-collapse {
@@ -107,34 +125,41 @@ img[alt=""], img:not([alt]) {
 
 //---------------------------------------------
 // Advanced search panel
-#search-panel{
+#search-panel {
     position: absolute;
     top: 50px;
     width: 100%;
     height: 0;
     z-index: 10003;
     overflow: hidden;
+
     .km-popup {
-        border-top-style:none;
+        border-top-style: none;
         overflow: hidden;
+
         .k-content {
             * {
                 box-sizing: border-box; //otherwise we get content-box on form, row, & col-sm-# elements and bootstrap grid does not work.
             }
-            .container{
+
+            .container {
                 margin-bottom: 15px;
+
                 span.radio-inline {
                     line-height: normal;
                 }
+
                 span.checkbox-inline {
                     margin-left: -19px;
                     margin-bottom: 4px;
                 }
+
                 .k-dropdown { // category dropdowntree
                     .k-input {
                         height: 2.2em;
                     }
                 }
+
                 .kj-buttonset {
                     display: block;
                 }
@@ -149,6 +174,7 @@ img[alt=""], img:not([alt]) {
     .form-group {
         display: flex;
         flex-direction: column;
+
         .btn-login {
             .kf {
                 font-size: x-large;
@@ -163,75 +189,95 @@ img[alt=""], img:not([alt]) {
 // Page headings (see Twitter Bootstrap)
 .page-header {
     margin: 20px 0 20px;
-    h1, h2 {
+
+    h1,
+    h2 {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        >img {
+
+        > img {
             border: 0;
             vertical-align: middle;
         }
     }
+
     h1 {
-        >img {
+
+        > img {
             height: 64px;
             width: 64px;
         }
     }
+
     h2 {
-        >img {
+        > img {
             height: 56px;
             width: 56px;
         }
     }
 }
+
 @media (max-width: 768px) {
     .page-header {
         margin: 10px 0 10px;
         border-bottom: 0;
+
         h1 {
             margin: 10px 0 0;
-            >img {
+
+            > img {
                 height: 48px;
                 width: 48px;
             }
-            >span {
+
+            > span {
                 font-size: 30px;
             }
         }
+
         h2 {
             margin: 5px 0 0;
-            >img {
+
+            > img {
                 height: 32px;
                 width: 32px;
             }
-            >span {
+
+            > span {
                 font-size: 24px;
             }
         }
     }
 }
+
 @media (max-height: 450px) {
     .page-header {
         margin: 5px 0 5px;
         border-bottom: 0;
+
         h1 {
             margin: 5px 0 0;
-            >img {
+
+            > img {
                 height: 32px;
                 width: 32px;
             }
-            >span {
+
+            > span {
                 font-size: 24px;
             }
         }
+
         h2 {
             margin: 0;
-            >img {
+
+            > img {
                 height: 24px;
                 width: 24px;
             }
-            >span {
+
+            > span {
                 font-size: 20px;
             }
         }
@@ -243,9 +289,11 @@ img[alt=""], img:not([alt]) {
 .media-list {
     border-bottom: none;
     margin-bottom: 0;
+
     .media {
         margin: 0;
         padding: 10px;
+
         div.media-left {
             a {
                 background-color: transparent;
@@ -258,29 +306,38 @@ img[alt=""], img:not([alt]) {
                 }
             }
         }
+
         div.media-body {
             h4.media-heading {
                 margin-bottom: 0;
                 a {}
             }
-            .tags, .activity {
+
+            .tags,
+            .activity {
                 margin-top: 0.25em;
             }
+
             .author {
                 margin-top: 0.4em;
             }
+
             .metrics {
                 margin-top: 0.25em;
+
                 .kj-rating {
                     opacity: 1;
                 }
+
                 i.kf {
                     margin-left: 0.6em;
                     margin-right: 0.3em;
                 }
             }
+
             .k-notification {
                 width: 150px;
+
                 .k-notification-wrap {
                     padding: 0.1em 0.2em;
                 }
@@ -292,13 +349,16 @@ img[alt=""], img:not([alt]) {
 // Draggable/Sortable panels
 .panel {
     user-select: none; // prevents copy/paste bubbles in iOS Safari
+
     .panel-heading {
         padding-top: 0.4em;
         padding-bottom: 0.4em;
         cursor: move;
+
         .panel-actions {
             display: inline;
             float: right;
+
             a[role="button"] {
                 padding: 1px;
                 box-sizing: content-box;
@@ -308,6 +368,7 @@ img[alt=""], img:not([alt]) {
                 display: inline-block;
                 vertical-align: middle;
                 white-space: nowrap;
+
                 .k-icon {
                     margin: 0;
                     vertical-align: top;
@@ -317,42 +378,55 @@ img[alt=""], img:not([alt]) {
             }
         }
     }
+
     .panel-body {
         .form-group {
-              margin-bottom: 5px;
-              .k-dropdown, .k-numerictextbox, .k-multiselect  {
-                  margin: 3px 0;
-              }
-              .k-multiselect-fix {
-                  padding-right: 2px;
-              }
+            margin-bottom: 5px;
+
+            .k-dropdown,
+            .k-numerictextbox,
+            .k-multiselect {
+                margin: 3px 0;
+            }
+
+            .k-multiselect-fix {
+                padding-right: 2px;
+            }
         }
+
         .k-listview {
             border: none;
         }
+
         .k-pager-wrap {
             border-right-style: none;
             border-bottom-style: none;
             border-left-style: none;
         }
+
         .k-qrcode > div {
             margin: auto; //center QR Code
         }
+
         textarea {
             resize: vertical;
         }
+
         .icon-and-text {
             display: flex;
             align-items: center;
+
             img {
                 margin-right: 0.5em;
                 // Add class img-28 or img-48 to image
             }
+
             div {
                 flex-grow: 1;
             }
         }
     }
+
     .panel-body.no-padding {
         padding: 0;
     }
@@ -365,6 +439,7 @@ img[alt=""], img:not([alt]) {
         padding-top: 15px;
     }
 }
+
 .k-dialog {
     .k-content.no-padding {
         padding: 0;
@@ -377,14 +452,17 @@ form {
         .form-control-static {
             min-height: 0; // Fixes a 34px height in IE
         }
+
         .form-tooltip { // This is required for cross-browser positioning
             position: relative;
+
             .k-invalid-msg {
-                position:absolute;
+                position: absolute;
                 text-align: initial;
                 right: 0;
             }
         }
+
         .k-widget,
         .k-input,
         .k-textbox {
@@ -394,10 +472,12 @@ form {
         .k-input {
             height: auto; // otherwise numerictextbox does not display well - see http://www.telerik.com/forums/bug-numerictextbox-displays-inconsistently-in-bootstrap-forms
         }
+
         .k-dropdown {
             .k-input {
                 min-height: 1.65em; // otherwise height:auto here above collapses dropdowntree when there is no selected value
                 padding: 0.33em 0;
+
                 img {
                     border: 0;
                     height: 24px;
@@ -405,13 +485,14 @@ form {
                 }
             }
         }
+
         .k-textbox:not(textarea) {
             height: 2.4em;
         }
+
         .k-datepicker {
             padding: 0;
         }
-
     }
 }
 
@@ -420,7 +501,7 @@ form {
 .k-toolbar .home.k-button {
     .k-image {
         // The home button has no text
-        margin-right: 0em;
+        margin-right: 0;
     }
 }
 
@@ -436,7 +517,8 @@ form {
 //---------------------------------------------
 // Images in drop down lists and drop down trees
 .k-popup {
-    .k-list, .k-treeview {
+    .k-list,
+    .k-treeview {
         .k-item {
             img {
                 border: 0;
@@ -451,9 +533,11 @@ form {
 // Markdown
 .markdown {
     word-wrap: break-word;
+
     img {
         max-width: 100%;
     }
+
     a {
         text-decoration: underline;
     }
@@ -463,33 +547,40 @@ form {
 // Comments
 .comment {
     display: table;
-    min-height:80px;
+    min-height: 80px;
     border-top-style: none;
     border-right-style: none;
     border-left-style: none;
+
     &:last-child {
         border-bottom-style: none;
     }
+
     .signature {
         font-size: small;
         font-style: italic;
     }
+
     .data {
         display: table-cell;
-        width:100%;
+        width: 100%;
         padding: 5px;
+
         textarea {
-            width:100%;
+            width: 100%;
         }
     }
+
     .buttons {
         display: table-cell;
         min-width: 30px;
         text-align: center;
+
         .k-button {
             margin-top: 0.3em;
             margin-right: 0.25em;
             padding: 0.5em;
+
             &.k-button-icontext {
                 .k-icon {
                     margin: 0;
@@ -503,6 +594,7 @@ form {
 // Tooltips
 .k-tooltip {
     max-width: 400px;
+
     .k-tooltip-content {
         font-size: larger;
         padding: 3em;
@@ -521,14 +613,17 @@ footer {
     height: @footerHeight; /* Set the fixed height of the footer here */
     padding: 4px 5px;
     .box-sizing(border-box);
+
     #footer-links {
-        padding:5px 5px;
+        padding: 5px 5px;
     }
+
     #footer-settings {
         .form-group {
             margin-bottom: 0;
         }
     }
+
     label {
         font-weight: normal;
     }
