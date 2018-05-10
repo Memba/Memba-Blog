@@ -58,7 +58,7 @@ module.exports = {
         var uri = github + '/repos/' + repo + '/contents/' + path;
         var data = {
             branch: branch,
-            content: new Buffer(content).toString('base64'),
+            content: Buffer.from(content).toString('base64'),
             message: 'System creation'
         };
         // Note content creation requires PUT instead of POST
@@ -83,7 +83,7 @@ module.exports = {
         var uri = github + '/repos/' + repo + '/contents/' + path;
         var data = {
             branch: branch,
-            content: new Buffer(content).toString('base64'),
+            content: Buffer.from(content).toString('base64'),
             message: 'System update',
             sha: sha
         };

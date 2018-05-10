@@ -27,7 +27,7 @@ module.exports = {
         } else {
             github.getContent(convert.getMenuPath(language), function (error, response) {
                 if (!error && response) {
-                    var buf = new Buffer(response.content, 'base64');
+                    var buf = Buffer.from(response.content, 'base64');
                     var content = buf.toString();
                     var menu = JSON.parse(content);
                     cache[language] = menu;

@@ -136,7 +136,7 @@ function formatIndexEntry(response, callback) {
         }
     }
 
-    var buf = new Buffer(response.content, 'base64');
+    var buf = Buffer.from(response.content, 'base64');
     var content = buf.toString();
     var path = response.path;
     // var name = response.name;
