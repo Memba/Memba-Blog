@@ -11,34 +11,20 @@ import './window.logger';
 import './app.logger';
 import './app.i18n';
 import './app.common';
+import './app.menu';
 
-import '../styles/app.page.error.less';
+import '../styles/app.page.search.less';
 
 const {
     app: { i18n },
-    history,
-    location,
     Logger
 } = window;
-const logger = new Logger('app.error');
+const logger = new Logger('app.search');
 
-/**
- * Wait for document to be ready to initialize UI
- * Note: no need to use the i18n.loaded event here
- */
 $(() => {
-    // Add click handler on back button
-    $('#back-button').click(() => {
-        if (history && history.length > 1) {
-            history.back();
-        } else {
-            location.assign('/');
-        }
-    });
-
     // Log page readiness
     logger.info({
-        message: `error page initialized in ${i18n.locale()}`,
+        message: `search page initialized in ${i18n.locale()}`,
         method: 'document.ready'
     });
 });
