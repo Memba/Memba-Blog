@@ -9,11 +9,17 @@ const chai = require('chai');
 const http = require('http');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
+const url = require('url');
+const util = require('util');
+const config = require('../../../webapp/config');
+const extension = require('../../../webapp/middleware/extension.es6');
+
+const root = config.get('uris:webapp:root');
+const feed = config.get('uris:webapp:feed');
+const sitemap = config.get('uris:webapp:sitemap');
 
 const { expect } = chai;
 chai.use(sinonChai);
-
-const extension = require('../../../webapp/middleware/extension.es6');
 
 class Response {
     constructor() {
@@ -37,7 +43,7 @@ class Response {
 
 describe('middleware/extension', () => {
     it('Anything without extension should go through', () => {
-        const req = { originalUrl: 'https://www.memba.com/zz' };
+        const req = { originalUrl: url.resolve(root, 'a/b/c') };
         const res = new Response();
         const next = sinon.spy();
         extension.handler(req, res, next);
@@ -48,7 +54,12 @@ describe('middleware/extension', () => {
     });
 
     it('/sitemap.xml should go through', () => {
-        const req = { originalUrl: 'https://www.memba.com/sitemap.xml' };
+        const req = {
+            originalUrl: url.resolve(
+                root,
+                util.format(sitemap, '').replace('//', '/')
+            )
+        };
         const res = new Response();
         const next = sinon.spy();
         extension.handler(req, res, next);
@@ -59,7 +70,9 @@ describe('middleware/extension', () => {
     });
 
     it('/en/sitemap.xml should go through', () => {
-        const req = { originalUrl: 'https://www.memba.com/en/sitemap.xml' };
+        const req = {
+            originalUrl: url.resolve(root, util.format(sitemap, 'en'))
+        };
         const res = new Response();
         const next = sinon.spy();
         extension.handler(req, res, next);
@@ -70,7 +83,7 @@ describe('middleware/extension', () => {
     });
 
     it('/fr/rss.xml should go through', () => {
-        const req = { originalUrl: 'https://www.memba.com/fr/rss.xml' };
+        const req = { originalUrl: url.resolve(root, util.format(feed, 'fr')) };
         const res = new Response();
         const next = sinon.spy();
         extension.handler(req, res, next);
@@ -81,7 +94,7 @@ describe('middleware/extension', () => {
     });
 
     it('/dummy/image.jpg should return plain text 404', () => {
-        const req = { originalUrl: 'https://www.memba.com/dummy/image.jpg' };
+        const req = { originalUrl: url.resolve(root, '/dummy/image.jpg') };
         const res = new Response();
         const next = sinon.spy();
         extension.handler(req, res, next);
