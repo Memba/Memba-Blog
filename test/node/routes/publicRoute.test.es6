@@ -3,9 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true, mocha: true, expr: true */
-
-const request = require('supertest'); // eslint-disable-line node/no-unpublished-require
+const request = require('supertest');
 const util = require('util');
 const config = require('../../../webapp/config');
 
