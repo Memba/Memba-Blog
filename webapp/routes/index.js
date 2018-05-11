@@ -15,7 +15,7 @@ var util = require('util');
 var router = express.Router();
 var config = require('../config');
 var error = require('../middleware/error');
-var extension = require('../middleware/extension');
+var extension = require('../middleware/extension.es6');
 var locals = require('../middleware/locals.es6');
 var notFound = require('../middleware/notFound.es6');
 var params = require('../middleware/params.es6');
@@ -45,7 +45,7 @@ router.param('month', params.validateMonth);
 
 // Return simplified 404 for support files with extensions
 // ATTENTION! we have exceptions for ping, feeds, sitemaps and hook
-router.use(extension);
+router.use(extension.handler);
 
 // heartbeat
 router.route(config.get('uris:webapp:ping'))
