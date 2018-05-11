@@ -312,11 +312,10 @@ ATTRIB +R .\webapp\plugins\slack.js
 
 REM Copy ./webapp/routes files
 ATTRIB -R .\webapp\routes\*.*
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\loggerRoute.js .\webapp\routes /Y
-ATTRIB +R .\webapp\routes\loggerRoute.js
-
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\errorRoute.es6 .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\errorRoute.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\loggerRoute.es6 .\webapp\routes /Y
+ATTRIB +R .\webapp\routes\loggerRoute.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\routes\pingRoute.es6 .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\pingRoute.es6
 
