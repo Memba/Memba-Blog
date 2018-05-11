@@ -6,15 +6,7 @@
 /* eslint-disable no-unused-expressions */
 
 const { expect } = require('chai');
-
-let utils;
-try {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    utils = require('../../../webapp/lib/utils.es6');
-} catch (exception) {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    utils = require('../../../api/lib/utils.es6');
-}
+const utils = require('../../../webapp/lib/utils.es6');
 
 describe('lib/utils', () => {
     describe('isObject', () => {

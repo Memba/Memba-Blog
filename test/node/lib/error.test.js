@@ -22,7 +22,7 @@ try {
     ApplicationError = require('../../../webapp/lib/error');
     webapp = true;
 } catch (exception) {
-    ApplicationError = require('../../../api/lib/error');
+    ApplicationError = require('../../../webapp/lib/error');
 }
 
 describe('lib/error', function () {

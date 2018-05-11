@@ -12,13 +12,13 @@ var config;
 try {
     config = require('../../../webapp/config');
 } catch (exception) {
-    config = require('../../../api/config');
+    config = require('../../../webapp/config');
 }
 var logger;
 try {
     logger = require('../../../webapp/lib/logger');
 } catch (exception) {
-    logger = require('../../../api/lib/logger');
+    logger = require('../../../webapp/lib/logger');
 }
 
 describe('lib/logger', function () {

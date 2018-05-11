@@ -6,24 +6,8 @@
 /* eslint-disable no-unused-expressions */
 
 const { expect } = require('chai');
-
-let CONSTANTS;
-try {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    CONSTANTS = require('../../../webapp/lib/constants.es6');
-} catch (exception) {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    CONSTANTS = require('../../../api/lib/constants.es6');
-}
-
-let params;
-try {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    params = require('../../../webapp/middleware/params.es6');
-} catch (exception) {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    params = require('../../../api/middleware/params.es6');
-}
+const CONSTANTS = require('../../../webapp/lib/constants.es6');
+const params = require('../../../webapp/middleware/params.es6');
 
 let mongoose;
 try {

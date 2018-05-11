@@ -15,21 +15,21 @@ var ApplicationError;
 try {
     ApplicationError = require('../../../webapp/lib/error');
 } catch (exception) {
-    ApplicationError = require('../../../api/lib/error');
+    ApplicationError = require('../../../webapp/lib/error');
 }
 
 var config;
 try {
     config = require('../../../webapp/config');
 } catch (exception) {
-    config = require('../../../api/config');
+    config = require('../../../webapp/config');
 }
 
 var error;
 try {
     error = require('../../../webapp/middleware/error');
 } catch (exception) {
-    error = require('../../../api/middleware/error');
+    error = require('../../../webapp/middleware/error');
 }
 
 var locale = 'en';

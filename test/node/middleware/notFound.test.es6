@@ -9,18 +9,10 @@ const chai = require('chai');
 const http = require('http');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
+const notFound = require('../../../webapp/middleware/notFound.es6');
 
 const { expect } = chai;
 chai.use(sinonChai);
-
-let notFound;
-try {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    notFound = require('../../../webapp/middleware/notFound.es6');
-} catch (exception) {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    notFound = require('../../../api/middleware/notFound.es6');
-}
 
 class Response {
     constructor() {

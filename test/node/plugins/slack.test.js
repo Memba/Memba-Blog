@@ -12,7 +12,7 @@ var plugins;
 try {
     plugins = require('../../../webapp/plugins');
 } catch (exception) {
-    plugins = require('../../../api/plugins');
+    plugins = require('../../../webapp/plugins');
 }
 
 

@@ -9,27 +9,11 @@ const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const url = require('url');
+const config = require('../../../webapp/config');
+const redirect = require('../../../webapp/middleware/redirect.es6');
 
 const { expect } = chai;
 chai.use(sinonChai);
-
-let config;
-try {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    config = require('../../../webapp/config');
-} catch (exception) {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    config = require('../../../api/config');
-}
-
-let redirect;
-try {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    redirect = require('../../../webapp/middleware/redirect.es6');
-} catch (exception) {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    redirect = require('../../../api/middleware/redirect.es6');
-}
 
 class Response {
     constructor() {

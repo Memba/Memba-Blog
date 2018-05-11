@@ -5,24 +5,15 @@
 
 const request = require('supertest');
 const { compatible, version } = require('../../../package.json');
-
-let config;
-try {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    config = require('../../../webapp/config');
-} catch (exception) {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    config = require('../../../api/config');
-}
+const config = require('../../../webapp/config');
 
 let app;
 try {
-    // We cannot define the app like follows because the server is already running
-    // const app = request('../../../webapp/server');
+    // We cannot define the app like follows when the server is already running
     app = config.get('uris:webapp:root');
 } catch (exception) {
-    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
-    app = require('./../../../api/server');
+    // eslint-disable-next-line global-require
+    app = require('../../../webapp/server');
 }
 
 const pingUri =
