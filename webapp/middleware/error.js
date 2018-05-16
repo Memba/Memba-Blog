@@ -71,8 +71,8 @@ module.exports = {
         };
         if (critical) {
             logger.critical(entry);
-        } else if (entry.error && entry.error.status === 404) {
-            logger.warn(entry); // 404 page not found
+        } else if (entry.error && [400, 401, 403, 404].indexOf(entry.error.status) > -1) {
+            logger.warn(entry);
         } else {
             logger.error(entry);
         }
