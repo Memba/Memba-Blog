@@ -1,48 +1,6 @@
-/* Kendo skin */
-
-// Mixins
-
-.box-orient(@direction) {
-    -moz-box-orient: @direction;
-    -webkit-box-orient: @direction;
-    -ms-box-orient: @direction;
-    box-orient: @direction;
-}
-
-.box(@type) {
-    display: ~"-moz-@{type}";
-    display: ~"-webkit-@{type}";
-    display: ~"-ms-@{type}";
-    display: @type;
-}
-
-.box-direction(@direction) {
-    -moz-box-direction: @direction;
-    -webkit-box-direction: @direction;
-    -ms-box-direction: @direction;
-    box-direction: @direction;
-}
-
-.box-flex(@amount) {
-    -moz-box-flex: @amount;
-    -webkit-box-flex: @amount;
-    -ms-box-flex: @amount;
-    box-flex: @amount;
-}
-
-.box-align(@alignment) {
-    -moz-box-align: @alignment;
-    -webkit-box-align: @alignment;
-    -ms-box-align: @alignment;
-    box-align: @alignment;
-}
-
-.box-pack(@pack) {
-    -moz-box-pack: @pack;
-    -webkit-box-pack: @pack;
-    -ms-box-pack: @pack;
-    box-pack: @pack;
-}
+/**
+ * Mixins TODO Review
+ */
 
 .guarded-border-radius(@value) when (@value < 0) {
     border-radius: 0;
@@ -110,9 +68,9 @@
 .composite-background(@gradient) when not (@gradient = none) {
     background-image: @fallback-texture;
     background-image: @texture, -webkit-linear-gradient(top, ~"@{gradient}");
-    background-image: @texture,    -moz-linear-gradient(top, ~"@{gradient}");
-    background-image: @texture,      -o-linear-gradient(top, ~"@{gradient}");
-    background-image: @texture,       ~"linear-gradient(to bottom, @{gradient})";
+    background-image: @texture, -moz-linear-gradient(top, ~"@{gradient}");
+    background-image: @texture, -o-linear-gradient(top, ~"@{gradient}");
+    background-image: @texture, ~"linear-gradient(to bottom, @{gradient})";
 }
 
 @sprite-image: url('vendor/kendo/web/@{image-folder}/sprite.png');
@@ -169,27 +127,39 @@
 
 //---------------------------------------------
 // Generic tags
-html, body, body>div.k-loading-image{
+html,
+body,
+body > div.k-loading-image {
     background-color: @content-background-color;
 }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: @normal-text-color;
+}
+
 a {
     color: @widget-text-color;
-}
-a:hover {
-    color: @hover-text-color;
-    text-decoration: none;
-}
-a:active {
-    color: @active-text-color;
-    text-decoration: none;
-}
-h1, h2, h3, h4, h5, h6 {
-    color: @normal-text-color;
+
+    &:hover {
+        color: @hover-text-color;
+        text-decoration: none;
+    }
+
+    &:active {
+        color: @active-text-color;
+        text-decoration: none;
+    }
 }
 //---------------------------------------------
 // Navbar
 .navbar {
     .header();
+
     g#logo {
         g:first-child {
             path {
@@ -197,13 +167,15 @@ h1, h2, h3, h4, h5, h6 {
                 stroke: @header-text-color;
             }
         }
+
         g:last-child {
             path {
-                fill: #ffffff;
-                stroke: #ffffff;
+                fill: #fff;
+                stroke: #fff;
             }
         }
     }
+
     .navbar-toggle {
         color: @primary-text-color;
         background-color: @primary-background-color;
@@ -212,6 +184,7 @@ h1, h2, h3, h4, h5, h6 {
         .box-shadow(@primary-shadow);
         .composite-background(@primary-gradient);
     }
+
     /*
     .navbar-toggle:hover {
         color: @hover-text-color;
@@ -226,11 +199,13 @@ h1, h2, h3, h4, h5, h6 {
     form.navbar-form {
         border-color: @widget-border-color;
     }
+
     ul.navbar-nav {
         li {
             a {
                 color: @header-text-color;
             }
+
             a:hover {
                 color: @hover-text-color;
                 background-color: @hover-background-color;
@@ -239,6 +214,7 @@ h1, h2, h3, h4, h5, h6 {
                 .composite-background(@hover-gradient);
             }
         }
+
         li.open {
             a:focus {
                 //TODO we should not require !important here
@@ -249,9 +225,11 @@ h1, h2, h3, h4, h5, h6 {
                 border-color: @selected-border-color !important;
                 .composite-background(@selected-gradient);
             }
+
             ul.dropdown-menu {
                 color: @drop-down-text-color;
                 .composite-background(@widget-gradient);
+
                 background-position: 50% 50%;
                 background-color: @drop-down-background;
                 border-color: @drop-down-border-color;
@@ -260,25 +238,26 @@ h1, h2, h3, h4, h5, h6 {
         }
     }
 }
+
 @media (max-width: 767px) {
     .navbar-inverse {
         .navbar-nav {
             .open {
                 .dropdown-menu {
-                    >li {
-                        >a {
+                    > li {
+                        > a {
                             color: @drop-down-text-color;
                         }
                     }
                 }
             }
-
         }
     }
 }
 //---------------------------------------------
 // Toolbar
-.k-toolbar, .k-list-container {
+.k-toolbar,
+.k-list-container {
     .k-button {
         .k-image {
             height: 1.5em;
@@ -286,11 +265,11 @@ h1, h2, h3, h4, h5, h6 {
             margin-right: 0.5em;
             vertical-align: middle;
         }
+
         &.k-split-button-arrow {
             margin-top: 1px;
         }
     }
-
 }
 
 //---------------------------------------------
@@ -299,18 +278,21 @@ h1, h2, h3, h4, h5, h6 {
     color: @widget-text-color;
     background-color: @widget-background-color;
     border-color: @widget-border-color;
+
     .composite-background(@widget-gradient);
     .box-shadow(@widget-shadow);
+
     a.list-group-item {
         color: @widget-text-color;
         background-color: transparent;
         border-color: @widget-border-color;
-    }
-    a.list-group-item:hover {
-        color: @hover-text-color;
-        background-color: @hover-background-color;
-        border-color: @hover-border-color;
-        .composite-background(@hover-gradient);
+
+        &:hover {
+            color: @hover-text-color;
+            background-color: @hover-background-color;
+            border-color: @hover-border-color;
+            .composite-background(@hover-gradient);
+        }
     }
 }
 
@@ -318,25 +300,34 @@ h1, h2, h3, h4, h5, h6 {
 // Panels (user and summary details)
 .panel { //=== .panel-default
     .window-shadow(@shadow-color);
+
     border-radius: @border-radius @border-radius @border-radius @border-radius;
     border-color: @widget-border-color;
+
     .panel-heading {
         .header();
+
         border-radius: @inner-border-radius @inner-border-radius 0 0;
+
         .panel-actions {
             a[role="button"] {
                 border-radius: @calendar-border-radius;
-            }
-            a[role="button"]:hover {
-                border-color: @hover-border-color;
-                .composite-background(@hover-gradient);
-                background-color: @hover-background-color;
-                // border-size
+
+                &:hover {
+                    border-color: @hover-border-color;
+
+                    .composite-background(@hover-gradient);
+
+                    background-color: @hover-background-color;
+                    // border-size
+                }
             }
         }
     }
+
     .panel-body {
         border-radius: 0 0 @inner-border-radius @inner-border-radius;
+
         .k-pager-wrap {
             border-radius: 0 0 @inner-border-radius @inner-border-radius;
         }
@@ -347,37 +338,44 @@ h1, h2, h3, h4, h5, h6 {
 // Media lists (lists of summaries and activities)
 .k-listview.media-list {
     .media {
-        div.media-left {
-
-        }
+        // div.media-left {}
         div.media-body {
             h4.media-heading {
                 a {
                     color: @normal-text-color;
-                }
-                a:hover {
-                    text-decoration: underline;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
                 }
             }
-            .tags, .activity {
+
+            .tags,
+            .activity {
                 .secondary-text-color(@widget-background-color);
+
                 a {
                     .secondary-text-color(@widget-background-color);
-                }
-                a:hover {
-                    text-decoration: underline;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
                 }
             }
-            .author, .metrics {
+
+            .author,
+            .metrics {
                 .tertiary-text-color(@widget-background-color);
+
                 a {
                     .tertiary-text-color(@widget-background-color);
-                }
-                a:hover {
-                    text-decoration: underline;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
                 }
             }
-            .k-notification {}
+            // .k-notification {}
         }
     }
 }
@@ -388,7 +386,6 @@ form {
     label {
         .tertiary-text-color(@widget-background-color);
     }
-
 }
 
 //---------------------------------------------
@@ -402,10 +399,11 @@ form {
 // Window to match Dialog
 .k-window {
     .k-window-titlebar {
-        line-height: .75em;
-        padding: .6em .8em;
+        line-height: 0.75em;
+        padding: 0.6em 0.8em;
         position: static;
         width: auto;
+
         .k-window-title {
             position: static;
             margin: 0;
@@ -419,9 +417,10 @@ form {
             font-size: 1.2em;
             line-height: 1.2em;
         }
+
         .k-window-actions {
-            top: .6em;
-            right: .8em;
+            top: 0.6em;
+            right: 0.8em;
             padding: 0;
             margin-top: 0;
         }
@@ -456,9 +455,11 @@ form {
     background-color: @notification-info-background-color;
     color: @notification-info-text-color;
     border-color: @notification-info-border-color;
+
     .k-callout-n {
         border-bottom-color: @notification-info-border-color;
     }
+
     .k-callout-s {
         border-top-color: @notification-info-border-color;
     }
@@ -469,6 +470,7 @@ form {
     // So they can wrap on several lines
     margin-left: 2em;
     white-space: normal;
+
     span.k-icon {
         margin-left: -1.4em;
         margin-right: 0.4em;
@@ -480,14 +482,17 @@ form {
     background-color: @notification-error-background-color !important;
     color: @notification-error-text-color !important;
 }
+
 .km-badge-info {
     background-color: @notification-info-background-color !important;
     color: @notification-info-text-color !important;
 }
+
 .km-badge-success {
     background-color: @notification-success-background-color !important;
     color: @notification-success-text-color !important;
 }
+
 .km-badge-warning {
     background-color: @notification-warning-background-color !important;
     color: @notification-warning-text-color !important;
@@ -498,16 +503,18 @@ form {
     .km-widget.km-buttongroup.k-widget.k-button-group {
         .km-button.k-button {
             background: none;
-            background-color: @input-background-color;
+            background-color: @input-bg;
             border-color: @widget-border-color;
-            color: @input-text-color;
+            color: @input-text;
         }
+
         .km-button.k-button:active,
         .km-button.k-button.k-state-active {
             background-color: @selected-background-color;
             border-color: @selected-border-color;
             color: @selected-text-color;
         }
+
         &.km-state-disabled.k-state-disabled {
             .km-button.k-button,
             .km-button.k-button:active,
@@ -518,6 +525,7 @@ form {
                 border-color: @widget-border-color;
                 color: @disabled-text-color;
             }
+
             .km-button.k-button.k-state-active,
             .km-button.k-button.k-state-active:focus,
             .km-button.k-button.k-state-active:hover {
@@ -547,6 +555,7 @@ form {
         .composite-background(@primary-gradient);
     }
 }
+
 .chevron {
     color: @primary-text-color;
     background-color: @primary-background-color;
@@ -556,9 +565,11 @@ form {
 // Tables
 .kj-markdown {
     table {
-        th, td {
+        th,
+        td {
             border-color: @widget-border-color;
         }
+
         tbody {
             tr:nth-child(odd) {
                 background: @alt-background-color;
@@ -566,6 +577,7 @@ form {
         }
     }
 }
+
 // Footer
 footer {
     border-top: solid 1px @widget-border-color;
