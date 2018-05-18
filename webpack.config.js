@@ -198,7 +198,7 @@ module.exports = {
         ]
     },
     optimization: {
-        minimize: true,
+        minimize: process.env.NODE_ENV === 'production',
         splitChunks: {
             // https://github.com/webpack/webpack/issues/7085
             // https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
