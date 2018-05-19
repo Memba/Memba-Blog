@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 
 /**
@@ -19,7 +21,8 @@ if (window.kidoju && window.kidoju.data) {
 
     if (Page) {
         Page.prototype.messages = {
-            createMultiQuizExplanations: 'The correct answers are:\n\n- **{0}**.',
+            createMultiQuizExplanations:
+                'The correct answers are:\n\n- **{0}**.',
             createMultiQuizInstructions:
                 'Please select the options which correspond to your answers to the question: _{0}_.',
             createTextBoxExplanations: 'The correct answer is **{0}**.',
