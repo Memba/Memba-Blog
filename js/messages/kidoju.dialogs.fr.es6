@@ -31,7 +31,20 @@ if (window.kidoju && window.kidoju.dialogs) {
             publish: {},
 
             /* kidoju.dialogs.quizwizard */
-            quizwizard: {},
+            quizwizard: {
+                add: 'Ajouter',
+                message:
+                    'Veuillez saisir une question et remplir la grille avec les choix multiples.',
+                option: 'Option',
+                question: 'Question',
+                solution: 'Solution',
+                text: 'Option 1',
+                validation: {
+                    grid:
+                        'Au moins une option et une solution cochée sont requises. Les options ne peuvent pas non plus être laissées vides.',
+                    question: 'Une question est requise.'
+                }
+            },
 
             /* kidoju.dialogs.signin */
             signin: {},
@@ -39,9 +52,13 @@ if (window.kidoju && window.kidoju.dialogs) {
             /* kidoju.dialogs.textboxwizard */
             textboxwizard: {
                 message:
-                    'Veuillez saisir une question et une solution à comparer aux réponses',
+                    'Veuillez saisir une question et des solutions (une par ligne) à comparer aux réponses',
                 question: 'Question',
-                solution: 'Solution'
+                solution: 'Solution',
+                validation: {
+                    question: 'Une question est requise.',
+                    solution: 'Une solution est requise.'
+                }
             }
         }
     );
