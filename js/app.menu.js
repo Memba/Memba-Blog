@@ -13,8 +13,8 @@ require('./vendor/bootstrap/dropdown.js');
     'use strict';
     define([
         './vendor/kendo/kendo.core',
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         './app.logger',
         './app.i18n'
     ], f);

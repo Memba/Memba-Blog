@@ -85,11 +85,11 @@ module.exports = {
         // We need init especially because of FOUJI
         init: './js/app.init.js',
         // One entry per view
-        error: './js/app.error.es6',
-        home: './js/app.home.es6',
-        page: './js/app.page.es6',
+        error: './js/ui/app.error.es6',
+        home: './js/ui/app.home.es6',
+        page: './js/ui/app.page.es6',
         post: './js/app.post.js',
-        search: './js/app.search.es6'
+        search: './js/ui/app.search.es6'
     },
     externals: {
         // CDN modules

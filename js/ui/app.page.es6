@@ -6,25 +6,26 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-// import './window.assert';
-import './window.logger';
-import './app.logger';
-import './app.i18n';
-import './app.common';
-import './app.menu';
+// import '../common/window.assert.es6';
+import '../common/window.logger.es6';
+import '../app.logger';
+import '../app.i18n';
+import '../app.common';
+import '../app.menu';
+import '../vendor/kendo/kendo.validator';
 
-import '../styles/app.page.home.less';
+import '../../styles/app.page.page.less';
 
 const {
     app: { i18n },
     Logger
 } = window;
-const logger = new Logger('app.home');
+const logger = new Logger('app.page');
 
 $(() => {
     // Log page readiness
     logger.info({
-        message: `home page initialized in ${i18n.locale()}`,
+        message: `site page initialized in ${i18n.locale()}`,
         method: 'document.ready'
     });
 });

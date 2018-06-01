@@ -10,8 +10,8 @@
     'use strict';
     define([
         // We are not loading window.kendo
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         './app.logger'
     ], f);
 })(function () {

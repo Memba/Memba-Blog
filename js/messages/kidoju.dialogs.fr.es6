@@ -22,7 +22,12 @@ if (window.kidoju && window.kidoju.dialogs) {
             },
 
             /* kidoju.dialogs.finder */
-            finder: {},
+            finder: {
+                language: 'Langue',
+                me: 'Mes projets',
+                published: 'Publié le {0:dd-MMM-yyyy} par {1}',
+                search: 'Recherche'
+            },
 
             /* kidoju.dialogs.newsummary */
             newsummary: {},

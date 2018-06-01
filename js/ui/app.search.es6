@@ -6,14 +6,14 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-// import './window.assert';
-import './window.logger';
-import './app.logger';
-import './app.i18n';
-import './app.common';
-import './app.menu';
+// import '../common/window.assert.es6';
+import '../common/window.logger.es6';
+import '../app.logger';
+import '../app.i18n';
+import '../app.common';
+import '../app.menu';
 
-import '../styles/app.page.search.less';
+import '../../styles/app.page.search.less';
 
 const {
     app: { i18n },

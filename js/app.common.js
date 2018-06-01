@@ -29,8 +29,8 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.list',
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.notification',
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         './app.logger',
         './app.i18n',
         './app.theme'

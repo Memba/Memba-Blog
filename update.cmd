@@ -95,30 +95,32 @@ ATTRIB +R .\js\vendor\jquery\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\js\vendor\kendo\*.* .\js\vendor\kendo\ /C /E /I /R /Y
 ATTRIB +R .\js\vendor\kendo\*.* /S
 
-REM ./js/window.*.js
-ATTRIB -R .\js\window.*.js
-COPY ..\..\Kidoju\Kidoju.Webapp\js\window.*.js .\js\ /Y
-ATTRIB +R .\js\window.*.js
+REM ./js/common/*.es6
+ATTRIB -R .\js\common\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\js\common\window.assert.es6 .\js\common /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\js\common\window.constants.es6 .\js\common /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\js\common\window.logger.es6 .\js\common /Y
+ATTRIB +R .\js\common\*.es6
+
+REM ./js/ui/*.es6
+ATTRIB -R .\js\ui\app.error.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\js\ui\app.error.es6 .\js\ui /Y
+ATTRIB +R .\js\ui\app.error.es6
 
 REM ./js/app.common.js
 ATTRIB -R .\js\app.common.js
 COPY ..\..\Kidoju\Kidoju.Webapp\js\app.common.js .\js\ /Y
 ATTRIB +R .\js\app.common.js
 
-REM ./js/app.error.js
-ATTRIB -R .\js\app.error.es6
-COPY ..\..\Kidoju\Kidoju.Webapp\js\app.error.es6 .\js\ /Y
-ATTRIB +R .\js\app.error.es6
+REM ./js/app.i18n.js
+ATTRIB -R .\js\app.i18n.js
+COPY ..\..\Kidoju\Kidoju.Webapp\js\app.i18n.js .\js\ /Y
+ATTRIB +R .\js\app.i18n.js
 
 REM ./js/app.init.js
 ATTRIB -R .\js\app.init.js
 COPY ..\..\Kidoju\Kidoju.Webapp\js\app.init.js .\js\ /Y
 ATTRIB +R .\js\app.init.js
-
-REM ./js/app.locale.js
-ATTRIB -R .\js\app.i18n.js
-COPY ..\..\Kidoju\Kidoju.Webapp\js\app.i18n.js .\js\ /Y
-ATTRIB +R .\js\app.i18n.js
 
 REM ./js/app.logger.js
 ATTRIB -R .\js\app.logger.js
