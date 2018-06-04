@@ -8,7 +8,7 @@ const path = require('path');
 
 let awss3;
 try {
-    // eslint-disable-next-line global-require
+    // eslint-disable-next-line global-require, import/no-unresolved, node/no-missing-require
     awss3 = require('./awss3.es6');
 } catch (ex) {} // eslint-disable-line no-empty
 

@@ -56,14 +56,14 @@ module.exports = {
         }
 
         // Return success in all circumstances
-        res
-            .status(httpStatus.created)
-            .send(
-                `<html><head><meta http-equiv="refresh" content="0; url=${
-                    req.headers.referer
-                }#success=true"></head><script>window.location.href="${
-                    req.headers.referer
-                }#success=true"</script></html>`
-            );
+        res.status(httpStatus.created).send(
+            /* eslint-disable prettier/prettier */
+            `<html><head><meta http-equiv="refresh" content="0; url=${
+                req.headers.referer
+            }#success=true"></head><script>window.location.href="${
+                req.headers.referer
+            }#success=true"</script></html>`
+            /* eslint-enable prettier/prettier */
+        );
     }
 };

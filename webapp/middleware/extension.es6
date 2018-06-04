@@ -44,8 +44,7 @@ module.exports = {
         ) {
             // If pathname ends with a file extension (images, stylesheets, scripts, ...),
             // spare bandwidth by returning a plain text (non-html) error for missing assets
-            res
-                .status(404)
+            res.status(404)
                 .set({ 'Content-Type': 'text/plain; charset=utf-8' })
                 .send(http.STATUS_CODES['404']);
         } else {

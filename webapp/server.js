@@ -112,9 +112,9 @@ config.load(error => {
     app.use((req, res, next) => {
         if (closingInProgress) {
             res.setHeader('Connection', 'close');
-            res
-                .status(503)
-                .send('This server is in the process of restarting...');
+            res.status(503).send(
+                'This server is in the process of restarting...'
+            );
         } else {
             next();
         }

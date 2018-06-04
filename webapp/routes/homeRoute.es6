@@ -33,12 +33,11 @@ module.exports = {
         // Get menu with english as default language
         menuModel.getMenu('en', (error, data) => {
             if (!error && data) {
-                res
-                    .set({
-                        'Cache-Control': 'private, max-age=43200',
-                        'Content-Language': language,
-                        'Content-Type': 'text/html; charset=utf-8'
-                    })
+                res.set({
+                    'Cache-Control': 'private, max-age=43200',
+                    'Content-Language': language,
+                    'Content-Type': 'text/html; charset=utf-8'
+                })
                     .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                     .render('home', {
                         author: config.home.author,
