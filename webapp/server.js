@@ -265,7 +265,7 @@ config.load(error => {
     // Routing
     // ESlint does not like global requires but we need to yield time to retrieve config from AWS S3
     // eslint-disable-next-line global-require
-    const router = require('./routes');
+    const router = require('./routes/index.es6');
     app.use(router);
 
     // Configure expressJS and launch server
