@@ -8,7 +8,7 @@
 'use strict';
 
 var request = require('request');
-var config = require('../config');
+var config = require('../config/index.es6');
 var version = require('../../package.json').version;
 
 var github = 'https://api.github.com';

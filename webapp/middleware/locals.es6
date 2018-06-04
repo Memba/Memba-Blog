@@ -5,7 +5,7 @@
 
 const util = require('util');
 const moment = require('moment');
-const config = require('../config');
+const config = require('../config/index.es6');
 const url = require('url');
 
 module.exports = function handler(req, res, next) {

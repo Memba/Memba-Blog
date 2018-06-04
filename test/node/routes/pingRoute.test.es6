@@ -5,7 +5,7 @@
 
 const request = require('supertest');
 const { compatible, version } = require('../../../package.json');
-const config = require('../../../webapp/config');
+const config = require('../../../webapp/config/index.es6');
 
 let app;
 try {

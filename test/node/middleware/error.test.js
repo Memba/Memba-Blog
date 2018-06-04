@@ -20,9 +20,9 @@ try {
 
 var config;
 try {
-    config = require('../../../webapp/config');
+    config = require('../../../webapp/config/index.es6');
 } catch (exception) {
-    config = require('../../../webapp/config');
+    config = require('../../../webapp/config/index.es6');
 }
 
 var error;

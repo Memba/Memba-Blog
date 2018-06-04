@@ -7,7 +7,7 @@
 
 'use strict';
 
-var config = require('../config');
+var config = require('../config/index.es6');
 var locales = config.get('locales');
 var ApplicationError = require('../lib/error');
 var db = require('../lib/db');

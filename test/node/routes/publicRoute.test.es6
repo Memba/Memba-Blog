@@ -5,7 +5,7 @@
 
 const request = require('supertest');
 const util = require('util');
-const config = require('../../../webapp/config');
+const config = require('../../../webapp/config/index.es6');
 
 // We cannot define the app like follows because the server is already running
 // const app = request('../../../webapp/server');

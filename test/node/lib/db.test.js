@@ -9,7 +9,7 @@
 
 var expect = require('chai').expect;
 var util = require('util');
-var config = require('../../../webapp/config');
+var config = require('../../../webapp/config/index.es6');
 var db = require('../../../webapp/lib/db');
 
 describe('lib/db', function () {

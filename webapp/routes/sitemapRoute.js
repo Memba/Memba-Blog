@@ -10,7 +10,7 @@
 var assert = require('assert');
 var url = require('url');
 var util = require('util');
-var config = require('../config');
+var config = require('../config/index.es6');
 var logger = require('../lib/logger');
 var indexModel = require('../models/indexModel');
 

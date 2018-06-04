@@ -12,7 +12,7 @@ var expect = require('chai').expect;
 var url = require('url');
 var util = require('util');
 
-var config = require('../../webapp/config');
+var config = require('../../webapp/config/index.es6');
 var LOCALE = 'fr';
 var SUPPORT_TITLE = 'Support';
 var LIST_TITLE = 'Résultats de recherche';

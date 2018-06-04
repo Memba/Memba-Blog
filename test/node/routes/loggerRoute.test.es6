@@ -4,7 +4,7 @@
  */
 
 const request = require('supertest');
-const config = require('../../../webapp/config');
+const config = require('../../../webapp/config/index.es6');
 
 let app;
 try {

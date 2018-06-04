@@ -9,7 +9,7 @@ const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const url = require('url');
-const config = require('../../../webapp/config');
+const config = require('../../../webapp/config/index.es6');
 const redirect = require('../../../webapp/middleware/redirect.es6');
 
 const { expect } = chai;

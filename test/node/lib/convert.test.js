@@ -11,7 +11,7 @@ var path = require('path');
 var util = require('util');
 var expect = require('chai').expect;
 var convert = require('../../../webapp/lib/convert');
-var config = require('../../../webapp/config');
+var config = require('../../../webapp/config/index.es6');
 var github = {
     language: config.get('github:language'),    // "%s/"
     pages: config.get('github:pages'),          // "pages"

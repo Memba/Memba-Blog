@@ -11,7 +11,7 @@ const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const url = require('url');
 const util = require('util');
-const config = require('../../../webapp/config');
+const config = require('../../../webapp/config/index.es6');
 const extension = require('../../../webapp/middleware/extension.es6');
 
 const root = config.get('uris:webapp:root');

@@ -202,10 +202,10 @@ ATTRIB -R .\test\browser\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\test\browser\.eslintrc .\test\browser /Y
 ATTRIB +R .\test\browser\.eslintrc
 
-REM Copy ./test/node/common.js files
-ATTRIB -R .\test\node\*.*
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\common.js .\test\node /Y
-ATTRIB +R .\test\node\common.js
+REM Copy ./test/node/common files
+ATTRIB -R .\test\node\common\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\common\*.es6 .\test\node /Y
+ATTRIB +R .\test\node\common\*.es6
 
 REM Copy ./test/node/lib files
 ATTRIB -R .\test\node\lib\*.js
@@ -271,9 +271,9 @@ REM Web Application
 REM ------------------------------------------------------------
 
 REM Copy ./webapp/config files
-ATTRIB -R .\webapp\config\index.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\config\index.js .\webapp\config /Y
-ATTRIB +R .\webapp\config\index.js
+ATTRIB -R .\webapp\config\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\config\index.es6 .\webapp\config /Y
+ATTRIB +R .\webapp\config\*.es6
 
 REM Copy ./webapp/lib files
 ATTRIB -R .\webapp\lib\*.js

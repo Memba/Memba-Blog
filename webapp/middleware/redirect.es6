@@ -5,7 +5,7 @@
 
 const url = require('url');
 const util = require('util');
-const config = require('../config');
+const config = require('../config/index.es6');
 
 // Redirection rules in json config
 let rules = config.get('redirect');

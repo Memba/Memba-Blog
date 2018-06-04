@@ -9,7 +9,7 @@
 
 var assert = require('assert');
 var chalk = require('chalk');
-var config = require('../config');
+var config = require('../config/index.es6');
 
 var RX_LEVELS = /^(debug|info|warn|error|crit)$/i;
 var levels = {

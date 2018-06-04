@@ -6,7 +6,7 @@
 const util = require('util');
 const http = require('http');
 const url = require('url');
-const config = require('../config');
+const config = require('../config/index.es6');
 
 const SEPARATOR = '\\/';
 const allow = {

@@ -12,7 +12,7 @@
 var url = require('url');
 var util = require('util');
 
-var config = require('../../webapp/config');
+var config = require('../../webapp/config/index.es6');
 
 var webapp = {
     home: url.resolve(config.get('uris:webapp:root'), config.get('uris:webapp:home')),

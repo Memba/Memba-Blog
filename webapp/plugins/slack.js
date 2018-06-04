@@ -9,7 +9,7 @@
 
 var assert = require('assert');
 var request = require('request');
-var config = require('../config');
+var config = require('../config/index.es6');
 var logger = require('../lib/logger');
 
 var SHORT_LENGTH = 15;

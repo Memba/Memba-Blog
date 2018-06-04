@@ -118,7 +118,7 @@ module.exports = {
             err.i18n === 'token.invalidCallback' || // Authentication has most probably been cancelled by the user
             err.i18n === 'account.userBlocked') { // User is blocked
 
-            config = require('../config');
+            config = require('../config/index.es6');
             url = require('url');
             format = require('util').format;
 
