@@ -107,7 +107,7 @@ module.exports = {
                 test: /\.jsx/, // see ./web_modules/jsx-loader?config=
                 use: [
                     {
-                        loader: './web_modules/jsx-loader',
+                        loader: './web_modules/jsx-loader/index.es6',
                         options: { config: 'webapp/config' }
                     }
                 ]
