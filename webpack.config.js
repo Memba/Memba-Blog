@@ -12,7 +12,7 @@
 
 const path = require('path');
 const webpack = require('webpack');
-const cleanPlugin = require('./web_modules/less-plugin');
+const cleanPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
 const pkg = require('./package.json');
 
