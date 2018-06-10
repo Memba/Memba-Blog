@@ -33,6 +33,9 @@ const CONSTANTS = {
     TOUCHLEAVE: 'touchleave',
     TOUCHMOVE: 'touchmove',
     TOUCHSTART: 'touchstart',
+    // Cursors
+    CROSSHAIR_CURSOR: 'crosshair',
+    DEFAULT_CURSOR: 'default',
     // Well-known classes
     DISABLED_CLASS: 'k-state-disabled',
     FOCUS_CLASS: 'k-state-focus',
@@ -51,7 +54,8 @@ const CONSTANTS = {
     UNDERSCORE: '_',
     // Miscellaneous
     ID: 'id',
-    ME: 'me'
+    ME: 'me',
+    POINTER: 'pointer'
 };
 
 /**
