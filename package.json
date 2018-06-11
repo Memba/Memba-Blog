@@ -59,7 +59,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "autoprefixer": "^8.6.1",
+    "autoprefixer": "^8.6.2",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.3",
     "babel-loader": "^7.1.4",
@@ -81,7 +81,7 @@
     "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-less": "^2.0.0",
     "grunt-contrib-uglify": "^3.3.0",
-    "grunt-eslint": "^20.1.0",
+    "grunt-eslint": "^20.2.0",
     "grunt-jscs": "^3.0.1",
     "grunt-mocha": "^1.0.4",
     "grunt-mocha-test": "^0.13.3",
@@ -98,8 +98,8 @@
     "mocha": "^5.2.0",
     "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^2.1.5",
-    "prettier": "^1.13.4",
-    "sinon": "^5.1.0",
+    "prettier": "^1.13.5",
+    "sinon": "^6.0.0",
     "sinon-chai": "^3.1.0",
     "style-loader": "^0.21.0",
     "stylelint": "^9.2.1",
