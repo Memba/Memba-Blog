@@ -147,6 +147,17 @@ assert.isArray = function _isArray(value, message) {
 };
 
 /**
+ * Assert not undefined
+ * @param value
+ * @param message
+ */
+assert.isDefined = function _isDefined(value, message) {
+    if ($.type(value) === 'undefined') {
+        throw new TypeError(message);
+    }
+};
+
+/**
  * Assert empty object (i.e. {})
  * @param value
  * @param message
@@ -266,6 +277,9 @@ assert.messages = {
     isArray: {
         default: '`{0}` is expected to be an array'
     },
+    isDefined: {
+        default: '`{0}` is expected to be not undefined'
+    },
     isEmptyObject: {
         default: '`{0}` is expected to be an empty object'
     },
@@ -293,6 +307,31 @@ assert.messages = {
     typeOrUndef: {
         default: '`{0}` is expected to have type `{1}` or be undefined'
     }
+};
+
+/**
+ * Assert crud
+ * @param options
+ */
+assert.crud = function _crud(options) {
+    assert.type(
+        'object',
+        options,
+        assert.format(assert.messages.type.default, 'options', 'object')
+    );
+    assert.type(
+        'object',
+        options.data,
+        assert.format(assert.messages.type.default, 'options.data', 'object')
+    );
+    assert.isFunction(
+        options.success,
+        assert.format(assert.messages.isFunction.default, 'options.success')
+    );
+    assert.isFunction(
+        options.error,
+        assert.format(assert.messages.isFunction.default, 'options.error')
+    );
 };
 
 /**
