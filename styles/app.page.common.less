@@ -32,6 +32,12 @@ img:not([alt]) {
     border: dashed 5px red !important;
 }
 
+.img-24 {
+    // For dropdowns
+    height: 24px;
+    width: 24px;
+}
+
 .img-28 {
     // For medals
     height: 28px;
@@ -154,11 +160,13 @@ img:not([alt]) {
                     margin-bottom: 4px;
                 }
 
+                /* Commented since replacing kidoju with kendo dropdowntree
                 .k-dropdown { // category dropdowntree
                     .k-input {
                         height: 2.2em;
                     }
                 }
+                */
 
                 .kj-buttonset {
                     display: block;
@@ -472,6 +480,7 @@ form {
             height: auto; // otherwise numerictextbox does not display well - see http://www.telerik.com/forums/bug-numerictextbox-displays-inconsistently-in-bootstrap-forms
         }
 
+        /* Commented since replacing kidoju with kendo dropdowntree
         .k-dropdown {
             .k-input {
                 min-height: 1.65em; // otherwise height:auto here above collapses dropdowntree when there is no selected value
@@ -484,6 +493,7 @@ form {
                 }
             }
         }
+        */
 
         .k-textbox:not(textarea) {
             height: 2.4em;
