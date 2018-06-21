@@ -103,9 +103,9 @@ COPY ..\..\Kidoju\Kidoju.Webapp\js\common\window.logger.es6 .\js\common /Y
 ATTRIB +R .\js\common\*.es6
 
 REM ./js/ui/*.es6
-ATTRIB -R .\js\ui\app.error.es6
-COPY ..\..\Kidoju\Kidoju.Webapp\js\ui\app.error.es6 .\js\ui /Y
-ATTRIB +R .\js\ui\app.error.es6
+ATTRIB -R .\js\ui\page.error.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\js\ui\page.error.es6 .\js\ui /Y
+ATTRIB +R .\js\ui\page.error.es6
 
 REM ./js/app.common.js
 ATTRIB -R .\js\app.common.js
@@ -174,14 +174,14 @@ COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.mixins.less .\styles\ /Y
 ATTRIB +R .\styles\app.mixins.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.page.common.less .\styles\ /Y
 ATTRIB +R .\styles\app.page.common.less
-COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.page.error.less .\styles\ /Y
-ATTRIB +R .\styles\app.page.error.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.template.less .\styles\ /Y
 ATTRIB +R .\styles\app.template.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\app.theme.*.less .\styles\ /Y
 ATTRIB +R .\styles\app.theme.*.less
 COPY ..\..\Kidoju\Kidoju.Webapp\styles\highlightjs.custom.less .\styles\ /Y
 ATTRIB +R .\styles\highlightjs.custom.less
+COPY ..\..\Kidoju\Kidoju.Webapp\styles\page.error.less .\styles\ /Y
+ATTRIB +R .\styles\page.error.less
 
 REM Consider merging with app.page.common.less
 ATTRIB -R .\styles\kidoju.tools.less

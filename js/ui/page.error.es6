@@ -6,21 +6,25 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-// import '../common/window.assert.es6';
-import '../common/window.logger.es6';
+// import assert from '../common/window.assert.es6';
+import Logger from '../common/window.logger.es6';
+
+// TODO Review app.* files
 import '../app.logger';
 import '../app.i18n';
 import '../app.common';
 
-import '../../styles/app.page.error.less';
+import '../../styles/page.error.less';
 
 const {
     app: { i18n },
     history,
-    location,
-    Logger
+    location
 } = window;
-const logger = new Logger('app.error');
+const logger = new Logger('page.error');
+const SELECTORS = {
+    BACK_BUTTON: '#back-button'
+};
 
 /**
  * Wait for document to be ready to initialize UI
@@ -28,7 +32,8 @@ const logger = new Logger('app.error');
  */
 $(() => {
     // Add click handler on back button
-    $('#back-button').click(() => {
+    $(SELECTORS.BACK_BUTTON).click(e => {
+        e.preventDefault();
         if (history && history.length > 1) {
             history.back();
         } else {
