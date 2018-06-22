@@ -20,14 +20,17 @@ class Response {
         this._set = sinon.spy();
         this._status = sinon.spy();
     }
+
     send(options) {
         this._send(options);
         return this; // Support chaining
     }
+
     set(options) {
         this._set(options);
         return this; // Support chaining
     }
+
     status(options) {
         this._status(options);
         return this; // Support chaining

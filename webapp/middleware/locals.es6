@@ -5,8 +5,8 @@
 
 const util = require('util');
 const moment = require('moment');
-const config = require('../config/index.es6');
 const url = require('url');
+const config = require('../config/index.es6');
 
 module.exports = function handler(req, res, next) {
     // Make nconf configurations available to our EJS templates

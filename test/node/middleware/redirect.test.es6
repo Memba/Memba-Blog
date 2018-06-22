@@ -19,6 +19,7 @@ class Response {
     constructor() {
         this._redirect = sinon.spy();
     }
+
     get redirect() {
         return this._redirect;
     }
