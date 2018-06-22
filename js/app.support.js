@@ -13,7 +13,7 @@
 
     'use strict';
 
-    var app = window.app;
+    var app = window.app = window.app || {};
 
     /* This function has too many statements. */
     /* jshint -W071 */
