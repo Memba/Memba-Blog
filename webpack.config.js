@@ -100,7 +100,13 @@ module.exports = {
         rules: [
             {
                 test: /\.es6$/,
-                use: [{ loader: 'babel-loader' }]
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: { babelrc: true }
+                    }
+                ]
             },
             {
                 // Do not put a $ at the end of the test regex
