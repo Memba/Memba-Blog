@@ -58,8 +58,6 @@
             document.querySelector('head').appendChild(msViewportStyle);
         }
     </script>
-    <% // Promise polyfill for webpack - https://github.com/Memba/Memba-Blog/issues/113 %>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.5.1/bluebird.core.min.js" integrity="sha256-7jOZQO3inJV9wbRvcN3ao6mKhFQOPNITDVSUc1JSbtk=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script defer src="<%- url.resolve(config.uris.webpack.root, 'init.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
     <style>
