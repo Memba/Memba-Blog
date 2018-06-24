@@ -192,11 +192,6 @@ REM ------------------------------------------------------------
 REM Tests
 REM ------------------------------------------------------------
 
-REM Copy ./test/bin files
-ATTRIB -R .\test\bin\*.*
-XCOPY ..\..\Kidoju\Kidoju.Webapp\test\bin\*.* .\test\bin\ /C /E /I /R /Y
-ATTRIB +R .\test\bin\*.*
-
 REM Copy ./test/browser files
 ATTRIB -R .\test\browser\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\test\browser\.eslintrc .\test\browser /Y
