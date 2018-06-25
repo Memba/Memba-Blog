@@ -17,10 +17,10 @@ const config = require('./webapp/config/index.es6');
 const pkg = require('./package.json');
 
 const environment = config.environment || 'development';
-const publicPath = config.get('uris:webpack:root');
+const buildPath = config.get('uris:webpack:root');
 
 console.log(`webpack environment is ${environment}`); // eslint-disable-line no-console
-console.log(`webpack public path is ${publicPath}`); // eslint-disable-line no-console
+console.log(`webpack build path is ${buildPath}`); // eslint-disable-line no-console
 console.log(`building version ${pkg.version}`); // eslint-disable-line no-console
 
 /**
@@ -225,7 +225,7 @@ module.exports = {
         // Unfortunately it is not possible to specialize output directories
         // See https://github.com/webpack/webpack/issues/882
         path: path.join(__dirname, '/webapp/public/build'),
-        publicPath,
+        publicPath: buildPath,
         filename: `[name].bundle.js?v=${pkg.version}`,
         chunkFilename: `[name].bundle.js?v=${pkg.version}`
     },
