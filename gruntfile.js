@@ -170,14 +170,14 @@ module.exports = grunt => {
             build: {
                 cache: false,
                 devtool: false,
-                plugins: webpackConfig.plugins.concat(
+                plugins: webpackConfig.plugins.concat([
                     new webpack.BannerPlugin({
                         banner:
                             '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
                         raw: true
                         // entryOnly: true
                     })
-                )
+                ])
             }
         }
     });
