@@ -179,7 +179,7 @@ config.load(error => {
                         "'unsafe-eval'",
                         "'unsafe-inline'",
                         cdnRoot,
-                        'cdnjs.cloudflare.com', // jquery + bluebird promise polyfill for webpack + insites cookie consent (the 2nd via http on localhost)
+                        'cdnjs.cloudflare.com', // jquery + insites cookie consent (the 2nd via http on localhost)
                         'https://cdn.ampproject.org/v0.js', // AMP Pages
                         'https://www.googletagmanager.com', // GTM
                         'https://apis.google.com', // Google classroom button
@@ -259,7 +259,7 @@ config.load(error => {
     app.use(
         util.format(config.get('uris:webapp:public'), ''),
         cors({ origin: config.get('uris:webapp:root') }),
-        express.static(path.join(__dirname, 'public'), { maxAge: '1d' })
+        express.static(path.join(__dirname, 'public'), { maxAge: '90d' })
     );
 
     // Routing
