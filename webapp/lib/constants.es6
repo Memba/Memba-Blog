@@ -32,5 +32,5 @@ module.exports = {
     // http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url
     // http://msdn.microsoft.com/en-us/library/ff650303.aspx#paght000001_commonregularexpressions
     RX_URL: /^http(s?):\/\/[0-9a-z]([-.\w]*[0-9a-z])*(:(0-9)*)*(\/?)(.*)?$/i,
-    RX_USER_AGENT: /^[-a-zA-Z0-9]+\/\d/
+    RX_USER_AGENT: /^[-a-zA-Z0-9,]+\/\d/
 };
