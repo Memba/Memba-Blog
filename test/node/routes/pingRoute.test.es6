@@ -7,11 +7,12 @@ const request = require('supertest');
 const { compatible, version } = require('../../../package.json');
 const config = require('../../../webapp/config/index.es6');
 
-let app;
-try {
-    // We cannot define the app like follows when the server is already running
+let app = config.get('uris:webpack:root');
+if (app) {
+    // This is a web app (and expressJS is already running)
     app = config.get('uris:webapp:root');
-} catch (exception) {
+} else {
+    // This is an api server (and we need to launch expressJS)
     // eslint-disable-next-line global-require
     app = require('../../../webapp/server');
 }
