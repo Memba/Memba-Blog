@@ -7,7 +7,13 @@
  * Constants
  */
 module.exports = {
-    PROVIDERS: ['facebook', 'google', 'live', 'twitter'], // RX_OAUTH_PROVIDER
+    PROVIDERS: ['facebook', 'google', 'live', 'twitter'], // See RX_OAUTH_PROVIDER
+    CACHE_CONTROL: {
+        HTML: 'public, max-age=604800' // 7 days
+    },
+    CONTENT_TYPE: {
+        HTML: 'text/html; charset=utf-8'
+    },
     RX_APP_SCHEME: /^[a-z]{2,3}\.[a-z0-9]{3,10}\.[a-z0-9]{3,10}$/,
     // @see http://www.regular-expressions.info/email.html
     RX_EMAIL: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
