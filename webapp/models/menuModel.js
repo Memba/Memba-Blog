@@ -9,7 +9,7 @@
 
 var convert = require('../lib/convert');
 var github = require('../lib/github');
-var ApplicationError = require('../lib/error');
+var ApplicationError = require('../lib/applicationError');
 var cache = {};
 
 module.exports = {

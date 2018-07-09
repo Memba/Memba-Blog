@@ -4,7 +4,7 @@
  */
 
 // const assert = require('assert');
-const ApplicationError = require('../lib/error');
+const ApplicationError = require('../lib/applicationError');
 const config = require('../config/index.es6');
 const CONSTANTS = require('../lib/constants.es6');
 

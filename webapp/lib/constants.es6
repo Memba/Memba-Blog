@@ -29,6 +29,7 @@ module.exports = {
     RX_SHA512: /^[a-f0-9]{128}$/i,
     RX_STYLE: /^([\w-]+[\s]*:[\s]*[#%().\w\s-]+;[\s]*)*([\w-]+[\s]*:[\s]*[#%().\w\s-]+;?)$/,
     RX_TITLE: /^[^\s<>{}][^<>{}]{0,58}[^\s<>{}]$/,
+    RX_TOOL: /^[a-z0-9_]{3,30}$/i,
     // http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url
     // http://msdn.microsoft.com/en-us/library/ff650303.aspx#paght000001_commonregularexpressions
     RX_URL: /^http(s?):\/\/[0-9a-z]([-.\w]*[0-9a-z])*(:(0-9)*)*(\/?)(.*)?$/i,

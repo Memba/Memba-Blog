@@ -9,7 +9,7 @@
 
 var config = require('../config/index.es6');
 var locales = config.get('locales');
-var ApplicationError = require('../lib/error');
+var ApplicationError = require('../lib/applicationError');
 var db = require('../lib/db');
 var logger = require('../lib/logger');
 var utils = require('../lib/utils.es6');

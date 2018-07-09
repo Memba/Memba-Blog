@@ -8,7 +8,7 @@
 'use strict';
 
 var assert = require('assert');
-var ApplicationError = require('../lib/error');
+var ApplicationError = require('../lib/applicationError');
 var logger = require('../lib/logger');
 var utils = require('../lib/utils.es6');
 var config;

@@ -19,10 +19,10 @@ try {
 var ApplicationError;
 var webapp = false;
 try {
-    ApplicationError = require('../../../webapp/lib/error');
+    ApplicationError = require('../../../webapp/lib/applicationError');
     webapp = true;
 } catch (exception) {
-    ApplicationError = require('../../../webapp/lib/error');
+    ApplicationError = require('../../../webapp/lib/applicationError');
 }
 
 describe('lib/error', function () {
