@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-const ApplicationError = require('../lib/applicationError');
+const ApplicationError = require('../lib/applicationError.es6');
 const logger = require('../lib/logger');
 
 module.exports = {

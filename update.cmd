@@ -209,12 +209,12 @@ ATTRIB +R .\test\node\config\*.es6
 
 REM Copy ./test/node/lib files
 ATTRIB -R .\test\node\lib\*.js
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\error.test.js .\test\node\lib /Y
-ATTRIB +R .\test\node\lib\error.test.js
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\logger.test.js .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\logger.test.js
 
 ATTRIB -R .\test\node\lib\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\applicationError.test.es6 .\test\node\lib /Y
+ATTRIB +R .\test\node\lib\applicationError.test.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\utils.test.es6 .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\utils.test.es6
 
@@ -277,12 +277,12 @@ ATTRIB +R .\webapp\config\*.es6
 
 REM Copy ./webapp/lib files
 ATTRIB -R .\webapp\lib\*.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\error.js .\webapp\lib /Y
-ATTRIB +R .\webapp\lib\error.js
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\logger.js .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\logger.js
 
 ATTRIB -R .\webapp\lib\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\applicationError.es6 .\webapp\lib /Y
+ATTRIB +R .\webapp\lib\applicationError.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\constants.es6 .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\constants.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\httpStatus.es6 .\webapp\lib /Y

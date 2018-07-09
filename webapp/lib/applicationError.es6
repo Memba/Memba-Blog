@@ -3,94 +3,139 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true, strict: false */
+const assert = require('assert');
+const { format } = require('util');
+const { deepExtend, isObject } = require('./utils.es6');
+const httpStatus = require('./httpStatus.es6');
 
-// 'use strict';     // because arguments.callee is a strict violation
-
-var assert = require('assert');
-var util = require('util');
-var utils = require('./utils.es6');
-var httpStatus = require('./httpStatus.es6');
-
-var mongoose;
+let mongoose;
 try {
+    // eslint-disable-next-line global-require,import/no-unresolved,,node/no-missing-require
     mongoose = require('mongoose');
 } catch (ex) {
     // This is a generic error handler which can be used without mongoose
-    mongoose = { Error: { ValidationError: function () {} } };
+    mongoose = { Error: { ValidationError: function noop() {} } };
 }
 
-var i18n;
+let i18n;
 try {
+    // eslint-disable-next-line global-require,import/no-unresolved,node/no-missing-require
     i18n = require('i18n');
 } catch (ex) {
+    // eslint-disable-next-line global-require,import/no-unresolved,node/no-missing-require
     i18n = require('./i18n.es6');
 }
 
-/* This function's cyclomatic complexity is too high. */
-/* jshint -W074 */
-
 /**
  * Application error
- * @param error
- * @constructor
+ * @class
  */
-function ApplicationError (error) {
-    /* jshint maxcomplexity: 9 */
-    Error.call(this);
-    /* jshint -W059 */
-    /* jshint -W030 */
-    Error.captureStackTrace && Error.captureStackTrace(this, arguments.callee);
-    /* jshint +W030 */
-    /* jshint +W059 */
-    this.name = 'ApplicationError';
-    if (error instanceof mongoose.Error.ValidationError) {
-        // A validation error is a bad request
-        this.i18n = 'errors.http.' + httpStatus.badRequest;
-        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
-        utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
-    } else if (error instanceof Error && typeof error.code === 'number') {
-        this.i18n = 'errors.http.' + error.code;
-        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
-        utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
-    } else if (error instanceof Error && typeof error.status === 'number') {
-        this.i18n = 'errors.http.' + error.status;
-        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
-        utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
-    } else if (error instanceof Error) {
-        this.i18n = 'errors.http.' + httpStatus.internalServerError;
-        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?), so we need to ensure we at least get the message, name and stack)
-        utils.deepExtend(this, i18n.__(this.i18n), { originalError: { message: error.message, name: error.name, stack: error.stack } }, { originalError: error });
-    } else if (utils.isObject(error)) {
-        this.i18n = 'errors.http.' + httpStatus.internalServerError;
-        utils.deepExtend(this, i18n.__(this.i18n), error);
-    } else if (typeof error === 'number') {
-        this.i18n = 'errors.http.' + error;
-        var httpError = i18n.__(this.i18n);
-        assert.ok(utils.isObject(httpError), 'There is no resource for ' + this.i18n);
-        utils.deepExtend(this, httpError);
-    } else if (typeof error === 'string') {
-        var matchError = i18n.__(error);
-        if (matchError === error) {
-            this.i18n = 'errors.http.' + httpStatus.internalServerError;
-            // the following accepts constructions like new ApplicationError('error on value %s of %s', 1, 2)
-            utils.deepExtend(this, i18n.__(this.i18n), { message: util.format.apply(undefined, arguments) });
-        } else {
-            this.i18n = error;
-            utils.deepExtend(this, matchError);
+class ApplicationError extends Error {
+    /**
+     * Constructor
+     * @constructor
+     * @param args
+     */
+    constructor(...args) {
+        super(...args);
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, ApplicationError);
         }
-    } else {
-        throw new Error('ApplicationError created without valid parameter');
+        this.name = 'ApplicationError';
+        const error = args[0];
+        if (args[0] instanceof mongoose.Error.ValidationError) {
+            // A validation error is a bad request
+            this.i18n = `errors.http.${httpStatus.badRequest}`;
+            deepExtend(
+                this,
+                i18n.__(this.i18n),
+                {
+                    originalError: {
+                        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?),
+                        // so we need to ensure we at least get the message, name and stack)
+                        message: error.message,
+                        name: error.name,
+                        stack: error.stack
+                    }
+                },
+                { originalError: error }
+            );
+        } else if (error instanceof Error && typeof error.code === 'number') {
+            this.i18n = `errors.http.${error.code}`;
+            deepExtend(
+                this,
+                i18n.__(this.i18n),
+                {
+                    originalError: {
+                        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?),
+                        // so we need to ensure we at least get the message, name and stack)
+                        message: error.message,
+                        name: error.name,
+                        stack: error.stack
+                    }
+                },
+                { originalError: error }
+            );
+        } else if (error instanceof Error && typeof error.status === 'number') {
+            this.i18n = `errors.http.${error.status}`;
+            deepExtend(
+                this,
+                i18n.__(this.i18n),
+                {
+                    originalError: {
+                        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?),
+                        // so we need to ensure we at least get the message, name and stack)
+                        message: error.message,
+                        name: error.name,
+                        stack: error.stack
+                    }
+                },
+                { originalError: error }
+            );
+        } else if (error instanceof Error) {
+            this.i18n = `errors.http.${httpStatus.internalServerError}`;
+            deepExtend(
+                this,
+                i18n.__(this.i18n),
+                {
+                    originalError: {
+                        // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?),
+                        // so we need to ensure we at least get the message, name and stack)
+                        message: error.message,
+                        name: error.name,
+                        stack: error.stack
+                    }
+                },
+                { originalError: error }
+            );
+        } else if (isObject(error)) {
+            this.i18n = `errors.http.${httpStatus.internalServerError}`;
+            deepExtend(this, i18n.__(this.i18n), error);
+        } else if (typeof error === 'number') {
+            this.i18n = `errors.http.${error}`;
+            const httpError = i18n.__(this.i18n);
+            assert.ok(
+                isObject(httpError),
+                `There is no resource for ${this.i18n}`
+            );
+            deepExtend(this, httpError);
+        } else if (typeof error === 'string') {
+            const matchError = i18n.__(error);
+            if (matchError === error) {
+                this.i18n = `errors.http.${httpStatus.internalServerError}`;
+                // the following accepts constructions like new ApplicationError('error on value %s of %s', 1, 2)
+                deepExtend(this, i18n.__(this.i18n), {
+                    message: format.apply(this, args)
+                });
+            } else {
+                this.i18n = error;
+                deepExtend(this, matchError);
+            }
+        } else {
+            throw new Error('ApplicationError created without valid parameter');
+        }
     }
 }
-
-/* jshint +W074 */
-
-/**
- * Inherit from `Error`.
- */
-ApplicationError.prototype = Object.create(Error.prototype);
-ApplicationError.prototype.constructor = Error;
 
 /**
  * Export ApplicationError

@@ -13,9 +13,9 @@ var url = require('url');
 
 var ApplicationError;
 try {
-    ApplicationError = require('../../../webapp/lib/applicationError');
+    ApplicationError = require('../../../webapp/lib/applicationError.es6');
 } catch (exception) {
-    ApplicationError = require('../../../webapp/lib/applicationError');
+    ApplicationError = require('../../../webapp/lib/applicationError.es6');
 }
 
 var config;

@@ -5,7 +5,7 @@
 
 const http = require('http');
 const url = require('url');
-const ApplicationError = require('../lib/applicationError');
+const ApplicationError = require('../lib/applicationError.es6');
 
 module.exports = {
     /**
