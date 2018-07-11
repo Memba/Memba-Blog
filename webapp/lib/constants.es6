@@ -7,12 +7,36 @@
  * Constants
  */
 module.exports = {
-    PROVIDERS: ['facebook', 'google', 'live', 'twitter'], // See RX_OAUTH_PROVIDER
+    ACCESS: {
+        PRIVATE: 0,
+        PUBLIC: 1
+    },
+    ACTIVITY_TYPES: {
+        COMMENT: 'Comment',
+        CREATION: 'Creation',
+        PUBLICATION: 'Publication',
+        RATING: 'Rating',
+        REPORT: 'Report',
+        SCORE: 'Score',
+        VIEW: 'View'
+    },
     CACHE_CONTROL: {
         HTML: 'public, max-age=604800' // 7 days
     },
     CONTENT_TYPE: {
         HTML: 'text/html; charset=utf-8'
+    },
+    LANGUAGES: ['en', 'fr'],
+    LICENSES: {
+        CC0: 0,
+        BY: 1,
+        'BY-NC-ND': 13
+    },
+    PROVIDERS: ['facebook', 'google', 'live', 'twitter'], // See RX_OAUTH_PROVIDER
+    REASONS: {
+        SPAM: 0,
+        OFFENSIVE: 1,
+        IP_RIGHTS: 2
     },
     RX_APP_SCHEME: /^[a-z]{2,3}\.[a-z0-9]{3,10}\.[a-z0-9]{3,10}$/,
     // @see http://www.regular-expressions.info/email.html
@@ -39,5 +63,15 @@ module.exports = {
     // http://stackoverflow.com/questions/161738/what-is-the-best-regular-expression-to-check-if-a-string-is-a-valid-url
     // http://msdn.microsoft.com/en-us/library/ff650303.aspx#paght000001_commonregularexpressions
     RX_URL: /^http(s?):\/\/[0-9a-z]([-.\w]*[0-9a-z])*(:(0-9)*)*(\/?)(.*)?$/i,
-    RX_USER_AGENT: /^[-a-zA-Z0-9,]+\/\d/
+    RX_USER_AGENT: /^[-a-zA-Z0-9,]+\/\d/,
+    STATES: {
+        DRAFT: 0,
+        // APPROVAL
+        PUBLISHED: 5
+    },
+    VERSION_TYPES: {
+        TEST: 'Test'
+        // Note: we could consider Test1, Test2, etc. to care for future upgrades
+        // In the near future, we might also consider flashcards, tracks, ...
+    }
 };
