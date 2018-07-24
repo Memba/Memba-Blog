@@ -12,7 +12,7 @@ const util = require('util');
 
 const router = express.Router();
 const config = require('../config/index.es6');
-const error = require('../middleware/error');
+const error = require('../middleware/error.es6');
 const extension = require('../middleware/extension.es6');
 const locals = require('../middleware/locals.es6');
 const notFound = require('../middleware/notFound.es6');

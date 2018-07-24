@@ -219,11 +219,9 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\lib\utils.test.es6 .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\utils.test.es6
 
 REM Copy ./test/node/middleware files
-ATTRIB -R .\test\node\middleware\*.js
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\error.test.js .\test\node\middleware /Y
-ATTRIB +R .\test\node\middleware\error.test.js
-
 ATTRIB -R .\test\node\middleware\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\error.test.es6 .\test\node\middleware /Y
+ATTRIB +R .\test\node\middleware\error.test.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\locals.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\locals.test.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\test\node\middleware\notFound.test.es6 .\test\node\middleware /Y
@@ -291,11 +289,9 @@ COPY ..\..\Kidoju\Kidoju.Webapp\webapp\lib\utils.es6 .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\utils.es6
 
 REM Copy ./webapp/middleware files
-ATTRIB -R .\webapp\middleware\*.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\error.js .\webapp\middleware /Y
-ATTRIB +R .\webapp\middleware\error.js
-
 ATTRIB -R .\webapp\middleware\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\error.es6 .\webapp\middleware /Y
+ATTRIB +R .\webapp\middleware\error.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\locals.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\locals.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\webapp\middleware\notFound.es6 .\webapp\middleware /Y
