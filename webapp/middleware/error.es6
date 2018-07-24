@@ -13,6 +13,13 @@ try {
     // eslint-disable-next-line global-require,import/no-unresolved,node/no-missing-require
     mongoose = require('mongoose');
 } catch (ex) {
+    class CastError extends Error {
+        constructor() {
+            super();
+            this.name = 'CastError';
+            this.status = 400;
+        }
+    }
     class ValidationError extends Error {
         constructor() {
             super();
@@ -20,8 +27,8 @@ try {
             this.status = 400;
         }
     }
-    // This is a generic error handler which can be used without mongoose
-    mongoose = { Error: { ValidationError } };
+    // These are generic errors which can be used without mongoose
+    mongoose = { Error: { CastError, ValidationError } };
 }
 
 let config;
