@@ -4,11 +4,11 @@
  */
 
 const assert = require('assert');
-const events = require('events');
-
-const eventEmitter = new events.EventEmitter();
-const fileSystem = require('fs');
+const Events = require('events');
+const { readdirSync } = require('fs');
 const logger = require('../lib/logger');
+
+const eventEmitter = new Events.EventEmitter();
 
 /**
  * Plug-in manager
@@ -17,8 +17,9 @@ const logger = require('../lib/logger');
 module.exports = {
     load() {
         const that = this;
-        fileSystem.readdirSync(`${__dirname}/`).forEach(file => {
-            if (file.match(/\.js$/) !== null && file !== 'index.js') {
+        readdirSync(`${__dirname}/`).forEach(file => {
+            if (/\.(es6|js)$/.test(file) && !file.startsWith('index.')) {
+                // eslint-disable-next-line global-require, import/no-dynamic-require
                 const plugin = require(`./${file}`);
                 if (
                     typeof plugin.event === 'string' &&
@@ -63,6 +64,7 @@ module.exports = {
      */
     emit(events, data) {
         if (typeof events === 'string') {
+            // eslint-disable-next-line no-param-reassign
             events = [events];
         }
 
@@ -72,9 +74,9 @@ module.exports = {
         );
         // Let plugins assert data
 
-        for (let i = 0, length = events.length; i < length; i++) {
-            eventEmitter.emit(events[i], data);
-        }
+        events.forEach(evt => {
+            eventEmitter.emit(evt, data);
+        });
     },
 
     /**

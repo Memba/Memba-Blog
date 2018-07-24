@@ -6,18 +6,11 @@
 const assert = require('assert');
 const request = require('request');
 const config = require('../config/index.es6');
+const CONSTANTS = require('../lib/constants.es6');
 const logger = require('../lib/logger');
 
+// Length of fields that Slack displays without LF
 const SHORT_LENGTH = 15;
-const RX_LEVELS = /^(debug|info|warn|error|crit|success)$/i;
-const COLORS = {
-    DEBUG: '#91A3B0', // grey
-    INFO: '#0073CF', // blue
-    WARN: '#FFB347', // orange
-    ERROR: '#DB7093', // pale red (pink)
-    CRIT: '#C80815', // bright red
-    SUCCESS: '#0CA80C' // green
-};
 
 /**
  * Slack plugin
@@ -51,7 +44,7 @@ module.exports = {
             '`data.slack.channel` is expected to be a string'
         );
         assert.ok(
-            RX_LEVELS.test(slack.level),
+            CONSTANTS.RX_LEVEL.test(slack.level),
             '`data.slack.level` is expected to be any of `debug`, `info`, `warn`, `error` or `crit`'
         );
         assert.ok(
@@ -88,7 +81,7 @@ module.exports = {
                     },
                     (error, response, body) => {
                         if (!error && response) {
-                            assert.equal(
+                            assert.strictEqual(
                                 'ok',
                                 body,
                                 '`body` should equal `ok`'
@@ -127,9 +120,6 @@ module.exports = {
         }
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Format as attachment
      * @param level
@@ -138,7 +128,7 @@ module.exports = {
      * @private
      */
     _format(level, text, model) {
-        /* jshint maxcomplexity: 7 */
+        let ret;
         const fields = [
             {
                 title: 'Level',
@@ -146,40 +136,36 @@ module.exports = {
                 short: true
             }
         ];
-        for (const prop in model) {
-            if (model.hasOwnProperty(prop)) {
-                const title =
-                    prop.substr(0, 1).toUpperCase() +
-                    prop.substr(1).toLowerCase();
-                let value = model[prop];
-                if (typeof value === 'object') {
-                    value = JSON.stringify(value); // Beware dates
-                }
-                const short =
-                    typeof value === 'boolean' ||
-                    typeof value === 'number' ||
-                    (typeof value === 'string' && value.length < SHORT_LENGTH);
-                // model[prop] is an object or array
-                // it needs to be encoded
-                fields.push({
-                    title,
-                    value,
-                    short // short implies display on 2 columns (assuming the next one is also short
-                });
+        Object.keys(model).forEach(key => {
+            const title =
+                key.substr(0, 1).toUpperCase() + key.substr(1).toLowerCase();
+            let value = model[key];
+            if (typeof value === 'object') {
+                value = JSON.stringify(value); // Beware dates
             }
-        }
+            const short =
+                typeof value === 'boolean' ||
+                typeof value === 'number' ||
+                (typeof value === 'string' && value.length < SHORT_LENGTH);
+            // model[prop] is an object or array
+            // it needs to be encoded
+            fields.push({
+                title,
+                value,
+                short // short implies display on 2 columns (assuming the next one is also short
+            });
+        });
         if (fields.length > 0) {
             // see https://api.slack.com/docs/message-attachments#attachment_structure
-            return [
+            ret = [
                 {
                     // thumb_url: relevant icon?
-                    color: COLORS[level.toUpperCase()],
+                    color: CONSTANTS.COLORS[level.toUpperCase()],
                     text,
                     fields
                 }
             ];
         }
+        return ret;
     }
-
-    /* jshint +W074 */
 };

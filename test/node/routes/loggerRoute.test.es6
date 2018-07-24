@@ -6,8 +6,8 @@
 const request = require('supertest');
 const config = require('../../../webapp/config/index.es6');
 
-let app = config.get('uris:webpack:root');
-if (app) {
+let app;
+if (config.get('uris:webpack:root')) {
     // This is a web app (and expressJS is already running)
     app = config.get('uris:webapp:root');
 } else {

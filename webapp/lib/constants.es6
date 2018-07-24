@@ -23,6 +23,14 @@ module.exports = {
     CACHE_CONTROL: {
         HTML: 'public, max-age=604800' // 7 days
     },
+    COLORS: {
+        DEBUG: '#91A3B0', // grey
+        INFO: '#0073CF', // blue
+        WARN: '#FFB347', // orange
+        ERROR: '#DB7093', // pale red (pink)
+        CRIT: '#C80815', // bright red
+        SUCCESS: '#0CA80C' // green
+    },
     CONTENT_TYPE: {
         HTML: 'text/html; charset=utf-8'
     },
@@ -51,7 +59,7 @@ module.exports = {
     RX_IPV6: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/,
     RX_KEYWORD: /^[^\s<>{}][^<>{}]{0,23}[^\s<>{}]$/,
     RX_LANGUAGE: /^[a-z]{2}$/,
-    RX_LEVEL: /^(DEBUG|INFO|WARN|ERROR|CRIT)$/i,
+    RX_LEVEL: /^(debug|info|warn|error|crit|success)$/i,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
     RX_OAUTH_STATE: /^\d{5,15}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/,
     RX_OAUTH_PROVIDER: /^(facebook|google|live|twitter)$/,
