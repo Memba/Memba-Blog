@@ -14,7 +14,7 @@ const pkg = require('../package.json');
 const config = require('./config/index.es6');
 const logger = require('./lib/logger');
 const redirect = require('./middleware/redirect.es6');
-const plugins = require('./plugins');
+const plugins = require('./plugins/index.es6');
 
 const app = express();
 let server;

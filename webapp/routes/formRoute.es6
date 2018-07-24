@@ -7,7 +7,7 @@ const deepExtend = require('deep-extend');
 const config = require('../config/index.es6');
 const httpStatus = require('../lib/httpStatus.es6');
 const logger = require('../lib/logger');
-const plugins = require('../plugins');
+const plugins = require('../plugins/index.es6');
 
 /**
  * Ping route

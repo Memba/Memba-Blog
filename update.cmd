@@ -233,10 +233,10 @@ ATTRIB +R .\test\node\middleware\redirect.test.es6
 
 REM Copy ./test/node/plugins files
 ATTRIB -R .\test\node\plugins\*.*
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\index.test.js .\test\node\plugins /Y
-ATTRIB +R .\test\node\plugins\index.test.js
-COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\slack.test.js .\test\node\plugins /Y
-ATTRIB +R .\test\node\plugins\slack.test.js
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\index.test.es6 .\test\node\plugins /Y
+ATTRIB +R .\test\node\plugins\index.test.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\node\plugins\slack.test.es6 .\test\node\plugins /Y
+ATTRIB +R .\test\node\plugins\slack.test.es6
 
 REM Copy ./test/node/route files
 ATTRIB -R .\test\node\routes\*.*
@@ -303,10 +303,10 @@ ATTRIB +R .\webapp\middleware\redirect.es6
 
 REM Copy ./webapp/plugins files
 ATTRIB -R .\webapp\plugins\*.*
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\plugins\index.js .\webapp\plugins /Y
-ATTRIB +R .\webapp\plugins\index.js
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\plugins\slack.js .\webapp\plugins /Y
-ATTRIB +R .\webapp\plugins\slack.js
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\plugins\index.es6 .\webapp\plugins /Y
+ATTRIB +R .\webapp\plugins\index.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\plugins\slack.es6 .\webapp\plugins /Y
+ATTRIB +R .\webapp\plugins\slack.es6
 
 REM Copy ./webapp/routes files
 ATTRIB -R .\webapp\routes\*.*

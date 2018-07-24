@@ -272,7 +272,7 @@ module.exports = exports = {
         if ((config.get('level') || 0) > levels.crit) {
             return false;
         }
-        var plugins = require('../plugins');
+        var plugins = require('../plugins/index.es6');
         var formatted = format(entry, 'crit');
         print(formatted);
         plugins.emit('slack', {

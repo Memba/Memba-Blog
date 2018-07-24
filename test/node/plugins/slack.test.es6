@@ -3,26 +3,15 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true, mocha: true, expr: true */
+// const { expect } = require('chai');
+const plugins = require('../../../webapp/plugins/index.es6');
 
-'use strict';
-
-var expect = require('chai').expect;
-var plugins;
-try {
-    plugins = require('../../../webapp/plugins');
-} catch (exception) {
-    plugins = require('../../../webapp/plugins');
-}
-
-
-describe('plugins/slack', function () {
-
-    before(function () {
+describe('plugins/slack', () => {
+    before(() => {
         plugins.load();
     });
 
-    it('should send without error', function (done) {
+    it('should send without error', done => {
         plugins.emit('slack', {
             slack: {
                 channel: '#devtest',
@@ -36,5 +25,4 @@ describe('plugins/slack', function () {
         });
         setTimeout(done, 500);
     });
-
 });
