@@ -10,11 +10,25 @@ const httpStatus = require('./httpStatus.es6');
 
 let mongoose;
 try {
-    // eslint-disable-next-line global-require,import/no-unresolved,,node/no-missing-require
+    // eslint-disable-next-line global-require,import/no-unresolved,node/no-missing-require
     mongoose = require('mongoose');
 } catch (ex) {
-    // This is a generic error handler which can be used without mongoose
-    mongoose = { Error: { ValidationError: function noop() {} } };
+    class CastError extends Error {
+        constructor() {
+            super();
+            this.name = 'CastError';
+            this.status = 400;
+        }
+    }
+    class ValidationError extends Error {
+        constructor() {
+            super();
+            this.name = 'ValidationError';
+            this.status = 400;
+        }
+    }
+    // These are generic errors which can be used without mongoose
+    mongoose = { Error: { CastError, ValidationError } };
 }
 
 let i18n;
@@ -43,7 +57,10 @@ class ApplicationError extends Error {
         }
         this.name = 'ApplicationError';
         const error = args[0];
-        if (args[0] instanceof mongoose.Error.ValidationError) {
+        if (
+            error instanceof mongoose.Error.ValidationError ||
+            error instanceof mongoose.Error.CastError
+        ) {
             // A validation error is a bad request
             this.i18n = `errors.http.${httpStatus.badRequest}`;
             deepExtend(
@@ -134,6 +151,8 @@ class ApplicationError extends Error {
         } else {
             throw new Error('ApplicationError created without valid parameter');
         }
+        // Hack to ensure JSON.stringify outputs this.message
+        Object.defineProperty(this, 'message', { enumerable: true });
     }
 }
 

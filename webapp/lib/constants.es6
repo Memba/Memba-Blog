@@ -32,7 +32,8 @@ module.exports = {
         SUCCESS: '#0CA80C' // green
     },
     CONTENT_TYPE: {
-        HTML: 'text/html; charset=utf-8'
+        HTML: 'text/html; charset=utf-8',
+        XML: 'application/xml; charset=utf-8'
     },
     LANGUAGES: ['en', 'fr'],
     LICENSES: {

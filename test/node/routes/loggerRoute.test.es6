@@ -16,12 +16,12 @@ if (config.get('uris:webpack:root')) {
     app = require('../../../webapp/server');
 }
 
-const loggerUri =
-    typeof app === 'string'
-        ? config.get('uris:webapp:logger')
-        : config.get('uris:rapi:logger');
-
 describe('routes/loggerRoute', () => {
+    const loggerUri =
+        typeof app === 'string'
+            ? config.get('uris:webapp:logger')
+            : config.get('uris:rapi:logger');
+
     /**
      * Feature: Logger
      * As an anonymous user
@@ -29,9 +29,10 @@ describe('routes/loggerRoute', () => {
      * So that I can log a message
      */
     describe('when posting a log entry', () => {
-        it('it should respond with 201 with a good request', done => {
+        it('it should respond with 201 with a bad request', done => {
             request(app)
                 .post(loggerUri)
+                // TODO use faker to generate more bad requests
                 .send('dsfdsdsfsdfsdfd')
                 .expect(201)
                 // .expect('Content-Type', /json/)
@@ -39,7 +40,7 @@ describe('routes/loggerRoute', () => {
                 .end(done);
         });
 
-        it('it should respond with 201 with a bad request', done => {
+        it('it should respond with 201 with a good request', done => {
             request(app)
                 .post(loggerUri)
                 .send({
