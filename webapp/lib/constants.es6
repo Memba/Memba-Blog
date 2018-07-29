@@ -21,7 +21,8 @@ module.exports = {
         VIEW: 'View'
     },
     CACHE_CONTROL: {
-        HTML: 'public, max-age=604800' // 7 days
+        HTML: 'public, max-age=604800', // 7 days
+        JSON: 'private, max-age=43200' // 12 hours
     },
     COLORS: {
         DEBUG: '#91A3B0', // grey
@@ -33,6 +34,7 @@ module.exports = {
     },
     CONTENT_TYPE: {
         HTML: 'text/html; charset=utf-8',
+        TEXT: 'text/plain; charset=utf-8',
         XML: 'application/xml; charset=utf-8'
     },
     LANGUAGES: ['en', 'fr'],
