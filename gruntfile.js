@@ -26,12 +26,18 @@ module.exports = grunt => {
     } else {
         // eslint-disable-next-line no-console
         console.log(
-            'IMPORTANT: grunt environment is undefined. Use the `build.cmd` script'
+            'IMPORTANT: grunt environment is undefined. Please set NODE_ENV.'
         );
     }
 
+    const pkg = grunt.file.readJSON('package.json');
+    const banner = `/*! ${pkg.copyright} - Version ${
+        pkg.version
+    } dated ${grunt.template.today('dd-mmm-yyyy')} */`;
+    // console.log(banner);
+
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+        pkg,
         copy: {
             gremlins: {
                 src: 'test/vendor/gremlins.min.js',
@@ -91,8 +97,7 @@ module.exports = grunt => {
         */
         less: {
             options: {
-                banner:
-                    '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                banner,
                 // paths: ['webapp/views/amp/styles'],
                 plugins: [new AutoprefixPlugin(), new CleanCssPlugin()],
                 sourceMap: false
@@ -132,7 +137,7 @@ module.exports = grunt => {
             }
         },
         nsp: {
-            package: grunt.file.readJSON('package.json')
+            package: pkg
         },
         stylelint: {
             options: {
@@ -143,8 +148,7 @@ module.exports = grunt => {
         uglify: {
             build: {
                 options: {
-                    banner:
-                        '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                    banner,
                     sourceMap: false
                     // sourceMap: true,
                     // sourceMapName: 'webapp/public/build/workerlib.bundle.js.map'
@@ -172,8 +176,7 @@ module.exports = grunt => {
                 devtool: false,
                 plugins: webpackConfig.plugins.concat([
                     new webpack.BannerPlugin({
-                        banner:
-                            '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                        banner,
                         raw: true
                         // entryOnly: true
                     })
