@@ -13,7 +13,7 @@ var path = require('path');
 var chokidar = require('chokidar');
 var config = require('../config/index.es6');
 var convert = require('./convert');
-var logger = require('./logger');
+var logger = require('./logger.es6');
 var utils = require('./utils.es6');
 var locales = config.get('locales');
 var indexer;
