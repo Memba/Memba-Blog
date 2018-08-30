@@ -19,7 +19,7 @@ try {
 
 const ApplicationError = require('../../../webapp/lib/applicationError.es6');
 
-describe('lib/error', () => {
+describe('lib/applicationError', () => {
     if (mongoose) {
         it('ApplicationError from a mongoose validation error', () => {
             const originalError = new mongoose.Error.ValidationError();

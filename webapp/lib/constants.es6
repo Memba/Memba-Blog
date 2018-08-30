@@ -20,6 +20,7 @@ module.exports = {
         SCORE: 'Score',
         VIEW: 'View'
     },
+    BEARER: 'Bearer ',
     CACHE_CONTROL: {
         HTML: 'public, max-age=604800', // 7 days
         JSON: 'private, max-age=43200' // 12 hours

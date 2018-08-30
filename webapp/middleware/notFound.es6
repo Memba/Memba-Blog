@@ -3,8 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-const http = require('http');
-const url = require('url');
+const { STATUS_CODES } = require('http');
+const { parse } = require('url');
 const ApplicationError = require('../lib/applicationError.es6');
 
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
      * @param next
      */
     handler(req, res, next) {
-        const { pathname } = url.parse(req.originalUrl);
+        const { pathname } = parse(req.originalUrl);
         if (
             /\/[^/.]+\.[a-z0-9]{2,7}$/i.test(pathname) &&
             !/\.html?$/i.test(pathname)
@@ -23,7 +23,7 @@ module.exports = {
             // If pathname ends with a file extension (images, stylesheets, scripts, ...), spare bandwidth by returning an empty error for missing assets
             res.status(404)
                 .set({ 'Content-Type': 'text/plain; charset=utf-8' })
-                .send(http.STATUS_CODES['404']);
+                .send(STATUS_CODES['404']);
         } else {
             // If pathname does not end with a file extension, pass control to the error middleware to display a nice error page
             next(new ApplicationError(404));

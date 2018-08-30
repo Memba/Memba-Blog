@@ -3,8 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-const url = require('url');
-const util = require('util');
+const { resolve } = require('url');
+const { format } = require('util');
 const config = require('../config/index.es6');
 
 // Redirection rules in json config
@@ -31,9 +31,9 @@ module.exports = {
             // Otherwise it might be handled as an invalid language
             return res.redirect(
                 301,
-                url.resolve(
+                resolve(
                     config.get('uris:cdn:root'),
-                    util.format(config.get('uris:cdn:images'), 'favicon.ico')
+                    format(config.get('uris:cdn:images'), 'favicon.ico')
                 )
             );
         }
@@ -53,7 +53,7 @@ module.exports = {
                 return res.redirect(
                     301,
                     // https://expressjs.com/en/api.html#req.originalUrl
-                    url.resolve(rule.forward, req.originalUrl)
+                    resolve(rule.forward, req.originalUrl)
                 );
             }
         }

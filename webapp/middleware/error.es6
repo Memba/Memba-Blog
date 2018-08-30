@@ -6,7 +6,7 @@
 const assert = require('assert');
 const ApplicationError = require('../lib/applicationError.es6');
 const logger = require('../lib/logger.es6');
-const utils = require('../lib/utils.es6');
+const { uuid } = require('../lib/utils.es6');
 
 let mongoose;
 try {
@@ -104,7 +104,7 @@ module.exports = {
             ({ config, format, url } = res.locals);
 
             // Create a trace that we can track in the browser
-            req.trace = utils.uuid();
+            req.trace = uuid();
 
             language = res.getLocale();
 

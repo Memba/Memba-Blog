@@ -14,7 +14,7 @@ const SHORT_LENGTH = 15;
 
 /**
  * Slack plugin
- * @type {{event: string, handler: module.exports.handler}}
+ * @type {{event: string, handler(*=): void}}
  */
 module.exports = {
     /**

@@ -3,38 +3,28 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true */
+const assert = require('assert');
+const chalk = require('chalk');
+const config = require('../config/index.es6');
 
-'use strict';
-
-var assert = require('assert');
-var chalk = require('chalk');
-var config = require('../config/index.es6');
-
-var RX_LEVELS = /^(debug|info|warn|error|crit)$/i;
-var levels = {
-        debug: 1,
-        info: 2,
-        warn: 4,
-        error: 5,
-        crit: 6
-    };
-var eq = ': ';
-var qt = '';
-var prefix = ' ';
-var separator = '; ';
+const RX_LEVELS = /^(debug|info|warn|error|crit)$/i;
+const levels = {
+    debug: 1,
+    info: 2,
+    warn: 4,
+    error: 5,
+    crit: 6
+};
+const eq = ': ';
+const qt = '';
+const prefix = ' ';
+const separator = '; ';
 
 chalk.debug = chalk.gray;
 chalk.info = chalk.green;
 chalk.warn = chalk.yellow;
 chalk.error = chalk.magenta;
 chalk.crit = chalk.red;
-
-/* This function has too many statements. */
-/* jshint -W071 */
-
-/* This function's cyclomatic complexity is too high. */
-/* jshint -W074 */
 
 /**
  * Format log entry with request data
@@ -44,10 +34,13 @@ chalk.crit = chalk.red;
  */
 function format(entry, level) {
     assert.ok(typeof entry === 'object', '`entry` is expected to be an object');
-    assert.ok(RX_LEVELS.test(level), '`level` is expected to be any of `debug`, `info`, `warn`, `error` or `crit`');
+    assert.ok(
+        RX_LEVELS.test(level),
+        '`level` is expected to be any of `debug`, `info`, `warn`, `error` or `crit`'
+    );
     // JSON.stringify(new Error('Oops)) === {} and we do not want to clutter our logs with 'undefined'
     // So we need to capture the properties we want after testing that they exist
-    var ret = {};
+    const ret = {};
     // Message
     if (entry.message) {
         ret.message = entry.message;
@@ -57,7 +50,7 @@ function format(entry, level) {
     // Level
     ret.level = level.toLowerCase();
     // Application
-    var application = config.get('application:name');
+    const application = config.get('application:name');
     if (application) {
         ret.application = application;
     }
@@ -71,7 +64,7 @@ function format(entry, level) {
     if (process.env.HOSTNAME) {
         ret.host = process.env.HOSTNAME;
     }
-    var request = entry.request;
+    const request = entry.request;
     // IP Address
     if (request && request.ip) {
         ret.ip = request.ip;
@@ -109,7 +102,8 @@ function format(entry, level) {
         ret.data = entry.data;
     }
     // Error stack
-    if (entry.stack) { // entry is an error object
+    if (entry.stack) {
+        // entry is an error object
         // ret.originalMessage = entry.message; // no need to repeat
         ret.stack = entry.stack;
     } else if (entry.error && entry.error.stack) {
@@ -128,84 +122,122 @@ function format(entry, level) {
 }
 
 /**
-* Print a log entry to the console
-* Note: we have discarded coloured solutions because they do not print well in Webstorm console
-* @param entry
-*/
+ * Print a log entry to the console
+ * Note: we have discarded coloured solutions because they do not print well in Webstorm console
+ * @param entry
+ */
 function print(entry) {
     /* jshint maxstatements: 52 */
     /* jshint maxcomplexity: 39 */
-    var message = (isNaN(Date.parse(entry.date)) ? new Date() : new Date(entry.date)).toISOString();
-    message += prefix + '[' + entry.level.toUpperCase() + ']' + (entry.level.length > 4 ? '' : ' ');
-    var first = true;
+    let message = (isNaN(Date.parse(entry.date))
+        ? new Date()
+        : new Date(entry.date)
+    ).toISOString();
+    message += `${prefix}[${entry.level.toUpperCase()}]${
+        entry.level.length > 4 ? '' : ' '
+    }`;
+    let first = true;
     if (entry.application) {
-        message += (first ? prefix : separator) + 'application' + eq + qt + entry.application + qt;
+        message += `${first ? prefix : separator}application${eq}${qt}${
+            entry.application
+        }${qt}`;
         first = false;
     }
     if (entry.host) {
-        message += (first ? prefix : separator) + 'host' + eq + qt + entry.host + qt;
+        message += `${first ? prefix : separator}host${eq}${qt}${
+            entry.host
+        }${qt}`;
         first = false;
     }
     if (entry.message) {
-        message += (first ? prefix : separator) + 'message' + eq + qt + entry.message + qt;
+        message += `${first ? prefix : separator}message${eq}${qt}${
+            entry.message
+        }${qt}`;
         first = false;
     }
     if (entry.originalMessage) {
-        message += (first ? prefix : separator) + 'originalMessage' + eq + qt + entry.originalMessage + qt;
+        message += `${first ? prefix : separator}originalMessage${eq}${qt}${
+            entry.originalMessage
+        }${qt}`;
         first = false;
     }
     if (entry.module) {
-        message += (first ? prefix : separator) + 'module' + eq + qt + entry.module + qt;
+        message += `${first ? prefix : separator}module${eq}${qt}${
+            entry.module
+        }${qt}`;
         first = false;
     }
     if (entry.method) {
-        message += (first ? prefix : separator) + 'method' + eq + qt + entry.method + qt;
+        message += `${first ? prefix : separator}method${eq}${qt}${
+            entry.method
+        }${qt}`;
         first = false;
     }
     if (entry.data) {
         try {
-            message += (first ? prefix : separator) + 'data' + eq + qt + JSON.stringify(entry.data) + qt;
+            message += `${
+                first ? prefix : separator
+            }data${eq}${qt}${JSON.stringify(entry.data)}${qt}`;
         } catch (ex) {
             if (typeof entry.data.toString === 'function') {
-                message += (first ? prefix : separator) + 'data' + eq + qt + entry.data.toString() + qt;
+                message += `${
+                    first ? prefix : separator
+                }data${eq}${qt}${entry.data.toString()}${qt}`;
             }
         }
         first = false;
     }
     if (entry.url) {
-        message += (first ? prefix : separator) + 'url' + eq + qt + entry.url + qt;
+        message += `${first ? prefix : separator}url${eq}${qt}${
+            entry.url
+        }${qt}`;
         first = false;
     }
     if (entry.query) {
         try {
-            message += (first ? prefix : separator) + 'query' + eq + qt + JSON.stringify(entry.query) + qt;
+            message += `${
+                first ? prefix : separator
+            }query${eq}${qt}${JSON.stringify(entry.query)}${qt}`;
         } catch (ex) {
             if (typeof entry.query.toString === 'function') {
-                message += (first ? prefix : separator) + 'query' + eq + qt + entry.query.toString() + qt;
+                message += `${
+                    first ? prefix : separator
+                }query${eq}${qt}${entry.query.toString()}${qt}`;
             }
         }
         first = false;
     }
     if (entry.scheme) {
-        message += (first ? prefix : separator) + 'scheme' + eq + qt + entry.scheme + qt;
+        message += `${first ? prefix : separator}scheme${eq}${qt}${
+            entry.scheme
+        }${qt}`;
         first = false;
     }
     if (entry.trace) {
-        message += (first ? prefix : separator) + 'trace' + eq + qt + entry.trace + qt;
+        message += `${first ? prefix : separator}trace${eq}${qt}${
+            entry.trace
+        }${qt}`;
         first = false;
     }
     if (entry.ip) {
-        message += (first ? prefix : separator) + 'ip' + eq + qt + entry.ip + qt;
+        message += `${first ? prefix : separator}ip${eq}${qt}${entry.ip}${qt}`;
         first = false;
     }
     if (entry.agent) {
-        message += (first ? prefix : separator) + 'agent' + eq + qt + entry.agent + qt;
+        message += `${first ? prefix : separator}agent${eq}${qt}${
+            entry.agent
+        }${qt}`;
         first = false;
     }
     if (entry.stack) {
-        message += (first ? prefix : separator) + 'stack' + eq + qt + entry.stack.split('\n').join(', ').replace(/\s+/g, ' ') + qt;
+        message += `${first ? prefix : separator}stack${eq}${qt}${entry.stack
+            .split('\n')
+            .join(', ')
+            .replace(/\s+/g, ' ')}${qt}`;
     }
-    console.log(chalk.supportsColor ? chalk[entry.level || 'debug'](message) : message);
+    console.log(
+        chalk.supportsColor ? chalk[entry.level || 'debug'](message) : message
+    );
     return message;
 }
 
@@ -213,13 +245,12 @@ function print(entry) {
 /* jshint +W071 */
 
 module.exports = exports = {
-
     /**
      * Log a debug entry
      * Only output if debug===true
      * @param entry
      */
-    debug: function (entry) {
+    debug(entry) {
         // Note: config.get('level') cannot be cached in a module variable because it is not available when the module loads when loading production.json from AWS S3
         if ((config.get('level') || 0) > levels.debug) {
             return false;
@@ -232,7 +263,7 @@ module.exports = exports = {
      * Log an info entry
      * @param entry
      */
-    info: function (entry) {
+    info(entry) {
         if ((config.get('level') || 0) > levels.info) {
             return false;
         }
@@ -244,7 +275,7 @@ module.exports = exports = {
      * Log a warning entry
      * @param entry
      */
-    warn: function (entry) {
+    warn(entry) {
         if ((config.get('level') || 0) > levels.warn) {
             return false;
         }
@@ -256,7 +287,7 @@ module.exports = exports = {
      * Log an error entry
      * @param entry
      */
-    error: function (entry) {
+    error(entry) {
         if ((config.get('level') || 0) > levels.error) {
             return false;
         }
@@ -268,12 +299,12 @@ module.exports = exports = {
      * Log a critical entry
      * @param entry
      */
-    critical: function (entry) {
+    critical(entry) {
         if ((config.get('level') || 0) > levels.crit) {
             return false;
         }
-        var plugins = require('../plugins/index.es6');
-        var formatted = format(entry, 'crit');
+        const plugins = require('../plugins/index.es6');
+        const formatted = format(entry, 'crit');
         print(formatted);
         plugins.emit('slack', {
             slack: {
@@ -289,8 +320,7 @@ module.exports = exports = {
     /**
      * Shortcut for critical
      */
-    crit: function (entry) {
+    crit(entry) {
         exports.critical(entry);
     }
-
 };
