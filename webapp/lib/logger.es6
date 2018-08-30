@@ -6,8 +6,9 @@
 const assert = require('assert');
 const chalk = require('chalk');
 const config = require('../config/index.es6');
+const { RX_LEVEL } = require('../lib/constants.es6');
+const plugins = require('../plugins/index.es6');
 
-const RX_LEVELS = /^(debug|info|warn|error|crit)$/i;
 const levels = {
     debug: 1,
     info: 2,
@@ -35,7 +36,7 @@ chalk.crit = chalk.red;
 function format(entry, level) {
     assert.ok(typeof entry === 'object', '`entry` is expected to be an object');
     assert.ok(
-        RX_LEVELS.test(level),
+        RX_LEVEL.test(level),
         '`level` is expected to be any of `debug`, `info`, `warn`, `error` or `crit`'
     );
     // JSON.stringify(new Error('Oops)) === {} and we do not want to clutter our logs with 'undefined'
@@ -64,7 +65,7 @@ function format(entry, level) {
     if (process.env.HOSTNAME) {
         ret.host = process.env.HOSTNAME;
     }
-    const request = entry.request;
+    const { request } = entry;
     // IP Address
     if (request && request.ip) {
         ret.ip = request.ip;
@@ -127,9 +128,7 @@ function format(entry, level) {
  * @param entry
  */
 function print(entry) {
-    /* jshint maxstatements: 52 */
-    /* jshint maxcomplexity: 39 */
-    let message = (isNaN(Date.parse(entry.date))
+    let message = (Number.isNaN(Date.parse(entry.date))
         ? new Date()
         : new Date(entry.date)
     ).toISOString();
@@ -235,16 +234,14 @@ function print(entry) {
             .join(', ')
             .replace(/\s+/g, ' ')}${qt}`;
     }
+    // eslint-disable-next-line no-console
     console.log(
         chalk.supportsColor ? chalk[entry.level || 'debug'](message) : message
     );
     return message;
 }
 
-/* jshint +W074 */
-/* jshint +W071 */
-
-module.exports = exports = {
+module.exports = {
     /**
      * Log a debug entry
      * Only output if debug===true
@@ -303,7 +300,6 @@ module.exports = exports = {
         if ((config.get('level') || 0) > levels.crit) {
             return false;
         }
-        const plugins = require('../plugins/index.es6');
         const formatted = format(entry, 'crit');
         print(formatted);
         plugins.emit('slack', {
@@ -318,9 +314,16 @@ module.exports = exports = {
     },
 
     /**
-     * Shortcut for critical
+     * crit = critical
      */
     crit(entry) {
-        exports.critical(entry);
+        module.exports.critical(entry);
+    },
+
+    /**
+     * success = info
+     */
+    success(entry) {
+        module.exports.info(entry);
     }
 };

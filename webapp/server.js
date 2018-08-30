@@ -103,7 +103,7 @@ config.load(error => {
     config.set('application:version', pkg.version);
 
     // plugins
-    plugins.load();
+    plugins.load(logger);
 
     // Anonymizing expressJS is done by Helmet
     // app.disable('x-powered-by');

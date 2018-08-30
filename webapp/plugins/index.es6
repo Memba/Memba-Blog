@@ -6,7 +6,6 @@
 const assert = require('assert');
 const Events = require('events');
 const { readdirSync } = require('fs');
-const logger = require('../lib/logger.es6');
 
 const eventEmitter = new Events.EventEmitter();
 
@@ -15,7 +14,12 @@ const eventEmitter = new Events.EventEmitter();
  * @type {{register: module.exports.register, emit: module.exports.emit, unregister: module.exports.unregister}}
  */
 module.exports = {
-    load() {
+    /**
+     * Loads plugins
+     * Note: logger is passed as an arg to avoid circular dependencies since logger uses plugins
+     * @param logger
+     */
+    load(logger) {
         const that = this;
         readdirSync(`${__dirname}/`).forEach(file => {
             if (/\.(es6|js)$/.test(file) && !file.startsWith('index.')) {
@@ -27,13 +31,15 @@ module.exports = {
                 ) {
                     that.register(plugin.event, plugin.handler);
                     // Log the plugin
-                    logger.info({
-                        message: `loaded plugin \`${file}\` for event \`${
-                            plugin.event
-                        }\``,
-                        method: 'load',
-                        module: 'plugins/index'
-                    });
+                    if (logger && typeof logger.info === 'function') {
+                        logger.info({
+                            message: `loaded plugin \`${file}\` for event \`${
+                                plugin.event
+                            }\``,
+                            method: 'load',
+                            module: 'plugins/index'
+                        });
+                    }
                 }
             }
         });
