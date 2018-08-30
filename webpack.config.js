@@ -83,7 +83,7 @@ module.exports = {
     devtool: 'source-map',
     entry: {
         // We need init especially because of FOUJI
-        init: ['babel-polyfill', './js/app.init.js'],
+        init: ['@babel/polyfill', './js/app.init.js'],
         // One entry per page
         error: './js/ui/page.error.es6',
         home: './js/ui/page.home.es6',
