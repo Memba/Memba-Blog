@@ -131,9 +131,7 @@ module.exports = {
                     language,
                     menu: [], // Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
                     results: [], // trick header into displaying robots noindex directive
-                    /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
                     site_url: false, // trick header into not displaying a canonical link since we have a robots noindex directive
-                    /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                     title: error.title,
                     trace: req.trace
                 });
