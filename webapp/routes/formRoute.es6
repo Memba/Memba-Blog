@@ -6,7 +6,7 @@
 const deepExtend = require('deep-extend');
 const config = require('../config/index.es6');
 const httpStatus = require('../lib/httpStatus.es6');
-const logger = require('../lib/logger');
+const logger = require('../lib/logger.es6');
 const plugins = require('../plugins/index.es6');
 
 /**

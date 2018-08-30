@@ -16,9 +16,9 @@ try {
 }
 var logger;
 try {
-    logger = require('../../../webapp/lib/logger');
+    logger = require('../../../webapp/lib/logger.es6');
 } catch (exception) {
-    logger = require('../../../webapp/lib/logger');
+    logger = require('../../../webapp/lib/logger.es6');
 }
 
 describe('lib/logger', function () {

@@ -6,7 +6,7 @@
 const assert = require('assert');
 const Events = require('events');
 const { readdirSync } = require('fs');
-const logger = require('../lib/logger');
+const logger = require('../lib/logger.es6');
 
 const eventEmitter = new Events.EventEmitter();
 

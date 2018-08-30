@@ -7,7 +7,7 @@ const assert = require('assert');
 const request = require('request');
 const config = require('../config/index.es6');
 const CONSTANTS = require('../lib/constants.es6');
-const logger = require('../lib/logger');
+const logger = require('../lib/logger.es6');
 
 // Length of fields that Slack displays without LF
 const SHORT_LENGTH = 15;

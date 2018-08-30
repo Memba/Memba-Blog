@@ -11,7 +11,7 @@ var assert = require('assert');
 var url = require('url');
 var util = require('util');
 var config = require('../config/index.es6');
-var logger = require('../lib/logger');
+var logger = require('../lib/logger.es6');
 var indexModel = require('../models/indexModel');
 
 var XML_HEAD = '<?xml version="1.0" encoding="UTF-8"?>';

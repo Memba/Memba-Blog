@@ -5,7 +5,7 @@
 
 const httpStatus = require('../lib/httpStatus.es6');
 const CONSTANTS = require('../lib/constants.es6');
-const logger = require('../lib/logger');
+const logger = require('../lib/logger.es6');
 const utils = require('../lib/utils.es6');
 
 module.exports = {

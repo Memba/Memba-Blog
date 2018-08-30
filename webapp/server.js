@@ -12,7 +12,7 @@ const path = require('path');
 const util = require('util');
 const pkg = require('../package.json');
 const config = require('./config/index.es6');
-const logger = require('./lib/logger');
+const logger = require('./lib/logger.es6');
 const redirect = require('./middleware/redirect.es6');
 const plugins = require('./plugins/index.es6');
 

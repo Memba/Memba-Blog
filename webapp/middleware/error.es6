@@ -5,7 +5,7 @@
 
 const assert = require('assert');
 const ApplicationError = require('../lib/applicationError.es6');
-const logger = require('../lib/logger');
+const logger = require('../lib/logger.es6');
 const utils = require('../lib/utils.es6');
 
 let mongoose;
