@@ -25,9 +25,7 @@ module.exports = grunt => {
         console.log(`grunt environment is ${process.env.NODE_ENV}`);
     } else {
         // eslint-disable-next-line no-console
-        console.log(
-            'IMPORTANT: grunt environment is undefined. Use the `build.cmd` script'
-        );
+        console.log('IMPORTANT: grunt environment is undefined');
     }
 
     const banner =

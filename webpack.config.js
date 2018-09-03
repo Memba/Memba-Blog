@@ -21,7 +21,7 @@ const buildPath = config.get('uris:webpack:root');
 
 console.log(`webpack environment is ${environment}`); // eslint-disable-line no-console
 console.log(`webpack build path is ${buildPath}`); // eslint-disable-line no-console
-console.log(`building version ${pkg.version}`); // eslint-disable-line no-console
+console.log(`processing version ${pkg.version}`); // eslint-disable-line no-console
 
 /**
  * DefinePlugin
