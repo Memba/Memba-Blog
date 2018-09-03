@@ -26,18 +26,15 @@ module.exports = grunt => {
     } else {
         // eslint-disable-next-line no-console
         console.log(
-            'IMPORTANT: grunt environment is undefined. Please set NODE_ENV.'
+            'IMPORTANT: grunt environment is undefined. Use the `build.cmd` script'
         );
     }
 
-    const pkg = grunt.file.readJSON('package.json');
-    const banner = `/*! ${pkg.copyright} - Version ${
-        pkg.version
-    } dated ${grunt.template.today('dd-mmm-yyyy')} */`;
-    // console.log(banner);
+    const banner =
+        '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today("dd-mmm-yyyy") %> */';
 
     grunt.initConfig({
-        pkg,
+        pkg: grunt.file.readJSON('package.json'),
         copy: {
             gremlins: {
                 src: 'test/vendor/gremlins.min.js',
@@ -137,7 +134,7 @@ module.exports = grunt => {
             }
         },
         nsp: {
-            package: pkg
+            package: grunt.file.readJSON('package.json')
         },
         stylelint: {
             options: {
