@@ -30,6 +30,11 @@ describe('lib/utils', () => {
             expect(utils.isObject([1, 2, 3])).to.be.false;
         });
 
+        it('function passed to isObject should return false', () => {
+            const fn = function() {};
+            expect(utils.isObject(fn)).to.be.false;
+        });
+
         it('empty object passed to isObject should return true', () => {
             expect(utils.isObject({})).to.be.true;
         });
@@ -43,6 +48,68 @@ describe('lib/utils', () => {
                     d: { e: {}, f: null }
                 })
             ).to.be.true;
+        });
+
+        it('prototyped object passed to isObject should return true', () => {
+            const Fn = function() {
+                this._data = true;
+            };
+            Fn.prototype.status = function() {
+                return this._data;
+            };
+            expect(utils.isObject(new Fn())).to.be.true;
+        });
+    });
+
+    describe('isPOJO', () => {
+        it('boolean passed to isObject should return false', () => {
+            expect(utils.isPOJO(false)).to.be.false;
+        });
+
+        it('string passed to isObject should return false', () => {
+            expect(utils.isPOJO('hello')).to.be.false;
+        });
+
+        it('number passed to isObject should return false', () => {
+            expect(utils.isPOJO(1)).to.be.false;
+        });
+
+        it('date passed to isObject should return false', () => {
+            expect(utils.isPOJO(new Date())).to.be.false;
+        });
+
+        it('array passed to isObject should return false', () => {
+            expect(utils.isPOJO([1, 2, 3])).to.be.false;
+        });
+
+        it('function passed to isPOJO should return false', () => {
+            const fn = function() {};
+            expect(utils.isPOJO(fn)).to.be.false;
+        });
+
+        it('empty object passed to isPOJO should return true', () => {
+            expect(utils.isPOJO({})).to.be.true;
+        });
+
+        it('complex object passed to isPOJO should return true', () => {
+            expect(
+                utils.isPOJO({
+                    a: 1,
+                    b: new Date(),
+                    c: ['1', '2'],
+                    d: { e: {}, f: null }
+                })
+            ).to.be.true;
+        });
+
+        it('prototyped object passed to isPOJO should return false', () => {
+            const Fn = function() {
+                this._data = true;
+            };
+            Fn.prototype.status = function() {
+                return this._data;
+            };
+            expect(utils.isPOJO(new Fn())).to.be.false;
         });
     });
 

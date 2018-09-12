@@ -17,8 +17,20 @@ module.exports = {
      * @returns {boolean}
      */
     isObject(obj) {
-        // ((obj instanceof Object) && (typeof obj === 'object'));
+        // if (Buffer.isBuffer(obj)) { return true; }
         return Object.prototype.toString.call(obj) === '[object Object]';
+    },
+
+    /**
+     * Checks whether `obj` is a plain object.
+     * @param obj
+     * @returns {boolean}
+     */
+    isPOJO(obj) {
+        if (obj === null || typeof obj !== 'object') {
+            return false;
+        }
+        return Object.getPrototypeOf(obj) === Object.prototype;
     },
 
     /**

@@ -50,6 +50,11 @@ module.exports = {
         OFFENSIVE: 1,
         IP_RIGHTS: 2
     },
+    ROLES: {
+        STUDENT: 0,
+        TEACHER: 1,
+        ADMINISTRATOR: 5 // <-- only for organizations
+    },
     RX_APP_SCHEME: /^[a-z]{2,3}\.[a-z0-9]{3,10}\.[a-z0-9]{3,10}$/,
     // @see http://www.regular-expressions.info/email.html
     RX_EMAIL: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i,
@@ -65,6 +70,7 @@ module.exports = {
     RX_LANGUAGE: /^[a-z]{2}$/,
     RX_LEVEL: /^(debug|info|warn|error|crit|success)$/i,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
+    RX_MONGODB_KEY: /^_(i|[a-z]*I)d$/,
     RX_OAUTH_STATE: /^\d{5,15}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/,
     RX_OAUTH_PROVIDER: /^(facebook|google|live|twitter)$/,
     RX_OAUTH_TOKEN: /^oauth_token=[^&]+&oauth_token_secret=[^&]+/,
