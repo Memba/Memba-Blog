@@ -32,7 +32,7 @@ if (/^win/.test(process.platform)) {
 
             // Add opera driver
             // `-Dwebdriver.opera.driver=${path.join(__dirname, './test/bin/operadriver.exe')}`,
-            '-Dwebdriver.opera.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\chromedriver\\2.40-x64-chromedriver'
+            '-Dwebdriver.opera.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\chromedriver\\2.41-x64-chromedriver'
         ]
         // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
         // seleniumArgs: [],
