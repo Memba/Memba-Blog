@@ -26,6 +26,8 @@ const CONSTANTS = {
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',
     MOUSEDOWN: 'mousedown',
+    MOUSEENTER: 'mouseenter',
+    MOUSELEAVE: 'mouseleave',
     MOUSEMOVE: 'mousemove',
     MOUSEOUT: 'mouseout',
     MOUSEUP: 'mouseup',
@@ -35,6 +37,8 @@ const CONSTANTS = {
     TOUCHSTART: 'touchstart',
     // Custom events
     LOADED: 'i18n.loaded',
+    // ERROR: 'error',
+    WARNING: 'warning',
     // Errors
     NOT_FOUND_ERR: 'Not found',
     NOT_IMPLEMENTED_ERR: 'Not implemented',
@@ -44,8 +48,13 @@ const CONSTANTS = {
     CROSSHAIR_CURSOR: 'crosshair',
     DEFAULT_CURSOR: 'default',
     // Well-known classes
+    ACTIVE_CLASS: 'k-state-active',
     DISABLED_CLASS: 'k-state-disabled',
-    FOCUS_CLASS: 'k-state-focus',
+    FOCUSED_CLASS: 'k-state-focused',
+    HOVER_CLASS: 'k-state-hover',
+    SELECTED_CLASS: 'k-state-selected',
+    INTERACTIVE_CLASS: 'kj-interactive',
+    ELEMENT_CLASS: 'kj-element',
     // CSS Properties
     HEIGHT: 'height',
     WIDTH: 'width',
@@ -56,7 +65,7 @@ const CONSTANTS = {
     RX_LANGUAGE: /^[a-z]{2}$/,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
     RX_MONGODB_KEY: /^_(i|[a-z]*I)d$/,
-    RX_URL: /^https?:\/\//, // TODO Review
+    RX_URL: /^https?:\/\//,
     // Characters
     DOT: '.',
     HASH: '#',
