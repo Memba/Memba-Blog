@@ -235,10 +235,10 @@ module.exports = {
         // bundleAnalyzerPlugin
     ],
     resolve: {
-        extensions: ['.js'],
+        extensions: ['.es6', '.js'],
         modules: [
-            path.resolve(__dirname, 'js'),
-            path.resolve(__dirname, 'js/vendor/kendo'), // required since Kendo UI 2016.1.112
+            'js',
+            'js/vendor/kendo', // required since Kendo UI 2016.1.112
             '.',
             'node_modules'
         ]
