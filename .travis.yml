@@ -9,6 +9,7 @@ node_js:
 env:
   - NODE_ENV=test CC=gcc-6 CXX=g++-6
 addons:
+  chrome: stable
   apt:
     sources:
       - ubuntu-toolchain-r-test
@@ -16,7 +17,7 @@ addons:
       - g++-6
       - oracle-java8-set-default
 before_install:
-  - if [ $(echo $TRAVIS_NODE_VERSION | cut -d. -f1) -lt 9 ]; then npm install -g npm; fi
+  - npm install -g npm
   - npm --version
   - npm install -g grunt-cli
 before_script:
