@@ -21,15 +21,19 @@ const CONSTANTS = {
     CHANGE: 'change',
     CLICK: 'click',
     CLOSE: 'close',
+    DATABINDING: 'dataBinding',
+    DATABOUND: 'dataBound',
     ERROR: 'error',
     KEYDOWN: 'keydown',
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',
+    LOAD: 'load',
     MOUSEDOWN: 'mousedown',
     MOUSEENTER: 'mouseenter',
     MOUSELEAVE: 'mouseleave',
     MOUSEMOVE: 'mousemove',
     MOUSEOUT: 'mouseout',
+    MOUSEOVER: 'mouseover',
     MOUSEUP: 'mouseup',
     TOUCHEND: 'touchend',
     TOUCHLEAVE: 'touchleave',
@@ -74,10 +78,15 @@ const CONSTANTS = {
     // Miscellaneous
     ID: 'id',
     ME: 'me',
-    POINTER: 'pointer'
+    POINTER: 'pointer',
+    // HTML tags
+    DIV: 'div',
+    INPUT: 'input',
+    SELECT: 'select',
+    SPAN: 'span'
 };
 
 /**
- * ES6 Default export
+ * Default export
  */
 export default CONSTANTS;
