@@ -237,9 +237,7 @@ module.exports = {
     resolve: {
         extensions: ['.es6', '.js'],
         modules: [
-            'js',
-            'js/vendor/kendo', // required since Kendo UI 2016.1.112
-            '.',
+            path.resolve(__dirname, 'js/vendor/kendo'), // required since Kendo UI 2016.1.112
             'node_modules'
         ]
     }
