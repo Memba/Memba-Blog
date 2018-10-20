@@ -68,6 +68,15 @@ if (typeof(require) === 'function') {
 
     'use strict';
 
+    // TODO How to test no JavaScript and redirect?
+    // TODO Check headless browsers
+    // https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser/9851769
+    // https://stackoverflow.com/questions/20862728/reliably-detecting-phantomjs-based-spam-bots
+    // https://blog.shapesecurity.com/2015/01/22/detecting-phantomjs-based-visitors/
+    // https://antoinevastel.com/bot%20detection/2018/01/17/detect-chrome-headless-v2.html
+    // https://www.slideshare.net/SergeyShekyan/shekyan-zhang-owasp
+    // TODO Check automated browsers incl !!window.webdriver
+
     var app = window.app;
     var location = window.location;
     // Note: jQuery, kendo and app.i18n are not yet loaded
@@ -80,7 +89,6 @@ if (typeof(require) === 'function') {
     if (!isQaEnvironment && !isBot && location.href.substr(0, errorUrl.length) !== errorUrl) {
 
         // Check browser features
-        // TODO consider testing javascript enabled
         var support = app.support;
         var requirements = support.atobbtoa &&
             support.audio && (support.audio.mp3 || support.audio.ogg) &&
