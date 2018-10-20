@@ -18,12 +18,14 @@ const CONSTANTS = {
     SYMBOL: 'symbol',
     UNDEFINED: 'undefined',
     // Events
+    BLUR: 'blur',
     CHANGE: 'change',
     CLICK: 'click',
     CLOSE: 'close',
     DATABINDING: 'dataBinding',
     DATABOUND: 'dataBound',
     ERROR: 'error',
+    FOCUS: 'focus',
     KEYDOWN: 'keydown',
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',
@@ -35,10 +37,24 @@ const CONSTANTS = {
     MOUSEOUT: 'mouseout',
     MOUSEOVER: 'mouseover',
     MOUSEUP: 'mouseup',
+    POINTERDOWN: 'pointerdown',
+    POINTERENTER: 'pointerenter',
+    POINTERLEAVE: 'pointerleave',
+    POINTERMOVE: 'pointermove',
+    POINTEROUT: 'pointerout',
+    POINTEROVER: 'pointerover',
+    POINTERUP: 'pointerup',
+    SELECT: 'select',
+    TAP: 'tap',
     TOUCHEND: 'touchend',
-    TOUCHLEAVE: 'touchleave',
+    // TOUCHLEAVE: 'touchleave', // <-- See https://developer.mozilla.org/en-US/docs/Web/Events/touchleave
     TOUCHMOVE: 'touchmove',
     TOUCHSTART: 'touchstart',
+    // To be used with kendo.applyEventMap
+    MAPCANCEL: 'cancel',
+    MAPDOWN: 'down',
+    MAPMOVE: 'move',
+    MAPUP: 'up',
     // Custom events
     LOADED: 'i18n.loaded',
     // ERROR: 'error',
@@ -60,29 +76,48 @@ const CONSTANTS = {
     INTERACTIVE_CLASS: 'kj-interactive',
     ELEMENT_CLASS: 'kj-element',
     // CSS Properties
+    CURSOR: 'cursor',
     HEIGHT: 'height',
+    LEFT: 'left',
+    NONE: 'none',
+    TOP: 'top',
     WIDTH: 'width',
-    // Other properties
-    ACTION: 'action',
     // Regular Expressions
-    RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/,
+    RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|[+|-]([\d|:]*))?$/,
     RX_LANGUAGE: /^[a-z]{2}$/,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
     RX_MONGODB_KEY: /^_(i|[a-z]*I)d$/,
     RX_URL: /^https?:\/\//,
     // Characters
+    COLON: ':',
+    COMMA: ',',
     DOT: '.',
+    EMPTY: '',
     HASH: '#',
     HYPHEN: '-',
+    SEMICOLON: ';',
     UNDERSCORE: '_',
     // Miscellaneous
+    ACTION: 'action',
+    ACTIVE: 'active',
     ID: 'id',
     ME: 'me',
     POINTER: 'pointer',
+    STAGE_MODES: {
+        DESIGN: 'design',
+        PLAY: 'play',
+        REVIEW: 'review'
+    },
+    UID: 'uid',
     // HTML tags
+    BODY: 'body',
+    CANVAS: 'canvas',
     DIV: 'div',
+    IMG: 'img',
     INPUT: 'input',
-    SELECT: 'select',
+    LI: 'li',
+    // SELECT: 'select',
+    UL: 'ul',
     SPAN: 'span'
 };
 
