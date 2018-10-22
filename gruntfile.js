@@ -105,18 +105,9 @@ module.exports = grunt => {
                 ext: '.css'
             }
         },
-        mocha: {
-            // In browser (phantomJS) unit tests
-            browser: {
-                options: {
-                    growlOnSuccess: false,
-                    log: true,
-                    logErrors: true,
-                    reporter: 'Spec',
-                    run: true,
-                    timeout: 5000
-                },
-                src: ['test/browser/**/*.html']
+        karma: {
+            unit: {
+                configFile: 'coverage.conf.js'
             }
         },
         mochaTest: {
@@ -188,7 +179,6 @@ module.exports = grunt => {
     grunt.loadNpmTasks('grunt-eslint');
     grunt.loadNpmTasks('grunt-jscs');
     // grunt.loadNpmTasks('grunt-kendo-lint');
-    grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-nsp');
     grunt.loadNpmTasks('grunt-stylelint');
@@ -204,11 +194,6 @@ module.exports = grunt => {
         'nsp'
     ]); // , 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'less']);
-    grunt.registerTask('test', [
-        'mocha',
-        'mochaTest',
-        'copy:gremlins',
-        'webdriver'
-    ]);
+    grunt.registerTask('test', ['mochaTest', 'copy:gremlins', 'webdriver']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 };
