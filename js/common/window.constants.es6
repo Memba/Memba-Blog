@@ -83,6 +83,7 @@ const CONSTANTS = {
     TOP: 'top',
     WIDTH: 'width',
     // Regular Expressions
+    RX_GUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|[+|-]([\d|:]*))?$/,
     RX_LANGUAGE: /^[a-z]{2}$/,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
