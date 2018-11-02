@@ -103,7 +103,7 @@
     "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^3.0.0",
     "prettier": "^1.14.3",
-    "sinon": "^7.1.0",
+    "sinon": "^7.1.1",
     "sinon-chai": "^3.2.0",
     "style-loader": "^0.23.1",
     "stylelint": "^9.7.1",
@@ -115,7 +115,7 @@
     "wdio-phantomjs-service": "^0.2.2",
     "wdio-selenium-standalone-service": "0.0.10",
     "webdriverio": "^4.14.0",
-    "webpack": "^4.23.1",
+    "webpack": "^4.24.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.1.2"
   },
