@@ -1,8 +1,8 @@
 errorShots/
 graphics/
-src/js/vendor/
 logs/
 node_modules/
+src/js/vendor/
 src/styles/
 temp/
 test/vendor/

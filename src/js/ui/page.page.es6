@@ -16,7 +16,7 @@ import '../app.i18n';
 import '../app.common';
 import '../app.menu';
 
-import '../../src/styles/page.page.less';
+import '../../styles/page.page.less';
 
 const {
     app: { i18n }

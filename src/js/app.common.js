@@ -8,11 +8,11 @@
 
 if (typeof(require) === 'function') {
     // Load styles
-    require('../src/styles/bootstrap.custom.less');
-    require('../src/styles/vendor/kendo/web/kendo.common.less');
-    require('../src/styles/fonts/kidoju.less');
-    require('../src/styles/app.page.common.less');
-    require('../src/styles/kidoju.tools.less'); // <-- Consider merging with app.page.common.less
+    require('../styles/bootstrap.custom.less');
+    require('../styles/vendor/kendo/web/kendo.common.less');
+    require('../styles/fonts/kidoju.less');
+    require('../styles/app.page.common.less');
+    require('../styles/kidoju.tools.less'); // <-- Consider merging with app.page.common.less
 
     // Bootstrap files (toggled navbar)
     require('./vendor/bootstrap/collapse.js');

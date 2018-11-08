@@ -13,13 +13,13 @@
                 "root": [
                     ".",
                     "./test/vendor/",
-                    "./js/vendor/kendo/",
-                    "./js/vendor/kendo/cultures/",
-                    "./js/vendor/kendo/messages/"
+                    "./src/js/vendor/kendo/",
+                    "./src/js/vendor/kendo/cultures/",
+                    "./src/js/vendor/kendo/messages/"
                 ],
                 "alias": {
                     // This takes over externals in webpack and includes jQuery in the builds
-                    // "jquery": "./js/vendor/jquery/jquery-3.3.1.min.js"
+                    // "jquery": "./src/js/vendor/jquery/jquery-3.3.1.min.js"
                 }
             }
         ],

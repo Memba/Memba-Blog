@@ -47,8 +47,8 @@ module.exports = grunt => {
         },
         jscs: {
             files: [
-                'js/**/app.*.js',
-                'js/**/*.jsx',
+                'src/js/**/app.*.js',
+                'src/js/**/*.jsx',
                 'test/**/*.js',
                 'webapp/**/*.js'
             ],
@@ -57,8 +57,8 @@ module.exports = grunt => {
                 excludeFiles: [
                     '*.js',
                     'webapp/server.js',
-                    'js/kidoju.*.js',
-                    'js/vendor/**/*.js',
+                    'src/js/kidoju.*.js',
+                    'src/js/vendor/**/*.js',
                     'test/vendor/**/*.js',
                     'webapp/public/**/*.js'
                 ]
@@ -66,8 +66,8 @@ module.exports = grunt => {
         },
         jshint: {
             files: [
-                'js/**/app.*.js',
-                'js/**/*.jsx',
+                'src/js/**/app.*.js',
+                'src/js/**/*.jsx',
                 'webapp/**/*.js',
                 'test/**/*.js'
             ],
@@ -76,8 +76,8 @@ module.exports = grunt => {
                 ignores: [
                     '*.js',
                     'webapp/server.js',
-                    'js/kidoju.*.js',
-                    'js/vendor/**/*.js',
+                    'src/js/kidoju.*.js',
+                    'src/js/vendor/**/*.js',
                     'test/vendor/**/*.js',
                     'webapp/public/**/*.js'
                 ],
@@ -141,9 +141,9 @@ module.exports = grunt => {
                 },
                 files: {
                     'webapp/public/build/workerlib.bundle.js': [
-                        'js/vendor/jashkenas/underscore.js',
-                        'js/vendor/khan/kas.js',
-                        'js/kidoju.data.workerlib.js'
+                        'src/js/vendor/jashkenas/underscore.js',
+                        'src/js/vendor/khan/kas.js',
+                        'src/js/kidoju.data.workerlib.js'
                     ]
                 }
             }

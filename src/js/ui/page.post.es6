@@ -17,7 +17,7 @@ import '../app.i18n';
 import '../app.common';
 import '../app.menu';
 
-import '../../src/styles/page.post.less';
+import '../../styles/page.post.less';
 
 const {
     app: { constants, i18n },

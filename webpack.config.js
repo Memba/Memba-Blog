@@ -83,13 +83,13 @@ module.exports = {
     devtool: 'source-map',
     entry: {
         // We need init especially because of FOUJI
-        init: ['@babel/polyfill', './js/app.init.js'],
+        init: ['@babel/polyfill', './src/js/app.init.js'],
         // One entry per page
-        error: './js/ui/page.error.es6',
-        home: './js/ui/page.home.es6',
-        page: './js/ui/page.page.es6',
-        post: './js/ui/page.post.es6',
-        search: './js/ui/page.search.es6'
+        error: './src/js/ui/page.error.es6',
+        home: './src/js/ui/page.home.es6',
+        page: './src/js/ui/page.page.es6',
+        post: './src/js/ui/page.post.es6',
+        search: './src/js/ui/page.search.es6'
     },
     externals: {
         // CDN modules
@@ -237,7 +237,7 @@ module.exports = {
     resolve: {
         extensions: ['.es6', '.js'],
         modules: [
-            path.resolve(__dirname, 'js/vendor/kendo'), // required since Kendo UI 2016.1.112
+            path.resolve(__dirname, './src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
             'node_modules'
         ]
     }

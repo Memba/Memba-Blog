@@ -22,7 +22,7 @@
     (function () {
         var app = window.app = window.app || {};
         app.cultures = app.cultures || {};
-        app.cultures.fr = require('../../webapp/locales/fr.json');
+        app.cultures.fr = require('../../../webapp/locales/fr.json');
         window.kendo.culture('fr-FR');
     }());
 
