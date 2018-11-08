@@ -1,0 +1,86 @@
+@import "app.mixins.less";
+
+/*********************************************
+ * Site page
+ ********************************************/
+#post-wrapper {
+    .wrapper();
+    overflow-y: scroll;
+    .container {
+        //article content
+        article {
+            margin-top: 3em;
+            img.img-responsive, div.embed-responsive {
+                margin: 1.5em 0;
+            }
+            a:not(.k-button) {
+                border-bottom: dotted 1px;
+                text-decoration: none;
+            }
+            a:not(.k-button):hover {
+                border-bottom: none;
+                text-decoration: underline;
+                color: inherit; // Fixes white on white in themes k-flat and k-metro
+            }
+        }
+        section:not(.group) {
+            margin-bottom: 40px;
+            text-align: right;
+            .social {
+                border: 0;
+                img {
+                    height: 40px;
+                    width: 40px;
+                }
+            }
+        }
+        //side groups of months, categories, authors
+        section.group {
+            margin-bottom: 40px;
+            img {
+                height: 28px;
+                width: 28px;
+                vertical-align: top;
+            }
+            div.list-group {
+                img {
+                    height: 24px;
+                    width: 24px;
+                }
+            }
+        }
+    }
+}
+
+/*********************************************
+ * Small screens
+ ********************************************/
+@media (max-height: 450px) {
+    header.hidden-print {
+        display:none !important;
+    }
+    #post-wrapper {
+        top: 0;
+        bottom: 0;
+    }
+    footer.hidden-print {
+        display:none !important;
+    }
+}
+
+/*********************************************
+ * Printing
+ ********************************************/
+// See http://getbootstrap.com/css/#responsive-utilities-print
+@media print {
+    //Reposition content for hiding header, footer and toolbar
+    #post-wrapper {
+        position: relative;
+        top: 0px;
+        overflow: visible;
+        //Make sure we fit page width
+        .container {
+            width: auto;
+        }
+    }
+}

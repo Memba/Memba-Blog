@@ -1,9 +1,9 @@
 errorShots/
 graphics/
-js/vendor/
+src/js/vendor/
 logs/
 node_modules/
-styles/
+src/styles/
 temp/
 test/vendor/
 webapp/public/

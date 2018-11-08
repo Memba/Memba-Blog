@@ -3,9 +3,9 @@
 /coverage/
 /errorShots/
 /graphics/
-/js/
+/src/js/
 /node_modules/
-/styles/
+/src/styles/
 /temp/
 /test/
 /web_modules/

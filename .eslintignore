@@ -1,9 +1,9 @@
 /coverage/
 /errorShots/
 /graphics/
-/js/vendor/
+/src/js/vendor/
 /node_modules/
-/styles/
+/src/styles/
 /temp/
 /test/vendor/
 /webapp/public/

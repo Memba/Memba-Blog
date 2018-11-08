@@ -1,0 +1,43 @@
+@import "app.mixins.less";
+
+/*********************************************
+ * Error page
+ ********************************************/
+#error-wrapper {
+    .wrapper();
+}
+
+/*********************************************
+ * Small screens
+ ********************************************/
+@media (max-height: 450px) {
+    header.hidden-print {
+        display: none !important;
+    }
+
+    #error-wrapper {
+        top: 0;
+        bottom: 0;
+    }
+
+    footer.hidden-print {
+        display: none !important;
+    }
+}
+
+/*********************************************
+ * Printing
+ ********************************************/
+// See http://getbootstrap.com/css/#responsive-utilities-print
+@media print {
+    //Make sure we fit page width
+    .container {
+        width: auto;
+    }
+    //Reposition content for hiding header, footer and toolbar
+    #error-wrapper {
+        overflow: visible !important;
+        position: relative;
+        top: 0;
+    }
+}

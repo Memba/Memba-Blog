@@ -1,9 +1,9 @@
 # https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#Ignoring-Files
 errorShots/
 graphics/
-js/
+src/js/
 logs/
-styles/
+src/styles/
 temp/
 test/
 web_modules/
