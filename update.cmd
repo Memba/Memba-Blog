@@ -79,33 +79,29 @@ ATTRIB -R .\src\js\.*
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\.* .\src\js\ /Y
 ATTRIB +R .\src\js\.*
 
-REM Copy ./src/js/cultures files
-XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\cultures\*.*  .\src\js\cultures\ /C /E /I /R /Y
-ATTRIB +R .\src\js\cultures\*.* /S
-
-REM Copy ./src/js/messages files
-XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\messages\*.*  .\src\js\messages\ /C /E /I /R /Y
-ATTRIB +R .\src\js\messages\*.* /S
-
-REM Copy ./src/js/vendor files
-XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\bootstrap\*.* .\src\js\vendor\bootstrap\ /C /E /I /R /Y
-ATTRIB +R .\src\js\vendor\bootstrap\*.* /S
-XCOPY ..\..\Kidoju\Kidoju.WebApp\js\vendor\jquery .\src\js\vendor\jquery /C /E /I /R /Y
-ATTRIB +R .\src\js\vendor\jquery\*.* /S
-XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\kendo\*.* .\src\js\vendor\kendo\ /C /E /I /R /Y
-ATTRIB +R .\src\js\vendor\kendo\*.* /S
-
-REM ./src/js/common/*.es6
+REM ./src/js/common/*
 ATTRIB -R .\src\js\common\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\common\window.assert.es6 .\src\js\common /Y
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\common\window.constants.es6 .\src\js\common /Y
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\common\window.logger.es6 .\src\js\common /Y
 ATTRIB +R .\src\js\common\*.es6
 
+REM ./src/js/cultures/*
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\cultures\widgets.*.es6  .\src\js\cultures /Y
+ATTRIB +R .\src\js\cultures\widgets.*.es6 /S
+
 REM ./src/js/ui/*.es6
 ATTRIB -R .\src\js\ui\page.error.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\ui\page.error.es6 .\src\js\ui /Y
 ATTRIB +R .\src\js\ui\page.error.es6
+
+REM Copy ./src/js/vendor/*
+XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\bootstrap\*.* .\src\js\vendor\bootstrap\ /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\bootstrap\*.* /S
+XCOPY ..\..\Kidoju\Kidoju.WebApp\js\vendor\jquery .\src\js\vendor\jquery /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\jquery\*.* /S
+XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\kendo\*.* .\src\js\vendor\kendo\ /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\kendo\*.* /S
 
 REM ./src/js/app.common.js
 ATTRIB -R .\src\js\app.common.js
