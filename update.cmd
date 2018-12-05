@@ -100,8 +100,12 @@ XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\bootstrap\*.* .\src\js\vendor\boo
 ATTRIB +R .\src\js\vendor\bootstrap\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.WebApp\js\vendor\jquery .\src\js\vendor\jquery /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\jquery\*.* /S
+XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\lazd\*.* .\src\js\vendor\lazd\ /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\lazd\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\kendo\*.* .\src\js\vendor\kendo\ /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\kendo\*.* /S
+XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\modernizr\*.* .\src\js\vendor\modernizr\ /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\modernizr\*.* /S
 
 REM ./src/js/app.common.js
 ATTRIB -R .\src\js\app.common.js
