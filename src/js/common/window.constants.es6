@@ -18,6 +18,7 @@ const CONSTANTS = {
     SYMBOL: 'symbol',
     UNDEFINED: 'undefined',
     // Events
+    BEFORECHANGE: 'beforeChange',
     BLUR: 'blur',
     CHANGE: 'change',
     CLICK: 'click',
@@ -65,9 +66,11 @@ const CONSTANTS = {
     NOT_FOUND_ERR: 'Not found',
     NOT_IMPLEMENTED_ERR: 'Not implemented',
     // Content types
+    GIF_CONTENT_TYPE: 'image/gif',
     JSON_CONTENT_TYPE: 'application/json',
     JPEG_CONTENT_TYPE: 'image/jpeg',
     PNG_CONTENT_TYPE: 'image/png',
+    TEXT_CONTENT_TYPE: 'plain/text',
     // Cursors
     CROSSHAIR_CURSOR: 'crosshair',
     DEFAULT_CURSOR: 'default',
@@ -94,6 +97,7 @@ const CONSTANTS = {
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
     RX_MONGODB_KEY: /^_(i|[a-z]*I)d$/,
     RX_URL: /^https?:\/\//,
+    RX_TEST_FIELD_NAME: /^val_[a-z0-9]{6}$/,
     // Characters
     COLON: ':',
     COMMA: ',',
@@ -127,6 +131,7 @@ const CONSTANTS = {
     LI: 'li',
     // SELECT: 'select',
     SPAN: 'span',
+    TABLE: 'table',
     TBODY: 'tbody',
     UL: 'ul'
 };
