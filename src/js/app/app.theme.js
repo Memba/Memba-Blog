@@ -10,7 +10,7 @@
     'use strict';
     define([
         // We are not loading window.kendo
-        './common/window.assert.es6',
+        '../common/window.assert.es6',
         './common/window.logger.es6',
         './app.logger'
     ], f);

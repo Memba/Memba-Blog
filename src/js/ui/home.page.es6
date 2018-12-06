@@ -10,8 +10,8 @@ import $ from 'jquery';
 import Logger from '../common/window.logger.es6';
 
 // TODO Review app.* files
-import '../app.logger';
-import '../app.i18n';
+import '../app/app.logger';
+import '../app/app.i18n';
 import '../app/app.common';
 import '../app/app.menu.es6';
 

@@ -16,9 +16,9 @@ import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.dropdownlist';
 // TODO ---------------------> Review app.* files
-import '../app.i18n';
-import '../app.logger';
-import '../app.theme';
+import './app.i18n';
+import './app.logger';
+import './app.theme';
 import viewModel from './app.viewmodel.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';

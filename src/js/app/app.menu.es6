@@ -13,7 +13,7 @@ import Logger from '../common/window.logger.es6';
 // Bootstrap files for navbar (toggle button)
 import '../vendor/bootstrap/collapse';
 import '../vendor/bootstrap/dropdown';
-import '../app.i18n'; // TODO review
+import './app.i18n'; // TODO review
 
 const { i18n, uris } = window.app; // TODO review
 const { format, keys } = window.kendo;
