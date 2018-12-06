@@ -1,23 +1,26 @@
-@import "app.mixins.less";
+@import "ui/app.mixins.less";
 
 /*********************************************
  * Site page
  ********************************************/
-#search-wrapper {
+#page-wrapper {
     .wrapper();
     overflow-y: scroll;
-    //side groups of months, categories, authors
-    section.group {
-        margin-bottom: 40px;
-        img {
-            height: 28px;
-            width: 28px;
-            vertical-align: top;
-        }
-        div.list-group {
-            img {
-                height: 24px;
-                width: 24px;
+    .container {
+        //article content
+        article {
+            margin-top: 3em;
+            img.img-responsive {
+                margin: 1.5em 0;
+            }
+            a:not(.k-button) {
+                border-bottom: dotted 1px;
+                text-decoration: none;
+            }
+            a:not(.k-button):hover {
+                border-bottom: none;
+                text-decoration: underline;
+                color: inherit; // Fixes white on white in themes k-flat and k-metro
             }
         }
     }
@@ -26,13 +29,20 @@
 /*********************************************
  * Small screens
  ********************************************/
+
 @media (max-height: 450px) {
     header.hidden-print {
         display:none !important;
     }
-    #search-wrapper {
+    #page-wrapper {
         top: 0;
         bottom: 0;
+        .container {
+            //article content
+            article {
+                margin-top: 0;
+            }
+        }
     }
     footer.hidden-print {
         display:none !important;
@@ -46,19 +56,13 @@
 // See http://getbootstrap.com/css/#responsive-utilities-print
 @media print {
     //Reposition content for hiding header, footer and toolbar
-    #search-wrapper {
+    #page-wrapper {
         position: relative;
         top: 0px;
         overflow: visible;
         //Make sure we fit page width
         .container {
             width: auto;
-            //Do not print hyperlinks after images
-            .media-left {
-                a[href]::after {
-                    content: none;
-                }
-            }
         }
     }
 }

@@ -81,6 +81,8 @@ ATTRIB +R .\src\js\.*
 
 REM ./src/js/app/*
 ATTRIB -R .\src\js\app\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.common.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.common.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.init.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.init.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.notification.es6 .\src\js\app /Y
@@ -143,24 +145,35 @@ REM ------------------------------------------------------------
 REM Styles
 REM ------------------------------------------------------------
 
-REM Copy fonts
+REM Copy .\src\styles\dialogs
+ATTRIB -R .\src\styles\dialogs\*.* /S
+COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\dialogs\kidoju.tools.less .\src\styles\dialogs\ /Y
+ATTRIB +R .\src\styles\dialogs\kidoju.tools.less /S
+
+REM Copy ./src/styles/fonts
 XCOPY ..\..\Kidoju\Kidoju.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\fonts\*.* /S
 
-REM Copy images
-COPY .\graphics\memba.home.jpg .\src\styles\images\jumbotron.jpg
+REM Copy ./src/styles/images
+COPY .\graphics\memba.home.jpg .\src\styles\images\jumbotron.jpg /Y
 ATTRIB +R .\src\styles\images\*.* /S
 
-REM Copy social icons
-ATTRIB -R .\webapp\public\*.svg
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\facebook.svg .\webapp\public\ /Y
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\google.svg .\webapp\public\ /Y
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\linkedin.svg .\webapp\public\ /Y
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\pinterest.svg .\webapp\public\ /Y
-COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\twitter.svg .\webapp\public\ /Y
-ATTRIB +R .\webapp\public\*.svg
+REM Copy ./src/styles/themes
+XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\themes\*.* .\src\styles\themes\ /C /E /I /R /Y
+DEL .\src\styles\themes\codemirror.custom.less /F /Q
+DEL .\src\styles\themes\mathquill.custom.less /F /Q
+ATTRIB +R .\src\styles\themes\*.* /S
 
-REM Copy ./src/styles/vendor files
+REM Copy ./src/styles/ui
+ATTRIB -R .\src\styles\ui\*.less
+COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\app.common.less .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\app.common.less
+COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\app.mixins.less .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\app.mixins.less
+COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\error.page.less .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\error.page.less
+
+REM Copy ./src/styles/vendor
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\bootstrap\*.* .\src\styles\vendor\bootstrap\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\vendor\bootstrap\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\highlight\*.* .\src\styles\vendor\highlight\ /C /E /I /R /Y
@@ -170,25 +183,14 @@ ATTRIB +R .\src\styles\vendor\fonts\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\kendo\*.* .\src\styles\vendor\kendo\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\vendor\kendo\*.* /S
 
-REM Copy theme files
-ATTRIB -R .\src\styles\app.*.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\app.mixins.less .\src\styles\ /Y
-ATTRIB +R .\src\styles\app.mixins.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\app.page.common.less .\src\styles\ /Y
-ATTRIB +R .\src\styles\app.page.common.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\app.template.less .\src\styles\ /Y
-ATTRIB +R .\src\styles\app.template.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\app.theme.*.less .\src\styles\ /Y
-ATTRIB +R .\src\styles\app.theme.*.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\highlightjs.custom.less .\src\styles\ /Y
-ATTRIB +R .\src\styles\highlightjs.custom.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\page.error.less .\src\styles\ /Y
-ATTRIB +R .\src\styles\page.error.less
-
-REM Consider merging with app.page.common.less
-ATTRIB -R .\src\styles\kidoju.tools.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\kidoju.tools.less .\src\styles\ /Y
-ATTRIB +R .\src\styles\kidoju.tools.less
+REM Copy social icons
+ATTRIB -R .\webapp\public\*.svg
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\facebook.svg .\webapp\public\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\google.svg .\webapp\public\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\linkedin.svg .\webapp\public\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\pinterest.svg .\webapp\public\ /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\webapp\public\twitter.svg .\webapp\public\ /Y
+ATTRIB +R .\webapp\public\*.svg
 
 REM ------------------------------------------------------------
 REM Tests
