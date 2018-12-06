@@ -3,25 +3,18 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true */
-/* globals define: false, require: false */
 
-if (typeof(require) === 'function') {
     // Load styles
-    require('../styles/bootstrap.custom.less');
-    require('../styles/vendor/kendo/web/kendo.common.less');
-    require('../styles/fonts/kidoju.less');
-    require('../styles/app.page.common.less');
-    require('../styles/kidoju.tools.less'); // <-- Consider merging with app.page.common.less
+    require('../../styles/bootstrap.custom.less');
+    require('../../styles/vendor/kendo/web/kendo.common.less');
+    require('../../styles/fonts/kidoju.less');
+    require('../../styles/app.page.common.less');
+    require('../../styles/kidoju.tools.less'); // <-- Consider merging with app.page.common.less
 
     // Bootstrap files (toggled navbar)
-    require('./vendor/bootstrap/collapse.js');
-    require('./vendor/bootstrap/dropdown.js');
-}
+    require('../vendor/bootstrap/collapse.js');
+    require('../vendor/bootstrap/dropdown.js');
 
-(function (f, define) {
-    'use strict';
-    define([
         './vendor/kendo/kendo.core',
         './vendor/kendo/kendo.data',
         './vendor/kendo/kendo.binder',
@@ -34,12 +27,6 @@ if (typeof(require) === 'function') {
         './app.logger',
         './app.i18n',
         './app.theme'
-    ], f);
-})(function () {
-
-    'use strict';
-
-    (function ($, undefined) {
 
         var kendo = window.kendo;
         var app = window.app;
@@ -53,26 +40,6 @@ if (typeof(require) === 'function') {
         var THEME = 'theme';
         var NOTIFICATION_SELECTOR = '#notification';
 
-        /**
-         * viewModel
-         * viewModel contains any data functions
-         * It does not interact with the UI except through MVVM bindings and app.notification
-         * viewModel functions should follow the jQuery promise pattern to be called from controller and trigger UI changes when done
-         */
-        var viewModel = kendo.observable({
-
-            // Locale (see footer)
-            locale: i18n.locale(),
-
-            // Theme (see footer)
-            theme: theme.name()
-
-        });
-
-        // Make the viewModel global for debugging
-        if (app.DEBUG) {
-            window.viewModel1 = viewModel;
-        }
 
         /**
          * controller
@@ -120,11 +87,6 @@ if (typeof(require) === 'function') {
 
         };
 
-        // Make the controller global for debugging
-        if (app.DEBUG) {
-            window.controller1 = controller;
-        }
-
         /**
          * Wait until document is ready to initialize UI
          */
@@ -145,9 +107,3 @@ if (typeof(require) === 'function') {
                 });
             });
 
-
-    }(window.jQuery));
-
-    return window.app;
-
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
