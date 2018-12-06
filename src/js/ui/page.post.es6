@@ -15,15 +15,13 @@ import Logger from '../common/window.logger.es6';
 import '../app.logger';
 import '../app.i18n';
 import '../app.common';
-import '../app.menu';
+import '../app/app.menu.es6';
 
 import '../../styles/page.post.less';
 
-const {
-    app: { constants, i18n },
-    HTMLAnchorElement,
-    kendo: { attr }
-} = window;
+const { HTMLAnchorElement } = window;
+const { constants, i18n } = window.app;
+const { attr } = window.kendo;
 const logger = new Logger('page.post');
 const SELECTORS = {
     SOCIAL: '.social',

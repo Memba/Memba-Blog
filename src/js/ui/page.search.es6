@@ -13,13 +13,11 @@ import Logger from '../common/window.logger.es6';
 import '../app.logger';
 import '../app.i18n';
 import '../app.common';
-import '../app.menu';
+import '../app/app.menu.es6';
 
 import '../../styles/page.search.less';
 
-const {
-    app: { i18n }
-} = window;
+const { i18n } = window.app;
 const logger = new Logger('page.search');
 
 /**
