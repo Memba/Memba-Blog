@@ -17,7 +17,7 @@ import '../app.i18n';
 import '../app/app.common';
 import '../app/app.menu.es6';
 
-import '../../styles/page.post.less';
+import '../../styles/ui/post.page.less';
 
 const { HTMLAnchorElement } = window;
 const { constants, i18n } = window.app;

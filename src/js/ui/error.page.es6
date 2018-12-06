@@ -6,21 +6,15 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import '../app/app.common.es6';
 // import assert from '../common/window.assert.es6';
 import Logger from '../common/window.logger.es6';
 
-// TODO Review app.* files
-import '../app.logger';
-import '../app.i18n';
-import '../app/app.common';
+// Import page styles
+import '../../styles/ui/error.page.less';
 
-import '../../styles/page.error.less';
-
-const {
-    app: { i18n },
-    history,
-    location
-} = window;
+const { history, location } = window;
+const { i18n } = window.app;
 const logger = new Logger('page.error');
 const SELECTORS = {
     BACK_BUTTON: '#back-button'

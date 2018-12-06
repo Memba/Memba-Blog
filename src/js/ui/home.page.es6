@@ -15,7 +15,7 @@ import '../app.i18n';
 import '../app/app.common';
 import '../app/app.menu.es6';
 
-import '../../styles/page.home.less';
+import '../../styles/ui/home.page.less';
 
 const { i18n } = window.app;
 const logger = new Logger('page.home');
