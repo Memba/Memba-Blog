@@ -11,7 +11,7 @@ if (typeof(require) === 'function') {
     // require('./common/window.logger.es6');
     // require('./app.logger.js');
     require('./app.config.jsx?env=' + __NODE_ENV__);
-    require('./app.support.js');
+    require('../app.support.js');
 }
 
 /**
