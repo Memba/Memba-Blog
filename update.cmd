@@ -82,7 +82,9 @@ ATTRIB +R .\src\js\.*
 REM ./src/js/app/*
 ATTRIB -R .\src\js\app\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.init.es6 .\src\js\app /Y
-ATTRIB +R .\src\js\app\*.es6
+ATTRIB +R .\src\js\app\app.init.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.notification.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.notification.es6
 
 REM ./src/js/common/*
 ATTRIB -R .\src\js\common\*.es6
@@ -96,9 +98,9 @@ COPY ..\..\Kidoju\Kidoju.Webapp\src\js\cultures\widgets.*.es6  .\src\js\cultures
 ATTRIB +R .\src\js\cultures\widgets.*.es6 /S
 
 REM ./src/js/ui/*.es6
-ATTRIB -R .\src\js\ui\page.error.es6
-COPY ..\..\Kidoju\Kidoju.Webapp\src\js\ui\page.error.es6 .\src\js\ui /Y
-ATTRIB +R .\src\js\ui\page.error.es6
+ATTRIB -R .\src\js\ui\error.page.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\ui\error.page.es6 .\src\js\ui /Y
+ATTRIB +R .\src\js\ui\error.page.es6
 
 REM Copy ./src/js/vendor/*
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\bootstrap\*.* .\src\js\vendor\bootstrap\ /C /E /I /R /Y

@@ -85,11 +85,11 @@ module.exports = {
         // We need init especially because of FOUJI
         init: ['@babel/polyfill', './src/js/app/app.init.es6'],
         // One entry per page
-        error: './src/js/ui/page.error.es6',
-        home: './src/js/ui/page.home.es6',
+        error: './src/js/ui/error.page.es6',
+        home: './src/js/ui/home.page.es6',
         page: './src/js/ui/page.page.es6',
-        post: './src/js/ui/page.post.es6',
-        search: './src/js/ui/page.search.es6'
+        post: './src/js/ui/post.page.es6',
+        search: './src/js/ui/search.page.es6'
     },
     externals: {
         // CDN modules

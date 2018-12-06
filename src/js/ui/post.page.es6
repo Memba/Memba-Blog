@@ -14,7 +14,7 @@ import Logger from '../common/window.logger.es6';
 // TODO Review app.* files
 import '../app.logger';
 import '../app.i18n';
-import '../app.common';
+import '../app/app.common';
 import '../app/app.menu.es6';
 
 import '../../styles/page.post.less';
