@@ -40,18 +40,13 @@ module.exports = grunt => {
             }
         },
         eslint: {
-            files: ['**/*.es6', '*.js', 'webapp/server.js'],
+            files: ['**/*.es6', 'src/js/**/*.jsx', '*.js', 'webapp/server.js'],
             options: {
                 config: '.eslintrc'
             }
         },
         jscs: {
-            files: [
-                'src/js/**/app.*.js',
-                'src/js/**/*.jsx',
-                'test/**/*.js',
-                'webapp/**/*.js'
-            ],
+            files: ['src/js/**/app.*.js', 'test/**/*.js', 'webapp/**/*.js'],
             options: {
                 config: '.jscsrc',
                 excludeFiles: [
@@ -65,12 +60,7 @@ module.exports = grunt => {
             }
         },
         jshint: {
-            files: [
-                'src/js/**/app.*.js',
-                'src/js/**/*.jsx',
-                'webapp/**/*.js',
-                'test/**/*.js'
-            ],
+            files: ['src/js/**/app.*.js', 'webapp/**/*.js', 'test/**/*.js'],
             options: {
                 // .jshintignore does ot work with grunt-contrib-jshint
                 ignores: [
