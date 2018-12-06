@@ -83,7 +83,7 @@ module.exports = {
     devtool: 'source-map',
     entry: {
         // We need init especially because of FOUJI
-        init: ['@babel/polyfill', './src/js/app.init.js'],
+        init: ['@babel/polyfill', './src/js/app/app.init.es6'],
         // One entry per page
         error: './src/js/ui/page.error.es6',
         home: './src/js/ui/page.home.es6',
@@ -115,6 +115,10 @@ module.exports = {
                     {
                         loader: './web_modules/jsx-loader/index.es6',
                         options: { config: 'webapp/config' }
+                    },
+                    {
+                        loader: 'babel-loader',
+                        options: { babelrc: true }
                     }
                 ]
             },

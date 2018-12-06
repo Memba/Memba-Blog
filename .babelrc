@@ -23,6 +23,7 @@
                 }
             }
         ],
+        ["@babel/plugin-syntax-dynamic-import"],
         [
             "@babel/transform-runtime",
             {

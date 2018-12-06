@@ -79,6 +79,11 @@ ATTRIB -R .\src\js\.*
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\.* .\src\js\ /Y
 ATTRIB +R .\src\js\.*
 
+REM ./src/js/app/*
+ATTRIB -R .\src\js\app\*.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.init.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\*.es6
+
 REM ./src/js/common/*
 ATTRIB -R .\src\js\common\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\common\window.assert.es6 .\src\js\common /Y
@@ -116,11 +121,6 @@ REM ./src/js/app.i18n.js
 ATTRIB -R .\src\js\app.i18n.js
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app.i18n.js .\src\js\ /Y
 ATTRIB +R .\src\js\app.i18n.js
-
-REM ./src/js/app.init.js
-ATTRIB -R .\src\js\app.init.js
-COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app.init.js .\src\js\ /Y
-ATTRIB +R .\src\js\app.init.js
 
 REM ./src/js/app.logger.js
 ATTRIB -R .\src\js\app.logger.js
