@@ -11,8 +11,8 @@
     define([
         // We are not loading window.kendo
         '../common/window.assert.es6',
-        './common/window.logger.es6',
-        './app.logger'
+        '../common/window.logger.es6',
+        './app.logger.es6'
     ], f);
 })(function () {
 
@@ -80,12 +80,12 @@
                     // See https://github.com/webpack/style-loader/issues/48
                     // See https://github.com/webpack/webpack/issues/924
                     // See https://github.com/webpack/webpack/issues/993
-                    loader = require('../styles/themes/app.theme.' + oldTheme + '.less');
+                    loader = require('../../styles/themes/app.theme.' + oldTheme + '.less');
                     loader(function (style) {
                         style.unuse();
                     });
                 }
-                loader = require('../styles/themes/app.theme.' + theme + '.less');
+                loader = require('../../styles/themes/app.theme.' + theme + '.less');
                 loader(function (style) {
                     style.use();
                     if (localStorage && !$.isArray(matches)) {

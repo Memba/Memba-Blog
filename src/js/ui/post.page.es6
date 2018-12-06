@@ -6,17 +6,13 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import '../vendor/kendo/kendo.core';
+import 'kendo.core';
+import '../app/app.common.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 
-// TODO Review app.* files
-import '../app/app.logger';
-import '../app/app.i18n';
-import '../app/app.common';
-import '../app/app.menu.es6';
-
+// Import page styles
 import '../../styles/ui/post.page.less';
 
 const { HTMLAnchorElement } = window;

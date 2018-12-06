@@ -13,12 +13,17 @@ import '../../styles/dialogs/kidoju.tools.less'; // <-- Consider merging with ap
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+// Bootstrap files for navbar (toggle button)
+import '../vendor/bootstrap/collapse';
+import '../vendor/bootstrap/dropdown';
+// Kendo UI files for footer
 import 'kendo.binder';
 import 'kendo.dropdownlist';
 // TODO ---------------------> Review app.* files
-import './app.i18n';
-import './app.logger';
-import './app.theme';
+import './app.i18n.es6';
+import './app.logger.es6';
+import './app.theme.es6';
+import './app.menu.es6';
 import viewModel from './app.viewmodel.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';

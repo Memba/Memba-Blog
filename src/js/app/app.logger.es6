@@ -10,7 +10,7 @@
     'use strict';
     define([
         '../common/window.assert.es6',
-        './common/window.logger.es6'
+        '../common/window.logger.es6'
     ], f);
 })(function () {
 

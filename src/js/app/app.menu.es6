@@ -10,10 +10,7 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-// Bootstrap files for navbar (toggle button)
-import '../vendor/bootstrap/collapse';
-import '../vendor/bootstrap/dropdown';
-import './app.i18n'; // TODO review
+// import './app.i18n.es6'; // TODO review
 
 const { i18n, uris } = window.app; // TODO review
 const { format, keys } = window.kendo;

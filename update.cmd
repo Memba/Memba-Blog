@@ -83,10 +83,16 @@ REM ./src/js/app/*
 ATTRIB -R .\src\js\app\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.common.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.common.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.i18n.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.i18n.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.init.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.init.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.logger.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.logger.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.notification.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.notification.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.theme.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.theme.es6
 
 REM ./src/js/common/*
 ATTRIB -R .\src\js\common\*.es6
@@ -115,31 +121,6 @@ XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\kendo\*.* .\src\js\vendor\kendo\ 
 ATTRIB +R .\src\js\vendor\kendo\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\modernizr\*.* .\src\js\vendor\modernizr\ /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\modernizr\*.* /S
-
-REM ./src/js/app.common.js
-ATTRIB -R .\src\js\app.common.js
-COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app.common.js .\src\js\ /Y
-ATTRIB +R .\src\js\app.common.js
-
-REM ./src/js/app.i18n.js
-ATTRIB -R .\src\js\app.i18n.js
-COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app.i18n.js .\src\js\ /Y
-ATTRIB +R .\src\js\app.i18n.js
-
-REM ./src/js/app.logger.js
-ATTRIB -R .\src\js\app.logger.js
-COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app.logger.js .\src\js\ /Y
-ATTRIB +R .\src\js\app.logger.js
-
-REM ./src/js/app.support.js
-ATTRIB -R .\src\js\app.support.js
-COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app.support.js .\src\js\ /Y
-ATTRIB +R .\src\js\app.support.js
-
-REM ./src/js/app.theme.js
-ATTRIB -R .\src\js\app.theme.js
-COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app.theme.js .\src\js\ /Y
-ATTRIB +R .\src\js\app.theme.js
 
 REM ------------------------------------------------------------
 REM Styles

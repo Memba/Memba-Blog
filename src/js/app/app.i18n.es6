@@ -10,8 +10,8 @@
     'use strict';
     define([
         '../common/window.assert.es6',
-        './common/window.logger.es6',
-        './app.logger'
+        '../common/window.logger.es6',
+        './app.logger.es6'
     ], f);
 })(function () {
 
@@ -80,7 +80,7 @@
                     setLocale();
                 } else {
                     // locale needs to be loaded (see https://github.com/webpack/webpack/issues/923)
-                    var loader = require('bundle-loader?name=[name]!./cultures/app.culture.' + locale + '.es6');
+                    var loader = require('bundle-loader?name=[name]!../cultures/app.culture.' + locale + '.es6');
                     loader(setLocale);
                 }
 
