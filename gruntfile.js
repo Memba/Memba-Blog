@@ -112,9 +112,11 @@ module.exports = grunt => {
                 src: ['test/node/**/*.{es6,js}']
             }
         },
+        /*
         nsp: {
             package: grunt.file.readJSON('package.json')
         },
+        */
         stylelint: {
             options: {
                 configFile: '.stylelintrc'
@@ -170,7 +172,7 @@ module.exports = grunt => {
     grunt.loadNpmTasks('grunt-jscs');
     // grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-mocha-test');
-    grunt.loadNpmTasks('grunt-nsp');
+    // grunt.loadNpmTasks('grunt-nsp');
     grunt.loadNpmTasks('grunt-stylelint');
     grunt.loadNpmTasks('grunt-webdriver');
     grunt.loadNpmTasks('grunt-webpack');
@@ -180,8 +182,8 @@ module.exports = grunt => {
         'eslint',
         'jscs',
         'jshint',
-        'stylelint',
-        'nsp'
+        'stylelint'
+        // 'nsp'
     ]); // , 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'less']);
     grunt.registerTask('test', ['mochaTest', 'copy:gremlins', 'webdriver']);
