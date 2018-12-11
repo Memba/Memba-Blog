@@ -7,7 +7,6 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import '../app/app.common.es6';
-// import assert from '../common/window.assert.es6';
 import Logger from '../common/window.logger.es6';
 
 // Import page styles
