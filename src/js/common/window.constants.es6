@@ -66,6 +66,7 @@ const CONSTANTS = {
     NOT_FOUND_ERR: 'Not found',
     NOT_IMPLEMENTED_ERR: 'Not implemented',
     // Content types
+    FORM_CONTENT_TYPE: 'application/x-www-form-urlencoded',
     GIF_CONTENT_TYPE: 'image/gif',
     JSON_CONTENT_TYPE: 'application/json',
     JPEG_CONTENT_TYPE: 'image/jpeg',
@@ -99,10 +100,12 @@ const CONSTANTS = {
     RX_URL: /^https?:\/\//,
     RX_TEST_FIELD_NAME: /^val_[a-z0-9]{6}$/,
     // Characters
+    AMPERSAND: '&',
     COLON: ':',
     COMMA: ',',
     DOT: '.',
     EMPTY: '',
+    EQUAL: '=',
     HASH: '#',
     HYPHEN: '-',
     SEMICOLON: ';',
