@@ -3,15 +3,18 @@
  * Sources at https://github.com/Memba
  */
 
-/* global __NODE_ENV__:false */
-
 // import Modernizr from '../vendor/modernizr/modernizr';
-// Modernizr returns an empty object {}, so we need to use window.Modernizr
+// returns an empty object {}, so we need to use window.Modernizr
 import '../vendor/modernizr/modernizr';
 
 // import iNoBounce from '../vendor/lazd/inobounce';
 // No need to call iNoBounce.enable() which is set by default, so iNoBounce variable is not used
 import '../vendor/lazd/inobounce';
+
+// "eager" mode forces the module to be loaded in the current chunk
+// @see https://webpack.js.org/api/module-methods/
+// import(/* webpackMode: "eager" */ `./app.config.jsx?env=${__NODE_ENV__}`).then(config => {});
+import config from './app.config.jsx';
 
 /**
  * The application has <meta name="apple-mobile-web-app-capable" content="yes">
@@ -76,68 +79,63 @@ import '../vendor/lazd/inobounce';
  * https://antoinevastel.com/bot%20detection/2018/01/17/detect-chrome-headless-v2.html
  * https://www.slideshare.net/SergeyShekyan/shekyan-zhang-owasp
  */
-import(/* webpackMode: "eager" */ `./app.config.jsx?env=${__NODE_ENV__}`).then(
-    // "eager" mode forces the module to be loaded in the current chunk
-    // @see https://webpack.js.org/api/module-methods/
-    () => {
-        const { app, document, location, Modernizr, navigator } = window;
-        // Note: jQuery, kendo and app.i18n are not yet loaded
-        const lang = document
-            .getElementsByTagName('html')[0]
-            .getAttribute('lang');
-        const errorUrl = app.uris.webapp.error.replace('{0}', lang);
-        const isQaEnvironment =
-            app.DEBUG && /(HeadlessChrome|PhantomJS)/.test(navigator.userAgent);
-        const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(
-            navigator.userAgent
-        );
+(() => {
+    const { document, location, Modernizr, navigator } = window;
+    // Note: jQuery, kendo and app.i18n are not yet loaded
+    const lang = document.getElementsByTagName('html')[0].getAttribute('lang');
+    const errorUrl = config.uris.webapp.error.replace('{0}', lang);
+    const isQaEnvironment =
+        window.DEBUG && /(HeadlessChrome|PhantomJS)/.test(navigator.userAgent);
+    const isBot = /bot|googlebot|crawler|spider|robot|crawling/i.test(
+        navigator.userAgent
+    );
 
-        // Alias Modernizr as app.support
-        app.support = Modernizr;
+    // Alias Modernizr as app.support
+    // window.app = window.app || {};
+    // window.app.support = Modernizr;
 
-        // Make sure this is not a web crawler, we are not testing in PhantomJS and we are not yet on the error page
-        if (
-            !isQaEnvironment &&
-            !isBot &&
-            location.href.substr(0, errorUrl.length) !== errorUrl
-        ) {
-            // Check browser requirements
-            const requirements =
-                Modernizr.atobbtoa &&
-                Modernizr.audio &&
-                // (Modernizr.audio.mp3 || Modernizr.audio.ogg) &&
-                Modernizr.blobconstructor &&
-                Modernizr.bloburls &&
-                Modernizr.canvas &&
-                Modernizr.canvastext &&
-                Modernizr.csstransforms &&
-                // Modernizr.datauri &&
-                Modernizr.filereader &&
-                // Modernizr.filesystem &&
-                Modernizr.flexbox &&
-                // Modernizr.getusermedia &&
-                Modernizr.hashchange &&
-                Modernizr.history &&
-                Modernizr.inlinesvg &&
-                Modernizr.localstorage &&
-                Modernizr.sessionstorage &&
-                // Modernizr.speechrecognition &&
-                // Modernizr.speechsynthesis &&
-                Modernizr.svg &&
-                Modernizr.svgasimg &&
-                // Modernizr.touchevents &&
-                Modernizr.video &&
-                // (Modernizr.video.h264 ||
-                //    Modernizr.video.ogg ||
-                //    Modernizr.video.webm) &&
-                Modernizr.webworkers;
-            // Modernizr.xhr2 &&
-            // Modernizr.setclasses;
+    // Make sure this is not a web crawler, we are not testing in PhantomJS and we are not yet on the error page
+    if (
+        !isQaEnvironment &&
+        !isBot &&
+        location.href.substr(0, errorUrl.length) !== errorUrl
+    ) {
+        // Check browser requirements
+        const requirements =
+            Modernizr.atobbtoa &&
+            Modernizr.audio &&
+            // (Modernizr.audio.mp3 || Modernizr.audio.ogg) &&
+            Modernizr.blobconstructor &&
+            Modernizr.bloburls &&
+            Modernizr.canvas &&
+            Modernizr.canvastext &&
+            Modernizr.csstransforms &&
+            // Modernizr.datauri &&
+            Modernizr.filereader &&
+            // Modernizr.filesystem &&
+            Modernizr.flexbox &&
+            // Modernizr.getusermedia &&
+            Modernizr.hashchange &&
+            Modernizr.history &&
+            Modernizr.inlinesvg &&
+            Modernizr.localstorage &&
+            Modernizr.sessionstorage &&
+            // Modernizr.speechrecognition &&
+            // Modernizr.speechsynthesis &&
+            Modernizr.svg &&
+            Modernizr.svgasimg &&
+            // Modernizr.touchevents &&
+            Modernizr.video &&
+            // (Modernizr.video.h264 ||
+            //    Modernizr.video.ogg ||
+            //    Modernizr.video.webm) &&
+            Modernizr.webworkers;
+        // Modernizr.xhr2 &&
+        // Modernizr.setclasses;
 
-            // If any feature is missing, redirect to error page with error code 1000
-            if (!requirements) {
-                location.assign(`${errorUrl}?code=1000`);
-            }
+        // If any feature is missing, redirect to error page with error code 1000
+        if (!requirements) {
+            location.assign(`${errorUrl}?code=1000`);
         }
     }
-);
+})();

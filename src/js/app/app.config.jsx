@@ -6,13 +6,18 @@
 /* globals __VERSION__:false */
 
 /**
+ * application DEBUG mode
+ * @type {boolean}
+ */
+window.DEBUG = '<%- debug %>'.toLowerCase() === 'true';
+
+/**
  * Note: This file is built with webpack using ./web_modules/jsx-loader.
  * Values are read from any of the JSON config files in ./webapp/config
  * depending on NODE_ENV: development, test or production (by default).
  */
 
-window.app = window.app || {};
-const { app } = window;
+const config = {};
 
 /**
  * Join url bits, adding slashes where required
@@ -29,27 +34,21 @@ const url = {
 };
 
 /**
- * application DEBUG mode
- * @type {boolean}
- */
-app.DEBUG = '<%- debug %>'.toLowerCase() === 'true';
-
-/**
  * application version
  * Note: this is the only way to do it because version does not exist in configuration files loaded by ./web_modules/jsx_loader
  */
-app.version = __VERSION__;
+config.version = __VERSION__;
 
 /**
  * application locales
  */
-app.locales = JSON.parse('<%- JSON.stringify(locales) %>');
+config.locales = JSON.parse('<%- JSON.stringify(locales) %>');
 
 /**
  * Constants
  * @type {{gaTrackingId: string, facebookAppId: string, twitterAccount: string}}
  */
-app.constants = {
+config.constants = {
     // Application scheme
     // appScheme: '<%- application.scheme %>',
 
@@ -83,7 +82,7 @@ function convertFormat(value) {
  * Application URIs
  * See /wepapp/middleware/locals.js
  */
-app.uris = {
+config.uris = {
     cdn: {
         icons: url.resolve(
             '<%- uris.cdn.root %>',
@@ -129,6 +128,12 @@ app.uris = {
 /**
  * Logger configuration
  */
-app.logger = app.logger || {};
-app.logger.level = parseInt('<%- level %>', 10) || 0;
-app.logger.endPoint = app.uris.webapp.logger;
+config.logger = {
+    level: parseInt('<%- level %>', 10) || 0,
+    endPoint: config.uris.webapp.logger
+};
+
+/**
+ * Default export
+ */
+export default config;
