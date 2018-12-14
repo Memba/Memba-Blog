@@ -113,7 +113,7 @@
     "url-loader": "^1.1.2",
     "wdio-mocha-framework": "^0.6.4",
     "wdio-phantomjs-service": "^0.2.2",
-    "wdio-selenium-standalone-service": "0.0.12",
+    "wdio-selenium-standalone-service": "0.0.11",
     "webdriverio": "^4.14.1",
     "webpack": "^4.27.1",
     "webpack-bundle-analyzer": "^3.0.3",
