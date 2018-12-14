@@ -16,7 +16,11 @@ module.exports = function loader(source) {
     const opts = loaderUtils.getOptions(this); // loaderUtils.parseQuery(this.query),
     const params = loaderUtils.getOptions({ query: this.resourceQuery }); // loaderUtils.parseQuery(this.resourceQuery),
     const configDir = path.join(__dirname, '../..', opts.config); // go up from `/web_modules/jsx-loader` to project root `/` and then down to 'webapp/config'
-    const configEnv = (params.env || 'production').toLowerCase();
+    const configEnv = (
+        process.env.NODE_ENV ||
+        params.env || // force *.jsx?env=${__NODE_ENV__}`
+        'production'
+    ).toLowerCase();
     const callback = this.async();
     console.log(`jsx-loader started with process.env.NODE_ENV="${configEnv}"`);
     if (typeof this.cacheable === 'function') {
