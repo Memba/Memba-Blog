@@ -23,7 +23,7 @@ import 'kendo.dropdownlist';
 import './app.i18n.es6';
 import './app.logger.es6';
 import './app.theme.es6';
-import './app.menu.es6';
+import './app.navbar.es6';
 import viewModel from './app.viewmodel.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
