@@ -4,9 +4,10 @@
  */
 
 import 'kendo.binder';
+import i18n from './app.i18n.es6';
+import themer from './app.themer.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
-const { i18n, theme } = window.app;
 const { observable } = window.kendo;
 const LOCALE = 'locale';
 const THEME = 'theme';
@@ -19,7 +20,7 @@ const viewModel = observable({
     locale: i18n.locale(),
 
     // Theme (see footer)
-    theme: theme.name()
+    theme: themer.name()
 });
 
 /**
@@ -29,7 +30,7 @@ viewModel.bind(CONSTANTS.CHANGE, e => {
     if (e.field === LOCALE) {
         i18n.locale(e.sender.get(LOCALE));
     } else if (e.field === THEME) {
-        theme.name(e.sender.get(THEME));
+        themer.name(e.sender.get(THEME));
     }
 });
 

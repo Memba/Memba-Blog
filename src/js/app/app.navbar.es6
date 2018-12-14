@@ -10,11 +10,11 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-// import './app.i18n.es6'; // TODO review
+import i18n from './app.i18n.es6';
+import config from './app.config.jsx';
 
-const { i18n, uris } = window.app; // TODO review
 const { format, keys } = window.kendo;
-const logger = new Logger('app.menu');
+const logger = new Logger('app.navbar');
 const SEARCH_INPUT_SELECTOR = '#navbar-search-input';
 const ACTIVE_CLASS = 'k-state-active';
 
@@ -56,7 +56,7 @@ function onSearchInputKeyPress(e) {
     );
     if (e.which === keys.ENTER || e.keyCode === keys.ENTER) {
         window.location.href = `${format(
-            uris.webapp.pages,
+            config.uris.webapp.pages,
             i18n.locale()
         )}?q=${encodeURIComponent($(e.currentTarget).val())}`;
         return false; // Prevent a form submission

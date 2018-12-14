@@ -7,12 +7,12 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import '../app/app.common.es6';
+import i18n from '../app/app.i18n.es6';
 import Logger from '../common/window.logger.es6';
 
 // Import page styles
 import '../../styles/ui/search.page.less';
 
-const { i18n } = window.app;
 const logger = new Logger('page.search');
 
 /**

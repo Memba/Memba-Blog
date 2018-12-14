@@ -91,8 +91,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.logger.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.logger.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.notification.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.notification.es6
-COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.theme.es6 .\src\js\app /Y
-ATTRIB +R .\src\js\app\app.theme.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\app\app.themer.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.themer.es6
 
 REM ./src/js/common/*
 ATTRIB -R .\src\js\common\*.es6

@@ -3,174 +3,204 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true */
-/* globals define: false, require: false */
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
+import config from './app.config.jsx';
 
-(function (f, define) {
-    'use strict';
-    define([
-        '../common/window.assert.es6',
-        '../common/window.logger.es6',
-        './app.logger.es6'
-    ], f);
-})(function () {
+const logger = new Logger('app.i18n');
 
-    'use strict';
+window.app = window.app || {};
+window.app.cultures = window.app.cultures || {};
+const { cultures } = window.app;
 
-    (function ($, undefined) {
+const LANGUAGE = 'language';
+const DEFAULT = 'en';
 
-        var app = window.app = window.app || {};
-        // var kendo = window.kendo;
-        var assert = window.assert;
-        var logger = new window.Logger('app.i18n');
-        var cultures = app.cultures = app.cultures || {};
-        var UNDEFINED = 'undefined';
-        var STRING = 'string';
-        var ARRAY = 'array';
-        var LOADED = 'i18n.loaded';
-        var LANGUAGE = 'language';
-        var DEFAULT = 'en';
+let localStorage; // = window.localStorage;
+// An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
+try {
+    ({ localStorage } = window);
+} catch (ex) {}
 
-        var localStorage; // = window.localStorage;
-        // An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
-        try { localStorage = window.localStorage; } catch (ex) {}
+/**
+ * localization functions
+ */
+const i18n = {
+    /**
+     * Load culture file for locale
+     * @param locale
+     * @param callback
+     */
+    load(locale) {
+        // Note: assume kendo is not yet loaded
+        assert.isArray(
+            config.locales,
+            assert.format(assert.messages.isArray.default, 'config.locales')
+        );
+        assert.enum(
+            config.locales,
+            locale,
+            assert.format(
+                assert.messages.enum.default,
+                'locale',
+                config.locales
+            )
+        );
 
-        /**
-         * localization functions
-         */
-        var i18n = app.i18n = {
+        const dfd = $.Deferred();
 
-            /**
-             * Load culture file for locale
-             * @param locale
-             * @param callback
-             */
-            load: function (locale) {
-
-                // Note: assume kendo is not yet loaded
-                assert.type(ARRAY, app.locales, '`app.locales` is expected to be an array');
-                assert.enum(app.locales, locale, '`locale` is expected to be one of ' + app.locales.toString());
-
-                var dfd = $.Deferred();
-
-                // Setter called async by webpack bundle loader
-                function setLocale() {
-                    try {
-                        localStorage.setItem(LANGUAGE, locale);
-                    } catch (exception) {
-                        // A QuotaExceededError in raised in private browsing, which we do not care about
-                        // @see https://github.com/jlchereau/Kidoju-Webapp/issues/181
-                        // @see http://chrisberkhout.com/blog/localstorage-errors/
-                        if (!window.DOMException || !(exception instanceof window.DOMException) || exception.code !== window.DOMException.QUOTA_EXCEEDED_ERR) {
-                            throw exception;
-                        }
-                    }
-                    // Load culture
-                    i18n.culture = cultures[locale];
-                    // Log readiness
-                    logger.debug({
-                        message: locale + ' locale loaded',
-                        method: 'setLocale'
-                    });
-                    dfd.resolve();
-                }
-
-                if (cultures[locale]) {
-                    // locale already loaded
-                    setLocale();
-                } else {
-                    // locale needs to be loaded (see https://github.com/webpack/webpack/issues/923)
-                    var loader = require('bundle-loader?name=[name]!../cultures/app.culture.' + locale + '.es6');
-                    loader(setLocale);
-                }
-
-                return dfd.promise();
-            },
-
-            /**
-             * Get/set locale
-             * Value set by the server on the html element of the page base on the url
-             * @param locale
-             * @returns {string|string}
-             */
-            locale: function (locale) {
-                if ($.type(locale) === STRING) {
-
-                    // Note: assume kendo is not yet loaded
-                    assert.type(ARRAY, app.locales, '`app.locales` is expected to be an array');
-                    assert.enum(app.locales, locale, '`locale` is expected to be one of ' + app.locales.toString());
-                    assert.isUndefined(window.cordova, 'This is not the way to change locale in phonegap/cordova');
-
-                    var href = app.uris.webapp.locale.replace('{0}', locale);
-                    if (window.top === window.self) {
-                        window.location.assign(href);
-                    } else {
-                        // This is an embedded player
-                        window.top.location.assign(href);
-                    }
-
-                } else if ($.type(locale) === UNDEFINED && $.type(window.cordova) === UNDEFINED) { // Kidoju-WebApp
-
-                    return document.getElementsByTagName('html')[0].getAttribute('lang') || DEFAULT;
-
-                } else if ($.type(locale) === UNDEFINED) { // Kidoju-Mobile
-
-                    // Note: cordova-plugin-globalization has method navigator.globalization.getLocaleName
-                    // but this method is asynchronous, so it is called in onDeviceReady to set LANGUAGE in window.localStorage
-                    return (localStorage && localStorage.getItem(LANGUAGE)) || DEFAULT;
-
-                } else {
-                    throw new TypeError('Bad locale');
+        // Setter called async by webpack bundle loader
+        function setLocale() {
+            try {
+                localStorage.setItem(LANGUAGE, locale);
+            } catch (exception) {
+                // A QuotaExceededError in raised in private browsing, which we do not care about
+                // @see https://github.com/jlchereau/Kidoju-Webapp/issues/181
+                // @see http://chrisberkhout.com/blog/localstorage-errors/
+                if (
+                    !window.DOMException ||
+                    !(exception instanceof window.DOMException) ||
+                    exception.code !== window.DOMException.QUOTA_EXCEEDED_ERR
+                ) {
+                    throw exception;
                 }
             }
-        };
-
-        /**
-         * Initialization
-         */
-        if ($.type(window.cordova) === UNDEFINED) { // In Kidoju-WebApp
-            $(function () {
-                // Load page locale (read from html tag)
-                var locale = i18n.locale();
-
-                // Add event handler to hide preload
-                $(document)
-                .one(LOADED, function () {
-                    $('body>div.k-loading-image').delay(400).fadeOut();
-                });
-
-                // Load i18n locale
-                i18n.load(locale).done(function () {
-                    // trigger event for localization
-                    $(document).trigger(LOADED);
-                });
+            // Load culture
+            i18n.culture = cultures[locale];
+            // Log readiness
+            logger.debug({
+                message: `${locale} locale loaded`,
+                method: 'setLocale'
             });
-        } else { // In Kidoju-Mobile
-            // Wait for Cordova to load
-            document.addEventListener('deviceready', function () {
-                if (window.navigator && window.navigator.language) {
-                    // We have migrated from cordova-plugin-globalization
-                    // as recommended at https://cordova.apache.org/news/2017/11/20/migrate-from-cordova-globalization-plugin.html
-                    var locale = i18n.locale() || window.navigator.language.substr(0, 2);
-                    if (app.locales.indexOf(locale) === -1) {
-                        locale = DEFAULT;
-                    }
-                    i18n.load(locale).done(function () {
-                        // trigger event for localization
-                        $(document).trigger(LOADED);
-                    });
-                } else {
-                    // Without window.navigator.language
-                    i18n.load(i18n.locale() || DEFAULT).done(function () {
-                        // trigger event for localization
-                        $(document).trigger(LOADED);
-                    });
-                }
-            }, false);
+            dfd.resolve();
         }
 
-    }(window.jQuery));
+        if (cultures[locale]) {
+            // locale already loaded
+            setLocale();
+        } else {
+            // locale needs to be loaded (see https://github.com/webpack/webpack/issues/923)
+            // eslint-disable-next-line global-require, import/no-dynamic-require
+            const loader = require(`bundle-loader?name=[name]!../cultures/app.culture.${locale}.es6`);
+            loader(setLocale);
+        }
 
-    return window.app;
+        return dfd.promise();
+    },
 
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
+    /**
+     * Get/set locale
+     * Value set by the server on the html element of the page base on the url
+     * @param locale
+     * @returns {string|string}
+     */
+    locale(locale) {
+        if ($.type(locale) === CONSTANTS.STRING) {
+            // Note: assume kendo is not yet loaded
+            assert.isArray(
+                config.locales,
+                assert.format(assert.messages.isArray.default, 'config.locales')
+            );
+            assert.enum(
+                config.locales,
+                locale,
+                assert.format(
+                    assert.messages.enum.default,
+                    'locale',
+                    config.locales
+                )
+            );
+            assert.isUndefined(
+                window.cordova,
+                'This is not the way to change locale in phonegap/cordova'
+            );
+
+            const href = config.uris.webapp.locale.replace('{0}', locale);
+            if (window.top === window.self) {
+                window.location.assign(href);
+            } else {
+                // This is an embedded player
+                window.top.location.assign(href);
+            }
+        } else if (
+            $.type(locale) === CONSTANTS.UNDEFINED &&
+            $.type(window.cordova) === CONSTANTS.UNDEFINED
+        ) {
+            // Kidoju-WebApp
+
+            return (
+                document.getElementsByTagName('html')[0].getAttribute('lang') ||
+                DEFAULT
+            );
+        } else if ($.type(locale) === CONSTANTS.UNDEFINED) {
+            // Kidoju-Mobile
+
+            // Note: cordova-plugin-globalization has method navigator.globalization.getLocaleName
+            // but this method is asynchronous, so it is called in onDeviceReady to set LANGUAGE in window.localStorage
+            return (localStorage && localStorage.getItem(LANGUAGE)) || DEFAULT;
+        } else {
+            throw new TypeError('Bad locale');
+        }
+    }
+};
+
+/**
+ * Initialization
+ */
+if ($.type(window.cordova) === CONSTANTS.UNDEFINED) {
+    // In Kidoju-WebApp
+    $(() => {
+        // Load page locale (read from html tag)
+        const locale = i18n.locale();
+
+        // Add event handler to hide preload
+        $(document).one(CONSTANTS.LOADED, () => {
+            $('body>div.k-loading-image')
+                .delay(400)
+                .fadeOut();
+        });
+
+        // Load i18n locale
+        i18n.load(locale).done(() => {
+            // trigger event for localization
+            $(document).trigger(CONSTANTS.LOADED);
+        });
+    });
+} else {
+    // In Kidoju-Mobile
+    // Wait for Cordova to load
+    document.addEventListener(
+        'deviceready',
+        () => {
+            if (window.navigator && window.navigator.language) {
+                // We have migrated from cordova-plugin-globalization
+                // as recommended at https://cordova.apache.org/news/2017/11/20/migrate-from-cordova-globalization-plugin.html
+                let locale =
+                    i18n.locale() || window.navigator.language.substr(0, 2);
+                if (config.locales.indexOf(locale) === -1) {
+                    locale = DEFAULT;
+                }
+                i18n.load(locale).done(() => {
+                    // trigger event for localization
+                    $(document).trigger(CONSTANTS.LOADED);
+                });
+            } else {
+                // Without window.navigator.language
+                i18n.load(i18n.locale() || DEFAULT).done(() => {
+                    // trigger event for localization
+                    $(document).trigger(CONSTANTS.LOADED);
+                });
+            }
+        },
+        false
+    );
+}
+
+/**
+ * Default export
+ */
+export default i18n;

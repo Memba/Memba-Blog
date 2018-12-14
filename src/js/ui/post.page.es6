@@ -8,6 +8,8 @@
 import $ from 'jquery';
 import 'kendo.core';
 import '../app/app.common.es6';
+import config from '../app/app.config.jsx';
+import i18n from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -16,7 +18,6 @@ import Logger from '../common/window.logger.es6';
 import '../../styles/ui/post.page.less';
 
 const { HTMLAnchorElement } = window;
-const { constants, i18n } = window.app;
 const { attr } = window.kendo;
 const logger = new Logger('page.post');
 const SELECTORS = {
@@ -88,7 +89,7 @@ function initSocialButtons() {
                     openUrl = `${'https://www.facebook.com/dialog/share' +
                         '?display=popup' +
                         '&app_id='}${
-                        constants.facebookAppId
+                        config.constants.facebookAppId
                     }&href=${sharedUrl}&redirect_uri=${sharedUrl}`;
                     /*
                     openUrl = 'https://www.facebook.com/sharer/sharer.php' +
@@ -118,7 +119,7 @@ function initSocialButtons() {
                     // @ see https://dev.twitter.com/web/tweet-button/web-intent
                     openUrl = `${'https://twitter.com/intent/tweet' +
                         '?text='}${title}&url=${sharedUrl}&via=${
-                        constants.twitterAccount
+                        config.constants.twitterAccount
                     }`;
                     // TODO: hashtags (message size limit)?
                     break;

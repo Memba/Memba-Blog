@@ -19,16 +19,14 @@ import '../vendor/bootstrap/dropdown';
 // Kendo UI files for footer
 import 'kendo.binder';
 import 'kendo.dropdownlist';
-// TODO ---------------------> Review app.* files
-import './app.i18n.es6';
+import i18n from './app.i18n.es6';
 import './app.logger.es6';
-import './app.theme.es6';
+import './app.themer.es6';
 import './app.navbar.es6';
 import viewModel from './app.viewmodel.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 
-const { i18n } = window.app;
 const { bind, mobile, ui } = window.kendo;
 const logger = new Logger('app.common');
 

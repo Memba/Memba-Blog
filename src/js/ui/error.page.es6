@@ -7,13 +7,13 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import '../app/app.common.es6';
+import i18n from '../app/app.i18n.es6';
 import Logger from '../common/window.logger.es6';
 
 // Import page styles
 import '../../styles/ui/error.page.less';
 
 const { history, location } = window;
-const { i18n } = window.app;
 const logger = new Logger('page.error');
 const SELECTORS = {
     BACK_BUTTON: '#back-button'
