@@ -17,8 +17,8 @@ module.exports = function loader(source) {
     const params = loaderUtils.getOptions({ query: this.resourceQuery }); // loaderUtils.parseQuery(this.resourceQuery),
     const configDir = path.join(__dirname, '../..', opts.config); // go up from `/web_modules/jsx-loader` to project root `/` and then down to 'webapp/config'
     const configEnv = (
-        process.env.NODE_ENV ||
         params.env || // force *.jsx?env=${__NODE_ENV__}`
+        process.env.NODE_ENV ||
         'production'
     ).toLowerCase();
     const callback = this.async();
