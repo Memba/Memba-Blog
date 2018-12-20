@@ -3,36 +3,31 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true */
+const convert = require('../lib/convert');
+const db = require('../lib/db');
+const utils = require('../lib/utils.es6');
 
-'use strict';
-
-var util = require('util');
-var convert = require('../lib/convert');
-var db = require('../lib/db');
-var utils = require('../lib/utils.es6');
-var cache = {
+let cache = {
     authors: {},
     categories: {},
     months: {}
 };
 
 module.exports = {
-
     /**
      * Return all index entries
      * @param language
      * @param callback
      */
-    getIndex: function (language, callback) {
+    getIndex(language, callback) {
         if (db[language] && typeof db[language].find === 'function') {
             db[language].find({}, callback);
         } else {
-            callback(new Error('db collection not found for language ' + language));
+            callback(
+                new Error(`db collection not found for language ${language}`)
+            );
         }
     },
-
-    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
 
     /**
      * Search index by site_url
@@ -40,17 +35,22 @@ module.exports = {
      * @param query
      * @param callback
      */
-    findBySiteUrl: function (site_url, query, callback) {
-        var language = convert.site_url2language(site_url);
-        query = utils.deepExtend(query, { site_url: new RegExp('^' + site_url, 'i') });
+    // eslint-disable-next-line camelcase
+    findBySiteUrl(site_url, query, callback) {
+        const language = convert.site_url2language(site_url);
+        // eslint-disable-next-line no-param-reassign
+        query = utils.deepExtend(query, {
+            // eslint-disable-next-line camelcase
+            site_url: new RegExp(`^${site_url}`, 'i')
+        });
         if (db[language] && typeof db[language].find === 'function') {
             db[language].find(query, callback);
         } else {
-            callback(new Error('db collection not found for language ' + language));
+            callback(
+                new Error(`db collection not found for language ${language}`)
+            );
         }
     },
-
-    /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
 
     /**
      * Search index by path
@@ -58,23 +58,27 @@ module.exports = {
      * @param query
      * @param callback
      */
-    findByPath: function (path, query, callback) {
-        var language = convert.path2language(path);
-        var q;
+    findByPath(path, query, callback) {
+        const language = convert.path2language(path);
         if (utils.isObject(query) && Object.keys(query).length) {
             if (query.q) {
                 // escape any non word/space character
-                var search = query.q.replace(/([^\w\s])/ig, '\\$&');
+                const search = query.q.replace(/([^\w\s])/gi, '\\$&');
+                // eslint-disable-next-line no-param-reassign
                 query.text = new RegExp(search, 'ig');
+                // eslint-disable-next-line no-param-reassign
                 delete query.q;
             }
         } else {
-            query = { path: path };
+            // eslint-disable-next-line no-param-reassign
+            query = { path };
         }
         if (db[language] && typeof db[language].find === 'function') {
             db[language].find(query, callback);
         } else {
-            callback(new Error('db collection not found for language ' + language));
+            callback(
+                new Error(`db collection not found for language ${language}`)
+            );
         }
     },
 
@@ -83,20 +87,26 @@ module.exports = {
      * @param language
      * @param callback
      */
-    groupByCategory: function (language, callback) {
+    groupByCategory(language, callback) {
         if (cache.categories[language]) {
             callback(null, cache.categories[language]);
         } else if (db[language] && typeof db[language].group === 'function') {
             db[language].group(
                 {
                     key: { category: 1 },
-                    cond: { path: new RegExp('^' + convert.getPostDir(language), 'i') }, // we only want posts
-                    reduce: function (curr, result) {
-                        result.count++;
+                    cond: {
+                        path: new RegExp(
+                            `^${convert.getPostDir(language)}`,
+                            'i'
+                        )
+                    }, // we only want posts
+                    reduce(curr, result) {
+                        // eslint-disable-next-line no-param-reassign
+                        result.count += 1;
                     },
                     initial: { count: 0 }
                 },
-                function (error, categories) {
+                (error, categories) => {
                     if (!error && categories) {
                         cache.categories[language] = categories;
                         callback(null, categories);
@@ -106,7 +116,9 @@ module.exports = {
                 }
             );
         } else {
-            callback(new Error('db collection not found for language ' + language));
+            callback(
+                new Error(`db collection not found for language ${language}`)
+            );
         }
     },
 
@@ -115,22 +127,26 @@ module.exports = {
      * @param language
      * @param callback
      */
-    groupByAuthor: function (language, callback) {
+    groupByAuthor(language, callback) {
         if (cache.authors[language]) {
             callback(null, cache.authors[language]);
         } else if (db[language] && typeof db[language].group === 'function') {
             db[language].group(
                 {
-                    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                     key: { author: 1, avatar_url: 1 },
-                    /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
-                    cond: { path: new RegExp('^' + convert.getPostDir(language), 'i') }, // we only ant posts
-                    reduce: function (curr, result) {
-                        result.count++;
+                    cond: {
+                        path: new RegExp(
+                            `^${convert.getPostDir(language)}`,
+                            'i'
+                        )
+                    }, // we only ant posts
+                    reduce(curr, result) {
+                        // eslint-disable-next-line no-param-reassign
+                        result.count += 1;
                     },
                     initial: { count: 0 }
                 },
-                function (error, authors) {
+                (error, authors) => {
                     if (!error && authors) {
                         cache.authors[language] = authors;
                         callback(null, authors);
@@ -140,37 +156,43 @@ module.exports = {
                 }
             );
         } else {
-            callback(new Error('db collection not found for language ' + language));
+            callback(
+                new Error(`db collection not found for language ${language}`)
+            );
         }
     },
 
     /**
      * Get grouped year/months
-     * @param path
+     * @param language
      * @param callback
      */
-    groupByYearMonth: function (language, callback) {
+    groupByYearMonth(language, callback) {
         if (cache.months[language]) {
             callback(null, cache.months[language]);
         } else if (db[language] && typeof db[language].group === 'function') {
             db[language].group(
                 {
-                    keyf: function (doc) {
-                        /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
-                        var date = new Date(doc.creation_date);
-                        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
+                    keyf(doc) {
+                        const date = new Date(doc.creation_date);
                         return {
                             year: date.getUTCFullYear(),
                             month: date.getUTCMonth()
                         };
                     },
-                    cond: { path: new RegExp('^' + convert.getPostDir(language), 'i') }, // we only ant posts
-                    reduce: function (curr, result) {
-                        result.count++;
+                    cond: {
+                        path: new RegExp(
+                            `^${convert.getPostDir(language)}`,
+                            'i'
+                        )
+                    }, // we only ant posts
+                    reduce(curr, result) {
+                        // eslint-disable-next-line no-param-reassign
+                        result.count += 1;
                     },
                     initial: { count: 0 }
                 },
-                function (error, months) {
+                (error, months) => {
                     if (!error && months) {
                         cache.months[language] = months;
                         callback(null, months);
@@ -180,19 +202,20 @@ module.exports = {
                 }
             );
         } else {
-            callback(new Error('db collection not found for language ' + language));
+            callback(
+                new Error(`db collection not found for language ${language}`)
+            );
         }
     },
 
     /**
      * Reset cache
      */
-    resetCache: function () {
+    resetCache() {
         cache = {
             authors: {},
             categories: {},
             months: {}
         };
     }
-
 };
