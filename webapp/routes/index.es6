@@ -8,7 +8,7 @@ const express = require('express');
 
 const jsonParser = bodyParser.json();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
-const util = require('util');
+const { format } = require('util');
 
 const router = express.Router();
 const config = require('../config/index.es6');
@@ -18,15 +18,15 @@ const locals = require('../middleware/locals.es6');
 const notFound = require('../middleware/notFound.es6');
 const params = require('../middleware/params.es6');
 const errorRoute = require('./errorRoute.es6');
-const feedRoute = require('./feedRoute');
+const feedRoute = require('./feedRoute.es6');
 const formRoute = require('./formRoute.es6');
 const homeRoute = require('./homeRoute.es6');
 const hookRoute = require('./hookRoute');
 const loggerRoute = require('./loggerRoute.es6');
-const pageRoute = require('./pageRoute');
+const pageRoute = require('./pageRoute.es6');
 const pingRoute = require('./pingRoute.es6');
-const postRoute = require('./postRoute');
-const sitemapRoute = require('./sitemapRoute');
+const postRoute = require('./postRoute.es6');
+const sitemapRoute = require('./sitemapRoute.es6');
 
 // Configure router
 router.use(bodyParser.urlencoded({ extended: true })); // parse application/x-www-form-urlencoded - use qs module
@@ -58,7 +58,7 @@ router
 
 // Error page
 router
-    .route(util.format(config.get('uris:webapp:error'), ':language'))
+    .route(format(config.get('uris:webapp:error'), ':language'))
     .get(errorRoute.getHtmlPage);
 
 // Home
@@ -71,18 +71,18 @@ router
 
 // Sitemap (index at the root)
 router
-    .route(util.format(config.get('uris:webapp:sitemap'), ':language?'))
+    .route(format(config.get('uris:webapp:sitemap'), ':language?'))
     .get(sitemapRoute.getXmlSitemap);
 
 // Rss feed
 router
-    .route(util.format(config.get('uris:webapp:feed'), ':language'))
+    .route(format(config.get('uris:webapp:feed'), ':language'))
     .get(feedRoute.getRSS);
 
 // Blog posts
 router
     .route(
-        util.format(
+        format(
             config.get('uris:webapp:posts'),
             ':language',
             ':year?',
@@ -94,7 +94,7 @@ router
 
 // Pages
 router
-    .route(util.format(config.get('uris:webapp:pages'), ':language', ':slug?'))
+    .route(format(config.get('uris:webapp:pages'), ':language', ':slug?'))
     .get(pageRoute.getHtmlPage);
 
 // Anything not found or erroneous

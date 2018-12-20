@@ -21,7 +21,7 @@ const config = {};
 
 /**
  * Join url bits, adding slashes where required
- * TODO: This could be improved to account for . and ..
+ * TODO: This could be improved to account for . and .. - consider using new URL
  */
 const url = {
     resolve(...args) {

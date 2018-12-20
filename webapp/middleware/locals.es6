@@ -5,7 +5,8 @@
 
 const util = require('util');
 const moment = require('moment');
-const url = require('url');
+// eslint-disable-next-line node/no-unsupported-features/node-builtins
+const { URL } = require('url');
 const config = require('../config/index.es6');
 
 module.exports = function handler(req, res, next) {
@@ -17,8 +18,8 @@ module.exports = function handler(req, res, next) {
         return util.format.apply(this, args);
     };
 
-    // Make url functions, including url.resolve, available too
-    res.locals.url = url;
+    // Make URL WHATWG api available too
+    res.locals.URL = URL;
 
     // Make moment available too
     res.locals.moment = moment;

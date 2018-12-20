@@ -13,8 +13,8 @@ var ApplicationError = require('../lib/applicationError.es6');
 var db = require('../lib/db');
 var logger = require('../lib/logger.es6');
 var utils = require('../lib/utils.es6');
-var indexModel = require('../models/indexModel');
-var menuModel = require('../models/menuModel');
+var indexModel = require('../models/indexModel.es6');
+var menuModel = require('../models/menuModel.es6');
 var timer = Date.now();
 
 module.exports = {

@@ -31,7 +31,7 @@ describe('lib/utils', () => {
         });
 
         it('function passed to isObject should return false', () => {
-            const fn = function() {};
+            function fn() {}
             expect(utils.isObject(fn)).to.be.false;
         });
 
@@ -51,12 +51,10 @@ describe('lib/utils', () => {
         });
 
         it('prototyped object passed to isObject should return true', () => {
-            const Fn = function() {
+            function Fn() {
                 this._data = true;
-            };
-            Fn.prototype.status = function() {
-                return this._data;
-            };
+            }
+            Fn.prototype.status = () => this._data;
             expect(utils.isObject(new Fn())).to.be.true;
         });
     });
@@ -83,7 +81,7 @@ describe('lib/utils', () => {
         });
 
         it('function passed to isPOJO should return false', () => {
-            const fn = function() {};
+            function fn() {}
             expect(utils.isPOJO(fn)).to.be.false;
         });
 
@@ -103,12 +101,10 @@ describe('lib/utils', () => {
         });
 
         it('prototyped object passed to isPOJO should return false', () => {
-            const Fn = function() {
+            function Fn() {
                 this._data = true;
-            };
-            Fn.prototype.status = function() {
-                return this._data;
-            };
+            }
+            Fn.prototype.status = () => this._data;
             expect(utils.isPOJO(new Fn())).to.be.false;
         });
     });

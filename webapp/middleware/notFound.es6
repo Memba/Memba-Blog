@@ -4,7 +4,9 @@
  */
 
 const { STATUS_CODES } = require('http');
-const { parse } = require('url');
+// eslint-disable-next-line node/no-unsupported-features/node-builtins
+const { URL } = require('url');
+const config = require('../config/index.es6');
 const ApplicationError = require('../lib/applicationError.es6');
 
 module.exports = {
@@ -15,7 +17,10 @@ module.exports = {
      * @param next
      */
     handler(req, res, next) {
-        const { pathname } = parse(req.originalUrl);
+        const { pathname } = new URL(
+            req.originalUrl,
+            config.get('uris:webapp:root')
+        );
         if (
             /\/[^/.]+\.[a-z0-9]{2,7}$/i.test(pathname) &&
             !/\.html?$/i.test(pathname)

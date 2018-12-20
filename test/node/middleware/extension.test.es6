@@ -9,7 +9,8 @@ const chai = require('chai');
 const http = require('http');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
-const url = require('url');
+// eslint-disable-next-line node/no-unsupported-features/node-builtins
+const { URL } = require('url');
 const util = require('util');
 const config = require('../../../webapp/config/index.es6');
 const extension = require('../../../webapp/middleware/extension.es6');
@@ -46,7 +47,7 @@ class Response {
 
 describe('middleware/extension', () => {
     it('Anything without extension should go through', () => {
-        const req = { originalUrl: url.resolve(root, 'a/b/c') };
+        const req = { originalUrl: new URL('a/b/c', root).href };
         const res = new Response();
         const next = sinon.spy();
         extension.handler(req, res, next);
@@ -58,10 +59,10 @@ describe('middleware/extension', () => {
 
     it('/sitemap.xml should go through', () => {
         const req = {
-            originalUrl: url.resolve(
-                root,
-                util.format(sitemap, '').replace('//', '/')
-            )
+            originalUrl: new URL(
+                util.format(sitemap, '').replace('//', '/'),
+                root
+            ).href
         };
         const res = new Response();
         const next = sinon.spy();
@@ -74,7 +75,7 @@ describe('middleware/extension', () => {
 
     it('/en/sitemap.xml should go through', () => {
         const req = {
-            originalUrl: url.resolve(root, util.format(sitemap, 'en'))
+            originalUrl: new URL(util.format(sitemap, 'en'), root).href
         };
         const res = new Response();
         const next = sinon.spy();
@@ -86,7 +87,9 @@ describe('middleware/extension', () => {
     });
 
     it('/fr/rss.xml should go through', () => {
-        const req = { originalUrl: url.resolve(root, util.format(feed, 'fr')) };
+        const req = {
+            originalUrl: new URL(util.format(feed, 'fr'), root).href
+        };
         const res = new Response();
         const next = sinon.spy();
         extension.handler(req, res, next);
@@ -97,7 +100,7 @@ describe('middleware/extension', () => {
     });
 
     it('/dummy/image.jpg should return plain text 404', () => {
-        const req = { originalUrl: url.resolve(root, '/dummy/image.jpg') };
+        const req = { originalUrl: new URL('/dummy/image.jpg', root).href };
         const res = new Response();
         const next = sinon.spy();
         extension.handler(req, res, next);

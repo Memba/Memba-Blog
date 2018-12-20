@@ -18,7 +18,7 @@
         <div class="container" role="document">
             <div class="page-header">
                 <h1>
-                    <% if (icon) { %><img src="<%- url.resolve(config.uris.cdn.root, format(config.uris.cdn.icons, icon)) %>" alt="<%= title %>"><% } %>
+                    <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
                     <span itemprop="name"><%= title %></span>
                 </h1>
             </div>
@@ -39,7 +39,7 @@
                         <span itemscope itemtype="http://schema.org/Organization" itemprop="publisher">
                             <span itemprop="name"><%- config.application.siteName %></span>
                             <span itemscope itemtype="http://schema.org/ImageObject" itemprop="logo">
-                                <span itemprop="url"><%- url.resolve(config.uris.cdn.root, format(config.uris.cdn.images, 'apple-touch-icon-180x180.png')) %></span>
+                                <span itemprop="url"><%- new URL(format(config.uris.cdn.images, 'apple-touch-icon-180x180.png'), config.uris.cdn.root).href %></span>
                             </span>
                         </span>
                         <span itemprop="url"><%= site_url %></span>
@@ -58,8 +58,8 @@
 <% // footer with language and theme %>
 <% include footer.ejs %>
 
-<script defer src="<%- url.resolve(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
-<script defer src="<%- url.resolve(config.uris.webpack.root, 'page.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- new URL('common.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- new URL('page.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
 
 </body>
 </html>

@@ -24,7 +24,10 @@ let localStorage; // = window.localStorage;
 // An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
 try {
     ({ localStorage } = window);
-} catch (ex) {}
+} catch (ex) {
+    // To avoid an empty block and please eslint
+    localStorage = undefined;
+}
 
 /**
  * localization functions
@@ -99,7 +102,17 @@ const i18n = {
      * @returns {string|string}
      */
     locale(locale) {
-        if ($.type(locale) === CONSTANTS.STRING) {
+        assert.typeOrUndef(
+            CONSTANTS.STRING,
+            locale,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'locale',
+                CONSTANTS.STRING
+            )
+        );
+        let ret;
+        if ($.type(locale) !== CONSTANTS.UNDEFINED) {
             // Note: assume kendo is not yet loaded
             assert.isArray(
                 config.locales,
@@ -131,20 +144,16 @@ const i18n = {
             $.type(window.cordova) === CONSTANTS.UNDEFINED
         ) {
             // Kidoju-WebApp
-
-            return (
+            ret =
                 document.getElementsByTagName('html')[0].getAttribute('lang') ||
-                DEFAULT
-            );
+                DEFAULT;
         } else if ($.type(locale) === CONSTANTS.UNDEFINED) {
             // Kidoju-Mobile
-
             // Note: cordova-plugin-globalization has method navigator.globalization.getLocaleName
             // but this method is asynchronous, so it is called in onDeviceReady to set LANGUAGE in window.localStorage
-            return (localStorage && localStorage.getItem(LANGUAGE)) || DEFAULT;
-        } else {
-            throw new TypeError('Bad locale');
+            ret = (localStorage && localStorage.getItem(LANGUAGE)) || DEFAULT;
         }
+        return ret;
     }
 };
 

@@ -34,7 +34,7 @@ try {
 let config;
 let format;
 let language;
-let url;
+let URL;
 
 module.exports = {
     /**
@@ -101,7 +101,7 @@ module.exports = {
             typeof res.getLocale === 'function' &&
             typeof res.__ === 'function'
         ) {
-            ({ config, format, url } = res.locals);
+            ({ config, format, URL } = res.locals);
 
             // Create a trace that we can track in the browser
             req.trace = uuid();
@@ -119,10 +119,10 @@ module.exports = {
                 .render('error', {
                     author: res.__('meta.author'),
                     description: error.message,
-                    icon: url.resolve(
-                        config.uris.cdn.root,
-                        format(config.uris.cdn.icons, res.__('error.icon'))
-                    ),
+                    icon: new URL(
+                        format(config.uris.cdn.icons, res.__('error.icon')),
+                        config.uris.cdn.root
+                    ).href,
                     image:
                         config.images[
                             Math.floor(config.images.length * Math.random())
@@ -143,7 +143,8 @@ module.exports = {
             // User is blocked
             /* eslint-disable global-require */
             config = require('../config/index.es6');
-            url = require('url');
+            // eslint-disable-next-line node/no-unsupported-features/node-builtins
+            ({ URL } = require('url'));
             ({ format } = require('util'));
             /* eslint-enable global-require */
 
@@ -155,10 +156,12 @@ module.exports = {
 
             // Redirect to a clean error page
             res.redirect(
-                `${url.resolve(
-                    config.get('uris:webapp:root'),
-                    format(config.get('uris:webapp:error'), language)
-                )}?code=1001`
+                `${
+                    new URL(
+                        format(config.get('uris:webapp:error'), language),
+                        config.get('uris:webapp:root')
+                    ).href
+                }?code=1001`
             );
         } else {
             // This is not a web page request (API Server)

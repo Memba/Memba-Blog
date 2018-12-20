@@ -3,7 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-const { resolve } = require('url');
+// eslint-disable-next-line node/no-unsupported-features/node-builtins
+const { URL } = require('url');
 const { format } = require('util');
 const config = require('../config/index.es6');
 
@@ -31,10 +32,10 @@ module.exports = {
             // Otherwise it might be handled as an invalid language
             return res.redirect(
                 301,
-                resolve(
-                    config.get('uris:cdn:root'),
-                    format(config.get('uris:cdn:images'), 'favicon.ico')
-                )
+                new URL(
+                    format(config.get('uris:cdn:images'), 'favicon.ico'),
+                    config.get('uris:cdn:root')
+                ).href
             );
         }
         if (config.environment === 'test') {
@@ -53,7 +54,7 @@ module.exports = {
                 return res.redirect(
                     301,
                     // https://expressjs.com/en/api.html#req.originalUrl
-                    resolve(rule.forward, req.originalUrl)
+                    new URL(req.originalUrl, rule.forward).href
                 );
             }
         }

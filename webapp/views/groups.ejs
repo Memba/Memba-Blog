@@ -1,6 +1,6 @@
 <section class="group">
     <h3>
-        <img src="<%- url.resolve(config.uris.cdn.root, format(config.uris.cdn.icons, __('groups.calendar.icon'))) %>" alt="<%- __('groups.calendar.heading') %>">
+        <img src="<%- new URL(format(config.uris.cdn.icons, __('groups.calendar.icon')), config.uris.cdn.root).href %>" alt="<%- __('groups.calendar.heading') %>">
         <span><%- __('groups.calendar.heading') %></span>
     </h3>
     <div class="list-group" role="menu">
@@ -14,7 +14,7 @@
 </section>
 <section class="group">
     <h3>
-        <img src="<%- url.resolve(config.uris.cdn.root, format(config.uris.cdn.icons, __('groups.categories.icon'))) %>" alt="<%- __('groups.categories.heading') %>">
+        <img src="<%- new URL(format(config.uris.cdn.icons, __('groups.categories.icon')), config.uris.cdn.root).href %>" alt="<%- __('groups.categories.heading') %>">
         <span><%- __('groups.categories.heading') %></span>
     </h3>
     <div class="list-group" role="menu">
@@ -28,7 +28,7 @@
 </section>
 <section class="group">
     <h3>
-        <img src="<%- url.resolve(config.uris.cdn.root, format(config.uris.cdn.icons, __('groups.authors.icon'))) %>" alt="<%- __('groups.authors.heading') %>">
+        <img src="<%- new URL(format(config.uris.cdn.icons, __('groups.authors.icon')), config.uris.cdn.root).href %>" alt="<%- __('groups.authors.heading') %>">
         <span><%- __('groups.authors.heading') %></span>
     </h3>
     <div class="list-group" role="menu">

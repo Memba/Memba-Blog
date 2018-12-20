@@ -106,7 +106,7 @@ module.exports = {
                     'Content-Language': language,
                     'Content-Type': 'application/rss+xml; charset=utf-8'
                 })
-                .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                    .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                     .send(feed);
             } else {
                 next(error);

@@ -8,7 +8,8 @@
 const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
-const url = require('url');
+// eslint-disable-next-line node/no-unsupported-features/node-builtins
+const { URL } = require('url');
 const config = require('../../../webapp/config/index.es6');
 const redirect = require('../../../webapp/middleware/redirect.es6');
 
@@ -54,7 +55,7 @@ describe('middleware/redirect', () => {
         redirect.handler(req, res, next);
         expect(res.redirect).to.have.been.calledWith(
             301,
-            url.resolve(config.get('redirect:http:forward'), req.originalUrl)
+            new URL(req.originalUrl, config.get('redirect:http:forward')).href
         );
         expect(next).not.to.have.been.called;
     });

@@ -8,7 +8,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var index = require('../../../webapp/models/indexModel');
+var index = require('../../../webapp/models/indexModel.es6');
 
 describe('models/indexModel', function () {
 

@@ -37,17 +37,14 @@ describe('middleware/locals', () => {
         );
     });
 
-    it('It should add url to res.locals', () => {
-        expect(res.locals).to.have.property('url');
-        expect(res.locals)
-            .to.have.nested.property('url.resolve')
-            .that.is.a('function');
+    it('It should add URL to res.locals', () => {
+        expect(res.locals).to.have.property('URL');
         expect(
-            res.locals.url.resolve('https://www.memba.com', 'a/b/c')
+            new res.locals.URL('a/b/c', 'https://www.memba.com').href
         ).to.equal('https://www.memba.com/a/b/c');
         // We need that in our templates
         expect(
-            res.locals.url.resolve('https://www.memba.com/', '/%s/%s')
+            new res.locals.URL('/%s/%s', 'https://www.memba.com/').href
         ).to.equal('https://www.memba.com/%s/%s');
         // We also need that for amp files
         /* Beware! { is encoded to %7B and } is encoded to %7D

@@ -8,7 +8,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var menu = require('../../../webapp/models/menuModel');
+var menu = require('../../../webapp/models/menuModel.es6');
 
 describe('models/menuModel', function () {
 

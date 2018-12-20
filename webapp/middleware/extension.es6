@@ -5,7 +5,8 @@
 
 const util = require('util');
 const http = require('http');
-const url = require('url');
+// eslint-disable-next-line node/no-unsupported-features/node-builtins
+const { URL } = require('url');
 const config = require('../config/index.es6');
 
 const SEPARATOR = '\\/';
@@ -35,7 +36,10 @@ module.exports = {
      * @param next
      */
     handler(req, res, next) {
-        const { pathname } = url.parse(req.originalUrl);
+        const { pathname } = new URL(
+            req.originalUrl,
+            config.get('uris:webapp:root')
+        );
         if (
             /\/[^/.]+\.[\w]+$/i.test(pathname) &&
             !/\.html?$/i.test(pathname) &&

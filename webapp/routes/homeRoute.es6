@@ -5,7 +5,7 @@
 
 const logger = require('../lib/logger.es6');
 const utils = require('../lib/utils.es6');
-const menuModel = require('../models/menuModel');
+const menuModel = require('../models/menuModel.es6');
 
 module.exports = {
     /**
@@ -15,7 +15,7 @@ module.exports = {
      * @param next
      */
     getHtmlPage(req, res, next) {
-        const { config, url } = res.locals;
+        const { config, URL } = res.locals;
 
         // Create a trace that we can track in the browser
         req.trace = utils.uuid();
@@ -50,10 +50,10 @@ module.exports = {
                         language,
                         menu: data,
                         trace: req.trace,
-                        site_url: url.resolve(
-                            config.uris.webapp.root,
-                            config.uris.webapp.home
-                        ), // canonical link
+                        site_url: new URL(
+                            config.uris.webapp.home,
+                            config.uris.webapp.root
+                        ).href, // canonical link
                         title: config.home.title
                     });
             } else {

@@ -35,8 +35,8 @@
 <% // footer with language and theme %>
 <% include footer.ejs %>
 
-<script defer src="<%- url.resolve(config.uris.webpack.root, 'common.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
-<script defer src="<%- url.resolve(config.uris.webpack.root, 'error.bundle.js') + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- new URL('common.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- new URL('error.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
 
 </body>
 </html>
