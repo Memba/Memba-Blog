@@ -80,7 +80,7 @@ module.exports = {
                         'Content-Language': language,
                         'Content-Type': 'application/xml; charset=utf-8'
                     })
-                    .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                        .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                         .send(sitemap);
                 } else {
                     next(error);
@@ -110,7 +110,7 @@ module.exports = {
                 'Content-Type': 'application/xml; charset=utf-8'
                 // 'Cache-Control': 'max-age=3600, public'
             })
-            .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                 .send(index);
         }
     }
