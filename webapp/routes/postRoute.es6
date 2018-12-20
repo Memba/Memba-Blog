@@ -29,7 +29,7 @@ module.exports = {
         // Log the request
         logger.info({
             message: 'requesting a blog post',
-            module: 'routes/blogRoute',
+            module: 'routes/postRoute',
             method: 'getHtmlPage',
             request: req
         });
@@ -54,8 +54,12 @@ module.exports = {
                     const site_url = new URL(
                         req.originalUrl,
                         config.uris.webapp.root
-                    ).href;
-                    indexModel.findBySiteUrl(site_url, req.query, callback);
+                    );
+                    indexModel.findBySiteUrl(
+                        site_url.origin + site_url.pathname,
+                        req.query,
+                        callback
+                    );
                 },
                 // Get grouped categories
                 callback => {
