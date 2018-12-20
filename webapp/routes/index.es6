@@ -79,6 +79,11 @@ router
     .route(format(config.get('uris:webapp:feed'), ':language'))
     .get(feedRoute.getRSS);
 
+// Pages
+router
+    .route(format(config.get('uris:webapp:pages'), ':language', ':slug?'))
+    .get(pageRoute.getHtmlPage);
+
 // Blog posts
 router
     .route(
@@ -91,11 +96,6 @@ router
         )
     )
     .get(postRoute.getHtmlPage);
-
-// Pages
-router
-    .route(format(config.get('uris:webapp:pages'), ':language', ':slug?'))
-    .get(pageRoute.getHtmlPage);
 
 // Anything not found or erroneous
 router.use(notFound.handler);
