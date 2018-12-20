@@ -5,7 +5,7 @@
 
 /* eslint-disable no-unused-expressions */
 
-const { expect } = require('chai').expect;
+const { expect } = require('chai');
 const menuModel = require('../../../webapp/models/menuModel.es6');
 
 describe('models/menuModel', () => {
