@@ -102,6 +102,42 @@ assert.equal = (expected, actual, message) => {
 };
 
 /**
+ * Assert extends as in class Child extends Parent
+ * @param Parent
+ * @param Child
+ * @param message
+ */
+assert.extends = (Parent, Child, message) => {
+    if (
+        !$.isFunction(Parent) ||
+        !$.isFunction(Child) ||
+        !Object.prototype.isPrototypeOf.call(Parent.prototype, Child.prototype)
+    ) {
+        throw new TypeError(message);
+    }
+};
+
+/**
+ * Assert extendsOrUndef
+ * @param Parent
+ * @param Child
+ * @param message
+ */
+assert.extendsOrUndef = (Parent, Child, message) => {
+    if (
+        !$.isFunction(Parent) ||
+        ($.type(Child) !== 'undefined' &&
+            (!$.isFunction(Child) ||
+                !Object.prototype.isPrototypeOf.call(
+                    Parent.prototype,
+                    Child.prototype
+                )))
+    ) {
+        throw new TypeError(message);
+    }
+};
+
+/**
  * Assert format (note: prefer kendo.format when available)
  * @param message
  * @param values
@@ -204,6 +240,7 @@ assert.isNonEmptyPlainObjectOrUndef = (value, message) => {
         throw new TypeError(message);
     }
 };
+
 /**
  * Assert a plain (incl. empty) object
  * @param value
@@ -211,6 +248,17 @@ assert.isNonEmptyPlainObjectOrUndef = (value, message) => {
  */
 assert.isPlainObject = (value, message) => {
     if (!$.isPlainObject(value)) {
+        throw new TypeError(message);
+    }
+};
+
+/**
+ * Assert a plain (incl. empty) object or undefined
+ * @param value
+ * @param message
+ */
+assert.isPlainObjectOrUndef = (value, message) => {
+    if ($.type(value) !== 'undefined' && !$.isPlainObject(value)) {
         throw new TypeError(message);
     }
 };
@@ -324,6 +372,12 @@ assert.messages = {
     equal: {
         default: '`{0}` is expected to equal `{1}`'
     },
+    extends: {
+        default: '`{0}` is expected to extend `{1}`'
+    },
+    extendsOrUndef: {
+        default: '`{0}` is expected to extend `{1}` or be undefined'
+    },
     hasLength: {
         default: '`{0}` has neither length nor any item'
     },
@@ -350,6 +404,9 @@ assert.messages = {
     },
     isPlainObject: {
         default: '`{0}` is expected to be a plain or empty object'
+    },
+    isPlainObjectOrUndef: {
+        default: '`{0}` is expected to be a plain or empty object or undefined'
     },
     isPoint: {
         default: '`{0}` is expected to be a point {x, y}'
