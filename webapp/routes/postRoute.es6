@@ -93,7 +93,7 @@ module.exports = {
                                     Math.floor(
                                         config.images.length * Math.random()
                                     )
-                                    ],
+                                ],
                             language,
                             menu: responses[0],
                             months: responses[4],
@@ -104,7 +104,7 @@ module.exports = {
                             'Content-Language': language,
                             'Content-Type': 'text/html; charset=utf-8'
                         })
-                        .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                            .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                             .render('post', data);
                     } else {
                         // list of posts
@@ -119,7 +119,7 @@ module.exports = {
                                     Math.floor(
                                         config.images.length * Math.random()
                                     )
-                                    ],
+                                ],
                             keywords: res.__('meta.keywords'),
                             language,
                             menu: responses[0],
@@ -138,7 +138,7 @@ module.exports = {
                                     ),
                                     config.uris.webapp.root
                                 ).href
-                                }?${qs.stringify(req.query)}`,
+                            }?${qs.stringify(req.query)}`,
                             /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                             title: res.__('search.title.heading')
                         };
@@ -147,7 +147,7 @@ module.exports = {
                             'Content-Language': language,
                             'Cache-Control': 'max-age=0, public'
                         })
-                        .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
+                            .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                             .render('search', data);
                     }
                 } else {
