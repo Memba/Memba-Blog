@@ -3,40 +3,36 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true, mocha: true, expr: true */
+/* eslint-disable no-unused-expressions */
 
-'use strict';
+const { expect } = require('chai');
+const indexModel = require('../../../webapp/models/indexModel.es6');
 
-var expect = require('chai').expect;
-var index = require('../../../webapp/models/indexModel.es6');
-
-describe('models/indexModel', function () {
-
-    it('getIndex: english', function (done) {
-        index.getIndex('en', function (error, index) {
+describe('models/indexModel', () => {
+    it('getIndex: english', done => {
+        indexModel.getIndex('en', (error, index) => {
             expect(error).to.be.null;
             expect(index).to.be.instanceof(Array);
-            // for (var i = 0; i < index.length; i++) {
+            // for (var i = 0; i < indexModel.length; i++) {
             // }
             done();
         });
     });
 
-    it('getIndex: french', function (done) {
-        index.getIndex('fr', function (error, index) {
+    it('getIndex: french', done => {
+        indexModel.getIndex('fr', (error, index) => {
             expect(error).to.be.null;
             expect(index).to.be.instanceof(Array);
-            // for (var i = 0; i < index.length; i++) {
+            // for (var i = 0; i < indexModel.length; i++) {
             // }
             done();
         });
     });
 
-    it('getIndex: unknown language', function () {
+    it('getIndex: unknown language', () => {
         function test() {
-            index.getIndex('zz', function () {});
+            indexModel.getIndex('zz', () => {});
         }
         expect(test).to.throw;
     });
-
 });

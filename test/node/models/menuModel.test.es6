@@ -3,51 +3,59 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true, mocha: true, expr: true */
+/* eslint-disable no-unused-expressions */
 
-'use strict';
+const { expect } = require('chai').expect;
+const menuModel = require('../../../webapp/models/menuModel.es6');
 
-var expect = require('chai').expect;
-var menu = require('../../../webapp/models/menuModel.es6');
-
-describe('models/menuModel', function () {
-
-    it('getMenu: english', function (done) {
-        menu.getMenu('en', function (error, menu) {
+describe('models/menuModel', () => {
+    it('getMenu: english', done => {
+        menuModel.getMenu('en', (error, menu) => {
             expect(menu).to.be.instanceof(Array);
-            for (var i = 0; i < menu.length; i++) {
-                expect(menu[i]).to.have.property('text').that.is.a('string');
+            for (let i = 0; i < menu.length; i++) {
+                expect(menu[i])
+                    .to.have.property('text')
+                    .that.is.a('string');
                 if (typeof menu[i].items !== 'undefined') {
-                    expect(menu[i]).to.have.property('items').that.is.instanceof(Array);
+                    expect(menu[i])
+                        .to.have.property('items')
+                        .that.is.instanceof(Array);
                 } else {
-                    expect(menu[i]).to.have.property('href').that.is.a('string');
+                    expect(menu[i])
+                        .to.have.property('href')
+                        .that.is.a('string');
                 }
             }
             done();
         });
     });
 
-    it('getMenu: french', function (done) {
-        menu.getMenu('fr', function (error, menu) {
+    it('getMenu: french', done => {
+        menuModel.getMenu('fr', (error, menu) => {
             expect(menu).to.be.instanceof(Array);
-            for (var i = 0; i < menu.length; i++) {
-                expect(menu[i]).to.have.property('text').that.is.a('string');
+            for (let i = 0; i < menu.length; i++) {
+                expect(menu[i])
+                    .to.have.property('text')
+                    .that.is.a('string');
                 if (typeof menu[i].items !== 'undefined') {
-                    expect(menu[i]).to.have.property('items').that.is.instanceof(Array);
+                    expect(menu[i])
+                        .to.have.property('items')
+                        .that.is.instanceof(Array);
                 } else {
-                    expect(menu[i]).to.have.property('href').that.is.a('string');
+                    expect(menu[i])
+                        .to.have.property('href')
+                        .that.is.a('string');
                 }
             }
             done();
         });
     });
 
-    it('getMenu: unknown language', function (done) {
-        menu.getMenu('zz', function (error, menu) {
+    it('getMenu: unknown language', done => {
+        menuModel.getMenu('zz', (error, menu) => {
             expect(error).to.be.instanceof(Error);
             expect(menu).to.be.undefined;
             done();
         });
     });
-
 });
