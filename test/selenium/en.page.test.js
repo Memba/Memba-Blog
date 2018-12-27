@@ -4,7 +4,7 @@
  */
 
 /* jshint node: true, mocha: true, expr: true */
-/* globals browser: false */
+/* globals browser: false, $: false */
 
 'use strict';
 
@@ -36,17 +36,17 @@ require('./selenium');
  */
 describe('English pages', function () {
 
-    var tabId;
+    // var tabId;
 
     before(function () {
-        if (browser.desiredCapabilities.browserName === 'firefox') {
+        if (browser.capabilities.browserName === 'firefox') {
             // This prevents `No such content frame; perhaps the listener was not registered?`
             browser.pause(200);
         }
         browser.url(webapp.home);
-        tabId = browser.getCurrentTabId();
+        // tabId = browser.getCurrentTabId();
         // Note: it won't work in PhantomJS without setting the window size
-        browser.windowHandleSize({ height: SCREEN.HEIGHT, width: SCREEN.WIDTH });
+        browser.setWindowSize(SCREEN.WIDTH, SCREEN.HEIGHT);
         // Find a way to reset the cache
         // browser.refresh();
     });
@@ -54,61 +54,61 @@ describe('English pages', function () {
     describe('When navigating pages', function () {
 
         // Retry all tests in this suite up to 3 times
-        this.retries(3);
+        // this.retries(3);
 
         beforeEach(function () {
             // browser.switchTab ensures we are running all tests on the same tab
             // especially as we have experienced extensions like Skype that open a welcome page in a new tab
-            browser.switchTab(tabId);
-            browser.logger.info(browser.getUrl());
+            // browser.switchTab(tabId);
+            // TODO browser.logger is undefined in v5
+            // browser.logger.info(browser.getUrl());
         });
 
         it('it should land on the home page with a choice of languages', function () {
-            expect(browser.getAttribute('html', 'lang')).to.equal('en');
-            expect(browser.isExisting('nav.navbar')).to.be.true;
-            expect(browser.isExisting('div.uk.flag')).to.be.true;
-            expect(browser.isExisting('div.fr.flag')).to.be.true;
+            expect($('html').getAttribute('lang')).to.equal('en');
+            expect($('nav.navbar').isExisting()).to.be.true;
+            expect($('div.uk.flag').isExisting()).to.be.true;
+            expect($('div.fr.flag').isExisting()).to.be.true;
         });
 
         it('it should find and navigate support', function () {
-            browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
-            browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', '') + '"]');
+            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', '') + '"]').click();
             browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.index);
-            expect(browser.getAttribute('html', 'lang')).to.equal('en');
-            expect(browser.getText('div.page-header span')).to.equal('Support');
+            expect(browser.getCurrentUrl()).to.equal(webapp.index);
+            expect($('html').getAttribute('lang')).to.equal('en');
+            expect($('div.page-header span').getText()).to.equal('Support');
         });
 
         it('it should find and navigate faqs', function () {
-            browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
-            browser.clickEx('nav.navbar a.dropdown-toggle');
-            browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'faqs') + '"]');
+            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('nav.navbar a.dropdown-toggle').click();
+            $('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'faqs') + '"]').click();
             browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.faqs);
-            expect(browser.getAttribute('html', 'lang')).to.equal('en');
-            expect(browser.getText('div.page-header span')).to.equal('Frequently Asked Questions');
+            expect(browser.getCurrentUrl()).to.equal(webapp.faqs);
+            expect($('html').getAttribute('lang')).to.equal('en');
+            expect($('div.page-header span').getText()).to.equal('Frequently Asked Questions');
         });
 
         it('it should find and navigate privacy', function () {
-            browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
-            browser.clickEx('nav.navbar a.dropdown-toggle');
-            browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'privacy') + '"]');
+            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('nav.navbar a.dropdown-toggle').click();
+            $('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'privacy') + '"]').click();
             browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.privacy);
-            expect(browser.getAttribute('html', 'lang')).to.equal('en');
-            expect(browser.getText('div.page-header span')).to.equal('Privacy Policy');
+            expect(browser.getCurrentUrl()).to.equal(webapp.privacy);
+            expect($('html').getAttribute('lang')).to.equal('en');
+            expect($('div.page-header span').getText()).to.equal('Privacy Policy');
         });
 
         it('it should find and navigate terms', function () {
-            browser.waitForVisibleEx('body>div.k-loading-image', WAIT, true);
-            browser.clickEx('nav.navbar a.dropdown-toggle');
-            browser.clickEx('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'terms') + '"]');
+            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('nav.navbar a.dropdown-toggle').click();
+            $('nav.navbar a[href="' + util.format(config.get('uris:webapp:pages'), 'en', 'terms') + '"]').click();
             browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.terms);
-            expect(browser.getAttribute('html', 'lang')).to.equal('en');
-            expect(browser.getText('div.page-header span')).to.equal('Terms of Use');
+            expect(browser.getCurrentUrl()).to.equal(webapp.terms);
+            expect($('html').getAttribute('lang')).to.equal('en');
+            expect($('div.page-header span').getText()).to.equal('Terms of Use');
         });
 
     });
-
 });
