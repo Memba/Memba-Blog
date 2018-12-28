@@ -14,7 +14,7 @@ const logger = require('@wdio/logger').default('en.page.test');
 const config = require('../../webapp/config/index.es6');
 
 // Enhance browser with our Ex functions
-require('./selenium');
+require('./selenium.es6');
 
 const webapp = {
     home: new URL(

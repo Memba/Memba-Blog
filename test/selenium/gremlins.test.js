@@ -38,7 +38,7 @@ const SCREEN = {
 /**
  * Enhance browser with our Ex functions
  */
-require('./selenium');
+require('./selenium.es6');
 
 /**
  * For more information about monkey testing, selenium and gremlins
