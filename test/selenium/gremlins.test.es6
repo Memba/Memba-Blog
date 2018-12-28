@@ -3,30 +3,32 @@
  * Sources at https://github.com/Memba
  */
 
-/* globals browser: false, $: false */
+/* globals browser: false, document: false, window: false */
 /* eslint-disable no-unused-expressions */
 
 // const { expect } = require('chai');
-const url = require('url');
-const util = require('util');
-
+// eslint-disable-next-line node/no-unsupported-features/node-builtins
+const { URL } = require('url');
+const { format } = require('util');
+const logger = require('@wdio/logger').default('gremlins.test');
 const config = require('../../webapp/config/index.es6');
+// Enhance browser with our Ex functions
+require('./selenium.es6');
 
 const webapp = {
-    home: url.resolve(
-        config.get('uris:webapp:root'),
-        config.get('uris:webapp:home')
-    ),
-    fr: url.resolve(
-        config.get('uris:webapp:root'),
-        util.format(config.get('uris:webapp:locale'), 'fr')
-    ),
-    en: url.resolve(
-        config.get('uris:webapp:root'),
-        util.format(config.get('uris:webapp:locale'), 'en')
-    )
+    home: new URL(
+        config.get('uris:webapp:home'),
+        config.get('uris:webapp:root')
+    ).href,
+    fr: new URL(
+        format(config.get('uris:webapp:locale'), 'fr'),
+        config.get('uris:webapp:root')
+    ).href,
+    en: new URL(
+        format(config.get('uris:webapp:locale'), 'en'),
+        config.get('uris:webapp:root')
+    ).href
 };
-
 const WAIT = 5000;
 const MOCHA_TO = 60000;
 const GREMLINS_TTL = 50000;
@@ -36,17 +38,9 @@ const SCREEN = {
 };
 
 /**
- * Enhance browser with our Ex functions
- */
-require('./selenium.es6');
-
-/**
  * For more information about monkey testing, selenium and gremlins
  * Check https://medium.com/@jlchereau/automate-monkey-testing-with-selenium-webdriver-io-and-mocha-337ea935e308
  */
-
-/* This function's cyclomatic complexity is too high. */
-/* jshint -W074 */
 
 /**
  * Load script
@@ -54,10 +48,7 @@ require('./selenium.es6');
  * @param callback
  */
 function loadScript(source, callback) {
-    /* jshint maxcomplexity: 10 */
-    if (typeof source !== 'string') {
-        return typeof callback === 'function' ? callback() : undefined;
-    }
+    // Note: This is executed in the browser context
     // Note: there might be a much better way to differentiate a src path from a script
     // For now, a single line with slashes is deemed a path, which might not work well with minified scripts
     const isPath = source.indexOf('\n') === -1 && source.indexOf('/') > -1;
@@ -77,7 +68,7 @@ function loadScript(source, callback) {
         if (isPath && typeof callback === 'function') {
             if (script.readyState) {
                 // IE
-                script.onreadystatechange = function() {
+                script.onreadystatechange = () => {
                     if (
                         script.readyState === 'loaded' ||
                         script.readyState === 'complete'
@@ -100,19 +91,18 @@ function loadScript(source, callback) {
     }
 }
 
-/* jshint +W074 */
-
 /**
  * Unleash our gremlins
  * @param ttl
  * @param callback
  */
 function unleashGremlins(ttl, callback) {
+    // Note: This is executed in the browser context
+    const horde = window.gremlins.createHorde();
     function stop() {
         horde.stop();
         callback();
     }
-    var horde = window.gremlins.createHorde();
     // A seed makes the attack repeatable, otherwise each execution is random
     horde.seed(1234);
     // Horde.after calls callback after executing all strategies
@@ -134,64 +124,74 @@ function unleashGremlins(ttl, callback) {
 describe('Monkey testing with gremlins', () => {
     // var tabId;
 
-    // Retry all tests in this suite up to 3 times
-    // this.retries(3);
-
     before(() => {
+        /*
         if (browser.capabilities.browserName === 'firefox') {
             // This prevents `No such content frame; perhaps the listener was not registered?`
             browser.pause(200);
         }
+        */
+
         browser.url(webapp.home);
+
         // tabId = browser.getCurrentTabId();
+
         // Note: it won't work in PhantomJS without setting the window size
         browser.setWindowSizeEx(SCREEN.WIDTH, SCREEN.HEIGHT);
+
+        // Find a way to reset the cache
+        // browser.refresh();
     });
 
-    describe('When testing', () => {
+    describe('Unleashing the horde', () => {
+        // Retry all tests in this suite up to 3 times
+        // this.retries(3);
+
         beforeEach(() => {
             // browser.switchTab ensures we are running all tests on the same tab
             // especially as we have experienced extensions like Skype that open a welcome page in a new tab
             // browser.switchTab(tabId);
-            // browser.logger.info(browser.getUrl());
+
+            logger.info(browser.getUrl());
         });
 
-        xit('it should not raise any error on the home page', () => {
+        it('it should not raise any error on the home page', () => {
             browser.url(webapp.home);
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
             // Note: Mime type error when loading from https://raw.githubusercontent.com/marmelab/gremlins.js/master/gremlins.min.js
             // Note: Timeout when loading from https://rawgit.com/marmelab/gremlins.js/master/gremlins.min.js
             // So we need to load locally
-            browser.timeouts('script', WAIT);
+            browser.setTimeout('script', WAIT);
             browser.executeAsync(loadScript, './build/gremlins.min.js');
-            browser.logger.info('Gremlins loaded');
+            logger.info('Gremlins loaded');
+            // browser.pause(500);
             // And Unleash them
-            browser.timeouts('script', MOCHA_TO);
+            browser.setTimeout('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
 
-        xit('it should not raise any error on the /en page', () => {
+        it('it should not raise any error on the /en page', () => {
             browser.url(webapp.en);
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
-            browser.timeouts('script', WAIT);
+            browser.setTimeout('script', WAIT);
             browser.executeAsync(loadScript, './build/gremlins.min.js');
-            browser.logger.info('Gremlins loaded');
+            logger.info('Gremlins loaded');
             // And Unleash them
-            browser.timeouts('script', MOCHA_TO);
+            browser.setTimeout('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
 
-        xit('it should not raise any error on the /fr page', () => {
+        it('it should not raise any error on the /fr page', () => {
             browser.url(webapp.fr);
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
-            browser.timeouts('script', WAIT);
+            browser.setTimeout('script', WAIT);
             browser.executeAsync(loadScript, './build/gremlins.min.js');
-            browser.logger.info('Gremlins loaded');
+            logger.info('Gremlins loaded');
             // And Unleash them
-            browser.timeouts('script', MOCHA_TO);
+            browser.setTimeout('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
     });

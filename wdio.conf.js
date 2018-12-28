@@ -1,3 +1,5 @@
+// const path = require('path');
+
 /** *************************************************************
  * On any platform including Travis-CI
  ************************************************************** */
@@ -7,32 +9,40 @@ let capabilities = [
         // maxInstances can get overwritten per capability. So if you have an in-house Selenium
         // grid with only 5 firefox instances available you can make sure that not more than
         // 5 instances get started at a time.
-        maxInstances: 5,
-        // The following are the default drivers installed with selenium-standalone
-        // browserName: 'chrome'
-        // browserName: 'firefox' // gecko
-        // browserName: 'internet explorer'
-        // The following driver is installed with phantomjs-brebuilt
-        browserName: 'phantomjs'
+        maxInstances: 1,
+        browserName: 'chrome',
+        // https://github.com/webdriverio/webdriverio/issues/3130#issuecomment-447405876
+        'goog:chromeOptions': {
+            args: ['headless', 'disable-gpu']
+        }
+        // unexpectedAlertBehaviour: 'ignore'
     }
 ];
-let seleniumArgs = {};
+// let seleniumArgs = {};
+const seleniumArgs = {};
 
 /** **************************************************************
  * In our Windows environment
  *************************************************************** */
 
-if (/^win/.test(process.platform)) {
+// if (/^win/.test(process.platform)) {
+if (/^oops/.test(process.platform)) {
+    // @see https://medium.com/@jlchereau/how-to-configure-webdrivier-io-with-selenium-standalone-and-additional-browsers-9369d38bc4d1
+    /*
     seleniumArgs = {
         // Drivers can be downloaded at http://docs.seleniumhq.org/download/
         javaArgs: [
             // Add Microsoft Edge driver
             // `-Dwebdriver.edge.driver=${path.join(__dirname, './test/bin/MicrosoftWebDriver.exe')}`,
-            '-Dwebdriver.edge.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\edgedriver\\17134-MicrosoftEdgeDriver.exe',
+            // '-Dwebdriver.edge.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\edgedriver\\17134-MicrosoftEdgeDriver.exe'
+            `-Dwebdriver.edge.driver=${path.join(
+                __dirname,
+                './node_modules/selenium-standalone/.selenium/edgedriver/17134-MicrosoftEdgeDriver.exe'
+            )}`
 
             // Add opera driver
             // `-Dwebdriver.opera.driver=${path.join(__dirname, './test/bin/operadriver.exe')}`,
-            '-Dwebdriver.opera.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\chromedriver\\2.43-x64-chromedriver'
+            // '-Dwebdriver.opera.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\chromedriver\\2.43-x64-chromedriver'
         ]
         // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
         // seleniumArgs: [],
@@ -42,47 +52,51 @@ if (/^win/.test(process.platform)) {
         // basePath
         // javaPath
     };
+    */
     capabilities = [
-        // @see https://medium.com/@jlchereau/how-to-configure-webdrivier-io-with-selenium-standalone-and-additional-browsers-9369d38bc4d1
         {
             maxInstances: 1,
             browserName: 'chrome'
-            // unexpectedAlertBehaviour: 'ignore' - use it to display an alert that is not seen
+            // 'goog:chromeOptions': {}
         },
         {
             maxInstances: 1,
-            browserName: 'firefox',
-            // @see https://github.com/vvo/selenium-standalone/issues/237
-            // @see http://stackoverflow.com/questions/38125581/how-to-enable-a-firefox-extension-when-testing-with-selenium-webdriverio
-            marionette: true
+            browserName: 'firefox'
+            // 'moz:firefoxOptions': { args: ['-headless'] }
         },
         {
             maxInstances: 1,
             browserName: 'internet explorer'
-        },
+            // 'se:ieOptions': {}
+        } /* ,
         {
+            // See https://github.com/webdriverio/webdriverio/issues/3196
             maxInstances: 1,
-            browserName: 'MicrosoftEdge'
+            browserName: 'MicrosoftEdge',
+            osPlatform: 'Windows',
+            osVersion: '10'
         },
+        // The following driver is installed with phantomjs-prebuilt
         {
+            // See https://github.com/webdriverio/webdriverio/issues/3198
             maxInstances: 1,
             browserName: 'phantomjs',
             // Without the path, phantomJS is not found on Windows
-            // 'phantomjs.binary.path': path.join(__dirname, './node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe')
-            'phantomjs.binary.path':
-                'C:\\Program Files (x86)\\PhantomJS\\bin\\phantomjs.EXE'
+            // 'phantomjs.binary.path': 'C:\\Program Files (x86)\\PhantomJS\\bin\\phantomjs.EXE'
+            'phantomjs.binary.path': path.join(__dirname, './node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe')
         },
         {
             maxInstances: 1,
             browserName: 'operablink',
-            chromeOptions: {
+            'goog:chromeOptions': {
                 args: [],
                 extensions: [],
                 // binary: 'C:\\Program Files (x86)\\Opera\\launcher.exe'
                 binary:
-                    'C:\\Program Files (x86)\\Opera\\53.0.2907.106\\opera.exe'
+                    'C:\\Program Files (x86)\\Opera\\57.0.3098.106\\opera.exe'
             }
         }
+        */
     ];
 }
 
@@ -95,7 +109,21 @@ module.exports.config = {
     // WebdriverIO allows it to run your tests in arbitrary locations (e.g. locally or
     // on a remote machine).
     runner: 'local',
-
+    //
+    // =================
+    // Service Providers
+    // =================
+    // WebdriverIO supports Sauce Labs, Browserstack, and Testing Bot (other cloud providers
+    // should work too though). These services define specific user and key (or access key)
+    // values you need to put in here in order to connect to these services.
+    //
+    // user: process.env.SAUCE_USERNAME,
+    // key: process.env.SAUCE_ACCESS_KEY,
+    //
+    // If you run your tests on SauceLabs you can specify the region you want to run your tests
+    // in via the `region` property. Available short handles for regions are:
+    // us: us-west-1 (default)
+    // eu: eu-central-1
     //
     // ==================
     // Specify Test Files
@@ -105,7 +133,7 @@ module.exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
-    specs: ['./test/selenium/**/*.test.js'],
+    specs: ['./test/selenium/**/*.test.es6'],
     // Patterns to exclude.
     exclude: [
         // 'path/to/excluded/files'
@@ -134,6 +162,7 @@ module.exports.config = {
     //
     capabilities, // See above
     //
+    // TODO BEGIN Check (was in webdriver v4 config, might not exist in v5)
     // When enabled opens a debug port for node-inspector and pauses execution
     // on `debugger` statements. The node-inspector can be attached with:
     // `node-inspector --debug-port 5859 --no-preload`
@@ -144,16 +173,23 @@ module.exports.config = {
     //
     // Additional list node arguments to use when starting child processes
     // execArgv: null,
+    // TODO END
     //
     // ===================
     // Test Configurations
     // ===================
     // Define all options that are relevant for the WebdriverIO instance here
+    // More information at https://webdriver.io/docs/options.html
     //
+    // TODO BEGIN Check (was in webdriver v4 config, might not exist in v5)
     // By default WebdriverIO commands are executed in a synchronous way using
     // the wdio-sync package. If you still want to run your tests in an async way
     // e.g. using promises you can set the sync option to false.
     // sync: false,
+    // TODO END
+    //
+    // Level of logging verbosity: trace | debug | info | warn | error
+    logLevel: 'info',
     //
     // Warns when a deprecated command is used
     deprecationWarnings: true,
@@ -203,7 +239,8 @@ module.exports.config = {
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
     // services: [],//
-    services: ['selenium-standalone', 'phantomjs'],
+    // services: ['selenium-standalone', 'phantomjs'],
+    services: ['selenium-standalone'],
     // selenium-standalone configuration
     // @see http://webdriver.io/guide/services/selenium-standalone.html
     // @see https://www.npmjs.com/package/selenium-standalone
@@ -220,12 +257,14 @@ module.exports.config = {
     // The only one supported by default is 'dot'
     // see also: http://webdriver.io/docs/dot-reporter.html
     // reporters: ['dot'],
+    reporters: ['spec'],
     //
     // Options to be passed to Mocha.
     // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
-        timeout: 60000 // for gremlins
+        timeout: 60000, // for gremlins
+        require: ['js:@babel/register']
     },
     //
     // =====
@@ -268,7 +307,6 @@ module.exports.config = {
      */
     // beforeCommand: function (commandName, args) {
     // },
-
     /**
      * Hook that gets executed before the suite starts
      * @param {Object} suite suite details
@@ -305,7 +343,6 @@ module.exports.config = {
      */
     // afterSuite: function (suite) {
     // },
-
     /**
      * Runs after a WebdriverIO command gets executed
      * @param {String} commandName hook command name
