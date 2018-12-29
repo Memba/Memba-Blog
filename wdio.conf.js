@@ -16,6 +16,7 @@ let capabilities = [
             args: ['headless', 'disable-gpu']
         }
         // unexpectedAlertBehaviour: 'ignore'
+        // TODO Consider wdio-phantomjs-service (waiting for @wdio/phantomjs-service)
     }
 ];
 // let seleniumArgs = {};
