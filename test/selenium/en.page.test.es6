@@ -79,8 +79,6 @@ describe('English pages', () => {
             // browser.switchTab(tabId);
 
             logger.info(browser.getUrl());
-
-            console.log(browser.capabilities);
         });
 
         it('it should land on the home page with a choice of languages', () => {
