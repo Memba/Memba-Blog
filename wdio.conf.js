@@ -102,6 +102,19 @@ if (/^oops/.test(process.platform)) {
 }
 
 module.exports.config = {
+    // =====================
+    // Server Configurations
+    // =====================
+    // Host address of the running Selenium server. This information is usually obsolete as
+    // WebdriverIO automatically connects to localhost. Also, if you are using one of the
+    // supported cloud services like Sauce Labs, Browserstack, or Testing Bot you don't
+    // need to define host and port information because WebdriverIO can figure that out
+    // according to your user and key information. However, if you are using a private Selenium
+    // backend you should define the host address, port, and path here.
+    //
+    // host: '0.0.0.0',
+    // port: 4444,
+    // path: '/wd/hub',
     //
     // ====================
     // Runner Configuration
@@ -192,12 +205,16 @@ module.exports.config = {
     // Level of logging verbosity: trace | debug | info | warn | error
     logLevel: 'info',
     //
+    // Enables colors for log output.
+    coloredLogs: true, // TODO in v5?
+    //
     // Warns when a deprecated command is used
     deprecationWarnings: true,
     //
     // If you only want to run your tests until a specific amount of tests have failed use
     // bail (default is 0 - don't bail, run all tests).
     bail: 0,
+    //
     // Saves a screenshot to a given path if a command fails.
     screenshotPath: './errorShots/',
     //
@@ -242,10 +259,12 @@ module.exports.config = {
     // services: [],//
     // services: ['selenium-standalone', 'phantomjs'],
     services: ['selenium-standalone'],
+    //
     // selenium-standalone configuration
     // @see http://webdriver.io/guide/services/selenium-standalone.html
     // @see https://www.npmjs.com/package/selenium-standalone
     seleniumArgs,
+    //
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
     // see also: http://webdriver.io/docs/frameworks.html
