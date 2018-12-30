@@ -231,9 +231,9 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\routes\pingRoute.test.es6 .\test\node\
 ATTRIB +R .\test\node\routes\pingRoute.test.es6
 
 REM Copy ./test/selenium files
-ATTRIB -R .\test\selenium\selenium.js
-COPY ..\..\Kidoju\Kidoju.Webapp\test\selenium\selenium.js .\test\selenium /Y
-ATTRIB +R .\test\selenium\selenium.js
+ATTRIB -R .\test\selenium\selenium.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\test\selenium\selenium.es6 .\test\selenium /Y
+ATTRIB +R .\test\selenium\selenium.es6
 
 REM Copy ./test/vendor files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\test\vendor  .\test\vendor /C /E /I /R /Y
