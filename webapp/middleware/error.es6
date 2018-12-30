@@ -143,7 +143,6 @@ module.exports = {
             // User is blocked
             /* eslint-disable global-require */
             config = require('../config/index.es6');
-            // eslint-disable-next-line node/no-unsupported-features/node-builtins
             ({ URL } = require('url'));
             ({ format } = require('util'));
             /* eslint-enable global-require */

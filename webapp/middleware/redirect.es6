@@ -3,7 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// eslint-disable-next-line node/no-unsupported-features/node-builtins
 const { URL } = require('url');
 const { format } = require('util');
 const config = require('../config/index.es6');

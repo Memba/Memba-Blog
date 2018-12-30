@@ -7,8 +7,6 @@ node_js:
   - "10"
   - "9"
   - "8"
-  - "7"
-  - "6"
 env:
   - NODE_ENV=test CC=gcc-6 CXX=g++-6
 addons:

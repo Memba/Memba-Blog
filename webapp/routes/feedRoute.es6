@@ -4,7 +4,6 @@
  */
 
 const assert = require('assert');
-// eslint-disable-next-line node/no-unsupported-features/node-builtins
 const { URL } = require('url');
 const config = require('../config/index.es6');
 const logger = require('../lib/logger.es6');

@@ -8,7 +8,6 @@
 const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
-// eslint-disable-next-line node/no-unsupported-features/node-builtins
 const { URL } = require('url');
 const config = require('../../../webapp/config/index.es6');
 const redirect = require('../../../webapp/middleware/redirect.es6');

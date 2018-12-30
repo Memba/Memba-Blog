@@ -9,7 +9,6 @@ const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const { format } = require('util');
-// eslint-disable-next-line node/no-unsupported-features/node-builtins
 const { URL } = require('url');
 
 const ApplicationError = require('../../../webapp/lib/applicationError.es6');

@@ -7,7 +7,6 @@
 /* eslint-disable no-unused-expressions */
 
 const { expect } = require('chai');
-// eslint-disable-next-line node/no-unsupported-features/node-builtins
 const { URL } = require('url');
 const { format } = require('util');
 const logger = require('@wdio/logger').default('fr.post.test');

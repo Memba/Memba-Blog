@@ -9,7 +9,6 @@
 
 var util = require('util');
 var paths = require('path');
-// eslint-disable-next-line node/no-unsupported-features/node-builtins
 // TODO const { URL } = require('url');
 var url = require('url');
 var config = require('../config/index.es6');
