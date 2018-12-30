@@ -154,7 +154,7 @@ describe('Monkey testing with gremlins', () => {
             logger.info(browser.getUrl());
         });
 
-        it('it should not raise any error on the home page', () => {
+        xit('it should not raise any error on the home page', () => {
             browser.url(webapp.home);
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
@@ -164,13 +164,13 @@ describe('Monkey testing with gremlins', () => {
             browser.setTimeout('script', WAIT);
             browser.executeAsync(loadScript, './build/gremlins.min.js');
             logger.info('Gremlins loaded');
-            browser.pause(500); // TODO review
+            // browser.pause(500);
             // And Unleash them
             browser.setTimeout('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
 
-        it('it should not raise any error on the /en page', () => {
+        xit('it should not raise any error on the /en page', () => {
             browser.url(webapp.en);
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
@@ -182,7 +182,7 @@ describe('Monkey testing with gremlins', () => {
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
 
-        it('it should not raise any error on the /fr page', () => {
+        xit('it should not raise any error on the /fr page', () => {
             browser.url(webapp.fr);
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
