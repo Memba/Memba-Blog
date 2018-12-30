@@ -164,7 +164,7 @@ describe('Monkey testing with gremlins', () => {
             browser.setTimeout('script', WAIT);
             browser.executeAsync(loadScript, './build/gremlins.min.js');
             logger.info('Gremlins loaded');
-            // browser.pause(500);
+            browser.pause(500); // TODO review
             // And Unleash them
             browser.setTimeout('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
