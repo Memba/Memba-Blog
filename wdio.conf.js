@@ -25,10 +25,9 @@ const seleniumArgs = {};
 /** **************************************************************
  * In our Windows environment
  * @see https://medium.com/@jlchereau/how-to-configure-webdrivier-io-with-selenium-standalone-and-additional-browsers-9369d38bc4d1
-update *************************************************************** */
+ *************************************************************** */
 
-// if (/^win/.test(process.platform)) {
-if (/^oops/.test(process.platform)) {
+if (/^win/.test(process.platform)) {
     /*
     seleniumArgs = {
         // Drivers can be downloaded at http://docs.seleniumhq.org/download/
