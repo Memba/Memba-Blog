@@ -100,8 +100,9 @@ COPY ..\..\Kidoju\Kidoju.Webapp\src\js\common\window.logger.es6 .\src\js\common 
 ATTRIB +R .\src\js\common\*.es6
 
 REM ./src/js/cultures/*
+ATTRIB -R .\src\js\cultures\widgets.*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\cultures\widgets.*.es6  .\src\js\cultures /Y
-ATTRIB +R .\src\js\cultures\widgets.*.es6 /S
+ATTRIB +R .\src\js\cultures\widgets.*.es6
 
 REM ./src/js/ui/*.es6
 ATTRIB -R .\src\js\ui\error.page.es6
