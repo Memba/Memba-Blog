@@ -6,8 +6,9 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import '../app/app.common.es6';
 import i18n from '../app/app.i18n.es6';
+import BaseController from '../app/app.controller.es6';
+import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 
 // Import page styles
@@ -16,13 +17,34 @@ import '../../styles/ui/search.page.less';
 const logger = new Logger('page.search');
 
 /**
- * Wait for document to be ready to initialize UI
- * Note: no need to use the i18n.loaded event here
+ * Controller
+ * @class Controller
+ * @extends BaseController
  */
-$(() => {
-    // Log page readiness
-    logger.info({
-        message: `search page initialized in ${i18n.locale()}`,
-        method: 'document.ready'
-    });
+const Controller = BaseController.extend({
+    /**
+     * init
+     * @constructor init
+     */
+    init() {
+        BaseController.fn.init.call(this);
+        // Initialization code to execute when document is ready
+        $(document).one(CONSTANTS.LOADED, () => {
+            // LOADED occurs after document ready event
+            logger.info({
+                message: `search page initialized in ${i18n.locale()}`,
+                method: 'Controller.init'
+            });
+        });
+    }
 });
+
+/**
+ * Initialize page controller
+ */
+const controller = new Controller();
+
+/**
+ * Default export
+ */
+export default controller;

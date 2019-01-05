@@ -59,6 +59,7 @@ const matches = /[?|&]theme=([^&]+)/.exec(window.location.search);
 
 /**
  * Themer
+ * // TODO COnsider making this a class
  */
 const themer = {
     /**
