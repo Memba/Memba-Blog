@@ -9,7 +9,7 @@ import $ from 'jquery';
 // Bootstrap files for navbar (toggle button)
 import '../vendor/bootstrap/collapse';
 import '../vendor/bootstrap/dropdown';
-import 'kendo.core';
+import 'kendo.binder';
 import 'kendo.dropdownlist';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
