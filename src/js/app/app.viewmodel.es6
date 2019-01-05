@@ -9,8 +9,10 @@ import themer from './app.themer.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const { observable } = window.kendo;
-const LOCALE = 'locale';
-const THEME = 'theme';
+const VIEW_MODEL = {
+    LOCALE: 'locale',
+    THEME: 'theme'
+};
 
 /**
  * viewModel
@@ -27,10 +29,10 @@ const viewModel = observable({
  * Bind change event for i18n locale and theme
  */
 viewModel.bind(CONSTANTS.CHANGE, e => {
-    if (e.field === LOCALE) {
-        i18n.locale(e.sender.get(LOCALE));
-    } else if (e.field === THEME) {
-        themer.name(e.sender.get(THEME));
+    if (e.field === VIEW_MODEL.LOCALE) {
+        i18n.locale(e.sender.get(VIEW_MODEL.LOCALE));
+    } else if (e.field === VIEW_MODEL.THEME) {
+        themer.name(e.sender.get(VIEW_MODEL.THEME));
     }
 });
 
