@@ -47,7 +47,7 @@ const Controller = BaseController.extend({
      */
     init() {
         BaseController.fn.init.call(this);
-        // Initialization code to execute when document is ready
+        // Wait until document is ready to initialize UI
         $(document).one(CONSTANTS.LOADED, () => {
             this.initSocialButtons();
             // LOADED occurs after document ready event

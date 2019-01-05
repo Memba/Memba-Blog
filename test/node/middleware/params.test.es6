@@ -6,9 +6,9 @@
 /* eslint-disable no-unused-expressions */
 
 const { expect } = require('chai');
-// TODO const faker = require('faker');
 const CONSTANTS = require('../../../webapp/lib/constants.es6');
 const params = require('../../../webapp/middleware/params.es6');
+// TODO const { objectId } = require('../_misc/test.random.es6');
 
 let mongoose;
 try {

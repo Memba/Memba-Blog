@@ -23,10 +23,10 @@ import '../../styles/themes/bootstrap.custom.less';
 import '../../styles/vendor/kendo/web/kendo.common.less';
 import '../../styles/fonts/kidoju.less';
 import '../../styles/ui/app.common.less';
-// TODO Consider merging kidoju.tools.;less with widgets.basedialog.less
+// TODO Consider merging kidoju.tools.less with widgets.basedialog.less
 import '../../styles/dialogs/kidoju.tools.less';
 
-const { bind, format, keys, Observable, ui } = window.kendo;
+const { bind, format, keys, Observable } = window.kendo;
 const logger = new Logger('app.controller');
 const SEARCH_INPUT_SELECTOR = '#navbar-search-input';
 const ACTIVE_CLASS = 'k-state-active';
@@ -44,7 +44,7 @@ const BaseController = Observable.extend({
      */
     init() {
         Observable.fn.init.call(this);
-        // Initialization code to execute when document is ready
+        // Wait until document is ready to initialize UI
         $(document).one(CONSTANTS.LOADED, () => {
             // LOADED occurs after document ready event
             this.initNavBar();
@@ -77,7 +77,7 @@ const BaseController = Observable.extend({
     initFooter() {
         // Init using kendo ui and kendo mobile ui (scollers)
         // kendo.init('body', kendo.ui, kendo.mobile.ui);
-        bind('footer', viewModel, ui);
+        bind('footer', viewModel);
     },
 
     /**
