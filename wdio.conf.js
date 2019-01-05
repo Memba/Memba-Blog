@@ -19,8 +19,7 @@ let capabilities = [
         // TODO Consider wdio-phantomjs-service (waiting for @wdio/phantomjs-service)
     }
 ];
-// let seleniumArgs = {};
-const seleniumArgs = {};
+let seleniumArgs = {};
 
 /** **************************************************************
  * In our Windows environment
@@ -28,17 +27,11 @@ const seleniumArgs = {};
  *************************************************************** */
 
 if (/^win/.test(process.platform)) {
-    /*
     seleniumArgs = {
         // Drivers can be downloaded at http://docs.seleniumhq.org/download/
         javaArgs: [
             // Add Microsoft Edge driver
-            // `-Dwebdriver.edge.driver=${path.join(__dirname, './test/bin/MicrosoftWebDriver.exe')}`,
-            // '-Dwebdriver.edge.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\edgedriver\\17134-MicrosoftEdgeDriver.exe'
-            `-Dwebdriver.edge.driver=${path.join(
-                __dirname,
-                './node_modules/selenium-standalone/.selenium/edgedriver/17134-MicrosoftEdgeDriver.exe'
-            )}`
+            '-Dwebdriver.edge.driver=C:\\Windows\\System32\\MicrosoftWebDriver.exe'
 
             // Add opera driver
             // `-Dwebdriver.opera.driver=${path.join(__dirname, './test/bin/operadriver.exe')}`,
@@ -52,7 +45,6 @@ if (/^win/.test(process.platform)) {
         // basePath
         // javaPath
     };
-    */
     capabilities = [
         {
             maxInstances: 1,
@@ -72,9 +64,7 @@ if (/^win/.test(process.platform)) {
         {
             // See https://github.com/webdriverio/webdriverio/issues/3196
             maxInstances: 1,
-            browserName: 'MicrosoftEdge',
-            osPlatform: 'Windows',
-            osVersion: '10'
+            browserName: 'MicrosoftEdge'
         },
         // The following driver is installed with phantomjs-prebuilt
         {
