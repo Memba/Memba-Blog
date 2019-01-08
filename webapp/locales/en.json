@@ -176,7 +176,7 @@
 		}
 	},
 	"footer": {
-		"copyright": "Version %s - Copyright &copy; 2013-2018 Memba Sarl.",
+		"copyright": "Version %s - Copyright &copy; 2013-2019 Memba Sarl.",
 		"language": {
 			"label": "Language:"
 		},
