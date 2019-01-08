@@ -32,12 +32,12 @@ const SEARCH_INPUT_SELECTOR = '#navbar-search-input';
 const ACTIVE_CLASS = 'k-state-active';
 
 /**
- * BaseController
+ * AppController
  * Controls page UI
- * @class BaseController
+ * @class AppController
  * @extends Observable
  */
-const BaseController = Observable.extend({
+const AppController = Observable.extend({
     /**
      * init
      * @contructor init
@@ -53,7 +53,7 @@ const BaseController = Observable.extend({
             // Log page readiness
             logger.debug({
                 message: `Base controller initialized in ${i18n.locale()}`,
-                method: 'BaseController.init'
+                method: 'AppController.init'
             });
         });
     },
@@ -145,4 +145,4 @@ const BaseController = Observable.extend({
 /**
  * Default export
  */
-export default BaseController;
+export default AppController;
