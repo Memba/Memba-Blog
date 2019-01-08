@@ -8,7 +8,7 @@
 import $ from 'jquery';
 import 'kendo.validator'; // For page forms
 import i18n from '../app/app.i18n.es6';
-import BaseController from '../app/app.controller.es6';
+import AppController from '../app/app.controller.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 
@@ -20,15 +20,15 @@ const logger = new Logger('page.page');
 /**
  * Controller
  * @class Controller
- * @extends BaseController
+ * @extends AppController
  */
-const Controller = BaseController.extend({
+const Controller = AppController.extend({
     /**
      * init
      * @constructor init
      */
     init() {
-        BaseController.fn.init.call(this);
+        AppController.fn.init.call(this);
         // Wait until document is ready to initialize UI
         $(document).one(CONSTANTS.LOADED, () => {
             // LOADED occurs after document ready event
