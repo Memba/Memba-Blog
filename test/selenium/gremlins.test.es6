@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-/* globals browser: false, document: false, window: false */
+/* globals browser: false, window: false */
 /* eslint-disable no-unused-expressions */
 
 // const { expect } = require('chai');
