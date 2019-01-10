@@ -121,7 +121,7 @@
     "systemjs-plugin-babel": "0.0.25",
     "url-loader": "^1.1.2",
     "webdriverio": "^5.2.8",
-    "webpack": "^4.28.1",
+    "webpack": "^4.28.4",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.2.1"
   },
