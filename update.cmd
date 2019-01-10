@@ -176,6 +176,11 @@ REM ------------------------------------------------------------
 REM Tests
 REM ------------------------------------------------------------
 
+REM Copy ./test/_misc files
+ATTRIB -R .\test\_misc\*.*
+COPY ..\..\Kidoju\Kidoju.Webapp\test\_misc\selenium.util.es6 .\test\_misc /Y
+ATTRIB +R .\test\_misc\selenium.util.es6
+
 REM Copy ./test/browser files
 ATTRIB -R .\test\browser\*.*
 COPY ..\..\Kidoju\Kidoju.Webapp\test\browser\.eslintrc .\test\browser /Y
@@ -230,9 +235,6 @@ COPY ..\..\Kidoju\Kidoju.Webapp\test\node\routes\pingRoute.test.es6 .\test\node\
 ATTRIB +R .\test\node\routes\pingRoute.test.es6
 
 REM Copy ./test/selenium files
-ATTRIB -R .\test\selenium\selenium.es6
-COPY ..\..\Kidoju\Kidoju.Webapp\test\selenium\selenium.es6 .\test\selenium /Y
-ATTRIB +R .\test\selenium\selenium.es6
 
 REM Copy ./test/vendor files
 XCOPY ..\..\Kidoju\Kidoju.Webapp\test\vendor  .\test\vendor /C /E /I /R /Y
