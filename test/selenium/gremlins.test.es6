@@ -43,55 +43,6 @@ const SCREEN = {
  */
 
 /**
- * Load script
- * @param source
- * @param callback
- */
-function loadScript(source, callback) {
-    // Note: This is executed in the browser context
-    // Note: there might be a much better way to differentiate a src path from a script
-    // For now, a single line with slashes is deemed a path, which might not work well with minified scripts
-    const isPath = source.indexOf('\n') === -1 && source.indexOf('/') > -1;
-    const head = document.getElementsByTagName('head')[0];
-    const scripts = head.getElementsByTagName('script');
-    let found = false;
-    for (let i = 0; i < scripts.length; i++) {
-        if (scripts[i].src === source) {
-            found = true;
-            break;
-        }
-    }
-    if (!found) {
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        // @see https://www.nczonline.net/blog/2009/06/23/loading-javascript-without-blocking/
-        if (isPath && typeof callback === 'function') {
-            if (script.readyState) {
-                // IE
-                script.onreadystatechange = () => {
-                    if (
-                        script.readyState === 'loaded' ||
-                        script.readyState === 'complete'
-                    ) {
-                        script.onreadystatechange = null;
-                        callback();
-                    }
-                };
-            } else {
-                // Other browsers
-                script.onload = callback;
-            }
-        }
-        if (isPath) {
-            script.src = source;
-        } else {
-            script[window.opera ? 'innerHTML' : 'text'] = source;
-        }
-        head.appendChild(script);
-    }
-}
-
-/**
  * Unleash our gremlins
  * @param ttl
  * @param callback
@@ -122,11 +73,11 @@ function unleashGremlins(ttl, callback) {
  * Test suite
  */
 describe('Monkey testing with gremlins', () => {
-    // var tabId;
+    // let tabId;
 
     before(() => {
         /*
-        if (browser.capabilities.browserName === 'firefox') {
+        if (browser.desiredCapabilities.browserName === 'firefox') {
             // This prevents `No such content frame; perhaps the listener was not registered?`
             browser.pause(200);
         }
@@ -163,7 +114,7 @@ describe('Monkey testing with gremlins', () => {
             // Note: Timeout when loading from https://rawgit.com/marmelab/gremlins.js/master/gremlins.min.js
             // So we need to load locally
             browser.setTimeout('script', WAIT);
-            browser.executeAsync(loadScript, './build/gremlins.min.js');
+            browser.loadScriptEx('./build/gremlins.min.js');
             logger.info('Gremlins loaded');
             // browser.pause(500);
             // And Unleash them
@@ -176,8 +127,9 @@ describe('Monkey testing with gremlins', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
             browser.setTimeout('script', WAIT);
-            browser.executeAsync(loadScript, './build/gremlins.min.js');
+            browser.loadScriptEx('./build/gremlins.min.js');
             logger.info('Gremlins loaded');
+            // browser.pause(500);
             // And Unleash them
             browser.setTimeout('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
@@ -188,8 +140,9 @@ describe('Monkey testing with gremlins', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
             browser.setTimeout('script', WAIT);
-            browser.executeAsync(loadScript, './build/gremlins.min.js');
+            browser.loadScriptEx('./build/gremlins.min.js');
             logger.info('Gremlins loaded');
+            // browser.pause(500);
             // And Unleash them
             browser.setTimeout('script', MOCHA_TO);
             browser.executeAsync(unleashGremlins, GREMLINS_TTL);
