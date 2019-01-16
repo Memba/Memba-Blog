@@ -1,0 +1,20 @@
+@import "../vendor/kendo/web/kendo.default-v2.less";
+// @import "../vendor/kendo/web/kendo.default.mobile.less";
+
+// TODO review these values required for app.template.less
+@content-background-color: #000;
+@fallback-texture: none;
+@header-background-color: #000;
+@header-text-color: #000;
+@hover-text-color: #000;
+@image-folder: "Default";
+@normal-text-color: #000;
+@texture: none;
+@widget-border-color: #000;
+@widget-gradient: none;
+@widget-text-color: #000;
+
+@import "app.template.less";
+@import (optional) "codemirror.custom.less";
+@import (optional) "highlightjs.custom.less";
+@import (optional) "mathquill.custom.less";
