@@ -30,13 +30,12 @@ describe('routes/pingRoute', () => {
      * So that I can confirm the server is responding
      */
     describe('when requesting a ping', () => {
-        it('it should respond with 200', done => {
-            request(app)
+        it('it should respond with 200', async () => {
+            await request(app)
                 .get(pingUri)
                 .expect(200)
                 .expect('Content-Type', /json/)
-                .expect({ ping: 'OK', version, compatible })
-                .end(done);
+                .expect({ ping: 'OK', version, compatible });
         });
     });
 });
