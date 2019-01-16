@@ -126,9 +126,9 @@ REM Styles
 REM ------------------------------------------------------------
 
 REM Copy .\src\styles\dialogs
-ATTRIB -R .\src\styles\dialogs\*.* /S
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\dialogs\kidoju.tools.less .\src\styles\dialogs\ /Y
-ATTRIB +R .\src\styles\dialogs\kidoju.tools.less /S
+REM ATTRIB -R .\src\styles\dialogs\*.* /S
+REM COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\dialogs\kidoju.tools.less .\src\styles\dialogs\ /Y
+REM ATTRIB +R .\src\styles\dialogs\kidoju.tools.less /S
 
 REM Copy ./src/styles/fonts
 XCOPY ..\..\Kidoju\Kidoju.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y

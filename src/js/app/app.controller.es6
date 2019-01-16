@@ -23,8 +23,7 @@ import '../../styles/themes/bootstrap.custom.less';
 import '../../styles/vendor/kendo/web/kendo.common.less';
 import '../../styles/fonts/kidoju.less';
 import '../../styles/ui/app.common.less';
-// TODO Consider merging kidoju.tools.less with widgets.basedialog.less
-import '../../styles/dialogs/kidoju.tools.less';
+// import '../../styles/dialogs/kidoju.tools.less';
 
 const { bind, format, keys, Observable } = window.kendo;
 const logger = new Logger('app.controller');
