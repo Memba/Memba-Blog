@@ -61,6 +61,7 @@ browser.addCommand('dismissAlertEx', function dismissAlertEx() {
 
 /**
  * loadScriptEx
+ * @ see https://www.html5rocks.com/en/tutorials/speed/script-loading/
  */
 browser.addCommand('loadScriptEx', function loadScriptEx(source) {
     // This is executed in the context of nodeJS/webdriverio (this === browser)
@@ -81,6 +82,7 @@ browser.addCommand('loadScriptEx', function loadScriptEx(source) {
         if (!found) {
             const script = document.createElement('script');
             script.type = 'text/javascript';
+            // script.async = false;
             // @see https://www.nczonline.net/blog/2009/06/23/loading-javascript-without-blocking/
             if (isPath && typeof callback === 'function') {
                 if (script.readyState) {
@@ -96,7 +98,7 @@ browser.addCommand('loadScriptEx', function loadScriptEx(source) {
                     };
                 } else {
                     // Other browsers
-                    script.onload = callback;
+                    script.onload = () => callback();
                 }
             }
             if (isPath) {
