@@ -30,12 +30,10 @@
 
     // The following fixes type-material.less to be used with kendo.common.less
     // instead of kendo.common-material.less
-    .k-tabstrip-items .k-state-default .k-link
-        // .k-tabstrip-items .k-item .k-link
-    {
+    // .k-tabstrip-items .k-item .k-link
+    .k-tabstrip-items .k-state-default .k-link {
         color: @tabstrip-tabs-color;
     }
-
 }
 
 // The following fixes type-fiori.less to be used with kendo.common.less
@@ -45,10 +43,11 @@
         // Fix the grid pager
         .k-pager-wrap {
             min-height: 2.1em;
+
             .k-pager-numbers {
                 .k-current-page {
                     .k-link {
-                        padding: .17857143em 0;
+                        padding: 0.17857143em 0;
                         line-height: 1.65em;
                     }
                 }
