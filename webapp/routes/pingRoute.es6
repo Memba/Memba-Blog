@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO https://strongloop.com/strongblog/async-error-handling-expressjs-es7-promises-generators/
+
 const logger = require('../lib/logger.es6');
 // `compatible` is the minimum compatible UI version
 // if `compatible` is '0.3.4', then versions '0.3.4' and above of Kidoju-WebApp and Kidoju-Mobile are compatible
