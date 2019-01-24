@@ -29,19 +29,18 @@ describe('routes/loggerRoute', () => {
      * So that I can log a message
      */
     describe('when posting a log entry', () => {
-        it('it should respond with 201 with a bad request', done => {
-            request(app)
+        it('it should respond with 201 with a bad request', async () => {
+            await request(app)
                 .post(loggerUri)
                 // TODO use faker to generate more bad requests
                 .send('dsfdsdsfsdfsdfd')
                 .expect(201)
                 // .expect('Content-Type', /json/)
-                .expect('')
-                .end(done);
+                .expect('');
         });
 
-        it('it should respond with 201 with a good request', done => {
-            request(app)
+        it('it should respond with 201 with a good request', async () => {
+            await request(app)
                 .post(loggerUri)
                 .send({
                     date: new Date(),
@@ -50,8 +49,7 @@ describe('routes/loggerRoute', () => {
                 })
                 .expect(201)
                 // .expect('Content-Type', /json/)
-                .expect('')
-                .end(done);
+                .expect('');
         });
     });
 });

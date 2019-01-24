@@ -164,6 +164,8 @@ module.exports = {
             );
         } else {
             // This is not a web page request (API Server)
+            error.originalError = undefined;
+            error.stack = undefined;
 
             // Return json error message for api server
             res.status(error.status).json({ error });

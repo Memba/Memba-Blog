@@ -112,7 +112,8 @@ describe('middleware/error', () => {
             expect(res._json).to.have.been.calledWithMatch(
                 args =>
                     args.error instanceof ApplicationError &&
-                    args.error.originalError.message === err.message
+                    typeof args.error.originalError === 'undefined' &&
+                    typeof args.error.stack === 'undefined'
             );
             expect(res._status).to.have.been.calledWith(500);
         });
@@ -125,7 +126,8 @@ describe('middleware/error', () => {
             expect(res._json).to.have.been.calledWithMatch(
                 args =>
                     args.error instanceof ApplicationError &&
-                    args.error.originalError.name === 'ValidationError'
+                    typeof args.error.originalError === 'undefined' &&
+                    typeof args.error.stack === 'undefined'
             );
             // a mongoose validation error is a bad request
             expect(res._status).to.have.been.calledWith(400);
@@ -140,7 +142,8 @@ describe('middleware/error', () => {
             expect(res._json).to.have.been.calledWithMatch(
                 args =>
                     args.error instanceof ApplicationError &&
-                    args.error.originalError.status === 403
+                    typeof args.error.originalError === 'undefined' &&
+                    typeof args.error.stack === 'undefined'
             );
             expect(res._status).to.have.been.calledWith(403);
         });
