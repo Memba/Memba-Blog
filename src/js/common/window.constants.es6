@@ -98,9 +98,11 @@ const CONSTANTS = {
     // Regular Expressions
     RX_GUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|[+|-]([\d|:]*))?$/,
+    RX_KEYWORD: /^[^\s<>{}][^<>{}]{0,23}[^\s<>{}]$/,
     RX_LANGUAGE: /^[a-z]{2}$/,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
-    RX_MONGODB_KEY: /^_(i|[a-z]*I)d$/,
+    RX_MONGODB_IDKEY: /^_(i|[a-z]*I)d$/,
+    RX_NAME_OR_TITLE: /^[^\s<>{}][^<>{}]{0,58}[^\s<>{}]$/, // matches the regular expression in schemaValidators.nameOrTitle
     RX_URL: /^https?:\/\//,
     RX_TEST_FIELD_NAME: /^val_[a-z0-9]{6}$/,
     // Characters
@@ -114,13 +116,15 @@ const CONSTANTS = {
     HASHBANG: '#', // '#!',
     HYPHEN: '-',
     SEMICOLON: ';',
+    SLASH: '/',
     UNDERSCORE: '_',
     // Miscellaneous
     ACTION: 'action',
     ACTIVE: 'active',
     DATA_PAGE_SIZE: {
         SMALL: 5,
-        MEDIUM: 10
+        MEDIUM: 10,
+        MAX: 100
     },
     ID: 'id',
     ME: 'me',
@@ -136,6 +140,10 @@ const CONSTANTS = {
         REVIEW: 'review'
     },
     UID: 'uid',
+    WORKFLOW: {
+        DRAFT: 0,
+        PUBLISHED: 5
+    },
     // HTML tags
     A: 'a',
     BODY: 'body',
