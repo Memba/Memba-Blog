@@ -13,7 +13,7 @@ const logger = require('@wdio/logger').default('gremlins.test');
 const config = require('../../webapp/config/index.es6');
 
 // Enhance browser with our Ex functions
-require('../_misc/selenium.util.es6');
+require('./_misc/selenium.util.es6');
 
 const webapp = {
     home: new URL(
