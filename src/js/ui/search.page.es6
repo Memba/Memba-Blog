@@ -31,7 +31,7 @@ const Controller = AppController.extend({
         $.when(...this.initializers).then(() => {
             logger.info({
                 message: `search page initialized in ${i18n.locale}`,
-                method: 'Controller.init'
+                method: 'init'
             });
         });
     }

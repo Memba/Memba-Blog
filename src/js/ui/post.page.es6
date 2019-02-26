@@ -53,7 +53,7 @@ const Controller = AppController.extend({
             // LOADED occurs after document ready event
             logger.info({
                 message: `post page initialized in ${i18n.locale}`,
-                method: 'Controller.init'
+                method: 'init'
             });
         });
     },

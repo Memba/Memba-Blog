@@ -32,7 +32,7 @@ const Controller = AppController.extend({
         $.when(...this.initializers).then(() => {
             logger.info({
                 message: `site page initialized in ${i18n.locale}`,
-                method: 'Controller.init'
+                method: 'init'
             });
         });
     }

@@ -36,7 +36,7 @@ const Controller = AppController.extend({
             this.initBackButton();
             logger.info({
                 message: `error page initialized in ${i18n.locale}`,
-                method: 'Controller.init'
+                method: 'init'
             });
         });
     },
