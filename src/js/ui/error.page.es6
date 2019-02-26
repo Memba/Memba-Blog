@@ -8,7 +8,6 @@
 import $ from 'jquery';
 import i18n from '../app/app.i18n.es6';
 import AppController from '../app/app.controller.es6';
-import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 
 // Import page styles
@@ -33,11 +32,10 @@ const Controller = AppController.extend({
     init() {
         AppController.fn.init.call(this);
         // Wait until document is ready to initialize UI
-        $(document).one(CONSTANTS.LOADED, () => {
+        $.when(...this.initializers).then(() => {
             this.initBackButton();
-            // LOADED occurs after document ready event
             logger.info({
-                message: `error page initialized in ${i18n.locale()}`,
+                message: `error page initialized in ${i18n.locale}`,
                 method: 'Controller.init'
             });
         });

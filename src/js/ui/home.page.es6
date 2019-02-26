@@ -8,7 +8,6 @@
 import $ from 'jquery';
 import i18n from '../app/app.i18n.es6';
 import AppController from '../app/app.controller.es6';
-import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 
 // Import page styles
@@ -29,10 +28,9 @@ const Controller = AppController.extend({
     init() {
         AppController.fn.init.call(this);
         // Wait until document is ready to initialize UI
-        $(document).one(CONSTANTS.LOADED, () => {
-            // LOADED occurs after document ready event
+        $.when(...this.initializers).then(() => {
             logger.info({
-                message: `home page initialized in ${i18n.locale()}`,
+                message: `home page initialized in ${i18n.locale}`,
                 method: 'Controller.init'
             });
         });

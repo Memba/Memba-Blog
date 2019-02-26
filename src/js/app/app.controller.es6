@@ -27,8 +27,9 @@ import '../../styles/ui/app.common.less';
 
 const { bind, format, keys, Observable } = window.kendo;
 const logger = new Logger('app.controller');
-const SEARCH_INPUT_SELECTOR = '#navbar-search-input';
-const ACTIVE_CLASS = 'k-state-active';
+const SELECTORS = {
+    SEARCH_INPUT: '#navbar-search-input'
+};
 
 /**
  * AppController
@@ -43,18 +44,28 @@ const AppController = Observable.extend({
      */
     init() {
         Observable.fn.init.call(this);
-        // Wait until document is ready to initialize UI
-        $(document).one(CONSTANTS.LOADED, () => {
-            // LOADED occurs after document ready event
+        this.initializers = [i18n.load()];
+        $.when(...this.initializers).then(() => {
+            this.reveal();
             this.initNavBar();
             this.initFooter();
 
             // Log page readiness
             logger.debug({
-                message: `Base controller initialized in ${i18n.locale()}`,
+                message: `Base controller initialized in ${i18n.locale}`,
                 method: 'AppController.init'
             });
         });
+    },
+
+    /**
+     * Reveal page
+     * @method
+     */
+    reveal() {
+        $('body>div.k-loading-image')
+            .delay(400)
+            .fadeOut();
     },
 
     /**
@@ -63,7 +74,7 @@ const AppController = Observable.extend({
      */
     initNavBar() {
         // Search input event handlers
-        $(SEARCH_INPUT_SELECTOR)
+        $(SELECTORS.SEARCH_INPUT)
             .on(CONSTANTS.BLUR, this.onSearchInputBlur.bind(this))
             .on(CONSTANTS.FOCUS, this.onSearchInputFocus.bind(this))
             .on(CONSTANTS.KEYPRESS, this.onSearchInputKeyPress.bind(this));
@@ -94,7 +105,7 @@ const AppController = Observable.extend({
                 'jQuery.Event'
             )
         );
-        $(e.currentTarget).removeClass(ACTIVE_CLASS);
+        $(e.currentTarget).removeClass(CONSTANTS.ACTIVE_CLASS);
     },
 
     /**
@@ -112,7 +123,7 @@ const AppController = Observable.extend({
                 'jQuery.Event'
             )
         );
-        $(e.currentTarget).addClass(ACTIVE_CLASS);
+        $(e.currentTarget).addClass(CONSTANTS.ACTIVE_CLASS);
     },
 
     /**
@@ -133,7 +144,7 @@ const AppController = Observable.extend({
         if (e.which === keys.ENTER || e.keyCode === keys.ENTER) {
             window.location.href = `${format(
                 config.uris.webapp.pages,
-                i18n.locale()
+                i18n.locale
             )}?q=${encodeURIComponent($(e.currentTarget).val())}`;
             return false; // Prevent a form submission
         }

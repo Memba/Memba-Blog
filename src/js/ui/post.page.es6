@@ -48,11 +48,11 @@ const Controller = AppController.extend({
     init() {
         AppController.fn.init.call(this);
         // Wait until document is ready to initialize UI
-        $(document).one(CONSTANTS.LOADED, () => {
+        $.when(...this.initializers).then(() => {
             this.initSocialButtons();
             // LOADED occurs after document ready event
             logger.info({
-                message: `post page initialized in ${i18n.locale()}`,
+                message: `post page initialized in ${i18n.locale}`,
                 method: 'Controller.init'
             });
         });
@@ -122,7 +122,7 @@ const Controller = AppController.extend({
                     case COMMAND.GOOGLE:
                         // @see https://developers.google.com/+/web/share/
                         openUrl = `${'https://plus.google.com/share' +
-                            '?url='}${sharedUrl}&hl=${i18n.locale()}`;
+                            '?url='}${sharedUrl}&hl=${i18n.locale}`;
                         break;
                     case COMMAND.LINKEDIN:
                         // @see https://developer.linkedin.com/docs/share-on-linkedin

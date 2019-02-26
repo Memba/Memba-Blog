@@ -4,11 +4,12 @@
  */
 
 import 'kendo.binder';
+import config from './app.config.jsx';
 import i18n from './app.i18n.es6';
 import themer from './app.themer.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
-const { observable } = window.kendo;
+const { format, observable } = window.kendo;
 const VIEW_MODEL = {
     LOCALE: 'locale',
     THEME: 'theme'
@@ -19,7 +20,7 @@ const VIEW_MODEL = {
  */
 const viewModel = observable({
     // Locale (see footer)
-    locale: i18n.locale(),
+    locale: i18n.locale,
 
     // Theme (see footer)
     theme: themer.name()
@@ -30,7 +31,9 @@ const viewModel = observable({
  */
 viewModel.bind(CONSTANTS.CHANGE, e => {
     if (e.field === VIEW_MODEL.LOCALE) {
-        i18n.locale(e.sender.get(VIEW_MODEL.LOCALE));
+        window.location.assign(
+            format(config.uris.webapp.locale, e.sender.get(VIEW_MODEL.LOCALE))
+        );
     } else if (e.field === VIEW_MODEL.THEME) {
         themer.name(e.sender.get(VIEW_MODEL.THEME));
     }
