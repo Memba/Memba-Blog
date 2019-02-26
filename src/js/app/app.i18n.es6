@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import assert from '../common/window.assert.es6';
-// import CONSTANTS from '../common/window.constants.es6';
+import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import config from './app.config.jsx';
 
@@ -39,6 +39,15 @@ class Internationalization {
     constructor() {
         this._cultures = {};
     }
+
+    /**
+     * Culture getter
+     */
+    get culture() {
+        return this._cultures[this.locale];
+    }
+
+    // TODO get language
 
     /**
      * Locale getter
@@ -121,45 +130,38 @@ class Internationalization {
             )
         );
 
-        const that = this;
         const dfd = $.Deferred();
-
-        // Setter called async by webpack bundle loader
-        function setLocale() {
-            /*
-            try {
-                localStorage.setItem(LANGUAGE, locale);
-            } catch (exception) {
-                // A QuotaExceededError in raised in private browsing, which we do not care about
-                // @see https://github.com/jlchereau/Kidoju-Webapp/issues/181
-                // @see http://chrisberkhout.com/blog/localstorage-errors/
-                if (
-                    !window.DOMException ||
-                    !(exception instanceof window.DOMException) ||
-                    exception.code !== window.DOMException.QUOTA_EXCEEDED_ERR
-                ) {
-                    throw exception;
-                }
-            }
-            */
-            // Load culture
-            that.culture = that._cultures[locale];
-            // Log readiness
-            logger.debug({
-                message: `${locale} locale loaded`,
-                method: 'setLocale'
-            });
-            dfd.resolve();
-        }
-
-        if (this._cultures[locale]) {
-            // locale already loaded
-            setLocale();
-        } else {
+        if ($.type(this._cultures[locale]) === CONSTANTS.UNDEFINED) {
+            const that = this;
             // locale needs to be loaded (see https://github.com/webpack/webpack/issues/923)
             // eslint-disable-next-line global-require, import/no-dynamic-require
             const loader = require(`bundle-loader?name=[name]!../cultures/app.culture.${locale}.es6`);
-            loader(setLocale);
+            loader(module => {
+                /*
+                try {
+                    localStorage.setItem(LANGUAGE, locale);
+                } catch (exception) {
+                    // A QuotaExceededError in raised in private browsing, which we do not care about
+                    // @see https://github.com/jlchereau/Kidoju-Webapp/issues/181
+                    // @see http://chrisberkhout.com/blog/localstorage-errors/
+                    if (
+                        !window.DOMException ||
+                        !(exception instanceof window.DOMException) ||
+                        exception.code !== window.DOMException.QUOTA_EXCEEDED_ERR
+                    ) {
+                        throw exception;
+                    }
+                }
+                */
+                // Load culture
+                that._cultures[locale] = module.default;
+                // Log readiness
+                logger.debug({
+                    message: `${locale} locale loaded`,
+                    method: 'setLocale'
+                });
+                dfd.resolve();
+            });
         }
 
         return dfd.promise();
@@ -211,8 +213,7 @@ if ($.type(window.cordova) === CONSTANTS.UNDEFINED) {
 */
 
 /**
- * Create singleton
- * @type {Internationalization}
+ * i18n singleton
  */
 const i18n = new Internationalization();
 

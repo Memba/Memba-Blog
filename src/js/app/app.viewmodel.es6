@@ -31,7 +31,7 @@ const viewModel = observable({
  */
 viewModel.bind(CONSTANTS.CHANGE, e => {
     if (e.field === VIEW_MODEL.LOCALE) {
-        window.location.assign(
+        window.top.location.assign(
             format(config.uris.webapp.locale, e.sender.get(VIEW_MODEL.LOCALE))
         );
     } else if (e.field === VIEW_MODEL.THEME) {
