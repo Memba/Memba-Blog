@@ -133,8 +133,8 @@ config.load(error => {
         'https://s3.amazonaws.com', // Required to upload images to Amazon S3
         'https://www.googletagmanager.com', // GTM (AMP Pages)
         'https://www.google-analytics.com', // Google Analytics
-        'https://js.leadin.com', // Hubspot
-        'https://forms.hubspot.com', // Hubspot
+        // 'https://js.leadin.com', // Hubspot
+        // 'https://forms.hubspot.com', // Hubspot
         // 'https://api.getsidekick.com' // Hubspot
         'https://cdn.ampproject.org', // AMP
         'https://amp-error-reporting.appspot.com' // AMP
@@ -185,12 +185,12 @@ config.load(error => {
                         'https://apis.google.com', // Google classroom button
                         'www.google-analytics.com', // Google Analytics (Loaded via http on http://localhost)
                         'js.hs-analytics.net', // Hubspot (Loaded via http on http://localhost)
-                        'https://api.usemessages.com', // Hubspot
-                        'https://js.hscollectedforms.net', // Hubspot
-                        'https://js.hsleadflows.net', // Hubspot
-                        'https://js.hsleadflowsqa.net', // Hubspot
-                        'https://js.hs-scripts.com', // Hubspot
-                        'https://js.leadin.com', // Hubspot (this is the only one which is not ipv6 ready)
+                        // 'https://api.usemessages.com', // Hubspot
+                        // 'https://js.hscollectedforms.net', // Hubspot
+                        // 'https://js.hsleadflows.net', // Hubspot
+                        // 'https://js.hsleadflowsqa.net', // Hubspot
+                        // 'https://js.hs-scripts.com', // Hubspot
+                        // 'https://js.leadin.com', // Hubspot (this is the only one which is not ipv6 ready)
                         'https://cdn.ampproject.org' // AMP Validator - https://www.ampproject.org/docs/getting_started/create/preview_and_validate (can be commented)
                     ],
                     styleSrc: [
