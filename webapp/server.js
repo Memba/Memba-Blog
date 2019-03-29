@@ -210,13 +210,15 @@ config.load(error => {
                 },
                 browserSniff: false
             },
-            frameguard: false,
+            frameguard: false
+            /*
             hsts: {
                 maxAge: 1 * 24 * 60 * 60, // Must be at least 365 days to be approved at https://hstspreload.org/
                 includeSubDomains: true,
-                preload: true, // Must be enabled to be approved at https://hstspreload.org/
-                setIf: req => req.secure
+                preload: true // Must be enabled to be approved at https://hstspreload.org/
+                // setIf: req => req.secure // deprecated
             }
+             */
         })
     );
 
