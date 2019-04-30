@@ -112,7 +112,7 @@ ATTRIB +R .\src\js\ui\error.page.es6
 REM Copy ./src/js/vendor/*
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\bootstrap\*.* .\src\js\vendor\bootstrap\ /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\bootstrap\*.* /S
-XCOPY ..\..\Kidoju\Kidoju.WebApp\js\vendor\jquery .\src\js\vendor\jquery /C /E /I /R /Y
+XCOPY ..\..\Kidoju\Kidoju.WebApp\src\js\vendor\jquery\*.* .\src\js\vendor\jquery /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\jquery\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\js\vendor\lazd\*.* .\src\js\vendor\lazd\ /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\lazd\*.* /S
