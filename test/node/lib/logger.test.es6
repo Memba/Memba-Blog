@@ -5,6 +5,8 @@
 
 /* eslint-disable no-unused-expressions */
 
+'use strict';
+
 const { expect } = require('chai');
 const config = require('../../../webapp/config/index.es6');
 const logger = require('../../../webapp/lib/logger.es6');

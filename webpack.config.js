@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 /**
  * For an introduction to WebPack
  * @see https://github.com/petehunt/webpack-howto

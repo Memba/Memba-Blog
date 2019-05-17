@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 // const { expect } = require('chai');
 const plugins = require('../../../webapp/plugins/index.es6');
 

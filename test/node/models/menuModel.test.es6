@@ -5,6 +5,8 @@
 
 /* eslint-disable no-unused-expressions */
 
+'use strict';
+
 const { expect } = require('chai');
 const menuModel = require('../../../webapp/models/menuModel.es6');
 

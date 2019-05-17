@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
+'use strict';
+
 /* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
 const webpack = require('webpack');
 const AutoprefixPlugin = require('less-plugin-autoprefix');

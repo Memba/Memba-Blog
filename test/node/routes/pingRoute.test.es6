@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 const request = require('supertest');
 const { compatible, version } = require('../../../package.json');
 const config = require('../../../webapp/config/index.es6');

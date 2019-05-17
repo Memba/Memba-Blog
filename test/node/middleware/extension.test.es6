@@ -5,6 +5,8 @@
 
 /* eslint-disable no-unused-expressions */
 
+'use strict';
+
 const chai = require('chai');
 const http = require('http');
 const sinon = require('sinon');

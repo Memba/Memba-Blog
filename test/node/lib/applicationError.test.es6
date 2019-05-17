@@ -5,6 +5,8 @@
 
 /* eslint-disable no-unused-expressions */
 
+'use strict';
+
 const { expect } = require('chai');
 
 let mongoose;
