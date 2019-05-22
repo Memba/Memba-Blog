@@ -50,10 +50,17 @@ const THEMES = {
 const DEFAULT = 'flat';
 */
 const THEMES = {
-    default: 'default',
-    nordic: 'nordic'
+    black: 'black',
+    bootstrap: 'bootstrap',
+    flat: 'flat',
+    highcontrast: 'highcontrast',
+    indigo: 'indigo',
+    nordic: 'nordic',
+    turquoise: 'turquoise',
+    urban: 'urban',
+    vintage: 'vintage'
 };
-const DEFAULT = 'default';
+const DEFAULT = 'bootstrap';
 
 let localStorage; // = window.localStorage;
 // An exception is catched when localStorage is explicitly disabled

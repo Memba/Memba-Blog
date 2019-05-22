@@ -3,12 +3,32 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Consider using @font-face
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap');
+
+$font-family-sans-serif:
+    // Safari for macOS and iOS (San Francisco)
+    -apple-system,
+    // Chrome < 56 for macOS (San Francisco)
+    BlinkMacSystemFont,
+    // Windows
+    // "Segoe UI",
+    // Android
+    "Roboto",
+    // Basic web fallback
+    "Helvetica Neue", Arial, sans-serif,
+    // Emoji fonts
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !default;
+$font-size-base: 0.875rem; // 14px
+$line-height-base: 1.3125; // 1,5*0.875
 $navbar-padding-y: 0.25rem;
 
-// @import "../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
+// Kendo UI
 @import "~@progress/kendo-theme-bootstrap/scss/all";
+// Bootstrap 4
 @import "~bootstrap/scss/bootstrap";
-@import "icons";
+// Our generic styles
+@import "components/icons";
 
 // @import "app.template.less";
 // @import (optional) "codemirror.custom.less";

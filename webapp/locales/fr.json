@@ -12,26 +12,53 @@
 			"icon": ""
 		}
 	],
-	"themes": [
-		{
-			"value": "default",
-			"name": "Default",
-			"colors": [
-				"#3276b1",
-				"#67afe9",
-				"#fff"
-			]
-		},
-		{
-			"value": "nordic",
-			"name": "Nordic",
-			"colors": [
-				"#ef6f1c",
-				"#e24b17",
-				"#5a4b43"
-			]
-		}
-	],
+    "themes": [
+        {
+            "value": "black",
+            "name": "Black",
+            "colors": []
+        },
+        {
+            "value": "bootstrap",
+            "name": "Bootstrap",
+            "colors": []
+        },
+        {
+            "value": "flat",
+            "name": "Flat",
+            "colors": []
+        },
+        {
+            "value": "highcontrast",
+            "name": "High Contrast",
+            "colors": []
+        },
+        {
+            "value": "indigo",
+            "name": "Indigo",
+            "colors": []
+        },
+        {
+            "value": "nordic",
+            "name": "Nordic",
+            "colors": []
+        },
+        {
+            "value": "turquoise",
+            "name": "Turquoise",
+            "colors": []
+        },
+        {
+            "value": "urban",
+            "name": "Urban",
+            "colors": []
+        },
+        {
+            "value": "vintage",
+            "name": "Vintage",
+            "colors": []
+        }
+    ],
 	"meta": {
 		"author": "Memba Sarl",
 		"title": "Memba",
