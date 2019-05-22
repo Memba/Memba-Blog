@@ -13,6 +13,9 @@
  */
 
 const path = require('path');
+// https://github.com/telerik/kendo-themes/issues/722 - Dart-Sass does not work with kendo themes
+// const sass = require('sass');
+const sass = require('node-sass');
 const webpack = require('webpack');
 const cleanPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
@@ -121,6 +124,55 @@ module.exports = {
                     {
                         loader: 'babel-loader',
                         options: { babelrc: true }
+                    }
+                ]
+            },
+            {
+                test: /app\.theme\.[a-z0-9-]+\.scss$/,
+                use: [
+                    {
+                        loader: 'bundle-loader',
+                        options: { name: '[name]' }
+                    },
+                    { loader: 'style-loader/useable' },
+                    {
+                        loader: 'css-loader',
+                        options: { importLoaders: 2 }
+                    },
+                    { loader: 'postcss-loader' },
+                    // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            implementation: sass
+                            // compress: true,
+                            // relativeUrls: true,
+                            // strictMath: true,
+                            // plugins: [cleanPlugin]
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.scss$/,
+                exclude: /app\.theme\.[a-z0-9-]+\.scss$/,
+                use: [
+                    { loader: 'style-loader' },
+                    {
+                        loader: 'css-loader',
+                        options: { importLoaders: 1 }
+                    },
+                    { loader: 'postcss-loader' },
+                    // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            implementation: sass
+                            // compress: true,
+                            // relativeUrls: true,
+                            // strictMath: true,
+                            // plugins: [cleanPlugin]
+                        }
                     }
                 ]
             },
@@ -243,8 +295,9 @@ module.exports = {
     resolve: {
         extensions: ['.es6', '.js'],
         modules: [
+            'node_modules',
             path.resolve(__dirname, './src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
-            'node_modules'
+            '.' // For popper.js in bootstrap
         ]
     }
 };

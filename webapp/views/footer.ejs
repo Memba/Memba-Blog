@@ -1,31 +1,27 @@
-<footer class="hidden-print">
+<footer class="d-print-none">
     <div class="container-fluid">
-        <div class="row">
-            <div id="footer-links" class="pull-left hidden-xs hidden-sm">
-                <div class="form-inline" role="form">
-                    <span id="copyright"><%- __('footer.copyright', config.application.version) %></span>
-                </div>
+        <div class="row d-flex justify-content-between align-items-center">
+            <div id="app-footer-links" class="form-inline" role="form">
+                <span id="app-copyright" class="d-none d-lg-flex"><%- __('footer.copyright', config.application.version) %></span>
             </div>
-            <div id="footer-settings" class="pull-right">
-                <div class="form-inline pull-right" role="form">
-                    <div class="form-group">
-                        <label for="footer-settings-language"><%- __('footer.language.label') %>&nbsp;
-                            <select id="footer-settings-language" data-role="dropdownlist" data-bind="value:locale">
-                                <% __('languages').forEach(function (language) { %>
-                                <option value="<%- language.value %>"><%- language.name %></option>
-                                <% }) %>
-                            </select>
-                        </label>
-                    </div>
-                    <div class="form-group hidden-xs">&nbsp;&nbsp;&nbsp;
-                        <label for="footer-settings-theme"><%- __('footer.theme.label') %>&nbsp;
-                            <select id="footer-settings-theme" data-role="dropdownlist" data-bind="value:theme">
-                                <% __('themes').forEach(function (theme) { %>
-                                <option value="<%- theme.value %>"><%- theme.name %></option>
-                                <% }) %>
-                            </select>
-                        </label>
-                    </div>
+            <div id="app-footer-settings" class="form-inline" role="form">
+                <div class="form-group">
+                    <label for="app-footer-settings-language"><%- __('footer.language.label') %>&nbsp;
+                        <select id="app-footer-settings-language" data-role="dropdownlist" data-bind="value:locale">
+                            <% __('languages').forEach(function (language) { %>
+                            <option value="<%- language.value %>"><%- language.name %></option>
+                            <% }) %>
+                        </select>
+                    </label>
+                </div>
+                <div class="form-group d-none d-md-flex">&nbsp;&nbsp;&nbsp;
+                    <label for="app-footer-settings-theme"><%- __('footer.theme.label') %>&nbsp;
+                        <select id="app-footer-settings-theme" data-role="dropdownlist" data-bind="value:theme">
+                            <% __('themes').forEach(function (theme) { %>
+                            <option value="<%- theme.value %>"><%- theme.name %></option>
+                            <% }) %>
+                        </select>
+                    </label>
                 </div>
             </div>
         </div>

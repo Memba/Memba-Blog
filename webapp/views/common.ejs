@@ -1,12 +1,12 @@
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<%- config.google.tagManager.web %>" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<%- config.google.tagManager.web %>" height="0" width="0" style="display:none;visibility:hidden;"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
 <% // preload progress image - SEE http://blogs.telerik.com/kendoui/posts/11-10-06/foujui_flash_of_uninitialized_javascript_ui %>
-<div class="k-content k-loading-image hidden-print"></div>
+<div class="k-content k-loading-image d-print-none"></div>
 
 <% // hidden trace for logging %>
 <input name="trace" type="hidden" value="<%- trace %>">
 
 <% // application notifications %>
-<div id="notification" class="hidden-print"></div>
+<div id="notification" class="d-print-none"></div>

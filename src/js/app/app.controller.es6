@@ -19,8 +19,8 @@ import config from './app.config.jsx';
 import viewModel from './app.viewmodel.es6';
 
 // Load common styles
-import '../../styles/themes/bootstrap.custom.less';
-import '../../styles/vendor/kendo/web/kendo.common.less';
+// import '../../styles/themes/bootstrap.custom.less';
+// import '../../styles/vendor/kendo/web/kendo.common.less';
 import '../../styles/fonts/kidoju.less';
 import '../../styles/ui/app.common.less';
 // import '../../styles/dialogs/kidoju.tools.less';

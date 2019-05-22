@@ -14,8 +14,10 @@ import Logger from '../common/window.logger.es6';
 const { dataviz, roleSelector /* , support */ } = window.kendo;
 const logger = new Logger('app.themer');
 
+const THEME = 'theme';
 // This list list the web theme to load for a mobile or web theme
 // Attention! this theme should be imported in the corresponding app.theme.* file
+/*
 const THEMES = {
     'android-dark': 'black', // <------- mobile only
     'android-light': 'fiori', // <------- mobile only
@@ -44,8 +46,14 @@ const THEMES = {
     'wp-dark': 'metroblack', // <------- mobile only
     'wp-light': 'metro' // <------- mobile only
 };
-const THEME = 'theme';
 const DEFAULT = 'flat';
+ */
+
+const THEMES = {
+    default: 'default',
+    nordic: 'nordic'
+};
+const DEFAULT = 'default';
 
 let localStorage; // = window.localStorage;
 // An exception is catched when localStorage is explicitly disabled
@@ -84,13 +92,13 @@ const themer = {
             // See https://github.com/webpack/webpack/issues/924
             // See https://github.com/webpack/webpack/issues/993
             // eslint-disable-next-line global-require, import/no-dynamic-require
-            loader = require(`../../styles/themes/app.theme.${oldTheme}.less`);
+            loader = require(`../../styles/themes/app.theme.${oldTheme}.scss`);
             loader(style => {
                 style.unuse();
             });
         }
         // eslint-disable-next-line global-require, import/no-dynamic-require
-        loader = require(`../../styles/themes/app.theme.${theme}.less`);
+        loader = require(`../../styles/themes/app.theme.${theme}.scss`);
         loader(style => {
             style.use();
             if (localStorage && !$.isArray(matches)) {

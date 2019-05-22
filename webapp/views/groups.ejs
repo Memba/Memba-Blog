@@ -5,9 +5,9 @@
     </h3>
     <div class="list-group" role="menu">
         <% for (var i = 0; i < months.length; i++) { %>
-        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), months[i].year, ('0' + (months[i].month + 1)).slice(-2), '') %>" role="menuitem">
-            <span class="badge"><%= months[i].count %></span>
-            <%= moment({ year: months[i].year, month: months[i].month }).locale(getLocale()).format('MMMM YYYY') %>
+        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="<%= format(config.uris.webapp.posts, getLocale(), months[i].year, ('0' + (months[i].month + 1)).slice(-2), '') %>" role="menuitem">
+            <span><%= moment({ year: months[i].year, month: months[i].month }).locale(getLocale()).format('MMMM YYYY') %></span>
+            <span class="badge badge-pill badge-info"><%= months[i].count %></span>
         </a>
         <% } %>
     </div>
@@ -19,9 +19,9 @@
     </h3>
     <div class="list-group" role="menu">
         <% for (var i = 0; i < categories.length; i++) { %>
-        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?category=' + encodeURIComponent(categories[i].category)) %>" role="menuitem">
-            <span class="badge"><%= categories[i].count %></span>
-            <%= categories[i].category %>
+        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?category=' + encodeURIComponent(categories[i].category)) %>" role="menuitem">
+            <span><%= categories[i].category %></span>
+            <span class="badge badge-pill badge-info"><%= categories[i].count %></span>
         </a>
         <% } %>
     </div>
@@ -33,10 +33,9 @@
     </h3>
     <div class="list-group" role="menu">
         <% for (var i = 0; i < authors.length; i++) { %>
-        <a class="list-group-item" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?author=' + encodeURIComponent(authors[i].author)) %>" role="menuitem">
-            <span class="badge"><%= authors[i].count %></span>
-            <img class="img-circle" src="<%= authors[i].avatar_url %>" alt="<%= authors[i].author %>">
-            <%= authors[i].author %>
+        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?author=' + encodeURIComponent(authors[i].author)) %>" role="menuitem">
+            <span><img class="rounded-circle" src="<%= authors[i].avatar_url %>" alt="<%= authors[i].author %>"><%= authors[i].author %></span>
+            <span class="badge badge-pill badge-info"><%= authors[i].count %></span>
         </a>
         <% } %>
     </div>
