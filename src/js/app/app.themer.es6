@@ -26,6 +26,7 @@ const THEMES = {
     blueopal: 'blueopal',
     bootstrap: 'bootstrap',
     default: 'default',
+    // 'default-v2': 'default-v2',
     fiori: 'fiori',
     flat: 'flat',
     highcontrast: 'highcontrast',
@@ -47,8 +48,7 @@ const THEMES = {
     'wp-light': 'metro' // <------- mobile only
 };
 const DEFAULT = 'flat';
- */
-
+*/
 const THEMES = {
     default: 'default',
     nordic: 'nordic'
