@@ -154,14 +154,14 @@ COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\error.page.less .\src\styles\ui\ /
 ATTRIB +R .\src\styles\ui\error.page.less
 
 REM Copy ./src/styles/vendor
-XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\bootstrap\*.* .\src\styles\vendor\bootstrap\ /C /E /I /R /Y
-ATTRIB +R .\src\styles\vendor\bootstrap\*.* /S
+REM XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\bootstrap\*.* .\src\styles\vendor\bootstrap\ /C /E /I /R /Y
+REM ATTRIB +R .\src\styles\vendor\bootstrap\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\highlight\*.* .\src\styles\vendor\highlight\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\vendor\highlight\*.* /S
-XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\fonts\*.* .\src\styles\vendor\fonts\ /C /E /I /R /Y
-ATTRIB +R .\src\styles\vendor\fonts\*.* /S
-XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\kendo\*.* .\src\styles\vendor\kendo\ /C /E /I /R /Y
-ATTRIB +R .\src\styles\vendor\kendo\*.* /S
+REM XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\fonts\*.* .\src\styles\vendor\fonts\ /C /E /I /R /Y
+REM ATTRIB +R .\src\styles\vendor\fonts\*.* /S
+REM XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\kendo\*.* .\src\styles\vendor\kendo\ /C /E /I /R /Y
+REM ATTRIB +R .\src\styles\vendor\kendo\*.* /S
 
 REM Copy social icons
 ATTRIB -R .\webapp\public\*.svg
