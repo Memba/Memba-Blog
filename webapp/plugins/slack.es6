@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 const assert = require('assert');
 const request = require('request');
 const config = require('../config/index.es6');

@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 const { STATUS_CODES } = require('http');
 const { URL } = require('url');
 const config = require('../config/index.es6');

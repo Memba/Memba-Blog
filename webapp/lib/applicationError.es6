@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 const assert = require('assert');
 const { format } = require('util');
 const { deepExtend, isObject } = require('./utils.es6');

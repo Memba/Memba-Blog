@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 const assert = require('assert');
 const Events = require('events');
 const { readdirSync } = require('fs');

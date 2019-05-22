@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 /* require('http').STATUS_CODES = {
  '100': 'Continue',
  '101': 'Switching Protocols',

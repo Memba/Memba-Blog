@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 const { v1 } = require('uuid');
 const deepExtend = require('deep-extend');
 
