@@ -23,3 +23,7 @@ $font-size-base: 0.875rem; // 14px
 $line-height-base: 1.3125; // 1.5 * 0.875
 
 $navbar-padding-y: 0.25rem;
+
+a.list-group-item-action:not(.disabled) {
+    // TODO review background color and color for &:hover and &:active
+}

@@ -13,6 +13,17 @@ const autoprefixer = require('autoprefixer')({
     /* ...options */
 });
 
+const cssnano = require('cssnano')({
+    preset: [
+        'default',
+        {
+            discardComments: {
+                removeAll: true
+            }
+        }
+    ]
+});
+
 module.exports = {
-    plugins: [autoprefixer]
+    plugins: [autoprefixer, cssnano]
 };

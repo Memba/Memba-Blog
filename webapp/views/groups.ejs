@@ -1,8 +1,8 @@
-<section class="group">
-    <h3>
+<section class="mb-4">
+    <h5>
         <img src="<%- new URL(format(config.uris.cdn.icons, __('groups.calendar.icon')), config.uris.cdn.root).href %>" alt="<%- __('groups.calendar.heading') %>">
         <span><%- __('groups.calendar.heading') %></span>
-    </h3>
+    </h5>
     <div class="list-group" role="menu">
         <% for (var i = 0; i < months.length; i++) { %>
         <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="<%= format(config.uris.webapp.posts, getLocale(), months[i].year, ('0' + (months[i].month + 1)).slice(-2), '') %>" role="menuitem">
@@ -12,11 +12,11 @@
         <% } %>
     </div>
 </section>
-<section class="group">
-    <h3>
+<section class="mb-4">
+    <h5>
         <img src="<%- new URL(format(config.uris.cdn.icons, __('groups.categories.icon')), config.uris.cdn.root).href %>" alt="<%- __('groups.categories.heading') %>">
         <span><%- __('groups.categories.heading') %></span>
-    </h3>
+    </h5>
     <div class="list-group" role="menu">
         <% for (var i = 0; i < categories.length; i++) { %>
         <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?category=' + encodeURIComponent(categories[i].category)) %>" role="menuitem">
@@ -26,15 +26,15 @@
         <% } %>
     </div>
 </section>
-<section class="group">
-    <h3>
+<section>
+    <h5>
         <img src="<%- new URL(format(config.uris.cdn.icons, __('groups.authors.icon')), config.uris.cdn.root).href %>" alt="<%- __('groups.authors.heading') %>">
         <span><%- __('groups.authors.heading') %></span>
-    </h3>
+    </h5>
     <div class="list-group" role="menu">
         <% for (var i = 0; i < authors.length; i++) { %>
         <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?author=' + encodeURIComponent(authors[i].author)) %>" role="menuitem">
-            <span><img class="rounded-circle" src="<%= authors[i].avatar_url %>" alt="<%= authors[i].author %>"><%= authors[i].author %></span>
+            <span><img class="img-h3 rounded-circle mr-2" src="<%= authors[i].avatar_url %>" alt="<%= authors[i].author %>"><%= authors[i].author %></span>
             <span class="badge badge-pill badge-info"><%= authors[i].count %></span>
         </a>
         <% } %>

@@ -1,0 +1,62 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// Helper to assist in identifying img tags missing alt attribute
+img[alt=""],
+img:not([alt]) {
+    border: dashed 5px red !important;
+}
+
+@mixin img($size) {
+    height: 1.25 * $size;
+    width: 1.25 * $size;
+    outline: 0;
+}
+
+h1 > img,
+.img-h1 {
+    @include img( $h1-font-size );
+}
+
+h2 > img,
+.img-h2 {
+    @include img( $h2-font-size );
+}
+
+h3 > img,
+.img-h3 {
+    @include img( $h3-font-size );
+}
+
+h4 > img,
+.img-h4 {
+    @include img( $h4-font-size );
+}
+
+h5 > img,
+.img-h5 {
+    @include img( $h5-font-size );
+}
+
+h6 > img,
+.img-h6 {
+    @include img( $h6-font-size );
+}
+
+p > img:not(.img-fluid),
+.img-p {
+    @include img( $font-size-base );
+}
+
+h1 > img + span,
+h2 > img + span,
+h3 > img + span,
+h4 > img + span,
+h5 > img + span,
+h6 > img + span,
+h6 > p + span {
+    // This affects especially icons in .page-header
+    vertical-align: middle;
+}

@@ -14,15 +14,12 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 
-// Import page styles
-import '../../styles/ui/post.page.less';
-
 const { HTMLAnchorElement } = window;
 const { attr } = window.kendo;
 const logger = new Logger('page.post');
 const SELECTORS = {
-    SOCIAL: '.social',
-    WRAPPER: '#post-wrapper'
+    SOCIAL: '.cl-social',
+    WRAPPER: 'main > div.k-content'
 };
 const COMMAND = {
     FACEBOOK: 'facebook',

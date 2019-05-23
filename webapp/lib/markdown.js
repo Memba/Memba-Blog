@@ -48,12 +48,13 @@ markdown.renderer.rules.fence = function (tokens, idx, options, env, slf) {
 };
 // Add videos - @[youtube](dQw4w9WgXcQ)
 markdown.use(require('markdown-it-video'));
-// Add the .img-responsive class to all images - see https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md
+// Add the .img-fluid (bootstrap v3) and .img-responsive (bootstrap v4) classes to all images
+// See https://github.com/markdown-it/markdown-it/blob/master/docs/architecture.md
 markdown.renderer.defaults = {
     image: markdown.renderer.rules.image
 };
 markdown.renderer.rules.image = function (tokens, idx, options, env, slf) {
-    tokens[idx].attrPush(['class', 'img-responsive']);
+    tokens[idx].attrPush(['class', 'img-fluid img-responsive']);
     return markdown.renderer.defaults.image(tokens, idx, options, env, slf);
 };
 var RX_YML = /^---\n([\s\S]*)\n---/;

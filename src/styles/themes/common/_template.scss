@@ -14,10 +14,14 @@
 @import "../../../../node_modules/bootstrap/scss/bootstrap";
 
 // Our generic styles
-@import "navbar";
-@import "footer";
+@import "layout";
+@import "icons";
 
 // @import "app.template.less";
 // @import (optional) "codemirror.custom.less";
 // @import (optional) "highlightjs.custom.less";
 // @import (optional) "mathquill.custom.less";
+
+// Our app styles
+@import "blog";
+@import "panels";

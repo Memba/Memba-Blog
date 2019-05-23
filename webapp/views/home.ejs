@@ -14,22 +14,22 @@
 <% include navbar.ejs %>
 
 <main>
-    <div id="home-wrapper">
-        <div class="jumbotron"><h1><%= description %></h1></div>
-        <div class="container k-content">
-            <div class="row">
-                <div class="col-sm-6">
+    <div class="k-content">
+        <div class="jumbotron jumbotron-fluid"><h1><%= description %></h1></div>
+        <div class="container">
+            <div class="row cl-lang">
+                <div class="col-sm-6 text-center">
                     <a href="<%= format(config.uris.webapp.pages, 'en', '') %>">
-                        <div class="uk flag"></div>
+                        <div class="cl-flag cl-uk"></div>
                     </a>
-                    <h2><%= config.home.en.title %></h2>
+                    <h2 class="mt-2"><%= config.home.en.title %></h2>
                     <p><%= config.home.en.text %></p>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 text-center">
                     <a href="<%= format(config.uris.webapp.pages, 'fr', '') %>">
-                        <div class="fr flag"></div>
+                        <div class="cl-flag cl-fr"></div>
                     </a>
-                    <h2><%= config.home.fr.title %></h2>
+                    <h2 class="mt-2"><%= config.home.fr.title %></h2>
                     <p><%= config.home.fr.text %></p>
                 </div>
             </div>

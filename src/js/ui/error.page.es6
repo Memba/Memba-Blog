@@ -11,12 +11,12 @@ import AppController from '../app/app.controller.es6';
 import Logger from '../common/window.logger.es6';
 
 // Import page styles
-import '../../styles/ui/error.page.less';
+// import '../../styles/ui/error.page.less';
 
 const { history, location } = window;
 const logger = new Logger('error.page');
 const SELECTORS = {
-    BACK_BUTTON: '#back-button'
+    BACK_BUTTON: 'button.k-button'
 };
 
 /**

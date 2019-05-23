@@ -10,9 +10,6 @@ import i18n from '../app/app.i18n.es6';
 import AppController from '../app/app.controller.es6';
 import Logger from '../common/window.logger.es6';
 
-// Import page styles
-import '../../styles/ui/search.page.less';
-
 const logger = new Logger('page.search');
 
 /**

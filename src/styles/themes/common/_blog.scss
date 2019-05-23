@@ -1,0 +1,86 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/**
+ * Header
+ */
+header {
+    nav.navbar {
+        // Increase search input when focused
+        span.k-textbox.k-space-right.k-state-focused {
+            width: 20em; // from 12.4 em
+        }
+    }
+}
+
+/**
+ * Main content
+ */
+main {
+    > div.k-content {
+
+        // Home page jumbotron
+        .jumbotron {
+            background: url("../images/jumbotron.jpg") no-repeat center center;
+            background-size: cover;
+            height: 60%;
+            margin-bottom: 4vh;
+
+            h1 {
+                color: #fff;
+                width: 60%;
+                top: 30%;
+                right: 5%;
+                position: absolute;
+                font-size: 7vmin;
+                text-shadow: 0 0 2vmin #333;
+            }
+        }
+
+        .container {
+            // Flags
+            .cl-lang {
+                .cl-flag {
+                    height: 15vh;
+                    width: 15vh;
+                    border-radius: 50%;
+                    margin: 0 auto;
+
+                    &.cl-uk {
+                        background: url("../images/uk.png") no-repeat center center;
+                        background-size: 15.2vh 15.2vh;
+                    }
+
+                    &.cl-fr {
+                        background: url("../images/fr.png") no-repeat center center;
+                        background-size: 15.2vh 15.2vh;
+                    }
+                }
+
+                h2 {
+                    font-weight: normal;
+                    font-size: 4vh;
+                    line-height: 1em;
+                    margin-top: 2vh;
+                    margin-bottom: 1vh;
+                }
+
+                p {
+                    font-size: 2vh;
+                    margin: 0 10px;
+                    line-height: 1.2em;
+                }
+            }
+
+            //article content
+            article {
+                img.img-fluid,
+                div.embed-responsive {
+                    margin: 1.5rem 0;
+                }
+            }
+        }
+    }
+}

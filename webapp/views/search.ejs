@@ -14,9 +14,9 @@
 <% include navbar.ejs %>
 
 <main>
-    <div id="search-wrapper" class="k-content">
+    <div class="k-content">
         <div class="container">
-            <div class="page-header">
+            <div id="id-content-title" class="border-bottom my-3">
                 <h1>
                     <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
                     <span><%= title %></span>
@@ -24,19 +24,17 @@
             </div>
             <div class="row">
                 <div class="col-sm-12 col-md-8 col-lg-9">
-                    <ul class="k-listview media-list">
+                    <ul class="list-unstyled">
                         <% for (var i = 0; i < results.length; i++) { %>
                         <li class="media">
-                            <div class="media-left">
-                                <a href="<%= results[i].site_url %>">
-                                    <img class="media-object" src="<%- new URL(format(config.uris.cdn.icons, results[i].icon), config.uris.cdn.root).href %>" alt="<%= results[i].title %>">
-                                </a>
-                            </div>
+                            <a class="mr-3" href="<%= results[i].site_url %>">
+                                <img src="<%- new URL(format(config.uris.cdn.icons, results[i].icon), config.uris.cdn.root).href %>" alt="<%= results[i].title %>" style="height: 64px;">
+                            </a>
                             <div class="media-body">
-                                <h4 class="media-heading">
+                                <h5 class="mt-0 mb-1">
                                     <a href="<%= results[i].site_url %>"><%= results[i].title %></a>
-                                </h4>
-                                <div class="author">
+                                </h5>
+                                <div class="mt-0 mb-1">
                                     <i class="kf kf-tags"></i><span>&nbsp;<%= results[i].category %></span>
                                     <i class="kf kf-user"></i><span>&nbsp;<%= results[i].author %></span>
                                     <i class="kf kf-datetime"></i><span>&nbsp;<%= moment(results[i].creation_date).locale(getLocale()).format('LLL') %></span>

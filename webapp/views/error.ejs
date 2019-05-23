@@ -14,9 +14,9 @@
 <% include navbar.ejs %>
 
 <main>
-    <div id="error-wrapper" class="k-content">
+    <div class="k-content">
         <div class="container">
-            <div class="page-header">
+            <div id="id-content-title" class="border-bottom my-3">
                 <h1>
                     <% if (icon) { %><img src="<%= icon %>" alt="<%= title %>"><% } %>
                     <span><%= title %></span>
@@ -27,7 +27,7 @@
                     <div class="alert alert-danger" role="alert"><%= description %></div>
                 </div>
             </div>
-            <div class="float-right"><button id="back-button" class="k-button"><%- __('error.back')  %></button></div>
+            <div class="float-right"><button class="k-button"><%- __('error.back')  %></button></div>
         </div>
     </div>
 </main>

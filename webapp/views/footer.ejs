@@ -1,22 +1,22 @@
-<footer class="d-print-none">
+<footer class="py-1 px-2 d-print-none">
     <div class="container-fluid">
         <div class="row d-flex justify-content-between align-items-center">
             <div class="form-inline" role="form">
-                <span id="app-copyright" class="d-none d-lg-flex"><%- __('footer.copyright', config.application.version) %></span>
+                <span class="d-none d-lg-flex"><%- __('footer.copyright', config.application.version) %></span>
             </div>
             <div class="form-inline" role="form">
-                <div class="form-group">
-                    <label for="app-footer-settings-language"><%- __('footer.language.label') %>&nbsp;
-                        <select id="app-footer-settings-language" data-role="dropdownlist" data-bind="value:locale">
+                <div class="form-group mb-0">
+                    <label for="id-footer-language" class="mb-0"><%- __('footer.language.label') %>&nbsp;
+                        <select id="id-footer-language" data-role="dropdownlist" data-bind="value:locale">
                             <% __('languages').forEach(function (language) { %>
                             <option value="<%- language.value %>"><%- language.name %></option>
                             <% }) %>
                         </select>
                     </label>
                 </div>
-                <div class="form-group d-none d-md-flex">&nbsp;&nbsp;&nbsp;
-                    <label for="app-footer-settings-theme"><%- __('footer.theme.label') %>&nbsp;
-                        <select id="app-footer-settings-theme" data-role="dropdownlist" data-bind="value:theme">
+                <div class="form-group mb-0 d-none d-md-flex ml-0 ml-md-4">
+                    <label for="id-footer-theme" class="mb-0"><%- __('footer.theme.label') %>&nbsp;
+                        <select id="id-footer-theme" data-role="dropdownlist" data-bind="value:theme">
                             <% __('themes').forEach(function (theme) { %>
                             <option value="<%- theme.value %>"><%- theme.name %></option>
                             <% }) %>

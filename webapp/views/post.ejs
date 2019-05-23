@@ -14,9 +14,9 @@
 <% include navbar.ejs %>
 
 <main itemscope itemtype="http://schema.org/BlogPosting">
-    <div id="post-wrapper" class="k-content">
+    <div class="k-content">
         <div class="container" role="document">
-            <div class="page-header">
+            <div id="id-content-title" class="border-bottom my-3">
                 <h1>
                     <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
                     <span itemprop="name"><%= title %></span>
@@ -24,7 +24,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-12 col-md-8 col-lg-9">
-                    <div>
+                    <div class="clearfix mb-4">
                         <div class="float-left" itemprop="author" itemscope itemtype="http://schema.org/Person">
                             <i class="kf kf-user"></i>&nbsp;
                             <span itemprop="name"><%= author %></span>
@@ -50,7 +50,7 @@
                             <span itemprop="url"><%= site_url %></span>
                         </div>
                     </div>
-                    <div class="clearfix">
+                    <div>
                         <article itemprop="articleBody">
                             <%- content %>
                         </article>
@@ -58,12 +58,12 @@
                 </div>
                 <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
                     <% // Social buttons %>
-                    <section>
-                        <a role="button" href="#" class="social" data-command="facebook"><img src="<%- new URL(format(config.uris.webapp.public, 'facebook.svg'), config.uris.webapp.root).href %>" alt="Facebook"></a>
-                        <a role="button" href="#" class="social" data-command="google"><img src="<%- new URL(format(config.uris.webapp.public, 'google.svg'), config.uris.webapp.root).href %>" alt="Google+"></a>
-                        <a role="button" href="#" class="social" data-command="linkedin"><img src="<%- new URL(format(config.uris.webapp.public, 'linkedin.svg'), config.uris.webapp.root).href %>" alt="Linkedin"></a>
-                        <a role="button" href="#" class="social" data-command="pinterest"><img src="<%- new URL(format(config.uris.webapp.public, 'pinterest.svg'), config.uris.webapp.root).href %>" alt="Pinterest"></a>
-                        <a role="button" href="#" class="social" data-command="twitter"><img src="<%- new URL(format(config.uris.webapp.public, 'twitter.svg'), config.uris.webapp.root).href %>" alt="Twitter"></a>
+                    <section class="mb-4">
+                        <a role="button" href="#" class="cl-social" data-command="facebook"><img src="<%- new URL(format(config.uris.webapp.public, 'facebook.svg'), config.uris.webapp.root).href %>" alt="Facebook" class="img-h2"></a>
+                        <a role="button" href="#" class="cl-social" data-command="google"><img src="<%- new URL(format(config.uris.webapp.public, 'google.svg'), config.uris.webapp.root).href %>" alt="Google+" class="img-h2"></a>
+                        <a role="button" href="#" class="cl-social" data-command="linkedin"><img src="<%- new URL(format(config.uris.webapp.public, 'linkedin.svg'), config.uris.webapp.root).href %>" alt="Linkedin" class="img-h2"></a>
+                        <a role="button" href="#" class="cl-social" data-command="pinterest"><img src="<%- new URL(format(config.uris.webapp.public, 'pinterest.svg'), config.uris.webapp.root).href %>" alt="Pinterest" class="img-h2"></a>
+                        <a role="button" href="#" class="cl-social" data-command="twitter"><img src="<%- new URL(format(config.uris.webapp.public, 'twitter.svg'), config.uris.webapp.root).href %>" alt="Twitter" class="img-h2"></a>
                     </section>
                     <% // Side menus for calendar, categories and authors %>
                     <% include groups.ejs %>

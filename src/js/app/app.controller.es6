@@ -19,16 +19,12 @@ import config from './app.config.jsx';
 import viewModel from './app.viewmodel.es6';
 
 // Load common styles
-// import '../../styles/themes/bootstrap.custom.less';
-// import '../../styles/vendor/kendo/web/kendo.common.less';
 import '../../styles/fonts/kidoju.less';
-import '../../styles/ui/app.common.less';
-// import '../../styles/dialogs/kidoju.tools.less';
 
 const { bind, format, keys, Observable } = window.kendo;
 const logger = new Logger('app.controller');
 const SELECTORS = {
-    SEARCH_INPUT: '#navbar-search-input'
+    SEARCH_INPUT: 'nav.navbar input[type=search]'
 };
 
 /**
@@ -105,7 +101,9 @@ const AppController = Observable.extend({
                 'jQuery.Event'
             )
         );
-        $(e.currentTarget).removeClass(CONSTANTS.ACTIVE_CLASS);
+        $(e.currentTarget)
+            .closest('.k-textbox')
+            .removeClass(CONSTANTS.FOCUSED_CLASS);
     },
 
     /**
@@ -123,7 +121,9 @@ const AppController = Observable.extend({
                 'jQuery.Event'
             )
         );
-        $(e.currentTarget).addClass(CONSTANTS.ACTIVE_CLASS);
+        $(e.currentTarget)
+            .closest('.k-textbox')
+            .addClass(CONSTANTS.FOCUSED_CLASS);
     },
 
     /**

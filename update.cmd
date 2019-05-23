@@ -145,13 +145,13 @@ DEL .\src\styles\themes\mathquill.custom.less /F /Q
 ATTRIB +R .\src\styles\themes\*.* /S
 
 REM Copy ./src/styles/ui
-ATTRIB -R .\src\styles\ui\*.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\app.common.less .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\app.common.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\app.mixins.less .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\app.mixins.less
-COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\error.page.less .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\error.page.less
+REM ATTRIB -R .\src\styles\ui\*.less
+REM COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\app.common.less .\src\styles\ui\ /Y
+REM ATTRIB +R .\src\styles\ui\app.common.less
+REM COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\app.mixins.less .\src\styles\ui\ /Y
+REM ATTRIB +R .\src\styles\ui\app.mixins.less
+REM COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\error.page.less .\src\styles\ui\ /Y
+REM ATTRIB +R .\src\styles\ui\error.page.less
 
 REM Copy ./src/styles/vendor
 REM XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\bootstrap\*.* .\src\styles\vendor\bootstrap\ /C /E /I /R /Y

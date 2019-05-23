@@ -14,9 +14,9 @@
 <% include navbar.ejs %>
 
 <main itemscope itemtype="http://schema.org/Article">
-    <div id="page-wrapper" class="k-content">
+    <div class="k-content">
         <div class="container" role="document">
-            <div class="page-header">
+            <div id="id-content-title" class="border-bottom my-3">
                 <h1>
                     <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
                     <span itemprop="name"><%= title %></span>
@@ -44,7 +44,7 @@
                         </span>
                         <span itemprop="url"><%= site_url %></span>
                     </div>
-                    <div class="clearfix">
+                    <div>
                         <article itemprop="articleBody">
                             <%- content %>
                         </article>
