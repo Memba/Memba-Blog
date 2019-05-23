@@ -20,17 +20,6 @@ $font-family-sans-serif:
     // Emoji fonts
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !default;
 $font-size-base: 0.875rem; // 14px
-$line-height-base: 1.3125; // 1,5*0.875
+$line-height-base: 1.3125; // 1.5 * 0.875
+
 $navbar-padding-y: 0.25rem;
-
-// Kendo UI
-@import "~@progress/kendo-theme-bootstrap/scss/all";
-// Bootstrap 4
-@import "~bootstrap/scss/bootstrap";
-// Our generic styles
-@import "components/icons";
-
-// @import "app.template.less";
-// @import (optional) "codemirror.custom.less";
-// @import (optional) "highlightjs.custom.less";
-// @import (optional) "mathquill.custom.less";

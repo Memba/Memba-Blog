@@ -3,6 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-@import "black/variables";
-@import "common/bootstrap";
-@import "common/template";
+footer {
+    @include appearance( header );
+}
