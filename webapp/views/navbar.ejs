@@ -21,7 +21,11 @@
                         </div>
                     </li>
                 <% } else { %>
-                    <li class="nav-item"><a class="nav-link" href="<%- menu[i].href %>"><i class="kf kf-<%- menu[i].icon %> mx-1"></i><span><%- menu[i].text %></span></a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<%- menu[i].href %>">
+                            <i class="kf kf-<%- menu[i].icon %> mx-1"></i><span><%- menu[i].text %></span>
+                        </a>
+                    </li>
                 <% } } %>
             </ul>
             <form class="form-inline mx-0 ml-md-4" role="form">

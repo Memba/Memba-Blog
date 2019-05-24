@@ -6,15 +6,15 @@
 // TODO consider doing this with flex classes
 //  https://getbootstrap.com/docs/4.3/utilities/position/
 
-$navbar-height: 3.625rem;
-$footer-height: 1.375rem + $line-height-base * $font-size-base;
+$navbar-height: calc(3.625rem + 0.0625rem); // + 1px border
+$footer-height: 1.375rem + 0.0625rem + $line-height-base * $font-size-base;
 
 /*********************************************
  * Header
  ********************************************/
 header {
     .navbar {
-        @include appearance(hovered-header);
+        @include appearance(hovered-header); // TODO
 
         // navbar logo
         .navbar-brand {
@@ -42,12 +42,10 @@ header {
 
         // navbar items
         a.nav-link {
-            // Keep aligned when hovering/zooming
-            display: flex;
-            align-items: center;
-
             i.kf {
                 font-size: 1.5em;
+                // Keep aligned when hovering/zooming
+                margin-top: -0.25em;
             }
 
             span {
@@ -98,7 +96,7 @@ main {
  * Footer
  ********************************************/
 footer {
-    @include appearance( header );
+    @include appearance( header ); // TODO
 
     border-bottom: none;
     border-left: none;
