@@ -3,19 +3,25 @@
  * Sources at https://github.com/Memba
  */
 
+// Global customization
+@import "common/global";
+
 // Kendo UI
 // ~ only works with webpack module resolution
 // @import "~@progress/kendo-theme-bootstrap/scss/all";
-@import "../../../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
+
+// Bootstrap customization (using Kendo UI variables)
+@import "common/bootstrap";
 
 // Bootstrap 4
 // ~ only works with webpack module resolution
 // @import "~bootstrap/scss/bootstrap";
-@import "../../../../node_modules/bootstrap/scss/bootstrap";
+@import "../../../node_modules/bootstrap/scss/bootstrap";
 
 // Our generic styles
-@import "layout";
-@import "icons";
+@import "common/layout";
+@import "common/icons";
 
 // @import "app.template.less";
 // @import (optional) "codemirror.custom.less";
@@ -23,5 +29,5 @@
 // @import (optional) "mathquill.custom.less";
 
 // Our app styles
-@import "blog";
-@import "panels";
+@import "common/blog";
+@import "common/panels";

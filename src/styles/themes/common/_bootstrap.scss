@@ -3,27 +3,19 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO Consider using @font-face
-@import url('https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap');
+// Check https://www.telerik.com/kendo-angular-ui/components/styling/theme-bootstrap/customization/
+// @import "../../../../node_modules/@progress/kendo-theme-default/scss/mixins/colors";
 
-$font-family-sans-serif:
-    // Safari for macOS and iOS (San Francisco)
-    -apple-system,
-    // Chrome < 56 for macOS (San Francisco)
-    BlinkMacSystemFont,
-    // Windows
-    // "Segoe UI",
-    // Android
-    "Roboto",
-    // Basic web fallback
-    "Helvetica Neue", Arial, sans-serif,
-    // Emoji fonts
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !default;
-$font-size-base: 0.875rem; // 14px
-$line-height-base: 1.3125; // 1.5 * 0.875
+/**
+ * List group fixes
+ */
+$list-group-action-active-bg: $selected-bg;
+$list-group-action-active-color: $selected-text;
+$list-group-action-hover-color: $hovered-text;
+$list-group-border-color: $border-color;
+$list-group-hover-bg: $hovered-bg;
 
+/**
+ * Navbar
+ */
 $navbar-padding-y: 0.25rem;
-
-a.list-group-item-action:not(.disabled) {
-    // TODO review background color and color for &:hover and &:active
-}
