@@ -132,7 +132,7 @@ describe('French posts', () => {
             $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
             // click the first item in the calendar side list
             $(
-                'section.group:nth-child(1) a.list-group-item:first-child'
+                'section.app-group:nth-child(1) a.list-group-item:first-child'
             ).click();
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.calendar);
@@ -144,7 +144,7 @@ describe('French posts', () => {
             $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
             // click the first item in the categories side list
             $(
-                'section.group:nth-child(2) a.list-group-item:first-child'
+                'section.app-group:nth-child(2) a.list-group-item:first-child'
             ).click();
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.categories);
@@ -156,7 +156,7 @@ describe('French posts', () => {
             $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
             // click the first item in the authors side list
             $(
-                'section.group:nth-child(3) a.list-group-item:first-child'
+                'section.app-group:nth-child(3) a.list-group-item:first-child'
             ).click();
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.author);
@@ -168,7 +168,7 @@ describe('French posts', () => {
             $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
             // Click the first item in search results
             // $('ul.media-list>li.media:first-child h4>a').click();
-            $('li.media:first-child h4>a').click();
+            $('li.media:first-child h5>a').click();
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.first);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
