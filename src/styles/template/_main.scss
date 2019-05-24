@@ -19,9 +19,9 @@
 // @import "~bootstrap/scss/bootstrap";
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 
-// Our generic styles
-@import "../themes/common/layout";
-@import "../themes/common/icons";
+// Our common UI styles
+@import "../ui/layout";
+@import "../ui/icons";
 
-// Our page default styles
+// Our default page style
 @import "../ui/default";

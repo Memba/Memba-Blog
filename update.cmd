@@ -152,6 +152,11 @@ REM COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\app.mixins.less .\src\styles\u
 REM ATTRIB +R .\src\styles\ui\app.mixins.less
 REM COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\error.page.less .\src\styles\ui\ /Y
 REM ATTRIB +R .\src\styles\ui\error.page.less
+ATTRIB -R .\src\styles\ui\*.scss
+COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\_icons.scss .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\_icons.scss
+COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\_layout.scss .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\_layout.scss
 
 REM Copy ./src/styles/vendor
 REM XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\bootstrap\*.* .\src\styles\vendor\bootstrap\ /C /E /I /R /Y
