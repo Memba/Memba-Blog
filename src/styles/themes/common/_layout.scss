@@ -16,19 +16,21 @@ header {
     .navbar {
         @include appearance(hovered-header);
 
+        // navbar logo
         .navbar-brand {
             height: 3.125rem; // 50px;
             padding: 0;
             width: 11.25rem; // 180px;
 
             g#logo {
+                // text after blue/orange ball
                 g:first-child {
                     path {
                         fill: $text-color;
                         stroke: $text-color;
                     }
                 }
-
+                // blue/orange ball
                 g:last-child {
                     path {
                         fill: #fff;
@@ -38,8 +40,24 @@ header {
             }
         }
 
-        a.nav-link:hover {
-            transform: scale(1.1);
+        // navbar items
+        a.nav-link {
+            // Keep aligned when hovering/zooming
+            display: flex;
+            align-items: center;
+
+            i.kf {
+                font-size: 1.5em;
+            }
+
+            span {
+                font-size: 1rem;
+            }
+
+            &:hover {
+                // Zoom on hovered item
+                transform: scale(1.1);
+            }
         }
 
         // TODO navbar-toggler-icon {} not displayed

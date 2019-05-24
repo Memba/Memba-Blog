@@ -1,7 +1,7 @@
 <% // navbar and corresponding windows %>
 <header class="d-print-none" role="banner">
     <% // Navigation bar at the top of the page %>
-    <nav class="navbar navbar-expand-md fixed-top py-1 pl-0 pr-2" role="navigation">
+    <nav class="navbar navbar-expand-md fixed-top border-bottom py-1 pl-0 pr-2" role="navigation">
         <a class="navbar-brand" href="/"><% include logo.ejs %></a>
         <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-controls=".navbar-collapse" aria-expanded="false" aria-label="<%- __('header.navbar.toggle') %>">
             <span class="navbar-toggler-icon" title="<%- __('header.navbar.toggle') %>"></span>
@@ -12,7 +12,7 @@
                 <% for (var i = 0; i < menu.length; i++) { if (menu[i].items) { %>
                     <li class="nav-item dropdown">
                         <a id="id-toggle-<%- i %>" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <i class="kf kf-<%- menu[i].icon %>"></i><span><%- menu[i].text %>&nbsp;<span class="caret"></span></span>
+                            <i class="kf kf-<%- menu[i].icon %> mx-1"></i><span><%- menu[i].text %>&nbsp;<span class="caret"></span></span>
                         </a>
                         <div class="dropdown-menu" role="menu" aria-labelledby="id-toggle-<%- i %>">
                             <% for (var j = 0; j < menu[i].items.length; j++) { %>
@@ -21,7 +21,7 @@
                         </div>
                     </li>
                 <% } else { %>
-                    <li class="nav-item"><a class="nav-link" href="<%- menu[i].href %>"><i class="kf kf-<%- menu[i].icon %>"></i><span><%- menu[i].text %></span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%- menu[i].href %>"><i class="kf kf-<%- menu[i].icon %> mx-1"></i><span><%- menu[i].text %></span></a></li>
                 <% } } %>
             </ul>
             <form class="form-inline mx-0 ml-md-4" role="form">
