@@ -18,7 +18,7 @@ const { HTMLAnchorElement } = window;
 const { attr } = window.kendo;
 const logger = new Logger('page.post');
 const SELECTORS = {
-    SOCIAL: '.cl-social',
+    SOCIAL: '.app-social',
     WRAPPER: 'main > div.k-content'
 };
 const COMMAND = {

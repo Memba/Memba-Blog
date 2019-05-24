@@ -85,8 +85,8 @@ describe('English pages', () => {
         it('it should land on the home page with a choice of languages', () => {
             expect($('html').getAttribute('lang')).to.equal('en');
             expect($('nav.navbar').isExisting()).to.be.true;
-            expect($('div.uk.flag').isExisting()).to.be.true;
-            expect($('div.fr.flag').isExisting()).to.be.true;
+            expect($('div.app-uk.app-flag').isExisting()).to.be.true;
+            expect($('div.app-fr.app-flag').isExisting()).to.be.true;
         });
 
         it('it should find and navigate support', () => {
@@ -101,7 +101,7 @@ describe('English pages', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.index);
             expect($('html').getAttribute('lang')).to.equal('en');
-            expect($('div.page-header span').getText()).to.equal('Support');
+            expect($('div#id-main-title span').getText()).to.equal('Support');
         });
 
         it('it should find and navigate faqs', () => {
@@ -117,7 +117,7 @@ describe('English pages', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.faqs);
             expect($('html').getAttribute('lang')).to.equal('en');
-            expect($('div.page-header span').getText()).to.equal(
+            expect($('div#id-main-title span').getText()).to.equal(
                 'Frequently Asked Questions'
             );
         });
@@ -135,7 +135,7 @@ describe('English pages', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.privacy);
             expect($('html').getAttribute('lang')).to.equal('en');
-            expect($('div.page-header span').getText()).to.equal(
+            expect($('div#id-main-title span').getText()).to.equal(
                 'Privacy Policy'
             );
         });
@@ -153,7 +153,7 @@ describe('English pages', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.terms);
             expect($('html').getAttribute('lang')).to.equal('en');
-            expect($('div.page-header span').getText()).to.equal(
+            expect($('div#id-main-title span').getText()).to.equal(
                 'Terms of Use'
             );
         });

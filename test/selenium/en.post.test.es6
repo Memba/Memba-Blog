@@ -114,8 +114,8 @@ describe('English posts', () => {
         it('it should land on the home page with a choice of languages', () => {
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
             expect($('nav.navbar').isExisting()).to.be.true;
-            expect($('div.uk.flag').isExisting()).to.be.true;
-            expect($('div.fr.flag').isExisting()).to.be.true;
+            expect($('div.app-uk.app-flag').isExisting()).to.be.true;
+            expect($('div.app-fr.app-flag').isExisting()).to.be.true;
         });
 
         it('it should find and navigate blog', () => {
@@ -124,7 +124,7 @@ describe('English posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.posts);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(LIST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
         });
 
         it('it should find and navigate calendar', () => {
@@ -136,7 +136,7 @@ describe('English posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.calendar);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(LIST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
         });
 
         it('it should find and navigate categories', () => {
@@ -148,7 +148,7 @@ describe('English posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.categories);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(LIST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
         });
 
         it('it should find and navigate authors', () => {
@@ -160,7 +160,7 @@ describe('English posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.author);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(LIST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
         });
 
         it('it should display a post', () => {
@@ -171,7 +171,7 @@ describe('English posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.first);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(FIRST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(FIRST_TITLE);
         });
     });
 });

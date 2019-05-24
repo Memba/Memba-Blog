@@ -40,20 +40,20 @@ main {
         }
 
         .container {
-            // Flags
-            .cl-lang {
-                .cl-flag {
+            // Home page flags
+            .app-lang {
+                .app-flag {
                     height: 15vh;
                     width: 15vh;
                     border-radius: 50%;
                     margin: 0 auto;
 
-                    &.cl-uk {
+                    &.app-uk {
                         background: url("../images/uk.png") no-repeat center center;
                         background-size: 15.2vh 15.2vh;
                     }
 
-                    &.cl-fr {
+                    &.app-fr {
                         background: url("../images/fr.png") no-repeat center center;
                         background-size: 15.2vh 15.2vh;
                     }
@@ -76,8 +76,8 @@ main {
 
             //article content
             article {
-                img.img-fluid,
-                div.embed-responsive {
+                .img-fluid,
+                .embed-responsive {
                     margin: 1.5rem 0;
                 }
             }

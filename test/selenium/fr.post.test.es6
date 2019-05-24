@@ -116,7 +116,7 @@ describe('French posts', () => {
         it('it should land on the localized support page', () => {
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
             expect($('nav.navbar').isExisting()).to.be.true;
-            expect($('div.page-header span').getText()).to.equal(SUPPORT_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(SUPPORT_TITLE);
         });
 
         it('it should find and navigate blog', () => {
@@ -125,7 +125,7 @@ describe('French posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.posts);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(LIST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
         });
 
         it('it should find and navigate calendar', () => {
@@ -137,7 +137,7 @@ describe('French posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.calendar);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(LIST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
         });
 
         it('it should find and navigate categories', () => {
@@ -149,7 +149,7 @@ describe('French posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.categories);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(LIST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
         });
 
         it('it should find and navigate authors', () => {
@@ -161,7 +161,7 @@ describe('French posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.author);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(LIST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
         });
 
         it('it should display a post', () => {
@@ -172,7 +172,7 @@ describe('French posts', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.first);
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div.page-header span').getText()).to.equal(FIRST_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(FIRST_TITLE);
         });
     });
 });

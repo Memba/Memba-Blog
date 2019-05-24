@@ -88,7 +88,7 @@ describe('French pages', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.index);
             expect($('html').getAttribute('lang')).to.equal('fr');
-            expect($('div.page-header span').getText()).to.equal('Support');
+            expect($('div#id-main-title span').getText()).to.equal('Support');
         });
 
         it('it should find and navigate faqs', () => {
@@ -104,7 +104,7 @@ describe('French pages', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.faqs);
             expect($('html').getAttribute('lang')).to.equal('fr');
-            expect($('div.page-header span').getText()).to.equal(
+            expect($('div#id-main-title span').getText()).to.equal(
                 'Questions fréquentes'
             );
         });
@@ -122,7 +122,7 @@ describe('French pages', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.privacy);
             expect($('html').getAttribute('lang')).to.equal('fr');
-            expect($('div.page-header span').getText()).to.equal(
+            expect($('div#id-main-title span').getText()).to.equal(
                 'Confidentialité des données'
             );
         });
@@ -149,7 +149,7 @@ describe('French pages', () => {
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.terms);
             expect($('html').getAttribute('lang')).to.equal('fr');
-            expect($('div.page-header span').getText()).to.equal(
+            expect($('div#id-main-title span').getText()).to.equal(
                 "Conditions d'utilisation"
             );
         });
