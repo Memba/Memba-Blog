@@ -7,12 +7,14 @@
 // @import "../../../../node_modules/@progress/kendo-theme-default/scss/mixins/colors";
 
 /**
- * List group fixes
+ * List Group
  */
 $list-group-action-active-bg: $selected-bg;
 $list-group-action-active-color: $selected-text;
 $list-group-action-hover-color: $hovered-text;
-$list-group-border-color: $border-color;
+$list-group-bg: $base-bg;
+$list-group-border-color: $border-color; // $component-border-color
+$list-group-color: $base-text;
 $list-group-hover-bg: $hovered-bg;
 
 /**

@@ -4,7 +4,7 @@
  */
 
 // Global customization
-@import "common/global";
+@import "../themes/common/global";
 
 // Kendo UI
 // ~ only works with webpack module resolution
@@ -12,7 +12,7 @@
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
 
 // Bootstrap customization (using Kendo UI variables)
-@import "common/bootstrap";
+@import "../themes/common/bootstrap";
 
 // Bootstrap 4
 // ~ only works with webpack module resolution
@@ -20,14 +20,8 @@
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 
 // Our generic styles
-@import "common/layout";
-@import "common/icons";
+@import "../themes/common/layout";
+@import "../themes/common/icons";
 
-// @import "app.template.less";
-// @import (optional) "codemirror.custom.less";
-// @import (optional) "highlightjs.custom.less";
-// @import (optional) "mathquill.custom.less";
-
-// Our app styles
-@import "common/blog";
-@import "common/panels";
+// Our page default styles
+@import "../ui/default";
