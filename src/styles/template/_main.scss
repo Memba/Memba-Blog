@@ -3,21 +3,17 @@
  * Sources at https://github.com/Memba
  */
 
-// Global customization
+// Global customization (applies to Kendo UI and Bootstrap)
 @import "../themes/common/global";
 
-// Kendo UI
-// ~ only works with webpack module resolution
-// @import "~@progress/kendo-theme-bootstrap/scss/all";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
+// Kendo UI Loader
+@import "kendo";
 
 // Bootstrap customization (using Kendo UI variables)
 @import "../themes/common/bootstrap";
 
-// Bootstrap 4
-// ~ only works with webpack module resolution
-// @import "~bootstrap/scss/bootstrap";
-@import "../../../node_modules/bootstrap/scss/bootstrap";
+// Bootstrap 4 Loader
+@import "bootstrap";
 
 // Our common UI styles
 @import "../ui/layout";
