@@ -107,7 +107,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.es6$/,
+                test: /\.(es6|js|mjs)$/,
                 exclude: /node_modules/,
                 use: [
                     {
