@@ -37,6 +37,8 @@
         ]
     ],
     "presets": [
-        "@babel/env"
+        [
+            "@babel/env"
+        ]
     ]
 }
