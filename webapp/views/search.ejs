@@ -5,7 +5,7 @@
 <% // html head %>
 <% include head.ejs %>
 
-<body>
+<body class="d-flex flex-column vh-100">
 
 <% // common requirements %>
 <% include common.ejs %>
@@ -13,41 +13,39 @@
 <% // navigation bar %>
 <% include navbar.ejs %>
 
-<main>
-    <div class="k-content">
-        <div class="container">
-            <div id="id-main-title" class="border-bottom my-3">
-                <h1>
-                    <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
-                    <span><%= title %></span>
-                </h1>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 col-md-8 col-lg-9">
-                    <ul class="list-unstyled">
-                        <% for (var i = 0; i < results.length; i++) { %>
-                        <li class="media">
-                            <a class="mr-3" href="<%= results[i].site_url %>">
-                                <img src="<%- new URL(format(config.uris.cdn.icons, results[i].icon), config.uris.cdn.root).href %>" alt="<%= results[i].title %>" style="height: 64px;">
-                            </a>
-                            <div class="media-body">
-                                <h5 class="mt-0 mb-1">
-                                    <a href="<%= results[i].site_url %>"><%= results[i].title %></a>
-                                </h5>
-                                <div class="mt-0 mb-1">
-                                    <i class="kf kf-tags"></i><span>&nbsp;<%= results[i].category %></span>
-                                    <i class="kf kf-user"></i><span>&nbsp;<%= results[i].author %></span>
-                                    <i class="kf kf-datetime"></i><span>&nbsp;<%= moment(results[i].creation_date).locale(getLocale()).format('LLL') %></span>
-                                </div>
-                                <p><%= results[i].description %></p>
+<main class="k-content flex-grow-1 overflow-auto" >
+    <div class="container">
+        <div id="id-main-title" class="border-bottom my-3">
+            <h1>
+                <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
+                <span><%= title %></span>
+            </h1>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-8 col-lg-9">
+                <ul class="list-unstyled">
+                    <% for (var i = 0; i < results.length; i++) { %>
+                    <li class="media">
+                        <a class="mr-3" href="<%= results[i].site_url %>">
+                            <img src="<%- new URL(format(config.uris.cdn.icons, results[i].icon), config.uris.cdn.root).href %>" alt="<%= results[i].title %>" style="height: 64px;">
+                        </a>
+                        <div class="media-body">
+                            <h5 class="mt-0 mb-1">
+                                <a href="<%= results[i].site_url %>"><%= results[i].title %></a>
+                            </h5>
+                            <div class="mt-0 mb-1">
+                                <i class="kf kf-tags"></i><span>&nbsp;<%= results[i].category %></span>
+                                <i class="kf kf-user"></i><span>&nbsp;<%= results[i].author %></span>
+                                <i class="kf kf-datetime"></i><span>&nbsp;<%= moment(results[i].creation_date).locale(getLocale()).format('LLL') %></span>
                             </div>
-                        </li>
-                        <% } %>
-                    </ul>
-                </div>
-                <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
-                    <% include groups.ejs %>
-                </div>
+                            <p><%= results[i].description %></p>
+                        </div>
+                    </li>
+                    <% } %>
+                </ul>
+            </div>
+            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
+                <% include groups.ejs %>
             </div>
         </div>
     </div>

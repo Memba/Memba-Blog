@@ -5,7 +5,7 @@
 <% // html head %>
 <% include head.ejs %>
 
-<body>
+<body class="d-flex flex-column vh-100">
 
 <% // common requirements %>
 <% include common.ejs %>
@@ -13,25 +13,23 @@
 <% // navigation bar %>
 <% include navbar.ejs %>
 
-<main>
-    <div class="k-content">
-        <div class="jumbotron jumbotron-fluid"><h1><%= description %></h1></div>
-        <div class="container">
-            <div class="row app-lang">
-                <div class="col-sm-6 text-center">
-                    <a href="<%= format(config.uris.webapp.pages, 'en', '') %>">
-                        <div class="app-flag app-uk"></div>
-                    </a>
-                    <h2 class="mt-2"><%= config.home.en.title %></h2>
-                    <p><%= config.home.en.text %></p>
-                </div>
-                <div class="col-sm-6 text-center">
-                    <a href="<%= format(config.uris.webapp.pages, 'fr', '') %>">
-                        <div class="app-flag app-fr"></div>
-                    </a>
-                    <h2 class="mt-2"><%= config.home.fr.title %></h2>
-                    <p><%= config.home.fr.text %></p>
-                </div>
+<main class="k-content flex-grow-1 overflow-auto">
+    <div class="jumbotron jumbotron-fluid"><h1><%= description %></h1></div>
+    <div class="container">
+        <div class="row app-lang">
+            <div class="col-sm-6 text-center">
+                <a href="<%= format(config.uris.webapp.pages, 'en', '') %>">
+                    <div class="app-flag app-uk"></div>
+                </a>
+                <h2 class="mt-2"><%= config.home.en.title %></h2>
+                <p><%= config.home.en.text %></p>
+            </div>
+            <div class="col-sm-6 text-center">
+                <a href="<%= format(config.uris.webapp.pages, 'fr', '') %>">
+                    <div class="app-flag app-fr"></div>
+                </a>
+                <h2 class="mt-2"><%= config.home.fr.title %></h2>
+                <p><%= config.home.fr.text %></p>
             </div>
         </div>
     </div>

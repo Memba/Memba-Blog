@@ -56,7 +56,7 @@ h3 > img + span,
 h4 > img + span,
 h5 > img + span,
 h6 > img + span,
-h6 > p + span {
-    // This affects especially icons in .page-header
+p > img + span {
+    // Especially for page titles
     vertical-align: middle;
 }

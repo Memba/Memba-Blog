@@ -5,7 +5,7 @@
 <% // html head %>
 <% include head.ejs %>
 
-<body>
+<body class="d-flex flex-column vh-100">
 
 <% // common requirements %>
 <% include common.ejs %>
@@ -13,61 +13,59 @@
 <% // navigation bar %>
 <% include navbar.ejs %>
 
-<main itemscope itemtype="http://schema.org/BlogPosting">
-    <div class="k-content">
-        <div class="container" role="document">
-            <div id="id-main-title" class="border-bottom my-3">
-                <h1>
-                    <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
-                    <span itemprop="name"><%= title %></span>
-                </h1>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 col-md-8 col-lg-9">
-                    <div class="clearfix mb-4">
-                        <div class="text-muted float-left" itemprop="author" itemscope itemtype="http://schema.org/Person">
-                            <i class="kf kf-user"></i>&nbsp;
-                            <span itemprop="name"><%= author %></span>
-                        </div>
-                        <div class="text-muted float-right">
-                            <i class="kf kf-datetime"></i>&nbsp;
-                            <time itemprop="datePublished" datetime="<%= creation_date %>"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
-                        </div>
-                        <div hidden>
-                            <span itemprop="articleSection"><%= category %></span>
-                            <time itemprop="dateModified" datetime="<%= creation_date %>"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
-                            <span itemprop="description"><%= description %></span>
-                            <span itemprop="headline"><%= description.substr(0, 100) + '...' %></span>
-                            <span itemprop="inLanguage"><%= getLocale() %></span>
-                            <img itemprop="image" src="<%= image %>" alt="<%= title %>">
-                            <span itemprop="mainEntityOfPage"><%= site_url %></span>
-                            <span itemscope itemtype="http://schema.org/Organization" itemprop="publisher">
-                                <span itemprop="name"><%- config.application.siteName %></span>
-                                <span itemscope itemtype="http://schema.org/ImageObject" itemprop="logo">
-                                    <span itemprop="url"><%- new URL(format(config.uris.cdn.images, 'apple-touch-icon-180x180.png'), config.uris.cdn.root).href %></span>
-                                </span>
+<main class="k-content flex-grow-1 overflow-auto"  itemscope itemtype="http://schema.org/BlogPosting">
+    <div class="container" role="document">
+        <div id="id-main-title" class="border-bottom my-3">
+            <h1>
+                <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
+                <span itemprop="name"><%= title %></span>
+            </h1>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-md-8 col-lg-9">
+                <div class="clearfix mb-4">
+                    <div class="text-muted float-left" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                        <i class="kf kf-user"></i>&nbsp;
+                        <span itemprop="name"><%= author %></span>
+                    </div>
+                    <div class="text-muted float-right">
+                        <i class="kf kf-datetime"></i>&nbsp;
+                        <time itemprop="datePublished" datetime="<%= creation_date %>"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
+                    </div>
+                    <div hidden>
+                        <span itemprop="articleSection"><%= category %></span>
+                        <time itemprop="dateModified" datetime="<%= creation_date %>"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
+                        <span itemprop="description"><%= description %></span>
+                        <span itemprop="headline"><%= description.substr(0, 100) + '...' %></span>
+                        <span itemprop="inLanguage"><%= getLocale() %></span>
+                        <img itemprop="image" src="<%= image %>" alt="<%= title %>">
+                        <span itemprop="mainEntityOfPage"><%= site_url %></span>
+                        <span itemscope itemtype="http://schema.org/Organization" itemprop="publisher">
+                            <span itemprop="name"><%- config.application.siteName %></span>
+                            <span itemscope itemtype="http://schema.org/ImageObject" itemprop="logo">
+                                <span itemprop="url"><%- new URL(format(config.uris.cdn.images, 'apple-touch-icon-180x180.png'), config.uris.cdn.root).href %></span>
                             </span>
-                            <span itemprop="url"><%= site_url %></span>
-                        </div>
-                    </div>
-                    <div>
-                        <article itemprop="articleBody">
-                            <%- content %>
-                        </article>
+                        </span>
+                        <span itemprop="url"><%= site_url %></span>
                     </div>
                 </div>
-                <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
-                    <% // Social buttons %>
-                    <section class="app-group mb-4">
-                        <a role="button" href="#" class="app-social" data-command="facebook"><img src="<%- new URL(format(config.uris.webapp.public, 'facebook.svg'), config.uris.webapp.root).href %>" alt="Facebook" class="img-h2"></a>
-                        <a role="button" href="#" class="app-social" data-command="google"><img src="<%- new URL(format(config.uris.webapp.public, 'google.svg'), config.uris.webapp.root).href %>" alt="Google+" class="img-h2"></a>
-                        <a role="button" href="#" class="app-social" data-command="linkedin"><img src="<%- new URL(format(config.uris.webapp.public, 'linkedin.svg'), config.uris.webapp.root).href %>" alt="Linkedin" class="img-h2"></a>
-                        <a role="button" href="#" class="app-social" data-command="pinterest"><img src="<%- new URL(format(config.uris.webapp.public, 'pinterest.svg'), config.uris.webapp.root).href %>" alt="Pinterest" class="img-h2"></a>
-                        <a role="button" href="#" class="app-social" data-command="twitter"><img src="<%- new URL(format(config.uris.webapp.public, 'twitter.svg'), config.uris.webapp.root).href %>" alt="Twitter" class="img-h2"></a>
-                    </section>
-                    <% // Side menus for calendar, categories and authors %>
-                    <% include groups.ejs %>
+                <div>
+                    <article itemprop="articleBody">
+                        <%- content %>
+                    </article>
                 </div>
+            </div>
+            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
+                <% // Social buttons %>
+                <section class="app-group mb-4">
+                    <a role="button" href="#" class="app-social" data-command="facebook"><img src="<%- new URL(format(config.uris.webapp.public, 'facebook.svg'), config.uris.webapp.root).href %>" alt="Facebook" class="img-h2"></a>
+                    <a role="button" href="#" class="app-social" data-command="google"><img src="<%- new URL(format(config.uris.webapp.public, 'google.svg'), config.uris.webapp.root).href %>" alt="Google+" class="img-h2"></a>
+                    <a role="button" href="#" class="app-social" data-command="linkedin"><img src="<%- new URL(format(config.uris.webapp.public, 'linkedin.svg'), config.uris.webapp.root).href %>" alt="Linkedin" class="img-h2"></a>
+                    <a role="button" href="#" class="app-social" data-command="pinterest"><img src="<%- new URL(format(config.uris.webapp.public, 'pinterest.svg'), config.uris.webapp.root).href %>" alt="Pinterest" class="img-h2"></a>
+                    <a role="button" href="#" class="app-social" data-command="twitter"><img src="<%- new URL(format(config.uris.webapp.public, 'twitter.svg'), config.uris.webapp.root).href %>" alt="Twitter" class="img-h2"></a>
+                </section>
+                <% // Side menus for calendar, categories and authors %>
+                <% include groups.ejs %>
             </div>
         </div>
     </div>
