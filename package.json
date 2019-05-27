@@ -38,7 +38,7 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "async": "^3.0.0",
+    "async": "^3.0.1",
     "body-parser": "^1.19.0",
     "chalk": "^2.4.2",
     "chokidar": "^3.0.0",
