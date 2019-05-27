@@ -1,0 +1,24 @@
+<div id="id-drawer" class="position-fixed d-md-none border-right h-100" style="display: none;">
+    <div class="py-4 pl-2 pr-5">
+        <ul class="nav flex-column">
+            <% for (var i = 0; i < menu.length; i++) { if (menu[i].items) { %>
+                <li class="nav-item dropdown">
+                    <a id="id-toggle-<%- i %>" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <i class="kf kf-<%- menu[i].icon %> mx-1"></i><span><%- menu[i].text %>&nbsp;<span class="caret"></span></span>
+                    </a>
+                    <div class="dropdown-menu" role="menu" aria-labelledby="id-toggle-<%- i %>">
+                        <% for (var j = 0; j < menu[i].items.length; j++) { %>
+                            <a class="dropdown-item" href="<%- menu[i].items[j].href %>"><%- menu[i].items[j].text %></a>
+                        <% } %>
+                    </div>
+                </li>
+            <% } else { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="<%- menu[i].href %>">
+                        <i class="kf kf-<%- menu[i].icon %> mx-1"></i><span><%- menu[i].text %></span>
+                    </a>
+                </li>
+            <% } } %>
+        </ul>
+    </div>
+</div>

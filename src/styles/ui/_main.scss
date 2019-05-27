@@ -1,0 +1,44 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/*********************************************
+ * Main content area
+ ********************************************/
+main {
+    // -webkit-overflow-scrolling: touch; // required by inobounce in app.init.js
+
+    .toolbar {
+        border-left-width: 0;
+        border-right-width: 0;
+        width: 100%;
+        // box-sizing: border-box;
+        // label { font-weight: normal; }
+    }
+}
+
+/*********************************************
+ * Printing
+ ********************************************/
+// See http://getbootstrap.com/css/#responsive-utilities-print
+@media print {
+    main {
+        //Make sure we fit page width
+        .container {
+            width: auto;
+        }
+
+        // TODO: --------------------------------------------
+        // .area {
+        //    min-height: initial;
+        // }
+
+        //TODO: Do not print hyperlinks after images
+        // .media-left {
+        //     a[href]::after {
+        //        content: none;
+        //    }
+        // }
+    }
+}

@@ -6,10 +6,10 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-// Bootstrap files for navbar (toggle button)
-import '../vendor/bootstrap/collapse';
+// Bootstrap dropdowns
 import '../vendor/bootstrap/dropdown';
 import 'kendo.binder';
+import 'kendo.fx';
 import 'kendo.dropdownlist';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -21,10 +21,13 @@ import viewModel from './app.viewmodel.es6';
 // Load common styles
 import '../../styles/fonts/kidoju.less';
 
-const { bind, format, keys, Observable } = window.kendo;
+const { bind, format, fx, keys, Observable } = window.kendo;
 const logger = new Logger('app.controller');
 const SELECTORS = {
-    SEARCH_INPUT: 'nav.navbar input[type=search]'
+    DRAWER: '#id-drawer',
+    LOADING: 'body>div.k-loading-image',
+    SEARCH_INPUT: 'nav.navbar input[type=search]',
+    TOGGLER: '#id-drawer-button'
 };
 
 /**
@@ -59,7 +62,7 @@ const AppController = Observable.extend({
      * @method
      */
     reveal() {
-        $('body>div.k-loading-image')
+        $(SELECTORS.LOADING)
             .delay(400)
             .fadeOut();
     },
@@ -69,11 +72,16 @@ const AppController = Observable.extend({
      * @method initNavBar
      */
     initNavBar() {
+        // Drawer toggler event handler
+        $(SELECTORS.TOGGLER).on(
+            CONSTANTS.CLICK,
+            this._onDrawerButtonClick.bind(this)
+        );
         // Search input event handlers
         $(SELECTORS.SEARCH_INPUT)
-            .on(CONSTANTS.BLUR, this.onSearchInputBlur.bind(this))
-            .on(CONSTANTS.FOCUS, this.onSearchInputFocus.bind(this))
-            .on(CONSTANTS.KEYPRESS, this.onSearchInputKeyPress.bind(this));
+            .on(CONSTANTS.BLUR, this._onSearchInputBlur.bind(this))
+            .on(CONSTANTS.FOCUS, this._onSearchInputFocus.bind(this))
+            .on(CONSTANTS.KEYPRESS, this._onSearchInputKeyPress.bind(this));
     },
 
     /**
@@ -87,11 +95,34 @@ const AppController = Observable.extend({
     },
 
     /**
+     * Event handler triggered when clicking the drawer button
+     * @private
+     */
+    _onDrawerButtonClick() {
+        const drawer$ = $(SELECTORS.DRAWER);
+        if (drawer$.is(':visible')) {
+            fx(drawer$)
+                .expand('horizontal')
+                .duration(600) // default is 400ms
+                .reverse();
+        } else {
+            // After clicking frenetically on the drawer button
+            // It is no more possible to show the drawer
+            // drawer$.show(); fixes that
+            drawer$.show();
+            fx(drawer$)
+                .expand('horizontal')
+                .duration(600)
+                .play();
+        }
+    },
+
+    /**
      * Event handler triggered when the search input loses focus
      * @method onSearchInputBlur
      * @param e
      */
-    onSearchInputBlur(e) {
+    _onSearchInputBlur(e) {
         assert.instanceof(
             $.Event,
             e,
@@ -111,7 +142,7 @@ const AppController = Observable.extend({
      * @method onSearchInputFocus
      * @param e
      */
-    onSearchInputFocus(e) {
+    _onSearchInputFocus(e) {
         assert.instanceof(
             $.Event,
             e,
@@ -131,7 +162,7 @@ const AppController = Observable.extend({
      * @method onSearchInputKeyPress
      * @param e
      */
-    onSearchInputKeyPress(e) {
+    _onSearchInputKeyPress(e) {
         assert.instanceof(
             $.Event,
             e,

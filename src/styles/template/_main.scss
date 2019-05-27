@@ -16,7 +16,10 @@
 @import "bootstrap";
 
 // Our common UI styles
-@import "../ui/layout";
+@import "../ui/header";
+@import "../ui/main";
+@import "../ui/drawer";
+@import "../ui/footer";
 @import "../ui/icons";
 
 // Our default page style

@@ -1,0 +1,66 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/*********************************************
+ * Header
+ ********************************************/
+header {
+    .navbar {
+        @include appearance(hovered-header);
+
+        // The navbar z-index should equal the footer's
+        z-index: 25000;
+
+        // navbar logo
+        .navbar-brand {
+            padding: 0;
+            width: 11.25rem; // 180px;
+
+            g#logo {
+                // text after blue/orange ball
+                g:first-child {
+                    path {
+                        fill: $text-color;
+                        stroke: $text-color;
+                    }
+                }
+                // blue/orange ball
+                g:last-child {
+                    path {
+                        fill: #fff;
+                        stroke: #fff;
+                    }
+                }
+            }
+        }
+
+        // navbar items
+        a.nav-link {
+            i.kf {
+                font-size: 1.5em;
+                // Keep aligned when hovering/zooming
+                margin-top: -0.25em;
+            }
+
+            span {
+                font-size: 1rem;
+            }
+
+            &:hover {
+                // Zoom on hovered item
+                transform: scale(1.1);
+            }
+        }
+    }
+}
+
+/*********************************************
+ * Small screens
+ ********************************************/
+@media (max-height: 450px) {
+    header {
+        display: none;
+    }
+}

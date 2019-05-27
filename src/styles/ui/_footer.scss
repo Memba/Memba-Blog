@@ -1,0 +1,28 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+/*********************************************
+ * Footer
+ ********************************************/
+footer {
+    @include appearance( header );
+
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    width: 100%;
+
+    // The footer z-index should be higher then the drawer's
+    z-index: 25000;
+}
+
+/*********************************************
+ * Small screens
+ ********************************************/
+@media (max-height: 450px) {
+    footer {
+        display: none;
+    }
+}

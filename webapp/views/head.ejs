@@ -61,21 +61,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script defer src="<%- new URL('init.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
     <style>
-        @-webkit-viewport{width:device-width}
-        @-moz-viewport{width:device-width}
-        @-ms-viewport{width:device-width}
-        @-o-viewport{width:device-width}
-        @viewport{width:device-width}
-        html,body{
+        <% // https://blog.teamtreehouse.com/thinking-ahead-css-device-adaptation-with-viewport %>
+        @-webkit-viewport { width:device-width; }
+        @-moz-viewport {width:device-width; }
+        @-ms-viewport { width:device-width; }
+        @-o-viewport { width:device-width; }
+        @viewport { width: device-width; }
+        html,body {
             width:100%;
             margin:0;
-            overflow:auto;
         }
-        body>div.k-loading-image{
+        body > div.k-loading-image {
             top:0;
             height:100%;
             width:100%;
-            background-color:#CCCCCC;
+            background-color:#ccc;
             position:absolute;
             z-index: 2000;
         }
