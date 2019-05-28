@@ -26,15 +26,23 @@ main {
     main {
         //Make sure we fit page width
         .container {
+            max-width: none;
             width: auto;
+
+            .row {
+                // Ensures blog articles are printed full-width
+                > div:not(.d-print-none) {
+                    flex-basis: 100%;
+                    max-width: 100%;
+                }
+            }
         }
 
-        // TODO: --------------------------------------------
         // .area {
         //    min-height: initial;
         // }
 
-        //TODO: Do not print hyperlinks after images
+        // Do not print hyperlinks after images (seems useless in v4)
         // .media-left {
         //     a[href]::after {
         //        content: none;
