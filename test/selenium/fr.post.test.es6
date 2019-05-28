@@ -69,7 +69,7 @@ const webapp = {
         config.get('uris:webapp:root')
     ).href
 };
-const WAIT = 2000;
+const WAIT = 3000;
 const SCREEN = {
     HEIGHT: 800,
     WIDTH: 1280
