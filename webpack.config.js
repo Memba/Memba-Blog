@@ -20,6 +20,7 @@ const sass = require('node-sass');
 /* eslint-disable-next-line import/no-extraneous-dependencies, node/no-extraneous-require */
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
+// const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const cleanPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
 const pkg = require('./package.json');
@@ -74,7 +75,6 @@ const commonsChunkPlugin = new webpack.optimize.CommonsChunkPlugin({
  * BundleAnalyzerPlugin
  */
 /*
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
     analyzerMode: 'static'
     // analyzerPort: 7000 <-- Fatal error: listen EADDRINUSE 127.0.0.1:7000
