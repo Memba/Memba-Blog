@@ -5,7 +5,7 @@
 <% // html head %>
 <% include head.ejs %>
 
-<body>
+<body class="d-flex flex-column vh-100">
 
 <% // common requirements %>
 <% include common.ejs %>
@@ -13,22 +13,20 @@
 <% // navigation bar %>
 <% include navbar.ejs %>
 
-<main>
-    <div class="k-content">
-        <div class="container">
-            <div id="id-main-title" class="border-bottom my-3">
-                <h1>
-                    <% if (icon) { %><img src="<%= icon %>" alt="<%= title %>"><% } %>
-                    <span><%= title %></span>
-                </h1>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="alert alert-danger" role="alert"><%= description %></div>
-                </div>
-            </div>
-            <div class="float-right"><button class="k-button"><%- __('error.back')  %></button></div>
+<main class="k-content flex-grow-1 overflow-auto">
+    <div class="container">
+        <div id="id-main-title" class="border-bottom my-3">
+            <h1>
+                <% if (icon) { %><img src="<%= icon %>" alt="<%= title %>"><% } %>
+                <span><%= title %></span>
+            </h1>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-danger" role="alert"><%= description %></div>
+            </div>
+        </div>
+        <div class="float-right"><button class="k-button"><%- __('error.back')  %></button></div>
     </div>
 </main>
 
