@@ -131,7 +131,7 @@ module.exports = {
                         ],
                     keywords: res.__('meta.keywords'),
                     language,
-                    menu: [], // Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
+                    menu: false, // Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
                     results: [], // trick header into displaying robots noindex directive
                     site_url: false, // trick header into not displaying a canonical link since we have a robots noindex directive
                     title: error.title,

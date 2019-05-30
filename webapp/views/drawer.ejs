@@ -1,5 +1,6 @@
 <div id="id-drawer" class="position-fixed d-md-none border-right h-100" style="display: none;">
     <div class="py-4 pl-2 pr-5">
+        <% if (Array.isArray(menu)) { %>
         <ul class="nav flex-column">
             <% for (var i = 0; i < menu.length; i++) { if (menu[i].items) { %>
                 <li class="nav-item dropdown">
@@ -20,5 +21,6 @@
                 </li>
             <% } } %>
         </ul>
+        <% } %>
     </div>
 </div>

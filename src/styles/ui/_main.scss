@@ -6,15 +6,18 @@
 /*********************************************
  * Main content area
  ********************************************/
-main {
-    // -webkit-overflow-scrolling: touch; // required by inobounce in app.init.js
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 
-    .toolbar {
-        border-left-width: 0;
-        border-right-width: 0;
-        width: 100%;
-        // box-sizing: border-box;
-        // label { font-weight: normal; }
+    main {
+        // Note the splitter adds borders to main
+        border: 0 !important;
+        flex: 1 1 auto;
+        overflow: auto;
+
+        // -webkit-overflow-scrolling: touch; // required by inobounce in app.init.js
     }
 }
 
@@ -23,30 +26,32 @@ main {
  ********************************************/
 // See http://getbootstrap.com/css/#responsive-utilities-print
 @media print {
-    main {
-        //Make sure we fit page width
-        .container {
-            max-width: none;
-            width: auto;
+    body {
+        main {
+            //Make sure we fit page width
+            .container {
+                max-width: none;
+                width: auto;
 
-            .row {
-                // Ensures blog articles are printed full-width
-                > div:not(.d-print-none) {
-                    flex-basis: 100%;
-                    max-width: 100%;
+                .row {
+                    // Ensures blog articles are printed full-width
+                    > div:not(.d-print-none) {
+                        flex: 1 1 100%;
+                        max-width: 100%;
+                    }
                 }
             }
+
+            // .area {
+            //    min-height: initial;
+            // }
+
+            // Do not print hyperlinks after images (seems useless in v4)
+            // .media-left {
+            //     a[href]::after {
+            //        content: none;
+            //    }
+            // }
         }
-
-        // .area {
-        //    min-height: initial;
-        // }
-
-        // Do not print hyperlinks after images (seems useless in v4)
-        // .media-left {
-        //     a[href]::after {
-        //        content: none;
-        //    }
-        // }
     }
 }

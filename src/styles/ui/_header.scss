@@ -13,6 +13,12 @@ header {
         // The navbar z-index should equal the footer's
         z-index: 25000;
 
+        #id-drawer-button {
+            .k-icon {
+                font-size: 1.5em;
+            }
+        }
+
         // navbar logo
         .navbar-brand {
             padding: 0;
@@ -39,13 +45,12 @@ header {
         // navbar items
         a.nav-link {
             i.kf {
-                font-size: 1.5em;
-                // Keep aligned when hovering/zooming
-                margin-top: -0.25em;
+                font-size: 1.75em;
             }
 
             span {
                 font-size: 1rem;
+                vertical-align: top;
             }
 
             &:hover {
