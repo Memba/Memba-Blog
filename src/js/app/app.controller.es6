@@ -11,6 +11,7 @@ import '../vendor/bootstrap/dropdown';
 import 'kendo.binder';
 import 'kendo.fx';
 import 'kendo.dropdownlist';
+import 'kendo.touch';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -77,6 +78,11 @@ const AppController = Observable.extend({
             CONSTANTS.CLICK,
             this._onDrawerButtonClick.bind(this)
         );
+        // Drawer swipe
+        $(SELECTORS.DRAWER).kendoTouch({
+            enableSwipe: true,
+            swipe: this._onDrawerSwipe.bind(this)
+        });
         // Search input event handlers
         $(SELECTORS.SEARCH_INPUT)
             .on(CONSTANTS.BLUR, this._onSearchInputBlur.bind(this))
@@ -114,6 +120,17 @@ const AppController = Observable.extend({
                 .expand('horizontal')
                 .duration(600)
                 .play();
+        }
+    },
+
+    /**
+     * Event handler trigger when swiping the drawer
+     * @param e
+     * @private
+     */
+    _onDrawerSwipe(e) {
+        if (e.direction === 'left' && e.sender.element.is(':visible')) {
+            this._onDrawerButtonClick();
         }
     },
 
