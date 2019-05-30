@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 const logger = require('../lib/logger.es6');
 const utils = require('../lib/utils.es6');
 const menuModel = require('../models/menuModel.es6');

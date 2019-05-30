@@ -116,7 +116,9 @@ describe('French posts', () => {
         it('it should land on the localized support page', () => {
             expect($('html').getAttribute('lang')).to.equal(LOCALE);
             expect($('nav.navbar').isExisting()).to.be.true;
-            expect($('div#id-main-title span').getText()).to.equal(SUPPORT_TITLE);
+            expect($('div#id-main-title span').getText()).to.equal(
+                SUPPORT_TITLE
+            );
         });
 
         it('it should find and navigate blog', () => {

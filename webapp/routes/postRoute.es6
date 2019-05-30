@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
 const assert = require('assert');
 const parallel = require('async/parallel');
 const qs = require('qs');
