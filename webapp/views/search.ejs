@@ -31,7 +31,7 @@
                     <% for (var i = 0; i < results.length; i++) { %>
                     <li class="media">
                         <a class="mr-3" href="<%= results[i].site_url %>">
-                            <img src="<%- new URL(format(config.uris.cdn.icons, results[i].icon), config.uris.cdn.root).href %>" alt="<%= results[i].title %>" style="height: 64px;">
+                            <img class="img-xl" src="<%- new URL(format(config.uris.cdn.icons, results[i].icon), config.uris.cdn.root).href %>" alt="<%= results[i].title %>">
                         </a>
                         <div class="media-body">
                             <h5 class="mt-0 mb-1">

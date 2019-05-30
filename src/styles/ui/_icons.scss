@@ -9,45 +9,63 @@ img:not([alt]) {
     border: dashed 5px red !important;
 }
 
-@mixin img($size) {
-    height: 1.25 * $size;
-    width: 1.25 * $size;
+$times-font: 1.25;
+
+@mixin img-size($size) {
+    height: $size;
+    width: $size;
     outline: 0;
+}
+
+.img-sm {
+    @include img-size( $icon-size ) // 16px
+}
+
+.img-md {
+    @include img-size( ($icon-size + $icon-size-lg) / 2 ) // 24px
+}
+
+.img-lg {
+    @include img-size( $icon-size-lg ) // 32px
+}
+
+.img-xl {
+    @include img-size( 2 * $icon-size-lg ) // 64px
 }
 
 h1 > img,
 .img-h1 {
-    @include img( $h1-font-size );
+    @include img-size( $times-font * $h1-font-size );
 }
 
 h2 > img,
 .img-h2 {
-    @include img( $h2-font-size );
+    @include img-size( $times-font * $h2-font-size );
 }
 
 h3 > img,
 .img-h3 {
-    @include img( $h3-font-size );
+    @include img-size( $times-font * $h3-font-size );
 }
 
 h4 > img,
 .img-h4 {
-    @include img( $h4-font-size );
+    @include img-size( $times-font * $h4-font-size );
 }
 
 h5 > img,
 .img-h5 {
-    @include img( $h5-font-size );
+    @include img-size( $times-font * $h5-font-size );
 }
 
 h6 > img,
 .img-h6 {
-    @include img( $h6-font-size );
+    @include img-size( $times-font * $h6-font-size );
 }
 
 p > img:not(.img-fluid),
 .img-p {
-    @include img( $font-size-base );
+    @include img-size( $times-font * $font-size-base );
 }
 
 h1 > img + span,
