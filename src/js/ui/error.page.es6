@@ -11,7 +11,7 @@ import AppController from '../app/app.controller.es6';
 import Logger from '../common/window.logger.es6';
 
 // Import page styles
-// import '../../styles/ui/error.page.less';
+// import '../../styles/ui/error.page.scss';
 
 const { history, location } = window;
 const logger = new Logger('error.page');
