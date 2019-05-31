@@ -22,7 +22,14 @@ import viewModel from './app.viewmodel.es6';
 // Load common styles
 import '../../styles/fonts/kidoju.less';
 
-const { bind, format, fx, keys, Observable } = window.kendo;
+const {
+    bind,
+    format,
+    fx,
+    keys,
+    Observable,
+    ui: { Touch }
+} = window.kendo;
 const logger = new Logger('app.controller');
 const SELECTORS = {
     DRAWER: '#id-drawer',
@@ -129,6 +136,19 @@ const AppController = Observable.extend({
      * @private
      */
     _onDrawerSwipe(e) {
+        assert.isPlainObject(
+            e,
+            assert.format(assert.messages.isPlainObject.default, 'e')
+        );
+        assert.instanceof(
+            Touch,
+            e.sender,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e.sender',
+                'kendo.ui.Touch'
+            )
+        );
         if (e.direction === 'left' && e.sender.element.is(':visible')) {
             this._onDrawerButtonClick();
         }
