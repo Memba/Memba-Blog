@@ -275,7 +275,7 @@ module.exports = {
                     mangle: true,
                     output: {
                         // Remove comments especially in Modernizr
-                        comments: /memba/i
+                        comments: /memba®/i
                     }
                 }
             })
