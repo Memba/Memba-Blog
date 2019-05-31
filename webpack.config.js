@@ -269,10 +269,13 @@ module.exports = {
         minimizer: [
             // https://github.com/webpack-contrib/terser-webpack-plugin
             new TerserPlugin({
+                parallel: true,
+                // sourceMap: true,
                 terserOptions: {
+                    mangle: true,
                     output: {
                         // Remove comments especially in Modernizr
-                        comments: false
+                        comments: /memba/i
                     }
                 }
             })
