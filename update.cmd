@@ -140,8 +140,6 @@ ATTRIB +R .\src\styles\images\*.* /S
 
 REM Copy ./src/styles/themes
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\themes\*.* .\src\styles\themes\ /C /E /I /R /Y
-DEL .\src\styles\themes\codemirror.custom.less /F /Q
-DEL .\src\styles\themes\mathquill.custom.less /F /Q
 ATTRIB +R .\src\styles\themes\*.* /S
 
 REM Copy ./src/styles/ui
