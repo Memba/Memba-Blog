@@ -7,11 +7,13 @@
  * Header
  ********************************************/
 header {
+    // The header z-index should equal the footer's
+    // The footer z-index should be higher than the drawer's
+    // but lower than the 10003 z-index of Kendo UI .k-overlay
+    z-index: 5000;
+
     .navbar {
         @include appearance(hovered-header);
-
-        // The navbar z-index should equal the footer's
-        z-index: 25000;
 
         #id-drawer-button {
             .k-icon {

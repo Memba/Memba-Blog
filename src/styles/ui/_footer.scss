@@ -15,7 +15,8 @@ footer {
     width: 100%;
 
     // The footer z-index should be higher then the drawer's
-    z-index: 25000;
+    // but lower than the 10003 z-index of Kendo UI .k-overlay
+    z-index: 5000;
 }
 
 /*********************************************
