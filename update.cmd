@@ -139,8 +139,8 @@ COPY .\graphics\memba.home.jpg .\src\styles\images\jumbotron.jpg /Y
 ATTRIB +R .\src\styles\images\*.* /S
 
 REM Copy ./src/styles/themes
-XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\themes\*.* .\src\styles\themes\ /C /E /I /R /Y
-ATTRIB +R .\src\styles\themes\*.* /S
+XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\themes\*.scss .\src\styles\themes\ /C /E /I /R /Y
+ATTRIB +R .\src\styles\themes\*.scss /S
 
 REM Copy ./src/styles/ui
 REM ATTRIB -R .\src\styles\ui\*.less
