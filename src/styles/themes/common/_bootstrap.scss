@@ -4,6 +4,7 @@
  */
 
 // Note: This file is for applying Kendo UI themes to Bootstrap components
+// or to fix bootstrap styles so that they match Kendo UI better
 
 // Check https://www.telerik.com/kendo-angular-ui/components/styling/theme-bootstrap/customization/
 // @import "../../../../node_modules/@progress/kendo-theme-default/scss/mixins/colors";
@@ -18,8 +19,3 @@ $list-group-bg: $base-bg;
 $list-group-border-color: $border-color; // $component-border-color
 $list-group-color: $base-text;
 $list-group-hover-bg: $hovered-bg;
-
-/**
- * Navbar
- */
-$navbar-padding-y: 0.25rem;
