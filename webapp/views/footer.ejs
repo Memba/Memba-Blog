@@ -7,7 +7,7 @@
             <div class="form-inline" role="form">
                 <div class="form-group mb-0">
                     <label for="id-footer-language" class="mb-0"><%- __('footer.language.label') %>&nbsp;
-                        <select id="id-footer-language" data-role="dropdownlist" data-bind="value:locale">
+                        <select id="id-footer-language" data-role="dropdownlist" data-bind="value:locale" data-auto-width="true">
                             <% __('languages').forEach(function (language) { %>
                             <option value="<%- language.value %>"><%- language.name %></option>
                             <% }) %>
@@ -16,7 +16,7 @@
                 </div>
                 <div class="form-group mb-0 d-none d-md-flex ml-0 ml-md-4">
                     <label for="id-footer-theme" class="mb-0"><%- __('footer.theme.label') %>&nbsp;
-                        <select id="id-footer-theme" data-role="dropdownlist" data-bind="value:theme">
+                        <select id="id-footer-theme" data-role="dropdownlist" data-bind="value:theme" data-auto-width="true">
                             <% __('themes').forEach(function (theme) { %>
                             <option value="<%- theme.value %>"><%- theme.name %></option>
                             <% }) %>
