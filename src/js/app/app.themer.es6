@@ -50,11 +50,13 @@ const THEMES = {
 const DEFAULT = 'flat';
 */
 const THEMES = {
+    // TODO Review to include locales + embedded border color
     black: 'black',
     bootstrap: 'bootstrap',
     flat: 'flat',
     highcontrast: 'highcontrast',
     indigo: 'indigo',
+    memba: 'memba',
     nordic: 'nordic',
     turquoise: 'turquoise',
     urban: 'urban',
