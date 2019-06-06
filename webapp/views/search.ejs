@@ -21,7 +21,7 @@
     <div class="container">
         <div id="id-main-title" class="border-bottom my-3">
             <h1>
-                <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
+                <% if (icon) { %><img src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
                 <span><%= title %></span>
             </h1>
         </div>
@@ -31,7 +31,7 @@
                     <% for (var i = 0; i < results.length; i++) { %>
                     <li class="media">
                         <a class="mr-3" href="<%= results[i].site_url %>">
-                            <img class="img-xl" src="<%- new URL(format(config.uris.cdn.icons, results[i].icon), config.uris.cdn.root).href %>" alt="<%= results[i].title %>">
+                            <img class="img-xl" src="<%- iconURL(results[i].icon) %>" alt="<%= results[i].title %>">
                         </a>
                         <div class="media-body">
                             <h5 class="mt-0 mb-1">
@@ -58,8 +58,8 @@
 <% // footer with language and theme %>
 <% include footer.ejs %>
 
-<script defer src="<%- new URL('common.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
-<script defer src="<%- new URL('search.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- scriptURL('common.bundle.js') %>" crossorigin="anonymous"></script>
+<script defer src="<%- scriptURL('search.bundle.js') %>" crossorigin="anonymous"></script>
 
 </body>
 </html>

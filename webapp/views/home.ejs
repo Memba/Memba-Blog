@@ -42,8 +42,8 @@
 <% // footer with language and theme %>
 <% include footer.ejs %>
 
-<script defer src="<%- new URL('common.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
-<script defer src="<%- new URL('home.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- scriptURL('common.bundle.js') %>" crossorigin="anonymous"></script>
+<script defer src="<%- scriptURL('home.bundle.js') %>" crossorigin="anonymous"></script>
 
 </body>
 </html>

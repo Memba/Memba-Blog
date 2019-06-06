@@ -21,7 +21,7 @@
     <div class="container" role="document">
         <div id="id-main-title" class="border-bottom my-3">
             <h1>
-                <% if (icon) { %><img src="<%- new URL(format(config.uris.cdn.icons, icon), config.uris.cdn.root).href %>" alt="<%= title %>"><% } %>
+                <% if (icon) { %><img src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
                 <span itemprop="name"><%= title %></span>
             </h1>
         </div>
@@ -47,7 +47,7 @@
                         <span itemscope itemtype="http://schema.org/Organization" itemprop="publisher">
                             <span itemprop="name"><%- config.application.siteName %></span>
                             <span itemscope itemtype="http://schema.org/ImageObject" itemprop="logo">
-                                <span itemprop="url"><%- new URL(format(config.uris.cdn.images, 'apple-touch-icon-180x180.png'), config.uris.cdn.root).href %></span>
+                                <span itemprop="url"><%- imageURL('apple-touch-icon-180x180.png') %></span>
                             </span>
                         </span>
                         <span itemprop="url"><%= site_url %></span>
@@ -62,11 +62,11 @@
             <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
                 <% // Social buttons %>
                 <section class="app-group mb-4">
-                    <a role="button" href="#" class="app-social" data-command="facebook"><img src="<%- new URL(format(config.uris.webapp.public, 'facebook.svg'), config.uris.webapp.root).href %>" alt="Facebook" class="img-h2"></a>
-                    <a role="button" href="#" class="app-social" data-command="google"><img src="<%- new URL(format(config.uris.webapp.public, 'google.svg'), config.uris.webapp.root).href %>" alt="Google+" class="img-h2"></a>
-                    <a role="button" href="#" class="app-social" data-command="linkedin"><img src="<%- new URL(format(config.uris.webapp.public, 'linkedin.svg'), config.uris.webapp.root).href %>" alt="Linkedin" class="img-h2"></a>
-                    <a role="button" href="#" class="app-social" data-command="pinterest"><img src="<%- new URL(format(config.uris.webapp.public, 'pinterest.svg'), config.uris.webapp.root).href %>" alt="Pinterest" class="img-h2"></a>
-                    <a role="button" href="#" class="app-social" data-command="twitter"><img src="<%- new URL(format(config.uris.webapp.public, 'twitter.svg'), config.uris.webapp.root).href %>" alt="Twitter" class="img-h2"></a>
+                    <a role="button" href="#" class="app-social" data-command="facebook"><img src="<%- publicURL('facebook.svg') %>" alt="Facebook" class="img-h2"></a>
+                    <a role="button" href="#" class="app-social" data-command="google"><img src="<%- publicURL('google.svg') %>" alt="Google+" class="img-h2"></a>
+                    <a role="button" href="#" class="app-social" data-command="linkedin"><img src="<%- publicURL('linkedin.svg') %>" alt="Linkedin" class="img-h2"></a>
+                    <a role="button" href="#" class="app-social" data-command="pinterest"><img src="<%- publicURL('pinterest.svg') %>" alt="Pinterest" class="img-h2"></a>
+                    <a role="button" href="#" class="app-social" data-command="twitter"><img src="<%- publicURL('twitter.svg') %>" alt="Twitter" class="img-h2"></a>
                 </section>
                 <% // Side menus for calendar, categories and authors %>
                 <% include groups.ejs %>
@@ -78,8 +78,8 @@
 <% // footer with language and theme %>
 <% include footer.ejs %>
 
-<script defer src="<%- new URL('common.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
-<script defer src="<%- new URL('post.bundle.js', config.uris.webpack.root).href + '?v=' + config.application.version %>" crossorigin="anonymous"></script>
+<script defer src="<%- scriptURL('common.bundle.js') %>" crossorigin="anonymous"></script>
+<script defer src="<%- scriptURL('post.bundle.js') %>" crossorigin="anonymous"></script>
 
 </body>
 </html>
