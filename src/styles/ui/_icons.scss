@@ -17,16 +17,20 @@ $times-font: 1.25;
     outline: 0;
 }
 
-.img-sm {
+.img-xs {
     @include img-size( $icon-size ) // 16px
 }
 
-.img-md {
+.img-sm {
     @include img-size( ($icon-size + $icon-size-lg) / 2 ) // 24px
 }
 
-.img-lg {
+.img-md {
     @include img-size( $icon-size-lg ) // 32px
+}
+
+.img-lg {
+    @include img-size( 3 * $icon-size-lg / 4 ) // 48px
 }
 
 .img-xl {
