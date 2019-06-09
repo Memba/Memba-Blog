@@ -20,8 +20,8 @@
 
     <div class="container" role="document">
         <div id="id-main-title" class="border-bottom my-3">
-            <h1>
-                <% if (icon) { %><img src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
+            <h1 class="d-flex">
+                <% if (icon) { %><img class="mr-1" src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
                 <span itemprop="name"><%= title %></span>
             </h1>
         </div>
