@@ -107,7 +107,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(es6|js|mjs)$/,
+                test: /\.(es6|mjs)$/,
                 exclude: /node_modules/,
                 use: [
                     {
@@ -310,7 +310,7 @@ module.exports = {
         // bundleAnalyzerPlugin
     ],
     resolve: {
-        extensions: ['.es6', '.js'],
+        extensions: ['.es6', '.js', '.mjs'],
         modules: [
             'node_modules',
             path.resolve(__dirname, './src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
