@@ -17,6 +17,20 @@ footer {
     // The footer z-index should be higher then the drawer's
     // but lower than the 10003 z-index of Kendo UI .k-overlay
     z-index: 5000;
+
+    &.py-1 {
+        // .py-1 setts padding at 0.25rem but this makes the footer 41.375px high
+        // We force here a footer of 42px high so that the home page scrolls better
+        padding-bottom: 0.27rem !important;
+        padding-top: 0.27rem !important;
+    }
+
+    .form-group {
+        .k-dropdown {
+            // Otherwise 100% in _forms.scss messes with the footer
+            width: 12.4em;
+        }
+    }
 }
 
 /*********************************************
