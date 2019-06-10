@@ -12,10 +12,10 @@ import 'kendo.binder';
 import 'kendo.fx';
 import 'kendo.dropdownlist';
 import 'kendo.touch';
+import __ from './app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import i18n from './app.i18n.es6';
 import config from './app.config.jsx';
 import viewModel from './app.viewmodel.es6';
 
@@ -51,7 +51,7 @@ const AppController = Observable.extend({
      */
     init() {
         Observable.fn.init.call(this);
-        this.initializers = [i18n.load()];
+        this.initializers = [__.load()];
         $.when(...this.initializers).then(() => {
             this.reveal();
             this.initNavBar();
@@ -59,7 +59,7 @@ const AppController = Observable.extend({
 
             // Log page readiness
             logger.debug({
-                message: `Base controller initialized in ${i18n.locale}`,
+                message: `Base controller initialized in ${__.locale}`,
                 method: 'AppController.init'
             });
         });
@@ -212,7 +212,7 @@ const AppController = Observable.extend({
         if (e.which === keys.ENTER || e.keyCode === keys.ENTER) {
             window.location.href = `${format(
                 config.uris.webapp.pages,
-                i18n.locale
+                __.locale
             )}?q=${encodeURIComponent($(e.currentTarget).val())}`;
             return false; // Prevent a form submission
         }

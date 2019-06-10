@@ -6,7 +6,7 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import AppController from '../app/app.controller.es6';
 import Logger from '../common/window.logger.es6';
 
@@ -27,7 +27,7 @@ const Controller = AppController.extend({
         // Wait until document is ready to initialize UI
         $.when(...this.initializers).then(() => {
             logger.info({
-                message: `search page initialized in ${i18n.locale}`,
+                message: `search page initialized in ${__.locale}`,
                 method: 'init'
             });
         });

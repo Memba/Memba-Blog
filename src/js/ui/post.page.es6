@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import config from '../app/app.config.jsx';
 import AppController from '../app/app.controller.es6';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -48,7 +48,7 @@ const Controller = AppController.extend({
             this.initSocialButtons();
             // LOADED occurs after document ready event
             logger.info({
-                message: `post page initialized in ${i18n.locale}`,
+                message: `post page initialized in ${__.locale}`,
                 method: 'init'
             });
         });
@@ -116,7 +116,7 @@ const Controller = AppController.extend({
                 case COMMAND.GOOGLE:
                     // @see https://developers.google.com/+/web/share/
                     openUrl = `${'https://plus.google.com/share' +
-                        '?url='}${sharedUrl}&hl=${i18n.locale}`;
+                        '?url='}${sharedUrl}&hl=${__.locale}`;
                     break;
                 case COMMAND.LINKEDIN:
                     // @see https://developer.linkedin.com/docs/share-on-linkedin

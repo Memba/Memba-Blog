@@ -5,7 +5,7 @@
 
 import 'kendo.binder';
 import config from './app.config.jsx';
-import i18n from './app.i18n.es6';
+import __ from './app.i18n.es6';
 import themer from './app.themer.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
@@ -20,7 +20,7 @@ const VIEW_MODEL = {
  */
 const viewModel = observable({
     // Locale (see footer)
-    locale: i18n.locale,
+    locale: __.locale,
 
     // Theme (see footer)
     theme: themer.name()

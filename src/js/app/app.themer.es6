@@ -127,6 +127,11 @@ const themer = {
                     }
                 }
             }
+            // TODO Review
+            // $('body>div.k-loading-image')
+            //     .delay(400)
+            //     .fadeIn()
+            //     .fadeOut();
             // The mobile application theme is set in app.mobile.js when initializing kendo.mobile.Application
             $(document.documentElement)
                 .removeClass(`k-${THEMES[oldTheme]}`)

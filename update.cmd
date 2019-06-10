@@ -96,6 +96,7 @@ REM ./src/js/common/*
 ATTRIB -R .\src\js\common\*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\common\window.assert.es6 .\src\js\common /Y
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\common\window.constants.es6 .\src\js\common /Y
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\common\window.global.es6 .\src\js\common /Y
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\common\window.logger.es6 .\src\js\common /Y
 ATTRIB +R .\src\js\common\*.es6
 
