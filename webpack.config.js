@@ -23,7 +23,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 // const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const workboxPlugin = require('workbox-webpack-plugin');
-const lessPlugin = require('./web_modules/less-plugin/index.es6');
+const lessCommentPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
 const pkg = require('./package.json');
 
@@ -46,6 +46,13 @@ const definePlugin = new webpack.DefinePlugin({
     __NODE_ENV__: JSON.stringify(environment),
     __VERSION__: JSON.stringify(pkg.version)
 });
+
+/**
+ * CleanWebpackPlugin
+ * Deletes all files in webpack build directory
+ * @type {never}
+ */
+const cleanWebpackPlugin = new CleanWebpackPlugin();
 
 /**
  * commonsChunkPlugin builds a common denominator of the designated chunks
@@ -82,6 +89,67 @@ const bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
     // analyzerPort: 7000 <-- Fatal error: listen EADDRINUSE 127.0.0.1:7000
 });
 */
+
+/**
+ * workboxPlugin.GenerateSW
+ * @type {GenerateSW}
+ */
+const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
+    // See https://developers.google.com/web/tools/workbox/modules/workbox-webpack-plugin
+    swDest: '../sw.js', // sw.js needs to be at the root of the web site to cache in local url (scope)
+    cacheId: pkg.name.replace('.', '-'), // This names teh cache to run several web sites on http://localhost:3000
+    cleanupOutdatedCaches: true,
+    clientsClaim: true,
+    manifestTransforms: [
+        originalManifest => {
+            const manifest = originalManifest.concat([
+                // TODO add google fonts
+                {
+                    url:
+                        'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'
+                }
+            ]);
+            // Optionally, set warning messages.
+            const warnings = [];
+            return { manifest, warnings };
+        }
+    ],
+    offlineGoogleAnalytics: true,
+    runtimeCaching: [
+        // See https://gist.github.com/addyosmani/0e1cfeeccad94edc2f0985a15adefe54
+        {
+            // Our cdn assets
+            urlPattern: new RegExp(`^${config.get('uris:cdn:root')}`),
+            handler: 'CacheFirst',
+            options: {
+                // https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.strategies.CacheFirst
+                cacheName: `${pkg.name.replace('.', '-')}-runtime-assets`,
+                cacheableResponse: {
+                    statuses: [0, 200]
+                },
+                expiration: {
+                    maxEntries: 100,
+                    maxAgeSeconds: 30 * 24 * 60 * 60
+                }
+            }
+        },
+        {
+            // Our web pages (not /build)
+            // urlPattern: ({url, event}) => { console.log('--> ' + url); return false; },
+            urlPattern: new RegExp(
+                `^${config.get('uris:webapp:root')}${config
+                    .get('uris:webapp:home')
+                    .replace(/\/$/, '')}(/?$|/[a-z]{2}($|/))`
+            ),
+            handler: 'StaleWhileRevalidate',
+            options: {
+                // https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.strategies.StaleWhileRevalidate
+                cacheName: `${pkg.name.replace('.', '-')}-runtime-content`
+            }
+        }
+    ],
+    skipWaiting: true
+});
 
 /**
  * Webpack configuration
@@ -153,7 +221,7 @@ module.exports = {
                             // compress: true,
                             // relativeUrls: true,
                             // strictMath: true,
-                            // plugins: [lessPlugin]
+                            // plugins: [lessCommentPlugin]
                         }
                     }
                 ]
@@ -176,7 +244,7 @@ module.exports = {
                             // compress: true,
                             // relativeUrls: true,
                             // strictMath: true,
-                            // plugins: [lessPlugin]
+                            // plugins: [lessCommentPlugin]
                         }
                     }
                 ]
@@ -201,7 +269,7 @@ module.exports = {
                             compress: true,
                             relativeUrls: true,
                             strictMath: true,
-                            plugins: [lessPlugin]
+                            plugins: [lessCommentPlugin]
                         }
                     }
                 ]
@@ -223,7 +291,7 @@ module.exports = {
                             compress: true,
                             relativeUrls: true,
                             strictMath: true,
-                            plugins: [lessPlugin]
+                            plugins: [lessCommentPlugin]
                         }
                     }
                 ]
@@ -308,66 +376,8 @@ module.exports = {
     },
     plugins: [
         definePlugin,
-        new CleanWebpackPlugin(),
-        new workboxPlugin.GenerateSW({
-            // See https://developers.google.com/web/tools/workbox/modules/workbox-webpack-plugin
-            swDest: '../sw.js', // sw.js needs to be at the root of the web site to cache in local url (scope)
-            cacheId: pkg.name.replace('.', '-'), // This names teh cache to run several web sites on http://localhost:3000
-            cleanupOutdatedCaches: true,
-            clientsClaim: true,
-            manifestTransforms: [
-                originalManifest => {
-                    const manifest = originalManifest.concat([
-                        // TODO add google fonts
-                        {
-                            url:
-                                'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'
-                        }
-                    ]);
-                    // Optionally, set warning messages.
-                    const warnings = [];
-                    return { manifest, warnings };
-                }
-            ],
-            offlineGoogleAnalytics: true,
-            runtimeCaching: [
-                // See https://gist.github.com/addyosmani/0e1cfeeccad94edc2f0985a15adefe54
-                {
-                    // Our cdn assets
-                    urlPattern: new RegExp(`^${config.get('uris:cdn:root')}`),
-                    handler: 'CacheFirst',
-                    options: {
-                        cacheName: `${pkg.name.replace(
-                            '.',
-                            '-'
-                        )}-runtime-assets`,
-                        cacheableResponse: {
-                            statuses: [0, 200]
-                        }
-                    }
-                },
-                {
-                    // Our web pages
-                    // urlPattern: ({url, event}) => { console.log('--> ' + url); return false; },
-                    urlPattern: new RegExp(
-                        `^${config.get('uris:webapp:root')}${config
-                            .get('uris:webapp:home')
-                            .replace(/\/$/, '')}(/?$|/[a-z]{2}($|/))`
-                    ),
-                    handler: 'StaleWhileRevalidate',
-                    options: {
-                        cacheName: `${pkg.name.replace(
-                            '.',
-                            '-'
-                        )}-runtime-content`,
-                        cacheableResponse: {
-                            statuses: [0, 200]
-                        }
-                    }
-                }
-            ],
-            skipWaiting: true
-        })
+        cleanWebpackPlugin,
+        workboxWebpackPlugin
         // commonsChunkPlugin
         // bundleAnalyzerPlugin
     ],
