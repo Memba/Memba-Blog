@@ -135,7 +135,7 @@ config.load(error => {
         cdnRoot, // Required to load index.json on CDN
         'https://amp-error-reporting.appspot.com', // AMP
         'https://cdn.ampproject.org', // AMP
-        'https://cdnjs.cloudflare.com', // to precache jquery with workbox
+        'https://cdn.jsdelivr.net', // to precache jquery with workbox
         'https://s3.amazonaws.com', // Required to upload images to Amazon S3
         'https://www.googletagmanager.com', // GTM (AMP Pages)
         'https://www.google-analytics.com' // Google Analytics
@@ -183,11 +183,11 @@ config.load(error => {
                         "'unsafe-inline'",
                         cdnRoot,
                         'https://apis.google.com', // Google classroom button
-                        'https://cdnjs.cloudflare.com', // jquery + insites cookie consent
+                        'https://cdn.jsdelivr.net', // jquery + osano cookie consent
                         'https://cdn.ampproject.org', // AMP pages
                         'https://storage.googleapis.com', // Workbox cli
                         'https://www.googletagmanager.com', // GTM
-                        'https://www.google-analytics.com' // Google Analytics (Loaded via http on http://localhost)
+                        'https://www.google-analytics.com' // Google Analytics
                         // 'js.hs-analytics.net', // Hubspot (Loaded via http on http://localhost)
                         // 'https://api.usemessages.com', // Hubspot
                         // 'https://js.hscollectedforms.net', // Hubspot
@@ -201,7 +201,7 @@ config.load(error => {
                         "'unsafe-inline'",
                         cdnRoot,
                         'https://fonts.googleapis.com', // Google fonts
-                        'https://cdnjs.cloudflare.com' // Insites cookie consent
+                        'https://cdn.jsdelivr.net' // jquery + osano cookie consent
                     ], // sandbox: ['allow-forms', 'allow-scripts'], // reportUri: '/report-violation',
                     objectSrc: ["'none'"],
                     workerSrc: [

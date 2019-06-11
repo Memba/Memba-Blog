@@ -105,8 +105,9 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
             const manifest = originalManifest.concat([
                 // TODO add google fonts
                 {
+                    // url: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'
                     url:
-                        'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'
+                        'https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js'
                 }
             ]);
             // Optionally, set warning messages.
