@@ -350,7 +350,9 @@ module.exports = {
                     // Our web pages
                     // urlPattern: ({url, event}) => { console.log('--> ' + url); return false; },
                     urlPattern: new RegExp(
-                        `^${config.get('uris:webapp:root')}(/?$|/[a-z]{2}($|/))`
+                        `^${config.get('uris:webapp:root')}${config
+                            .get('uris:webapp:home')
+                            .replace(/\/$/, '')}(/?$|/[a-z]{2}($|/))`
                     ),
                     handler: 'StaleWhileRevalidate',
                     options: {
