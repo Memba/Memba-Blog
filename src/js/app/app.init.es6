@@ -16,6 +16,19 @@ import '../vendor/lazd/inobounce';
 // import(/* webpackMode: "eager" */ `./app.config.jsx?env=${__NODE_ENV__}`).then(config => {});
 import config from './app.config.jsx';
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then(registration => {
+                console.log('SW registered: ', registration);
+            })
+            .catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
+}
+
 /**
  * The application has <meta name="apple-mobile-web-app-capable" content="yes">
  * so to run the app full screen when pinned to IOS home screen

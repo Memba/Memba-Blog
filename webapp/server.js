@@ -133,6 +133,7 @@ config.load(error => {
     const connectSrc = [
         "'self'",
         cdnRoot, // Required to load index.json on CDN
+        'https://cdnjs.cloudflare.com', // to precache jquery workbox
         'https://s3.amazonaws.com', // Required to upload images to Amazon S3
         'https://www.googletagmanager.com', // GTM (AMP Pages)
         'https://www.google-analytics.com', // Google Analytics
@@ -168,7 +169,7 @@ config.load(error => {
                     ],
                     childSrc: [
                         // was frameSrc
-                        'blob:', // Fallback for workerSrc
+                        // 'blob:', // Fallback for workerSrc
                         'https://accounts.google.com', // Google classroom button
                         'https://www.gstatic.com', // Google classroom button
                         'https://www.kidoju.com', // Kidoju player (especially for www.memba.com)
@@ -186,8 +187,9 @@ config.load(error => {
                         'https://cdn.ampproject.org/v0.js', // AMP Pages
                         'https://www.googletagmanager.com', // GTM
                         'https://apis.google.com', // Google classroom button
+                        'https://storage.googleapis.com', // Workbox cli
                         'www.google-analytics.com', // Google Analytics (Loaded via http on http://localhost)
-                        'js.hs-analytics.net', // Hubspot (Loaded via http on http://localhost)
+                        // 'js.hs-analytics.net', // Hubspot (Loaded via http on http://localhost)
                         // 'https://api.usemessages.com', // Hubspot
                         // 'https://js.hscollectedforms.net', // Hubspot
                         // 'https://js.hsleadflows.net', // Hubspot
@@ -203,13 +205,13 @@ config.load(error => {
                         'https://fonts.googleapis.com', // Google fonts
                         'cdnjs.cloudflare.com' // Insites cookie consent (via http on localhost)
                     ], // sandbox: ['allow-forms', 'allow-scripts'], // reportUri: '/report-violation',
-                    objectSrc: [
-                        "'none'"
-                    ] /* ,
-                    workerSrc: [  // Not supported by helmet.contentSecurityPolicy
-                        'blob:'
+                    objectSrc: ["'none'"],
+                    workerSrc: [
+                        "'self'",
+                        'blob:',
+                        cdnRoot,
+                        'https://storage.googleapis.com'
                     ]
-                    */
                 },
                 browserSniff: false
             },

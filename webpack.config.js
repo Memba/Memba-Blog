@@ -16,12 +16,14 @@ const path = require('path');
 // https://github.com/telerik/kendo-themes/issues/722 - Dart-Sass does not work with kendo themes
 // const sass = require('sass');
 const sass = require('node-sass');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 // TerserPlugin is actually installed with webpack
 /* eslint-disable-next-line import/no-extraneous-dependencies, node/no-extraneous-require */
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 // const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const cleanPlugin = require('./web_modules/less-plugin/index.es6');
+const workboxPlugin = require('workbox-webpack-plugin');
+const lessPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
 const pkg = require('./package.json');
 
@@ -151,7 +153,7 @@ module.exports = {
                             // compress: true,
                             // relativeUrls: true,
                             // strictMath: true,
-                            // plugins: [cleanPlugin]
+                            // plugins: [lessPlugin]
                         }
                     }
                 ]
@@ -174,7 +176,7 @@ module.exports = {
                             // compress: true,
                             // relativeUrls: true,
                             // strictMath: true,
-                            // plugins: [cleanPlugin]
+                            // plugins: [lessPlugin]
                         }
                     }
                 ]
@@ -199,7 +201,7 @@ module.exports = {
                             compress: true,
                             relativeUrls: true,
                             strictMath: true,
-                            plugins: [cleanPlugin]
+                            plugins: [lessPlugin]
                         }
                     }
                 ]
@@ -221,7 +223,7 @@ module.exports = {
                             compress: true,
                             relativeUrls: true,
                             strictMath: true,
-                            plugins: [cleanPlugin]
+                            plugins: [lessPlugin]
                         }
                     }
                 ]
@@ -305,7 +307,65 @@ module.exports = {
         chunkFilename: `[name].bundle.js?v=${pkg.version}`
     },
     plugins: [
-        definePlugin
+        definePlugin,
+        new CleanWebpackPlugin(),
+        new workboxPlugin.GenerateSW({
+            // See https://developers.google.com/web/tools/workbox/modules/workbox-webpack-plugin
+            swDest: '../sw.js', // sw.js needs to be at the root of the web site to cache in local url (scope)
+            cacheId: pkg.name.replace('.', '-'), // This names teh cache to run several web sites on http://localhost:3000
+            cleanupOutdatedCaches: true,
+            clientsClaim: true,
+            manifestTransforms: [
+                originalManifest => {
+                    const manifest = originalManifest.concat([
+                        // TODO add google fonts
+                        {
+                            url:
+                                'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'
+                        }
+                    ]);
+                    // Optionally, set warning messages.
+                    const warnings = [];
+                    return { manifest, warnings };
+                }
+            ],
+            offlineGoogleAnalytics: true,
+            runtimeCaching: [
+                // See https://gist.github.com/addyosmani/0e1cfeeccad94edc2f0985a15adefe54
+                {
+                    // Our cdn assets
+                    urlPattern: new RegExp(`^${config.get('uris:cdn:root')}`),
+                    handler: 'CacheFirst',
+                    options: {
+                        cacheName: `${pkg.name.replace(
+                            '.',
+                            '-'
+                        )}-runtime-assets`,
+                        cacheableResponse: {
+                            statuses: [0, 200]
+                        }
+                    }
+                },
+                {
+                    // Our web pages
+                    // urlPattern: ({url, event}) => { console.log('--> ' + url); return false; },
+                    urlPattern: new RegExp(
+                        `^${config.get('uris:webapp:root')}(/?$|/[a-z]{2}($|/))`
+                    ),
+                    handler: 'StaleWhileRevalidate',
+                    options: {
+                        cacheName: `${pkg.name.replace(
+                            '.',
+                            '-'
+                        )}-runtime-content`,
+                        cacheableResponse: {
+                            statuses: [0, 200]
+                        }
+                    }
+                }
+            ],
+            skipWaiting: true
+        })
         // commonsChunkPlugin
         // bundleAnalyzerPlugin
     ],
