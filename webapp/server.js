@@ -133,15 +133,15 @@ config.load(error => {
     const connectSrc = [
         "'self'",
         cdnRoot, // Required to load index.json on CDN
-        'https://cdnjs.cloudflare.com', // to precache jquery workbox
+        'https://amp-error-reporting.appspot.com', // AMP
+        'https://cdn.ampproject.org', // AMP
+        'https://cdnjs.cloudflare.com', // to precache jquery with workbox
         'https://s3.amazonaws.com', // Required to upload images to Amazon S3
         'https://www.googletagmanager.com', // GTM (AMP Pages)
-        'https://www.google-analytics.com', // Google Analytics
+        'https://www.google-analytics.com' // Google Analytics
         // 'https://js.leadin.com', // Hubspot
         // 'https://forms.hubspot.com', // Hubspot
         // 'https://api.getsidekick.com' // Hubspot
-        'https://cdn.ampproject.org', // AMP
-        'https://amp-error-reporting.appspot.com' // AMP
     ];
     const rapiRoot = config.get('uris:rapi:root');
     if (
@@ -169,7 +169,6 @@ config.load(error => {
                     ],
                     childSrc: [
                         // was frameSrc
-                        // 'blob:', // Fallback for workerSrc
                         'https://accounts.google.com', // Google classroom button
                         'https://www.gstatic.com', // Google classroom button
                         'https://www.kidoju.com', // Kidoju player (especially for www.memba.com)
@@ -183,12 +182,12 @@ config.load(error => {
                         "'unsafe-eval'",
                         "'unsafe-inline'",
                         cdnRoot,
-                        'cdnjs.cloudflare.com', // jquery + insites cookie consent (the 2nd via http on localhost)
-                        'https://cdn.ampproject.org/v0.js', // AMP Pages
-                        'https://www.googletagmanager.com', // GTM
                         'https://apis.google.com', // Google classroom button
+                        'https://cdnjs.cloudflare.com', // jquery + insites cookie consent
+                        'https://cdn.ampproject.org', // AMP pages
                         'https://storage.googleapis.com', // Workbox cli
-                        'www.google-analytics.com', // Google Analytics (Loaded via http on http://localhost)
+                        'https://www.googletagmanager.com', // GTM
+                        'https://www.google-analytics.com' // Google Analytics (Loaded via http on http://localhost)
                         // 'js.hs-analytics.net', // Hubspot (Loaded via http on http://localhost)
                         // 'https://api.usemessages.com', // Hubspot
                         // 'https://js.hscollectedforms.net', // Hubspot
@@ -196,14 +195,13 @@ config.load(error => {
                         // 'https://js.hsleadflowsqa.net', // Hubspot
                         // 'https://js.hs-scripts.com', // Hubspot
                         // 'https://js.leadin.com', // Hubspot (this is the only one which is not ipv6 ready)
-                        'https://cdn.ampproject.org' // AMP Validator - https://www.ampproject.org/docs/getting_started/create/preview_and_validate (can be commented)
                     ],
                     styleSrc: [
                         "'self'",
                         "'unsafe-inline'",
                         cdnRoot,
                         'https://fonts.googleapis.com', // Google fonts
-                        'cdnjs.cloudflare.com' // Insites cookie consent (via http on localhost)
+                        'https://cdnjs.cloudflare.com' // Insites cookie consent
                     ], // sandbox: ['allow-forms', 'allow-scripts'], // reportUri: '/report-violation',
                     objectSrc: ["'none'"],
                     workerSrc: [

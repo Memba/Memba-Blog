@@ -118,9 +118,17 @@ config.uris = {
             '<%- uris.webapp.root %>',
             convertFormat('<%- uris.webapp.pages %>')
         ),
+        ping: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.ping %>')
+        ),
         posts: url.resolve(
             '<%- uris.webapp.root %>',
             convertFormat('<%- uris.webapp.posts %>')
+        ),
+        public: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.public %>')
         )
     }
 };
