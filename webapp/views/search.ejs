@@ -26,7 +26,10 @@
             </h1>
         </div>
         <div class="row">
-            <div class="col-sm-12 col-md-8 col-lg-9">
+            <div class="col-12 col-md-8 col-lg-9">
+                <% if (results.length === 0) { %>
+                <div class="alert alert-info" role="alert"><%- __('search.message') %></div>
+                <% } else { %>
                 <ul class="list-unstyled">
                     <% for (var i = 0; i < results.length; i++) { %>
                     <li class="media">
@@ -47,6 +50,7 @@
                     </li>
                     <% } %>
                 </ul>
+                <% } %>
             </div>
             <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
                 <% include groups.ejs %>

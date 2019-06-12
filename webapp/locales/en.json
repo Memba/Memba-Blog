@@ -114,7 +114,8 @@
 		"title": {
 			"icon": "magnifying_glass",
 			"heading": "Search results"
-		}
+		},
+        "message": "No result."
 	},
 	"errors": {
 		"http": {

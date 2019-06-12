@@ -3,6 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+'use strict';
+
+const safe = require('safe-regex');
 const convert = require('../lib/convert');
 const db = require('../lib/db');
 const utils = require('../lib/utils.es6');
@@ -64,10 +67,14 @@ module.exports = {
             if (query.q) {
                 // escape any non word/space character
                 const search = query.q.replace(/([^\w\s])/gi, '\\$&');
-                // eslint-disable-next-line no-param-reassign
-                query.text = new RegExp(search, 'ig');
-                // eslint-disable-next-line no-param-reassign
-                delete query.q;
+                if (safe(search)) {
+                    /* eslint-disable no-param-reassign */
+                    query.text = new RegExp(search, 'ig');
+                    // We should support OR rather than AND
+                    // query.description = query.text;
+                    delete query.q;
+                    /* eslint-enable no-param-reassign */
+                }
             }
         } else {
             // eslint-disable-next-line no-param-reassign

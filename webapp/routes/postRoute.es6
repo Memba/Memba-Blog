@@ -88,13 +88,13 @@ module.exports = {
                     let data;
                     if (req.params.slug) {
                         // single post
-                        const { text } = responses[1][0];
-                        data = utils.deepExtend({}, responses[1][0], {
+                        const content = responses[1][0];
+                        data = utils.deepExtend({}, content, {
                             authors: responses[3],
                             categories: responses[2],
-                            content: markdown.render(text),
+                            content: markdown.render(content.text),
                             image:
-                                markdown.image(text) ||
+                                markdown.image(content.text) ||
                                 config.images[
                                     Math.floor(
                                         config.images.length * Math.random()
@@ -114,6 +114,7 @@ module.exports = {
                             .render('post', data);
                     } else {
                         // list of posts
+                        const results = responses[1];
                         data = {
                             author: res.__('meta.author'),
                             authors: responses[3],
@@ -130,7 +131,7 @@ module.exports = {
                             language,
                             menu: responses[0],
                             months: responses[4],
-                            results: responses[1],
+                            results,
                             trace: req.trace,
                             site_url: `${
                                 new URL(
@@ -140,7 +141,7 @@ module.exports = {
                                         req.params.year || '',
                                         req.params.month || '',
                                         ''
-                                    ),
+                                    ).replace(/\/+$/, ''), // Remove trailing backslashes
                                     config.uris.webapp.root
                                 ).href
                             }?${qs.stringify(req.query)}`,

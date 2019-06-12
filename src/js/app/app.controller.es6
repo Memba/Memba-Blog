@@ -213,7 +213,9 @@ const AppController = Observable.extend({
             window.location.href = `${format(
                 config.uris.webapp.pages,
                 __.locale
-            )}?q=${encodeURIComponent($(e.currentTarget).val())}`;
+            ).replace(/\/+$/, CONSTANTS.EMPTY)}?q=${encodeURIComponent(
+                $(e.currentTarget).val()
+            )}`;
             return false; // Prevent a form submission
         }
         return true; // Accept any other character
