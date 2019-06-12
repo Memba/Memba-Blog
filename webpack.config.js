@@ -117,7 +117,9 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
     ],
     offlineGoogleAnalytics: true,
     runtimeCaching: [
+        // TODO review common recipes
         // See https://gist.github.com/addyosmani/0e1cfeeccad94edc2f0985a15adefe54
+        // See also https://developers.google.com/web/tools/workbox/guides/common-recipes
         {
             // Our cdn assets
             urlPattern: new RegExp(`^${config.get('uris:cdn:root')}`),
@@ -125,12 +127,11 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
             options: {
                 // https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.strategies.CacheFirst
                 cacheName: `${pkg.name.replace('.', '-')}-runtime-assets`,
-                cacheableResponse: {
-                    statuses: [0, 200]
-                },
+                // cacheableResponse: { statuses: [0, 200] }, // Cache opaque responses (no-cors)
                 expiration: {
                     maxEntries: 100,
-                    maxAgeSeconds: 30 * 24 * 60 * 60
+                    maxAgeSeconds: 30 * 24 * 60 * 60,
+                    purgeOnQuotaError: true
                 }
             }
         },
