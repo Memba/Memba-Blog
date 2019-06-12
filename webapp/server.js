@@ -136,6 +136,8 @@ config.load(error => {
         'https://amp-error-reporting.appspot.com', // AMP
         'https://cdn.ampproject.org', // AMP
         'https://cdn.jsdelivr.net', // to precache jquery with workbox
+        'https://fonts.googleapis.com', // to precache fonts with workbox
+        'https://fonts.gstatic.com', // to precache fonts with workbox
         'https://s3.amazonaws.com', // Required to upload images to Amazon S3
         'https://www.googletagmanager.com', // GTM (AMP Pages)
         'https://www.google-analytics.com' // Google Analytics
