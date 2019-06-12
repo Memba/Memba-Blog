@@ -42,16 +42,12 @@ import config from './app.config.jsx';
                     chref.length > 1 && // is not empty (signInDialog or searchPanel) or '#'
                     chref !== location.href && // is not identical to the location href
                     chref.replace(
-                        `${location.protocol}//${location.host}${
-                            location.pathname
-                        }`,
+                        `${location.protocol}//${location.host}${location.pathname}`,
                         ''
                     ).length > 1 &&
                     chref
                         .replace(
-                            `${location.protocol}//${location.host}${
-                                location.pathname
-                            }`,
+                            `${location.protocol}//${location.host}${location.pathname}`,
                             ''
                         )
                         .indexOf('#') && // is not an anchor on the same page
