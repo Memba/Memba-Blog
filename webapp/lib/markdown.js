@@ -23,7 +23,7 @@ var markdown = new MarkdownIt({
         }
     }
 });
-// Add hljs class to the pre tag
+// Add hljs and k-widget classes to the pre tag
 // as in https://github.com/markdown-it/markdown-it/blob/88c6e0f8e6fd567c70ffabbc1e9ce7b980d2e3a9/support/demo_template/index.js#L94
 markdown.renderer.rules.fence = function (tokens, idx, options, env, slf) {
     var escapeHtml = markdown.utils.escapeHtml;
@@ -44,7 +44,7 @@ markdown.renderer.rules.fence = function (tokens, idx, options, env, slf) {
         highlighted = escapeHtml(token.content);
     }
 
-    return '<pre class="hljs"><code' + slf.renderAttrs(token) + '>' + highlighted  + '</code></pre>\n';
+    return '<pre class="hljs k-widget"><code' + slf.renderAttrs(token) + '>' + highlighted  + '</code></pre>\n';
 };
 // Add videos - @[youtube](dQw4w9WgXcQ)
 markdown.use(require('markdown-it-video'));
