@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "b0bfef743293fd7965633b66e635f83c",
+    "revision": "7d00a47557e8f393bb35eb2c52a35dd5",
     "url": "https://www.memba.com/build/../sw.js"
   },
   {
