@@ -74,19 +74,21 @@ module.exports = {
                 }
             ],
             (error, responses) => {
+                const isPage =
+                    req.params.slug || utils.isEmptyObject(req.query);
                 if (
                     !error &&
                     Array.isArray(responses) &&
-                    responses.length > 1 &&
+                    responses.length === 5 &&
                     Array.isArray(responses[0]) &&
                     Array.isArray(responses[1]) &&
                     Array.isArray(responses[2]) &&
                     Array.isArray(responses[3]) &&
-                    Array.isArray(responses[4])
+                    Array.isArray(responses[4]) &&
+                    (isPage ? responses[1].length === 1 : true)
                 ) {
                     let data;
-
-                    if (req.params.slug || utils.isEmptyObject(req.query)) {
+                    if (isPage && responses[1].length === 1) {
                         // single page
                         const content = responses[1][0];
                         data = utils.deepExtend({}, content, {
