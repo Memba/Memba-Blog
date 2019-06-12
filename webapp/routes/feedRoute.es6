@@ -74,9 +74,7 @@ module.exports = {
                 for (let i = 0; i < indexEntries.length; i++) {
                     feed += '<item>';
                     feed += format('<title>%s</title>', indexEntries[i].title);
-                    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                     feed += format('<link>%s</link>', indexEntries[i].site_url);
-                    /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                     feed += format(
                         '<description><![CDATA[%s]]></description>',
                         indexEntries[i].description
@@ -93,12 +91,10 @@ module.exports = {
                         '<guid isPermaLink="false">urn:uuid:%s</guid>',
                         indexEntries[i].uuid
                     );
-                    /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                     feed += format(
                         '<pubDate>%s</pubDate>',
                         new Date(indexEntries[i].creation_date).toUTCString()
                     );
-                    /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                     feed += '</item>';
                 }
                 feed += '</channel></rss>';

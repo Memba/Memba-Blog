@@ -132,7 +132,6 @@ module.exports = {
                             months: responses[4],
                             results: responses[1],
                             trace: req.trace,
-                            /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                             site_url: `${
                                 new URL(
                                     format(
@@ -145,7 +144,6 @@ module.exports = {
                                     config.uris.webapp.root
                                 ).href
                             }?${qs.stringify(req.query)}`,
-                            /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                             title: res.__('search.title.heading')
                         };
                         res.set({

@@ -60,12 +60,10 @@ module.exports = {
                     let sitemap = XML_HEAD + SITEMAP_BEGIN;
 
                     for (let i = 0; i < indexEntries.length; i++) {
-                        /* jscs: disable requireCamelCaseOrUpperCaseIdentifiers */
                         const loc = indexEntries[i].site_url;
                         const lastmod = indexEntries[i].creation_date;
                         const changefreq = 'monthly';
                         const priority = '1.0';
-                        /* jscs: enable requireCamelCaseOrUpperCaseIdentifiers */
                         sitemap += format(
                             SITEMAP_ITEM,
                             loc,
