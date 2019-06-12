@@ -1,5 +1,9 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
+    "revision": "80e98992ad87622bdf3dfe5abfdef532",
+    "url": "https://www.memba.com/build/../sw.js"
+  },
+  {
     "url": "https://www.memba.com/build/06c0e4eee47149717c20a979ffb49b61.eot"
   },
   {
@@ -14,43 +18,43 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://www.memba.com/build/app.culture.fr.bundle.js?v=0.3.8"
   },
   {
-    "revision": "5ae23bb0badbe3a1e98c",
+    "revision": "2e53bc1210a06892e137",
     "url": "https://www.memba.com/build/app.theme.black.bundle.js?v=0.3.8"
   },
   {
-    "revision": "f8bc62ebf65d677d7e81",
+    "revision": "3b012bde21f217b47483",
     "url": "https://www.memba.com/build/app.theme.bootstrap.bundle.js?v=0.3.8"
   },
   {
-    "revision": "52cf8ee9f877b100bf98",
+    "revision": "638ecabbce6977bc8b67",
     "url": "https://www.memba.com/build/app.theme.flat.bundle.js?v=0.3.8"
   },
   {
-    "revision": "c5086c9afb0a2b074c58",
+    "revision": "e304e3bef858c829d950",
     "url": "https://www.memba.com/build/app.theme.highcontrast.bundle.js?v=0.3.8"
   },
   {
-    "revision": "784863e28c0b2f6f3658",
+    "revision": "da98fd8570fc0ccf3404",
     "url": "https://www.memba.com/build/app.theme.indigo.bundle.js?v=0.3.8"
   },
   {
-    "revision": "3c93e5727754f64b79ef",
+    "revision": "7bb6944103e5b41c25da",
     "url": "https://www.memba.com/build/app.theme.memba.bundle.js?v=0.3.8"
   },
   {
-    "revision": "f09fd7a2bd3dde8acb86",
+    "revision": "e26c68a004f54008de0a",
     "url": "https://www.memba.com/build/app.theme.nordic.bundle.js?v=0.3.8"
   },
   {
-    "revision": "d39b5834ba7eaeb32f22",
+    "revision": "29fda41a0995d6a11138",
     "url": "https://www.memba.com/build/app.theme.turquoise.bundle.js?v=0.3.8"
   },
   {
-    "revision": "f80cb32df8fbfd6366e3",
+    "revision": "9ea60329edb53a8e7175",
     "url": "https://www.memba.com/build/app.theme.urban.bundle.js?v=0.3.8"
   },
   {
-    "revision": "568a67bed792a4f4d935",
+    "revision": "be2c6b7679f7d0b495cf",
     "url": "https://www.memba.com/build/app.theme.vintage.bundle.js?v=0.3.8"
   },
   {
@@ -88,6 +92,9 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "42ccc414565e61bfb6d2",
     "url": "https://www.memba.com/build/post.bundle.js?v=0.3.8"
+  },
+  {
+    "url": "https://www.memba.com/build/precache-manifest.d64ab78300728c4ca15c85b676c03c14.js"
   },
   {
     "revision": "2c96a36ad05f0700d606",
