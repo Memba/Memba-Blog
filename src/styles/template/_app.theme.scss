@@ -15,8 +15,8 @@
 // Bootstrap 4 Loader
 @import "bootstrap";
 
-// Hihghlight
-@import "highlightjs";
+// Dependencies
+@import "../dependencies/highlightjs";
 
 // Our common UI styles
 @import "../ui/header";
@@ -25,5 +25,5 @@
 @import "../ui/footer";
 @import "../ui/icons";
 
-// Our default page style
+// Our default page style (all pages)
 @import "../ui/default";
