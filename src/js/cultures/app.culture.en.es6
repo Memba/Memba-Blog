@@ -3,13 +3,21 @@
  * Sources at https://github.com/Memba
  */
 
+/**
+ * Application resources
+ */
+import webapp from '../../../webapp/locales/en.json';
+
+/**
+ * Kendo UI resources
+ */
 import '../vendor/kendo/cultures/kendo.culture.en-GB';
 import '../vendor/kendo/messages/kendo.messages.en-GB';
 import './widgets.en.es6';
-// import './tools.en.es6';
-// import './dialogs.en.es6';
 
 window.kendo.culture('en-GB');
-const culture = require('../../../webapp/locales/en.json');
 
-export default culture;
+/**
+ * Default export
+ */
+export default { webapp };
