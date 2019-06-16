@@ -21,7 +21,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 /* eslint-disable-next-line import/no-extraneous-dependencies, node/no-extraneous-require */
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
-// const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const workboxPlugin = require('workbox-webpack-plugin');
 const lessCommentPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
@@ -83,12 +83,10 @@ const commonsChunkPlugin = new webpack.optimize.CommonsChunkPlugin({
 /**
  * BundleAnalyzerPlugin
  */
-/*
 const bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
     analyzerMode: 'static'
     // analyzerPort: 7000 <-- Fatal error: listen EADDRINUSE 127.0.0.1:7000
 });
-*/
 
 /**
  * workboxPlugin.GenerateSW
@@ -186,7 +184,7 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
 module.exports = {
     // All paths below are relative to the context
     context: path.join(__dirname, '/'),
-    devtool: 'source-map',
+    devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
     entry: {
         // We need init especially because of FOUJI
         init: ['@babel/polyfill', './src/js/app/app.init.es6'],
@@ -367,8 +365,9 @@ module.exports = {
         minimizer: [
             // https://github.com/webpack-contrib/terser-webpack-plugin
             new TerserPlugin({
+                cache: true,
                 parallel: true,
-                // sourceMap: true,
+                sourceMap: process.env.NODE_ENV !== 'production',
                 terserOptions: {
                     mangle: true,
                     output: {
@@ -379,6 +378,7 @@ module.exports = {
             })
         ],
         splitChunks: {
+            // https://webpack.js.org/plugins/split-chunks-plugin/
             // https://github.com/webpack/webpack/issues/7085
             // https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
             // https://gitter.im/webpack/webpack?at=5ad8d9b4109bb04332dd19c9
@@ -387,6 +387,7 @@ module.exports = {
                     chunks: 'initial',
                     filename: `[name].bundle.js?v=${pkg.version}`,
                     minChunks: 2,
+                    // maxSize: 250000,
                     name: 'common',
                     reuseExistingChunk: true,
                     test: /[\\/](js|styles)[\\/]/
@@ -405,9 +406,9 @@ module.exports = {
     plugins: [
         definePlugin,
         cleanWebpackPlugin,
-        workboxWebpackPlugin
+        workboxWebpackPlugin,
         // commonsChunkPlugin
-        // bundleAnalyzerPlugin
+        bundleAnalyzerPlugin
     ],
     resolve: {
         extensions: ['.es6', '.js', '.mjs'],
