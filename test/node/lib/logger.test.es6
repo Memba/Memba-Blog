@@ -14,11 +14,11 @@ const logger = require('../../../webapp/lib/logger.es6');
 describe('lib/logger', () => {
     describe('Test throwing conditions', () => {
         it('logging an undefined value should throw', () => {
-            expect(logger.debug).to.throw;
-            expect(logger.info).to.throw;
-            expect(logger.warn).to.throw;
-            expect(logger.error).to.throw;
-            expect(logger.critical).to.throw;
+            expect(logger.debug).to.throw();
+            expect(logger.info).to.throw();
+            expect(logger.warn).to.throw();
+            expect(logger.error).to.throw();
+            expect(logger.critical).to.throw();
         });
     });
 

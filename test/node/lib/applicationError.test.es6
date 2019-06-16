@@ -123,7 +123,7 @@ describe('lib/applicationError', () => {
         function test() {
             return new ApplicationError(1);
         }
-        expect(test).to.throw;
+        expect(test).to.throw();
     });
 
     it('ApplicationError from an i18n resource locator', () => {
@@ -171,6 +171,6 @@ describe('lib/applicationError', () => {
         function test() {
             return new ApplicationError();
         }
-        expect(test).to.throw;
+        expect(test).to.throw();
     });
 });
