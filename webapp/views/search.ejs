@@ -40,7 +40,7 @@
                             <h5 class="mt-0 mb-1">
                                 <a href="<%= results[i].site_url %>"><%= results[i].title %></a>
                             </h5>
-                            <div class="mt-0 mb-1">
+                            <div class="text-muted mt-0 mb-1">
                                 <i class="kf kf-tags"></i><span>&nbsp;<%= results[i].category %></span>
                                 <i class="kf kf-user"></i><span>&nbsp;<%= results[i].author %></span>
                                 <i class="kf kf-datetime"></i><span>&nbsp;<%= moment(results[i].creation_date).locale(getLocale()).format('LLL') %></span>
