@@ -13,9 +13,7 @@
  */
 
 const path = require('path');
-// https://github.com/telerik/kendo-themes/issues/722 - Dart-Sass does not work with kendo themes
-// const sass = require('sass');
-const sass = require('node-sass');
+const sass = require('sass');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 // TerserPlugin is actually installed with webpack
 /* eslint-disable-next-line import/no-extraneous-dependencies, node/no-extraneous-require */
