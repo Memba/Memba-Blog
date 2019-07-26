@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "https://www.memba.com/build/precache-manifest.a31e35b97d911f6542d280872ac886f1.js"
+  "https://www.memba.com/build/precache-manifest.a8a4ed4305831343a9ef377cced7ab89.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "Memba-Blog"});
