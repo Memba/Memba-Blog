@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "https://www.memba.com/build/precache-manifest.a8a4ed4305831343a9ef377cced7ab89.js"
+  "http://localhost:3000/build/precache-manifest.56f67d1f66b1815b7483cc603519627b.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "Memba-Blog"});
@@ -38,7 +38,7 @@ workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
 workbox.precaching.cleanupOutdatedCaches();
 
 workbox.routing.registerRoute(/^https:\/\/cdn.kidoju.com/, new workbox.strategies.CacheFirst({ "cacheName":"Memba-Blog-runtime-assets", plugins: [new workbox.cacheableResponse.Plugin({ statuses: [ 0, 200 ] }), new workbox.expiration.Plugin({ maxEntries: 100, maxAgeSeconds: 2592000, purgeOnQuotaError: true })] }), 'GET');
-workbox.routing.registerRoute(/^https:\/\/www.memba.com(\/?$|\/[a-z]{2}($|\/))/, new workbox.strategies.StaleWhileRevalidate({ "cacheName":"Memba-Blog-runtime-content", plugins: [] }), 'GET');
+workbox.routing.registerRoute(/^http:\/\/localhost:3000(\/?$|\/[a-z]{2}($|\/))/, new workbox.strategies.StaleWhileRevalidate({ "cacheName":"Memba-Blog-runtime-content", plugins: [] }), 'GET');
 workbox.routing.registerRoute(/^https:\/\/fonts\.googleapis\.com/, new workbox.strategies.StaleWhileRevalidate({ "cacheName":"google-fonts-stylesheets", plugins: [] }), 'GET');
 workbox.routing.registerRoute(/^https:\/\/fonts\.googleapis\.com/, new workbox.strategies.CacheFirst({ "cacheName":"google-fonts-webfonts", plugins: [new workbox.cacheableResponse.Plugin({ statuses: [ 0, 200 ] }), new workbox.expiration.Plugin({ maxEntries: 20, maxAgeSeconds: 31536000, purgeOnQuotaError: true })] }), 'GET');
 
