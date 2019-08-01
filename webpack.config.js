@@ -19,7 +19,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 /* eslint-disable-next-line import/no-extraneous-dependencies, node/no-extraneous-require */
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+// const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const workboxPlugin = require('workbox-webpack-plugin');
 const lessCommentPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
@@ -81,10 +81,12 @@ const commonsChunkPlugin = new webpack.optimize.CommonsChunkPlugin({
 /**
  * BundleAnalyzerPlugin
  */
+/*
 const bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
     analyzerMode: 'static'
     // analyzerPort: 7000 <-- Fatal error: listen EADDRINUSE 127.0.0.1:7000
 });
+*/
 
 /**
  * workboxPlugin.GenerateSW
@@ -404,9 +406,9 @@ module.exports = {
     plugins: [
         definePlugin,
         cleanWebpackPlugin,
-        workboxWebpackPlugin,
+        workboxWebpackPlugin
         // commonsChunkPlugin
-        bundleAnalyzerPlugin
+        // bundleAnalyzerPlugin
     ],
     resolve: {
         extensions: ['.es6', '.js', '.mjs'],
