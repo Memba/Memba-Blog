@@ -233,7 +233,10 @@ module.exports = {
                         loader: 'bundle-loader',
                         options: { name: '[name]' }
                     },
-                    { loader: 'style-loader/useable' },
+                    {
+                        loader: 'style-loader',
+                        options: { injectType: 'lazyStyleTag' }
+                    },
                     {
                         loader: 'css-loader',
                         options: { importLoaders: 2 }
