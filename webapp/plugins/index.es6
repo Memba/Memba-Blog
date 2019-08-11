@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const assert = require('assert');
 const Events = require('events');
 const { readdirSync } = require('fs');
@@ -35,9 +33,7 @@ module.exports = {
                     // Log the plugin
                     if (logger && typeof logger.info === 'function') {
                         logger.info({
-                            message: `loaded plugin \`${file}\` for event \`${
-                                plugin.event
-                            }\``,
+                            message: `loaded plugin \`${file}\` for event \`${plugin.event}\``,
                             method: 'load',
                             module: 'plugins/index'
                         });

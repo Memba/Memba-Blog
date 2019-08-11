@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const ApplicationError = require('../lib/applicationError.es6');
 const logger = require('../lib/logger.es6');
 

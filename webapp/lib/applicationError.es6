@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
+/* eslint max-classes-per-file: ["error", 3] */
 
 const assert = require('assert');
 const { format } = require('util');

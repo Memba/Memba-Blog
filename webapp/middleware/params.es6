@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 // const assert = require('assert');
 const ApplicationError = require('../lib/applicationError.es6');
 const config = require('../config/index.es6');

@@ -6,8 +6,6 @@
 /* globals browser: false, document: false, window: false */
 /* eslint-disable no-unused-expressions, prefer-arrow-callback */
 
-'use strict';
-
 /**
  * setWindowSizeEx
  * Note: browser.setWindowSize is undefined in firefox

@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const compression = require('compression');
 const cors = require('cors');
 const ejs = require('ejs');

@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 // Karma configuration
 module.exports = config => {
     config.set({

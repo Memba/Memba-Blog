@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const deepExtend = require('deep-extend');
 const config = require('../config/index.es6');
 const httpStatus = require('../lib/httpStatus.es6');

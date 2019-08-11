@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const httpStatus = require('../lib/httpStatus.es6');
 const CONSTANTS = require('../lib/constants.es6');
 const logger = require('../lib/logger.es6');

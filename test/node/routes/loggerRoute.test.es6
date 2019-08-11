@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const request = require('supertest');
 const config = require('../../../webapp/config/index.es6');
 

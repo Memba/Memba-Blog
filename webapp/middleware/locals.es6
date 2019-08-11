@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const util = require('util');
 const moment = require('moment');
 const { URL } = require('url');

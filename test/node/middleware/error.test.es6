@@ -4,8 +4,7 @@
  */
 
 /* eslint-disable no-unused-expressions */
-
-'use strict';
+/* eslint max-classes-per-file: ["error", 3] */
 
 const chai = require('chai');
 const sinon = require('sinon');

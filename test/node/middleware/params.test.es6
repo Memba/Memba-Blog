@@ -5,8 +5,6 @@
 
 /* eslint-disable no-unused-expressions */
 
-'use strict';
-
 const { expect } = require('chai');
 const CONSTANTS = require('../../../webapp/lib/constants.es6');
 const params = require('../../../webapp/middleware/params.es6');

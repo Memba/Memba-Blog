@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-'use strict';
-
 /* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
 const webpack = require('webpack');
 const AutoprefixPlugin = require('less-plugin-autoprefix');
@@ -44,8 +42,8 @@ module.exports = grunt => {
         eslint: {
             files: [
                 '*.js',
-                'src/js/**/*.es6',
-                'src/js/**/*.jsx',
+                // 'src/js/**/*.es6',
+                // 'src/js/**/*.jsx',
                 'test/**/*.es6',
                 'webapp/server.js',
                 'webapp/**/*/es6'

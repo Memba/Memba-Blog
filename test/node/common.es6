@@ -3,6 +3,4 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 global.app = require('../../webapp/server');

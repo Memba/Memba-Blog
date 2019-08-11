@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const { URL } = require('url');
 const { format } = require('util');
 const config = require('../config/index.es6');

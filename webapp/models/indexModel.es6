@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const safe = require('safe-regex');
 const convert = require('../lib/convert');
 const db = require('../lib/db');

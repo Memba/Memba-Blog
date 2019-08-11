@@ -6,8 +6,6 @@
 /* globals browser: false, window: false */
 /* eslint-disable no-unused-expressions */
 
-'use strict';
-
 // const { expect } = require('chai');
 const { URL } = require('url');
 const { format } = require('util');

@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-'use strict';
-
 const nconf = require('nconf');
 const path = require('path');
 
