@@ -185,7 +185,7 @@ module.exports = {
     devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
     entry: {
         // We need init especially because of FOUJI
-        init: ['@babel/polyfill', './src/js/app/app.init.es6'],
+        init: './src/js/app/app.init.es6',
         // One entry per page
         error: './src/js/ui/error.page.es6',
         home: './src/js/ui/home.page.es6',
