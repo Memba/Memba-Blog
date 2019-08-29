@@ -6,6 +6,7 @@
 // Karma configuration
 module.exports = config => {
     config.set({
+        captureConsole: true,
         // mocha configuration
         client: {
             mocha: {
@@ -18,10 +19,10 @@ module.exports = config => {
         basePath: '',
 
         // Increase timeout especially for phantomJS
-        browserDisconnectTimeout: 5000,
+        browserDisconnectTimeout: 10000,
 
         // Available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['mocha', 'chai', 'sinon'],
+        frameworks: ['mocha', 'sinon-chai'],
 
         // list of files / patterns to load in the browser
         files: [
@@ -69,9 +70,34 @@ module.exports = config => {
         // enable / disable watching file and executing tests whenever any file changes
         autoWatch: false,
 
+        // Configure Chrome headless for Travis
+        // @see https://developers.google.com/web/updates/2017/06/headless-karma-mocha-chai#running_it_all_on_travis_ci
+        // @see https://docs.travis-ci.com/user/chrome#Karma-Chrome-Launcher
+        // @see https://developers.google.com/web/updates/2017/04/headless-chrome <-- IMPORTANT
+        customLaunchers: {
+            ChromeTravis: {
+                base: 'ChromeHeadless',
+                flags: [
+                    //  --window-size=1280,1024
+                    // --disable-software-rasterizer
+                    '--disable-gpu --disable-extensions --disable-infobars --disable-translate'
+                ]
+            }
+        },
+
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['Chrome', 'Edge', 'IE', 'Safari', 'Firefox', 'PhantomJS'],
+        browsers: [
+            // 'Chrome'
+            // 'ChromeHeadless'
+            'ChromeTravis'
+            // 'Edge',
+            // 'Firefox',
+            // 'IE',
+            // 'Opera',
+            // 'PhantomJS'
+            // 'Safari'
+        ],
 
         // optionally, configure the reporter
         coverageReporter: {
@@ -82,5 +108,8 @@ module.exports = config => {
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
         singleRun: true
+
+        // Concurrency (Infinity by default)
+        // concurrency: 1
     });
 };
