@@ -60,7 +60,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://www.memba.com/build/cdfd82cd7caa66cfe027d1702b434bd9.png"
   },
   {
-    "revision": "8caa6b17f8c7b4965c5a",
+    "revision": "5d54d46c90b56e675119",
     "url": "https://www.memba.com/build/common.bundle.js?v=0.3.8"
   },
   {
