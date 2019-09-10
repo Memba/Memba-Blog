@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "4e1945c79821cccdc17211e0d9dda073",
+    "revision": "1e04d1e425f7306c9e96e110c13e21be",
     "url": "https://www.memba.com/build/../sw.js"
   },
   {
@@ -10,11 +10,11 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://www.memba.com/build/9e0bdff4970e28b99fd7c45d700c20fa.jpg"
   },
   {
-    "revision": "2664e65f3b3a14579a6d",
+    "revision": "91cdfbf972021c49812d",
     "url": "https://www.memba.com/build/app-culture-en-es6.bundle.js?v=0.3.8"
   },
   {
-    "revision": "2842dcd0913754c56b04",
+    "revision": "9abc1717d427bb819ec4",
     "url": "https://www.memba.com/build/app-culture-fr-es6.bundle.js?v=0.3.8"
   },
   {
@@ -94,7 +94,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://www.memba.com/build/post.bundle.js?v=0.3.8"
   },
   {
-    "url": "https://www.memba.com/build/precache-manifest.b778f4eed43cae9479a87788c481faae.js"
+    "url": "https://www.memba.com/build/precache-manifest.4e7e9b528c01f3acf070a29f3dfa2c20.js"
   },
   {
     "revision": "f4ffe2c13bc2ddba7266",
