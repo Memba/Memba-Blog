@@ -29,9 +29,11 @@ let seleniumArgs = {
     version: '3.141.5',
     drivers: {
         chrome: {
-            // version: ' 74.0.3729.6'
-            version: '75.0.3770.140'
+            // version: '2.46'
+            version: '74.0.3729.6'
+            // version: '75.0.3770.140'
             // version: '76.0.3809.126'
+            // version: '77.0.3865.40'
         }
     }
 };
@@ -40,9 +42,11 @@ const seleniumInstallArgs = {
     version: '3.141.5',
     drivers: {
         chrome: {
-            // version: '74.0.3729.6'
-            version: '75.0.3770.140'
+            // version: '2.46'
+            version: '74.0.3729.6'
+            // version: '75.0.3770.140'
             // version: '76.0.3809.126'
+            // version: '77.0.3865.40'
         }
     }
 };
