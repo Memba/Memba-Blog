@@ -29,15 +29,16 @@ let seleniumArgs = {
     version: '3.141.5',
     drivers: {
         chrome: {
-            version: '76.0.3809.126'
+            version: '77.0.3865.40'
         }
     }
 };
+// @see https://chromedriver.chromium.org/downloads
 const seleniumInstallArgs = {
     version: '3.141.5',
     drivers: {
         chrome: {
-            version: '76.0.3809.126'
+            version: '77.0.3865.40'
         }
     }
 };
