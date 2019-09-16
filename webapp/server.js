@@ -170,6 +170,7 @@ config.load(error => {
                     childSrc: [
                         // was frameSrc
                         'https://accounts.google.com', // Google classroom button
+                        'https://login.live.com', // Windows Live oAuth
                         'https://www.gstatic.com', // Google classroom button
                         'https://www.kidoju.com', // Kidoju player (especially for www.memba.com)
                         'https://www.youtube.com' // Youtube videos (tutorials)
