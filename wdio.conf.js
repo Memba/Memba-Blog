@@ -24,12 +24,15 @@ let capabilities = [
         // TODO Consider wdio-phantomjs-service (waiting for @wdio/phantomjs-service)
     }
 ];
-let seleniumArgs = {
+let seleniumArgs = {};
+const seleniumInstallArgs = {
     version: '3.141.5',
+    baseURL: 'https://selenium-release.storage.googleapis.com',
     drivers: {
         chrome: {
-            version: '74.0.3729.6',
-            arch: process.arch
+            version: '2.45',
+            arch: process.arch,
+            baseURL: 'https://chromedriver.storage.googleapis.com'
         }
     }
 };
@@ -265,6 +268,7 @@ module.exports.config = {
     // @see http://webdriver.io/guide/services/selenium-standalone.html
     // @see https://www.npmjs.com/package/selenium-standalone
     seleniumArgs,
+    seleniumInstallArgs,
     //
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
