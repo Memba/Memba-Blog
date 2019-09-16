@@ -31,8 +31,8 @@ let seleniumArgs = {
         chrome: {
             // version: '2.43'
             // version: '2.44'
-            // version: '2.45'
-            version: '2.46'
+            version: '2.45'
+            // version: '2.46'
             // version: '74.0.3729.6'
             // version: '75.0.3770.140'
             // version: '76.0.3809.126'
@@ -47,8 +47,8 @@ const seleniumInstallArgs = {
         chrome: {
             // version: '2.43'
             // version: '2.44'
-            // version: '2.45'
-            version: '2.46'
+            version: '2.45'
+            // version: '2.46'
             // version: '74.0.3729.6'
             // version: '75.0.3770.140'
             // version: '76.0.3809.126'
