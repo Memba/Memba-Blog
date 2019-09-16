@@ -24,7 +24,15 @@ let capabilities = [
         // TODO Consider wdio-phantomjs-service (waiting for @wdio/phantomjs-service)
     }
 ];
-let seleniumArgs = {};
+let seleniumArgs = {
+    version: '3.141.5',
+    drivers: {
+        chrome: {
+            version: '74.0.3729.6',
+            arch: process.arch
+        }
+    }
+};
 
 /** **************************************************************
  * In our Windows environment
