@@ -29,19 +29,15 @@ let seleniumArgs = {
     version: '3.141.5',
     drivers: {
         chrome: {
-            version: '2.45',
-            arch: process.arch
+            version: '76.0.3809.126'
         }
     }
 };
 const seleniumInstallArgs = {
     version: '3.141.5',
-    baseURL: 'https://selenium-release.storage.googleapis.com',
     drivers: {
         chrome: {
-            version: '2.45',
-            arch: process.arch,
-            baseURL: 'https://chromedriver.storage.googleapis.com'
+            version: '76.0.3809.126'
         }
     }
 };
