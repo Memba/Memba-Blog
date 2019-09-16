@@ -24,7 +24,16 @@ let capabilities = [
         // TODO Consider wdio-phantomjs-service (waiting for @wdio/phantomjs-service)
     }
 ];
-let seleniumArgs = {};
+// let seleniumArgs = {};
+let seleniumArgs = {
+    version: '3.141.5',
+    drivers: {
+        chrome: {
+            version: '2.45',
+            arch: process.arch
+        }
+    }
+};
 const seleniumInstallArgs = {
     version: '3.141.5',
     baseURL: 'https://selenium-release.storage.googleapis.com',
