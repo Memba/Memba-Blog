@@ -16,6 +16,7 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
+      - chromium-chromedriver
       - g++-6
       - oracle-java9-set-default
 before_install:
