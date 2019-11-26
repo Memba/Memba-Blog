@@ -3,20 +3,20 @@
 <html lang="<%- language %>">
 
 <% // html head %>
-<% include head.ejs %>
+<%- include('head.ejs') %>
 
 <body>
 
 <% // common requirements %>
-<% include common.ejs %>
+<%- include('common.ejs') %>
 
 <% // navigation bar %>
-<% include navbar.ejs %>
+<%- include('navbar.ejs') %>
 
 <main class="k-content" itemscope itemtype="http://schema.org/BlogPosting">
 
     <% // drawer %>
-    <% include drawer.ejs %>
+    <%- include('drawer.ejs') %>
 
     <div class="container" role="document">
         <div id="id-main-title" class="border-bottom my-3">
@@ -69,14 +69,14 @@
                     <a role="button" href="#" class="app-social" data-command="twitter"><img src="<%- publicURL('twitter.svg') %>" alt="Twitter" class="img-h2"></a>
                 </section>
                 <% // Side menus for calendar, categories and authors %>
-                <% include groups.ejs %>
+                <%- include('groups.ejs') %>
             </div>
         </div>
     </div>
 </main>
 
 <% // footer with language and theme %>
-<% include footer.ejs %>
+<%- include('footer.ejs') %>
 
 <script defer src="<%- scriptURL('common.bundle.js') %>" crossorigin="anonymous"></script>
 <script defer src="<%- scriptURL('post.bundle.js') %>" crossorigin="anonymous"></script>

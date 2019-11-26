@@ -3,20 +3,20 @@
 <html lang="<%- language %>">
 
 <% // html head %>
-<% include head.ejs %>
+<%- include('head.ejs') %>
 
 <body>
 
 <% // common requirements %>
-<% include common.ejs %>
+<%- include('common.ejs') %>
 
 <% // navigation bar %>
-<% include navbar.ejs %>
+<%- include('navbar.ejs') %>
 
 <main class="k-content">
 
     <% // drawer %>
-    <% include drawer.ejs %>
+    <%- include('drawer.ejs') %>
 
     <div class="jumbotron jumbotron-fluid"><h1><%= description %></h1></div>
     <div class="container">
@@ -40,7 +40,7 @@
 </main>
 
 <% // footer with language and theme %>
-<% include footer.ejs %>
+<%- include('footer.ejs') %>
 
 <script defer src="<%- scriptURL('common.bundle.js') %>" crossorigin="anonymous"></script>
 <script defer src="<%- scriptURL('home.bundle.js') %>" crossorigin="anonymous"></script>
