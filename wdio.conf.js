@@ -26,7 +26,7 @@ let capabilities = [
 ];
 // let seleniumArgs = {};
 let seleniumArgs = {
-    version: '3.141.5',
+    version: '3.141.59',
     drivers: {
         chrome: {
             // version: '2.43'
@@ -36,13 +36,15 @@ let seleniumArgs = {
             // version: '74.0.3729.6'
             // version: '75.0.3770.140'
             // version: '76.0.3809.126'
-            version: '77.0.3865.40'
+            // version: '77.0.3865.40'
+            version: '78.0.3904.105'
+            // version: '79.0.3945.36'
         }
     }
 };
 // @see https://chromedriver.chromium.org/downloads
 const seleniumInstallArgs = {
-    version: '3.141.5',
+    version: '3.141.59',
     drivers: {
         chrome: {
             // version: '2.43'
@@ -52,7 +54,9 @@ const seleniumInstallArgs = {
             // version: '74.0.3729.6'
             // version: '75.0.3770.140'
             // version: '76.0.3809.126'
-            version: '77.0.3865.40'
+            // version: '77.0.3865.40'
+            version: '78.0.3904.105'
+            // version: '79.0.3945.36'
         }
     }
 };
