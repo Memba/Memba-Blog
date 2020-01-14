@@ -151,7 +151,12 @@ describe('middleware/params', () => {
 
         it('`2013`, `2020` and `dummy` are not valid years', () => {
             params.validateYear(undefined, undefined, nextErr, '2013');
-            params.validateYear(undefined, undefined, nextErr, '2020');
+            params.validateYear(
+                undefined,
+                undefined,
+                nextErr,
+                String(1 + new Date().getUTCFullYear())
+            );
             params.validateYear(undefined, undefined, nextErr, 'dummy');
         });
     });
