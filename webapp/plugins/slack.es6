@@ -75,7 +75,7 @@ module.exports = {
                 };
                 request(
                     {
-                        uri: webhook,
+                        uri: `https://hooks.slack.com/services/${webhook}`,
                         method: 'POST',
                         json
                     },

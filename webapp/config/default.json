@@ -44,7 +44,7 @@
         }
     },
     "slack": {
-        "webhook": "https://hooks.slack.com/services/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"
+        "webhook": "T02TQ1BET/B1TRWEKPW/YqUnA32hYRLPL6K5LcYUG0l2"
     },
     "twitter": {
         "account": "memba"
