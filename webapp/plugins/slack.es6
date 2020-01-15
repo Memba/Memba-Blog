@@ -75,17 +75,13 @@ module.exports = {
                 };
                 request(
                     {
+                        // The full uri in json config is detected by slack and invalidates the web hook
                         uri: `https://hooks.slack.com/services/${webhook}`,
                         method: 'POST',
                         json
                     },
                     (error, response, body) => {
-                        if (!error && response) {
-                            assert.strictEqual(
-                                'ok',
-                                body,
-                                '`body` should equal `ok`'
-                            );
+                        if (!error && body === 'ok') {
                             logger.debug({
                                 message: 'Slack message posted',
                                 method: 'handler',
@@ -97,8 +93,10 @@ module.exports = {
                                 }
                             });
                         } else {
+                            // Note: only logger.critical should trigger a slack web hook
+                            // so logger.error should not end up in an endless loop
                             logger.error({
-                                error,
+                                error: error || new Error(body),
                                 method: 'handler',
                                 module: 'plugins/slack',
                                 data: {
