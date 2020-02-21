@@ -68,64 +68,64 @@ class ApplicationError extends Error {
             deepExtend(
                 this,
                 i18n.__(this.i18n),
+                { originalError: error },
                 {
                     originalError: {
                         // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?),
                         // so we need to ensure we at least get the message, name and stack)
-                        message: error.message,
+                        message: error.message || error._message || '',
                         name: error.name,
                         stack: error.stack
                     }
-                },
-                { originalError: error }
+                }
             );
         } else if (error instanceof Error && typeof error.code === 'number') {
             this.i18n = `errors.http.${error.code}`;
             deepExtend(
                 this,
                 i18n.__(this.i18n),
+                { originalError: error },
                 {
                     originalError: {
                         // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?),
                         // so we need to ensure we at least get the message, name and stack)
-                        message: error.message,
+                        message: error.message || error._message || '',
                         name: error.name,
                         stack: error.stack
                     }
-                },
-                { originalError: error }
+                }
             );
         } else if (error instanceof Error && typeof error.status === 'number') {
             this.i18n = `errors.http.${error.status}`;
             deepExtend(
                 this,
                 i18n.__(this.i18n),
+                { originalError: error },
                 {
                     originalError: {
                         // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?),
                         // so we need to ensure we at least get the message, name and stack)
-                        message: error.message,
+                        message: error.message || error._message || '',
                         name: error.name,
                         stack: error.stack
                     }
-                },
-                { originalError: error }
+                }
             );
         } else if (error instanceof Error) {
             this.i18n = `errors.http.${httpStatus.internalServerError}`;
             deepExtend(
                 this,
                 i18n.__(this.i18n),
+                { originalError: error },
                 {
                     originalError: {
                         // Note: deepExtend does not copy prototype properties (uses hasOwnProperty?),
                         // so we need to ensure we at least get the message, name and stack)
-                        message: error.message,
+                        message: error.message || error._message || '',
                         name: error.name,
                         stack: error.stack
                     }
-                },
-                { originalError: error }
+                }
             );
         } else if (isObject(error)) {
             this.i18n = `errors.http.${httpStatus.internalServerError}`;
