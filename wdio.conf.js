@@ -37,8 +37,8 @@ let seleniumArgs = {
             // version: '75.0.3770.140'
             // version: '76.0.3809.126'
             // version: '77.0.3865.40'
-            version: '78.0.3904.105'
-            // version: '79.0.3945.36'
+            // version: '78.0.3904.105'
+            version: '79.0.3945.36'
         }
     }
 };
@@ -55,8 +55,8 @@ const seleniumInstallArgs = {
             // version: '75.0.3770.140'
             // version: '76.0.3809.126'
             // version: '77.0.3865.40'
-            version: '78.0.3904.105'
-            // version: '79.0.3945.36'
+            // version: '78.0.3904.105'
+            version: '79.0.3945.36'
         }
     }
 };
