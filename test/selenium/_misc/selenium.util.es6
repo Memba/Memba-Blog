@@ -28,7 +28,8 @@ browser.addCommand('waitForReadyStateEx', function waitForReadyStateEx(
     const that = this;
     that.waitUntil(
         () => state === that.execute(() => document.readyState),
-        timeout
+        // timeout // <-- v5
+        { timeout } // <-- v6
     );
 });
 
