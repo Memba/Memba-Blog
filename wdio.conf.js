@@ -329,10 +329,11 @@ module.exports.config = {
      * @param {Object} config wdio configuration object
      * @param {Array.<Object>} capabilities list of capabilities details
      */
-    // onPrepare(config, capabilities) {
-    // },
-    // Start the web application
-    onPrepare: () => require('./webapp/server'), // eslint-disable-line global-require
+    onPrepare(/* config, capabilities */) {
+        // Start the web application
+        // eslint-disable-next-line global-require
+        require('./webapp/server');
+    },
     /**
      * Gets executed just before initialising the webdriver session and test framework. It allows you
      * to manipulate configurations depending on the capability or spec.
@@ -355,23 +356,10 @@ module.exports.config = {
         require('./test/selenium/_misc/selenium.util.es6');
     },
     /**
-     * Runs before a WebdriverIO command gets executed.
-     * @param {String} commandName hook command name
-     * @param {Array} args arguments that command would receive
-     */
-    // beforeCommand(commandName, args) {
-    // },
-    /**
      * Hook that gets executed before the suite starts
      * @param {Object} suite suite details
      */
     // beforeSuite(suite) {
-    // },
-    /**
-     * Function to be executed before a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
-     * @param {Object} test test details
-     */
-    // beforeTest(test) {
     // },
     /**
      * Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
@@ -386,6 +374,28 @@ module.exports.config = {
     // afterHook() {
     // },
     /**
+     * Function to be executed before a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
+     * @param {Object} test test details
+     */
+    // beforeTest(test) {
+    // },
+    /**
+     * Runs before a WebdriverIO command gets executed.
+     * @param {String} commandName hook command name
+     * @param {Array} args arguments that command would receive
+     */
+    // beforeCommand(commandName, args) {
+    // },
+    /**
+     * Runs after a WebdriverIO command gets executed
+     * @param {String} commandName hook command name
+     * @param {Array} args arguments that command would receive
+     * @param {Number} result 0 - command success, 1 - command error
+     * @param {Object} error error object if any
+     */
+    // afterCommand(commandName, args, result, error) {
+    // },
+    /**
      * Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
      * @param {Object} test test details
      */
@@ -396,15 +406,6 @@ module.exports.config = {
      * @param {Object} suite suite details
      */
     // afterSuite(suite) {
-    // },
-    /**
-     * Runs after a WebdriverIO command gets executed
-     * @param {String} commandName hook command name
-     * @param {Array} args arguments that command would receive
-     * @param {Number} result 0 - command success, 1 - command error
-     * @param {Object} error error object if any
-     */
-    // afterCommand(commandName, args, result, error) {
     // },
     /**
      * Gets executed after all tests are done. You still have access to all global variables from
