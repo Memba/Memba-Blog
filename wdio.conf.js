@@ -18,11 +18,11 @@ let capabilities = [
         browserName: 'chrome',
         // https://github.com/webdriverio/webdriverio/issues/3130#issuecomment-447405876
         'goog:chromeOptions': {
-            args: ['headless', 'disable-gpu']
-        }
+            args: ['headless', 'disable-gpu'],
+        },
         // unexpectedAlertBehaviour: 'ignore'
         // TODO Consider wdio-phantomjs-service (waiting for @wdio/phantomjs-service)
-    }
+    },
 ];
 // let seleniumArgs = {};
 let seleniumArgs = {
@@ -38,9 +38,9 @@ let seleniumArgs = {
             // version: '76.0.3809.126'
             // version: '77.0.3865.40'
             // version: '78.0.3904.105'
-            version: '79.0.3945.36'
-        }
-    }
+            version: '79.0.3945.36',
+        },
+    },
 };
 // @see https://chromedriver.chromium.org/downloads
 const seleniumInstallArgs = {
@@ -56,9 +56,9 @@ const seleniumInstallArgs = {
             // version: '76.0.3809.126'
             // version: '77.0.3865.40'
             // version: '78.0.3904.105'
-            version: '79.0.3945.36'
-        }
-    }
+            version: '79.0.3945.36',
+        },
+    },
 };
 
 /** **************************************************************
@@ -71,12 +71,12 @@ if (/^win/.test(process.platform)) {
         // Drivers can be downloaded at http://docs.seleniumhq.org/download/
         javaArgs: [
             // Add Microsoft Edge driver
-            '-Dwebdriver.edge.driver=C:\\Windows\\System32\\MicrosoftWebDriver.exe'
+            '-Dwebdriver.edge.driver=C:\\Windows\\System32\\MicrosoftWebDriver.exe',
 
             // Add opera driver
             // `-Dwebdriver.opera.driver=${path.join(__dirname, './test/bin/operadriver.exe')}`,
             // '-Dwebdriver.opera.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\chromedriver\\2.43-x64-chromedriver'
-        ]
+        ],
         // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
         // seleniumArgs: [],
         // version
@@ -88,17 +88,17 @@ if (/^win/.test(process.platform)) {
     capabilities = [
         {
             maxInstances: 1,
-            browserName: 'chrome'
+            browserName: 'chrome',
             // 'goog:chromeOptions': {}
         },
         {
             maxInstances: 1,
-            browserName: 'firefox'
+            browserName: 'firefox',
             // 'moz:firefoxOptions': { args: ['-headless'] }
         },
         {
             maxInstances: 1,
-            browserName: 'internet explorer'
+            browserName: 'internet explorer',
             // 'se:ieOptions': {}
         } /* ,
         {
@@ -125,7 +125,7 @@ if (/^win/.test(process.platform)) {
                 binary:
                     'C:\\Program Files (x86)\\Opera\\57.0.3098.106\\opera.exe'
             }
-        } */
+        } */,
     ];
 }
 
@@ -140,9 +140,10 @@ module.exports.config = {
     // according to your user and key information. However, if you are using a private Selenium
     // backend you should define the host address, port, and path here.
     //
-    // host: '0.0.0.0',
-    // port: 4444,
-    // path: '/wd/hub',
+    protocol: 'http',
+    host: 'localhost',
+    port: 4444,
+    path: '/wd/hub',
     //
     // ====================
     // Runner Configuration
@@ -313,7 +314,7 @@ module.exports.config = {
     mochaOpts: {
         ui: 'bdd',
         timeout: 60000, // for gremlins
-        require: ['js:@babel/register']
+        require: ['js:@babel/register'],
     },
     //
     // =====
@@ -328,10 +329,10 @@ module.exports.config = {
      * @param {Object} config wdio configuration object
      * @param {Array.<Object>} capabilities list of capabilities details
      */
-    // onPrepare: function (config, capabilities) {
+    // onPrepare(config, capabilities) {
     // },
     // Start the web application
-    onPrepare: () => require('./webapp/server') // eslint-disable-line global-require
+    onPrepare: () => require('./webapp/server'), // eslint-disable-line global-require
     /**
      * Gets executed just before initialising the webdriver session and test framework. It allows you
      * to manipulate configurations depending on the capability or spec.
@@ -339,7 +340,7 @@ module.exports.config = {
      * @param {Array.<Object>} capabilities list of capabilities details
      * @param {Array.<String>} specs List of spec file paths that are to be run
      */
-    // beforeSession: function (config, capabilities, specs) {
+    // beforeSession(config, capabilities, specs) {
     // },
     /**
      * Gets executed before test execution begins. At this point you can access to all global
@@ -347,50 +348,54 @@ module.exports.config = {
      * @param {Array.<Object>} capabilities list of capabilities details
      * @param {Array.<String>} specs List of spec file paths that are to be run
      */
-    // before: function (capabilities, specs) {
-    // },
+    before(/* capabilities, specs */) {
+        // Enhance browser with our Ex functions
+        // @see https://webdriver.io/blog/2019/11/01/spec-filtering.html
+        // eslint-disable-next-line global-require
+        require('./test/selenium/_misc/selenium.util.es6');
+    },
     /**
      * Runs before a WebdriverIO command gets executed.
      * @param {String} commandName hook command name
      * @param {Array} args arguments that command would receive
      */
-    // beforeCommand: function (commandName, args) {
+    // beforeCommand(commandName, args) {
     // },
     /**
      * Hook that gets executed before the suite starts
      * @param {Object} suite suite details
      */
-    // beforeSuite: function (suite) {
+    // beforeSuite(suite) {
     // },
     /**
      * Function to be executed before a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
      * @param {Object} test test details
      */
-    // beforeTest: function (test) {
+    // beforeTest(test) {
     // },
     /**
      * Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
      * beforeEach in Mocha)
      */
-    // beforeHook: function () {
+    // beforeHook() {
     // },
     /**
      * Hook that gets executed _after_ a hook within the suite starts (e.g. runs after calling
      * afterEach in Mocha)
      */
-    // afterHook: function () {
+    // afterHook() {
     // },
     /**
      * Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
      * @param {Object} test test details
      */
-    // afterTest: function (test) {
+    // afterTest(test) {
     // },
     /**
      * Hook that gets executed after the suite has ended
      * @param {Object} suite suite details
      */
-    // afterSuite: function (suite) {
+    // afterSuite(suite) {
     // },
     /**
      * Runs after a WebdriverIO command gets executed
@@ -399,7 +404,7 @@ module.exports.config = {
      * @param {Number} result 0 - command success, 1 - command error
      * @param {Object} error error object if any
      */
-    // afterCommand: function (commandName, args, result, error) {
+    // afterCommand(commandName, args, result, error) {
     // },
     /**
      * Gets executed after all tests are done. You still have access to all global variables from
@@ -408,7 +413,7 @@ module.exports.config = {
      * @param {Array.<Object>} capabilities list of capabilities details
      * @param {Array.<String>} specs List of spec file paths that ran
      */
-    // after: function (result, capabilities, specs) {
+    // after(result, capabilities, specs) {
     // },
     /**
      * Gets executed right after terminating the webdriver session.
@@ -416,7 +421,7 @@ module.exports.config = {
      * @param {Array.<Object>} capabilities list of capabilities details
      * @param {Array.<String>} specs List of spec file paths that ran
      */
-    // afterSession: function (config, capabilities, specs) {
+    // afterSession(config, capabilities, specs) {
     // },
     /**
      * Gets executed after all workers got shut down and the process is about to exit.

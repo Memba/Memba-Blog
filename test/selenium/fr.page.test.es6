@@ -12,9 +12,6 @@ const { format } = require('util');
 const logger = require('@wdio/logger').default('fr.page.test');
 const config = require('../../webapp/config/index.es6');
 
-// Enhance browser with our Ex functions
-require('./_misc/selenium.util.es6');
-
 const webapp = {
     // home: new URL(config.get('uris:webapp:home'), config.get('uris:webapp:root')).href,
     index: new URL(

@@ -12,9 +12,6 @@ const { format } = require('util');
 const logger = require('@wdio/logger').default('fr.post.test');
 const config = require('../../webapp/config/index.es6');
 
-// Enhance browser with our Ex functions
-require('./_misc/selenium.util.es6');
-
 const LOCALE = 'fr';
 const SUPPORT_TITLE = 'Support';
 const LIST_TITLE = 'Résultats de recherche';
