@@ -15,7 +15,8 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-6
-      - oracle-java9-set-default
+# only for dist: trusty
+#     - oracle-java9-set-default
 before_install:
   - npm install -g npm
   - npm --version
