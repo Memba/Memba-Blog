@@ -3,11 +3,10 @@ sudo: required
 dist: trusty
 language: node_js
 node_js:
+  - "13"
   - "12"
   - "11"
   - "10"
-  - "9"
-  - "8"
 env:
   - NODE_ENV=test CC=gcc-6 CXX=g++-6
 addons:
