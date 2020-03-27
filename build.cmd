@@ -30,7 +30,9 @@ GOTO BUILD
 set NODE_ENV=test
 GOTO BUILD
 :BUILD
-DEL webapp\public\build /S /Q
-IF EXIST www DEL www\build /S /Q
+DEL webapp\public\*.js /F /Q
+DEL webapp\public\*.map /F /Q
+DEL webapp\public\build /F /Q /S
+IF EXIST www DEL www\build /F /Q /S
 grunt build
 :DONE
