@@ -24,14 +24,14 @@ const webapp = {
     en: new URL(
         format(config.get('uris:webapp:locale'), 'en'),
         config.get('uris:webapp:root')
-    ).href
+    ).href,
 };
 const WAIT = 5000;
 const MOCHA_TO = 60000;
 const GREMLINS_TTL = 50000;
 const SCREEN = {
     HEIGHT: 800,
-    WIDTH: 1280
+    WIDTH: 1280,
 };
 
 /**

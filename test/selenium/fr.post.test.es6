@@ -62,12 +62,12 @@ const webapp = {
             FIRST_FILE
         ),
         config.get('uris:webapp:root')
-    ).href
+    ).href,
 };
 const WAIT = 2000;
 const SCREEN = {
     HEIGHT: 800,
-    WIDTH: 1280
+    WIDTH: 1280,
 };
 
 /**
@@ -117,7 +117,10 @@ describe('French posts', () => {
         });
 
         it('it should find and navigate blog', () => {
-            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('body>div.k-loading-image').waitForDisplayed({
+                timeout: WAIT,
+                reverse: true,
+            });
             $(`nav.navbar a[href="${posts}"]`).click();
             browser.waitForReadyStateEx('complete', WAIT);
             expect(browser.getUrl()).to.equal(webapp.posts);
@@ -126,7 +129,10 @@ describe('French posts', () => {
         });
 
         it('it should find and navigate calendar', () => {
-            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('body>div.k-loading-image').waitForDisplayed({
+                timeout: WAIT,
+                reverse: true,
+            });
             // click the first item in the calendar side list
             $(
                 'section.app-group:nth-child(1) a.list-group-item:first-child'
@@ -138,7 +144,10 @@ describe('French posts', () => {
         });
 
         it('it should find and navigate categories', () => {
-            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('body>div.k-loading-image').waitForDisplayed({
+                timeout: WAIT,
+                reverse: true,
+            });
             // click the first item in the categories side list
             $(
                 'section.app-group:nth-child(2) a.list-group-item:first-child'
@@ -150,7 +159,10 @@ describe('French posts', () => {
         });
 
         it('it should find and navigate authors', () => {
-            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('body>div.k-loading-image').waitForDisplayed({
+                timeout: WAIT,
+                reverse: true,
+            });
             // click the first item in the authors side list
             $(
                 'section.app-group:nth-child(3) a.list-group-item:first-child'
@@ -162,7 +174,10 @@ describe('French posts', () => {
         });
 
         it('it should display a post', () => {
-            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('body>div.k-loading-image').waitForDisplayed({
+                timeout: WAIT,
+                reverse: true,
+            });
             // Click the first item in search results
             // $('ul.media-list>li.media:first-child h4>a').click();
             $('li.media:first-child h5>a').click();

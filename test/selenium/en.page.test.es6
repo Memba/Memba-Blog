@@ -32,12 +32,12 @@ const webapp = {
     terms: new URL(
         format(config.get('uris:webapp:pages'), 'en', 'terms'),
         config.get('uris:webapp:root')
-    ).href
+    ).href,
 };
 const WAIT = 2000;
 const SCREEN = {
     HEIGHT: 800,
-    WIDTH: 1280
+    WIDTH: 1280,
 };
 
 /**
@@ -85,7 +85,10 @@ describe('English pages', () => {
         });
 
         it('it should find and navigate support', () => {
-            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('body>div.k-loading-image').waitForDisplayed({
+                timeout: WAIT,
+                reverse: true,
+            });
             $(
                 `nav.navbar a[href="${format(
                     config.get('uris:webapp:pages'),
@@ -100,7 +103,10 @@ describe('English pages', () => {
         });
 
         it('it should find and navigate faqs', () => {
-            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('body>div.k-loading-image').waitForDisplayed({
+                timeout: WAIT,
+                reverse: true,
+            });
             $('nav.navbar a.dropdown-toggle').click();
             $(
                 `nav.navbar a[href="${format(
@@ -118,7 +124,10 @@ describe('English pages', () => {
         });
 
         it('it should find and navigate privacy', () => {
-            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('body>div.k-loading-image').waitForDisplayed({
+                timeout: WAIT,
+                reverse: true,
+            });
             $('nav.navbar a.dropdown-toggle').click();
             $(
                 `nav.navbar a[href="${format(
@@ -136,7 +145,10 @@ describe('English pages', () => {
         });
 
         it('it should find and navigate terms', () => {
-            $('body>div.k-loading-image').waitForDisplayed(WAIT, true);
+            $('body>div.k-loading-image').waitForDisplayed({
+                timeout: WAIT,
+                reverse: true,
+            });
             $('nav.navbar a.dropdown-toggle').click();
             $(
                 `nav.navbar a[href="${format(
