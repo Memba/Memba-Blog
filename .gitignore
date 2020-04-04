@@ -10,13 +10,16 @@ Thumbs.db
 
 # Ignore Webstorm files
 .idea/
-coverage/
-errorShots/
-logs/
-webapp/public/build/gremlins.min.js
 
 # Ignore Node files
 node_modules/
+logs/
+
+# Ignore test files
+.nyc_output/
+coverage/
+errorShots/
+webapp/public/build/gremlins.min.js
 
 # Ignore cordova
 # http://stackoverflow.com/questions/29970885/cordova-5-0-0-which-files-should-i-commit-to-git
