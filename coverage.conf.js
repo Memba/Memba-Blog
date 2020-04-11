@@ -4,15 +4,15 @@
  */
 
 // Karma configuration
-module.exports = config => {
+module.exports = (config) => {
     config.set({
         captureConsole: true,
         // mocha configuration
         client: {
             mocha: {
                 ui: 'bdd',
-                timeout: 10000
-            }
+                timeout: 10000,
+            },
         },
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -27,20 +27,20 @@ module.exports = config => {
         // list of files / patterns to load in the browser
         files: [
             {
-                pattern: 'js/vendor/jquery/jquery-3.4.1.min.js',
+                pattern: 'js/vendor/jquery/jquery-3.5.0.min.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'js/vendor/kendo/kendo.all.min.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'test/unit/*.js',
                 served: true,
-                included: false
-            }
+                included: false,
+            },
         ],
 
         // list of files to exclude
@@ -49,7 +49,7 @@ module.exports = config => {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            '/js/*.js': ['coverage']
+            '/js/*.js': ['coverage'],
         },
 
         // test results reporter to use
@@ -80,9 +80,9 @@ module.exports = config => {
                 flags: [
                     //  --window-size=1280,1024
                     // --disable-software-rasterizer
-                    '--disable-gpu --disable-extensions --disable-infobars --disable-translate'
-                ]
-            }
+                    '--disable-gpu --disable-extensions --disable-infobars --disable-translate',
+                ],
+            },
         },
 
         // start these browsers
@@ -90,7 +90,7 @@ module.exports = config => {
         browsers: [
             // 'Chrome'
             // 'ChromeHeadless'
-            'ChromeTravis'
+            'ChromeTravis',
             // 'Edge',
             // 'Firefox',
             // 'IE',
@@ -102,12 +102,12 @@ module.exports = config => {
         // optionally, configure the reporter
         coverageReporter: {
             type: 'html',
-            dir: 'coverage/'
+            dir: 'coverage/',
         },
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
-        singleRun: true
+        singleRun: true,
 
         // Concurrency (Infinity by default)
         // concurrency: 1
