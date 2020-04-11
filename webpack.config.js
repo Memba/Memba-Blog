@@ -40,7 +40,7 @@ console.log(`processing version ${pkg.version}`); // eslint-disable-line no-cons
  */
 const definePlugin = new webpack.DefinePlugin({
     __NODE_ENV__: JSON.stringify(environment),
-    __VERSION__: JSON.stringify(pkg.version)
+    __VERSION__: JSON.stringify(pkg.version),
 });
 
 /**
@@ -97,18 +97,16 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
     cleanupOutdatedCaches: true,
     clientsClaim: true,
     manifestTransforms: [
-        originalManifest => {
+        (originalManifest) => {
             const manifest = originalManifest.concat([
                 {
-                    // url: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'
-                    url:
-                        'https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js'
-                }
+                    url: 'https://code.jquery.com/jquery-3.5.0.min.js',
+                },
             ]);
             // Optionally, set warning messages.
             const warnings = [];
             return { manifest, warnings };
-        }
+        },
     ],
     offlineGoogleAnalytics: true,
     runtimeCaching: [
@@ -122,14 +120,14 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
                 // https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.strategies.CacheFirst
                 cacheName: `${pkg.name.replace('.', '-')}-runtime-assets`,
                 cacheableResponse: {
-                    statuses: [0, 200]
+                    statuses: [0, 200],
                 },
                 expiration: {
                     maxEntries: 100,
                     maxAgeSeconds: 30 * 24 * 60 * 60,
-                    purgeOnQuotaError: true
-                }
-            }
+                    purgeOnQuotaError: true,
+                },
+            },
         },
         {
             // Our web pages (not /build)
@@ -142,8 +140,8 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
             handler: 'StaleWhileRevalidate',
             options: {
                 // https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.strategies.StaleWhileRevalidate
-                cacheName: `${pkg.name.replace('.', '-')}-runtime-content`
-            }
+                cacheName: `${pkg.name.replace('.', '-')}-runtime-content`,
+            },
         },
         // Cache Google fonts
         // https://developers.google.com/web/tools/workbox/guides/common-recipes#google_fonts
@@ -152,8 +150,8 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
             handler: 'StaleWhileRevalidate',
             options: {
                 // https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.strategies.StaleWhileRevalidate
-                cacheName: `google-fonts-stylesheets`
-            }
+                cacheName: `google-fonts-stylesheets`,
+            },
         },
         {
             urlPattern: /^https:\/\/fonts\.googleapis\.com/,
@@ -162,17 +160,17 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
                 // https://developers.google.com/web/tools/workbox/reference-docs/latest/workbox.strategies.StaleWhileRevalidate
                 cacheName: `google-fonts-webfonts`,
                 cacheableResponse: {
-                    statuses: [0, 200]
+                    statuses: [0, 200],
                 },
                 expiration: {
                     maxEntries: 20,
                     maxAgeSeconds: 365 * 24 * 60 * 60,
-                    purgeOnQuotaError: true
-                }
-            }
-        }
+                    purgeOnQuotaError: true,
+                },
+            },
+        },
     ],
-    skipWaiting: true
+    skipWaiting: true,
 });
 
 /**
@@ -191,11 +189,11 @@ module.exports = {
         home: './src/js/ui/home.page.es6',
         page: './src/js/ui/page.page.es6',
         post: './src/js/ui/post.page.es6',
-        search: './src/js/ui/search.page.es6'
+        search: './src/js/ui/search.page.es6',
     },
     externals: {
         // CDN modules
-        jquery: 'jQuery'
+        jquery: 'jQuery',
     },
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     module: {
@@ -206,9 +204,9 @@ module.exports = {
                 use: [
                     {
                         loader: 'babel-loader',
-                        options: { babelrc: true }
-                    }
-                ]
+                        options: { babelrc: true },
+                    },
+                ],
             },
             {
                 // Do not put a $ at the end of the test regex
@@ -216,42 +214,42 @@ module.exports = {
                 use: [
                     {
                         loader: './web_modules/jsx-loader/index.es6',
-                        options: { config: 'webapp/config' }
+                        options: { config: 'webapp/config' },
                     },
                     {
                         loader: 'babel-loader',
-                        options: { babelrc: true }
-                    }
-                ]
+                        options: { babelrc: true },
+                    },
+                ],
             },
             {
                 test: /app\.theme\.[a-z0-9-]+\.scss$/,
                 use: [
                     {
                         loader: 'bundle-loader',
-                        options: { name: '[name]' }
+                        options: { name: '[name]' },
                     },
                     {
                         loader: 'style-loader',
-                        options: { injectType: 'lazyStyleTag' }
+                        options: { injectType: 'lazyStyleTag' },
                     },
                     {
                         loader: 'css-loader',
-                        options: { importLoaders: 2 }
+                        options: { importLoaders: 2 },
                     },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
                     {
                         loader: 'sass-loader',
                         options: {
-                            implementation: sass
+                            implementation: sass,
                             // compress: true,
                             // relativeUrls: true,
                             // strictMath: true,
                             // plugins: [lessCommentPlugin]
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             },
             {
                 test: /\.scss$/,
@@ -260,33 +258,33 @@ module.exports = {
                     { loader: 'style-loader' },
                     {
                         loader: 'css-loader',
-                        options: { importLoaders: 1 }
+                        options: { importLoaders: 1 },
                     },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
                     {
                         loader: 'sass-loader',
                         options: {
-                            implementation: sass
+                            implementation: sass,
                             // compress: true,
                             // relativeUrls: true,
                             // strictMath: true,
                             // plugins: [lessCommentPlugin]
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             },
             {
                 test: /app\.theme\.[a-z0-9-]+\.less$/,
                 use: [
                     {
                         loader: 'bundle-loader',
-                        options: { name: '[name]' }
+                        options: { name: '[name]' },
                     },
                     { loader: 'style-loader/useable' },
                     {
                         loader: 'css-loader',
-                        options: { importLoaders: 2 }
+                        options: { importLoaders: 2 },
                     },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
@@ -296,10 +294,10 @@ module.exports = {
                             compress: true,
                             relativeUrls: true,
                             strictMath: true,
-                            plugins: [lessCommentPlugin]
-                        }
-                    }
-                ]
+                            plugins: [lessCommentPlugin],
+                        },
+                    },
+                ],
             },
             {
                 test: /\.less$/,
@@ -308,7 +306,7 @@ module.exports = {
                     { loader: 'style-loader' },
                     {
                         loader: 'css-loader',
-                        options: { importLoaders: 1 }
+                        options: { importLoaders: 1 },
                     },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
@@ -318,10 +316,10 @@ module.exports = {
                             compress: true,
                             relativeUrls: true,
                             strictMath: true,
-                            plugins: [lessCommentPlugin]
-                        }
-                    }
-                ]
+                            plugins: [lessCommentPlugin],
+                        },
+                    },
+                ],
             },
             {
                 test: /\.css$/,
@@ -329,19 +327,19 @@ module.exports = {
                     { loader: 'style-loader' },
                     {
                         loader: 'css-loader',
-                        options: { importLoaders: 1 }
+                        options: { importLoaders: 1 },
                     },
-                    { loader: 'postcss-loader' }
-                ]
+                    { loader: 'postcss-loader' },
+                ],
             },
             {
                 test: /\.(gif|png|jpe?g)$/,
                 use: [
                     {
                         loader: 'url-loader',
-                        options: { limit: 8192 }
-                    }
-                ]
+                        options: { limit: 8192 },
+                    },
+                ],
             },
             {
                 test: /\.woff(2)?/,
@@ -350,16 +348,16 @@ module.exports = {
                         loader: 'url-loader',
                         options: {
                             limit: 10000,
-                            mimetype: 'application/font-woff'
-                        }
-                    }
-                ]
+                            mimetype: 'application/font-woff',
+                        },
+                    },
+                ],
             },
             {
                 test: /\.(ttf|eot|svg)/,
-                use: [{ loader: 'file-loader' }]
-            }
-        ]
+                use: [{ loader: 'file-loader' }],
+            },
+        ],
     },
     optimization: {
         minimize: process.env.NODE_ENV === 'production',
@@ -373,10 +371,10 @@ module.exports = {
                     mangle: true,
                     output: {
                         // Remove comments especially in Modernizr
-                        comments: /memba®/i
-                    }
-                }
-            })
+                        comments: /memba®/i,
+                    },
+                },
+            }),
         ],
         splitChunks: {
             // https://webpack.js.org/plugins/split-chunks-plugin/
@@ -391,10 +389,10 @@ module.exports = {
                     // maxSize: 250000,
                     name: 'common',
                     reuseExistingChunk: true,
-                    test: /[\\/](js|styles)[\\/]/
-                }
-            }
-        }
+                    test: /[\\/](js|styles)[\\/]/,
+                },
+            },
+        },
     },
     output: {
         // Unfortunately it is not possible to specialize output directories
@@ -402,12 +400,12 @@ module.exports = {
         path: path.join(__dirname, '/webapp/public/build'),
         publicPath: buildPath,
         filename: `[name].bundle.js?v=${pkg.version}`,
-        chunkFilename: `[name].bundle.js?v=${pkg.version}`
+        chunkFilename: `[name].bundle.js?v=${pkg.version}`,
     },
     plugins: [
         definePlugin,
         cleanWebpackPlugin,
-        workboxWebpackPlugin
+        workboxWebpackPlugin,
         // commonsChunkPlugin
         // bundleAnalyzerPlugin
     ],
@@ -416,7 +414,7 @@ module.exports = {
         modules: [
             'node_modules',
             path.resolve(__dirname, './src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
-            '.' // For popper.js in bootstrap
-        ]
-    }
+            '.', // For popper.js in bootstrap
+        ],
+    },
 };

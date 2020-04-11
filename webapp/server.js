@@ -25,14 +25,14 @@ let closingInProgress = false;
  * Handle uncaught exceptions
  * @see http://stackoverflow.com/questions/7310521/node-js-best-practice-exception-handling
  */
-process.on('uncaughtException', ex => {
+process.on('uncaughtException', (ex) => {
     closingInProgress = true;
 
     logger.critical({
         // message = ex.message
         module: 'server',
         method: 'process.onuncaughtException',
-        error: ex
+        error: ex,
     });
 
     if (typeof server !== 'undefined') {
@@ -73,13 +73,13 @@ process.on('SIGINT', () => {
 /**
  * This event handler is called after process.exit
  */
-process.on('exit', code => {
+process.on('exit', (code) => {
     // We use a try/catch block here because we might have reached here from an uncaughtException
     try {
         logger.warn({
             message: `Exiting with code ${code}`,
             module: 'server',
-            method: 'process.onexit'
+            method: 'process.onexit',
         });
     } catch (ex) {
         // We use console.log because logger might not be available
@@ -90,12 +90,12 @@ process.on('exit', code => {
 
 logger.info({
     message: `nconf environment is ${config.environment}`,
-    module: 'server'
+    module: 'server',
 });
 
 // Loading configuration, possibly from AWS S3
 // config.load((error, store) => {
-config.load(error => {
+config.load((error) => {
     if (error instanceof Error) {
         throw error;
     }
@@ -133,12 +133,12 @@ config.load(error => {
         cdnRoot, // Required to load index.json on CDN
         'https://amp-error-reporting.appspot.com', // AMP
         'https://cdn.ampproject.org', // AMP
-        'https://cdn.jsdelivr.net', // to precache jquery with workbox
+        'https://code.jquery.com', // to precache jquery with workbox
         'https://fonts.googleapis.com', // to precache fonts with workbox
         'https://fonts.gstatic.com', // to precache fonts with workbox
         'https://s3.amazonaws.com', // Required to upload images to Amazon S3
         'https://www.googletagmanager.com', // GTM (AMP Pages)
-        'https://www.google-analytics.com' // Google Analytics
+        'https://www.google-analytics.com', // Google Analytics
         // 'https://js.leadin.com', // Hubspot
         // 'https://forms.hubspot.com', // Hubspot
         // 'https://api.getsidekick.com' // Hubspot
@@ -158,14 +158,14 @@ config.load(error => {
                 directives: {
                     defaultSrc: [
                         "'self'",
-                        'blob:' // Fallback for workerSrc
+                        'blob:', // Fallback for workerSrc
                     ],
                     connectSrc,
                     fontSrc: [
                         "'self'",
                         'data:',
                         cdnRoot,
-                        'https://fonts.gstatic.com' // Google fonts
+                        'https://fonts.gstatic.com', // Google fonts
                     ],
                     childSrc: [
                         // was frameSrc
@@ -173,7 +173,7 @@ config.load(error => {
                         'https://login.live.com', // Windows Live oAuth
                         'https://www.gstatic.com', // Google classroom button
                         'https://www.kidoju.com', // Kidoju player (especially for www.memba.com)
-                        'https://www.youtube.com' // Youtube videos (tutorials)
+                        'https://www.youtube.com', // Youtube videos (tutorials)
                     ],
                     imgSrc: ['data:', '*'],
                     mediaSrc: ['*'],
@@ -184,11 +184,12 @@ config.load(error => {
                         "'unsafe-inline'",
                         cdnRoot,
                         'https://apis.google.com', // Google classroom button
-                        'https://cdn.jsdelivr.net', // jquery + osano cookie consent
+                        'https://code.jquery.com', // jquery
+                        'https://cdn.jsdelivr.net', // osano cookie consent
                         'https://cdn.ampproject.org', // AMP pages
                         'https://storage.googleapis.com', // Workbox cli
                         'https://www.googletagmanager.com', // GTM
-                        'https://www.google-analytics.com' // Google Analytics
+                        'https://www.google-analytics.com', // Google Analytics
                         // 'js.hs-analytics.net', // Hubspot (Loaded via http on http://localhost)
                         // 'https://api.usemessages.com', // Hubspot
                         // 'https://js.hscollectedforms.net', // Hubspot
@@ -202,19 +203,20 @@ config.load(error => {
                         "'unsafe-inline'",
                         cdnRoot,
                         'https://fonts.googleapis.com', // Google fonts
-                        'https://cdn.jsdelivr.net' // jquery + osano cookie consent
+                        'https://code.jquery.com/', // jquery
+                        'https://cdn.jsdelivr.net', // osano cookie consent
                     ], // sandbox: ['allow-forms', 'allow-scripts'], // reportUri: '/report-violation',
                     objectSrc: ["'none'"],
                     workerSrc: [
                         "'self'",
                         'blob:',
                         cdnRoot,
-                        'https://storage.googleapis.com'
-                    ]
+                        'https://storage.googleapis.com',
+                    ],
                 },
-                browserSniff: false
+                browserSniff: false,
             },
-            frameguard: false
+            frameguard: false,
             /*
             hsts: {
                 maxAge: 1 * 24 * 60 * 60, // Must be at least 365 days to be approved at https://hstspreload.org/
@@ -232,7 +234,7 @@ config.load(error => {
         directory: path.join(__dirname, 'locales'),
         objectNotation: true, // Use hierarchies in locales.json files
         updateFiles: false,
-        syncFiles: false
+        syncFiles: false,
     });
 
     // Use __() in templates
@@ -256,7 +258,7 @@ config.load(error => {
                 }
                 // fallback to standard filter function
                 return compression.filter(req, res);
-            }
+            },
         })
     );
 
@@ -284,7 +286,7 @@ config.load(error => {
     logger.info({
         message: `expressJS server listening on port ${port}`,
         module: 'server',
-        method: 'config.load'
+        method: 'config.load',
     });
 });
 
