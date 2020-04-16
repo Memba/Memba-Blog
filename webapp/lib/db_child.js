@@ -5,6 +5,8 @@
 
 /* jshint node: true */
 
+// TODO replace with a cron job as in https://scotch.io/tutorials/nodejs-cron-jobs-by-examples
+
 'use strict';
 
 var fs = require('fs');
