@@ -25,7 +25,7 @@ module.exports = {
             message: 'post a form',
             method: 'post',
             module: 'routes/formRoute',
-            request: req
+            request: req,
         });
         if (typeof req.body === 'object') {
             // Clone body when parsed successfully
@@ -34,7 +34,7 @@ module.exports = {
             // Keep posters honest
             const addition = (model.__a || '')
                 .split('+')
-                .map(num => parseInt(num, 10));
+                .map((num) => parseInt(num, 10));
             const total = parseInt(model.__b, 10);
             if (
                 addition.length === 2 &&
@@ -48,22 +48,22 @@ module.exports = {
                     slack: {
                         channel: config.get('slack:channels:forms'),
                         level: 'info',
-                        text: 'New form'
+                        text: 'New form',
                     },
-                    model
+                    model,
                 });
             }
         }
 
         // Return success in all circumstances
         res.status(httpStatus.created).send(
-            /* eslint-disable prettier/prettier */
-            `<html><head><meta http-equiv="refresh" content="0; url=${
-                req.headers.referer
-            }#success=true"></head><script>window.location.href="${
-                req.headers.referer
-            }#success=true"</script></html>`
-            /* eslint-enable prettier/prettier */
+            `<html lang="en">
+            <head>
+            <meta http-equiv="refresh" content="0; url=${req.headers.referer}#success=true">
+            <title>Success</title>
+            </head>
+            <script>window.location.href="${req.headers.referer}#success=true"</script>
+            </html>`
         );
-    }
+    },
 };

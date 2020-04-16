@@ -32,5 +32,5 @@ module.exports = {
             // If pathname does not end with a file extension, pass control to the error middleware to display a nice error page
             next(new ApplicationError(404));
         }
-    }
+    },
 };

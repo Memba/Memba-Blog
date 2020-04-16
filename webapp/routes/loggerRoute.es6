@@ -37,5 +37,5 @@ module.exports = {
 
         // Return ok in all circumstances
         res.status(httpStatus.created).end();
-    }
+    },
 };

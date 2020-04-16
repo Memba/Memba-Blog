@@ -20,9 +20,9 @@ try {
             ObjectId: {
                 isValid(id) {
                     return CONSTANTS.RX_MONGODB_ID.test(id);
-                }
-            }
-        }
+                },
+            },
+        },
     };
 }
 
@@ -143,5 +143,5 @@ module.exports = {
             // otherwise proceed
             next();
         }
-    }
+    },
 };

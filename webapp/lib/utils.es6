@@ -58,5 +58,5 @@ module.exports = {
      * @see https://github.com/kelektiv/node-uuid
      * @returns {string}
      */
-    uuid: v1
+    uuid: v1,
 };

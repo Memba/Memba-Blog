@@ -6,7 +6,7 @@
 const assert = require('assert');
 const chalk = require('chalk');
 const config = require('../config/index.es6');
-const { RX_LEVEL } = require('../lib/constants.es6');
+const { RX_LEVEL } = require('./constants.es6');
 const plugins = require('../plugins/index.es6');
 
 const levels = {
@@ -14,7 +14,7 @@ const levels = {
     info: 2,
     warn: 4,
     error: 5,
-    crit: 6
+    crit: 6,
 };
 const eq = ': ';
 const qt = '';
@@ -229,7 +229,9 @@ function print(entry) {
         first = false;
     }
     if (entry.stack) {
-        message += `${first ? prefix : separator}stack${eq}${qt}${entry.stack
+        message += `${
+            first ? prefix : separator
+        }stack${eq}${qt}${entry.stack
             .split('\n')
             .join(', ')
             .replace(/\s+/g, ' ')}${qt}`;
@@ -306,9 +308,9 @@ module.exports = {
             slack: {
                 channel: config.get('slack:channels:weberrors'),
                 level: formatted.level,
-                text: formatted.message
+                text: formatted.message,
             },
-            model: formatted
+            model: formatted,
         });
         return true;
     },
@@ -325,5 +327,5 @@ module.exports = {
      */
     success(entry) {
         module.exports.info(entry);
-    }
+    },
 };

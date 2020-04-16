@@ -32,15 +32,16 @@ module.exports = function handler(req, res, next) {
     res.locals.iconPath = () =>
         new URL(cdnIcons.replace('%s.svg', ''), cdnRoot).href;
 
-    res.locals.iconURL = icon => new URL(format(cdnIcons, icon), cdnRoot).href;
+    res.locals.iconURL = (icon) =>
+        new URL(format(cdnIcons, icon), cdnRoot).href;
 
-    res.locals.imageURL = image =>
+    res.locals.imageURL = (image) =>
         new URL(format(cdnImages, image), cdnRoot).href;
 
-    res.locals.publicURL = item =>
+    res.locals.publicURL = (item) =>
         new URL(format(webappPublic, item), webappRoot).href;
 
-    res.locals.scriptURL = script =>
+    res.locals.scriptURL = (script) =>
         `${new URL(script, webpackRoot).href}?v=${version}`;
 
     // Make moment available too

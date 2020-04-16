@@ -75,8 +75,8 @@ class ApplicationError extends Error {
                         // so we need to ensure we at least get the message, name and stack)
                         message: error.message || error._message || '',
                         name: error.name,
-                        stack: error.stack
-                    }
+                        stack: error.stack,
+                    },
                 }
             );
         } else if (error instanceof Error && typeof error.code === 'number') {
@@ -91,8 +91,8 @@ class ApplicationError extends Error {
                         // so we need to ensure we at least get the message, name and stack)
                         message: error.message || error._message || '',
                         name: error.name,
-                        stack: error.stack
-                    }
+                        stack: error.stack,
+                    },
                 }
             );
         } else if (error instanceof Error && typeof error.status === 'number') {
@@ -107,8 +107,8 @@ class ApplicationError extends Error {
                         // so we need to ensure we at least get the message, name and stack)
                         message: error.message || error._message || '',
                         name: error.name,
-                        stack: error.stack
-                    }
+                        stack: error.stack,
+                    },
                 }
             );
         } else if (error instanceof Error) {
@@ -123,8 +123,8 @@ class ApplicationError extends Error {
                         // so we need to ensure we at least get the message, name and stack)
                         message: error.message || error._message || '',
                         name: error.name,
-                        stack: error.stack
-                    }
+                        stack: error.stack,
+                    },
                 }
             );
         } else if (isObject(error)) {
@@ -144,7 +144,7 @@ class ApplicationError extends Error {
                 this.i18n = `errors.http.${httpStatus.internalServerError}`;
                 // the following accepts constructions like new ApplicationError('error on value %s of %s', 1, 2)
                 deepExtend(this, i18n.__(this.i18n), {
-                    message: format.apply(this, args)
+                    message: format.apply(this, args),
                 });
             } else {
                 this.i18n = error;

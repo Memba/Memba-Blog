@@ -27,8 +27,8 @@ module.exports = {
             message: 'get a ping',
             method: 'get',
             module: 'routes/pingRoute',
-            request: req
+            request: req,
         });
         res.json({ ping: 'OK', version, compatible });
-    }
+    },
 };

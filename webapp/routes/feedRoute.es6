@@ -35,7 +35,7 @@ module.exports = {
             message: 'requesting a feed',
             module: 'routes/feedRoute',
             method: 'getRSS',
-            request: req
+            request: req,
         });
 
         const { language } = req.params;
@@ -99,7 +99,7 @@ module.exports = {
                 res.set({
                     'Cache-Control': 'private, max-age=43200',
                     'Content-Language': language,
-                    'Content-Type': 'application/rss+xml; charset=utf-8'
+                    'Content-Type': 'application/rss+xml; charset=utf-8',
                 })
                     .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                     .send(feed);
@@ -107,5 +107,5 @@ module.exports = {
                 next(error);
             }
         });
-    }
+    },
 };

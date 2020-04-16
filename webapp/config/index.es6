@@ -19,7 +19,7 @@ nconf.file('default', path.join(__dirname, 'default.json'));
 if (awss3 && environment === 'production') {
     nconf.use('awss3', {
         bucket: nconf.get('awss3:config:bucket'),
-        key: nconf.get('awss3:config:key')
+        key: nconf.get('awss3:config:key'),
     });
 } else {
     nconf.file(environment, path.join(__dirname, `${environment}.json`));
@@ -60,5 +60,5 @@ module.exports = {
      */
     set(key, value) {
         return nconf.set(key, value);
-    }
+    },
 };

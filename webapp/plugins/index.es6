@@ -21,7 +21,7 @@ module.exports = {
      */
     load(logger) {
         const that = this;
-        readdirSync(`${__dirname}/`).forEach(file => {
+        readdirSync(`${__dirname}/`).forEach((file) => {
             if (/\.(es6|js)$/.test(file) && !file.startsWith('index.')) {
                 // eslint-disable-next-line global-require, import/no-dynamic-require
                 const plugin = require(`./${file}`);
@@ -35,7 +35,7 @@ module.exports = {
                         logger.info({
                             message: `loaded plugin \`${file}\` for event \`${plugin.event}\``,
                             method: 'load',
-                            module: 'plugins/index'
+                            module: 'plugins/index',
                         });
                     }
                 }
@@ -78,7 +78,7 @@ module.exports = {
         );
         // Let plugins assert data
 
-        events.forEach(evt => {
+        events.forEach((evt) => {
             eventEmitter.emit(evt, data);
         });
     },
@@ -103,5 +103,5 @@ module.exports = {
         } else {
             eventEmitter.removeListener(event, handler);
         }
-    }
+    },
 };

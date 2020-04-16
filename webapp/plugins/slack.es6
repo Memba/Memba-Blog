@@ -71,14 +71,14 @@ module.exports = {
                         slack.level,
                         slack.text,
                         data.model
-                    ) // see https://api.slack.com/docs/message-attachments#attachment_structure
+                    ), // see https://api.slack.com/docs/message-attachments#attachment_structure
                 };
                 request(
                     {
                         // The full uri in json config is detected by slack and invalidates the web hook
                         uri: `https://hooks.slack.com/services/${webhook}`,
                         method: 'POST',
-                        json
+                        json,
                     },
                     (error, response, body) => {
                         if (!error && body === 'ok') {
@@ -89,8 +89,8 @@ module.exports = {
                                 data: {
                                     channel: slack.channel,
                                     level: slack.level,
-                                    text: slack.text
-                                }
+                                    text: slack.text,
+                                },
                             });
                         } else {
                             // Note: only logger.critical should trigger a slack web hook
@@ -102,8 +102,8 @@ module.exports = {
                                 data: {
                                     channel: slack.channel,
                                     level: slack.level,
-                                    text: slack.text
-                                }
+                                    text: slack.text,
+                                },
                             });
                         }
                     }
@@ -113,7 +113,7 @@ module.exports = {
             logger.error({
                 error: exception,
                 method: 'handler',
-                module: 'plugins/slack'
+                module: 'plugins/slack',
             });
         }
     },
@@ -131,10 +131,10 @@ module.exports = {
             {
                 title: 'Level',
                 value: level,
-                short: true
-            }
+                short: true,
+            },
         ];
-        Object.keys(model).forEach(key => {
+        Object.keys(model).forEach((key) => {
             const title =
                 key.substr(0, 1).toUpperCase() + key.substr(1).toLowerCase();
             let value = model[key];
@@ -150,7 +150,7 @@ module.exports = {
             fields.push({
                 title,
                 value,
-                short // short implies display on 2 columns (assuming the next one is also short
+                short, // short implies display on 2 columns (assuming the next one is also short
             });
         });
         if (fields.length > 0) {
@@ -160,10 +160,10 @@ module.exports = {
                     // thumb_url: relevant icon?
                     color: CONSTANTS.COLORS[level.toUpperCase()],
                     text,
-                    fields
-                }
+                    fields,
+                },
             ];
         }
         return ret;
-    }
+    },
 };

@@ -44,5 +44,5 @@ module.exports = {
      */
     resetCache() {
         cache = {};
-    }
+    },
 };

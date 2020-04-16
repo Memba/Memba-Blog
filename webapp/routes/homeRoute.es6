@@ -25,7 +25,7 @@ module.exports = {
             message: 'requesting the home page',
             method: 'getHtmlPage',
             module: 'routes/homeRoute',
-            request: req
+            request: req,
         });
 
         const language = res.getLocale();
@@ -36,7 +36,7 @@ module.exports = {
                 res.set({
                     'Cache-Control': 'private, max-age=43200',
                     'Content-Language': language,
-                    'Content-Type': 'text/html; charset=utf-8'
+                    'Content-Type': 'text/html; charset=utf-8',
                 })
                     .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                     .render('home', {
@@ -54,11 +54,11 @@ module.exports = {
                             config.uris.webapp.home,
                             config.uris.webapp.root
                         ).href, // canonical link
-                        title: config.home.title
+                        title: config.home.title,
                     });
             } else {
                 next(error);
             }
         });
-    }
+    },
 };

@@ -16,12 +16,12 @@ const cssnano = require('cssnano')({
         'default',
         {
             discardComments: {
-                removeAll: true
-            }
-        }
-    ]
+                removeAll: true,
+            },
+        },
+    ],
 });
 
 module.exports = {
-    plugins: [autoprefixer, cssnano]
+    plugins: [autoprefixer, cssnano],
 };

@@ -9,7 +9,7 @@
 module.exports = {
     ACCESS: {
         PRIVATE: 0,
-        PUBLIC: 1
+        PUBLIC: 1,
     },
     ACTIVITY_TYPES: {
         COMMENT: 'Comment',
@@ -18,12 +18,12 @@ module.exports = {
         RATING: 'Rating',
         REPORT: 'Report',
         SCORE: 'Score',
-        VIEW: 'View'
+        VIEW: 'View',
     },
     BEARER: 'Bearer ',
     CACHE_CONTROL: {
         HTML: 'public, max-age=604800', // 7 days
-        JSON: 'private, max-age=43200' // 12 hours
+        JSON: 'private, max-age=43200', // 12 hours
     },
     COLORS: {
         DEBUG: '#91A3B0', // grey
@@ -31,29 +31,29 @@ module.exports = {
         WARN: '#FFB347', // orange
         ERROR: '#DB7093', // pale red (pink)
         CRIT: '#C80815', // bright red
-        SUCCESS: '#0CA80C' // green
+        SUCCESS: '#0CA80C', // green
     },
     CONTENT_TYPE: {
         HTML: 'text/html; charset=utf-8',
         TEXT: 'text/plain; charset=utf-8',
-        XML: 'application/xml; charset=utf-8'
+        XML: 'application/xml; charset=utf-8',
     },
     LANGUAGES: ['en', 'fr'],
     LICENSES: {
         CC0: 0,
         BY: 1,
-        'BY-NC-ND': 13
+        'BY-NC-ND': 13,
     },
     PROVIDERS: ['facebook', 'google', 'live', 'twitter'], // See RX_OAUTH_PROVIDER
     REASONS: {
         SPAM: 0,
         OFFENSIVE: 1,
-        IP_RIGHTS: 2
+        IP_RIGHTS: 2,
     },
     ROLES: {
         STUDENT: 0,
         TEACHER: 1,
-        ADMINISTRATOR: 5 // <-- only for organizations
+        ADMINISTRATOR: 5, // <-- only for organizations
     },
     RX_APP_SCHEME: /^[a-z]{2,3}\.[a-z0-9]{3,10}\.[a-z0-9]{3,10}$/,
     // @see http://www.regular-expressions.info/email.html
@@ -86,11 +86,11 @@ module.exports = {
     STATES: {
         DRAFT: 0,
         // APPROVAL
-        PUBLISHED: 5
+        PUBLISHED: 5,
     },
     VERSION_TYPES: {
-        TEST: 'Test'
+        TEST: 'Test',
         // Note: we could consider Test1, Test2, etc. to care for future upgrades
         // In the near future, we might also consider flashcards, tracks, ...
-    }
+    },
 };

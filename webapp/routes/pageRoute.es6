@@ -32,7 +32,7 @@ module.exports = {
             message: 'requesting a page',
             module: 'routes/pageRoute',
             method: 'getHtmlPage',
-            request: req
+            request: req,
         });
 
         const { language } = req.params;
@@ -46,11 +46,11 @@ module.exports = {
         parallel(
             [
                 // get menu
-                callback => {
+                (callback) => {
                     menuModel.getMenu(language, callback);
                 },
                 // get page
-                callback => {
+                (callback) => {
                     const path = convert.getPagePath(language, req.params.slug);
                     indexModel.findByPath(
                         path,
@@ -59,17 +59,17 @@ module.exports = {
                     );
                 },
                 // Get grouped categories
-                callback => {
+                (callback) => {
                     indexModel.groupByCategory(language, callback);
                 },
                 // Get grouped authors
-                callback => {
+                (callback) => {
                     indexModel.groupByAuthor(language, callback);
                 },
                 // Get grouped years/months
-                callback => {
+                (callback) => {
                     indexModel.groupByYearMonth(language, callback);
-                }
+                },
             ],
             (error, responses) => {
                 const isPage =
@@ -103,12 +103,12 @@ module.exports = {
                             language,
                             menu: responses[0],
                             months: responses[4],
-                            trace: req.trace
+                            trace: req.trace,
                         });
                         res.set({
                             'Cache-Control': 'private, max-age=43200',
                             'Content-Language': language,
-                            'Content-Type': 'text/html; charset=utf-8'
+                            'Content-Type': 'text/html; charset=utf-8',
                         })
                             .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                             .render('page', data);
@@ -143,12 +143,12 @@ module.exports = {
                                     config.uris.webapp.root
                                 ).href
                             }?${qs.stringify(req.query)}`,
-                            title: res.__('search.title.heading')
+                            title: res.__('search.title.heading'),
                         };
                         res.set({
                             'Content-Type': 'text/html; charset=utf-8',
                             'Content-Language': language,
-                            'Cache-Control': 'max-age=0, public'
+                            'Cache-Control': 'max-age=0, public',
                         })
                             .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                             .render('search', data);
@@ -158,5 +158,5 @@ module.exports = {
                 }
             }
         );
-    }
+    },
 };

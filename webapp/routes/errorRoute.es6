@@ -19,8 +19,8 @@ module.exports = {
             message: `get an error \`${req.query.code}\` page`,
             method: 'get',
             module: 'routes/errorRoute',
-            request: req
+            request: req,
         });
         next(new ApplicationError(parseInt(req.query.code, 10) || 500));
-    }
+    },
 };

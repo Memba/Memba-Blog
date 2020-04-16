@@ -10,7 +10,7 @@ const CleanCssPlugin = require('less-plugin-clean-css');
 
 const webpackConfig = require('./webpack.config.js');
 
-module.exports = grunt => {
+module.exports = (grunt) => {
     /**
      * Unfortunately, we cannot use grunt-env to set the environment
      * - webpack uses a DefinePlugin which reads process.env.NODE_ENV
@@ -36,8 +36,8 @@ module.exports = grunt => {
         copy: {
             gremlins: {
                 src: 'test/vendor/gremlins.min.js',
-                dest: 'webapp/public/build/gremlins.min.js'
-            }
+                dest: 'webapp/public/build/gremlins.min.js',
+            },
         },
         eslint: {
             files: [
@@ -46,11 +46,11 @@ module.exports = grunt => {
                 // 'src/js/**/*.jsx',
                 'test/**/*.es6',
                 'webapp/server.js',
-                'webapp/**/*/es6'
+                'webapp/**/*/es6',
             ],
             options: {
-                config: '.eslintrc'
-            }
+                config: '.eslintrc',
+            },
         },
         jscs: {
             files: ['src/js/**/app.*.js', 'test/**/*.js', 'webapp/**/*.js'],
@@ -62,9 +62,9 @@ module.exports = grunt => {
                     'src/js/vendor/**/*.js',
                     'test/vendor/**/*.js',
                     'webapp/server.js',
-                    'webapp/public/**/*.js'
-                ]
-            }
+                    'webapp/public/**/*.js',
+                ],
+            },
         },
         jshint: {
             files: ['src/js/**/app.*.js', 'webapp/**/*.js', 'test/**/*.js'],
@@ -76,10 +76,10 @@ module.exports = grunt => {
                     'src/js/vendor/**/*.js',
                     'test/vendor/**/*.js',
                     'webapp/server.js',
-                    'webapp/public/**/*.js'
+                    'webapp/public/**/*.js',
                 ],
-                jshintrc: true
-            }
+                jshintrc: true,
+            },
         },
         /*
         // Kendo Lint is now obsolete
@@ -92,20 +92,20 @@ module.exports = grunt => {
                 banner,
                 // paths: ['webapp/views/amp/styles'],
                 plugins: [new AutoprefixPlugin(), new CleanCssPlugin()],
-                sourceMap: false
+                sourceMap: false,
             },
             files: {
                 expand: true,
                 cwd: './webapp/views/amp/styles',
                 src: ['*.theme.less'],
                 dest: 'webapp/views/amp/css',
-                ext: '.css'
-            }
+                ext: '.css',
+            },
         },
         karma: {
             unit: {
-                configFile: 'coverage.conf.js'
-            }
+                configFile: 'coverage.conf.js',
+            },
         },
         mochaTest: {
             // In node unit tests
@@ -114,10 +114,10 @@ module.exports = grunt => {
                     quiet: false,
                     reporter: 'spec',
                     timeout: 10000,
-                    ui: 'bdd'
+                    ui: 'bdd',
                 },
-                src: ['test/node/**/*.{es6,js}']
-            }
+                src: ['test/node/**/*.{es6,js}'],
+            },
         },
         /*
         nsp: {
@@ -126,15 +126,15 @@ module.exports = grunt => {
         */
         stylelint: {
             options: {
-                configFile: '.stylelintrc'
+                configFile: '.stylelintrc',
             },
-            src: ['styles/**/*.{css,less,scss}']
+            src: ['styles/**/*.{css,less,scss}'],
         },
         uglify: {
             build: {
                 options: {
                     banner,
-                    sourceMap: false
+                    sourceMap: false,
                     // sourceMap: true,
                     // sourceMapName: 'webapp/public/build/workerlib.bundle.js.map'
                 },
@@ -142,16 +142,16 @@ module.exports = grunt => {
                     'webapp/public/build/workerlib.bundle.js': [
                         'src/js/vendor/jashkenas/underscore.js',
                         'src/js/vendor/khan/kas.js',
-                        'src/js/workers/workers.lib.js'
-                    ]
-                }
-            }
+                        'src/js/workers/workers.lib.js',
+                    ],
+                },
+            },
         },
         webdriver: {
             // Selenium functional tests
             local: {
-                configFile: './wdio.conf.js'
-            }
+                configFile: './wdio.conf.js',
+            },
         },
         webpack: {
             // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
@@ -162,12 +162,12 @@ module.exports = grunt => {
                 plugins: webpackConfig.plugins.concat([
                     new webpack.BannerPlugin({
                         banner,
-                        raw: true
+                        raw: true,
                         // entryOnly: true
-                    })
-                ])
-            }
-        }
+                    }),
+                ]),
+            },
+        },
     });
 
     // Load npm tasks
@@ -189,7 +189,7 @@ module.exports = grunt => {
         'eslint',
         'jscs',
         'jshint',
-        'stylelint'
+        'stylelint',
         // 'nsp'
     ]); // , 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'less']);

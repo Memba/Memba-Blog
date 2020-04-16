@@ -58,5 +58,5 @@ module.exports = {
             }
         }
         return next();
-    }
+    },
 };

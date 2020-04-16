@@ -23,7 +23,7 @@ const allow = {
                 .replace(new RegExp(SEPARATOR, 'g'), SEPARATOR),
             '([a-z]{2})?'
         )
-        .replace(`${SEPARATOR}(`, `(${SEPARATOR}`) // This avoids // if the pathname is /sitemap.xml (without optional language)
+        .replace(`${SEPARATOR}(`, `(${SEPARATOR}`), // This avoids // if the pathname is /sitemap.xml (without optional language)
 };
 
 module.exports = {
@@ -53,5 +53,5 @@ module.exports = {
         } else {
             next();
         }
-    }
+    },
 };

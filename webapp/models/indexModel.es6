@@ -11,7 +11,7 @@ const utils = require('../lib/utils.es6');
 let cache = {
     authors: {},
     categories: {},
-    months: {}
+    months: {},
 };
 
 module.exports = {
@@ -42,7 +42,7 @@ module.exports = {
         // eslint-disable-next-line no-param-reassign
         query = utils.deepExtend(query, {
             // eslint-disable-next-line camelcase
-            site_url: new RegExp(`^${site_url}`, 'i')
+            site_url: new RegExp(`^${site_url}`, 'i'),
         });
         if (db[language] && typeof db[language].find === 'function') {
             db[language].find(query, callback);
@@ -103,13 +103,13 @@ module.exports = {
                         path: new RegExp(
                             `^${convert.getPostDir(language)}`,
                             'i'
-                        )
+                        ),
                     }, // we only want posts
                     reduce(curr, result) {
                         // eslint-disable-next-line no-param-reassign
                         result.count += 1;
                     },
-                    initial: { count: 0 }
+                    initial: { count: 0 },
                 },
                 (error, categories) => {
                     if (!error && categories) {
@@ -143,13 +143,13 @@ module.exports = {
                         path: new RegExp(
                             `^${convert.getPostDir(language)}`,
                             'i'
-                        )
+                        ),
                     }, // we only ant posts
                     reduce(curr, result) {
                         // eslint-disable-next-line no-param-reassign
                         result.count += 1;
                     },
-                    initial: { count: 0 }
+                    initial: { count: 0 },
                 },
                 (error, authors) => {
                     if (!error && authors) {
@@ -182,20 +182,20 @@ module.exports = {
                         const date = new Date(doc.creation_date);
                         return {
                             year: date.getUTCFullYear(),
-                            month: date.getUTCMonth()
+                            month: date.getUTCMonth(),
                         };
                     },
                     cond: {
                         path: new RegExp(
                             `^${convert.getPostDir(language)}`,
                             'i'
-                        )
+                        ),
                     }, // we only ant posts
                     reduce(curr, result) {
                         // eslint-disable-next-line no-param-reassign
                         result.count += 1;
                     },
-                    initial: { count: 0 }
+                    initial: { count: 0 },
                 },
                 (error, months) => {
                     if (!error && months) {
@@ -220,7 +220,7 @@ module.exports = {
         cache = {
             authors: {},
             categories: {},
-            months: {}
+            months: {},
         };
-    }
+    },
 };

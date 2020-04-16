@@ -84,7 +84,7 @@ module.exports = {
             module: 'middleware/error',
             method: 'handler',
             request: req,
-            error
+            error,
         };
         if (critical) {
             logger.critical(entry);
@@ -115,7 +115,7 @@ module.exports = {
                 .set({
                     'Cache-Control': 'no-cache',
                     'Content-Language': language,
-                    'Content-Type': 'text/html; charset=utf-8'
+                    'Content-Type': 'text/html; charset=utf-8',
                 })
                 .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                 .render('error', {
@@ -135,7 +135,7 @@ module.exports = {
                     results: [], // trick header into displaying robots noindex directive
                     site_url: false, // trick header into not displaying a canonical link since we have a robots noindex directive
                     title: error.title,
-                    trace: req.trace
+                    trace: req.trace,
                 });
         } else if (
             err.i18n === 'token.accessDenied' || // Authentication is denied by provider
@@ -172,5 +172,5 @@ module.exports = {
             // Return json error message for api server
             res.status(error.status).json({ error });
         }
-    }
+    },
 };

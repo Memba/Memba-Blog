@@ -42,7 +42,7 @@ module.exports = {
             message: 'requesting a sitemap',
             module: 'routes/sitemapRoute',
             method: 'getXmlSitemap',
-            request: req
+            request: req,
         });
 
         const { language } = req.params;
@@ -76,7 +76,7 @@ module.exports = {
                     res.set({
                         'Cache-Control': 'private, max-age=43200',
                         'Content-Language': language,
-                        'Content-Type': 'application/xml; charset=utf-8'
+                        'Content-Type': 'application/xml; charset=utf-8',
                     })
                         .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                         .send(sitemap);
@@ -105,11 +105,11 @@ module.exports = {
 
             // Send the index
             res.set({
-                'Content-Type': 'application/xml; charset=utf-8'
+                'Content-Type': 'application/xml; charset=utf-8',
                 // 'Cache-Control': 'max-age=3600, public'
             })
                 .vary('Accept-Encoding') // See http://blog.maxcdn.com/accept-encoding-its-vary-important/
                 .send(index);
         }
-    }
+    },
 };
