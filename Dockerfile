@@ -2,7 +2,7 @@
 # built on debian 9 "stretch" (current stable release)
 # see https://hub.docker.com/_/node/
 # see also https://github.com/nodejs/docker-node/blob/master/10/Dockerfile
-FROM node:12
+FROM node:14
 
 # Maintained by Jacques L. Chereau
 MAINTAINER jlchereau
