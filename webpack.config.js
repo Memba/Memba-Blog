@@ -266,10 +266,6 @@ module.exports = {
                         loader: 'sass-loader',
                         options: {
                             implementation: sass,
-                            // compress: true,
-                            // relativeUrls: true,
-                            // strictMath: true,
-                            // plugins: [lessCommentPlugin]
                         },
                     },
                 ],
@@ -291,10 +287,12 @@ module.exports = {
                     {
                         loader: 'less-loader',
                         options: {
-                            compress: true,
-                            relativeUrls: true,
-                            strictMath: true,
-                            plugins: [lessCommentPlugin],
+                            lessOptions: {
+                                compress: true,
+                                relativeUrls: true,
+                                strictMath: true,
+                                plugins: [lessCommentPlugin],
+                            },
                         },
                     },
                 ],
@@ -313,10 +311,12 @@ module.exports = {
                     {
                         loader: 'less-loader',
                         options: {
-                            compress: true,
-                            relativeUrls: true,
-                            strictMath: true,
-                            plugins: [lessCommentPlugin],
+                            lessOptions: {
+                                compress: true,
+                                relativeUrls: true,
+                                strictMath: true,
+                                plugins: [lessCommentPlugin],
+                            },
                         },
                     },
                 ],
