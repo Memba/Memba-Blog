@@ -19,7 +19,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 // const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const workboxPlugin = require('workbox-webpack-plugin');
-const lessCommentPlugin = require('./web_modules/less-plugin/index.es6');
+const cleanLessPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
 const pkg = require('./package.json');
 
@@ -243,10 +243,6 @@ module.exports = {
                         loader: 'sass-loader',
                         options: {
                             implementation: sass,
-                            // compress: true,
-                            // relativeUrls: true,
-                            // strictMath: true,
-                            // plugins: [lessCommentPlugin]
                         },
                     },
                 ],
@@ -291,7 +287,7 @@ module.exports = {
                                 compress: true,
                                 relativeUrls: true,
                                 strictMath: true,
-                                plugins: [lessCommentPlugin],
+                                plugins: [cleanLessPlugin],
                             },
                         },
                     },
@@ -315,7 +311,7 @@ module.exports = {
                                 compress: true,
                                 relativeUrls: true,
                                 strictMath: true,
-                                plugins: [lessCommentPlugin],
+                                plugins: [cleanLessPlugin],
                             },
                         },
                     },

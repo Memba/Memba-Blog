@@ -31,5 +31,5 @@ class CleanProcessor {
 module.exports = {
     install(less, pluginManager) {
         pluginManager.addPreProcessor(new CleanProcessor(less));
-    }
+    },
 };
