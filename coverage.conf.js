@@ -27,7 +27,7 @@ module.exports = (config) => {
         // list of files / patterns to load in the browser
         files: [
             {
-                pattern: 'js/vendor/jquery/jquery-3.5.0.min.js',
+                pattern: 'js/vendor/jquery/jquery-3.5.1.min.js',
                 served: true,
                 included: true,
             },

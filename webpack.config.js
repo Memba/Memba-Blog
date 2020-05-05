@@ -100,7 +100,7 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
         (originalManifest) => {
             const manifest = originalManifest.concat([
                 {
-                    url: 'https://code.jquery.com/jquery-3.5.0.min.js',
+                    url: 'https://code.jquery.com/jquery-3.5.1.min.js',
                 },
             ]);
             // Optionally, set warning messages.
