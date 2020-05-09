@@ -23,7 +23,7 @@ describe('routes/static', () => {
     });
     */
 
-    it('it should return robots.txt', done => {
+    it('it should return robots.txt', (done) => {
         request(app)
             .get(util.format(config.get('uris:webapp:public'), 'robots.txt'))
             .expect(200)
@@ -31,7 +31,7 @@ describe('routes/static', () => {
             .end(done);
     });
 
-    it('it should return a simplified error page on missing js file', done => {
+    it('it should return a simplified error page on missing js file', (done) => {
         request(app)
             .get(util.format(config.get('uris:webapp:public'), 'dummy.js'))
             .expect(404)

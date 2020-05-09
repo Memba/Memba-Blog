@@ -45,7 +45,7 @@ describe('lib/utils', () => {
                     a: 1,
                     b: new Date(),
                     c: ['1', '2'],
-                    d: { e: {}, f: null }
+                    d: { e: {}, f: null },
                 })
             ).to.be.true;
         });
@@ -95,7 +95,7 @@ describe('lib/utils', () => {
                     a: 1,
                     b: new Date(),
                     c: ['1', '2'],
-                    d: { e: {}, f: null }
+                    d: { e: {}, f: null },
                 })
             ).to.be.true;
         });
@@ -140,7 +140,7 @@ describe('lib/utils', () => {
                     a: 1,
                     b: new Date(),
                     c: ['1', '2'],
-                    d: { e: {}, f: null }
+                    d: { e: {}, f: null },
                 })
             ).to.be.false;
         });

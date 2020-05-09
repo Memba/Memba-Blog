@@ -12,7 +12,7 @@ const config = require('../../../webapp/config/index.es6');
 const app = config.get('uris:webapp:root');
 
 describe('routes/pageRoute', () => {
-    it('it should return an english page', done => {
+    it('it should return an english page', (done) => {
         request(app)
             .get(util.format(config.get('uris:webapp:pages'), 'en', ''))
             .expect(200)
@@ -20,7 +20,7 @@ describe('routes/pageRoute', () => {
             .end(done);
     });
 
-    it('it should return a french page', done => {
+    it('it should return a french page', (done) => {
         request(app)
             .get(util.format(config.get('uris:webapp:pages'), 'fr', ''))
             .expect(200)
@@ -28,7 +28,7 @@ describe('routes/pageRoute', () => {
             .end(done);
     });
 
-    it('it should return an error page on unknown language', done => {
+    it('it should return an error page on unknown language', (done) => {
         request(app)
             .get(util.format(config.get('uris:webapp:pages'), 'zz', ''))
             .expect(404)
@@ -36,7 +36,7 @@ describe('routes/pageRoute', () => {
             .end(done);
     });
 
-    it('it should return an error page on unknown page', done => {
+    it('it should return an error page on unknown page', (done) => {
         request(app)
             .get(util.format(config.get('uris:webapp:pages'), 'en', 'dummy'))
             .expect(404)

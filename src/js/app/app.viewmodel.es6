@@ -12,7 +12,7 @@ import CONSTANTS from '../common/window.constants.es6';
 const { format, observable } = window.kendo;
 const VIEW_MODEL = {
     LOCALE: 'locale',
-    THEME: 'theme'
+    THEME: 'theme',
 };
 
 /**
@@ -23,13 +23,13 @@ const viewModel = observable({
     locale: __.locale,
 
     // Theme (see footer)
-    theme: themer.name()
+    theme: themer.name(),
 });
 
 /**
  * Bind change event for i18n locale and theme
  */
-viewModel.bind(CONSTANTS.CHANGE, e => {
+viewModel.bind(CONSTANTS.CHANGE, (e) => {
     if (e.field === VIEW_MODEL.LOCALE) {
         window.top.location.assign(
             format(config.uris.webapp.locale, e.sender.get(VIEW_MODEL.LOCALE))

@@ -12,7 +12,7 @@ const config = require('../../../webapp/config/index.es6');
 const app = config.get('uris:webapp:root');
 
 describe('routes/feedRoute', () => {
-    it('it should return an english feed', done => {
+    it('it should return an english feed', (done) => {
         request(app)
             .get(util.format(config.get('uris:webapp:feed'), 'en'))
             .expect(200)
@@ -20,7 +20,7 @@ describe('routes/feedRoute', () => {
             .end(done);
     });
 
-    it('it should return a french feed', done => {
+    it('it should return a french feed', (done) => {
         request(app)
             .get(util.format(config.get('uris:webapp:feed'), 'fr'))
             .expect(200)

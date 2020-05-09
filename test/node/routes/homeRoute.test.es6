@@ -11,7 +11,7 @@ const config = require('../../../webapp/config/index.es6');
 const app = config.get('uris:webapp:root');
 
 describe('routes/homeRoute', () => {
-    it('it should return the home page', done => {
+    it('it should return the home page', (done) => {
         request(app)
             .get(config.get('uris:webapp:home'))
             .expect(200)

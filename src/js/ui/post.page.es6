@@ -18,7 +18,7 @@ const { HTMLAnchorElement } = window;
 const { attr } = window.kendo;
 const logger = new Logger('page.post');
 const SELECTORS = {
-    SOCIAL: '.app-social'
+    SOCIAL: '.app-social',
 };
 const COMMAND = {
     FACEBOOK: 'facebook',
@@ -26,7 +26,7 @@ const COMMAND = {
     LINKEDIN: 'linkedin',
     PINTEREST: 'pinterest',
     TWITTER: 'twitter',
-    EMAIL: 'email'
+    EMAIL: 'email',
 };
 let socialWindow = null;
 let socialUrl;
@@ -49,7 +49,7 @@ const Controller = AppController.extend({
             // LOADED occurs after document ready event
             logger.info({
                 message: `post page initialized in ${__.locale}`,
-                method: 'init'
+                method: 'init',
             });
         });
     },
@@ -60,7 +60,7 @@ const Controller = AppController.extend({
      * Also check Kidoju.WebApp -> app.summary.js
      */
     initSocialButtons() {
-        $(SELECTORS.SOCIAL).on(CONSTANTS.CLICK, e => {
+        $(SELECTORS.SOCIAL).on(CONSTANTS.CLICK, (e) => {
             assert.instanceof(
                 $.Event,
                 e,
@@ -103,41 +103,26 @@ const Controller = AppController.extend({
                     // @ see https://developers.facebook.com/docs/sharing/reference/share-dialog
                     // @ see https://developers.facebook.com/docs/sharing/best-practices
                     // @see https://developers.facebook.com/tools/debug/ <---------------- DEBUG
-                    openUrl = `${'https://www.facebook.com/dialog/share' +
-                        '?display=popup' +
-                        '&app_id='}${
-                        config.constants.facebookAppId
-                    }&href=${sharedUrl}&redirect_uri=${sharedUrl}`;
-                    /*
-                        openUrl = 'https://www.facebook.com/sharer/sharer.php' +
-                            '?u=' + sharedUrl;
-                        */
+                    openUrl = `https://www.facebook.com/dialog/share?display=popup&app_id=${config.constants.facebookAppId}&href=${sharedUrl}&redirect_uri=${sharedUrl}`;
+                    // openUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + sharedUrl;
                     break;
                 case COMMAND.GOOGLE:
                     // @see https://developers.google.com/+/web/share/
-                    openUrl = `${'https://plus.google.com/share' +
-                        '?url='}${sharedUrl}&hl=${__.locale}`;
+                    openUrl = `https://plus.google.com/share?url=${sharedUrl}&hl=${__.locale}`;
                     break;
                 case COMMAND.LINKEDIN:
                     // @see https://developer.linkedin.com/docs/share-on-linkedin
                     // Note Linkedin uses open graph meta tags
-                    openUrl = `${'https://www.linkedin.com/shareArticle' +
-                        '?mini=true' +
-                        '&source='}${source}&summary=${description}&title=${title}&url=${sharedUrl}`;
-
+                    openUrl = `https://www.linkedin.com/shareArticle?mini=true&source=${source}&summary=${description}&title=${title}&url=${sharedUrl}`;
                     break;
                 case COMMAND.PINTEREST:
                     // @see https://developers.pinterest.com/docs/widgets/pin-it/
-                    openUrl = `${'https://pinterest.com/pin/create/button/' +
-                        '?url='}${sharedUrl}&media=${image}&description=${description}`;
+                    openUrl = `https://pinterest.com/pin/create/button/?url=${sharedUrl}&media=${image}&description=${description}`;
                     break;
                 case COMMAND.TWITTER:
                     // Twitter web intent
                     // @ see https://dev.twitter.com/web/tweet-button/web-intent
-                    openUrl = `${'https://twitter.com/intent/tweet' +
-                        '?text='}${title}&url=${sharedUrl}&via=${
-                        config.constants.twitterAccount
-                    }`;
+                    openUrl = `https://twitter.com/intent/tweet?text=${title}&url=${sharedUrl}&via=${config.constants.twitterAccount}`;
                     // TODO: hashtags (message size limit)?
                     break;
                 case COMMAND.EMAIL:
@@ -167,7 +152,7 @@ const Controller = AppController.extend({
                 socialWindow.focus();
             }
         });
-    }
+    },
 });
 
 /**

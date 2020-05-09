@@ -36,7 +36,7 @@ import config from './app.config.jsx';
         const { location } = document;
         document.addEventListener(
             'click',
-            e => {
+            (e) => {
                 let curnode = e.target;
                 // Find the closest anchor
                 while (!/^(a|html)$/i.test(curnode.nodeName)) {

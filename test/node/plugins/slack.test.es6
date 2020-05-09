@@ -11,17 +11,17 @@ describe('plugins/slack', () => {
         plugins.load();
     });
 
-    it('should send without error', done => {
+    it('should send without error', (done) => {
         plugins.emit('slack', {
             slack: {
                 channel: '#devtest',
                 level: 'debug',
-                text: 'Slack test'
+                text: 'Slack test',
             },
             model: {
                 name: 'world',
-                dummy: 'toto'
-            }
+                dummy: 'toto',
+            },
         });
         setTimeout(done, 500);
     });

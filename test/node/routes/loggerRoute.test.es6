@@ -45,7 +45,7 @@ describe('routes/loggerRoute', () => {
                 .send({
                     date: new Date(),
                     level: 'debug',
-                    message: 'Hello World'
+                    message: 'Hello World',
                 })
                 .expect(201)
                 // .expect('Content-Type', /json/)

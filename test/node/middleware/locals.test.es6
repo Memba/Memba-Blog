@@ -29,9 +29,7 @@ describe('middleware/locals', () => {
     });
 
     it('It should add format to res.locals', () => {
-        expect(res.locals)
-            .to.have.property('format')
-            .that.is.a('function');
+        expect(res.locals).to.have.property('format').that.is.a('function');
         expect(res.locals.format('%s %s', 'Hello', 'World')).to.equal(
             'Hello World'
         );
@@ -56,9 +54,7 @@ describe('middleware/locals', () => {
     });
 
     it('It should add moment to res.locals', () => {
-        expect(res.locals)
-            .to.have.property('moment')
-            .that.is.a('function');
+        expect(res.locals).to.have.property('moment').that.is.a('function');
         expect(res.locals.moment('1995-12-25').isValid()).to.be.true;
     });
 });

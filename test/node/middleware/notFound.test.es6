@@ -45,7 +45,7 @@ describe('middleware/notFound', () => {
         notFound.handler(req, res, next);
         expect(res._status).to.have.been.calledWith(404);
         expect(res._set).to.have.been.calledWith({
-            'Content-Type': 'text/plain; charset=utf-8'
+            'Content-Type': 'text/plain; charset=utf-8',
         });
         expect(res._send).to.have.been.calledWith(http.STATUS_CODES['404']);
         expect(next).not.to.have.been.called;

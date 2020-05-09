@@ -9,7 +9,7 @@ const { expect } = require('chai');
 const indexModel = require('../../../webapp/models/indexModel.es6');
 
 describe('models/indexModel', () => {
-    it('getIndex: english', done => {
+    it('getIndex: english', (done) => {
         indexModel.getIndex('en', (error, index) => {
             expect(error).to.be.null;
             expect(index).to.be.instanceof(Array);
@@ -19,7 +19,7 @@ describe('models/indexModel', () => {
         });
     });
 
-    it('getIndex: french', done => {
+    it('getIndex: french', (done) => {
         indexModel.getIndex('fr', (error, index) => {
             expect(error).to.be.null;
             expect(index).to.be.instanceof(Array);

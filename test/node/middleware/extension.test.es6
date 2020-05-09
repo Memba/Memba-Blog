@@ -61,7 +61,7 @@ describe('middleware/extension', () => {
             originalUrl: new URL(
                 util.format(sitemap, '').replace('//', '/'),
                 root
-            ).href
+            ).href,
         };
         const res = new Response();
         const next = sinon.spy();
@@ -74,7 +74,7 @@ describe('middleware/extension', () => {
 
     it('/en/sitemap.xml should go through', () => {
         const req = {
-            originalUrl: new URL(util.format(sitemap, 'en'), root).href
+            originalUrl: new URL(util.format(sitemap, 'en'), root).href,
         };
         const res = new Response();
         const next = sinon.spy();
@@ -87,7 +87,7 @@ describe('middleware/extension', () => {
 
     it('/fr/rss.xml should go through', () => {
         const req = {
-            originalUrl: new URL(util.format(feed, 'fr'), root).href
+            originalUrl: new URL(util.format(feed, 'fr'), root).href,
         };
         const res = new Response();
         const next = sinon.spy();
@@ -105,7 +105,7 @@ describe('middleware/extension', () => {
         extension.handler(req, res, next);
         expect(res._status).to.have.been.calledWith(404);
         expect(res._set).to.have.been.calledWith({
-            'Content-Type': 'text/plain; charset=utf-8'
+            'Content-Type': 'text/plain; charset=utf-8',
         });
         expect(res._send).to.have.been.calledWith(http.STATUS_CODES['404']);
         expect(next).not.to.have.been.called;

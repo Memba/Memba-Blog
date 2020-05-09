@@ -26,9 +26,7 @@ describe('lib/applicationError', () => {
             const error = new ApplicationError(originalError);
             expect(error).to.be.instanceof(ApplicationError);
             expect(error).to.have.property('i18n', 'errors.http.400');
-            expect(error)
-                .to.have.property('message')
-                .that.is.a('string');
+            expect(error).to.have.property('message').that.is.a('string');
             expect(error).to.have.property('name', 'ApplicationError');
             expect(error).to.have.nested.property(
                 'originalError.message',
@@ -39,14 +37,10 @@ describe('lib/applicationError', () => {
                 'ValidationError'
             );
             expect(error).to.have.nested.property('originalError.stack');
-            expect(error)
-                .to.have.property('stack')
-                .that.is.a('string');
+            expect(error).to.have.property('stack').that.is.a('string');
             expect(error).to.have.property('status', 400);
             if (webapp) {
-                expect(error)
-                    .to.have.property('title')
-                    .that.is.a('string');
+                expect(error).to.have.property('title').that.is.a('string');
             }
         });
     }
@@ -56,9 +50,7 @@ describe('lib/applicationError', () => {
         const error = new ApplicationError(originalError);
         expect(error).to.be.instanceof(ApplicationError);
         expect(error).to.have.property('i18n', 'errors.http.500');
-        expect(error)
-            .to.have.property('message')
-            .that.is.a('string');
+        expect(error).to.have.property('message').that.is.a('string');
         expect(error).to.have.property('name', 'ApplicationError');
         expect(error)
             .to.have.nested.property('originalError.message')
@@ -69,14 +61,10 @@ describe('lib/applicationError', () => {
         expect(error)
             .to.have.nested.property('originalError.stack')
             .that.is.a('string');
-        expect(error)
-            .to.have.property('stack')
-            .that.is.a('string');
+        expect(error).to.have.property('stack').that.is.a('string');
         expect(error).to.have.property('status', 500);
         if (webapp) {
-            expect(error)
-                .to.have.property('title')
-                .that.is.a('string');
+            expect(error).to.have.property('title').that.is.a('string');
         }
     });
 
@@ -88,32 +76,22 @@ describe('lib/applicationError', () => {
         expect(error).to.have.property('i18n', 'errors.http.500');
         expect(error).to.have.property('message', obj.message);
         expect(error).to.have.property('name', 'ApplicationError');
-        expect(error)
-            .to.have.property('stack')
-            .that.is.a('string');
+        expect(error).to.have.property('stack').that.is.a('string');
         expect(error).to.have.property('status', obj.status);
         if (webapp) {
-            expect(error)
-                .to.have.property('title')
-                .that.is.a('string');
+            expect(error).to.have.property('title').that.is.a('string');
         }
     });
 
     it('ApplicationError from a number (which is an http status code)', () => {
         const error = new ApplicationError(401);
         expect(error).to.have.property('i18n', 'errors.http.401');
-        expect(error)
-            .to.have.property('message')
-            .that.is.a('string');
+        expect(error).to.have.property('message').that.is.a('string');
         expect(error).to.have.property('name', 'ApplicationError');
-        expect(error)
-            .to.have.property('stack')
-            .that.is.a('string');
+        expect(error).to.have.property('stack').that.is.a('string');
         expect(error).to.have.property('status', 401);
         if (webapp) {
-            expect(error)
-                .to.have.property('title')
-                .that.is.a('string');
+            expect(error).to.have.property('title').that.is.a('string');
         }
     });
 
@@ -129,18 +107,12 @@ describe('lib/applicationError', () => {
         const error = new ApplicationError(i18n);
         expect(error).to.be.instanceof(ApplicationError);
         expect(error).to.have.property('i18n', i18n);
-        expect(error)
-            .to.have.property('message')
-            .that.is.a('string');
+        expect(error).to.have.property('message').that.is.a('string');
         expect(error).to.have.property('name', 'ApplicationError');
-        expect(error)
-            .to.have.property('stack')
-            .that.is.a('string');
+        expect(error).to.have.property('stack').that.is.a('string');
         expect(error).to.have.property('status', 403);
         if (webapp) {
-            expect(error)
-                .to.have.property('title')
-                .that.is.a('string');
+            expect(error).to.have.property('title').that.is.a('string');
         }
     });
 
@@ -154,14 +126,10 @@ describe('lib/applicationError', () => {
             'a message with value 1 and value 2'
         );
         expect(error).to.have.property('name', 'ApplicationError');
-        expect(error)
-            .to.have.property('stack')
-            .that.is.a('string');
+        expect(error).to.have.property('stack').that.is.a('string');
         expect(error).to.have.property('status', 500);
         if (webapp) {
-            expect(error)
-                .to.have.property('title')
-                .that.is.a('string');
+            expect(error).to.have.property('title').that.is.a('string');
         }
     });
 

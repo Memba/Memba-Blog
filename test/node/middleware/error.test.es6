@@ -68,7 +68,7 @@ class Response {
             config: config.get(),
             format,
             // moment: require('moment');
-            URL
+            URL,
         };
     }
 
@@ -111,7 +111,7 @@ describe('middleware/error', () => {
             const res = new Response();
             error.handler(err, req, res);
             expect(res._json).to.have.been.calledWithMatch(
-                args =>
+                (args) =>
                     args.error instanceof ApplicationError &&
                     typeof args.error.originalError === 'undefined' &&
                     typeof args.error.stack === 'undefined'
@@ -125,7 +125,7 @@ describe('middleware/error', () => {
             const res = new Response();
             error.handler(err, req, res);
             expect(res._json).to.have.been.calledWithMatch(
-                args =>
+                (args) =>
                     args.error instanceof ApplicationError &&
                     typeof args.error.originalError === 'undefined' &&
                     typeof args.error.stack === 'undefined'
@@ -141,7 +141,7 @@ describe('middleware/error', () => {
             const res = new Response();
             error.handler(err, req, res);
             expect(res._json).to.have.been.calledWithMatch(
-                args =>
+                (args) =>
                     args.error instanceof ApplicationError &&
                     typeof args.error.originalError === 'undefined' &&
                     typeof args.error.stack === 'undefined'
@@ -155,7 +155,7 @@ describe('middleware/error', () => {
             const res = new Response();
             error.handler(err, req, res);
             expect(res._json).to.have.been.calledWithMatch(
-                args => args.error instanceof ApplicationError
+                (args) => args.error instanceof ApplicationError
             );
             expect(res._status).to.have.been.calledWith(404);
         });
@@ -168,7 +168,7 @@ describe('middleware/error', () => {
             const res = new Response({ html: true });
             error.handler(err, req, res);
             expect(res._render).to.have.been.calledWithMatch(
-                args =>
+                (args) =>
                     args.template === 'error' &&
                     'author' in args.data && // author is undefined
                     'description' in args.data &&
@@ -183,14 +183,14 @@ describe('middleware/error', () => {
                     'trace' in args.data
             );
             expect(res._set).to.have.been.calledWithMatch(
-                args =>
+                (args) =>
                     args['Cache-Control'] === 'no-cache' &&
                     args['Content-Language'] === locale &&
                     args['Content-Type'] === 'text/html; charset=utf-8'
             );
             expect(res._status).to.have.been.calledWith(500);
             expect(res._vary).to.have.been.calledWithMatch(
-                args => args === 'Accept-Encoding'
+                (args) => args === 'Accept-Encoding'
             );
         });
 
@@ -200,7 +200,7 @@ describe('middleware/error', () => {
             const res = new Response({ html: true });
             error.handler(err, req, res);
             expect(res._render).to.have.been.calledWithMatch(
-                args =>
+                (args) =>
                     args.template === 'error' &&
                     'author' in args.data && // author is undefined
                     'description' in args.data &&
@@ -215,14 +215,14 @@ describe('middleware/error', () => {
                     'trace' in args.data
             );
             expect(res._set).to.have.been.calledWithMatch(
-                args =>
+                (args) =>
                     args['Cache-Control'] === 'no-cache' &&
                     args['Content-Language'] === locale &&
                     args['Content-Type'] === 'text/html; charset=utf-8'
             );
             expect(res._status).to.have.been.calledWith(404);
             expect(res._vary).to.have.been.calledWithMatch(
-                args => args === 'Accept-Encoding'
+                (args) => args === 'Accept-Encoding'
             );
         });
     });

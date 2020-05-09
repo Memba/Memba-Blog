@@ -28,14 +28,14 @@ const {
     fx,
     keys,
     Observable,
-    ui: { Touch }
+    ui: { Touch },
 } = window.kendo;
 const logger = new Logger('app.controller');
 const SELECTORS = {
     DRAWER: '#id-drawer',
     LOADING: 'body>div.k-loading-image',
     SEARCH_INPUT: 'nav.navbar input[type=search]',
-    TOGGLER: '#id-drawer-button'
+    TOGGLER: '#id-drawer-button',
 };
 
 /**
@@ -60,7 +60,7 @@ const AppController = Observable.extend({
             // Log page readiness
             logger.debug({
                 message: `Base controller initialized in ${__.locale}`,
-                method: 'AppController.init'
+                method: 'AppController.init',
             });
         });
     },
@@ -70,9 +70,7 @@ const AppController = Observable.extend({
      * @method
      */
     reveal() {
-        $(SELECTORS.LOADING)
-            .delay(400)
-            .fadeOut();
+        $(SELECTORS.LOADING).delay(400).fadeOut();
     },
 
     /**
@@ -88,7 +86,7 @@ const AppController = Observable.extend({
         // Drawer swipe
         $(SELECTORS.DRAWER).kendoTouch({
             enableSwipe: true,
-            swipe: this._onDrawerSwipe.bind(this)
+            swipe: this._onDrawerSwipe.bind(this),
         });
         // Search input event handlers
         $(SELECTORS.SEARCH_INPUT)
@@ -123,10 +121,7 @@ const AppController = Observable.extend({
             // It is no more possible to show the drawer
             // drawer$.show(); fixes that
             drawer$.show();
-            fx(drawer$)
-                .expand('horizontal')
-                .duration(600)
-                .play();
+            fx(drawer$).expand('horizontal').duration(600).play();
         }
     },
 
@@ -219,7 +214,7 @@ const AppController = Observable.extend({
             return false; // Prevent a form submission
         }
         return true; // Accept any other character
-    }
+    },
 });
 
 /**

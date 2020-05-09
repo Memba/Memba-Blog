@@ -28,10 +28,10 @@ const Controller = AppController.extend({
         $.when(...this.initializers).then(() => {
             logger.info({
                 message: `home page initialized in ${__.locale}`,
-                method: 'init'
+                method: 'init',
             });
         });
-    }
+    },
 });
 
 /**

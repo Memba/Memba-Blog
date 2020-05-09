@@ -30,7 +30,7 @@ const url = {
             .call(args)
             .join('/')
             .replace(/([^:])[/]{2,}/g, '$1/');
-    }
+    },
 };
 
 /**
@@ -56,7 +56,7 @@ config.constants = {
     facebookAppId: '<%- facebook.clientID %>',
 
     // Twitter account
-    twitterAccount: '<%- twitter.account %>'
+    twitterAccount: '<%- twitter.account %>',
 };
 
 /**
@@ -87,7 +87,7 @@ config.uris = {
         icons: url.resolve(
             '<%- uris.cdn.root %>',
             convertFormat('<%- uris.cdn.icons %>')
-        )
+        ),
     },
     webapp: {
         error: url.resolve(
@@ -129,8 +129,8 @@ config.uris = {
         public: url.resolve(
             '<%- uris.webapp.root %>',
             convertFormat('<%- uris.webapp.public %>')
-        )
-    }
+        ),
+    },
 };
 
 /**
@@ -138,7 +138,7 @@ config.uris = {
  */
 config.logger = {
     level: parseInt('<%- level %>', 10) || 0,
-    endPoint: config.uris.webapp.logger
+    endPoint: config.uris.webapp.logger,
 };
 
 /**

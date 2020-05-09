@@ -27,8 +27,8 @@ try {
                         .substr(0, 12);
                 expect(ret).to.match(CONSTANTS.RX_MONGODB_ID);
                 return ret;
-            }
-        }
+            },
+        },
     };
 }
 

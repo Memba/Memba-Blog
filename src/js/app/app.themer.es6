@@ -60,7 +60,7 @@ const THEMES = {
     nordic: 'nordic',
     turquoise: 'turquoise',
     urban: 'urban',
-    vintage: 'vintage'
+    vintage: 'vintage',
 };
 const DEFAULT = 'bootstrap';
 
@@ -102,13 +102,13 @@ const themer = {
             // See https://github.com/webpack/webpack/issues/993
             // eslint-disable-next-line global-require, import/no-dynamic-require
             loader = require(`../../styles/themes/app.theme.${oldTheme}.scss`);
-            loader(style => {
+            loader((style) => {
                 style.unuse();
             });
         }
         // eslint-disable-next-line global-require, import/no-dynamic-require
         loader = require(`../../styles/themes/app.theme.${theme}.scss`);
-        loader(style => {
+        loader((style) => {
             style.use();
             if (localStorage && !$.isArray(matches)) {
                 try {
@@ -140,7 +140,7 @@ const themer = {
             themer.updateQRCodes(THEMES[theme]);
             logger.debug({
                 message: `theme changed to ${theme}`,
-                method: 'load'
+                method: 'load',
             });
             dfd.resolve();
         });
@@ -165,7 +165,7 @@ const themer = {
             'StockChart',
             'Sparkline',
             'RadialGauge',
-            'LinearGauge'
+            'LinearGauge',
         ];
         if (dataviz && $.type(theme) === CONSTANTS.STRING) {
             for (let i = 0; i < themable.length; i++) {
@@ -254,7 +254,7 @@ const themer = {
             */
         }
         return ret;
-    }
+    },
 };
 
 // get theme from match or from localstorage ur use DEFAULT

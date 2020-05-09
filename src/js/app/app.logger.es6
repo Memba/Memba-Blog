@@ -55,9 +55,9 @@ const plugin = {
                 data: JSON.stringify(
                     $.extend(entry, {
                         date: new Date(),
-                        level: level.toLowerCase()
+                        level: level.toLowerCase(),
                     })
-                )
+                ),
             })
                 .done(() =>
                     // Return true if the ajax call was successful
@@ -66,7 +66,7 @@ const plugin = {
                 .fail(dfd.reject);
         }
         return dfd.promise();
-    }
+    },
 };
 
 /**

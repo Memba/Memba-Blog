@@ -16,7 +16,7 @@ import Logger from '../common/window.logger.es6';
 const { history, location } = window;
 const logger = new Logger('error.page');
 const SELECTORS = {
-    BACK_BUTTON: 'button.k-button'
+    BACK_BUTTON: 'button.k-button',
 };
 
 /**
@@ -36,7 +36,7 @@ const Controller = AppController.extend({
             this.initBackButton();
             logger.info({
                 message: `error page initialized in ${__.locale}`,
-                method: 'init'
+                method: 'init',
             });
         });
     },
@@ -47,7 +47,7 @@ const Controller = AppController.extend({
      */
     initBackButton() {
         // Add click handler on back button
-        $(SELECTORS.BACK_BUTTON).click(e => {
+        $(SELECTORS.BACK_BUTTON).click((e) => {
             e.preventDefault();
             if (history && history.length > 1) {
                 history.back();
@@ -55,7 +55,7 @@ const Controller = AppController.extend({
                 location.assign('/');
             }
         });
-    }
+    },
 });
 
 /**

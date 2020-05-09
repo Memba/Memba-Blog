@@ -20,35 +20,35 @@ describe('routes/errorRoute', () => {
      * So that I can get a generic error page
      */
     describe('when requesting an error', () => {
-        it('it should respond with 400', done => {
+        it('it should respond with 400', (done) => {
             request(app)
                 .get(`${format(errorUri, 'en')}?code=400`)
                 .expect(400)
                 .expect('Content-Type', /html/)
                 .end(done);
         });
-        it('it should respond with 401', done => {
+        it('it should respond with 401', (done) => {
             request(app)
                 .get(`${format(errorUri, 'en')}?code=401`)
                 .expect(401)
                 .expect('Content-Type', /html/)
                 .end(done);
         });
-        it('it should respond with 403', done => {
+        it('it should respond with 403', (done) => {
             request(app)
                 .get(`${format(errorUri, 'en')}?code=403`)
                 .expect(403)
                 .expect('Content-Type', /html/)
                 .end(done);
         });
-        it('it should respond with 404', done => {
+        it('it should respond with 404', (done) => {
             request(app)
                 .get(`${format(errorUri, 'fr')}?code=404`)
                 .expect(404)
                 .expect('Content-Type', /html/)
                 .end(done);
         });
-        it('it should respond with 500', done => {
+        it('it should respond with 500', (done) => {
             request(app)
                 .get(`${format(errorUri, 'fr')}?code=500`)
                 .expect(500)

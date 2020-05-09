@@ -34,7 +34,7 @@ describe('lib/logger', () => {
             expect(
                 logger.info({
                     message: 'simple message',
-                    dummy: 'not displayed'
+                    dummy: 'not displayed',
                 })
             ).to.be.true;
         });
@@ -49,7 +49,7 @@ describe('lib/logger', () => {
                     module: 'app.logger.test',
                     method: 'it',
                     message: 'simple message',
-                    data: { prop1: true, prop2: 1, prop3: ['a', 'b', 'c'] }
+                    data: { prop1: true, prop2: 1, prop3: ['a', 'b', 'c'] },
                 })
             ).to.be.true;
         });
@@ -84,8 +84,8 @@ describe('lib/logger', () => {
                     request: {
                         ip: '10.0.0.1',
                         agent: 'Dummy/1.0',
-                        url: 'http://localhost:3000/en'
-                    }
+                        url: 'http://localhost:3000/en',
+                    },
                 })
             ).to.be.true;
         });
@@ -96,7 +96,7 @@ describe('lib/logger', () => {
                     module: 'app.logger.test',
                     method: 'it',
                     message: 'simple message',
-                    data: { prop1: true, prop2: 1, prop3: ['a', 'b', 'c'] }
+                    data: { prop1: true, prop2: 1, prop3: ['a', 'b', 'c'] },
                 })
             ).to.be.true;
         });
@@ -131,7 +131,7 @@ describe('lib/logger', () => {
                     module: 'app.logger.test',
                     method: 'it',
                     message: 'simple message',
-                    data: { prop1: true, prop2: 1, prop3: ['a', 'b', 'c'] }
+                    data: { prop1: true, prop2: 1, prop3: ['a', 'b', 'c'] },
                 })
             ).to.be.true;
         });
@@ -166,7 +166,7 @@ describe('lib/logger', () => {
                     module: 'app.logger.test',
                     method: 'it',
                     message: 'simple message',
-                    data: { prop1: true, prop2: 1, prop3: ['a', 'b', 'c'] }
+                    data: { prop1: true, prop2: 1, prop3: ['a', 'b', 'c'] },
                 })
             ).to.be.false;
         });

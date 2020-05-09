@@ -34,8 +34,8 @@ describe('middleware/redirect', () => {
         config.set('redirect', {
             http: {
                 match: 'memba.com$',
-                forward: 'https://www.kidoju.com'
-            }
+                forward: 'https://www.kidoju.com',
+            },
         });
     });
 
@@ -43,11 +43,11 @@ describe('middleware/redirect', () => {
         const req = {
             headers: {
                 'x-forwarded-proto': 'http',
-                host: 'www.memba.com'
+                host: 'www.memba.com',
             },
             originalUrl: '/blog/posts?id=100',
             protocol: 'http',
-            secure: false
+            secure: false,
         };
         const res = new Response();
         const next = sinon.spy();
@@ -63,11 +63,11 @@ describe('middleware/redirect', () => {
         const req = {
             headers: {
                 'x-forwarded-proto': 'https',
-                host: 'www.memba.com'
+                host: 'www.memba.com',
             },
             originalUrl: 'favicon.ico',
             protocol: 'https',
-            secure: true
+            secure: true,
         };
         const res = new Response();
         const next = sinon.spy();
