@@ -214,7 +214,8 @@ config.load((error) => {
                         'https://storage.googleapis.com',
                     ],
                 },
-                browserSniff: false,
+                // https://github.com/helmetjs/csp/issues/97 (helmet v4)
+                // browserSniff: false,
             },
             frameguard: false,
             /*
