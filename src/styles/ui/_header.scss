@@ -13,7 +13,13 @@ header {
     z-index: 5000;
 
     .navbar {
-        @include appearance(hovered-header);
+        // @include appearance(hovered-header);
+        @include fill(
+            $header-hovered-text,
+            $header-hovered-bg,
+            $header-hovered-border,
+            $header-hovered-gradient
+        );
 
         #id-drawer-button {
             .k-icon {
