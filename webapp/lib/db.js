@@ -5,6 +5,10 @@
 
 /* jshint node: true */
 
+// TODO: Consider using:
+//  https://github.com/typicode/lowdb
+//  https://github.com/breejs/bree
+
 'use strict';
 
 var fs = require('fs');
