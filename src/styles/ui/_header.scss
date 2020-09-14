@@ -15,10 +15,10 @@ header {
     .navbar {
         // @include appearance(hovered-header);
         @include fill(
-            $header-hovered-text,
-            $header-hovered-bg,
-            $header-hovered-border,
-            $header-hovered-gradient
+            $header-text,
+            try-darken( $header-bg, 3 ),
+            $header-border,
+            null
         );
 
         #id-drawer-button {
