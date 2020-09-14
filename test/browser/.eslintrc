@@ -1,22 +1,28 @@
 {
     "env": {
         "browser": true,
-        "es6": true
+        "es6": true,
+        "mocha": true
     },
     "extends": [
         "airbnb-base",
         "prettier"
     ],
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
     "plugins": [
+        "@babel",
         "prettier"
     ],
     "root": true,
     "rules": {
+        // "indent": "off",
         "indent": ["error", 4, { "SwitchCase": 1 }],
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
-        "no-underscore-dangle": 0,
-        "prettier/prettier": "error"
+        "no-underscore-dangle": "off",
+        "prettier/prettier": ["error", {
+            "singleQuote": true,
+            "tabWidth": 4
+        }]
     },
     "settings": {
         "import/ignore": ["\\.(scss|less|css)$"],
