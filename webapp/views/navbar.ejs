@@ -32,9 +32,11 @@
                 <% } } %>
             </ul>
             <form class="form-inline mx-0 ml-md-4" role="form">
-                <span class="k-textbox k-space-right">
-                    <input type="search" placeholder="<%- __('header.navbar.search.placeholder') %>">
-                    <a href="#" class="k-icon k-i-search">&nbsp;</a>
+                <span class="k-textbox k-display-flex" style="display: flex; align-items: center"><% // TODO %>
+                    <input class="k-input" type="search" autocomplete="off" placeholder="<%- __('header.navbar.search.placeholder') %>">
+                    <span class="k-input-icon">
+                        <span class="k-icon k-i-search"></span>
+                    </span>
                 </span>
             </form>
         </div>
