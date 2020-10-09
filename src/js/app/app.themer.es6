@@ -103,13 +103,13 @@ const themer = {
             // eslint-disable-next-line global-require, import/no-dynamic-require
             loader = require(`../../styles/themes/app.theme.${oldTheme}.scss`);
             loader((style) => {
-                style.unuse();
+                style.default.unuse(); // Use default with style-loder@2
             });
         }
         // eslint-disable-next-line global-require, import/no-dynamic-require
         loader = require(`../../styles/themes/app.theme.${theme}.scss`);
         loader((style) => {
-            style.use();
+            style.default.use(); // Use default with style-loder@2
             if (localStorage && !$.isArray(matches)) {
                 try {
                     localStorage.setItem(THEME, theme);
