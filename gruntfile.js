@@ -28,11 +28,14 @@ module.exports = (grunt) => {
         console.log('IMPORTANT: grunt environment is undefined');
     }
 
-    const banner =
-        '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today("dd-mmm-yyyy") %> */';
+    // const banner = '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today("dd-mmm-yyyy") %> */';
+    const pkg = grunt.file.readJSON('package.json');
+    const banner = `/*! ${pkg.copyright} - Version ${
+        pkg.version
+    } dated ${grunt.template.today('dd-mmm-yyyy')} */`;
 
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+        pkg,
         copy: {
             gremlins: {
                 src: 'test/vendor/gremlins.min.js',

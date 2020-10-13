@@ -70,7 +70,6 @@ const cleanWebpackPlugin = new CleanWebpackPlugin();
 //     cwd: process.cwd(),
 // });
 
-
 /**
  * commonsChunkPlugin builds a common denominator of the designated chunks
  * Note: This needs to be replaced in webpack 4
@@ -382,12 +381,13 @@ module.exports = {
             // https://github.com/webpack-contrib/terser-webpack-plugin
             new TerserPlugin({
                 cache: true,
+                extractComments: false, // Avoid extraction to *.LICENSE.txt files
                 parallel: true,
                 sourceMap: process.env.NODE_ENV !== 'production',
                 terserOptions: {
                     mangle: true,
                     output: {
-                        // Remove comments especially in Modernizr
+                        // Remove comments especially in Modernizr, except Memba's
                         comments: /memba®/i,
                     },
                 },
