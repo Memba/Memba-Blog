@@ -380,10 +380,8 @@ module.exports = {
         minimizer: [
             // https://github.com/webpack-contrib/terser-webpack-plugin
             new TerserPlugin({
-                cache: true,
                 extractComments: false, // Avoid extraction to *.LICENSE.txt files
                 parallel: true,
-                sourceMap: process.env.NODE_ENV !== 'production',
                 terserOptions: {
                     mangle: true,
                     output: {
