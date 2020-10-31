@@ -12,7 +12,7 @@
 
 const path = require('path');
 const sass = require('sass');
-// const CircularDependencyPlugin = require('circular-dependency-plugin');
+const CircularDependencyPlugin = require('circular-dependency-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 // TerserPlugin is actually installed with webpack
 /* eslint-disable-next-line import/no-extraneous-dependencies, node/no-extraneous-require */
@@ -56,19 +56,19 @@ const cleanWebpackPlugin = new CleanWebpackPlugin();
  * Detect modules with circular dependencies when bundling with webpack.
  * @type {never}
  */
-// const circularDependencyPlugin = new CircularDependencyPlugin({
-//     // exclude detection of files based on a RegExp
-//     exclude: /node_modules|vendor/,
-//     // include specific files based on a RegExp
-//     include: /src/,
-//     // add errors to webpack instead of warnings
-//     failOnError: true,
-//     // allow import cycles that include an asyncronous import,
-//     // e.g. via import(/* webpackMode: "weak" */ './file.js')
-//     allowAsyncCycles: false,
-//     // set the current working directory for displaying module paths
-//     cwd: process.cwd(),
-// });
+const circularDependencyPlugin = new CircularDependencyPlugin({
+    // exclude detection of files based on a RegExp
+    exclude: /node_modules|vendor|styles/,
+    // include specific files based on a RegExp
+    include: /src/,
+    // add errors to webpack instead of warnings
+    failOnError: true,
+    // allow import cycles that include an asyncronous import,
+    // e.g. via import(/* webpackMode: "weak" */ './file.js')
+    allowAsyncCycles: false,
+    // set the current working directory for displaying module paths
+    cwd: process.cwd(),
+});
 
 /**
  * commonsChunkPlugin builds a common denominator of the designated chunks
@@ -422,7 +422,7 @@ module.exports = {
         cleanWebpackPlugin,
         workboxWebpackPlugin,
         // commonsChunkPlugin
-        // circularDependencyPlugin,
+        circularDependencyPlugin,
         // bundleAnalyzerPlugin
     ],
     resolve: {
