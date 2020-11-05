@@ -8,11 +8,21 @@
  ********************************************/
 footer {
     // @include appearance( header );
+
+    /*
     @include fill(
         $header-text,
         $header-bg,
         $header-border,
         $header-gradient
+    );
+    */
+
+    @include fill(
+            $button-pressed-text,
+            $button-pressed-bg,
+            $button-pressed-border,
+            $button-pressed-gradient
     );
 
     border-bottom: none;

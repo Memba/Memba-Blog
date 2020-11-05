@@ -14,11 +14,21 @@ header {
 
     .navbar {
         // @include appearance(hovered-header);
+
+        /*
         @include fill(
             $header-text,
             try-darken( $header-bg, 3 ),
             $header-border,
             null
+        );
+        */
+
+        @include fill(
+            $button-pressed-text,
+            $button-pressed-bg,
+            $button-pressed-border,
+            $button-pressed-gradient
         );
 
         #id-drawer-button {
@@ -52,6 +62,8 @@ header {
 
         // navbar items
         a.nav-link {
+            color: $button-pressed-text;
+
             i.kf {
                 font-size: 1.75em;
             }
