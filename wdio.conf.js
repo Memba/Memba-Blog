@@ -44,7 +44,7 @@ let seleniumArgs = {
 };
 // @see https://chromedriver.chromium.org/downloads
 const seleniumInstallArgs = {
-    version: '3.141.59',
+    version: '3.141.59', // @see https://www.selenium.dev/downloads/
     drivers: {
         chrome: {
             // version: '2.43'
@@ -56,7 +56,12 @@ const seleniumInstallArgs = {
             // version: '76.0.3809.126'
             // version: '77.0.3865.40'
             // version: '78.0.3904.105'
-            version: '79.0.3945.36',
+            // version: '79.0.3945.36',
+            // version: '80.0.3987.106',
+            // version: '81.0.4044.1386',
+            // version: '83.0.4103.39',
+            // version: '84.0.4147.30',
+            version: '85.0.4183.87',
         },
     },
 };
