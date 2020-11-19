@@ -20,7 +20,7 @@
 
     <div class="container" role="document">
         <div id="id-main-title" class="border-bottom my-3">
-            <h1 class="d-flex">
+            <h1 class="d-flex animated fadeInUp">
                 <% if (icon) { %><img class="mr-2" src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
                 <span itemprop="name"><%= title %></span>
             </h1>
@@ -48,7 +48,7 @@
                     <span itemprop="url"><%= site_url %></span>
                 </div>
                 <div>
-                    <article itemprop="articleBody">
+                    <article itemprop="articleBody" class="animated fadeInUp">
                         <%- content %>
                     </article>
                 </div>

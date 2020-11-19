@@ -20,7 +20,7 @@
 
     <div class="container" role="document">
         <div id="id-main-title" class="border-bottom my-3">
-            <h1 class="d-flex">
+            <h1 class="d-flex animated fadeInUp">
                 <% if (icon) { %><img class="mr-2" src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
                 <span itemprop="name"><%= title %></span>
             </h1>
@@ -54,12 +54,12 @@
                     </div>
                 </div>
                 <div>
-                    <article itemprop="articleBody">
+                    <article itemprop="articleBody" class="animated fadeInUp">
                         <%- content %>
                     </article>
                 </div>
             </div>
-            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
+            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none animated fadeInRight">
                 <% // Social buttons %>
                 <section class="app-group mb-4">
                     <a role="button" href="#" class="app-social" data-command="facebook"><img src="<%- publicURL('facebook.svg') %>" alt="Facebook" class="img-h2"></a>

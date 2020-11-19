@@ -20,7 +20,7 @@
 
     <div class="container">
         <div id="id-main-title" class="border-bottom my-3">
-            <h1 class="d-flex">
+            <h1 class="d-flex animated fadeInUp">
                 <% if (icon) { %><img class="mr-2" src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
                 <span><%= title %></span>
             </h1>
@@ -28,9 +28,9 @@
         <div class="row">
             <div class="col-12 col-md-8 col-lg-9">
                 <% if (results.length === 0) { %>
-                <div class="alert alert-info" role="alert"><%- __('search.message') %></div>
+                <div class="alert alert-info animated fadeInUp" role="alert"><%- __('search.message') %></div>
                 <% } else { %>
-                <ul class="list-unstyled">
+                <ul class="list-unstyled animated fadeInUp">
                     <% for (var i = 0; i < results.length; i++) { %>
                     <li class="media">
                         <a class="mr-3" href="<%= results[i].site_url %>">
@@ -52,7 +52,7 @@
                 </ul>
                 <% } %>
             </div>
-            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
+            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none animated fadeInRight">
                 <%- include('groups.ejs') %>
             </div>
         </div>

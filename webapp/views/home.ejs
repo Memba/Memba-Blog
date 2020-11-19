@@ -18,22 +18,26 @@
     <% // drawer %>
     <%- include('drawer.ejs') %>
 
-    <div class="jumbotron jumbotron-fluid"><h1><%= description %></h1></div>
+    <div class="jumbotron jumbotron-fluid"><h1 class="animated bounceInDown"><%= description %></h1></div>
     <div class="container">
         <div class="row app-lang">
             <div class="col-sm-6 text-center">
                 <a href="<%= format(config.uris.webapp.pages, 'en', '') %>">
-                    <div class="app-flag app-uk"></div>
+                    <div class="app-flag app-uk animated rotateIn"></div>
                 </a>
-                <h2 class="mt-2"><%= config.home.en.title %></h2>
-                <p><%= config.home.en.text %></p>
+                <div class="animated zoomIn">
+                    <h2 class="mt-2"><%= config.home.en.title %></h2>
+                    <p><%= config.home.en.text %></p>
+                </div>
             </div>
             <div class="col-sm-6 text-center">
                 <a href="<%= format(config.uris.webapp.pages, 'fr', '') %>">
-                    <div class="app-flag app-fr"></div>
+                    <div class="app-flag app-fr animated rotateIn"></div>
                 </a>
-                <h2 class="mt-2"><%= config.home.fr.title %></h2>
-                <p><%= config.home.fr.text %></p>
+                <div class="animated zoomIn">
+                    <h2 class="mt-2"><%= config.home.fr.title %></h2>
+                    <p><%= config.home.fr.text %></p>
+                </div>
             </div>
         </div>
     </div>

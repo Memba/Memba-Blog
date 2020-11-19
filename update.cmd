@@ -169,6 +169,8 @@ COPY ..\..\Kidoju\Kidoju.Webapp\src\styles\ui\_main.scss .\src\styles\ui\ /Y
 ATTRIB +R .\src\styles\ui\_main.scss
 
 REM Copy ./src/styles/vendor
+XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\animate.css\*.* .\src\styles\vendor\animate.css\ /C /E /I /R /Y
+ATTRIB +R .\src\styles\vendor\animate.css\*.* /S
 REM XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\bootstrap\*.* .\src\styles\vendor\bootstrap\ /C /E /I /R /Y
 REM ATTRIB +R .\src\styles\vendor\bootstrap\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Webapp\src\styles\vendor\highlight\*.* .\src\styles\vendor\highlight\ /C /E /I /R /Y
