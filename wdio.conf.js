@@ -53,6 +53,7 @@ let seleniumArgs = {
 // @see https://chromedriver.chromium.org/downloads
 const seleniumInstallArgs = {
     version: '3.141.59', // @see https://www.selenium.dev/downloads/
+    baseURL: 'https://selenium-release.storage.googleapis.com',
     drivers: {
         chrome: {
             arch: process.arch,
@@ -304,13 +305,22 @@ module.exports.config = {
     // commands. Instead, they hook themselves up into the test process.
     // services: [],//
     // services: ['selenium-standalone', 'phantomjs'],
-    services: ['selenium-standalone'],
+    services: [
+        [
+            'selenium-standalone',
+            {
+                // logPath: 'logs',
+                installArgs: seleniumInstallArgs,
+                args: seleniumArgs,
+            },
+        ],
+    ],
     //
     // selenium-standalone configuration
-    // @see http://webdriver.io/guide/services/selenium-standalone.html
+    // @see https://webdriver.io/docs/selenium-standalone-service.html
     // @see https://www.npmjs.com/package/selenium-standalone
-    seleniumArgs,
-    seleniumInstallArgs,
+    // seleniumArgs,
+    // seleniumInstallArgs,
     //
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
