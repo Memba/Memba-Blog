@@ -19,6 +19,7 @@ addons:
 # Only for Selenium on dist: trusty, not needed for xenial
 #     - oracle-java9-set-default
 before_install:
+  - google-chrome --version
   - npm install -g npm
   - npm --version
   - npm install -g grunt-cli
