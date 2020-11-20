@@ -1,7 +1,8 @@
-sudo: false
-# dist: xenial
+os: linux
+dist: xenial
 language: node_js
 node_js:
+  - "15"
   - "14"
   - "13"
   - "12"
