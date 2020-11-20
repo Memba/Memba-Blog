@@ -38,7 +38,14 @@ let seleniumArgs = {
             // version: '76.0.3809.126'
             // version: '77.0.3865.40'
             // version: '78.0.3904.105'
-            version: '79.0.3945.36',
+            // version: '79.0.3945.36',
+            // version: '80.0.3987.106',
+            // version: '81.0.4044.1386',
+            // version: '83.0.4103.39',
+            // version: '84.0.4147.30',
+            // version: '85.0.4183.87',
+            // version: '86.0.4240.22',
+            version: '87.0.4280.20',
         },
     },
 };
@@ -61,7 +68,9 @@ const seleniumInstallArgs = {
             // version: '81.0.4044.1386',
             // version: '83.0.4103.39',
             // version: '84.0.4147.30',
-            version: '85.0.4183.87',
+            // version: '85.0.4183.87',
+            // version: '86.0.4240.22',
+            version: '87.0.4280.20',
         },
     },
 };
