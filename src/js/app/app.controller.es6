@@ -51,8 +51,8 @@ const AppController = Observable.extend({
      */
     init() {
         Observable.fn.init.call(this);
-        this.initializers = [__.load()];
-        $.when(...this.initializers).then(() => {
+        this._initializers = [__.load()];
+        this.ready().then(() => {
             this.reveal();
             this.initNavBar();
             this.initFooter();
@@ -63,6 +63,14 @@ const AppController = Observable.extend({
                 method: 'AppController.init',
             });
         });
+    },
+
+    /**
+     * Run the initializers
+     * @returns {*|jQuery}
+     */
+    ready() {
+        return $.when(...this._initializers);
     },
 
     /**

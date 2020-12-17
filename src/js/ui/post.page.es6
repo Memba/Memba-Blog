@@ -44,7 +44,7 @@ const Controller = AppController.extend({
     init() {
         AppController.fn.init.call(this);
         // Wait until document is ready to initialize UI
-        $.when(...this.initializers).then(() => {
+        this.ready().then(() => {
             this.initSocialButtons();
             // LOADED occurs after document ready event
             logger.info({

@@ -25,7 +25,7 @@ const Controller = AppController.extend({
     init() {
         AppController.fn.init.call(this);
         // Wait until document is ready to initialize UI
-        $.when(...this.initializers).then(() => {
+        this.ready().then(() => {
             logger.info({
                 message: `search page initialized in ${__.locale}`,
                 method: 'init',
