@@ -84,6 +84,11 @@ module.exports = (grunt) => {
                 jshintrc: true,
             },
         },
+        karma: {
+            unit: {
+                configFile: 'coverage.conf.js',
+            },
+        },
         /*
         // Kendo Lint is now obsolete
         kendo_lint: {
@@ -103,11 +108,6 @@ module.exports = (grunt) => {
                 src: ['*.theme.less'],
                 dest: 'webapp/views/amp/css',
                 ext: '.css',
-            },
-        },
-        karma: {
-            unit: {
-                configFile: 'coverage.conf.js',
             },
         },
         mochaTest: {
