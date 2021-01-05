@@ -59,11 +59,11 @@ const plugin = {
                     })
                 ),
             })
-                .done(() =>
+                .then(() =>
                     // Return true if the ajax call was successful
                     dfd.resolve(true)
                 )
-                .fail(dfd.reject);
+                .catch(dfd.reject);
         }
         return dfd.promise();
     },
