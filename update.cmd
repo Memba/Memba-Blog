@@ -105,6 +105,11 @@ ATTRIB -R .\src\js\cultures\widgets.*.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\cultures\widgets.*.es6  .\src\js\cultures /Y
 ATTRIB +R .\src\js\cultures\widgets.*.es6
 
+REM ./src/js/data/data.util.es6
+ATTRIB -R .\src\js\data\data.util.es6
+COPY ..\..\Kidoju\Kidoju.Webapp\src\js\data\data.util.es6  .\src\js\data /Y
+ATTRIB +R .\src\js\data\data.util.es6
+
 REM ./src/js/ui/*.es6
 ATTRIB -R .\src\js\ui\error.page.es6
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\ui\error.page.es6 .\src\js\ui /Y
