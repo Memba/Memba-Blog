@@ -19,7 +19,15 @@ ATTRIB -R .\build.*
 COPY ..\..\Kidoju\Kidoju.Webapp\build.* .\ /Y
 ATTRIB +R .\build.*
 
-REM TODO Coverage
+REM Mocha with coverage
+ATTRIB -R .\coverage.cmd
+COPY ..\..\Kidoju\Kidoju.Webapp\coverage.cmd .\ /Y
+ATTRIB +R .\coverage.cmd
+
+REM Karma with coverage
+ATTRIB -R .\coverage.con*
+COPY ..\..\Kidoju\Kidoju.Webapp\coverage.con* .\ /Y
+ATTRIB +R .\coverage.con*
 
 REM Dockerfile
 ATTRIB -R .\Dockerfile
