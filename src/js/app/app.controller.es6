@@ -78,7 +78,7 @@ const AppController = Observable.extend({
      * @method
      */
     reveal() {
-        $(SELECTORS.LOADING).delay(400).fadeOut();
+        $(SELECTORS.LOADING).delay(250).fadeOut();
     },
 
     /**
