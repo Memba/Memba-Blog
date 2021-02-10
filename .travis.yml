@@ -7,7 +7,6 @@ node_js:
   - "13"
   - "12"
   - "11"
-  - "10"
 env:
   - NODE_ENV=test CC=gcc-6 CXX=g++-6 FORCE_COLOR=true
 addons:
