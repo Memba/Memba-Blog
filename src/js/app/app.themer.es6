@@ -110,20 +110,20 @@ const themer = {
             newTheme = theme;
         }
         let loader;
-        if ($.type(theme) === CONSTANTS.STRING && oldTheme !== newTheme) {
+        if ($.type(oldTheme) === CONSTANTS.STRING && oldTheme !== newTheme) {
             // See https://github.com/webpack/style-loader/issues/48
             // See https://github.com/webpack/webpack/issues/924
             // See https://github.com/webpack/webpack/issues/993
             // eslint-disable-next-line global-require, import/no-dynamic-require
             loader = require(`../../styles/themes/app.theme.${oldTheme}.scss`);
             loader((style) => {
-                style.default.unuse(); // Use default with style-loder@2
+                style.default.unuse(); // Use default with style-loader@2+
             });
         }
         // eslint-disable-next-line global-require, import/no-dynamic-require
         loader = require(`../../styles/themes/app.theme.${newTheme}.scss`);
         loader((style) => {
-            style.default.use(); // Use default with style-loder@2
+            style.default.use(); // Use default with style-loader@2+
             if (localStorage && !$.isArray(matches)) {
                 try {
                     localStorage.setItem(THEME, newTheme);
