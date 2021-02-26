@@ -6,7 +6,9 @@
 /* eslint max-classes-per-file: ["error", 3] */
 
 const assert = require('assert');
+const path = require('path');
 const { format } = require('util');
+const config = require('../config/index.es6');
 const { deepExtend, isObject } = require('./utils.es6');
 const httpStatus = require('./httpStatus.es6');
 
@@ -37,6 +39,15 @@ let i18n;
 try {
     // eslint-disable-next-line global-require,import/no-unresolved,node/no-missing-require
     i18n = require('i18n');
+    // might not be configured in mocha tests, so we test locales to check that
+    const locales = i18n.getLocales();
+    if (Array.isArray(locales) && locales.length === 0) {
+        i18n.configure({
+            locales: config.get('locales'), // ['en', 'fr'],
+            directory: path.join(__dirname, '../locales'),
+            objectNotation: true, // Use hierarchies in locales.json files
+        });
+    }
 } catch (ex) {
     // eslint-disable-next-line global-require,import/no-unresolved,node/no-missing-require
     i18n = require('./i18n.es6');
