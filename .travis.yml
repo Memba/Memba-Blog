@@ -22,6 +22,5 @@ before_install:
   - google-chrome --version
   - npm install -g npm
   - npm --version
-  - npm install -g grunt-cli
 before_script:
-  - grunt build
+  - npm run build
