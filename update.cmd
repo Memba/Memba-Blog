@@ -77,7 +77,7 @@ REM ------------------------------------------------------------
 REM Javascript files
 REM ------------------------------------------------------------
 
-REM ./src/js/.eslintrc and ./src/js/.jshintrc
+REM ./src/js/.eslintrc, etc.
 ATTRIB -R .\src\js\.*
 COPY ..\..\Kidoju\Kidoju.Webapp\src\js\.* .\src\js\ /Y
 ATTRIB +R .\src\js\.*
