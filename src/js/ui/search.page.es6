@@ -4,8 +4,8 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
+// import $ from 'jquery';
 import __ from '../app/app.i18n.es6';
 import AppController from '../app/app.controller.es6';
 import Logger from '../common/window.logger.es6';

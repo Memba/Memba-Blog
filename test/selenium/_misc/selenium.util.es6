@@ -21,17 +21,17 @@ browser.addCommand('setWindowSizeEx', function setWindowSizeEx(w, h) {
  * waitForReadyStateEx
  * wait for page readyState `loading`, `interactive`, `complete`
  */
-browser.addCommand('waitForReadyStateEx', function waitForReadyStateEx(
-    state,
-    timeout
-) {
-    const that = this;
-    that.waitUntil(
-        () => state === that.execute(() => document.readyState),
-        // timeout // <-- v5
-        { timeout } // <-- v6
-    );
-});
+browser.addCommand(
+    'waitForReadyStateEx',
+    function waitForReadyStateEx(state, timeout) {
+        const that = this;
+        that.waitUntil(
+            () => state === that.execute(() => document.readyState),
+            // timeout // <-- v5
+            { timeout } // <-- v6
+        );
+    }
+);
 
 /**
  * getAlertTextEx
