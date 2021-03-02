@@ -35,7 +35,7 @@ console.log(`processing version ${pkg.version}`); // eslint-disable-line no-cons
  */
 const banner = `/*! ${pkg.copyright} - Version ${
     pkg.version
-} dated ${new Date().toUTCString()} */`;
+} dated ${new Date().toDateString()} */`;
 const bannerPlugin = new webpack.BannerPlugin({
     banner,
     raw: true,
