@@ -22,7 +22,6 @@
 /.nodemonignore
 /.npmignore
 /.travis.yml
-/gruntfile.js
 /*.conf.js
 /*.config.js
 /*.cmd

@@ -34,17 +34,12 @@ ATTRIB -R .\Dockerfile
 COPY ..\..\Kidoju\Kidoju.Webapp\Dockerfile .\ /Y
 ATTRIB +R .\Dockerfile
 
-REM gruntfile.js
-ATTRIB -R .\gruntfile.js
-COPY ..\..\Kidoju\Kidoju.Webapp\gruntfile.js .\ /Y
-ATTRIB +R .\gruntfile.js
-
 REM LICENSE
 REM ATTRIB -R .\LICENSE-GPLv3
 REM COPY ..\..\Kidoju\Kidoju.Webapp\LICENSE-GPLv3 .\ /Y
 REM ATTRIB +R .\LICENSE-GPLv3
 
-REM gruntfile.js
+REM postcss.config.js
 ATTRIB -R .\postcss.config.js
 COPY ..\..\Kidoju\Kidoju.Webapp\postcss.config.js .\ /Y
 ATTRIB +R .\postcss.config.js

@@ -1,3 +1,3 @@
 set NODE_ENV=development
-call grunt uglify
+npm run uglify
 webpack --watch

@@ -30,4 +30,4 @@ rm -f ./webapp/public/build/*
 if [ -d ./www/build ]; then rm -f ./www/build/*; fi
 
 # finally rebuild
-grunt build
+npm run build

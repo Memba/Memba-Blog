@@ -34,5 +34,5 @@ IF EXIST webapp\public DEL webapp\public\*.js /F /Q
 IF EXIST webapp\public DEL webapp\public\*.map /F /Q
 IF EXIST webapp\public DEL webapp\public\build /F /Q /S
 IF EXIST www DEL www\build /F /Q /S
-grunt build
+npm run build
 :DONE
