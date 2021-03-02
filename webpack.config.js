@@ -14,8 +14,6 @@ const path = require('path');
 const sass = require('sass');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-// TerserPlugin is actually installed with webpack
-/* eslint-disable-next-line import/no-extraneous-dependencies, node/no-extraneous-require */
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 // const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
@@ -30,6 +28,19 @@ const buildPath = config.get('uris:webpack:root');
 console.log(`webpack environment is ${environment}`); // eslint-disable-line no-console
 console.log(`webpack build path is ${buildPath}`); // eslint-disable-line no-console
 console.log(`processing version ${pkg.version}`); // eslint-disable-line no-console
+
+/**
+ * BannerPlugin
+ * bannerPlugin adds a banner to webpack outputs
+ */
+const banner = `/*! ${pkg.copyright} - Version ${
+    pkg.version
+} dated ${new Date().toUTCString()} */`;
+const bannerPlugin = new webpack.BannerPlugin({
+    banner,
+    raw: true,
+    // entryOnly: true
+});
 
 /**
  * DefinePlugin
@@ -423,6 +434,7 @@ module.exports = {
         workboxWebpackPlugin,
         // commonsChunkPlugin
         circularDependencyPlugin,
+        bannerPlugin,
         // bundleAnalyzerPlugin
     ],
     resolve: {
