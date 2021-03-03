@@ -25,7 +25,7 @@ let capabilities = [
     },
 ];
 // let seleniumArgs = {};
-let seleniumArgs = {
+const seleniumArgs = {
     version: '3.141.59',
     drivers: {
         chrome: {
@@ -46,7 +46,9 @@ let seleniumArgs = {
             // version: '84.0.4147.30',
             // version: '85.0.4183.87',
             // version: '86.0.4240.22',
-            version: '87.0.4280.20',
+            // version: '87.0.4280.20',
+            // version: '88.0.4324.96',
+            version: '89.0.4389.23',
         },
     },
 };
@@ -74,7 +76,9 @@ const seleniumInstallArgs = {
             // version: '84.0.4147.30',
             // version: '85.0.4183.87',
             // version: '86.0.4240.22',
-            version: '87.0.4280.20',
+            // version: '87.0.4280.20',
+            // version: '88.0.4324.96',
+            version: '89.0.4389.23',
         },
     },
 };
