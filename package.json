@@ -36,7 +36,7 @@
   "scripts": {
     "build": "npm run clear && npm run webpack",
     "clear": "rm -fv ./webapp/public/build/* && rm -fv ./webapp/public/*.js && rm -fv ./webapp/public/*.map",
-    "eslint": "eslint . ./src/js/**/*.es6 ./src/js/**/*.jsx ./test/**/*.es6 ./webapp/**/*.es6 ./webapp/**/*.js",
+    "eslint": "eslint . ./src/js/**/*.{es6,jsx} ./test/**/*.es6 ./webapp/**/*.{es6,js}",
     "gremlins": "cp ./test/vendor/gremlins.min.js ./webapp/public/build/gremlins.min.js",
     "mocha": "mocha -t 10000 -R spec -u bdd --exit ./test/node/**/*.test.{es6,js}",
     "start": "forever --minUptime 5000 --spinSleepTime 10000 webapp/server.js",
