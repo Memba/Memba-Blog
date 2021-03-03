@@ -85,12 +85,12 @@ const seleniumInstallArgs = {
  *************************************************************** */
 
 if (/^win/.test(process.platform)) {
+    /*
     seleniumArgs = {
         // Drivers can be downloaded at http://docs.seleniumhq.org/download/
         javaArgs: [
             // Add Microsoft Edge driver
-            '-Dwebdriver.edge.driver=C:\\Windows\\System32\\MicrosoftWebDriver.exe',
-
+            // '-Dwebdriver.edge.driver=C:\\Windows\\System32\\MicrosoftWebDriver.exe',
             // Add opera driver
             // `-Dwebdriver.opera.driver=${path.join(__dirname, './test/bin/operadriver.exe')}`,
             // '-Dwebdriver.opera.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\chromedriver\\2.43-x64-chromedriver'
@@ -103,22 +103,23 @@ if (/^win/.test(process.platform)) {
         // basePath
         // javaPath
     };
+     */
     capabilities = [
         {
             maxInstances: 1,
             browserName: 'chrome',
             // 'goog:chromeOptions': {}
-        },
+        } /* ,,
         {
             maxInstances: 1,
             browserName: 'firefox',
             // 'moz:firefoxOptions': { args: ['-headless'] }
-        },
+        }
         {
             maxInstances: 1,
             browserName: 'internet explorer',
             // 'se:ieOptions': {}
-        } /* ,
+        },
         {
             // See https://github.com/webdriverio/webdriverio/issues/3196
             maxInstances: 1,
