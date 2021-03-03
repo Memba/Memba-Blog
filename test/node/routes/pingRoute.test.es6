@@ -5,20 +5,11 @@
 
 const request = require('supertest');
 const { compatible, version } = require('../../../package.json');
+const app = require('../../../webapp/server');
 const config = require('../../../webapp/config/index.es6');
 
-let app;
-if (config.get('uris:webpack:root')) {
-    // This is a web app (and expressJS is already running)
-    app = config.get('uris:webapp:root');
-} else {
-    // This is an api server (and we need to launch expressJS)
-    // eslint-disable-next-line global-require
-    app = require('../../../webapp/server');
-}
-
 const pingUri =
-    typeof app === 'string'
+    typeof config.get('uris:webpack:root') === 'string'
         ? config.get('uris:webapp:ping')
         : config.get('uris:rapi:ping');
 

@@ -5,11 +5,9 @@
 
 const request = require('supertest');
 const { format } = require('util');
+const app = require('../../../webapp/server');
 const config = require('../../../webapp/config/index.es6');
 
-// We cannot define the app like follows because the server is already running
-// const app = request('../../../webapp/server');
-const app = config.get('uris:webapp:root');
 const errorUri = config.get('uris:webapp:error');
 
 describe('routes/errorRoute', () => {

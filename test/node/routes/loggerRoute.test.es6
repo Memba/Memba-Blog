@@ -4,24 +4,15 @@
  */
 
 const request = require('supertest');
+const app = require('../../../webapp/server');
 const config = require('../../../webapp/config/index.es6');
 
-let app;
-if (config.get('uris:webpack:root')) {
-    // This is a web app (and expressJS is already running)
-    app = config.get('uris:webapp:root');
-} else {
-    // This is an api server (and we need to launch expressJS)
-    // eslint-disable-next-line global-require
-    app = require('../../../webapp/server');
-}
+const loggerUri =
+    typeof config.get('uris:webpack:root') === 'string'
+        ? config.get('uris:webapp:logger')
+        : config.get('uris:rapi:logger');
 
 describe('routes/loggerRoute', () => {
-    const loggerUri =
-        typeof app === 'string'
-            ? config.get('uris:webapp:logger')
-            : config.get('uris:rapi:logger');
-
     /**
      * Feature: Logger
      * As an anonymous user

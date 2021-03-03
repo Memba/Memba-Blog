@@ -4,11 +4,8 @@
  */
 
 const request = require('supertest');
+const app = require('../../../webapp/server');
 const config = require('../../../webapp/config/index.es6');
-
-// We cannot define the app like follows because the server is already running
-// const app = request('../../../webapp/server');
-const app = config.get('uris:webapp:root');
 
 describe('routes/homeRoute', () => {
     it('it should return the home page', (done) => {
