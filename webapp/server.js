@@ -136,6 +136,7 @@ config.load((error) => {
         'https://code.jquery.com', // to precache jquery with workbox
         'https://fonts.googleapis.com', // to precache fonts with workbox
         'https://fonts.gstatic.com', // to precache fonts with workbox
+        'https://stats.g.doubleclick.net',
         'https://s3.amazonaws.com', // Required to upload images to Amazon S3
         'https://www.googletagmanager.com', // GTM (AMP Pages)
         'https://www.google-analytics.com', // Google Analytics
