@@ -67,7 +67,7 @@ module.exports = (config) => {
             },
             // jQuery
             {
-                pattern: 'src/js/vendor/jquery/jquery-3.5.1.min.js',
+                pattern: 'src/js/vendor/jquery/jquery-3.6.0.min.js',
                 served: true,
                 included: true,
             },
@@ -106,7 +106,10 @@ module.exports = (config) => {
             },
             // Mocha tests
             {
-                pattern: 'test/browser/**/*.test.es6',
+                // pattern: 'test/browser/**/*.test.es6',
+                pattern:
+                    'test/browser/{app,common,cultures,data,tools,widgets,workers}/*.test.es6',
+                // pattern: 'test/browser/widgets/*.test.es6',
                 served: true,
                 included: true, // They need to be included!
             },
