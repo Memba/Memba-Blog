@@ -15,9 +15,9 @@ var markdown = new MarkdownIt({
     linkify: true,
     typographer: true,
     // See https://github.com/markdown-it/markdown-it#syntax-highlighting
-    highlight: function (code, lang) {
+    highlight: function (code, language) {
         try {
-            return hljs.highlight(lang, code).value;
+            return hljs.highlight(code, { language }).value;
         } catch (err) {
             return hljs.highlightAuto(code).value;
         }
