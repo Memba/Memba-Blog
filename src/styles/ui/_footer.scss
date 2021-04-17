@@ -19,10 +19,10 @@ footer {
     */
 
     @include fill(
-            $button-pressed-text,
-            $button-pressed-bg,
-            $button-pressed-border,
-            $button-pressed-gradient
+            $button-active-text,
+            $button-active-bg,
+            $button-active-border,
+            $button-active-gradient
     );
 
     border-bottom: none;
