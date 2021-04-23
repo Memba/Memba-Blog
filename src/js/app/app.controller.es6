@@ -20,7 +20,7 @@ import config from './app.config.jsx';
 import viewModel from './app.viewmodel.es6';
 
 // Load common styles
-import '../../styles/fonts/kidoju.less';
+import '../../styles/fonts/memba.less';
 
 const {
     bind,
