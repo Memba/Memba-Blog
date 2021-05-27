@@ -12,8 +12,8 @@ jobs:
         # See image content at https://github.com/actions/virtual-environments/blob/ffa2110464ecda1cc62b477f29609525de24e570/images/linux/Ubuntu1804-README.md
         env:
             NODE_ENV: test
-            CC: gcc-6
-            CXX: g++-6
+            # CC: gcc-6
+            # CXX: g++-6
             FORCE_COLOR: true
             TOKEN: ${{ secrets.TOKEN }}
 
