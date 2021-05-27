@@ -48,7 +48,8 @@ const seleniumArgs = {
             // version: '86.0.4240.22',
             // version: '87.0.4280.20',
             // version: '88.0.4324.96',
-            version: '89.0.4389.23',
+            // version: '89.0.4389.23',
+            version: '90.0.4430.24',
         },
     },
 };
@@ -78,7 +79,8 @@ const seleniumInstallArgs = {
             // version: '86.0.4240.22',
             // version: '87.0.4280.20',
             // version: '88.0.4324.96',
-            version: '89.0.4389.23',
+            // version: '89.0.4389.23',
+            version: '90.0.4430.24',
         },
     },
 };
