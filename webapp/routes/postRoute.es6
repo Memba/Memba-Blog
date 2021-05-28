@@ -119,12 +119,9 @@ module.exports = {
                             categories: responses[2],
                             description: res.__('meta.description'),
                             icon: res.__('search.title.icon'),
-                            image:
-                                config.images[
-                                    Math.floor(
-                                        config.images.length * Math.random()
-                                    )
-                                ],
+                            image: config.images[
+                                Math.floor(config.images.length * Math.random())
+                            ],
                             keywords: res.__('meta.keywords'),
                             language,
                             menu: responses[0],

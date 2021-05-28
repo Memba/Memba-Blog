@@ -34,7 +34,7 @@ describe('middleware/redirect', () => {
         config.set('redirect', {
             http: {
                 match: 'memba.com$',
-                forward: 'https://www.kidoju.com',
+                forward: 'https://www.memba.com',
             },
         });
     });

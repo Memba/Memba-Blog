@@ -128,9 +128,8 @@ function format(entry, level) {
  * @param entry
  */
 function print(entry) {
-    let message = (Number.isNaN(Date.parse(entry.date))
-        ? new Date()
-        : new Date(entry.date)
+    let message = (
+        Number.isNaN(Date.parse(entry.date)) ? new Date() : new Date(entry.date)
     ).toISOString();
     message += `${prefix}[${entry.level.toUpperCase()}]${
         entry.level.length > 4 ? '' : ' '
@@ -229,9 +228,7 @@ function print(entry) {
         first = false;
     }
     if (entry.stack) {
-        message += `${
-            first ? prefix : separator
-        }stack${eq}${qt}${entry.stack
+        message += `${first ? prefix : separator}stack${eq}${qt}${entry.stack
             .split('\n')
             .join(', ')
             .replace(/\s+/g, ' ')}${qt}`;

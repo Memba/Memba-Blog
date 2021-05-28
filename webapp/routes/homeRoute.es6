@@ -42,10 +42,9 @@ module.exports = {
                     .render('home', {
                         author: config.home.author,
                         description: config.home.description,
-                        image:
-                            config.images[
-                                Math.floor(config.images.length * Math.random())
-                            ],
+                        image: config.images[
+                            Math.floor(config.images.length * Math.random())
+                        ],
                         keywords: config.home.keywords,
                         language,
                         menu: data,

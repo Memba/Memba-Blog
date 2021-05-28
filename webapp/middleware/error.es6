@@ -125,10 +125,9 @@ module.exports = {
                         format(config.uris.cdn.icons, res.__('error.icon')),
                         config.uris.cdn.root
                     ).href,
-                    image:
-                        config.images[
-                            Math.floor(config.images.length * Math.random())
-                        ],
+                    image: config.images[
+                        Math.floor(config.images.length * Math.random())
+                    ],
                     keywords: res.__('meta.keywords'),
                     language,
                     menu: false, // Do not display a menu to avoid any risks of errors fetching the menu, especially if accessing Github fails
