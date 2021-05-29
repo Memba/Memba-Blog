@@ -11,7 +11,7 @@ var expect = require('chai').expect;
 var github = require('../../../webapp/lib/github');
 var NAME = 'Memba Robot';
 
-describe('lib/github', function () {
+xdescribe('lib/github', function () {
 
     this.retries(2);
 
