@@ -19,9 +19,9 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [14.x, 16.x]
+                node-version: [14.x, 15.x]
                 # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+                # IMPORTANT! fibers and therefore @wdio/sync are not supported on nodeJS v16 - see https://github.com/laverdet/node-fibers
         steps:
             - name: Checkout
               uses: actions/checkout@v2
