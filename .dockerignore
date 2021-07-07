@@ -1,4 +1,5 @@
 .git/
+.github/
 .idea/
 .nyc_output/
 coverage/
@@ -14,6 +15,7 @@ temp/
 test/
 web_modules/
 .babelrc
+.browserslistrc
 .editorconfig
 .eslintignore
 .eslintrc
@@ -27,7 +29,6 @@ web_modules/
 .prettierrc
 .stylelintignore
 .stylelintrc
-.travis.yml
 LICENSE
 *.cmd
 *.conf.js
