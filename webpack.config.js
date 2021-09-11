@@ -274,6 +274,7 @@ module.exports = {
                         loader: 'sass-loader',
                         options: {
                             implementation: sass,
+                            // sassOptions: { includePaths: [], quietDeps: true },
                         },
                     },
                 ],
@@ -293,6 +294,7 @@ module.exports = {
                         loader: 'sass-loader',
                         options: {
                             implementation: sass,
+                            // sassOptions: { includePaths: [], quietDeps: true },
                         },
                     },
                 ],
