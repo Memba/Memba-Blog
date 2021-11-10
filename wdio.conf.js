@@ -30,16 +30,6 @@ const seleniumArgs = {
     drivers: {
         chrome: {
             arch: process.arch,
-            // version: '2.43'
-            // version: '2.44'
-            // version: '2.45'
-            // version: '2.46'
-            // version: '74.0.3729.6'
-            // version: '75.0.3770.140'
-            // version: '76.0.3809.126'
-            // version: '77.0.3865.40'
-            // version: '78.0.3904.105'
-            // version: '79.0.3945.36',
             // version: '80.0.3987.106',
             // version: '81.0.4044.1386',
             // version: '83.0.4103.39',
@@ -49,7 +39,11 @@ const seleniumArgs = {
             // version: '87.0.4280.20',
             // version: '88.0.4324.96',
             // version: '89.0.4389.23',
-            version: '90.0.4430.24',
+            // version: '90.0.4430.24',
+            // version: '91.0.4472.101',
+            // version: '92.0.4515.107',
+            // version: '93.0.4577.63',
+            version: '94.0.4606.61',
         },
     },
 };
@@ -61,16 +55,6 @@ const seleniumInstallArgs = {
         chrome: {
             arch: process.arch,
             baseURL: 'https://chromedriver.storage.googleapis.com',
-            // version: '2.43'
-            // version: '2.44'
-            // version: '2.45'
-            // version: '2.46'
-            // version: '74.0.3729.6'
-            // version: '75.0.3770.140'
-            // version: '76.0.3809.126'
-            // version: '77.0.3865.40'
-            // version: '78.0.3904.105'
-            // version: '79.0.3945.36',
             // version: '80.0.3987.106',
             // version: '81.0.4044.1386',
             // version: '83.0.4103.39',
@@ -80,7 +64,11 @@ const seleniumInstallArgs = {
             // version: '87.0.4280.20',
             // version: '88.0.4324.96',
             // version: '89.0.4389.23',
-            version: '90.0.4430.24',
+            // version: '90.0.4430.24',
+            // version: '91.0.4472.101',
+            // version: '92.0.4515.107',
+            // version: '93.0.4577.63',
+            version: '94.0.4606.61',
         },
     },
 };
