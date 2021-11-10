@@ -56,6 +56,7 @@ module.exports = {
                         config.uris.webapp.root
                     );
                     indexModel.findBySiteUrl(
+                        // eslint-disable-next-line camelcase
                         site_url.origin + site_url.pathname,
                         req.query,
                         callback
