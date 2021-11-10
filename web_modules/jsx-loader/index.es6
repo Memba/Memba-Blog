@@ -5,7 +5,7 @@
 
 /* eslint-disable no-console,  import/no-extraneous-dependencies */
 
-const loaderUtils = require('loader-utils');
+// const loaderUtils = require('loader-utils');
 const ejs = require('ejs');
 const path = require('path');
 const fs = require('fs');
@@ -13,8 +13,16 @@ const async = require('async');
 const deepExtend = require('deep-extend');
 
 module.exports = function loader(source) {
-    const opts = loaderUtils.getOptions(this); // loaderUtils.parseQuery(this.query),
-    const params = loaderUtils.getOptions({ query: this.resourceQuery }); // loaderUtils.parseQuery(this.resourceQuery),
+    // Options from webpack.config loader
+    // loaderUtils.parseQuery(this.query), // loader-utils@1
+    // const opts = loaderUtils.getOptions(this);// loader-utils@2
+    const opts = this.getOptions();
+    // Params from import statement as in import config from './config.jsx?env=production';
+    // loaderUtils.parseQuery(this.resourceQuery), // loader-utils@1
+    // const params = loaderUtils.getOptions({ query: this.resourceQuery }); // loader-utils@2
+    const params = Object.fromEntries(
+        new URLSearchParams(this.resourceQuery.slice(1))
+    );
     const configDir = path.join(__dirname, '../..', opts.config); // go up from `/web_modules/jsx-loader` to project root `/` and then down to 'webapp/config'
     const configEnv = (
         (params || {}).env || // force *.jsx?env=${__NODE_ENV__}`
@@ -32,7 +40,7 @@ module.exports = function loader(source) {
     this.addDependency(configFile);
     async.parallel(
         [
-            done => {
+            (done) => {
                 fs.readFile(defaultFile, 'utf-8', (err, content) => {
                     if (err) {
                         done(err);
@@ -41,7 +49,7 @@ module.exports = function loader(source) {
                     }
                 });
             },
-            done => {
+            (done) => {
                 fs.readFile(configFile, 'utf-8', (err, content) => {
                     if (err) {
                         done(err);
@@ -49,7 +57,7 @@ module.exports = function loader(source) {
                         done(null, JSON.parse(content));
                     }
                 });
-            }
+            },
         ],
         (err, result) => {
             if (err) {
