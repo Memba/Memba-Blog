@@ -1,10 +1,10 @@
 <footer class="py-1 px-2 border-top d-print-none">
     <div class="container-fluid">
         <div class="row d-flex justify-content-between align-items-center">
-            <div class="form-inline" role="form">
+            <div class="form-inline w-auto" role="form">
                 <span class="d-none d-lg-flex"><%- __('footer.copyright', config.application.version) %></span>
             </div>
-            <div class="form-inline" role="form">
+            <div class="form-inline d-flex w-auto" role="form">
                 <div class="form-group mb-0">
                     <label for="id-footer-language" class="mb-0"><%- __('footer.language.label') %>&nbsp;
                         <select id="id-footer-language" data-role="dropdownlist" data-bind="value:locale" data-auto-width="true">
@@ -14,7 +14,7 @@
                         </select>
                     </label>
                 </div>
-                <div class="form-group mb-0 d-none d-md-flex ml-0 ml-md-4">
+                <div class="form-group mb-0 ms-2 d-none d-md-flex ml-0 ml-md-4">
                     <label for="id-footer-theme" class="mb-0"><%- __('footer.theme.label') %>&nbsp;
                         <select id="id-footer-theme" data-role="dropdownlist" data-bind="value:theme" data-auto-width="true">
                             <% __('themes').forEach(function (theme) { %>
