@@ -61,7 +61,7 @@ const THEMES = {
     urban: 'urban',
     vintage: 'vintage',
 };
-const DEFAULT = 'flat';
+const DEFAULT = 'urban';
 
 let localStorage; // = window.localStorage;
 // An exception is catched when localStorage is explicitly disabled
@@ -115,13 +115,15 @@ const themer = {
             // See https://github.com/webpack/webpack/issues/924
             // See https://github.com/webpack/webpack/issues/993
             // eslint-disable-next-line global-require, import/no-dynamic-require
-            loader = require(`../../styles/themes/app.theme.${oldTheme}.scss`);
+            loader = require(`../../styles/themes/app.theme.urban.scss`);
+            // loader = require(`../../styles/themes/app.theme.${oldTheme}.scss`);
             loader((style) => {
                 style.default.unuse(); // Use default with style-loader@2+
             });
         }
         // eslint-disable-next-line global-require, import/no-dynamic-require
-        loader = require(`../../styles/themes/app.theme.${newTheme}.scss`);
+        loader = require(`../../styles/themes/app.theme.urban.scss`);
+        // loader = require(`../../styles/themes/app.theme.${newTheme}.scss`);
         loader((style) => {
             style.default.use(); // Use default with style-loader@2+
             if (localStorage && !$.isArray(matches)) {
