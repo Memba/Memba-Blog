@@ -1,3 +1,3 @@
 set NODE_ENV=development
-npm run uglify
+CALL npm run uglify
 webpack --watch
