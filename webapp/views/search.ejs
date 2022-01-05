@@ -30,13 +30,13 @@
                 <% if (results.length === 0) { %>
                 <div class="alert alert-info animated fadeInUp" role="alert"><%- __('search.message') %></div>
                 <% } else { %>
-                <ul class="list-unstyled animated fadeInUp">
+                <div class="animated fadeInUp">
                     <% for (var i = 0; i < results.length; i++) { %>
-                    <li class="media">
+                    <div class="d-flex">
                         <a class="mr-3" href="<%= results[i].site_url %>">
                             <img class="img-xl" src="<%- iconURL(results[i].icon) %>" alt="<%= results[i].title %>">
                         </a>
-                        <div class="media-body">
+                        <div>
                             <h5 class="mt-0 mb-1">
                                 <a href="<%= results[i].site_url %>"><%= results[i].title %></a>
                             </h5>
@@ -47,9 +47,9 @@
                             </div>
                             <p><%= results[i].description %></p>
                         </div>
-                    </li>
+                    </div>
                     <% } %>
-                </ul>
+                </div>
                 <% } %>
             </div>
             <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none animated fadeInRight">
