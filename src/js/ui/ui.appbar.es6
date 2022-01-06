@@ -50,7 +50,7 @@ const feature = {
                 {
                     template: `<img src="data:image/svg+xml;base64,${btoa(
                         $('#appbar-logo-template').html()
-                    )}" alt="logo" style="height: 42px; margin: -4px 0; margin-left: -1em">`,
+                    )}" alt="logo" style="height: 42px; margin: -4px 0 -4px -1em;">`,
                     type: 'contentItem',
                 },
                 { type: 'spacer' },
