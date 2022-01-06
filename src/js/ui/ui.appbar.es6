@@ -6,8 +6,6 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
-// Bootstrap dropdowns
-import '../vendor/bootstrap/dropdown';
 import 'kendo.core';
 import 'kendo.appbar';
 import 'kendo.menu';
