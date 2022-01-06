@@ -47,6 +47,7 @@ const feature = {
         const $appBar = $(this.VIEW.APPBAR._);
         $appBar.kendoAppBar({
             items: [
+                // TODO add drawer icon + hide menu and search input when resizing
                 {
                     template: `<img src="data:image/svg+xml;base64,${btoa(
                         $('#appbar-logo-template').html()
