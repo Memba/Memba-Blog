@@ -1,45 +1,150 @@
-<% // navbar and corresponding windows %>
-<header class="d-print-none" role="banner">
+/**
+* Copyright (c) 2013-2022 Memba Sarl. All rights reserved.
+* Sources at https://github.com/Memba
+*/
 
-    <% // Navigation bar at the top of the page %>
-    <nav class="navbar navbar-expand border-bottom py-1 pl-0 pr-2" role="navigation">
-        <% if (Array.isArray(menu) && menu.length) { %>
-        <a id="id-drawer-button" href="#" class=" d-md-none mx-2" title="<%- __('header.navbar.toggle') %>">
-            <span class="k-icon k-i-menu"></span>
-        </a>
-        <% } %>
-        <a class="navbar-brand" href="/"><%- include('logo.ejs') %></a>
-        <% if (Array.isArray(menu)) { %>
-        <div class="d-none d-md-flex flex-grow-1 justify-content-end">
-            <ul class="navbar-nav">
-                <% for (var i = 0; i < menu.length; i++) { if (menu[i].items) { %>
-                    <li class="nav-item dropdown">
-                        <a id="id-toggle-<%- i %>" href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <i class="kf kf-<%- menu[i].icon %> mx-1"></i><span><%- menu[i].text %>&nbsp;<span class="caret"></span></span>
-                        </a>
-                        <div class="dropdown-menu" role="menu" aria-labelledby="id-toggle-<%- i %>">
-                            <% for (var j = 0; j < menu[i].items.length; j++) { %>
-                                <a class="dropdown-item" href="<%- menu[i].items[j].href %>"><%- menu[i].items[j].text %></a>
-                            <% } %>
-                        </div>
-                    </li>
-                <% } else { %>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<%- menu[i].href %>">
-                            <i class="kf kf-<%- menu[i].icon %> mx-1"></i><span><%- menu[i].text %></span>
-                        </a>
-                    </li>
-                <% } } %>
-            </ul>
-            <form class="form-inline mx-0 ml-md-4" role="form">
-                <span class="k-textbox k-display-flex" style="display: flex; align-items: center"><% // TODO %>
-                    <input class="k-input" type="search" autocomplete="off" placeholder="<%- __('header.navbar.search.placeholder') %>">
-                    <span class="k-input-icon">
-                        <span class="k-icon k-i-search"></span>
-                    </span>
-                </span>
-            </form>
-        </div>
-        <% } %>
-    </nav>
-</header>
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
+import $ from 'jquery';
+// Bootstrap dropdowns
+import '../vendor/bootstrap/dropdown';
+import 'kendo.core';
+import 'kendo.appbar';
+import 'kendo.menu';
+import __ from '../app/app.i18n.es6';
+import config from '../app/app.config.jsx';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+// import app from '../common/window.global.es6';
+// import Logger from '../common/window.logger.es6';
+
+const { format, keys } = window.kendo;
+// const logger = new Logger('ui.appbar');
+
+/**
+* Appbar feature
+*/
+const feature = {
+/**
+* Name
+*/
+_name: 'appbar',
+
+/**
+* View
+*/
+VIEW: {
+APPBAR: {
+_: '[data-role="appbar"]',
+MENU: '[data-role="menu"]',
+SEARCH_INPUT: 'input[type=search]',
+},
+},
+
+/**
+* Initialize bootstrap navbar
+* @method initNavBar
+*/
+show() {
+const $appBar = $(this.VIEW.APPBAR._);
+$appBar.kendoAppBar({
+items: [
+{
+template: `<img src="data:image/svg+xml;base64,${btoa(
+                        $('#appbar-logo-template').html()
+                    )}" alt="logo" style="height: 42px; margin: -4px 0; margin-left: -1em">`,
+type: 'contentItem',
+},
+{ type: 'spacer' },
+{
+template: $('#appbar-menu-template').html(),
+type: 'contentItem',
+},
+{ template: '<span><input type="search" /><span>' },
+            ],
+            position: 'top',
+            positionMode: 'sticky',
+        });
+
+        $appBar.find(this.VIEW.APPBAR.MENU).kendoMenu();
+
+        // Search input event handlers
+        $appBar
+            .find(this.VIEW.APPBAR.SEARCH_INPUT)
+            .on(CONSTANTS.BLUR, this._onSearchInputBlur.bind(this))
+            .on(CONSTANTS.FOCUS, this._onSearchInputFocus.bind(this))
+            .on(CONSTANTS.KEYPRESS, this._onSearchInputKeyPress.bind(this));
+    },
+
+    /**
+     * Event handler triggered when the search input loses focus
+     * @method onSearchInputBlur
+     * @param e
+     */
+    _onSearchInputBlur(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        $(e.currentTarget)
+            .closest('.k-textbox')
+            .removeClass(CONSTANTS.FOCUSED_CLASS);
+    },
+
+    /**
+     * Event handler triggered when the search input gets focus
+     * @method onSearchInputFocus
+     * @param e
+     */
+    _onSearchInputFocus(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        $(e.currentTarget)
+            .closest('.k-textbox')
+            .addClass(CONSTANTS.FOCUSED_CLASS);
+    },
+
+    /**
+     * Event handler triggered when pressing any key when the search input has focus
+     * @method onSearchInputKeyPress
+     * @param e
+     */
+    _onSearchInputKeyPress(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        if (e.which === keys.ENTER || e.keyCode === keys.ENTER) {
+            window.location.href = `${format(
+                config.uris.webapp.pages,
+                __.locale
+            ).replace(/\/+$/, CONSTANTS.EMPTY)}?q=${encodeURIComponent(
+                $(e.currentTarget).val()
+            )}`;
+            return false; // Prevent a form submission
+        }
+        return true; // Accept any other character
+    },
+};
+
+/**
+ * Default export
+ */
+export default feature;
