@@ -84,6 +84,8 @@ ATTRIB +R .\src\js\.*
 
 REM ./src/js/app/*
 ATTRIB -R .\src\js\app\*.es6
+COPY ..\Memba.Webapp\src\js\app\app.controller.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.controller.es6
 COPY ..\Memba.Webapp\src\js\app\app.i18n.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.i18n.es6
 COPY ..\Memba.Webapp\src\js\app\app.init.es6 .\src\js\app /Y

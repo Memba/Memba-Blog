@@ -3,225 +3,241 @@
  * Sources at https://github.com/Memba
  */
 
+// app.controller.es6 is the base page controller
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
-// Bootstrap dropdowns
-import '../vendor/bootstrap/dropdown';
-import 'kendo.binder';
-import 'kendo.fx';
-import 'kendo.dropdownlist';
-import 'kendo.touch';
-import __ from './app.i18n.es6';
-import assert from '../common/window.assert.es6';
+import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import config from './app.config.jsx';
-import viewModel from './app.viewmodel.es6';
-
-// Load common styles
-import '../../styles/fonts/memba.less';
 
 const {
-    bind,
-    format,
-    fx,
-    keys,
-    Observable,
-    ui: { Touch },
+    data: { ObservableObject },
 } = window.kendo;
 const logger = new Logger('app.controller');
-const SELECTORS = {
-    DRAWER: '#id-drawer',
-    LOADING: 'body>div.k-loading-image',
-    SEARCH_INPUT: 'nav.navbar input[type=search]',
-    TOGGLER: '#id-drawer-button',
-};
 
 /**
  * AppController
- * Controls page UI
  * @class AppController
- * @extends Observable
+ * @extends ObservableObject
  */
-const AppController = Observable.extend({
+const AppController = ObservableObject.extend({
     /**
-     * init
-     * @contructor init
+     * Init
+     * @constructor init
      */
-    init() {
-        Observable.fn.init.call(this);
-        this._initializers = [__.load()];
-        this.ready().then(() => {
-            this.reveal();
-            this.initNavBar();
-            this.initFooter();
+    init(features = []) {
+        ObservableObject.fn.init.call(this);
+        // Add features
+        if (Array.isArray(features)) {
+            this.addFeatures(features);
+        }
+    },
 
-            // Log page readiness
-            logger.debug({
-                message: `Base controller initialized in ${__.locale}`,
-                method: 'AppController.init',
-            });
+    /**
+     * Event handlers
+     * Bound to the change, set and get events of this ObservableObject
+     * Defined as part of a feature
+     *
+     * feature = {
+     *     events: {
+     *         change: (e) => { ... }
+     *         get: (e) => { ... }
+     *         set: (e) => { ... }
+     *     }
+     * }
+     */
+    _events: [],
+
+    /**
+     * Initializers
+     */
+    _initializers: {},
+
+    /**
+     * Loaders
+     */
+    _loaders: {},
+
+    /**
+     * Resetters
+     */
+    _resetters: {},
+
+    /**
+     * Showers
+     */
+    _showers: {},
+
+    /**
+     * Resizers
+     */
+    _resizers: {},
+
+    /**
+     * VIEW selectors
+     */
+    VIEW: {},
+
+    /**
+     * VIEW_MODEL selectors
+     */
+    VIEW_MODEL: {},
+
+    /**
+     * Add UI features
+     * @param features
+     */
+    addFeatures(features) {
+        const prototype = Object.getPrototypeOf(this);
+        features.forEach((feature) => {
+            const { _name } = feature;
+            if (feature && $.type(_name) === CONSTANTS.STRING) {
+                Object.keys(feature).forEach((key) => {
+                    const prop = feature[key];
+                    if (key === 'events' && $.isPlainObject(prop)) {
+                        // `change`, `get` and `set` events of ObservableObject
+                        Object.keys(prop).forEach((event) => {
+                            const handler = prop[event];
+                            if (
+                                ['change', 'get', 'set'].indexOf(event) > -1 &&
+                                $.isFunction(handler)
+                            ) {
+                                // Note cannot extend without breaking bindings
+                                this._events[_name] = this._events[_name] || {};
+                                this._events[_name][event] = handler.bind(this);
+                                this.bind(event, this._events[_name][event]);
+                            }
+                        });
+                    } else if (key === 'initialize' && $.isFunction(prop)) {
+                        // Initializers
+                        this._initializers[_name] = prop.bind(this);
+                    } else if (key === 'load' && $.isFunction(prop)) {
+                        // Loaders (viewModel data)
+                        this._loaders[_name] = prop.bind(this);
+                    } else if (key === 'reset' && $.isFunction(prop)) {
+                        // Resetters (viewModel data)
+                        this._resetters[_name] = prop.bind(this);
+                    } else if (key === 'show' && $.isFunction(prop)) {
+                        // Showers (ui)
+                        this._showers[_name] = prop.bind(this);
+                    } else if (key === 'resize' && $.isFunction(prop)) {
+                        // Resizers, i.e. handlers for window resize event, including orientation change
+                        this._resizers[_name] = prop.bind(this);
+                    } else if (key === 'VIEW' && $.isPlainObject(prop)) {
+                        // VIEW selectors (ids, class names)
+                        $.extend(true, this.VIEW, prop);
+                    } else if (key === 'VIEW_MODEL' && $.isPlainObject(prop)) {
+                        // VIEW_MODEL selectors
+                        $.extend(true, this.VIEW_MODEL, prop);
+                    } else if (
+                        $.type(prototype[key]) === CONSTANTS.UNDEFINED &&
+                        $.isFunction(prop)
+                    ) {
+                        // All other functions and event handlers, especially view init, view show and buttons clicks
+                        // BEWARE: With MVVM, there is a chance that this will be rebound to another object this[key] = prop.bind(this);
+                        prototype[key] = prop;
+                    } else if ($.type(this[key]) === CONSTANTS.UNDEFINED) {
+                        // Anything else
+                        if (key !== '_name') {
+                            this.set(key, prop);
+                        }
+                    } else {
+                        // Avoid duplicate names across features
+                        throw new Error(
+                            `${feature._name} uses key ${key} which has already been added (duplicate)`
+                        );
+                    }
+                });
+            }
+            logger.debug(`Added feature ${_name}`);
         });
     },
 
     /**
-     * Run the initializers
-     * @returns {*|jQuery}
+     * Initialize
+     * @returns {*}
+     */
+    initialize() {
+        const { _initializers } = this;
+        const promises = [];
+        logger.debug('Initializing');
+        Object.keys(_initializers).forEach((key) => {
+            const prop = _initializers[key];
+            if ($.isFunction(prop)) {
+                promises.push(prop());
+            }
+        });
+        return $.when(...promises);
+    },
+
+    /**
+     * Load data into viewModel
+     * @returns {*}
+     */
+    load() {
+        const { _loaders } = this;
+        const promises = [];
+        logger.debug('Loading');
+        Object.keys(_loaders).forEach((key) => {
+            const prop = _loaders[key];
+            if ($.isFunction(prop)) {
+                promises.push(prop());
+            }
+        });
+        return $.when(...promises);
+    },
+
+    /**
+     * Reset data in viewModel
+     */
+    reset() {
+        const { _resetters } = this;
+        logger.debug('Resetting');
+        Object.keys(_resetters).forEach((key) => {
+            const prop = _resetters[key];
+            if ($.isFunction(prop)) {
+                prop();
+            }
+        });
+    },
+
+    /**
+     * Show after data is loaded in the viewmodel
+     */
+    show(e, view) {
+        const { _showers } = this;
+        logger.debug('Showing');
+        Object.keys(_showers).forEach((key) => {
+            const prop = _showers[key];
+            if ($.isFunction(prop)) {
+                prop(e, view);
+            }
+        });
+    },
+
+    /**
+     * Resize view
+     * @param e
+     * @param view
+     */
+    resize(e, view) {
+        const { _resizers } = this;
+        logger.debug('Resizing');
+        Object.keys(_resizers).forEach((key) => {
+            const prop = _resizers[key];
+            if ($.isFunction(prop)) {
+                prop(e, view);
+            }
+        });
+    },
+
+    /**
+     * Ready the page
      */
     ready() {
-        return $.when(...this._initializers);
-    },
-
-    /**
-     * Reveal page
-     * @method
-     */
-    reveal() {
-        $(SELECTORS.LOADING).delay(250).fadeOut();
-    },
-
-    /**
-     * Initialize bootstrap navbar
-     * @method initNavBar
-     */
-    initNavBar() {
-        // Drawer toggler event handler
-        $(SELECTORS.TOGGLER).on(
-            CONSTANTS.CLICK,
-            this._onDrawerButtonClick.bind(this)
-        );
-        // Drawer swipe
-        $(SELECTORS.DRAWER).kendoTouch({
-            enableSwipe: true,
-            swipe: this._onDrawerSwipe.bind(this),
-        });
-        // Search input event handlers
-        $(SELECTORS.SEARCH_INPUT)
-            .on(CONSTANTS.BLUR, this._onSearchInputBlur.bind(this))
-            .on(CONSTANTS.FOCUS, this._onSearchInputFocus.bind(this))
-            .on(CONSTANTS.KEYPRESS, this._onSearchInputKeyPress.bind(this));
-    },
-
-    /**
-     * Initialize footer
-     * @method initFooter
-     */
-    initFooter() {
-        // Init using kendo ui and kendo mobile ui (scollers)
-        // kendo.init('body', kendo.ui, kendo.mobile.ui);
-        bind('footer', viewModel);
-    },
-
-    /**
-     * Event handler triggered when clicking the drawer button
-     * @private
-     */
-    _onDrawerButtonClick() {
-        const drawer$ = $(SELECTORS.DRAWER);
-        if (drawer$.is(':visible')) {
-            fx(drawer$)
-                .expand('horizontal')
-                .duration(600) // default is 400ms
-                .reverse();
-        } else {
-            // After clicking frenetically on the drawer button
-            // It is no more possible to show the drawer
-            // drawer$.show(); fixes that
-            drawer$.show();
-            fx(drawer$).expand('horizontal').duration(600).play();
-        }
-    },
-
-    /**
-     * Event handler trigger when swiping the drawer
-     * @param e
-     * @private
-     */
-    _onDrawerSwipe(e) {
-        assert.isPlainObject(
-            e,
-            assert.format(assert.messages.isPlainObject.default, 'e')
-        );
-        assert.instanceof(
-            Touch,
-            e.sender,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e.sender',
-                'kendo.ui.Touch'
-            )
-        );
-        if (e.direction === 'left' && e.sender.element.is(':visible')) {
-            this._onDrawerButtonClick();
-        }
-    },
-
-    /**
-     * Event handler triggered when the search input loses focus
-     * @method onSearchInputBlur
-     * @param e
-     */
-    _onSearchInputBlur(e) {
-        assert.instanceof(
-            $.Event,
-            e,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e',
-                'jQuery.Event'
-            )
-        );
-        $(e.currentTarget)
-            .closest('.k-textbox')
-            .removeClass(CONSTANTS.FOCUSED_CLASS);
-    },
-
-    /**
-     * Event handler triggered when the search input gets focus
-     * @method onSearchInputFocus
-     * @param e
-     */
-    _onSearchInputFocus(e) {
-        assert.instanceof(
-            $.Event,
-            e,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e',
-                'jQuery.Event'
-            )
-        );
-        $(e.currentTarget)
-            .closest('.k-textbox')
-            .addClass(CONSTANTS.FOCUSED_CLASS);
-    },
-
-    /**
-     * Event handler triggered when pressing any key when the search input has focus
-     * @method onSearchInputKeyPress
-     * @param e
-     */
-    _onSearchInputKeyPress(e) {
-        assert.instanceof(
-            $.Event,
-            e,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e',
-                'jQuery.Event'
-            )
-        );
-        if (e.which === keys.ENTER || e.keyCode === keys.ENTER) {
-            window.location.href = `${format(
-                config.uris.webapp.pages,
-                __.locale
-            ).replace(/\/+$/, CONSTANTS.EMPTY)}?q=${encodeURIComponent(
-                $(e.currentTarget).val()
-            )}`;
-            return false; // Prevent a form submission
-        }
-        return true; // Accept any other character
+        this.initialize().then(this.load.bind(this)).then(this.show.bind(this));
     },
 });
 
