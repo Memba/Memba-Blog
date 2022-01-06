@@ -6,48 +6,44 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
-import __ from '../app/app.i18n.es6';
 import AppController from '../app/app.controller.es6';
-import Logger from '../common/window.logger.es6';
+import app from '../common/window.global.es6';
+// import Logger from '../common/window.logger.es6';
 
 // Import page styles
 // import '../../styles/ui/error.page.scss';
 
-const { history, location } = window;
-const logger = new Logger('error.page');
-const SELECTORS = {
-    BACK_BUTTON: 'button.k-button',
-};
+// Imported shared features
+import initializers from '../app/app.initializers.es6';
+import appbar from './ui.appbar.es6';
+// import drawer from './ui.drawer.es6';
+import footer from './ui.footer.es6';
+import reveal from './ui.reveal.es6';
 
-/**
- * Controller
- * @class Controller
- * @extends AppController
- */
-const Controller = AppController.extend({
+const { history, location } = window;
+// const logger = new Logger('error.page');
+
+// Page features
+const page = {
     /**
-     * init
-     * @constructor init
+     * Name
      */
-    init() {
-        AppController.fn.init.call(this);
-        // Wait until document is ready to initialize UI
-        this.ready().then(() => {
-            this.initBackButton();
-            logger.info({
-                message: `error page initialized in ${__.locale}`,
-                method: 'init',
-            });
-        });
+    _name: 'page',
+
+    /**
+     * View
+     */
+    VIEW: {
+        BACK_BUTTON: 'button.k-button',
     },
 
     /**
-     * initBackButton
-     * @method initBackButton
+     * show
+     * @method show
      */
-    initBackButton() {
+    show() {
         // Add click handler on back button
-        $(SELECTORS.BACK_BUTTON).click((e) => {
+        $(this.VIEW.BACK_BUTTON).click((e) => {
             e.preventDefault();
             if (history && history.length > 1) {
                 history.back();
@@ -56,14 +52,19 @@ const Controller = AppController.extend({
             }
         });
     },
+};
+
+// Create the viewModel with all features
+app.viewModel = new AppController([
+    initializers, // TODO split into theme and locale
+    appbar,
+    // drawer,
+    footer,
+    reveal,
+    page,
+]);
+
+// Run the page
+$(() => {
+    app.viewModel.ready();
 });
-
-/**
- * Initialize page controller
- */
-const controller = new Controller();
-
-/**
- * Default export
- */
-export default controller;

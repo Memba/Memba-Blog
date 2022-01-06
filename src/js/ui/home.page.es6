@@ -5,10 +5,13 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
-// import $ from 'jquery';
 import $ from 'jquery';
 import AppController from '../app/app.controller.es6';
 import app from '../common/window.global.es6';
+// import Logger from '../common/window.logger.es6';
+
+// Import page styles
+// import '../../styles/ui/home.page.scss';
 
 // Imported shared features
 import initializers from '../app/app.initializers.es6';
@@ -18,32 +21,16 @@ import footer from './ui.footer.es6';
 import reveal from './ui.reveal.es6';
 
 // Page features
-const page = {
-    /**
-     * Name
-     */
-    _name: 'page',
-
-    /**
-     * View
-     */
-    VIEW: {},
-
-    /**
-     * Reveal page
-     * @method
-     */
-    do() {},
-};
+// const page = { _name: 'page', };
 
 // Create the viewModel with all features
 app.viewModel = new AppController([
-    initializers, // TODO split into them and locale
+    initializers, // TODO split into theme and locale
     appbar,
     drawer,
     footer,
     reveal,
-    page,
+    // page,
 ]);
 
 // Run the page

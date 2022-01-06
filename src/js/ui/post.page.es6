@@ -9,17 +9,26 @@ import $ from 'jquery';
 import 'kendo.core';
 import config from '../app/app.config.jsx';
 import AppController from '../app/app.controller.es6';
-import __ from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6'; // TODO
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import Logger from '../common/window.logger.es6';
+import app from '../common/window.global.es6';
+// import Logger from '../common/window.logger.es6';
+
+// Import page styles
+// import '../../styles/ui/post.page.scss';
+
+// Imported shared features
+import initializers from '../app/app.initializers.es6';
+import appbar from './ui.appbar.es6';
+import drawer from './ui.drawer.es6';
+import footer from './ui.footer.es6';
+import reveal from './ui.reveal.es6';
 
 const { HTMLAnchorElement } = window;
 const { attr } = window.kendo;
-const logger = new Logger('page.post');
-const SELECTORS = {
-    SOCIAL: '.app-social',
-};
+// const logger = new Logger('post.page');
+
 const COMMAND = {
     FACEBOOK: 'facebook',
     GOOGLE: 'google',
@@ -31,36 +40,28 @@ const COMMAND = {
 let socialWindow = null;
 let socialUrl;
 
-/**
- * Controller
- * @class Controller
- * @extends AppController
- */
-const Controller = AppController.extend({
+// Page features
+const page = {
     /**
-     * init
-     * @constructor init
+     * Name
      */
-    init() {
-        AppController.fn.init.call(this);
-        // Wait until document is ready to initialize UI
-        this.ready().then(() => {
-            this.initSocialButtons();
-            // LOADED occurs after document ready event
-            logger.info({
-                message: `post page initialized in ${__.locale}`,
-                method: 'init',
-            });
-        });
+    _name: 'page',
+
+    /**
+     * View
+     */
+    VIEW: {
+        SOCIAL: '.app-social',
     },
 
     /**
-     * Initialize social buttons
+     * show
+     * @method show
      * @see http://www.sharelinkgenerator.com/
      * Also check Kidoju.WebApp -> app.summary.js
      */
-    initSocialButtons() {
-        $(SELECTORS.SOCIAL).on(CONSTANTS.CLICK, (e) => {
+    show() {
+        $(this.VIEW.SOCIAL).on(CONSTANTS.CLICK, (e) => {
             assert.instanceof(
                 $.Event,
                 e,
@@ -153,14 +154,19 @@ const Controller = AppController.extend({
             }
         });
     },
+};
+
+// Create the viewModel with all features
+app.viewModel = new AppController([
+    initializers, // TODO split into theme and locale
+    appbar,
+    drawer,
+    footer,
+    reveal,
+    page,
+]);
+
+// Run the page
+$(() => {
+    app.viewModel.ready();
 });
-
-/**
- * Initialize page controller
- */
-const controller = new Controller();
-
-/**
- * Default export
- */
-export default controller;

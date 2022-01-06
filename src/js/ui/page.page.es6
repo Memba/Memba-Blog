@@ -5,42 +5,38 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
-// import $ from 'jquery';
+import $ from 'jquery';
 import 'kendo.validator'; // For page forms
-import __ from '../app/app.i18n.es6';
 import AppController from '../app/app.controller.es6';
-import Logger from '../common/window.logger.es6';
+import app from '../common/window.global.es6';
+// import Logger from '../common/window.logger.es6';
 
-const logger = new Logger('page.page');
+// Import page styles
+// import '../../styles/ui/page.page.scss';
 
-/**
- * Controller
- * @class Controller
- * @extends AppController
- */
-const Controller = AppController.extend({
-    /**
-     * init
-     * @constructor init
-     */
-    init() {
-        AppController.fn.init.call(this);
-        // Wait until document is ready to initialize UI
-        this.ready().then(() => {
-            logger.info({
-                message: `site page initialized in ${__.locale}`,
-                method: 'init',
-            });
-        });
-    },
+// Imported shared features
+import initializers from '../app/app.initializers.es6';
+import appbar from './ui.appbar.es6';
+import drawer from './ui.drawer.es6';
+import footer from './ui.footer.es6';
+import reveal from './ui.reveal.es6';
+
+// const logger = new Logger('page.page');
+
+// Page features
+// const page = { _name: 'page', };
+
+// Create the viewModel with all features
+app.viewModel = new AppController([
+    initializers, // TODO split into theme and locale
+    appbar,
+    drawer,
+    footer,
+    reveal,
+    // page,
+]);
+
+// Run the page
+$(() => {
+    app.viewModel.ready();
 });
-
-/**
- * Initialize page controller
- */
-const controller = new Controller();
-
-/**
- * Default export
- */
-export default controller;

@@ -9,6 +9,8 @@ import $ from 'jquery';
 // Bootstrap dropdowns
 import '../vendor/bootstrap/dropdown';
 import 'kendo.core';
+import 'kendo.appbar';
+import 'kendo.menu';
 import __ from '../app/app.i18n.es6';
 import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
@@ -32,7 +34,11 @@ const feature = {
      * View
      */
     VIEW: {
-        SEARCH_INPUT: 'nav.navbar input[type=search]',
+        APPBAR: {
+            _: '[data-role="appbar"]',
+            MENU: '[data-role="menu"]',
+            SEARCH_INPUT: 'input[type=search]',
+        },
     },
 
     /**
@@ -40,8 +46,35 @@ const feature = {
      * @method initNavBar
      */
     show() {
+        const $appBar = $(this.VIEW.APPBAR._);
+        $appBar.kendoAppBar({
+            items: [
+                {
+                    template: `<img src="data:image/svg+xml;base64,${btoa(
+                        $('#appbar-logo-template').html()
+                    )}" alt="logo" style="height: 42px; margin: -4px 0; margin-left: -1em">`,
+                    type: 'contentItem',
+                },
+                { type: 'spacer' },
+                {
+                    template: $('#appbar-menu-template').html(),
+                    type: 'contentItem',
+                },
+                { width: 8, type: 'spacer' },
+                {
+                    template: $('#appbar-search-template').html(),
+                    type: 'contentItem',
+                },
+            ],
+            position: 'top',
+            positionMode: 'sticky',
+        });
+
+        $appBar.find(this.VIEW.APPBAR.MENU).kendoMenu();
+
         // Search input event handlers
-        $(this.VIEW.SEARCH_INPUT)
+        $appBar
+            .find(this.VIEW.APPBAR.SEARCH_INPUT)
             .on(CONSTANTS.BLUR, this._onSearchInputBlur.bind(this))
             .on(CONSTANTS.FOCUS, this._onSearchInputFocus.bind(this))
             .on(CONSTANTS.KEYPRESS, this._onSearchInputKeyPress.bind(this));

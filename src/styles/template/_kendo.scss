@@ -76,13 +76,13 @@
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/calendar/_index.scss";
 
 // Command interfaces
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/appbar/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/menu/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/appbar/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/menu/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/toolbar/_index.scss";
 
 // Popups and modals
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dialog/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/drawer/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/drawer/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/notification/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/popup/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/responsivepanel/_index.scss";

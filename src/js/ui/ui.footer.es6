@@ -15,8 +15,8 @@ import 'kendo.dropdownlist';
 // import app from '../common/window.global.es6';
 // import Logger from '../common/window.logger.es6';
 
-// const logger = new Logger('ui.footer');
 const { bind } = window.kendo;
+// const logger = new Logger('ui.footer');
 
 /**
  * Footer feature
@@ -36,9 +36,15 @@ const feature = {
         },
     },
 
-    // TODO locale: '',
+    /**
+     * Property locale
+     */
+    locale: 'en',
 
-    // TODO theme: '',
+    /**
+     * property theme
+     */
+    theme: 'urban',
 
     /**
      * Show
