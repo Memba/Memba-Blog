@@ -90,6 +90,8 @@ COPY ..\Memba.Webapp\src\js\app\app.i18n.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.i18n.es6
 COPY ..\Memba.Webapp\src\js\app\app.init.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.init.es6
+COPY ..\Memba.Webapp\src\js\app\app.initializers.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.initializers.es6
 COPY ..\Memba.Webapp\src\js\app\app.logger.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.logger.es6
 COPY ..\Memba.Webapp\src\js\app\app.notification.es6 .\src\js\app /Y
@@ -116,9 +118,13 @@ COPY ..\Memba.Webapp\src\js\data\data.util.es6  .\src\js\data /Y
 ATTRIB +R .\src\js\data\data.util.es6
 
 REM ./src/js/ui/*.es6
-ATTRIB -R .\src\js\ui\error.page.es6
+ATTRIB -R .\src\js\ui\*.es6
 COPY ..\Memba.Webapp\src\js\ui\error.page.es6 .\src\js\ui /Y
 ATTRIB +R .\src\js\ui\error.page.es6
+COPY ..\Memba.Webapp\src\js\ui\ui.footer.es6 .\src\js\ui /Y
+ATTRIB +R .\src\js\ui\ui.footer.es6
+COPY ..\Memba.Webapp\src\js\ui\ui.reveal.es6 .\src\js\ui /Y
+ATTRIB +R .\src\js\ui\ui.reveal.es6
 
 REM Copy ./src/js/vendor/*
 XCOPY ..\Memba.Webapp\src\js\vendor\bootstrap\*.* .\src\js\vendor\bootstrap\ /C /E /I /R /Y
