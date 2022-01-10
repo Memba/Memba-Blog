@@ -3,28 +3,17 @@
  * Sources at https://github.com/Memba
  */
 
-// Global customization (applies to Kendo UI and Bootstrap)
-@import "../themes/common/global";
+// Global customization
+@import "global";
 
-// Kendo UI Loader
+// Kendo UI
 @import "kendo";
 
-// Bootstrap customization (using Kendo UI variables)
-@import "../themes/common/bootstrap";
-
-// Bootstrap 4 Loader
+// Bootstrap
 @import "bootstrap";
 
-// Dependencies
-@import "../dependencies/animate";
-@import "../dependencies/highlightjs";
+// Memba Widgets
+@import "widgets";
 
-// Our common UI styles
-@import "../ui/header";
-@import "../ui/main";
-@import "../ui/drawer";
-@import "../ui/footer";
-@import "../ui/icons";
-
-// Our default page style (all pages)
-@import "../ui/default";
+// UI styles
+@import "../ui";

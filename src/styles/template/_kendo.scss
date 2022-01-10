@@ -3,11 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
-// Load all
-// ----------------
-// @import "~@progress/kendo-theme-bootstrap/scss/all";
-// ~ only works with webpack module resolution
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
+// Kendo UI
+// ~ tilde only works with webpack module resolution
+// @import "~@progress/kendo-theme-bootstrap/dist/all";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/dist/all";
 
 // Load partial
 // ----------------

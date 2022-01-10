@@ -160,6 +160,15 @@ REM Copy ./src/styles/images
 COPY .\graphics\memba.home.jpg .\src\styles\images\jumbotron.jpg /Y
 ATTRIB +R .\src\styles\images\*.* /S
 
+REM Copy ./src/styles/template
+ATTRIB -R .\src\styles\template\*.*
+COPY ..\Memba.Webapp\src\styles\template\_app.theme.scss .\src\styles\template\ /Y
+ATTRIB +R .\src\styles\template\_app.theme.scss
+COPY ..\Memba.Webapp\src\styles\template\_bootstrap.scss .\src\styles\template\ /Y
+ATTRIB +R .\src\styles\template\_bootstrap.scss
+COPY ..\Memba.Webapp\src\styles\template\_global.scss .\src\styles\template\ /Y
+ATTRIB +R .\src\styles\template\_global.scss /S
+
 REM Copy ./src/styles/themes
 XCOPY ..\Memba.Webapp\src\styles\themes\*.scss .\src\styles\themes\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\themes\*.scss /S
