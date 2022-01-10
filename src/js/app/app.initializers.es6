@@ -18,6 +18,11 @@ import themer from './app.themer.es6';
 const feature = {
     _name: 'initemp',
 
+    VIEW_MODEL: {
+        LOCALE: 'locale',
+        THEME: 'theme',
+    },
+
     initialize() {
         // Add initializers here
         // Make sure they all return a jQuery promise

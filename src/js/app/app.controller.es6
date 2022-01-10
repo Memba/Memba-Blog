@@ -17,6 +17,8 @@ const {
 } = window.kendo;
 const logger = new Logger('app.controller');
 
+// TODO: Check dependencies
+
 /**
  * AppController
  * @class AppController
@@ -36,24 +38,35 @@ const AppController = ObservableObject.extend({
     },
 
     /**
+     * A list of features to check dependencies against
+     */
+    _features: {},
+
+    /**
      * Event handlers
      * Bound to the change, set and get events of this ObservableObject
      * Defined as part of a feature
      *
-     * feature = {
-     *     events: {
-     *         change: (e) => { ... }
-     *         get: (e) => { ... }
-     *         set: (e) => { ... }
+     * events: {
+     *     feature: {
+     *         change: (e) => { ... },
+     *         get: (e) => { ... },
+     *         set: (e) => { ... },
+     *         ...
      *     }
      * }
      */
-    _events: [],
+    _events: {},
 
     /**
      * Initializers
      */
     _initializers: {},
+
+    /**
+     * Preloaders
+     */
+    _preloaders: {},
 
     /**
      * Loaders
@@ -93,6 +106,11 @@ const AppController = ObservableObject.extend({
         const prototype = Object.getPrototypeOf(this);
         features.forEach((feature) => {
             const { _name } = feature;
+            if (this._features[_name]) {
+                // Avoid duplicate features
+                throw new Error(`${_name} has already been added (duplicate)`);
+            }
+            this._features[_name] = true;
             if (feature && $.type(_name) === CONSTANTS.STRING) {
                 Object.keys(feature).forEach((key) => {
                     const prop = feature[key];
@@ -101,7 +119,7 @@ const AppController = ObservableObject.extend({
                         Object.keys(prop).forEach((event) => {
                             const handler = prop[event];
                             if (
-                                ['change', 'get', 'set'].indexOf(event) > -1 &&
+                                // ['change', 'get', 'set'].indexOf(event) > -1 &&
                                 $.isFunction(handler)
                             ) {
                                 // Note cannot extend without breaking bindings
@@ -113,6 +131,9 @@ const AppController = ObservableObject.extend({
                     } else if (key === 'initialize' && $.isFunction(prop)) {
                         // Initializers
                         this._initializers[_name] = prop.bind(this);
+                    } else if (key === 'preload' && $.isFunction(prop)) {
+                        // Preloaders (viewModel data)
+                        this._preloaders[_name] = prop.bind(this);
                     } else if (key === 'load' && $.isFunction(prop)) {
                         // Loaders (viewModel data)
                         this._loaders[_name] = prop.bind(this);
@@ -165,6 +186,23 @@ const AppController = ObservableObject.extend({
         logger.debug('Initializing');
         Object.keys(_initializers).forEach((key) => {
             const prop = _initializers[key];
+            if ($.isFunction(prop)) {
+                promises.push(prop());
+            }
+        });
+        return $.when(...promises);
+    },
+
+    /**
+     * Preload data into viewModel
+     * @returns {*}
+     */
+    preload() {
+        const { _preloaders } = this;
+        const promises = [];
+        logger.debug('Preloading');
+        Object.keys(_preloaders).forEach((key) => {
+            const prop = _preloaders[key];
             if ($.isFunction(prop)) {
                 promises.push(prop());
             }
@@ -237,7 +275,13 @@ const AppController = ObservableObject.extend({
      * Ready the page
      */
     ready() {
-        this.initialize().then(this.load.bind(this)).then(this.show.bind(this));
+        function failCatch(a, b, c) {
+            debugger;
+        }
+        return this.initialize()
+            .then(this.preload.bind(this), failCatch.bind(this))
+            .then(this.load.bind(this), failCatch.bind(this))
+            .then(this.show.bind(this), failCatch.bind(this));
     },
 });
 
