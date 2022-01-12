@@ -43,7 +43,10 @@ const seleniumArgs = {
             // version: '91.0.4472.101',
             // version: '92.0.4515.107',
             // version: '93.0.4577.63',
-            version: '94.0.4606.61',
+            // version: '94.0.4606.61',
+            // version: '95.0.4638.69',
+            // version: '96.0.4664.45',
+            version: '97.0.4692.71',
         },
     },
 };
@@ -68,7 +71,10 @@ const seleniumInstallArgs = {
             // version: '91.0.4472.101',
             // version: '92.0.4515.107',
             // version: '93.0.4577.63',
-            version: '94.0.4606.61',
+            // version: '94.0.4606.61',
+            // version: '95.0.4638.69',
+            // version: '96.0.4664.45',
+            version: '97.0.4692.71',
         },
     },
 };
