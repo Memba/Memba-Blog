@@ -1,0 +1,13 @@
+/**
+ * Copyright (c) 2013-2022 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/button/_variables.scss";
+
+.k-listgroup {
+    .k-link:hover {
+        background-color: $button-bg;
+        color: $button-text;
+    }
+}

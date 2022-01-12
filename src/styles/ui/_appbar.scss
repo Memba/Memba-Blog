@@ -1,0 +1,80 @@
+/**
+ * Copyright (c) 2013-2022 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+header {
+    .k-appbar-dark,
+    .k-appbar-light {
+        @include fill(
+                $button-active-text,
+                $button-active-bg,
+                $button-active-border,
+                $button-active-gradient
+        );
+
+        g#logo {
+            // text after blue/orange ball
+            g:first-child {
+                path {
+                    fill: $body-color;
+                    stroke: $body-color;
+                }
+            }
+            // blue/orange ball
+            g:last-child {
+                path {
+                    fill: #fff;
+                    stroke: #fff;
+                }
+            }
+        }
+
+        .k-menu:not(.k-context-menu) {
+            @include fill(
+                    $button-active-text,
+                    $button-active-bg,
+                    $button-active-border,
+                    $button-active-gradient
+            );
+
+            > .k-item {
+                // color: $button-active-text;
+                color: $button-text;
+            }
+        }
+
+        // navbar items
+        a.nav-link {
+            color: $button-active-text;
+
+            i.kf {
+                font-size: 1.75em;
+            }
+
+            span {
+                font-size: 1rem;
+                vertical-align: top;
+            }
+
+            &:hover {
+                // Zoom on hovered item
+                transform: scale(1.1);
+            }
+        }
+
+        // Increase search input when focused
+        span.k-textbox.k-state-focused {
+            width: 20em; // from 12.4 em
+        }
+    }
+}
+
+/*********************************************
+ * Small screens
+ ********************************************/
+@media (max-height: 450px) {
+    header {
+        display: none;
+    }
+}

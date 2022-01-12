@@ -4,27 +4,16 @@
  */
 
 /**
- * Header
- */
-header {
-    nav.navbar {
-        // Increase search input when focused
-        span.k-textbox.k-state-focused {
-            width: 20em; // from 12.4 em
-        }
-    }
-}
-
-/**
  * Main content
  */
 main.k-content {
     // Home page jumbotron
-    .jumbotron {
+    .app-jumbotron {
         background: url("../images/jumbotron.jpg") no-repeat center center;
         background-size: cover;
         height: 60%;
         margin-bottom: 4vh;
+        position: relative;
 
         h1 {
             color: #fff;

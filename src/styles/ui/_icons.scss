@@ -47,6 +47,15 @@ $times-font: 1.25;
     @include img-size( 2 * $icon-size-lg ) // 64px
 }
 
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+.rounded-circle {
+    border-radius: 50% !important;
+}
+
 h1 > img,
 .img-h1 {
     @include img-size( $times-font * $h1-font-size );
