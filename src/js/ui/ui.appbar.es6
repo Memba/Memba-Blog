@@ -41,17 +41,21 @@ const feature = {
 
     /**
      * Initialize bootstrap navbar
-     * @method initNavBar
+     * @method show
      */
     show() {
         const $appBar = $(this.VIEW.APPBAR._);
         $appBar.kendoAppBar({
             items: [
-                // TODO add drawer icon + hide menu and search input when resizing
+                {
+                    template:
+                        '<a class="k-button" href="\\#"><span class="k-icon k-i-menu"></span></a>',
+                    type: 'contentItem',
+                },
                 {
                     template: `<img src="data:image/svg+xml;base64,${btoa(
                         $('#appbar-logo-template').html()
-                    )}" alt="logo" style="height: 42px; margin: -4px 0 -4px -1em;">`,
+                    )}" alt="logo" style="height: 42px; margin: -4px 0;">`,
                     type: 'contentItem',
                 },
                 { type: 'spacer' },
@@ -74,17 +78,20 @@ const feature = {
         // Search input event handlers
         $appBar
             .find(this.VIEW.APPBAR.SEARCH_INPUT)
-            .on(CONSTANTS.BLUR, this._onSearchInputBlur.bind(this))
-            .on(CONSTANTS.FOCUS, this._onSearchInputFocus.bind(this))
-            .on(CONSTANTS.KEYPRESS, this._onSearchInputKeyPress.bind(this));
+            .on(CONSTANTS.BLUR, this._onAppBarSearchInputBlur.bind(this))
+            .on(CONSTANTS.FOCUS, this._onAppBarSearchInputFocus.bind(this))
+            .on(
+                CONSTANTS.KEYPRESS,
+                this._onAppBarSearchInputKeyPress.bind(this)
+            );
     },
 
     /**
      * Event handler triggered when the search input loses focus
-     * @method onSearchInputBlur
+     * @method _onAppBarSearchInputBlur
      * @param e
      */
-    _onSearchInputBlur(e) {
+    _onAppBarSearchInputBlur(e) {
         assert.instanceof(
             $.Event,
             e,
@@ -101,10 +108,10 @@ const feature = {
 
     /**
      * Event handler triggered when the search input gets focus
-     * @method onSearchInputFocus
+     * @method _onAppBarSearchInputFocus
      * @param e
      */
-    _onSearchInputFocus(e) {
+    _onAppBarSearchInputFocus(e) {
         assert.instanceof(
             $.Event,
             e,
@@ -121,10 +128,10 @@ const feature = {
 
     /**
      * Event handler triggered when pressing any key when the search input has focus
-     * @method onSearchInputKeyPress
+     * @method _onAppBarSearchInputKeyPress
      * @param e
      */
-    _onSearchInputKeyPress(e) {
+    _onAppBarSearchInputKeyPress(e) {
         assert.instanceof(
             $.Event,
             e,
