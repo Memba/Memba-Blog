@@ -21,18 +21,18 @@
     <div class="container" role="document">
         <div id="id-main-title" class="k-border-solid k-border-0 k-border-bottom k-border-secondary my-3">
             <h1 class="d-flex animated fadeInUp">
-                <% if (icon) { %><img class="mr-2" src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
+                <% if (icon) { %><img class="me-2" src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
                 <span itemprop="name"><%= title %></span>
             </h1>
         </div>
         <div class="row">
             <div class="col-12 col-md-8 col-lg-9">
                 <div class="clearfix mb-4">
-                    <div class="text-muted float-left" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                    <div class="k-text-secondary float-left" itemprop="author" itemscope itemtype="http://schema.org/Person">
                         <i class="kf kf-user"></i>&nbsp;
                         <span itemprop="name"><%= author %></span>
                     </div>
-                    <div class="text-muted float-right">
+                    <div class="k-text-secondary float-right">
                         <i class="kf kf-datetime"></i>&nbsp;
                         <time itemprop="datePublished" datetime="<%= creation_date %>"><%= moment(creation_date).locale(getLocale()).format('LLL') %></time>
                     </div>
@@ -59,17 +59,19 @@
                     </article>
                 </div>
             </div>
-            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none animated fadeInRight">
-                <% // Social buttons %>
-                <section class="app-group mb-4">
-                    <a role="button" href="#" class="app-social" data-command="facebook"><img src="<%- publicURL('facebook.svg') %>" alt="Facebook" class="img-h2"></a>
-                    <a role="button" href="#" class="app-social" data-command="google"><img src="<%- publicURL('google.svg') %>" alt="Google+" class="img-h2"></a>
-                    <a role="button" href="#" class="app-social" data-command="linkedin"><img src="<%- publicURL('linkedin.svg') %>" alt="Linkedin" class="img-h2"></a>
-                    <a role="button" href="#" class="app-social" data-command="pinterest"><img src="<%- publicURL('pinterest.svg') %>" alt="Pinterest" class="img-h2"></a>
-                    <a role="button" href="#" class="app-social" data-command="twitter"><img src="<%- publicURL('twitter.svg') %>" alt="Twitter" class="img-h2"></a>
-                </section>
-                <% // Side menus for calendar, categories and authors %>
-                <%- include('groups.ejs') %>
+            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
+                <div class="animated zoomIn">
+                    <% // Social buttons %>
+                    <section class="app-group mb-4">
+                        <a role="button" href="#" class="app-social" data-command="facebook"><img src="<%- publicURL('facebook.svg') %>" alt="Facebook" class="img-h2"></a>
+                        <a role="button" href="#" class="app-social" data-command="google"><img src="<%- publicURL('google.svg') %>" alt="Google+" class="img-h2"></a>
+                        <a role="button" href="#" class="app-social" data-command="linkedin"><img src="<%- publicURL('linkedin.svg') %>" alt="Linkedin" class="img-h2"></a>
+                        <a role="button" href="#" class="app-social" data-command="pinterest"><img src="<%- publicURL('pinterest.svg') %>" alt="Pinterest" class="img-h2"></a>
+                        <a role="button" href="#" class="app-social" data-command="twitter"><img src="<%- publicURL('twitter.svg') %>" alt="Twitter" class="img-h2"></a>
+                    </section>
+                    <% // Side menus for calendar, categories and authors %>
+                    <%- include('groups.ejs') %>
+                </div>
             </div>
         </div>
     </div>

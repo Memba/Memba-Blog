@@ -5,7 +5,7 @@
 <% // html head %>
 <%- include('head.ejs') %>
 
-<body>
+<body class="k-overflow-x-hidden">
 
 <% // common requirements %>
 <%- include('common.ejs') %>
@@ -18,9 +18,9 @@
     <% // drawer %>
     <%- include('drawer.ejs') %>
 
-    <div class="jumbotron jumbotron-fluid"><h1 class="animated bounceInDown"><%= description %></h1></div>
-    <div class="container">
-        <div class="row app-lang">
+    <div class="container-fluid g-0 app-jumbotron"><h1 class="animated bounceInDown"><%= description %></h1></div>
+    <div class="container g-0">
+        <div class="row g-0 app-lang">
             <div class="col-sm-6 k-text-center">
                 <a href="<%= format(config.uris.webapp.pages, 'en', '') %>">
                     <div class="app-flag app-uk animated rotateIn"></div>

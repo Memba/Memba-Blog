@@ -3,40 +3,46 @@
         <img src="<%- iconURL(__('groups.calendar.icon')) %>" alt="<%- __('groups.calendar.heading') %>">
         <span><%- __('groups.calendar.heading') %></span>
     </h5>
-    <div class="list-group" role="menu">
+    <ul class="k-listgroup" role="menu">
         <% for (var i = 0; i < months.length; i++) { %>
-        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="<%= format(config.uris.webapp.posts, getLocale(), months[i].year, ('0' + (months[i].month + 1)).slice(-2), '') %>" role="menuitem">
-            <span><%= moment({ year: months[i].year, month: months[i].month }).locale(getLocale()).format('MMMM YYYY') %></span>
-            <span class="badge badge-pill badge-info"><%= months[i].count %></span>
-        </a>
+        <li class="k-listgroup-item" role="menuitem">
+            <a class="k-link" href="<%= format(config.uris.webapp.posts, getLocale(), months[i].year, ('0' + (months[i].month + 1)).slice(-2), '') %>">
+                <span class="me-2"><%= moment({ year: months[i].year, month: months[i].month }).locale(getLocale()).format('MMMM YYYY') %></span>
+                <span class="k-badge k-badge-solid k-badge-pill k-badge-md k-badge-info"><%= months[i].count %></span>
+            </a>
+        </li>
         <% } %>
-    </div>
+    </ul>
 </section>
 <section class="app-group mb-4">
     <h5>
         <img src="<%- iconURL(__('groups.categories.icon')) %>" alt="<%- __('groups.categories.heading') %>">
         <span><%- __('groups.categories.heading') %></span>
     </h5>
-    <div class="list-group" role="menu">
+    <ul class="k-listgroup" role="menu">
         <% for (var i = 0; i < categories.length; i++) { %>
-        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?category=' + encodeURIComponent(categories[i].category)) %>" role="menuitem">
-            <span><%= categories[i].category %></span>
-            <span class="badge badge-pill badge-info"><%= categories[i].count %></span>
-        </a>
+        <li class="k-listgroup-item" role="menuitem">
+            <a class="k-link" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?category=' + encodeURIComponent(categories[i].category)) %>">
+                <span class="me-2"><%= categories[i].category %></span>
+                <span class="k-badge k-badge-solid k-badge-pill k-badge-md k-badge-info"><%= categories[i].count %></span>
+            </a>
+        </li>
         <% } %>
-    </div>
+    </ul>
 </section>
 <section class="app-group">
     <h5>
         <img src="<%- iconURL(__('groups.authors.icon')) %>" alt="<%- __('groups.authors.heading') %>">
         <span><%- __('groups.authors.heading') %></span>
     </h5>
-    <div class="list-group" role="menu">
+    <ul class="k-listgroup" role="menu">
         <% for (var i = 0; i < authors.length; i++) { %>
-        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?author=' + encodeURIComponent(authors[i].author)) %>" role="menuitem">
-            <span><img class="img-h3 rounded-circle mr-2" src="<%= authors[i].avatar_url %>" alt="<%= authors[i].author %>"><%= authors[i].author %></span>
-            <span class="badge badge-pill badge-info"><%= authors[i].count %></span>
-        </a>
+        <li class="k-listgroup-item" role="menuitem">
+            <a class="k-link" href="<%= format(config.uris.webapp.posts, getLocale(), '', '', '').replace(/[\/]+$/, '/?author=' + encodeURIComponent(authors[i].author)) %>">
+                <span class="me-2"><img class="img-h3 rounded-circle me-2" src="<%= authors[i].avatar_url %>" alt="<%= authors[i].author %>"><%= authors[i].author %></span>
+                <span class="k-badge k-badge-solid k-badge-pill k-badge-md k-badge-info"><%= authors[i].count %></span>
+            </a>
+        </li>
         <% } %>
-    </div>
+    </ul>
 </section>

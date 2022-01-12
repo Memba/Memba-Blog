@@ -21,7 +21,7 @@
     <div class="container">
         <div id="id-main-title" class="k-border-solid k-border-0 k-border-bottom k-border-secondary my-3">
             <h1 class="d-flex animated fadeInUp">
-                <% if (icon) { %><img class="mr-2" src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
+                <% if (icon) { %><img class="me-2" src="<%- iconURL(icon) %>" alt="<%= title %>"><% } %>
                 <span><%= title %></span>
             </h1>
         </div>
@@ -33,14 +33,14 @@
                 <div class="animated fadeInUp">
                     <% for (var i = 0; i < results.length; i++) { %>
                     <div class="d-flex">
-                        <a class="mr-3" href="<%= results[i].site_url %>">
+                        <a class="me-3" href="<%= results[i].site_url %>">
                             <img class="img-xl" src="<%- iconURL(results[i].icon) %>" alt="<%= results[i].title %>">
                         </a>
                         <div>
-                            <h5 class="mt-0 mb-1">
+                            <h5 class="k-text-primary mt-0 mb-1">
                                 <a href="<%= results[i].site_url %>"><%= results[i].title %></a>
                             </h5>
-                            <div class="text-muted mt-0 mb-1">
+                            <div class="k-text-secondary mt-0 mb-1">
                                 <i class="kf kf-tags"></i><span>&nbsp;<%= results[i].category %></span>
                                 <i class="kf kf-user"></i><span>&nbsp;<%= results[i].author %></span>
                                 <i class="kf kf-datetime"></i><span>&nbsp;<%= moment(results[i].creation_date).locale(getLocale()).format('LLL') %></span>
@@ -52,8 +52,10 @@
                 </div>
                 <% } %>
             </div>
-            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none animated fadeInRight">
-                <%- include('groups.ejs') %>
+            <div class="d-none d-md-block col-md-4 col-lg-3 d-print-none">
+                <div class="animated zoomIn">
+                    <%- include('groups.ejs') %>
+                </div>
             </div>
         </div>
     </div>
