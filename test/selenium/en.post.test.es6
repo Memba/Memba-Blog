@@ -72,7 +72,7 @@ const SCREEN = {
 /**
  * Test suite
  */
-describe('English posts', () => {
+xdescribe('English posts', () => {
     // var tabId;
 
     before(() => {

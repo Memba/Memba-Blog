@@ -40,7 +40,7 @@ const SCREEN = {
 /**
  * Test suite
  */
-describe('French pages', () => {
+xdescribe('French pages', () => {
     // var tabId;
 
     before(() => {

@@ -73,7 +73,7 @@ const SCREEN = {
 /**
  * Test suite
  */
-describe('French posts', () => {
+xdescribe('French posts', () => {
     // var tabId;
 
     before(() => {
