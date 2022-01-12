@@ -182,16 +182,16 @@ REM ATTRIB +R .\src\styles\ui\app.mixins.less
 REM COPY ..\Memba.Webapp\src\styles\ui\error.page.less .\src\styles\ui\ /Y
 REM ATTRIB +R .\src\styles\ui\error.page.less
 ATTRIB -R .\src\styles\ui\*.scss
+COPY ..\Memba.Webapp\src\styles\ui\_appbar.scss .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\_appbar.scss
+COPY ..\Memba.Webapp\src\styles\ui\_common.scss .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\_common.scss
 COPY ..\Memba.Webapp\src\styles\ui\_drawer.scss .\src\styles\ui\ /Y
 ATTRIB +R .\src\styles\ui\_drawer.scss
 COPY ..\Memba.Webapp\src\styles\ui\_footer.scss .\src\styles\ui\ /Y
 ATTRIB +R .\src\styles\ui\_footer.scss
-COPY ..\Memba.Webapp\src\styles\ui\_header.scss .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\_header.scss
 COPY ..\Memba.Webapp\src\styles\ui\_icons.scss .\src\styles\ui\ /Y
 ATTRIB +R .\src\styles\ui\_icons.scss
-COPY ..\Memba.Webapp\src\styles\ui\_main.scss .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\_main.scss
 
 REM Copy ./src/styles/vendor
 XCOPY ..\Memba.Webapp\src\styles\vendor\animate.css\*.* .\src\styles\vendor\animate.css\ /C /E /I /R /Y
