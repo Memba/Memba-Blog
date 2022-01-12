@@ -3,111 +3,117 @@
  * Sources at https://github.com/Memba
  */
 
-// Kendo UI
+// Kendo UI Themes v4.43.0
 // ~ tilde only works with webpack module resolution
 // @import "~@progress/kendo-theme-bootstrap/dist/all";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/dist/all";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all.scss";
 
-// Load partial
-// ----------------
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/core/functions/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/_variables.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/core/mixins/_index.scss";
-
-// Dependencies
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/core/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/common/_index.scss";
+
+// Typography and utils
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/typography/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/utils/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/cursor/_index.scss";
 
 // Generic content
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/styling/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/utils/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/icons/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/typography/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/avatar/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/badge/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/loader/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/chip/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/cursor/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/messagebox/_index.scss";
+
+// Primitive components
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/list/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/forms/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/listgroup/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/adaptive/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/loading/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/progressbar/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/overlay/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/popup/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/ripple/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/table/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/messagebox/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/overlay/_index.scss";
 
-// Basic forms
+// Indicators
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/avatar/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/badge/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/chip/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/color-preview/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/loader/_index.scss";
+// // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/loading/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/skeleton/_index.scss";
+
+// Form helpers
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/forms/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/validator/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/floating-label/_index.scss";
+
+// Native forms
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/button/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/action-buttons/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/input/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/floating-label/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/textbox/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/textarea/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/checkbox/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/listbox/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/progressbar/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/radio/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/validator/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/fab/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/slider/_index.scss";
 
-// Inputs
+// Form requirements
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/calendar/_index.scss";
+
+// Augmented forms
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/autocomplete/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/captcha/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/colorpalette/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/colorgradient/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/coloreditor/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/colorpicker/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/combobox/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/combobox/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/datetime/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdowngrid/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdownlist/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdownlist/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdowntree/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/maskedtextbox/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/multiselect/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/numerictextbox/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/searchbox/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/rating/_index.scss";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/searchbox/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/switch/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/upload/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropzone/_index.scss";
 
-// Other forms
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/listbox/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/slider/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/switch/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/rating/_index.scss";
-
-// Date time
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/calendar/_index.scss";
-
 // Command interfaces
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/action-buttons/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/appbar/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/fab/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/menu/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/toolbar/_index.scss";
 
 // Popups and modals
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/action-sheet/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dialog/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/drawer/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/drawer/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/notification/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/popup/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/responsivepanel/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/popover/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/responsivepanel/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/tooltip/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/window/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/action-sheet/_index.scss";
 
 // Navigation
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/breadcrumb/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/bottom-navigation/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/breadcrumb/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/pager/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/panelbar/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/stepper/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/wizard/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/tabstrip/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/treeview/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/expansion-panel/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/bottom-navigation/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/wizard/_index.scss";
 
 // Layout & containers
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/card/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/expansion-panel/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/panelbar/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/splitter/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/tilelayout/_index.scss";
 
 // Data management
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/grid/_index.scss";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/listview/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/listview/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/spreadsheet/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/pivotgrid/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/treelist/_index.scss";
@@ -115,10 +121,8 @@
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/filemanager/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/taskboard/_index.scss";
 
-// Editor
+// Editors
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/editor/_index.scss";
-
-// Image Editor
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/imageeditor/_index.scss";
 
 // Scheduling
@@ -126,14 +130,15 @@
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/scheduler/_index.scss";
 
 // Misc
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/adaptive/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/chat/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mediaplayer/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/timeline/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/pdf-viewer/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/scroller/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/scrollview/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/skeleton/_index.scss";
 
 // Dataviz
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dataviz/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/map/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/orgchart/_index.scss";
