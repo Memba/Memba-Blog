@@ -276,7 +276,7 @@ const AppController = ObservableObject.extend({
      */
     ready() {
         function failCatch(a, b, c) {
-            debugger;
+            $.noop(a, b, c);
         }
         return this.initialize()
             .then(this.preload.bind(this), failCatch.bind(this))
