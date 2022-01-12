@@ -377,11 +377,13 @@ module.exports.config = {
      * @param {Array.<Object>} capabilities list of capabilities details
      * @param {Array.<String>} specs List of spec file paths that are to be run
      */
-    before(/* capabilities, specs */) {
+    before(caps /* capabilities */, specs, browser) {
+        // eslint-disable-next-line global-require,import/no-extraneous-dependencies
+        require('expect-webdriverio');
         // Enhance browser with our Ex functions
         // @see https://webdriver.io/blog/2019/11/01/spec-filtering.html
         // eslint-disable-next-line global-require
-        require('./test/selenium/_misc/selenium.util.es6');
+        require('./test/selenium/_misc/selenium.util.es6')(browser);
     },
     /**
      * Hook that gets executed before the suite starts

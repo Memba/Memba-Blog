@@ -6,7 +6,7 @@
 /* globals browser: false, $: false */
 /* eslint-disable no-unused-expressions */
 
-const { expect } = require('chai');
+const expect = require('expect');
 const { URL } = require('url');
 const { format } = require('util');
 const logger = require('@wdio/logger').default('en.page.test');
@@ -46,7 +46,7 @@ const SCREEN = {
 describe('English pages', () => {
     // var tabId;
 
-    before(() => {
+    before(async () => {
         /*
         if (browser.capabilities.browserName === 'firefox') {
             // This prevents `No such content frame; perhaps the listener was not registered?`
@@ -54,12 +54,12 @@ describe('English pages', () => {
         }
         */
 
-        browser.url(webapp.home);
+        await browser.url(webapp.home);
 
         // tabId = browser.getCurrentTabId();
 
         // Note: it won't work in PhantomJS without setting the window size
-        browser.setWindowSizeEx(SCREEN.WIDTH, SCREEN.HEIGHT);
+        await browser.setWindowSize(SCREEN.WIDTH, SCREEN.HEIGHT);
 
         // Find a way to reset the cache
         // browser.refresh();
@@ -77,90 +77,101 @@ describe('English pages', () => {
             logger.info(browser.getUrl());
         });
 
-        it('it should land on the home page with a choice of languages', () => {
-            expect($('html').getAttribute('lang')).to.equal('en');
-            expect($('nav.navbar').isExisting()).to.be.true;
-            expect($('div.app-uk.app-flag').isExisting()).to.be.true;
-            expect($('div.app-fr.app-flag').isExisting()).to.be.true;
+        it('it should land on the home page with a choice of languages', async () => {
+            await expect($('html')).toHaveAttribute('lang', 'en');
+            await expect($('.k-appbar')).toExist();
+            await expect($('div.app-uk.app-flag')).toExist();
+            await expect($('div.app-fr.app-flag')).toExist();
         });
 
-        it('it should find and navigate support', () => {
-            $('body>div.k-loading-image').waitForDisplayed({
+        it('it should find and navigate support', async () => {
+            const loading = await $('body>div.k-loading-image');
+            await loading.waitForDisplayed({
                 timeout: WAIT,
                 reverse: true,
             });
-            $(
-                `nav.navbar a[href="${format(
+            const support = await $(
+                `.k-appbar-section a[href="${format(
                     config.get('uris:webapp:pages'),
                     'en',
                     ''
                 )}"]`
-            ).click();
-            browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.index);
-            expect($('html').getAttribute('lang')).to.equal('en');
-            expect($('div#id-main-title span').getText()).to.equal('Support');
+            );
+            await support.click();
+            await browser.waitForReadyStateEx('complete', WAIT);
+            await expect(browser).toHaveUrl(webapp.index);
+            await expect($('html')).toHaveAttribute('lang', 'en');
+            await expect($('div#id-main-title span')).toHaveText('Support');
         });
 
-        it('it should find and navigate faqs', () => {
-            $('body>div.k-loading-image').waitForDisplayed({
+        it('it should find and navigate faqs', async () => {
+            const loading = await $('body>div.k-loading-image');
+            await loading.waitForDisplayed({
                 timeout: WAIT,
                 reverse: true,
             });
-            $('nav.navbar a.dropdown-toggle').click();
-            $(
-                `nav.navbar a[href="${format(
+            const more = await $('.k-appbar-section .k-menu-item.k-last');
+            await more.moveTo();
+            const menu = await $(
+                `.k-appbar-section .k-animation-container a[href="${format(
                     config.get('uris:webapp:pages'),
                     'en',
                     'faqs'
                 )}"]`
-            ).click();
-            browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.faqs);
-            expect($('html').getAttribute('lang')).to.equal('en');
-            expect($('div#id-main-title span').getText()).to.equal(
+            );
+            await menu.click();
+            await browser.waitForReadyStateEx('complete', WAIT);
+            await expect(browser).toHaveUrl(webapp.faqs);
+            await expect($('html')).toHaveAttribute('lang', 'en');
+            await expect($('div#id-main-title span')).toHaveText(
                 'Frequently Asked Questions'
             );
         });
 
-        it('it should find and navigate privacy', () => {
-            $('body>div.k-loading-image').waitForDisplayed({
+        it('it should find and navigate privacy', async () => {
+            const loading = await $('body>div.k-loading-image');
+            await loading.waitForDisplayed({
                 timeout: WAIT,
                 reverse: true,
             });
-            $('nav.navbar a.dropdown-toggle').click();
-            $(
-                `nav.navbar a[href="${format(
+            const more = await $('.k-appbar-section .k-menu-item.k-last');
+            await more.moveTo();
+            const menu = await $(
+                `.k-appbar-section .k-animation-container a[href="${format(
                     config.get('uris:webapp:pages'),
                     'en',
                     'privacy'
                 )}"]`
-            ).click();
-            browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.privacy);
-            expect($('html').getAttribute('lang')).to.equal('en');
-            expect($('div#id-main-title span').getText()).to.equal(
+            );
+            await menu.click();
+            await browser.waitForReadyStateEx('complete', WAIT);
+            await expect(browser).toHaveUrl(webapp.privacy);
+            await expect($('html')).toHaveAttribute('lang', 'en');
+            await expect($('div#id-main-title span')).toHaveText(
                 'Privacy Policy'
             );
         });
 
-        it('it should find and navigate terms', () => {
-            $('body>div.k-loading-image').waitForDisplayed({
+        it('it should find and navigate terms', async () => {
+            const loading = await $('body>div.k-loading-image');
+            await loading.waitForDisplayed({
                 timeout: WAIT,
                 reverse: true,
             });
-            $('nav.navbar a.dropdown-toggle').click();
-            $(
-                `nav.navbar a[href="${format(
+            const more = await $('.k-appbar-section .k-menu-item.k-last');
+            await more.moveTo();
+            const menu = await $(
+                `.k-appbar-section .k-animation-container a[href="${format(
                     config.get('uris:webapp:pages'),
                     'en',
                     'terms'
                 )}"]`
-            ).click();
-            browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.terms);
-            expect($('html').getAttribute('lang')).to.equal('en');
-            expect($('div#id-main-title span').getText()).to.equal(
+            );
+            await menu.click();
+            await browser.waitForReadyStateEx('complete', WAIT);
+            await expect(browser).toHaveUrl(webapp.terms);
+            await expect($('html')).toHaveAttribute('lang', 'en');
+            await expect($('div#id-main-title span')).toHaveText(
                 'Terms of Use'
             );
         });
