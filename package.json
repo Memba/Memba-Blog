@@ -37,13 +37,13 @@
     "build": "npm run clear && npm run webpack",
     "clear": "rm -fv ./webapp/public/build/* && rm -fv ./webapp/public/*.js && rm -fv ./webapp/public/*.map",
     "eslint": "eslint . ./src/js/**/*.{es6,jsx} ./test/**/*.es6 ./webapp/**/*.{es6,js}",
-    "gremlins": "cp ./test/vendor/gremlins.min.js ./webapp/public/build/gremlins.min.js",
+    "gremlins": "cp -f ./test/vendor/gremlins.min.js ./webapp/public/build/gremlins.min.js",
     "mocha": "mocha ./test/node/**/*.test.{es6,js} -t 10000 -R spec -u bdd --exit",
     "start": "forever --minUptime 5000 --spinSleepTime 10000 webapp/server.js",
     "test": "npm run mocha && npm run gremlins && npm run wdio",
     "uglify": "ver",
     "webpack": "webpack --config ./webpack.config.js",
-    "wdio": "wdio run ./wdio.conf.js"
+    "wdio": "npm run gremlins && wdio run ./wdio.conf.js"
   },
   "dependencies": {
     "async": "^3.2.3",
@@ -109,7 +109,7 @@
     "expect-webdriverio": "^3.1.4",
     "jquery": "^3.6.0",
     "json-loader": "^0.5.7",
-    "karma": "^6.3.10",
+    "karma": "^6.3.11",
     "karma-chrome-launcher": "^3.1.0",
     "karma-coverage": "^2.1.0",
     "karma-mocha": "^2.0.1",
@@ -125,7 +125,7 @@
     "postcss-loader": "^6.2.1",
     "postcss-scss": "^4.0.3",
     "prettier": "^2.5.1",
-    "sass": "^1.47.0",
+    "sass": "^1.48.0",
     "sass-loader": "^12.4.0",
     "sinon": "^12.0.1",
     "sinon-chai": "^3.7.0",
