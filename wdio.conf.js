@@ -6,7 +6,7 @@
 // const path = require('path');
 
 /** *************************************************************
- * On any platform including Travis-CI
+ * On any platform including Github
  ************************************************************** */
 
 let capabilities = [
@@ -21,43 +21,13 @@ let capabilities = [
             args: ['headless', 'disable-gpu'],
         },
         // unexpectedAlertBehaviour: 'ignore'
-        // TODO Consider wdio-phantomjs-service (waiting for @wdio/phantomjs-service)
     },
 ];
-// let seleniumArgs = {};
-const seleniumArgs = {
-    version: '3.141.59',
+let seleniumArgs = {
+    version: '4.0.0',
     drivers: {
         chrome: {
             arch: process.arch,
-            // version: '80.0.3987.106',
-            // version: '81.0.4044.1386',
-            // version: '83.0.4103.39',
-            // version: '84.0.4147.30',
-            // version: '85.0.4183.87',
-            // version: '86.0.4240.22',
-            // version: '87.0.4280.20',
-            // version: '88.0.4324.96',
-            // version: '89.0.4389.23',
-            // version: '90.0.4430.24',
-            // version: '91.0.4472.101',
-            // version: '92.0.4515.107',
-            // version: '93.0.4577.63',
-            // version: '94.0.4606.61',
-            // version: '95.0.4638.69',
-            version: '96.0.4664.45',
-            // version: '97.0.4692.71',
-        },
-    },
-};
-// @see https://chromedriver.chromium.org/downloads
-const seleniumInstallArgs = {
-    version: '3.141.59', // @see https://www.selenium.dev/downloads/
-    baseURL: 'https://selenium-release.storage.googleapis.com',
-    drivers: {
-        chrome: {
-            arch: process.arch,
-            baseURL: 'https://chromedriver.storage.googleapis.com',
             // version: '80.0.3987.106',
             // version: '81.0.4044.1386',
             // version: '83.0.4103.39',
@@ -85,9 +55,31 @@ const seleniumInstallArgs = {
  *************************************************************** */
 
 if (/^win/.test(process.platform)) {
-    /*
     seleniumArgs = {
-        // Drivers can be downloaded at http://docs.seleniumhq.org/download/
+        version: '4.0.0',
+        drivers: {
+            chrome: {
+                arch: process.arch,
+                // version: '80.0.3987.106',
+                // version: '81.0.4044.1386',
+                // version: '83.0.4103.39',
+                // version: '84.0.4147.30',
+                // version: '85.0.4183.87',
+                // version: '86.0.4240.22',
+                // version: '87.0.4280.20',
+                // version: '88.0.4324.96',
+                // version: '89.0.4389.23',
+                // version: '90.0.4430.24',
+                // version: '91.0.4472.101',
+                // version: '92.0.4515.107',
+                // version: '93.0.4577.63',
+                // version: '94.0.4606.61',
+                // version: '95.0.4638.69',
+                // version: '96.0.4664.45',
+                version: '97.0.4692.71',
+            },
+        },
+        /*
         javaArgs: [
             // Add Microsoft Edge driver
             // '-Dwebdriver.edge.driver=C:\\Windows\\System32\\MicrosoftWebDriver.exe',
@@ -97,19 +89,19 @@ if (/^win/.test(process.platform)) {
         ],
         // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
         // seleniumArgs: [],
-        // version
         // spawnCb
-        // drivers
         // basePath
         // javaPath
+         */
     };
-     */
+
     capabilities = [
         {
             maxInstances: 1,
             browserName: 'chrome',
             // 'goog:chromeOptions': {}
-        } /* ,,
+        },
+        /*
         {
             maxInstances: 1,
             browserName: 'firefox',
@@ -144,9 +136,22 @@ if (/^win/.test(process.platform)) {
                 binary:
                     'C:\\Program Files (x86)\\Opera\\57.0.3098.106\\opera.exe'
             }
-        } */,
+        }
+        */
     ];
 }
+
+/**
+ * seleniumInstallArgs
+ */
+// @see https://chromedriver.chromium.org/downloads
+// eslint-disable-next-line prefer-object-spread
+const seleniumInstallArgs = Object.assign({}, seleniumArgs);
+// seleniumArgs.baseUrl = 'https://selenium-release.storage.googleapis.com';
+seleniumInstallArgs.baseUrl =
+    'https://github.com/SeleniumHQ/selenium/releases/download/';
+seleniumInstallArgs.drivers.chrome.baseUrl =
+    'https://chromedriver.storage.googleapis.com';
 
 module.exports.config = {
     // =====================
