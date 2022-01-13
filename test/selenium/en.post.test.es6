@@ -6,7 +6,7 @@
 /* globals browser: false, $: false */
 /* eslint-disable no-unused-expressions */
 
-const { expect } = require('chai');
+const expect = require('expect');
 const { URL } = require('url');
 const { format } = require('util');
 const logger = require('@wdio/logger').default('en.post.test');
@@ -72,10 +72,10 @@ const SCREEN = {
 /**
  * Test suite
  */
-xdescribe('English posts', () => {
+describe('English posts', () => {
     // var tabId;
 
-    before(() => {
+    before(async () => {
         /*
         if (browser.capabilities.browserName === 'firefox') {
             // This prevents `No such content frame; perhaps the listener was not registered?`
@@ -83,12 +83,12 @@ xdescribe('English posts', () => {
         }
         */
 
-        browser.url(webapp.home);
+        await browser.url(webapp.home);
 
         // tabId = browser.getCurrentTabId();
 
         // Note: it won't work in PhantomJS without setting the window size
-        browser.setWindowSizeEx(SCREEN.WIDTH, SCREEN.HEIGHT);
+        await browser.setWindowSizeEx(SCREEN.WIDTH, SCREEN.HEIGHT);
 
         // Find a way to reset the cache
         // browser.refresh();
@@ -98,90 +98,102 @@ xdescribe('English posts', () => {
         // Retry all tests in this suite up to 3 times
         // this.retries(3);
 
-        beforeEach(() => {
+        beforeEach(async () => {
             // browser.switchTab ensures we are running all tests on the same tab
             // especially as we have experienced extensions like Skype that open a welcome page in a new tab
             // browser.switchTab(tabId);
 
-            logger.info(browser.getUrl());
+            const url = await browser.getUrl();
+            logger.info(url);
         });
 
-        it('it should land on the home page with a choice of languages', () => {
-            expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('nav.navbar').isExisting()).to.be.true;
-            expect($('div.app-uk.app-flag').isExisting()).to.be.true;
-            expect($('div.app-fr.app-flag').isExisting()).to.be.true;
+        it('it should land on the home page with a choice of languages', async () => {
+            await expect($('html')).toHaveAttribute('lang', 'en'); // This is the home page
+            await expect($('.k-appbar')).toExist();
+            await expect($('div.app-uk.app-flag')).toExist();
+            await expect($('div.app-fr.app-flag')).toExist();
         });
 
-        it('it should find and navigate blog', () => {
-            $('body>div.k-loading-image').waitForDisplayed({
+        it('it should find and navigate blog', async () => {
+            const loading = await $('body>div.k-loading-image');
+            await loading.waitForDisplayed({
                 timeout: WAIT,
                 reverse: true,
             });
-            $(`nav.navbar a[href="${posts}"]`).click();
-            browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.posts);
-            expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
+            // $(`nav.navbar a[href="${posts}"]`).click();
+            const item = await $(`.k-appbar-section a[href="${posts}"]`);
+            await item.click();
+            await browser.waitForReadyStateEx('complete', WAIT);
+            await expect(browser).toHaveUrl(webapp.posts);
+            await expect($('html')).toHaveAttribute('lang', LOCALE);
+            await expect($('div#id-main-title span')).toHaveText(LIST_TITLE);
         });
 
-        it('it should find and navigate calendar', () => {
-            $('body>div.k-loading-image').waitForDisplayed({
+        it('it should find and navigate calendar', async () => {
+            const loading = await $('body>div.k-loading-image');
+            await loading.waitForDisplayed({
                 timeout: WAIT,
                 reverse: true,
             });
             // click the first item in the calendar side list
-            $(
-                'section.app-group:nth-child(1) a.list-group-item:first-child'
-            ).click();
-            browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.calendar);
-            expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
+            const item = await $(
+                'section.app-group:nth-child(1) a.k-link:first-child'
+            );
+            await item.click();
+            await browser.waitForReadyStateEx('complete', WAIT);
+            await expect(browser).toHaveUrl(webapp.calendar);
+            await expect($('html')).toHaveAttribute('lang', LOCALE);
+            await expect($('div#id-main-title span')).toHaveText(LIST_TITLE);
         });
 
-        it('it should find and navigate categories', () => {
-            $('body>div.k-loading-image').waitForDisplayed({
+        it('it should find and navigate categories', async () => {
+            const loading = await $('body>div.k-loading-image');
+            await loading.waitForDisplayed({
                 timeout: WAIT,
                 reverse: true,
             });
             // click the first item in the categories side list
-            $(
-                'section.app-group:nth-child(2) a.list-group-item:first-child'
-            ).click();
-            browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.categories);
-            expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
+            const item = await $(
+                'section.app-group:nth-child(2) a.k-link:first-child'
+            );
+            await item.click();
+            await browser.waitForReadyStateEx('complete', WAIT);
+            await expect(browser).toHaveUrl(webapp.categories);
+            await expect($('html')).toHaveAttribute('lang', LOCALE);
+            await expect($('div#id-main-title span')).toHaveText(LIST_TITLE);
         });
 
-        it('it should find and navigate authors', () => {
-            $('body>div.k-loading-image').waitForDisplayed({
+        it('it should find and navigate authors', async () => {
+            const loading = await $('body>div.k-loading-image');
+            await loading.waitForDisplayed({
                 timeout: WAIT,
                 reverse: true,
             });
             // click the first item in the authors side list
-            $(
-                'section.app-group:nth-child(3) a.list-group-item:first-child'
-            ).click();
-            browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.author);
-            expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div#id-main-title span').getText()).to.equal(LIST_TITLE);
+            const item = await $(
+                'section.app-group:nth-child(3) a.k-link:first-child'
+            );
+            await item.click();
+            await browser.waitForReadyStateEx('complete', WAIT);
+            await expect(browser).toHaveUrl(webapp.author);
+            await expect($('html')).toHaveAttribute('lang', LOCALE);
+            await expect($('div#id-main-title span')).toHaveText(LIST_TITLE);
         });
 
-        it('it should display a post', () => {
-            $('body>div.k-loading-image').waitForDisplayed({
+        it('it should display a post', async () => {
+            const loading = await $('body>div.k-loading-image');
+            await loading.waitForDisplayed({
                 timeout: WAIT,
                 reverse: true,
             });
             // Click the first item in search results
-            // $('ul.media-list>li.media:first-child h4>a').click();
-            $('li.media:first-child h5>a').click();
-            browser.waitForReadyStateEx('complete', WAIT);
-            expect(browser.getUrl()).to.equal(webapp.first);
-            expect($('html').getAttribute('lang')).to.equal(LOCALE);
-            expect($('div#id-main-title span').getText()).to.equal(FIRST_TITLE);
+            // $('li.media:first-child h5>a').click();
+            const item = await $('div.col-12 div.d-flex:first-child h5>a');
+            await item.click();
+            await browser.waitForReadyStateEx('complete', WAIT);
+            await expect(browser).toHaveUrl(webapp.first);
+            await expect($('html')).toHaveAttribute('lang', LOCALE);
+            await expect($('div#id-main-title span')).toHaveText(FIRST_TITLE);
         });
     });
 });

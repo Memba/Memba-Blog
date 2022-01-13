@@ -69,10 +69,10 @@ function unleashGremlins(ttl, callback) {
 /**
  * Test suite
  */
-describe('Monkey testing with gremlins', () => {
+xdescribe('Monkey testing with gremlins', () => {
     // let tabId;
 
-    before(() => {
+    before(async () => {
         /*
         if (browser.desiredCapabilities.browserName === 'firefox') {
             // This prevents `No such content frame; perhaps the listener was not registered?`
@@ -80,12 +80,12 @@ describe('Monkey testing with gremlins', () => {
         }
         */
 
-        browser.url(webapp.home);
+        await browser.url(webapp.home);
 
         // tabId = browser.getCurrentTabId();
 
         // Note: it won't work in PhantomJS without setting the window size
-        browser.setWindowSizeEx(SCREEN.WIDTH, SCREEN.HEIGHT);
+        await browser.setWindowSizeEx(SCREEN.WIDTH, SCREEN.HEIGHT);
 
         // Find a way to reset the cache
         // browser.refresh();
@@ -95,54 +95,55 @@ describe('Monkey testing with gremlins', () => {
         // Retry all tests in this suite up to 3 times
         // this.retries(3);
 
-        beforeEach(() => {
+        beforeEach(async () => {
             // browser.switchTab ensures we are running all tests on the same tab
             // especially as we have experienced extensions like Skype that open a welcome page in a new tab
             // browser.switchTab(tabId);
 
-            logger.info(browser.getUrl());
+            const url = await browser.getUrl();
+            logger.info(url);
         });
 
-        xit('it should not raise any error on the home page', () => {
-            browser.url(webapp.home);
-            browser.waitForReadyStateEx('complete', WAIT);
+        it('it should not raise any error on the home page', async () => {
+            await browser.url(webapp.home);
+            await browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
             // Note: Mime type error when loading from https://raw.githubusercontent.com/marmelab/gremlins.js/master/gremlins.min.js
             // Note: Timeout when loading from https://rawgit.com/marmelab/gremlins.js/master/gremlins.min.js
             // So we need to load locally
-            browser.setTimeout('script', WAIT);
-            browser.loadScriptEx('./build/gremlins.min.js');
+            await browser.setTimeout({ script: WAIT });
+            await browser.loadScriptEx('./build/gremlins.min.js');
             logger.info('Gremlins loaded');
             // browser.pause(500);
             // And Unleash them
-            browser.setTimeout('script', MOCHA_TO);
-            browser.executeAsync(unleashGremlins, GREMLINS_TTL);
+            await browser.setTimeout({ script: MOCHA_TO });
+            await browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
 
-        xit('it should not raise any error on the /en page', () => {
-            browser.url(webapp.en);
-            browser.waitForReadyStateEx('complete', WAIT);
+        it('it should not raise any error on the /en page', async () => {
+            await browser.url(webapp.en);
+            await browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
-            browser.setTimeout('script', WAIT);
-            browser.loadScriptEx('./build/gremlins.min.js');
+            await browser.setTimeout({ script: WAIT });
+            await browser.loadScriptEx('./build/gremlins.min.js');
             logger.info('Gremlins loaded');
             // browser.pause(500);
             // And Unleash them
-            browser.setTimeout('script', MOCHA_TO);
-            browser.executeAsync(unleashGremlins, GREMLINS_TTL);
+            await browser.setTimeout({ script: MOCHA_TO });
+            await browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
 
-        xit('it should not raise any error on the /fr page', () => {
-            browser.url(webapp.fr);
-            browser.waitForReadyStateEx('complete', WAIT);
+        it('it should not raise any error on the /fr page', async () => {
+            await browser.url(webapp.fr);
+            await browser.waitForReadyStateEx('complete', WAIT);
             // Now load our gremlins
-            browser.setTimeout('script', WAIT);
-            browser.loadScriptEx('./build/gremlins.min.js');
+            await browser.setTimeout({ script: WAIT });
+            await browser.loadScriptEx('./build/gremlins.min.js');
             logger.info('Gremlins loaded');
             // browser.pause(500);
             // And Unleash them
-            browser.setTimeout('script', MOCHA_TO);
-            browser.executeAsync(unleashGremlins, GREMLINS_TTL);
+            await browser.setTimeout({ script: MOCHA_TO });
+            await browser.executeAsync(unleashGremlins, GREMLINS_TTL);
         });
     });
 });
