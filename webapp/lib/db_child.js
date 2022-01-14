@@ -5,6 +5,7 @@
 
 /* jshint node: true */
 
+// TODO use a scheduler listed in https://blog.logrocket.com/comparing-best-node-js-schedulers/
 // TODO replace with a cron job as in https://scotch.io/tutorials/nodejs-cron-jobs-by-examples
 
 'use strict';
