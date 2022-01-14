@@ -2,7 +2,7 @@
 # built on debian 9 "stretch" (current stable release)
 # see https://hub.docker.com/_/node/
 # see also https://github.com/nodejs/docker-node/blob/master/10/Dockerfile
-FROM node:14
+FROM node:16
 
 # Maintained by Jacques L. Chereau
 MAINTAINER jlchereau
@@ -23,12 +23,12 @@ COPY . /usr/src/
 WORKDIR /usr/src/
 
 # Upgrade npm - required because anything between v5.2 and v5.5 does not work properly
-# RUN npm install -g npm  - does not work: https://github.com/npm/npm/issues/15558
-RUN yarn global add npm
+# RUN npm install -g npm  - does not work: https://github.com/npm/npm/issues/15558 -> RUN yarn global add npm
+RUN npm install -g npm
 
-# Add forever
-# see https://github.com/foreverjs/forever
-RUN npm install -g forever
+# Add pm2
+# see https://pm2.keymetrics.io/docs/usage/docker-pm2-nodejs/
+RUN npm install -g pm2
 
 # Install application modules
 RUN npm install
@@ -42,4 +42,4 @@ RUN if [ -d /usr/src/webapp/cache ]; then rm -f /usr/src/webapp/cache/*; fi
 EXPOSE 3000
 
 # Start node application
-CMD [ "npm", "start" ]
+CMD [ "pm2-runtime", "webapp/server.js" ]
