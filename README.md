@@ -1,8 +1,6 @@
 # Memba Blog Engine
 
-[![Build Status](https://travis-ci.org/Memba/Memba-Blog.svg?branch=master)](https://travis-ci.org/Memba/Memba-Blog)
-[![Dependency Status](https://david-dm.org/Memba/Memba-Blog.svg)](https://david-dm.org/Memba/Memba-Blog)
-[![devDependency Status](https://david-dm.org/Memba/Memba-Blog/dev-status.svg)](https://david-dm.org/Memba/Memba-Blog#info=devDependencies)
+![Build Status](https://github.com/Memba/Memba-Blog/tree/vNEXT/.github/workflows/node.js.yml/badge.svg)
 [![Inline docs](http://inch-ci.org/github/Memba/Memba-Blog.svg?branch=master)](http://inch-ci.org/github/Memba/Memba-Blog)
 
 >  A nodeJS blog engine pulling markdown content from a Github repository.
