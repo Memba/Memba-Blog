@@ -45,9 +45,9 @@ COPY ..\Memba.Webapp\postcss.config.js .\ /Y
 ATTRIB +R .\postcss.config.js
 
 REM setup.cmd
-ATTRIB -R .\setup.cmd
-COPY ..\Memba.Webapp\setup.cmd .\ /Y
-ATTRIB +R .\setup.cmd
+ATTRIB -R .\setup.*
+COPY ..\Memba.Webapp\setup.* .\ /Y
+ATTRIB +R .\setup.*
 
 REM UPDATE.md
 ATTRIB -R .\UPDATE.md
