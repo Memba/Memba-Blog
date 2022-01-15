@@ -26,9 +26,12 @@ WORKDIR /usr/src/
 # RUN npm install -g npm  - does not work: https://github.com/npm/npm/issues/15558 -> RUN yarn global add npm
 RUN npm install -g npm
 
+# Add forever
+RUN npm install -g forever
+
 # Add pm2
 # see https://pm2.keymetrics.io/docs/usage/docker-pm2-nodejs/
-RUN npm install -g pm2
+# RUN npm install -g pm2
 
 # Install application modules
 RUN npm install
@@ -42,4 +45,6 @@ RUN if [ -d /usr/src/webapp/cache ]; then rm -f /usr/src/webapp/cache/*; fi
 EXPOSE 3000
 
 # Start node application
-CMD [ "pm2-runtime", "webapp/server.js" ]
+# CMD [ "pm2-runtime", "webapp/server.js", "--no-daemon" ]
+# CMD [ "pm2-runtime", "webapp/server.js", "--output", "/dev/stdout", "--error", "/dev/stderr" ]
+# CMD [ "pm2-runtime", "webapp/server.js" ]
