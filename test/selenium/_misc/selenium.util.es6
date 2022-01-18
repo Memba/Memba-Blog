@@ -6,6 +6,8 @@
 /* globals document: false, window: false */
 /* eslint-disable no-unused-expressions, prefer-arrow-callback */
 
+// Note: call in the before event handler in wdio.conf.js
+
 /**
  * Default export
  */
