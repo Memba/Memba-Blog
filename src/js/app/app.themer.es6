@@ -232,7 +232,7 @@ const themer = {
         if ($.type(theme) !== CONSTANTS.UNDEFINED) {
             themer.load(theme);
         } else if ($.type(window.cordova) === CONSTANTS.UNDEFINED) {
-            // Kidoju.WebApp
+            // Memba.WebApp
             if (
                 $.isArray(matches) &&
                 matches.length === 2 &&
