@@ -117,6 +117,11 @@ ATTRIB -R .\src\js\data\data.util.es6
 COPY ..\Memba.Webapp\src\js\data\data.util.es6  .\src\js\data /Y
 ATTRIB +R .\src\js\data\data.util.es6
 
+REM ./src/js/data/data.util.es6
+ATTRIB -R .\src\js\helpers\*.*
+COPY ..\Memba.Widgets\src\js\helpers\system.config.js  .\src\js\helpers /Y
+ATTRIB -R .\src\js\helpers\system.config.js
+
 REM ./src/js/ui/*.es6
 ATTRIB -R .\src\js\ui\*.es6
 COPY ..\Memba.Webapp\src\js\ui\error.page.es6 .\src\js\ui /Y
