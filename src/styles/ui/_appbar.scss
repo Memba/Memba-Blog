@@ -7,10 +7,10 @@ header {
     .k-appbar-dark,
     .k-appbar-light {
         @include fill(
-            $button-active-text,
-            $button-active-bg,
-            $button-active-border,
-            $button-active-gradient
+            $kendo-button-active-text,
+            $kendo-button-active-bg,
+            $kendo-button-active-border,
+            $kendo-button-active-gradient
         );
 
         g#logo {
@@ -32,21 +32,21 @@ header {
 
         .k-menu:not(.k-context-menu) {
             @include fill(
-                $button-active-text,
-                $button-active-bg,
-                $button-active-border,
-                $button-active-gradient
+                $kendo-button-active-text,
+                $kendo-button-active-bg,
+                $kendo-button-active-border,
+                $kendo-button-active-gradient
             );
 
             > .k-item {
-                // color: $button-active-text;
-                color: $button-text;
+                // color: $kendo-button-active-text;
+                color: $kendo-button-text;
             }
         }
 
         // navbar items
         a.nav-link {
-            color: $button-active-text;
+            color: $kendo-button-active-text;
 
             i.kf {
                 font-size: 1.75em;

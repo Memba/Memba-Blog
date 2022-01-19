@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// Kendo UI Themes v4.43.0
+// Kendo UI Themes v5.0.0
 // ~ tilde only works with webpack module resolution
 // @import "~@progress/kendo-theme-bootstrap/dist/all";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all.scss";
@@ -28,6 +28,7 @@
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/popup/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/ripple/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/table/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/virtual-scroller/_index.scss";
 
 // Indicators
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/avatar/_index.scss";
@@ -56,6 +57,7 @@
 
 // Form requirements
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/calendar/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/timeselector/_index.scss";
 
 // Augmented forms
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/autocomplete/_index.scss";
@@ -65,7 +67,11 @@
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/coloreditor/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/colorpicker/_index.scss";
 @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/combobox/_index.scss";
-// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/datetime/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dateinput/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/datepicker/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/timepicker/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/datetimepicker/_index.scss";
+// @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/daterangepicker/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdowngrid/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdownlist/_index.scss";
 // @import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/dropdowntree/_index.scss";

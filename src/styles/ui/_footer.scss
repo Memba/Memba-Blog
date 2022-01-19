@@ -19,10 +19,10 @@ footer {
     */
 
     @include fill(
-            $button-active-text,
-            $button-active-bg,
-            $button-active-border,
-            $button-active-gradient
+        $kendo-button-active-text,
+        $kendo-button-active-bg,
+        $kendo-button-active-border,
+        $kendo-button-active-gradient
     );
 
     border-bottom: none;
