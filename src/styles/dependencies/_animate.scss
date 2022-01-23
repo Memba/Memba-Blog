@@ -1,8 +1,133 @@
 // @import "../vendor/animate.css/animate.css";
+
 @import "../vendor/animate.css/_vars.css";
 @import "../vendor/animate.css/_base.css";
+
+/* Attention seekers  */
+// @import "../vendor/animate.css/attention_seekers/bounce.css";
+// @import "../vendor/animate.css/attention_seekers/flash.css";
+// @import "../vendor/animate.css/attention_seekers/pulse.css";
+// @import "../vendor/animate.css/attention_seekers/rubberBand.css";
+// @import "../vendor/animate.css/attention_seekers/shakeX.css";
+// @import "../vendor/animate.css/attention_seekers/shakeY.css";
+// @import "../vendor/animate.css/attention_seekers/headShake.css";
+// @import "../vendor/animate.css/attention_seekers/swing.css";
+// @import "../vendor/animate.css/attention_seekers/tada.css";
+// @import "../vendor/animate.css/attention_seekers/wobble.css";
+// @import "../vendor/animate.css/attention_seekers/jello.css";
+// @import "../vendor/animate.css/attention_seekers/heartBeat.css";
+
+/* Back entrances */
+// @import "../vendor/animate.css/back_entrances/backInDown.css";
+// @import "../vendor/animate.css/back_entrances/backInLeft.css";
+// @import "../vendor/animate.css/back_entrances/backInRight.css";
+// @import "../vendor/animate.css/back_entrances/backInUp.css";
+
+/* Back exits */
+// @import "../vendor/animate.css/back_exits/backOutDown.css";
+// @import "../vendor/animate.css/back_exits/backOutLeft.css";
+// @import "../vendor/animate.css/back_exits/backOutRight.css";
+// @import "../vendor/animate.css/back_exits/backOutUp.css";
+
+/* Bouncing entrances  */
+// @import "../vendor/animate.css/bouncing_entrances/bounceIn.css";
 @import "../vendor/animate.css/bouncing_entrances/bounceInDown.css";
-@import "../vendor/animate.css/fading_entrances/fadeInRight.css";
+// @import "../vendor/animate.css/bouncing_entrances/bounceInLeft.css";
+// @import "../vendor/animate.css/bouncing_entrances/bounceInRight.css";0
+// @import "../vendor/animate.css/bouncing_entrances/bounceInUp.css";
+
+/* Bouncing exits  */
+// @import "../vendor/animate.css/bouncing_exits/bounceOut.css";
+// @import "../vendor/animate.css/bouncing_exits/bounceOutDown.css";
+// @import "../vendor/animate.css/bouncing_exits/bounceOutLeft.css";
+// @import "../vendor/animate.css/bouncing_exits/bounceOutRight.css";
+// @import "../vendor/animate.css/bouncing_exits/bounceOutUp.css";
+
+/* Fading entrances  */
+// @import "../vendor/animate.css/fading_entrances/fadeIn.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInDown.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInDownBig.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInLeft.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInLeftBig.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInRight.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInRightBig.css";
 @import "../vendor/animate.css/fading_entrances/fadeInUp.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInUpBig.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInTopLeft.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInTopRight.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInBottomLeft.css";
+// @import "../vendor/animate.css/fading_entrances/fadeInBottomRight.css";
+
+/* Fading exits */
+// @import "../vendor/animate.css/fading_exits/fadeOut.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutDown.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutDownBig.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutLeft.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutLeftBig.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutRight.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutRightBig.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutUp.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutUpBig.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutTopLeft.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutTopRight.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutBottomRight.css";
+// @import "../vendor/animate.css/fading_exits/fadeOutBottomLeft.css";
+
+/* Flippers */
+// @import "../vendor/animate.css/flippers/flip.css";
+// @import "../vendor/animate.css/flippers/flipInX.css";
+// @import "../vendor/animate.css/flippers/flipInY.css";
+// @import "../vendor/animate.css/flippers/flipOutX.css";
+// @import "../vendor/animate.css/flippers/flipOutY.css";
+
+/* Lightspeed */
+// @import "../vendor/animate.css/lightspeed/lightSpeedInRight.css";
+// @import "../vendor/animate.css/lightspeed/lightSpeedInLeft.css";
+// @import "../vendor/animate.css/lightspeed/lightSpeedOutRight.css";
+// @import "../vendor/animate.css/lightspeed/lightSpeedOutLeft.css";
+
+/* Rotating entrances */
 @import "../vendor/animate.css/rotating_entrances/rotateIn.css";
+// @import "../vendor/animate.css/rotating_entrances/rotateInDownLeft.css";
+// @import "../vendor/animate.css/rotating_entrances/rotateInDownRight.css";
+// @import "../vendor/animate.css/rotating_entrances/rotateInUpLeft.css";
+// @import "../vendor/animate.css/rotating_entrances/rotateInUpRight.css";
+
+/* Rotating exits */
+// @import "../vendor/animate.css/rotating_exits/rotateOut.css";
+// @import "../vendor/animate.css/rotating_exits/rotateOutDownLeft.css";
+// @import "../vendor/animate.css/rotating_exits/rotateOutDownRight.css";
+// @import "../vendor/animate.css/rotating_exits/rotateOutUpLeft.css";
+// @import "../vendor/animate.css/rotating_exits/rotateOutUpRight.css";
+
+/* Specials */
+// @import "../vendor/animate.css/specials/hinge.css";
+// @import "../vendor/animate.css/specials/jackInTheBox.css";
+// @import "../vendor/animate.css/specials/rollIn.css";
+// @import "../vendor/animate.css/specials/rollOut.css";
+
+/* Zooming entrances */
 @import "../vendor/animate.css/zooming_entrances/zoomIn.css";
+// @import "../vendor/animate.css/zooming_entrances/zoomInDown.css";
+// @import "../vendor/animate.css/zooming_entrances/zoomInLeft.css";
+// @import "../vendor/animate.css/zooming_entrances/zoomInRight.css";
+// @import "../vendor/animate.css/zooming_entrances/zoomInUp.css";
+
+/* Zooming exits */
+// @import "../vendor/animate.css/zooming_exits/zoomOut.css";
+// @import "../vendor/animate.css/zooming_exits/zoomOutDown.css";
+// @import "../vendor/animate.css/zooming_exits/zoomOutLeft.css";
+// @import "../vendor/animate.css/zooming_exits/zoomOutRight.css";
+// @import "../vendor/animate.css/zooming_exits/zoomOutUp.css";
+
+/* Sliding entrances */
+// @import "../vendor/animate.css/sliding_entrances/slideInDown.css";
+// @import "../vendor/animate.css/sliding_entrances/slideInLeft.css";
+// @import "../vendor/animate.css/sliding_entrances/slideInRight.css";
+// @import "../vendor/animate.css/sliding_entrances/slideInUp.css";
+
+/* Sliding exits */
+// @import "../vendor/animate.css/sliding_exits/slideOutDown.css";
+// @import "../vendor/animate.css/sliding_exits/slideOutLeft.css";
+// @import "../vendor/animate.css/sliding_exits/slideOutRight.css";
+// @import "../vendor/animate.css/sliding_exits/slideOutUp.css";
