@@ -7,10 +7,10 @@ header {
     .k-appbar-dark,
     .k-appbar-light {
         @include fill(
-            $kendo-button-active-text,
-            $kendo-button-active-bg,
-            $kendo-button-active-border,
-            $kendo-button-active-gradient
+            $hovered-text,
+            $hovered-bg,
+            $hovered-border,
+            $hovered-gradient
         );
 
         g#logo {
@@ -32,10 +32,10 @@ header {
 
         .k-menu:not(.k-context-menu) {
             @include fill(
-                $kendo-button-active-text,
-                $kendo-button-active-bg,
-                $kendo-button-active-border,
-                $kendo-button-active-gradient
+                $hovered-text,
+                $hovered-bg,
+                $hovered-border,
+                $hovered-gradient
             );
 
             > .k-item {

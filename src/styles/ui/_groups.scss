@@ -7,7 +7,11 @@
 
 .k-listgroup {
     .k-link:hover {
-        background-color: $button-bg;
-        color: $button-text;
+        @include fill(
+            $hovered-text,
+            $hovered-bg,
+            $hovered-border,
+            $hovered-gradient
+        );
     }
 }
