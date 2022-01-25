@@ -9,12 +9,12 @@
 @import "../fonts/memba.css";
 
 // Our feature UI styles
-@import "./appbar";
-@import "./drawer";
-@import "./footer";
-@import "./groups";
-@import "./icons";
+@import "./ui.appbar";
+@import "./ui.drawer";
+@import "./ui.footer";
+@import "./ui.groups";
+@import "./ui.icons";
 
 // Our page styles (all pages)
-@import "./common";
-@import "./default.page";
+@import "./page.common";
+@import "./page.all";

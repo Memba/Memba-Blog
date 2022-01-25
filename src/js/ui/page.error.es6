@@ -11,7 +11,7 @@ import app from '../common/window.global.es6';
 // import Logger from '../common/window.logger.es6';
 
 // Import page styles
-// import '../../styles/ui/error.page.scss';
+// import '../../styles/ui/_page.error.scss';
 
 // Imported shared features
 import initializers from '../app/app.initializers.es6';

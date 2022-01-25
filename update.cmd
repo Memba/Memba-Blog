@@ -124,8 +124,8 @@ ATTRIB -R .\src\js\helpers\system.config.js
 
 REM ./src/js/ui
 ATTRIB -R .\src\js\ui\*.es6
-COPY ..\Memba.Webapp\src\js\ui\error.page.es6 .\src\js\ui /Y
-ATTRIB +R .\src\js\ui\error.page.es6
+COPY ..\Memba.Webapp\src\js\ui\page.error.es6 .\src\js\ui /Y
+ATTRIB +R .\src\js\ui\page.error.es6
 COPY ..\Memba.Webapp\src\js\ui\ui.footer.es6 .\src\js\ui /Y
 ATTRIB +R .\src\js\ui\ui.footer.es6
 COPY ..\Memba.Webapp\src\js\ui\ui.reveal.es6 .\src\js\ui /Y
@@ -187,16 +187,16 @@ REM ATTRIB +R .\src\styles\ui\app.mixins.less
 REM COPY ..\Memba.Webapp\src\styles\ui\error.page.less .\src\styles\ui\ /Y
 REM ATTRIB +R .\src\styles\ui\error.page.less
 ATTRIB -R .\src\styles\ui\*.scss
-COPY ..\Memba.Webapp\src\styles\ui\_appbar.scss .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\_appbar.scss
-COPY ..\Memba.Webapp\src\styles\ui\_common.scss .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\_common.scss
-COPY ..\Memba.Webapp\src\styles\ui\_drawer.scss .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\_drawer.scss
-COPY ..\Memba.Webapp\src\styles\ui\_footer.scss .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\_footer.scss
-COPY ..\Memba.Webapp\src\styles\ui\_icons.scss .\src\styles\ui\ /Y
-ATTRIB +R .\src\styles\ui\_icons.scss
+COPY ..\Memba.Webapp\src\styles\ui\_page.common.scss .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\_page.common.scss
+COPY ..\Memba.Webapp\src\styles\ui\_ui.appbar.scss .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\_ui.appbar.scss
+COPY ..\Memba.Webapp\src\styles\ui\_ui.drawer.scss .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\_ui.drawer.scss
+COPY ..\Memba.Webapp\src\styles\ui\_ui.footer.scss .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\_ui.footer.scss
+COPY ..\Memba.Webapp\src\styles\ui\_ui.icons.scss .\src\styles\ui\ /Y
+ATTRIB +R .\src\styles\ui\_ui.icons.scss
 
 REM ./src/styles/vendor
 XCOPY ..\Memba.Webapp\src\styles\vendor\animate.css\*.* .\src\styles\vendor\animate.css\ /C /E /I /R /Y
