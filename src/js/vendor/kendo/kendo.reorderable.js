@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -155,10 +155,10 @@ var __meta__ = { // jshint ignore:line
             });
 
             draggable.bind([ "dragcancel", "dragend", "dragstart", "drag" ], {
-                dragcancel: $.proxy(that._dragcancel, that),
-                dragend: $.proxy(that._dragend, that),
-                dragstart: $.proxy(that._dragstart, that),
-                drag: $.proxy(that._drag, that)
+                dragcancel: that._dragcancel.bind(that),
+                dragend: that._dragend.bind(that),
+                dragstart: that._dragstart.bind(that),
+                drag: that._drag.bind(that)
             });
         },
 
@@ -192,10 +192,10 @@ var __meta__ = { // jshint ignore:line
         _handleExternalDraggable: function (draggable) {
             var that = this;
 
-            that._dragcancelHandler = $.proxy(that._dragcancel, that);
-            that._dragendHandler = $.proxy(that._dragend, that);
-            that._dragstartHandler = $.proxy(that._dragstart, that);
-            that._dragHandler =  $.proxy(that._drag, that);
+            that._dragcancelHandler = that._dragcancel.bind(that);
+            that._dragendHandler = that._dragend.bind(that);
+            that._dragstartHandler = that._dragstart.bind(that);
+            that._dragHandler =  that._drag.bind(that);
 
             that._draggable = draggable.currentTarget.closest(that.options.dropFilter);
             that._draggableInstance = draggable;

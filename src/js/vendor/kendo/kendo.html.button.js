@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -76,11 +76,10 @@ var __meta__ = { // jshint ignore:line
             spriteCssClass: "",
             imageUrl: "",
             size: "medium",
-            shape: "rectangle",
             rounded: "medium",
             fillMode: "solid",
             themeColor: "base",
-            stylingOptions: [ "size", "shape", "rounded", "fillMode", "themeColor" ]
+            stylingOptions: [ "size", "rounded", "fillMode", "themeColor" ]
         },
         iconElement: function() {
             var that = this,

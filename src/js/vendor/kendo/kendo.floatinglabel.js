@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -44,8 +44,7 @@ var __meta__ = {// jshint ignore:line
         FOCUSED = "k-focus",
         STATEDISABLED = "k-disabled",
         NOCLICKCLASS = "k-no-click",
-        STATEREADONLY = "k-readonly",
-        proxy = $.proxy;
+        STATEREADONLY = "k-readonly";
 
     var FloatingLabel = Widget.extend({
         init: function (element, options) {
@@ -123,8 +122,8 @@ var __meta__ = {// jshint ignore:line
                     .removeClass(STATEDISABLED)
                     .removeClass(that.options.useReadOnlyClass ? STATEREADONLY : NOCLICKCLASS);
 
-                element.on("focusin" + NS, proxy(that.refresh, that));
-                element.on("focusout" + NS, proxy(that.refresh, that));
+                element.on("focusin" + NS, that.refresh.bind(that));
+                element.on("focusout" + NS, that.refresh.bind(that));
             } else {
                 element
                     .toggleClass(STATEDISABLED, disable)

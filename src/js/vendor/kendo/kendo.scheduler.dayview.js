@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -43,7 +43,6 @@ var __meta__ = { // jshint ignore:line
         outerWidth = kendo._outerWidth,
         outerHeight = kendo._outerHeight,
         extend = $.extend,
-        proxy = $.proxy,
         getDate = kendo.date.getDate,
         MS_PER_MINUTE = kendo.date.MS_PER_MINUTE,
         MS_PER_DAY = kendo.date.MS_PER_DAY,
@@ -326,7 +325,7 @@ var __meta__ = { // jshint ignore:line
                 that._currentTimeMarkerUpdater();
 
                 if (setUpdateTimer) {
-                    that._currentTimeUpdateTimer = setInterval(proxy(this._currentTimeMarkerUpdater, that), markerOptions.updateInterval);
+                    that._currentTimeUpdateTimer = setInterval(this._currentTimeMarkerUpdater.bind(that), markerOptions.updateInterval);
                 }
             }
         },
@@ -1598,7 +1597,9 @@ var __meta__ = { // jshint ignore:line
                 eventRightOffset = slotWidth * 0.10,
                 columnEvents,
                 eventElements =  slotRange.events(),
-                slotEvents = SchedulerView.collidingEvents(eventElements, element.start, element.end);
+                slotEvents = SchedulerView.collidingEvents(eventElements, element.start, element.end),
+                tableEl = this.table.find(".k-scheduler-content .k-scheduler-table")[0],
+                contentEl = this.table.find(".k-scheduler-content")[0];
 
             slotRange.addEvent(element);
 
@@ -1614,7 +1615,17 @@ var __meta__ = { // jshint ignore:line
                 for (var j = 0, eventLength = columnEvents.length; j < eventLength; j++) {
                     var calculatedWidth = columnWidth - 2;
                     columnEvents[j].element[0].style.width = (calculatedWidth > 0 ? calculatedWidth : columnWidth) + "px";
-                    columnEvents[j].element[0].style.left = (this._isRtl ? eventRightOffset : 0) + startSlot.offsetLeft + idx * columnWidth + 2 + "px";
+
+                    if (this._isRtl && contentEl.clientWidth < contentEl.scrollWidth) {
+                        // RTL mobile rendering with horizontal scroll
+                        columnEvents[j].element[0].style.left = eventRightOffset +
+                            startSlot.offsetLeft +
+                            idx * columnWidth -
+                            (tableEl.clientWidth - contentEl.clientWidth) +
+                            "px";
+                    } else {
+                        columnEvents[j].element[0].style.left = (this._isRtl ? eventRightOffset : 0) + startSlot.offsetLeft + idx * columnWidth + 2 + "px";
+                    }
                 }
             }
         },

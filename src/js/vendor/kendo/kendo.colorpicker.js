@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1069,7 +1069,7 @@ return window.kendo;
                 colors = colors.split(",");
             }
 
-            if ($.isArray(colors)) {
+            if (Array.isArray(colors)) {
                 colors = $.map(colors, function(x) { return parseColor(x); });
             }
 
@@ -1654,7 +1654,7 @@ var __meta__ = { // jshint ignore:line
             }
             that._value = options.value = value;
 
-            var _buttonHtml = kendo.html.renderButton('<button class="k-select k-button-rectangle k-input-button" unselectable="on" aria-label="select" tabindex="-1"></button>', $.extend({}, that.options, {
+            var _buttonHtml = kendo.html.renderButton('<button class="k-input-button" unselectable="on" aria-label="select" tabindex="-1"></button>', $.extend({}, that.options, {
                 icon: "arrow-s"
             }));
 

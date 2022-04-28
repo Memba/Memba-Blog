@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -156,8 +156,7 @@ var expressionItemTemplate =
         CHANGE = "change",
         NS = ".kendoFilter",
         EQ = "Is equal to",
-        NEQ = "Is not equal to",
-        proxy = $.proxy;
+        NEQ = "Is not equal to";
 
     var FilterButtonGroup = ButtonGroup.extend({
         init: function(element, options) {
@@ -197,7 +196,7 @@ var expressionItemTemplate =
             that.operators = $.extend(that.options.operators, options.operators);
 
             that._getFieldsInfo();
-            that._modelChangeHandler = proxy(that._modelChange, that);
+            that._modelChangeHandler = that._modelChange.bind(that);
             that._renderMain();
             if (options.expression) {
                 that._addExpressionTree(that.filterModel);

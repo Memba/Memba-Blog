@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -120,7 +120,7 @@ var __meta__ = { // jshint ignore:line
                     that.overlay.show();
                 },
 
-                activate: $.proxy(that._activate, that),
+                activate: that._activate.bind(that),
 
                 deactivate: function() {
                     that.overlay.hide();

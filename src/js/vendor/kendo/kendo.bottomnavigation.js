@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -38,7 +38,6 @@ var __meta__ = { // jshint ignore:line
     var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
-        proxy = $.proxy,
         extend = $.extend,
         template = kendo.template,
         keys = kendo.keys,
@@ -227,8 +226,8 @@ var __meta__ = { // jshint ignore:line
 
         _bindEvents: function () {
             var that = this,
-                clickProxy = proxy(that._click, that),
-                keydownProxy = proxy(that._keydown, that);
+                clickProxy = that._click.bind(that),
+                keydownProxy = that._keydown.bind(that);
 
             that.element.on("click" + NS, DOT + bottomNavigationStyles.item, clickProxy)
                         .on("keydown" + NS, DOT + bottomNavigationStyles.item, keydownProxy);

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -909,7 +909,7 @@ kendo.deepExtend(kendo.dataviz, {
     ], f);
 })(function(){
 
-(function ($) {
+(function ($) {  // jshint ignore:line
 
     var kendo = window.kendo;
     var dataviz = kendo.dataviz;
@@ -921,7 +921,6 @@ kendo.deepExtend(kendo.dataviz, {
     var NAVIGATOR_PANE = constants.NAVIGATOR_PANE;
     var deepExtend = kendo.deepExtend;
     var defined = dataviz.defined;
-    var proxy = $.proxy;
 
     var CHANGE = "change";
 
@@ -1037,7 +1036,7 @@ kendo.deepExtend(kendo.dataviz, {
             var dsOptions = navigatorOptions.dataSource;
 
             if (dsOptions) {
-                this._navigatorDataChangedHandler = this._navigatorDataChangedHandler || proxy(this._onNavigatorDataChanged, this);
+                this._navigatorDataChangedHandler = this._navigatorDataChangedHandler || this._onNavigatorDataChanged.bind(this);
                 this._navigatorDataSource = kendo.data.DataSource
                     .create(dsOptions)
                     .bind(CHANGE, this._navigatorDataChangedHandler);

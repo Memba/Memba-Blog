@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -67,7 +67,7 @@ var __meta__ = { // jshint ignore:line
             iconAttr: {},
             removable: false,
             removableAttr: {},
-            removeIcon: "x",
+            removeIcon: "x-circle",
             content: "",
             text: "",
             stylingOptions: [ "size", "rounded", "fillMode", "themeColor" ]
@@ -85,11 +85,11 @@ var __meta__ = { // jshint ignore:line
 
             that.element.addClass("k-chip-content");
             if (options.text) {
-                that.element.text(options.text);
+                that.element.html('<span class="k-chip-label">' + options.text + '</span>');
             }
 
             if (options.removable) {
-                that.wrapper.append($("<span class='k-chip-icon k-icon k-i-" + options.removeIcon + "'></span>").attr(options.removableAttr));
+                that.wrapper.append($("<span class='k-chip-action k-chip-remove-action'><span class='k-icon k-i-" + options.removeIcon + "'></span></span>").attr(options.removableAttr));
             }
         }
     });

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -200,9 +200,9 @@ var __meta__ = { // jshint ignore:line
                                .unbind("error", that._errorHandler)
                                .unbind("progress", that._progressHandler);
             } else {
-                that._errorHandler = $.proxy(that._error, that);
-                that._refreshHandler = $.proxy(that.refresh, that);
-                that._progressHandler = $.proxy(that._requestStart, that);
+                that._errorHandler = that._error.bind(that);
+                that._refreshHandler = that.refresh.bind(that);
+                that._progressHandler = that._requestStart.bind(that);
             }
 
             that.dataSource = kendo.data.PivotDataSourceV2.create(that.options.dataSource);
@@ -238,7 +238,7 @@ var __meta__ = { // jshint ignore:line
             $(ACTIONS_TEMPLATE({ cancelText: messages.cancelButtonText, applyText: messages.applyButtonText })).appendTo(that.panel);
             that._targets();
 
-            that.element.on("click" + ns, ".k-pivotgrid-configurator-actions > button", $.proxy(that._actions, that));
+            that.element.on("click" + ns, ".k-pivotgrid-configurator-actions > button", that._actions.bind(that));
         },
 
         _actions: function(e) {
@@ -590,9 +590,9 @@ var __meta__ = { // jshint ignore:line
                                .unbind("error", that._errorHandler)
                                .unbind("progress", that._progressHandler);
             } else {
-                that._errorHandler = $.proxy(that._error, that);
-                that._refreshHandler = $.proxy(that.refresh, that);
-                that._progressHandler = $.proxy(that._requestStart, that);
+                that._errorHandler = that._error.bind(that);
+                that._refreshHandler = that.refresh.bind(that);
+                that._progressHandler = that._requestStart.bind(that);
             }
 
             that.dataSource = kendo.data.PivotDataSource.create(that.options.dataSource);

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -30,7 +30,6 @@
     var kendo = window.kendo,
         ui = kendo.ui,
         extend = $.extend,
-        proxy = $.proxy,
         ToolBar = kendo.ui.ToolBar,
         Item = kendo.toolbar.Item,
 
@@ -75,8 +74,8 @@
         _attachEvents: function() {
             var that = this;
 
-            that.bind(DROPDOWNCHANGE, proxy(that._dropDownChange, that));
-            that.bind(CLICK, proxy(that._click, that));
+            that.bind(DROPDOWNCHANGE, that._dropDownChange.bind(that));
+            that.bind(CLICK, that._click.bind(that));
         },
 
         _extendOptions: function(options) {
@@ -205,7 +204,7 @@
                     dataTextField: "text",
                     dataSource: options.items,
                     template: template,
-                    change: proxy(that._change, that)
+                    change: that._change.bind(that)
                 });
 
                 that.element.append(that.dropDown.wrapper);
@@ -246,7 +245,6 @@ return window.kendo;
     (function ($, undefined) {
         var kendo = window.kendo,
             extend = $.extend,
-            proxy = $.proxy,
             Class = kendo.Class,
 
             NS = ".k-imageeditor-pane",
@@ -303,7 +301,7 @@ return window.kendo;
                     formWidget = that.formWidget,
                     buttons = formWidget.element.find("." + paneStyles.button);
 
-                that._clickHandler = proxy(that._click, that);
+                that._clickHandler = that._click.bind(that);
 
                 buttons.on(CLICK + NS, that._clickHandler);
             },
@@ -376,7 +374,7 @@ return window.kendo;
 
                 return {
                     formData: that._model,
-                    change: proxy(that.onChange, that),
+                    change: that.onChange.bind(that),
                     items: [{
                         type: "group",
                         label: cropMessages.title || "Crop Image",
@@ -395,7 +393,7 @@ return window.kendo;
                             }, {
                                 label: cropMessages.orientation,
                                 field: "orientation",
-                                editor: $.proxy(that._orientationEditor, that),
+                                editor: that._orientationEditor.bind(that),
                                 colSpan: 2
                             }, {
                                 label: commonMessages.width || "Width:",
@@ -720,7 +718,7 @@ return window.kendo;
 
                 return {
                     formData: that._model,
-                    change: proxy(that.onChange, that),
+                    change: that.onChange.bind(that),
                     items: [{
                         type: "group",
                         label: resizeMessages.title || "Resize image",
@@ -869,7 +867,6 @@ return window.kendo;
         var kendo = window.kendo,
             imageeditorNS = kendo.ui.imageeditor,
             extend = $.extend,
-            proxy = $.proxy,
             Class = kendo.Class;
 
         var Command = Class.extend({
@@ -1070,8 +1067,8 @@ return window.kendo;
                 if (!upload) {
                     var input = $("<input type='file' />");
                     input.kendoUpload({
-                        select: proxy(that.onSelect, that),
-                        error: proxy(that.onError, that),
+                        select: that.onSelect.bind(that),
+                        error: that.onError.bind(that),
                         multiple: false,
                         validation: {
                             allowedExtensions: [".jpg", ".jpeg", ".gif", ".png", ".bmp", ".tiff", ".webp"]

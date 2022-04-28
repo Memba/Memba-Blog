@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -90,8 +90,8 @@ var __meta__ = { // jshint ignore:line
 
             that.shim = new ShimClass(that.wrapper, $.extend({modal: os.ios && os.majorVersion < 7, className: "km-actionsheet-root"}, that.options.popup) );
 
-            that._closeProxy = $.proxy(that, "_close");
-            that._shimHideProxy = $.proxy(that, "_shimHide");
+            that._closeProxy = that._close.bind(that);
+            that._shimHideProxy = that._shimHide.bind(that);
             that.shim.bind("hide", that._shimHideProxy);
 
             if (tablet) {

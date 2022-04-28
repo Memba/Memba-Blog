@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -43,7 +43,6 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined) {
     var kendo = window.kendo,
         Widget = kendo.ui.Widget,
-        proxy = $.proxy,
         extend = $.extend,
         setTimeout = window.setTimeout,
         CLICK = "click",
@@ -311,7 +310,7 @@ var __meta__ = { // jshint ignore:line
                 attachDelay = !isNaN(allowHideAfter) && allowHideAfter > 0;
 
             function attachClick(target) {
-                target.on(CLICK + NS, proxy(that._hideStatic, that, wrapper));
+                target.on(CLICK + NS, that._hideStatic.bind(that, wrapper));
             }
 
             if (options.hideOnClick) {

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -39,7 +39,6 @@ var __meta__ = { // jshint ignore:line
         Widget = kendo.ui.Widget,
         keys = kendo.keys,
         extend = $.extend,
-        proxy = $.proxy,
 
         STEPPER = ".kendoStepper",
 
@@ -546,10 +545,10 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that.wrapper
-                .on(CLICK + STEPPER, DOT + stepStyles.step, proxy(that._selectClickHandler, that))
-                .on(CLICK + STEPPER, proxy(that._wrapperClickHandler, that))
-                .on(FOCUSOUT + STEPPER, proxy(that._focusout, that))
-                .on(KEYDOWN + STEPPER, that, proxy(that._keydown, that));
+                .on(CLICK + STEPPER, DOT + stepStyles.step, that._selectClickHandler.bind(that))
+                .on(CLICK + STEPPER, that._wrapperClickHandler.bind(that))
+                .on(FOCUSOUT + STEPPER, that._focusout.bind(that))
+                .on(KEYDOWN + STEPPER, that, that._keydown.bind(that));
         },
 
         _calculateDimensions: function() {

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -39,7 +39,6 @@ var __meta__ = { // jshint ignore:line
     var kendo = window.kendo,
         FileBrowser = kendo.ui.FileBrowser,
         isPlainObject = $.isPlainObject,
-        proxy = $.proxy,
         extend = $.extend,
         isFunction = kendo.isFunction,
         trimSlashesRegExp = /(^\/|\/$)/g,
@@ -227,7 +226,7 @@ var __meta__ = { // jshint ignore:line
 
             that.list = $('<div class="k-filemanager-listview" />')
                 .appendTo(that.element)
-                .on("dblclick" + NS, ".k-listview-item", proxy(that._dblClick, that));
+                .on("dblclick" + NS, ".k-listview-item", that._dblClick.bind(that));
 
             that.listView = new kendo.ui.ListView(that.list, {
                 layout: "flex",
@@ -257,10 +256,10 @@ var __meta__ = { // jshint ignore:line
                         this.content.append(EMPTYTILE({ text: that.options.messages.emptyFolder }));
                     }
                 },
-                change: proxy(that._listViewChange, that)
+                change: that._listViewChange.bind(that)
             });
 
-            that.listView.content.on("scroll" + NS, proxy(that._scroll, that));
+            that.listView.content.on("scroll" + NS, that._scroll.bind(that));
         },
 
         _dataSource: function() {
@@ -276,7 +275,7 @@ var __meta__ = { // jshint ignore:line
                 };
 
             if (isPlainObject(transport)) {
-                transport.path = proxy(that.path, that);
+                transport.path = that.path.bind(that);
                 dataSource.transport = transport;
             }
 
@@ -289,7 +288,7 @@ var __meta__ = { // jshint ignore:line
             if (that.dataSource && that._errorHandler) {
                 that.dataSource.unbind(ERROR, that._errorHandler);
             } else {
-                that._errorHandler = proxy(that._error, that);
+                that._errorHandler = that._error.bind(that);
             }
 
             that.dataSource = kendo.data.DataSource.create(dataSource)
@@ -387,7 +386,7 @@ var __meta__ = { // jshint ignore:line
             html += '#if(' + TYPEFIELD + ' == "f") { # <span class="k-file-size">${this.sizeFormatter(' + SIZEFIELD + ')}</span> #}#';
             html += '</div>';
 
-            return proxy(kendo.template(html), { sizeFormatter: sizeFormatter } );
+            return kendo.template(html).bind({ sizeFormatter: sizeFormatter });
         }
     });
 

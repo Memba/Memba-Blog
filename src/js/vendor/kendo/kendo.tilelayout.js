@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -401,7 +401,7 @@ var __meta__ = { // jshint ignore:line
             var that = this;
 
             that.element.children().attr("tabindex", 0);
-            that.element.on("keydown" + NS, that, $.proxy(that._keyDown, that));
+            that.element.on("keydown" + NS, that, that._keyDown.bind(that));
         },
 
         _keyDown: function (e) {

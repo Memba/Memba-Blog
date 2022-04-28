@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -38,7 +38,6 @@ var __meta__ = { // jshint ignore:line
     var kendo = window.kendo,
         ui = kendo.ui,
         Widget = ui.Widget,
-        proxy = $.proxy,
         isFunction = kendo.isFunction,
         extend = $.extend,
         HORIZONTAL = "horizontal",
@@ -61,10 +60,10 @@ var __meta__ = { // jshint ignore:line
             that.draggable = new ui.Draggable(options.draggableElement || element, {
                 distance: 1,
                 filter: options.handle,
-                drag: proxy(that._resize, that),
-                dragcancel: proxy(that._cancel, that),
-                dragstart: proxy(that._start, that),
-                dragend: proxy(that._stop, that)
+                drag: that._resize.bind(that),
+                dragcancel: that._cancel.bind(that),
+                dragstart: that._start.bind(that),
+                dragend: that._stop.bind(that)
             });
 
             that.userEvents = that.draggable.userEvents;

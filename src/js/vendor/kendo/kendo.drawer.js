@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -45,7 +45,6 @@ var __meta__ = { // jshint ignore:line
         keys = kendo.keys,
         ITEMCLICK = "itemClick",
         TABINDEX = "tabIndex",
-        proxy = $.proxy,
         PUSH = "push",
         OVERLAY = "overlay",
         LEFT = "left",
@@ -138,9 +137,9 @@ var __meta__ = { // jshint ignore:line
 
             element
                 .attr(TABINDEX, 0)
-                .on("focus" + NS, proxy(that._focus, that))
-                .on("focusout" + NS, proxy(that._blur, that))
-                .on("keydown" + NS, that, proxy(that._keyDown, that));
+                .on("focus" + NS, that._focus.bind(that))
+                .on("focusout" + NS, that._blur.bind(that))
+                .on("keydown" + NS, that, that._keyDown.bind(that));
         },
 
         _blur: function () {

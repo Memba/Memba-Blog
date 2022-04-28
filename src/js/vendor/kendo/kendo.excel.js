@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -723,9 +723,9 @@ kendo.deepExtend(kendo.excel, {
         },
 
         workbook: function() {
-            return $.Deferred($.proxy(function(d) {
+            return $.Deferred((function(d) {
                 this.dataSource.fetch()
-                    .then($.proxy(function() {
+                    .then((function() {
 
                         var workbook = new ExcelExporter(extend({}, this.options, this._hierarchy(), {
                             data: this.dataSource.view(),
@@ -734,8 +734,8 @@ kendo.deepExtend(kendo.excel, {
                         })).workbook();
 
                         d.resolve(workbook, this.dataSource.view());
-                    }, this));
-            }, this)).promise();
+                    }).bind(this));
+            }).bind(this)).promise();
         }
     });
 
@@ -778,7 +778,7 @@ kendo.ExcelMixin = {
             collapsible: excel.collapsible
         });
 
-        exporter.workbook().then($.proxy(function(book, data) {
+        exporter.workbook().then((function(book, data) {
             if (!this.trigger("excelExport", { workbook: book, data: data })) {
                 var workbook = new kendo.ooxml.Workbook(book);
 
@@ -797,7 +797,7 @@ kendo.ExcelMixin = {
                 });
 
             }
-        }, this));
+        }).bind(this));
     }
 };
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -37,7 +37,6 @@ var __meta__ = { // jshint ignore:line
 (function($, undefined){
     var kendo = window.kendo;
     var ui = kendo.ui;
-    var proxy = $.proxy;
     var extend = $.extend;
     var VISIBILITY = "visibility";
     var KSTATEHOVER = "k-state-hover";
@@ -63,11 +62,11 @@ var __meta__ = { // jshint ignore:line
                     left: 10,
                     top: kendo.support.mobileOS ? -40 / kendo.support.zoomLevel() : 10
                 },
-                hint: proxy(this._hint, this),
-                dragstart: proxy(this.dragstart, this),
-                dragcancel: proxy(this.dragcancel, this),
-                drag: proxy(this.drag, this),
-                dragend: proxy(this.dragend, this),
+                hint: this._hint.bind(this),
+                dragstart: this.dragstart.bind(this),
+                dragcancel: this.dragcancel.bind(this),
+                drag: this.drag.bind(this),
+                dragend: this.dragend.bind(this),
                 $angular: options.$angular,
                 holdToDrag: options.holdToDrag
             });

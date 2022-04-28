@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2022.1.301 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2022.1.412 (http://www.telerik.com/kendo-ui)
  * Copyright 2022 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -63,7 +63,6 @@ var __meta__ = { // jshint ignore:line
         BOOLEAN = "boolean",
         math = Math,
         extend = $.extend,
-        proxy = $.proxy,
         HUNDREDPERCENT = 100,
         DEFAULTANIMATIONDURATION = 400,
         PRECISION = 3,
@@ -365,10 +364,10 @@ var __meta__ = { // jshint ignore:line
             animationCssOptions[that._progressProperty] = percentage + "%";
             that.progressWrapper.animate(animationCssOptions, {
                 duration: animationDuration,
-                start: proxy(that._onProgressAnimateStart, that),
-                progress: proxy(that._onProgressAnimate, that),
-                complete: proxy(that._onProgressAnimateComplete, that, options.value),
-                always: proxy(that._onProgressUpdateAlways, that, options.value)
+                start: that._onProgressAnimateStart.bind(that),
+                progress: that._onProgressAnimate.bind(that),
+                complete: that._onProgressAnimateComplete.bind(that, options.value),
+                always: that._onProgressUpdateAlways.bind(that, options.value)
             });
         },
 
