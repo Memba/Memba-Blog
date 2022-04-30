@@ -19,7 +19,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [14.x, 16.x]
+                node-version: [14.x, 16.x, 18.x]
                 # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
                 # IMPORTANT! fibers and therefore @wdio/sync are not supported on nodeJS v16 - see https://github.com/laverdet/node-fibers
         steps:
@@ -34,8 +34,8 @@ jobs:
             - name: Install packages
               run: npm ci
 
-            - name: Analyze code
-              run: npm run eslint
+            # - name: Analyze code
+            #   run: npm run eslint
 
             - name: Build code
               run: npm run build --if-present
