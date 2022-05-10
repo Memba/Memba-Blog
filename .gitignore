@@ -11,14 +11,21 @@ Thumbs.db
 # Ignore Webstorm files
 .idea/
 
+# Ignore MongoDB database
+/data/
+*.archive
+
 # Ignore Node files
 node_modules/
 logs/
+*.log
 
 # Ignore test files
 .nyc_output/
 coverage/
 errorShots/
+# lib-cov/
+simulation/
 webapp/public/build/gremlins.min.js
 
 # Ignore cordova
@@ -34,4 +41,3 @@ validation-report.json
 
 # Ignore Dummy Files
 temp/
-
