@@ -24,15 +24,20 @@ jobs:
                 # IMPORTANT! fibers and therefore @wdio/sync are not supported on nodeJS v16 - see https://github.com/laverdet/node-fibers
         steps:
             - name: Checkout
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Test on Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v2
+              uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
 
             - name: Install packages
               run: npm ci
+
+            - name: Install selenium
+              run: |
+                npm i -g selenium-standalone
+                selenium-standalone install
 
             # - name: Analyze code
             #   run: npm run eslint
