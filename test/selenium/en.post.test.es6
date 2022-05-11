@@ -6,7 +6,7 @@
 /* globals browser: false, $: false */
 /* eslint-disable no-unused-expressions */
 
-const expect = require('expect');
+const { expect } = require('expect');
 const { URL } = require('url');
 const { format } = require('util');
 const logger = require('@wdio/logger').default('en.post.test');
