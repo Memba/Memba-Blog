@@ -4,7 +4,7 @@
  */
 
 const convert = require('../lib/convert');
-const github = require('../lib/github');
+const github = require('../lib/github.es6');
 const ApplicationError = require('../lib/applicationError.es6');
 
 let cache = {};
