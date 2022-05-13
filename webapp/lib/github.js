@@ -3,15 +3,13 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true */
+// TODO: Consider replacing with https://octokit.github.io/rest.js
 
-'use strict';
+const request = require('request');
+const config = require('../config/index.es6');
+const { version } = require('../../package.json');
 
-var request = require('request');
-var config = require('../config/index.es6');
-var version = require('../../package.json').version;
-
-var github = 'https://api.github.com';
+const github = 'https://api.github.com';
 /*
 var authentication = {
     user: process.env.USERNAME,
@@ -19,32 +17,50 @@ var authentication = {
 };
 */
 // Set a personal access token at https://github.com/settings/tokens
-var headers = {
-    Authorization: 'token ' + process.env.TOKEN,
-    'user-agent': 'Memba.Blog/' + version
+const headers = {
+    Authorization: `token ${process.env.TOKEN}`,
+    'user-agent': `Memba.Blog/${version}`,
 };
-var repo = config.get('github:repository');
-var branch = config.get('github:branch');
+const repo = config.get('github:repository');
+const branch = config.get('github:branch');
 
 module.exports = {
-
     /**
      * Get content from github
      * @see https://developer.github.com/v3/repos/contents/#get-contents
      * @param path
      * @param callback
      */
-    getContent: function (path, callback) {
-        var uri = github + '/repos/' + repo + '/contents/' + path;
-        var qs = { ref: branch };
-        request({ method: 'GET', uri: uri, headers: headers, /*auth: authentication,*/ json: true, qs: qs }, function (error, response, body) {
-            if (!error && response.statusCode === 200) {
-                callback(null, body); // json: true in request options ensures that body is parsed to return an object
-            } else {
-                callback(error || new Error('Getting Github content returned status ' + response.statusCode + (body && body.message ? ': ' + body.message : '')));
+    getContent(path, callback) {
+        const uri = `${github}/repos/${repo}/contents/${path}`;
+        const qs = { ref: branch };
+        request(
+            {
+                method: 'GET',
+                uri,
+                headers,
+                /* auth: authentication, */ json: true,
+                qs,
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode === 200) {
+                    callback(null, body); // json: true in request options ensures that body is parsed to return an object
+                } else {
+                    callback(
+                        error ||
+                            new Error(
+                                `Getting Github content returned status ${
+                                    response.statusCode
+                                }${
+                                    body && body.message
+                                        ? `: ${body.message}`
+                                        : ''
+                                }`
+                            )
+                    );
+                }
             }
-        });
-
+        );
     },
 
     /**
@@ -54,21 +70,41 @@ module.exports = {
      * @param content
      * @param callback
      */
-    createContent: function (path, content, callback) {
-        var uri = github + '/repos/' + repo + '/contents/' + path;
-        var data = {
-            branch: branch,
+    createContent(path, content, callback) {
+        const uri = `${github}/repos/${repo}/contents/${path}`;
+        const data = {
+            branch,
             content: Buffer.from(content).toString('base64'),
-            message: 'System creation'
+            message: 'System creation',
         };
         // Note content creation requires PUT instead of POST
-        request({ method: 'PUT', uri: uri, headers: headers, /*auth: authentication,*/ json: true, body: data }, function (error, response, body) {
-            if (!error && response.statusCode === 201) {
-                callback(null, body);
-            } else {
-                callback(error || new Error('Creating Github content returned status ' + response.statusCode + (body && body.message ? ': ' + body.message : '')));
+        request(
+            {
+                method: 'PUT',
+                uri,
+                headers,
+                /* auth: authentication, */ json: true,
+                body: data,
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode === 201) {
+                    callback(null, body);
+                } else {
+                    callback(
+                        error ||
+                            new Error(
+                                `Creating Github content returned status ${
+                                    response.statusCode
+                                }${
+                                    body && body.message
+                                        ? `: ${body.message}`
+                                        : ''
+                                }`
+                            )
+                    );
+                }
             }
-        });
+        );
     },
 
     /**
@@ -79,22 +115,45 @@ module.exports = {
      * @param sha
      * @param callback
      */
-    updateContent: function (path, content, sha, callback) {
-        var uri = github + '/repos/' + repo + '/contents/' + path;
-        var data = {
-            branch: branch,
+    updateContent(path, content, sha, callback) {
+        const uri = `${github}/repos/${repo}/contents/${path}`;
+        const data = {
+            branch,
             content: Buffer.from(content).toString('base64'),
             message: 'System update',
-            sha: sha
+            sha,
         };
-        request({ method: 'PUT', uri: uri, headers: headers, /*auth: authentication,*/ json: true, body: data }, function (error, response, body) {
-            if (!error && (response.statusCode === 200 || response.statusCode === 201)) {
-                // updating content returns 200, except when updating deleted content which return 201 (like creation)
-                callback(null, body);
-            } else {
-                callback(error || new Error('Updating Github content returned status ' + response.statusCode + (body && body.message ? ': ' + body.message : '')));
+        request(
+            {
+                method: 'PUT',
+                uri,
+                headers,
+                /* auth: authentication, */ json: true,
+                body: data,
+            },
+            (error, response, body) => {
+                if (
+                    !error &&
+                    (response.statusCode === 200 || response.statusCode === 201)
+                ) {
+                    // updating content returns 200, except when updating deleted content which return 201 (like creation)
+                    callback(null, body);
+                } else {
+                    callback(
+                        error ||
+                            new Error(
+                                `Updating Github content returned status ${
+                                    response.statusCode
+                                }${
+                                    body && body.message
+                                        ? `: ${body.message}`
+                                        : ''
+                                }`
+                            )
+                    );
+                }
             }
-        });
+        );
     },
 
     /**
@@ -104,20 +163,40 @@ module.exports = {
      * @param sha
      * @param callback
      */
-    deleteContent: function (path, sha, callback) {
-        var uri = github + '/repos/' + repo + '/contents/' + path;
-        var data = {
-            branch: branch,
+    deleteContent(path, sha, callback) {
+        const uri = `${github}/repos/${repo}/contents/${path}`;
+        const data = {
+            branch,
             message: 'System deletion',
-            sha: sha
+            sha,
         };
-        request({ method: 'DELETE', uri: uri, headers: headers, /*auth: authentication,*/ json: true, body: data }, function (error, response, body) {
-            if (!error && response.statusCode === 200) {
-                callback(null, body);
-            } else {
-                callback(error || new Error('Deleting Github content returned status ' + response.statusCode + (body && body.message ? ': ' + body.message : '')));
+        request(
+            {
+                method: 'DELETE',
+                uri,
+                headers,
+                /* auth: authentication, */ json: true,
+                body: data,
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode === 200) {
+                    callback(null, body);
+                } else {
+                    callback(
+                        error ||
+                            new Error(
+                                `Deleting Github content returned status ${
+                                    response.statusCode
+                                }${
+                                    body && body.message
+                                        ? `: ${body.message}`
+                                        : ''
+                                }`
+                            )
+                    );
+                }
             }
-        });
+        );
     },
 
     /**
@@ -126,16 +205,35 @@ module.exports = {
      * @param path
      * @param callback
      */
-    getCommits: function (path, callback) {
-        var uri = github + '/repos/' + repo + '/commits';
-        var qs = { path: path, sha: branch };
-        request({ method: 'GET', uri: uri, headers: headers, /*auth: authentication,*/ json: true, qs: qs }, function (error, response, body) {
-            if (!error && response.statusCode === 200) {
-                callback(null, body);
-            } else {
-                callback(error || new Error('Getting Github commits returned status ' + response.statusCode + (body && body.message ? ': ' + body.message : '')));
+    getCommits(path, callback) {
+        const uri = `${github}/repos/${repo}/commits`;
+        const qs = { path, sha: branch };
+        request(
+            {
+                method: 'GET',
+                uri,
+                headers,
+                /* auth: authentication, */ json: true,
+                qs,
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode === 200) {
+                    callback(null, body);
+                } else {
+                    callback(
+                        error ||
+                            new Error(
+                                `Getting Github commits returned status ${
+                                    response.statusCode
+                                }${
+                                    body && body.message
+                                        ? `: ${body.message}`
+                                        : ''
+                                }`
+                            )
+                    );
+                }
             }
-        });
-    }
-
+        );
+    },
 };
