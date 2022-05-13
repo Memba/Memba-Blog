@@ -3,49 +3,58 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint node: true, mocha: true, expr: true */
+/* eslint-disable no-unused-expressions */
 
-'use strict';
+const { expect } = require('chai');
+const github = require('../../../webapp/lib/github.es6');
 
-var expect = require('chai').expect;
-var github = require('../../../webapp/lib/github');
-var NAME = 'Memba Robot';
+// const NAME = 'Memba Robot';
 
-describe('lib/github', function () {
-
+describe('lib/github', () => {
     // this.retries(2);
 
-    var content = {
-        path: 'temp/' + ((1 + Math.random()) * 1e10).toString(36).slice(-5) + '.md',
+    const content = {
+        path: `temp/${((1 + Math.random()) * 1e10).toString(36).slice(-5)}.md`,
         markdown: '# This is a dummy sample\n\nwith dummy content',
-        update: '# This is a dummy sample\n\nwith an update'
+        update: '# This is a dummy sample\n\nwith an update',
     };
 
-    it('it should create content', function (done) {
-        github.createContent(content.path, content.markdown, function (error, response) {
-            debugger;
-            expect(error).to.be.null;
-            expect(response).to.have.nested.property('commit.committer.name'); // , NAME);
-            // expect(response).to.have.nested.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
-            expect(response).to.have.nested.property('commit.message', 'System creation');
-            expect(response).to.have.nested.property('content.path', content.path);
-            expect(response).to.have.nested.property('content.html_url');
-            expect(response).to.have.nested.property('content.sha');
-            content.sha = response.content.sha;
-            done();
-        });
+    it('it should create content', (done) => {
+        github.createContent(
+            content.path,
+            content.markdown,
+            (error, response) => {
+                expect(error).to.be.null;
+                expect(response).to.have.nested.property(
+                    'commit.committer.name'
+                ); // , NAME);
+                // expect(response).to.have.nested.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+                expect(response).to.have.nested.property(
+                    'commit.message',
+                    'System creation'
+                );
+                expect(response).to.have.nested.property(
+                    'content.path',
+                    content.path
+                );
+                expect(response).to.have.nested.property('content.html_url');
+                expect(response).to.have.nested.property('content.sha');
+                content.sha = response.content.sha;
+                done();
+            }
+        );
     });
 
-    it('it should get commits', function (done) {
-        github.getCommits(content.path, function (error, response) {
+    it('it should get commits', (done) => {
+        github.getCommits(content.path, (error, response) => {
             expect(error).to.be.null;
             expect(response).to.be.instanceof(Array);
             done();
         });
     });
 
-    it('it should get content', function (done) {
-        github.getContent(content.path, function (error, response) {
+    it('it should get content', (done) => {
+        github.getContent(content.path, (error, response) => {
             expect(error).to.be.null;
             expect(response).to.have.property('path', content.path);
             expect(response).to.have.property('html_url');
@@ -54,44 +63,60 @@ describe('lib/github', function () {
         });
     });
 
-    it('it should update content', function (done) {
+    it('it should update content', (done) => {
         expect(content.sha).not.to.be.undefined;
-        github.updateContent(content.path, content.update, content.sha, function (error, response) {
-            expect(error).to.be.null;
-            expect(response).to.have.nested.property('commit.committer.name'); // , NAME);
-            // expect(response).to.have.nested.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
-            expect(response).to.have.nested.property('commit.message', 'System update');
-            expect(response).to.have.nested.property('content.path', content.path);
-            expect(response).to.have.nested.property('content.html_url');
-            expect(response).to.have.nested.property('content.sha');
-            // content.sha changes which each update
-            content.sha = response.content.sha;
-            done();
-        });
+        github.updateContent(
+            content.path,
+            content.update,
+            content.sha,
+            (error, response) => {
+                expect(error).to.be.null;
+                expect(response).to.have.nested.property(
+                    'commit.committer.name'
+                ); // , NAME);
+                // expect(response).to.have.nested.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
+                expect(response).to.have.nested.property(
+                    'commit.message',
+                    'System update'
+                );
+                expect(response).to.have.nested.property(
+                    'content.path',
+                    content.path
+                );
+                expect(response).to.have.nested.property('content.html_url');
+                expect(response).to.have.nested.property('content.sha');
+                // content.sha changes which each update
+                content.sha = response.content.sha;
+                done();
+            }
+        );
     });
 
-    it('it should get commits', function (done) {
-        github.getCommits(content.path, function (error, response) {
+    it('it should get commits', (done) => {
+        github.getCommits(content.path, (error, response) => {
             expect(error).to.be.null;
             expect(response).to.be.instanceof(Array);
             done();
         });
     });
 
-    it('it should delete content', function (done) {
+    it('it should delete content', (done) => {
         expect(content.sha).not.to.be.undefined;
-        github.deleteContent(content.path, content.sha, function (error, response) {
+        github.deleteContent(content.path, content.sha, (error, response) => {
             expect(error).to.be.null;
             expect(response).to.have.nested.property('commit.committer.name'); // , NAME);
             // expect(response).to.have.nested.property('commit.committer.email').that.match(new RegExp('^' + process.env.USERNAME + '@'));
-            expect(response).to.have.nested.property('commit.message', 'System deletion');
+            expect(response).to.have.nested.property(
+                'commit.message',
+                'System deletion'
+            );
             expect(response).to.have.property('content', null);
             done();
         });
     });
 
-    it('it should fail getting deleted content', function (done) {
-        github.getContent(content.path, function (error, response) {
+    it('it should fail getting deleted content', (done) => {
+        github.getContent(content.path, (error, response) => {
             expect(response).to.be.undefined;
             expect(error).to.be.instanceof(Error);
             done();
@@ -99,5 +124,4 @@ describe('lib/github', function () {
     });
 
     // Note: Updating deleted contents works as restoring
-
 });
