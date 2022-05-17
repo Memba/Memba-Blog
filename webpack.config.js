@@ -139,6 +139,8 @@ const workboxWebpackPlugin = new workboxPlugin.GenerateSW({
             return { manifest, warnings };
         },
     ],
+    maximumFileSizeToCacheInBytes:
+        process.env.NODE_ENV === 'production' ? 500 * 1024 : 3 * 1024 * 1024,
     offlineGoogleAnalytics: true,
     runtimeCaching: [
         // See https://gist.github.com/addyosmani/0e1cfeeccad94edc2f0985a15adefe54
