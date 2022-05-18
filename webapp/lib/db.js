@@ -5,9 +5,12 @@
 
 /* jshint node: true */
 
-// TODO: Consider using:
-//  https://github.com/typicode/lowdb
-//  https://github.com/breejs/bree
+// TODO: Consider using a database:
+//  https://www.mongodb.com/docs/realm/sdk/node/quick-start-local/
+
+// TODO: Consider using a job scheduler periodically querying github
+//  https://blog.logrocket.com/comparing-best-node-js-schedulers
+//  https://www.npmjs.com/package/node-schedule
 
 'use strict';
 

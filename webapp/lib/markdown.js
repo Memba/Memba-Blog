@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Consider using https://www.npmjs.com/package/gray-matter
+
 /* jshint node: true */
 
 'use strict';
