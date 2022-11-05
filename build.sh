@@ -14,13 +14,17 @@ fi
 cd "$(dirname "$0")"
 
 # then set environment variable
-if [ "$1" == "d" ] || [ "$1" == "dev" ] || [ "$1" == "development" ]
+#if [ "$1" == "d" ] || [ "$1" == "dev" ] || [ "$1" == "development" ]
+if [ "$1" = "d" ] || [ "$1" = "dev" ] || [ "$1" = "development" ]
 then
+    echo "development"
     export NODE_ENV="development"
-elif [ "$1" == "t" ] || [ "$1" == "test" ]
+# elif [ "$1" == "t" ] || [ "$1" == "test" ]
+elif [ "$1" = "t" ] || [ "$1" = "test" ]
 then
     export NODE_ENV="test"
-elif [ "$1" == "p" ] || [ "$1" == "prod" ] || [ "$1" == "production" ]
+# elif [ "$1" == "p" ] || [ "$1" == "prod" ] || [ "$1" == "production" ]
+elif [ "$1" = "p" ] || [ "$1" = "prod" ] || [ "$1" = "production" ]
 then
     export NODE_ENV="production"
 fi
