@@ -232,7 +232,7 @@ const themer = {
         if ($.type(theme) !== CONSTANTS.UNDEFINED) {
             themer.load(theme);
         } else if ($.type(window.cordova) === CONSTANTS.UNDEFINED) {
-            // Memba.WebApp
+            // Memba-WebApp
             if (
                 $.isArray(matches) &&
                 matches.length === 2 &&
@@ -249,7 +249,7 @@ const themer = {
             // Make sure we have an existing theme or revert to DEFAULT
             ret = $.type(THEMES[ret]) === CONSTANTS.STRING ? ret : DEFAULT;
         } else {
-            // Kidoju.Mobile
+            // Memba-Mobile
             try {
                 ret = localStorage && localStorage.getItem(THEME);
             } catch (ex) {} // eslint-disable-line no-empty
