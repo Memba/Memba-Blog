@@ -19,7 +19,7 @@
                 ],
                 "alias": {
                     // This takes over externals in webpack and includes jQuery in the builds
-                    // "jquery": "./src/js/vendor/jquery/jquery-3.6.0.min.js"
+                    // "jquery": "./src/js/vendor/jquery/jquery-3.6.1.min.js"
                 }
             }
         ],
@@ -41,8 +41,12 @@
         [
             "@babel/preset-env",
             {
-                "useBuiltIns": "entry",
-                "corejs": 3
+                "corejs": 3,
+                "targets": {
+                    "chrome": "100",
+                    "ie": "11"
+                },
+                "useBuiltIns": "entry"
             }
         ]
     ]
