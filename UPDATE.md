@@ -27,15 +27,11 @@ They can be updated in Webstorm in the dialog after calling menu File > Settings
 
 ```npm install``` installs the version of local modules specified in ```package.json```.
 
-## Kidoju Server client API (components from Kidoju.Server)
+## Memba Server client API (components from Memba-Server)
 
 
 
-## Kidoju Widgets (components from Kidoju.Widgets)
-
-
-
-## Memba Widgets (components from Memba.Widgets)
+## Memba Widgets (components from Memba-Widgets)
 
 
 

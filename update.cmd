@@ -1,9 +1,12 @@
 cd /d %~dp0
+
 REM ************************************************************
 REM IMPORTANT!
-REM Kidoju.WebApp is the original project where any modifications
+REM Memba-WebApp is the original project where any modifications
 REM of locked read-only files should be completed.
 REM ************************************************************
+
+set MEMBA_WEBAPP="../Memba-Webapp"
 
 REM ------------------------------------------------------------
 REM Root files
@@ -11,154 +14,160 @@ REM ------------------------------------------------------------
 
 REM copy all dot files
 ATTRIB -R .\.*
-COPY ..\Memba.Webapp\.* .\ /Y
+COPY %MEMBA_WEBAPP%\.* .\ /Y
 ATTRIB +R .\.*
 
 REM build.cmd and BUILD.md
 ATTRIB -R .\build.*
-COPY ..\Memba.Webapp\build.* .\ /Y
+COPY %MEMBA_WEBAPP%\build.* .\ /Y
 ATTRIB +R .\build.*
 
 REM Mocha with coverage
 ATTRIB -R .\coverage.cmd
-COPY ..\Memba.Webapp\coverage.cmd .\ /Y
+COPY %MEMBA_WEBAPP%\coverage.cmd .\ /Y
 ATTRIB +R .\coverage.cmd
 
 REM Karma with coverage
 ATTRIB -R .\coverage.con*
-COPY ..\Memba.Webapp\coverage.con* .\ /Y
-ATTRIB +R .\coverage.con*
+COPY %MEMBA_WEBAPP%\coverage.conf.* .\ /Y
+ATTRIB +R .\coverage.conf.*
 
 REM Dockerfile
 ATTRIB -R .\Dockerfile
-COPY ..\Memba.Webapp\Dockerfile .\ /Y
+COPY %MEMBA_WEBAPP%\Dockerfile .\ /Y
 ATTRIB +R .\Dockerfile
 
 REM LICENSE
 REM ATTRIB -R .\LICENSE-GPLv3
-REM COPY ..\Memba.Webapp\LICENSE-GPLv3 .\ /Y
+REM COPY %MEMBA_WEBAPP%\LICENSE-GPLv3 .\ /Y
 REM ATTRIB +R .\LICENSE-GPLv3
 
 REM postcss.config.js
 ATTRIB -R .\postcss.config.js
-COPY ..\Memba.Webapp\postcss.config.js .\ /Y
+COPY %MEMBA_WEBAPP%\postcss.config.js .\ /Y
 ATTRIB +R .\postcss.config.js
 
-REM setup.cmd
+REM setup.cmd and setup.sh
 ATTRIB -R .\setup.*
-COPY ..\Memba.Webapp\setup.* .\ /Y
+COPY %MEMBA_WEBAPP%\setup.* .\ /Y
 ATTRIB +R .\setup.*
 
 REM UPDATE.md
 ATTRIB -R .\UPDATE.md
-COPY ..\Memba.Webapp\UPDATE.md .\ /Y
+COPY %MEMBA_WEBAPP%\UPDATE.md .\ /Y
 ATTRIB +R .\UPDATE.md
 
 REM watch.cmd
 ATTRIB -R .\watch.cmd
-COPY ..\Memba.Webapp\watch.cmd .\ /Y
+COPY %MEMBA_WEBAPP%\watch.cmd .\ /Y
 ATTRIB +R .\watch.cmd
 
 REM wdio.conf.js
 ATTRIB -R .\wdio.conf.js
-COPY ..\Memba.Webapp\wdio.conf.js .\ /Y
+COPY %MEMBA_WEBAPP%\wdio.conf.js .\ /Y
 ATTRIB +R .\wdio.conf.js
 
 REM webpack
 REM ATTRIB -R .\webpack.config.js
-REM COPY ..\Memba.Webapp\webpack.config.js .\ /Y
+REM COPY %MEMBA_WEBAPP%\webpack.config.js .\ /Y
 REM ATTRIB +R .\webpack.config.js
 
 REM ------------------------------------------------------------
-REM Graphics
+REM Client ./src/js
 REM ------------------------------------------------------------
 
-REM ------------------------------------------------------------
-REM Javascript files
-REM ------------------------------------------------------------
-
-REM ./src/js/.eslintrc, etc.
-ATTRIB -R .\src\js\.*
-COPY ..\Memba.Webapp\src\js\.* .\src\js\ /Y
-ATTRIB +R .\src\js\.*
+REM ./src/js/.eslintrc
+ATTRIB -R .\src\js\.eslint*
+COPY %MEMBA_WEBAPP%\src\js\.eslint* .\src\js\ /Y
+ATTRIB +R .\src\js\.eslint*
 
 REM ./src/js/app
 ATTRIB -R .\src\js\app\*.es6
-COPY ..\Memba.Webapp\src\js\app\app.controller.es6 .\src\js\app /Y
+COPY %MEMBA_WEBAPP%\src\js\app\app.controller.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.controller.es6
-COPY ..\Memba.Webapp\src\js\app\app.i18n.es6 .\src\js\app /Y
+COPY %MEMBA_WEBAPP%\src\js\app\app.i18n.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.i18n.es6
-COPY ..\Memba.Webapp\src\js\app\app.init.es6 .\src\js\app /Y
+COPY %MEMBA_WEBAPP%\src\js\app\app.init.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.init.es6
-COPY ..\Memba.Webapp\src\js\app\app.initializers.es6 .\src\js\app /Y
+COPY %MEMBA_WEBAPP%\src\js\app\app.initializers.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.initializers.es6
-COPY ..\Memba.Webapp\src\js\app\app.logger.es6 .\src\js\app /Y
+COPY %MEMBA_WEBAPP%\src\js\app\app.logger.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.logger.es6
-COPY ..\Memba.Webapp\src\js\app\app.notification.es6 .\src\js\app /Y
+COPY %MEMBA_WEBAPP%\src\js\app\app.notification.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.notification.es6
-COPY ..\Memba.Webapp\src\js\app\app.themer.es6 .\src\js\app /Y
+COPY %MEMBA_WEBAPP%\src\js\app\app.themer.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.themer.es6
 
 REM ./src/js/common
 ATTRIB -R .\src\js\common\*.es6
-COPY ..\Memba.Webapp\src\js\common\window.assert.es6 .\src\js\common /Y
-COPY ..\Memba.Webapp\src\js\common\window.constants.es6 .\src\js\common /Y
-COPY ..\Memba.Webapp\src\js\common\window.global.es6 .\src\js\common /Y
-COPY ..\Memba.Webapp\src\js\common\window.logger.es6 .\src\js\common /Y
+COPY %MEMBA_WEBAPP%\src\js\common\window.assert.es6 .\src\js\common /Y
+COPY %MEMBA_WEBAPP%\src\js\common\window.constants.es6 .\src\js\common /Y
+COPY %MEMBA_WEBAPP%\src\js\common\window.global.es6 .\src\js\common /Y
+COPY %MEMBA_WEBAPP%\src\js\common\window.logger.es6 .\src\js\common /Y
 ATTRIB +R .\src\js\common\*.es6
 
 REM ./src/js/cultures
 ATTRIB -R .\src\js\cultures\widgets.*.es6
-COPY ..\Memba.Webapp\src\js\cultures\widgets.*.es6  .\src\js\cultures /Y
+COPY %MEMBA_WEBAPP%\src\js\cultures\widgets.*.es6  .\src\js\cultures /Y
 ATTRIB +R .\src\js\cultures\widgets.*.es6
 
 REM ./src/js/data
 ATTRIB -R .\src\js\data\data.util.es6
-COPY ..\Memba.Webapp\src\js\data\data.util.es6  .\src\js\data /Y
+COPY %MEMBA_WEBAPP%\src\js\data\data.util.es6  .\src\js\data /Y
 ATTRIB +R .\src\js\data\data.util.es6
 
 REM ./src/js/helper
-ATTRIB -R .\src\js\helpers\*.*
-COPY ..\Memba.Widgets\src\js\helpers\system.config.js  .\src\js\helpers /Y
+ATTRIB -R .\src\js\helpers\system.config.js
+COPY .%MEMBA_WEBAPP%\src\js\helpers\system.config.js  .\src\js\helpers /Y
 ATTRIB -R .\src\js\helpers\system.config.js
 
 REM ./src/js/ui
 ATTRIB -R .\src\js\ui\*.es6
-COPY ..\Memba.Webapp\src\js\ui\page.error.es6 .\src\js\ui /Y
+COPY %MEMBA_WEBAPP%\src\js\ui\page.error.es6 .\src\js\ui /Y
 ATTRIB +R .\src\js\ui\page.error.es6
-COPY ..\Memba.Webapp\src\js\ui\ui.footer.es6 .\src\js\ui /Y
+COPY %MEMBA_WEBAPP%\src\js\ui\ui.footer.es6 .\src\js\ui /Y
 ATTRIB +R .\src\js\ui\ui.footer.es6
-COPY ..\Memba.Webapp\src\js\ui\ui.reveal.es6 .\src\js\ui /Y
+COPY %MEMBA_WEBAPP%\src\js\ui\ui.reveal.es6 .\src\js\ui /Y
 ATTRIB +R .\src\js\ui\ui.reveal.es6
 
 REM ./src/js/vendor
-XCOPY ..\Memba.Webapp\src\js\vendor\bootstrap\*.* .\src\js\vendor\bootstrap\ /C /E /I /R /Y
+
+REM bootstrap
+XCOPY %MEMBA_WEBAPP%\src\js\vendor\bootstrap\*.* .\src\js\vendor\bootstrap\ /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\bootstrap\*.* /S
-XCOPY ..\Memba.WebApp\src\js\vendor\jquery\*.* .\src\js\vendor\jquery /C /E /I /R /Y
+
+REM jQuery
+XCOPY %MEMBA_WEBAPP%\src\js\vendor\jquery\*.* .\src\js\vendor\jquery /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\jquery\*.* /S
-XCOPY ..\Memba.Webapp\src\js\vendor\lazd\*.* .\src\js\vendor\lazd\ /C /E /I /R /Y
+
+REM lazd/inobounce
+XCOPY %MEMBA_WEBAPP%\src\js\vendor\lazd\*.* .\src\js\vendor\lazd\ /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\lazd\*.* /S
-XCOPY ..\Memba.Webapp\src\js\vendor\kendo\*.* .\src\js\vendor\kendo\ /C /E /I /R /Y
+
+REM Kendo UI
+XCOPY %MEMBA_WEBAPP%\src\js\vendor\kendo\*.* .\src\js\vendor\kendo\ /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\kendo\*.* /S
-XCOPY ..\Memba.Webapp\src\js\vendor\modernizr\*.* .\src\js\vendor\modernizr\ /C /E /I /R /Y
+
+REM Modernizr
+XCOPY %MEMBA_WEBAPP%\src\js\vendor\modernizr\*.* .\src\js\vendor\modernizr\ /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\modernizr\*.* /S
 
 REM ------------------------------------------------------------
-REM Styles
+REM Client ./src/styles
 REM ------------------------------------------------------------
 
 REM ./src/styles/dependencies
 ATTRIB -R .\src\styles\dependencies\_highlightjs.scss
-COPY ..\Memba.Webapp\src\styles\dependencies\_highlightjs.scss .\src\styles\dependencies\ /Y
+COPY %MEMBA_WEBAPP%\src\styles\dependencies\_highlightjs.scss .\src\styles\dependencies\ /Y
 ATTRIB +R .\src\styles\dependencies\_highlightjs.scss
 
 REM .\src\styles\dialogs
 REM ATTRIB -R .\src\styles\dialogs\*.*
-REM COPY ..\Memba.Webapp\src\styles\dialogs\kidoju.tools.less .\src\styles\dialogs\ /Y
+REM COPY %MEMBA_WEBAPP%\src\styles\dialogs\kidoju.tools.less .\src\styles\dialogs\ /Y
 REM ATTRIB +R .\src\styles\dialogs\kidoju.tools.less
 
 REM ./src/styles/fonts
-XCOPY ..\Memba.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y
+XCOPY %MEMBA_WEBAPP%\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\fonts\*.* /S
 
 REM ./src/styles/images
@@ -167,122 +176,123 @@ ATTRIB +R .\src\styles\images\*.* /S
 
 REM ./src/styles/template
 ATTRIB -R .\src\styles\template\*.*
-COPY ..\Memba.Webapp\src\styles\template\_app.theme.scss .\src\styles\template\ /Y
+COPY %MEMBA_WEBAPP%\src\styles\template\_app.theme.scss .\src\styles\template\ /Y
 ATTRIB +R .\src\styles\template\_app.theme.scss
-COPY ..\Memba.Webapp\src\styles\template\_bootstrap.scss .\src\styles\template\ /Y
+COPY %MEMBA_WEBAPP%\src\styles\template\_bootstrap.scss .\src\styles\template\ /Y
 ATTRIB +R .\src\styles\template\_bootstrap.scss
-COPY ..\Memba.Webapp\src\styles\template\_global.scss .\src\styles\template\ /Y
+COPY %MEMBA_WEBAPP%\src\styles\template\_global.scss .\src\styles\template\ /Y
 ATTRIB +R .\src\styles\template\_global.scss /S
 
 REM ./src/styles/themes
-XCOPY ..\Memba.Webapp\src\styles\themes\*.scss .\src\styles\themes\ /C /E /I /R /Y
+XCOPY %MEMBA_WEBAPP%\src\styles\themes\*.scss .\src\styles\themes\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\themes\*.scss /S
+REM COPY %MEMBA_WEBAPP%\src\styles\themes\app.theme.nordic.css .\src\styles\themes /Y
+REM ATTRIB +R .\src\styles\themes\*.css /S
 
 REM ./src/styles/ui
-REM ATTRIB -R .\src\styles\ui\*.less
-REM COPY ..\Memba.Webapp\src\styles\ui\app.common.less .\src\styles\ui\ /Y
-REM ATTRIB +R .\src\styles\ui\app.common.less
-REM COPY ..\Memba.Webapp\src\styles\ui\app.mixins.less .\src\styles\ui\ /Y
-REM ATTRIB +R .\src\styles\ui\app.mixins.less
-REM COPY ..\Memba.Webapp\src\styles\ui\error.page.less .\src\styles\ui\ /Y
-REM ATTRIB +R .\src\styles\ui\error.page.less
 ATTRIB -R .\src\styles\ui\*.scss
-COPY ..\Memba.Webapp\src\styles\ui\_page.common.scss .\src\styles\ui\ /Y
+COPY %MEMBA_WEBAPP%\src\styles\ui\_page.common.scss .\src\styles\ui\ /Y
 ATTRIB +R .\src\styles\ui\_page.common.scss
-COPY ..\Memba.Webapp\src\styles\ui\_ui.appbar.scss .\src\styles\ui\ /Y
+COPY %MEMBA_WEBAPP%\src\styles\ui\_ui.appbar.scss .\src\styles\ui\ /Y
 ATTRIB +R .\src\styles\ui\_ui.appbar.scss
-COPY ..\Memba.Webapp\src\styles\ui\_ui.drawer.scss .\src\styles\ui\ /Y
+COPY %MEMBA_WEBAPP%\src\styles\ui\_ui.drawer.scss .\src\styles\ui\ /Y
 ATTRIB +R .\src\styles\ui\_ui.drawer.scss
-COPY ..\Memba.Webapp\src\styles\ui\_ui.footer.scss .\src\styles\ui\ /Y
+COPY %MEMBA_WEBAPP%\src\styles\ui\_ui.footer.scss .\src\styles\ui\ /Y
 ATTRIB +R .\src\styles\ui\_ui.footer.scss
-COPY ..\Memba.Webapp\src\styles\ui\_ui.icons.scss .\src\styles\ui\ /Y
+COPY %MEMBA_WEBAPP%\src\styles\ui\_ui.icons.scss .\src\styles\ui\ /Y
 ATTRIB +R .\src\styles\ui\_ui.icons.scss
 
 REM ./src/styles/vendor
-XCOPY ..\Memba.Webapp\src\styles\vendor\animate.css\*.* .\src\styles\vendor\animate.css\ /C /E /I /R /Y
+
+REM animate.css
+XCOPY %MEMBA_WEBAPP%\src\styles\vendor\animate.css\*.* .\src\styles\vendor\animate.css\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\vendor\animate.css\*.* /S
-REM XCOPY ..\Memba.Webapp\src\styles\vendor\bootstrap\*.* .\src\styles\vendor\bootstrap\ /C /E /I /R /Y
+
+REM bootstrap
+REM XCOPY %MEMBA_WEBAPP%\src\styles\vendor\bootstrap\*.* .\src\styles\vendor\bootstrap\ /C /E /I /R /Y
 REM ATTRIB +R .\src\styles\vendor\bootstrap\*.* /S
-XCOPY ..\Memba.Webapp\src\styles\vendor\highlight\*.* .\src\styles\vendor\highlight\ /C /E /I /R /Y
+
+REM highlight
+XCOPY %MEMBA_WEBAPP%\src\styles\vendor\highlight\*.* .\src\styles\vendor\highlight\ /C /E /I /R /Y
 ATTRIB +R .\src\styles\vendor\highlight\*.* /S
-REM XCOPY ..\Memba.Webapp\src\styles\vendor\fonts\*.* .\src\styles\vendor\fonts\ /C /E /I /R /Y
-REM ATTRIB +R .\src\styles\vendor\fonts\*.* /S
-REM XCOPY ..\Memba.Webapp\src\styles\vendor\kendo\*.* .\src\styles\vendor\kendo\ /C /E /I /R /Y
+
+REM Kendo UI
+REM XCOPY %MEMBA_WEBAPP%\src\styles\vendor\kendo\*.* .\src\styles\vendor\kendo\ /C /E /I /R /Y
 REM ATTRIB +R .\src\styles\vendor\kendo\*.* /S
 
 REM Social icons
-ATTRIB -R .\webapp\public\*.svg
-COPY ..\Memba.Webapp\webapp\public\facebook.svg .\webapp\public\ /Y
-COPY ..\Memba.Webapp\webapp\public\google.svg .\webapp\public\ /Y
-COPY ..\Memba.Webapp\webapp\public\linkedin.svg .\webapp\public\ /Y
-COPY ..\Memba.Webapp\webapp\public\pinterest.svg .\webapp\public\ /Y
-COPY ..\Memba.Webapp\webapp\public\twitter.svg .\webapp\public\ /Y
+REM ATTRIB -R .\webapp\public\*.svg
+REM COPY %MEMBA_WEBAPP%\webapp\public\facebook.svg .\webapp\public\ /Y
+REM COPY %MEMBA_WEBAPP%\webapp\public\google.svg .\webapp\public\ /Y
+REM COPY %MEMBA_WEBAPP%\webapp\public\linkedin.svg .\webapp\public\ /Y
+REM COPY %MEMBA_WEBAPP%\webapp\public\pinterest.svg .\webapp\public\ /Y
+REM COPY %MEMBA_WEBAPP%\webapp\public\twitter.svg .\webapp\public\ /Y
 ATTRIB +R .\webapp\public\*.svg
 
 REM ------------------------------------------------------------
 REM Tests
 REM ------------------------------------------------------------
 
-REM ./test/browser files
+REM ./test/browser/.eslintrc
 ATTRIB -R .\test\browser\*.*
-COPY ..\Memba.Webapp\test\browser\.eslintrc .\test\browser /Y
+COPY %MEMBA_WEBAPP%\test\browser\.eslintrc .\test\browser /Y
 ATTRIB +R .\test\browser\.eslintrc
 
 REM ./test/node/common.es6
 ATTRIB -R .\test\node\common.es6
-COPY ..\Memba.Webapp\test\node\common.es6 .\test\node /Y
+COPY %MEMBA_WEBAPP%\test\node\common.es6 .\test\node /Y
 ATTRIB +R .\test\node\common.es6
 
-REM ./test/node/config files
+REM ./test/node/config
 ATTRIB -R .\test\node\config\*.es6
-COPY ..\Memba.Webapp\test\node\config\*.es6 .\test\node\config /Y
+COPY %MEMBA_WEBAPP%\test\node\config\*.es6 .\test\node\config /Y
 ATTRIB +R .\test\node\config\*.es6
 
-REM ./test/node/lib files
+REM ./test/node/lib
 ATTRIB -R .\test\node\lib\*.es6
-COPY ..\Memba.Webapp\test\node\lib\applicationError.test.es6 .\test\node\lib /Y
+COPY %MEMBA_WEBAPP%\test\node\lib\applicationError.test.es6 .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\applicationError.test.es6
-COPY ..\Memba.Webapp\test\node\lib\logger.test.es6 .\test\node\lib /Y
+COPY %MEMBA_WEBAPP%\test\node\lib\logger.test.es6 .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\logger.test.es6
-COPY ..\Memba.Webapp\test\node\lib\utils.test.es6 .\test\node\lib /Y
+COPY %MEMBA_WEBAPP%\test\node\lib\utils.test.es6 .\test\node\lib /Y
 ATTRIB +R .\test\node\lib\utils.test.es6
 
-REM ./test/node/middleware files
+REM ./test/node/middleware
 ATTRIB -R .\test\node\middleware\*.es6
-COPY ..\Memba.Webapp\test\node\middleware\error.test.es6 .\test\node\middleware /Y
+COPY %MEMBA_WEBAPP%\test\node\middleware\error.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\error.test.es6
-COPY ..\Memba.Webapp\test\node\middleware\locals.test.es6 .\test\node\middleware /Y
+COPY %MEMBA_WEBAPP%\test\node\middleware\locals.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\locals.test.es6
-COPY ..\Memba.Webapp\test\node\middleware\notFound.test.es6 .\test\node\middleware /Y
+COPY %MEMBA_WEBAPP%\test\node\middleware\notFound.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\notFound.test.es6
-COPY ..\Memba.Webapp\test\node\middleware\params.test.es6 .\test\node\middleware /Y
+COPY %MEMBA_WEBAPP%\test\node\middleware\params.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\params.test.es6
-COPY ..\Memba.Webapp\test\node\middleware\redirect.test.es6 .\test\node\middleware /Y
+COPY %MEMBA_WEBAPP%\test\node\middleware\redirect.test.es6 .\test\node\middleware /Y
 ATTRIB +R .\test\node\middleware\redirect.test.es6
 
-REM ./test/node/plugins files
-ATTRIB -R .\test\node\plugins\*.*
-COPY ..\Memba.Webapp\test\node\plugins\index.test.es6 .\test\node\plugins /Y
-ATTRIB +R .\test\node\plugins\index.test.es6
-COPY ..\Memba.Webapp\test\node\plugins\slack.test.es6 .\test\node\plugins /Y
+REM ./test/node/plugins
+REM ATTRIB -R .\test\node\plugins\*.*
+REM COPY %MEMBA_WEBAPP%\test\node\plugins\index.test.es6 .\test\node\plugins /Y
+REM ATTRIB +R .\test\node\plugins\index.test.es6
+COPY %MEMBA_WEBAPP%\test\node\plugins\slack.test.es6 .\test\node\plugins /Y
 ATTRIB +R .\test\node\plugins\slack.test.es6
 
-REM ./test/node/route files
+REM ./test/node/route
 ATTRIB -R .\test\node\routes\*.*
-COPY ..\Memba.Webapp\test\node\routes\errorRoute.test.es6 .\test\node\routes /Y
+COPY %MEMBA_WEBAPP%\test\node\routes\errorRoute.test.es6 .\test\node\routes /Y
 ATTRIB +R .\test\node\routes\errorRoute.test.es6
-COPY ..\Memba.Webapp\test\node\routes\loggerRoute.test.es6 .\test\node\routes /Y
+COPY %MEMBA_WEBAPP%\test\node\routes\loggerRoute.test.es6 .\test\node\routes /Y
 ATTRIB +R .\test\node\routes\loggerRoute.test.es6
-COPY ..\Memba.Webapp\test\node\routes\pingRoute.test.es6 .\test\node\routes /Y
+COPY %MEMBA_WEBAPP%\test\node\routes\pingRoute.test.es6 .\test\node\routes /Y
 ATTRIB +R .\test\node\routes\pingRoute.test.es6
 
-REM ./test/selenium files
-ATTRIB -R .\test\selenium\_misc\*.*
-COPY ..\Memba.Webapp\test\selenium\_misc\selenium.util.es6 .\test\selenium\_misc /Y
-ATTRIB +R .\test\selenium\_misc\selenium.util.es6
+REM ./test/selenium
+ATTRIB -R .\test\selenium\_misc\*.es6
+COPY %MEMBA_WEBAPP%\test\selenium\_misc\*.es6 .\test\selenium\_misc /Y
+ATTRIB +R .\test\selenium\_misc\*.es6
 
-REM ./test/vendor files
-XCOPY ..\Memba.Webapp\test\vendor  .\test\vendor /C /E /I /R /Y
+REM ./test/vendor
+XCOPY %MEMBA_WEBAPP%\test\vendor  .\test\vendor /C /E /I /R /Y
 ATTRIB +R .\test\vendor\*.* /S
 
 REM ------------------------------------------------------------
@@ -290,72 +300,72 @@ REM Web modules (webpack)
 REM ------------------------------------------------------------
 
 REM web_modules
-XCOPY ..\Memba.Webapp\web_modules\*.*  .\web_modules /C /E /I /R /Y
+XCOPY %MEMBA_WEBAPP%\web_modules\*.*  .\web_modules /C /E /I /R /Y
 ATTRIB +R .\web_modules\*.* /S
 
 REM ------------------------------------------------------------
 REM Web Application
 REM ------------------------------------------------------------
 
-REM ./webapp/config files
-ATTRIB -R .\webapp\config\*.es6
-COPY ..\Memba.Webapp\webapp\config\index.es6 .\webapp\config /Y
-ATTRIB +R .\webapp\config\*.es6
+REM ./webapp/config
+ATTRIB -R .\webapp\config\index.es6
+COPY %MEMBA_WEBAPP%\webapp\config\index.es6 .\webapp\config /Y
+ATTRIB +R .\webapp\config\index.es6
 
-REM ./webapp/lib files
+REM ./webapp/lib
 ATTRIB -R .\webapp\lib\*.es6
-COPY ..\Memba.Webapp\webapp\lib\applicationError.es6 .\webapp\lib /Y
+COPY %MEMBA_WEBAPP%\webapp\lib\applicationError.es6 .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\applicationError.es6
-COPY ..\Memba.Webapp\webapp\lib\constants.es6 .\webapp\lib /Y
+COPY %MEMBA_WEBAPP%\webapp\lib\constants.es6 .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\constants.es6
-COPY ..\Memba.Webapp\webapp\lib\httpStatus.es6 .\webapp\lib /Y
+COPY %MEMBA_WEBAPP%\webapp\lib\httpStatus.es6 .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\httpStatus.es6
-COPY ..\Memba.Webapp\webapp\lib\logger.es6 .\webapp\lib /Y
+COPY %MEMBA_WEBAPP%\webapp\lib\logger.es6 .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\logger.es6
-COPY ..\Memba.Webapp\webapp\lib\utils.es6 .\webapp\lib /Y
+COPY %MEMBA_WEBAPP%\webapp\lib\utils.es6 .\webapp\lib /Y
 ATTRIB +R .\webapp\lib\utils.es6
 
-REM ./webapp/middleware files
+REM ./webapp/middleware
 ATTRIB -R .\webapp\middleware\*.es6
-COPY ..\Memba.Webapp\webapp\middleware\error.es6 .\webapp\middleware /Y
+COPY %MEMBA_WEBAPP%\webapp\middleware\error.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\error.es6
-COPY ..\Memba.Webapp\webapp\middleware\locals.es6 .\webapp\middleware /Y
+COPY %MEMBA_WEBAPP%\webapp\middleware\locals.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\locals.es6
-COPY ..\Memba.Webapp\webapp\middleware\notFound.es6 .\webapp\middleware /Y
+COPY %MEMBA_WEBAPP%\webapp\middleware\notFound.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\notFound.es6
-COPY ..\Memba.Webapp\webapp\middleware\params.es6 .\webapp\middleware /Y
+COPY %MEMBA_WEBAPP%\webapp\middleware\params.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\params.es6
-COPY ..\Memba.Webapp\webapp\middleware\redirect.es6 .\webapp\middleware /Y
+COPY %MEMBA_WEBAPP%\webapp\middleware\redirect.es6 .\webapp\middleware /Y
 ATTRIB +R .\webapp\middleware\redirect.es6
 
-REM ./webapp/plugins files
+REM ./webapp/plugins
 ATTRIB -R .\webapp\plugins\*.*
-COPY ..\Memba.Webapp\webapp\plugins\index.es6 .\webapp\plugins /Y
+COPY %MEMBA_WEBAPP%\webapp\plugins\index.es6 .\webapp\plugins /Y
 ATTRIB +R .\webapp\plugins\index.es6
-COPY ..\Memba.Webapp\webapp\plugins\slack.es6 .\webapp\plugins /Y
+COPY %MEMBA_WEBAPP%\webapp\plugins\slack.es6 .\webapp\plugins /Y
 ATTRIB +R .\webapp\plugins\slack.es6
 
-REM ./webapp/routes files
+REM ./webapp/routes
 ATTRIB -R .\webapp\routes\*.*
-COPY ..\Memba.Webapp\webapp\routes\errorRoute.es6 .\webapp\routes /Y
+COPY %MEMBA_WEBAPP%\webapp\routes\errorRoute.es6 .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\errorRoute.es6
-COPY ..\Memba.Webapp\webapp\routes\loggerRoute.es6 .\webapp\routes /Y
+COPY %MEMBA_WEBAPP%\webapp\routes\loggerRoute.es6 .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\loggerRoute.es6
-COPY ..\Memba.Webapp\webapp\routes\pingRoute.es6 .\webapp\routes /Y
+COPY %MEMBA_WEBAPP%\webapp\routes\pingRoute.es6 .\webapp\routes /Y
 ATTRIB +R .\webapp\routes\pingRoute.es6
 
-REM ./webapp/views files
+REM ./webapp/views
 ATTRIB -R .\webapp\views\*.*
-COPY ..\Memba.Webapp\webapp\views\common.ejs .\webapp\views /Y
+COPY %MEMBA_WEBAPP%\webapp\views\common.ejs .\webapp\views /Y
 ATTRIB +R .\webapp\views\common.ejs
-COPY ..\Memba.Webapp\webapp\views\error.ejs .\webapp\views /Y
+COPY %MEMBA_WEBAPP%\webapp\views\error.ejs .\webapp\views /Y
 ATTRIB +R .\webapp\views\error.ejs
-COPY ..\Memba.Webapp\webapp\views\footer.ejs .\webapp\views /Y
+COPY %MEMBA_WEBAPP%\webapp\views\footer.ejs .\webapp\views /Y
 ATTRIB +R .\webapp\views\footer.ejs
-COPY ..\Memba.Webapp\webapp\views\head.ejs .\webapp\views /Y
+COPY %MEMBA_WEBAPP%\webapp\views\head.ejs .\webapp\views /Y
 ATTRIB +R .\webapp\views\head.ejs
 
 REM ./webapp/server.js
 ATTRIB -R .\webapp\server.js
-COPY ..\Memba.Webapp\webapp\server.js .\webapp\ /Y
+COPY %MEMBA_WEBAPP%\webapp\server.js .\webapp\ /Y
 ATTRIB +R .\webapp\server.js
