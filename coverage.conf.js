@@ -165,19 +165,6 @@ module.exports = (config) => {
                         use: 'null-loader',
                     },
                     {
-                        // Append  module.exports = JSC; to jscheck.js
-                        // @see https://webpack.js.org/loaders/exports-loader/
-                        test: require.resolve(
-                            path.join(__dirname, '/test/vendor/jscheck.js')
-                        ),
-                        // use: 'exports-loader?JSC',
-                        loader: 'exports-loader',
-                        options: {
-                            type: 'commonjs',
-                            exports: 'single JSC',
-                        },
-                    },
-                    {
                         // Prepend var jQuery = require("jquery"); to jquery.simulate.js.
                         // @see https://webpack.js.org/loaders/imports-loader/#usage
                         test: require.resolve(
