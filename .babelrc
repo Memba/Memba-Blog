@@ -9,10 +9,12 @@
         [
             "module-resolver",
             {
+                "cwd": "babelrc", // "packagejson"
                 "extensions": [".es6", ".js", ".mjs"],
                 "root": [
                     ".",
                     "./test/vendor/",
+                    // "./src/js/vendor/**",
                     "./src/js/vendor/kendo/",
                     "./src/js/vendor/kendo/cultures/",
                     "./src/js/vendor/kendo/messages/"
@@ -42,10 +44,6 @@
             "@babel/preset-env",
             {
                 "corejs": 3,
-                "targets": {
-                    "chrome": "100",
-                    "ie": "11"
-                },
                 "useBuiltIns": "entry"
             }
         ]
