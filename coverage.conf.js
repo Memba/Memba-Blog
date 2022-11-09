@@ -79,7 +79,7 @@ module.exports = (config) => {
             },
             // Kendo UI
             {
-                pattern: 'src/js/vendor/kendo/kendo.all.js',
+                pattern: 'src/js/vendor/kendo/kendo.all.min.js',
                 served: true,
                 included: true,
             },
@@ -161,7 +161,7 @@ module.exports = (config) => {
                     },
                     {
                         // Prevent any kendo.* from loading (we have already added kendo.all.min.js)
-                        test: /kendo\.\w+\.js$/,
+                        test: /kendo\.\w+(\.[-\w]+)?\.js$/,
                         use: 'null-loader',
                     },
                     {
@@ -227,7 +227,7 @@ module.exports = (config) => {
             resolve: {
                 extensions: ['.es6', '.js'],
                 modules: [
-                    path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
+                    // path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
                     path.resolve(__dirname, 'src/js/vendor/modernizr'),
                     path.resolve(__dirname, 'test/vendor'),
                     'node_modules',
