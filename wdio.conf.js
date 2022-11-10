@@ -24,7 +24,7 @@ let capabilities = [
     },
 ];
 let seleniumArgs = {
-    version: '4.0.0',
+    version: '4.6.0',
     drivers: {
         chrome: {
             arch: process.arch,
@@ -65,7 +65,7 @@ let seleniumArgs = {
 
 if (/^win/.test(process.platform)) {
     seleniumArgs = {
-        version: '4.0.0',
+        version: '4.6.0',
         drivers: {
             chrome: {
                 arch: process.arch,
