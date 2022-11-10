@@ -37,7 +37,7 @@ jobs:
             - name: Install selenium
               run: |
                 npm i -g selenium-standalone
-                selenium-standalone install
+                selenium-standalone install --version 4.6.0
 
             # - name: Analyze code
             #   run: npm run eslint
