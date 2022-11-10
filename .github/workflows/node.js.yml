@@ -19,9 +19,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [16.x, 18.x] # webdriverio+selenium fails on node v18
-                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-                # IMPORTANT! fibers and therefore @wdio/sync are not supported on nodeJS v16 - see https://github.com/laverdet/node-fibers
+                node-version: [16.x, 18.x] # Selenium on node 18.x requires v4.6.0
         steps:
             - name: Checkout
               uses: actions/checkout@v3
