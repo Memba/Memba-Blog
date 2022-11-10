@@ -35,7 +35,9 @@ jobs:
               run: npm ci
 
             - name: Install selenium
-              run: selenium-standalone install
+              run: |
+                npm i -g selenium-standalone
+                selenium-standalone install
 
             # - name: Analyze code
             #   run: npm run eslint
