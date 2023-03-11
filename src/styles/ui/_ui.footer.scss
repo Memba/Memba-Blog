@@ -8,10 +8,10 @@
  ********************************************/
 footer {
     @include fill(
-        $header-text,
-        $header-bg,
-        $header-border,
-        $header-gradient
+        $kendo-component-header-text,
+        $kendo-component-header-bg,
+        $kendo-component-header-border,
+        $kendo-component-header-gradient
     );
 
     border-bottom: none;

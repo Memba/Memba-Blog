@@ -8,10 +8,10 @@
 .k-listgroup {
     .k-link:hover {
         @include fill(
-            $hovered-text,
-            $hovered-bg,
-            $hovered-border,
-            $hovered-gradient
+            $kendo-hover-text,
+            $kendo-hover-bg,
+            $kendo-hover-border,
+            $kendo-hover-gradient
         );
     }
 }

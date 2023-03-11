@@ -7,18 +7,18 @@ header {
     .k-appbar-dark,
     .k-appbar-light {
         @include fill(
-            $hovered-text,
-            $hovered-bg,
-            $hovered-border,
-            $hovered-gradient
+            $kendo-hover-text,
+            $kendo-hover-bg,
+            $kendo-hover-border,
+            $kendo-hover-gradient
         );
 
         g#logo {
             // text after blue/orange ball
             g:first-child {
                 path {
-                    fill: $body-color;
-                    stroke: $body-color;
+                    fill: $kendo-body-text;
+                    stroke: $kendo-body-text;
                 }
             }
             // blue/orange ball
@@ -32,10 +32,10 @@ header {
 
         .k-menu:not(.k-context-menu) {
             @include fill(
-                $hovered-text,
-                $hovered-bg,
-                $hovered-border,
-                $hovered-gradient
+                $kendo-hover-text,
+                $kendo-hover-bg,
+                $kendo-hover-border,
+                $kendo-hover-gradient
             );
 
             > .k-item {

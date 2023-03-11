@@ -11,40 +11,40 @@ img:not([alt]) {
 
 /*
  * For icon sizes use
- * $icon-size: 16px !default;
- * .k-icon-xs { font-size: ( $icon-size * .5 ); }
- * .k-icon-sm { font-size: ( $icon-size * .75 ); }
- * .k-icon-md { font-size: ( $icon-size * 2 ); }
- * .k-icon-lg { font-size: ( $icon-size * 3 ); }
- * .k-icon-xl { font-size: ( $icon-size * 4 ); }
+ * $kendo-icon-size: 16px !default;
+ * .k-icon-xs { font-size: ( $kendo-icon-size * .5 ); }
+ * .k-icon-sm { font-size: ( $kendo-icon-size * .75 ); }
+ * .k-icon-md { font-size: ( $kendo-icon-size * 2 ); }
+ * .k-icon-lg { font-size: ( $kendo-icon-size * 3 ); }
+ * .k-icon-xl { font-size: ( $kendo-icon-size * 4 ); }
  */
 
-$times-font: 1.25;
+$kendo-times-font: 1.25;
 
-@mixin img-size($size) {
-    height: $size;
-    width: $size;
+@mixin img-size($kendo-size) {
+    height: $kendo-size;
+    width: $kendo-size;
     outline: 0;
 }
 
 .img-xs {
-    @include img-size( $icon-size ) // 16px
+    @include img-size( $kendo-icon-size ) // 16px
 }
 
 .img-sm {
-    @include img-size( ($icon-size + $icon-size-lg) / 2 ) // 24px
+    @include img-size( $kendo-icon-size * 1.5 ) // 24px
 }
 
 .img-md {
-    @include img-size( $icon-size-lg ) // 32px
+    @include img-size( $kendo-icon-size * 2 ) // 32px
 }
 
 .img-lg {
-    @include img-size( 3 * $icon-size-lg / 4 ) // 48px
+    @include img-size( $kendo-icon-size * 3 ) // 48px
 }
 
 .img-xl {
-    @include img-size( 2 * $icon-size-lg ) // 64px
+    @include img-size( $kendo-icon-size * 4 ) // 64px
 }
 
 .img-fluid {
@@ -58,37 +58,37 @@ $times-font: 1.25;
 
 h1 > img,
 .img-h1 {
-    @include img-size( $times-font * $h1-font-size );
+    @include img-size( $kendo-times-font * $kendo-h1-font-size );
 }
 
 h2 > img,
 .img-h2 {
-    @include img-size( $times-font * $h2-font-size );
+    @include img-size( $kendo-times-font * $kendo-h2-font-size );
 }
 
 h3 > img,
 .img-h3 {
-    @include img-size( $times-font * $h3-font-size );
+    @include img-size( $kendo-times-font * $kendo-h3-font-size );
 }
 
 h4 > img,
 .img-h4 {
-    @include img-size( $times-font * $h4-font-size );
+    @include img-size( $kendo-times-font * $kendo-h4-font-size );
 }
 
 h5 > img,
 .img-h5 {
-    @include img-size( $times-font * $h5-font-size );
+    @include img-size( $kendo-times-font * $kendo-h5-font-size );
 }
 
 h6 > img,
 .img-h6 {
-    @include img-size( $times-font * $h6-font-size );
+    @include img-size( $kendo-times-font * $kendo-h6-font-size );
 }
 
 p > img:not(.img-fluid),
 .img-p {
-    @include img-size( $times-font * $font-size-base );
+    @include img-size( $kendo-times-font * $kendo-font-size );
 }
 
 h1 > img + span,
