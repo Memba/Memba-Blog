@@ -1,11 +1,13 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
  * http://www.telerik.com/purchase/license-agreement/kendo-ui-complete
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
+import { defaultBreakpoints, mediaQuery } from './utils/mediaquery.js';
+
 var __meta__ = {
     id: "core",
     name: "Core",
@@ -18,7 +20,7 @@ var packageMetadata = {
     productName: 'Kendo UI',
     productCodes: ['KENDOUICOMPLETE', 'KENDOUI', 'KENDOUI', 'KENDOUICOMPLETE'],
     publishDate: 0,
-    version: '2023.1.117'.replace(/^\s+|\s+$/g, ''),
+    version: '2023.1.425'.replace(/^\s+|\s+$/g, ''),
     licensingDocsUrl: 'https://docs.telerik.com/kendo-ui/intro/installation/using-license-code'
 };
 
@@ -127,7 +129,7 @@ var packageMetadata = {
             return target;
         };
 
-    kendo.version = "2023.1.117".replace(/^\s+|\s+$/g, '');
+    kendo.version = "2023.1.425".replace(/^\s+|\s+$/g, '');
 
     function Class() {}
 
@@ -1767,9 +1769,9 @@ function pad(number, digits, end) {
             parent = element.parent(),
             windowOuterWidth = outerWidth(window);
 
-        parent.removeClass("k-animation-container-sm");
+        parent.parent().removeClass("k-animation-container-sm");
 
-        if (!parent.hasClass("k-animation-container")) {
+        if (!parent.hasClass("k-child-animation-container")) {
             var width = element[0].style.width,
                 height = element[0].style.height,
                 percentWidth = percentRegExp.test(width),
@@ -1782,27 +1784,31 @@ function pad(number, digits, end) {
             if (!percentHeight && (!autosize || (autosize && height)) || element.is(".k-menu-horizontal.k-context-menu")) { height = outerHeight(element); }
 
             element.wrap(
+                $("<div/>")
+                .addClass("k-child-animation-container")
+                .css({
+                    width: width,
+                    height: height
+                }));
+            parent = element.parent();
+
+            parent.wrap(
                          $("<div/>")
                          .addClass("k-animation-container")
                          .attr("role", "region")
-                         .css({
-                             width: width,
-                             height: height
-                         }));
-            parent = element.parent();
+                        );
 
             if (percentage) {
                 element.css({
                     width: "100%",
-                    height: "100%",
-                    boxSizing: "border-box",
-                    mozBoxSizing: "border-box",
-                    webkitBoxSizing: "border-box"
+                    height: "100%"
                 });
             }
         } else {
             wrapResize(element, autosize);
         }
+
+        parent = parent.parent();
 
         if (windowOuterWidth < outerWidth(parent)) {
             parent.addClass("k-animation-container-sm");
@@ -1817,8 +1823,11 @@ function pad(number, digits, end) {
         var percentage,
             outerWidth = kendo._outerWidth,
             outerHeight = kendo._outerHeight,
-            wrapper = element.parent(".k-animation-container"),
-            wrapperStyle = wrapper[0].style;
+            parent = element.parent(),
+            wrapper = element.closest(".k-animation-container"),
+            visible = element.is(":visible"),
+            wrapperStyle = parent[0].style,
+            elementHeight = element[0].style.height;
 
         if (wrapper.is(":hidden")) {
             wrapper.css({
@@ -1830,13 +1839,25 @@ function pad(number, digits, end) {
         percentage = percentRegExp.test(wrapperStyle.width) || percentRegExp.test(wrapperStyle.height);
 
         if (!percentage) {
-            wrapper.css({
+            if (!visible) {
+                element.add(parent).show();
+            }
+            parent.css("width", ""); // Needed to get correct width dimensions
+            parent.css({
                 width: autosize ? outerWidth(element) + 1 : outerWidth(element),
-                height: outerHeight(element),
-                boxSizing: "content-box",
-                mozBoxSizing: "content-box",
-                webkitBoxSizing: "content-box"
             });
+
+            if (elementHeight === "auto") {
+                element.css({ height: outerHeight(parent) });
+            } else {
+                parent.css({
+                    height: outerHeight(element)
+                });
+            }
+
+            if (!visible) {
+                element.hide();
+            }
         }
     }
 
@@ -2780,6 +2801,7 @@ function pad(number, digits, end) {
         isLocalUrl: function(url) {
             return url && !localUrlRe.test(url);
         },
+        mediaQuery: mediaQuery,
 
         expr: function(expression, safe, paramName) {
             expression = expression || "";
@@ -3644,15 +3666,6 @@ function pad(number, digits, end) {
             // HACK!!! mobile view scroller widgets are instantiated on data-role="content" elements. We need to discover them when resizing.
             if (role === "content") {
                 role = "scroller";
-            }
-
-            // kendoEditorToolbar is not a public plugin, thus it does not exist in kendo.ui.roles.
-            // Therefore, this is needed in order to be resized when placed in Kendo Window.
-            if (role === "editortoolbar") {
-                var editorToolbar = element.data("kendoEditorToolbar");
-                if (editorToolbar) {
-                    return editorToolbar;
-                }
             }
 
             // kendo.View is not a ui plugin
@@ -4954,6 +4967,7 @@ function pad(number, digits, end) {
                 cssProperties = kendo.cssProperties,
                 defaultValues = cssProperties.defaultValues[propName],
                 widgetProperties = cssProperties.propertyDictionary[widget],
+                overridePrefix = args.prefix,
                 widgetValues, validValue, prefix;
 
             if (!widgetProperties) {
@@ -4977,6 +4991,8 @@ function pad(number, digits, end) {
                 } else {
                     prefix = widgetProperties[PREFIX];
                 }
+
+                prefix = overridePrefix || prefix;
 
                 return prefix + validValue;
             } else {
@@ -5254,6 +5270,8 @@ function pad(number, digits, end) {
         // Use external global flags for templates.
         kendo.debugTemplates = window.DEBUG_KENDO_TEMPLATES;
 
+        // Setup default mediaQuery breakpoints
+        kendo.setDefaults('breakpoints', defaultBreakpoints);
     })();
 
     // Implement type() as it has been depricated in jQuery

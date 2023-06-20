@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -8,6 +8,7 @@
  */
 import "../kendo.core.js";
 import "../kendo.sortable.js";
+import "../kendo.icons.js";
 
     (function(kendo) {
 
@@ -36,12 +37,12 @@ import "../kendo.sortable.js";
             sheetsBarKButton: "k-button k-icon-button",
             sheetsBarKButtonDefaults: "k-button-md k-rounded-md k-button-solid k-button-solid-base",
             sheetsBarKButtonBare: "k-button-md k-rounded-md k-button-flat k-button-flat-base",
-            sheetsBarKArrowW: "k-i-arrow-60-left",
-            sheetsBarKArrowE: "k-i-arrow-60-right",
+            sheetsBarArrowWIcon: "caret-alt-left",
+            sheetsBarArrowEIcon: "caret-alt-right",
             sheetsBarKReset: "k-reset k-tabstrip-items",
-            sheetsBarKIconX: "k-i-close",
+            sheetsBarXIcon: "x",
             sheetsBarKSprite: "k-sprite",
-            sheetsBarKIconPlus: "k-i-plus",
+            sheetsBarPlusIcon: "plus",
             sheetsBarHintWrapper: "k-widget k-tabstrip k-tabstrip-bottom k-spreadsheet-sheets-items-hint",
             sheetsBarKResetItems: "k-reset k-tabstrip-items"
         };
@@ -206,7 +207,7 @@ import "../kendo.sortable.js";
                 for (idx = 0; idx < sheets.length; idx++) {
                     var sheet = sheets[idx];
                     var isSelectedSheet = (idx === selectedIndex);
-                    var attr = { className: classNames.sheetsBarKItem + EMPTYCHAR };
+                    var attr = { className: classNames.sheetsBarKItem + EMPTYCHAR, role: "tab" };
                     var elementContent = [];
 
                     if (isSelectedSheet) {
@@ -229,9 +230,7 @@ import "../kendo.sortable.js";
                         }, [dom.text(sheet.name())]));
 
                         if (sheets.length > 1) {
-                            var deleteIcon = element("span", {
-                                className: classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKFontIcon + EMPTYCHAR + classNames.sheetsBarKIconX
-                            }, []);
+                            var deleteIcon = element($(kendo.ui.icon(classNames.sheetsBarXIcon))[0]);
 
                             elementContent.push(element("span", {
                                 className: classNames.sheetsBarKLink + EMPTYCHAR + classNames.sheetsBarRemove,
@@ -251,7 +250,8 @@ import "../kendo.sortable.js";
                 var classNames = SheetsBar.classNames;
                 var itemsWrapper = element('div', { className: 'k-tabstrip-items-wrapper k-hstack' } );
                 var childrenElements = [null, element("ul", {
-                    className: classNames.sheetsBarKReset
+                    className: classNames.sheetsBarKReset,
+                    role: "tablist"
                 }, sheetElements), null ];
 
                 renderScrollButtons = true;
@@ -259,12 +259,12 @@ import "../kendo.sortable.js";
                 if (renderScrollButtons) {
                     var baseButtonClass = classNames.sheetsBarKButton + EMPTYCHAR + classNames.sheetsBarKButtonBare + EMPTYCHAR;
 
-                    childrenElements[0] = (element("span", {className: baseButtonClass + classNames.sheetsBarPrev }, [
-                        element("span", {className: "k-button-icon" + EMPTYCHAR + classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowW}, [])
+                    childrenElements[0] = (element("span", { ariaHidden: "true", className: baseButtonClass + classNames.sheetsBarPrev }, [
+                        element($(kendo.ui.icon({ icon: classNames.sheetsBarArrowWIcon, iconClass: "k-button-icon" }))[0])
                     ]));
 
-                    childrenElements[2] = (element("span", {className: baseButtonClass + classNames.sheetsBarNext }, [
-                        element("span", {className: "k-button-icon" + EMPTYCHAR + classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKArrowE}, [])
+                    childrenElements[2] = (element("span", { ariaHidden: "true", className: baseButtonClass + classNames.sheetsBarNext }, [
+                        element($(kendo.ui.icon({ icon: classNames.sheetsBarArrowEIcon, iconClass: "k-button-icon" }))[0])
                     ]));
                 }
 
@@ -375,8 +375,10 @@ import "../kendo.sortable.js";
                 var element = kendo.dom.element;
                 var classNames = SheetsBar.classNames;
                 return element("a", {
+                    role: "button",
+                    ariaLabel: "Add new sheet",
                     className: classNames.sheetsBarAdd + EMPTYCHAR + classNames.sheetsBarKButton + EMPTYCHAR + classNames.sheetsBarKButtonDefaults
-                }, [element("span", {className: "k-button-icon" + EMPTYCHAR + classNames.sheetsBarKIcon + EMPTYCHAR + classNames.sheetsBarKFontIcon + EMPTYCHAR + classNames.sheetsBarKIconPlus}, [])]);
+                }, [element($(kendo.ui.icon({ icon: classNames.sheetsBarPlusIcon, iconClass: "k-button-icon" }))[0])]);
             },
 
             destroy: function() {

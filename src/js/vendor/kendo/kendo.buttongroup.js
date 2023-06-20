@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -51,10 +51,9 @@ var __meta__ = {
 
             that.wrapper = that.element;
 
+            that.selectedIndices = [];
 
             that._buttons = that._renderItems(that.options.items);
-
-            that.selectedIndices = [];
 
             that.element
                 .addClass(KWIDGET + EMPTY + KBUTTONGROUP)
@@ -90,7 +89,11 @@ var __meta__ = {
             index: -1,
             enable: true,
             enabled: true,
-            preventKeyNav: false
+            preventKeyNav: false,
+            size: "medium",
+            rounded: "medium",
+            fillMode: "solid",
+            themeColor: "base"
         },
 
         badge: function(item, value) {
@@ -249,11 +252,12 @@ var __meta__ = {
 
         _renderItems: function(items) {
             var that = this,
+                groupOptions = that.options,
                 children = that.element.children(),
                 buttons = [];
 
             if (children.length > 0) {
-                children.each(function() {
+                children.each(function(index) {
                     var el = $(this),
                         image = el.find("img").addClass("k-image"),
                         disabled = el.is("[disabled]") || el.hasClass(DISABLED),
@@ -261,10 +265,18 @@ var __meta__ = {
                             badge: kendo.attrValue(el, "badge"),
                             icon: !image[0] ? kendo.attrValue(el, "icon") : null,
                             disabled: disabled,
-                            selected: !disabled ? el.is(DOT + SELECTED) : false
+                            selected: !disabled ? el.is(DOT + SELECTED) : false,
+                            size: groupOptions.size,
+                            rounded: groupOptions.rounded,
+                            fillMode: groupOptions.fillMode,
+                            themeColor: groupOptions.themeColor
                         };
 
                     buttons.push(that._addButton(el, options));
+
+                    if (options.selected) {
+                        that.selectedIndices.push(index);
+                    }
                 });
             }
 
@@ -272,18 +284,29 @@ var __meta__ = {
                 return buttons;
             }
 
-            items.forEach(function(item) {
+            items.forEach(function(item, index) {
                 var text = item.text ? item.encoded === false ? item.text : kendo.htmlEncode(item.text) : "",
                     el = item.url ? $("<a href=" + item.url + ">") : $("<button>");
 
-                el.text(text);
+                el.html(text);
 
                 if (item.attributes) {
                     el.attr(item.attributes);
                 }
 
+                item = $.extend({}, item, {
+                    size: groupOptions.size,
+                    rounded: groupOptions.rounded,
+                    fillMode: groupOptions.fillMode,
+                    themeColor: groupOptions.themeColor
+                });
+
                 el.appendTo(that.element);
                 buttons.push(that._addButton(el, item));
+
+                if (item.selected) {
+                    that.selectedIndices.push(index);
+                }
             });
 
             return buttons;

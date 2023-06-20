@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.1.117 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.1.425 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -7,13 +7,14 @@
  * If you do not own a commercial license, this file shall be governed by the trial license terms.
  */
 import "./kendo.data.js";
+import "./kendo.icons.js";
 
 var __meta__ = {
     id: "tabstrip",
     name: "TabStrip",
     category: "web",
     description: "The TabStrip widget displays a collection of tabs with associated tab content.",
-    depends: [ "data" ],
+    depends: [ "data", "icons" ],
     features: [ {
         id: "tabstrip-fx",
         name: "Animation",
@@ -175,7 +176,7 @@ var __meta__ = {
     }
 
     function scrollButtonHtml(buttonClass, iconClass) {
-        return "<span aria-hidden='true' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-tabstrip-" + buttonClass + "' unselectable='on'><span class='k-button-icon k-icon " + iconClass + "'></span></span>";
+        return `<span aria-hidden='true' class='k-button k-button-md k-rounded-md k-button-flat k-button-flat-base k-icon-button k-tabstrip-${buttonClass}' unselectable='on'>${kendo.ui.icon({ icon: iconClass, iconClass: "k-button-icon" })}</span>`;
     }
 
     var TabStrip = Widget.extend({
@@ -370,6 +371,8 @@ var __meta__ = {
                             kendo.resize(contentHolder);
                         } }, animation, {
                             complete: function() {
+                                // See https://github.com/telerik/kendo-ui-core/issues/6660
+                                that.element.css('min-height', oldMinHeight);
                                 item.removeAttr("data-animating");
 
                                 that.trigger(ACTIVATE, { item: item[0], contentElement: contentHolder[0] });
@@ -411,12 +414,9 @@ var __meta__ = {
             var oldMinHeight = that.element.css('min-height');
             that.element.css('min-height', that.element.outerHeight());
 
-            visibleContents
-                    .removeClass(ACTIVESTATE);
-
+            visibleContents.removeClass(ACTIVESTATE);
             that.tabGroup.find("." + TABONTOP).removeClass(TABONTOP);
-                    item.addClass(TABONTOP) // change these directly to bring the tab on top.
-                        .css("z-index");
+            item.addClass(TABONTOP).css("z-index");
 
             if (kendo.size(animation.effects)) {
                 item.kendoAddClass(ACTIVESTATE, { duration: animation.duration });
@@ -435,8 +435,6 @@ var __meta__ = {
             } else {
                 showContent();
             }
-
-            that.element.css('min-height', oldMinHeight);
 
             return true;
         },
@@ -1282,8 +1280,8 @@ var __meta__ = {
                     var browser = kendo.support.browser;
                     var isRtlScrollDirection = that._isRtl && !browser.msie && !browser.edge;
 
-                    that.tabWrapper.prepend(scrollButtonHtml("prev", "k-i-arrow-60-left"));
-                    that.tabWrapper.append(scrollButtonHtml("next", "k-i-arrow-60-right"));
+                    that.tabWrapper.prepend(scrollButtonHtml("prev", "caret-alt-left"));
+                    that.tabWrapper.append(scrollButtonHtml("next", "caret-alt-right"));
 
                     scrollPrevButton = that._scrollPrevButton = that.tabWrapper.children(".k-tabstrip-prev");
                     scrollNextButton = that._scrollNextButton = that.tabWrapper.children(".k-tabstrip-next");
@@ -1386,7 +1384,7 @@ var __meta__ = {
             var that = this,
                 tabPosition = that.options.tabPosition;
 
-            that.wrapper.addClass("k-floatwrap k-tabstrip-" + tabPosition);
+            that.wrapper.addClass("k-tabstrip-" + tabPosition);
 
             if (tabPosition == "bottom") {
                 that.tabWrapper.appendTo(that.wrapper);
