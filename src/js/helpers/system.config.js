@@ -7,7 +7,7 @@ const baseURL = new Array(count - 2).fill('../').join('');
 SystemJS.config({
     baseURL,
     map: {
-        jquery: 'src/js/vendor/jquery/jquery-3.6.3.js',
+        jquery: 'src/js/vendor/jquery/jquery-3.7.0.js',
         // http://docs.telerik.com/kendo-ui/third-party/systemjs
         'kendo.culture.en-GB':
             'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
@@ -93,7 +93,9 @@ SystemJS.config({
         'kendo.html.button': 'src/js/vendor/kendo/kendo.html.button.js',
         'kendo.html.chip': 'src/js/vendor/kendo/kendo.html.chip.js',
         'kendo.html.chiplist': 'src/js/vendor/kendo/kendo.html.chiplist.js',
+        'kendo.html.icon': 'src/js/vendor/kendo/kendo.html.icon.js',
         'kendo.html.input': 'src/js/vendor/kendo/kendo.html.input.js',
+        'kendo.icons': 'src/js/vendor/kendo/kendo.icons.js',
         'kendo.imagebrowser': 'src/js/vendor/kendo/kendo.imagebrowser.js',
         'kendo.imageeditor': 'src/js/vendor/kendo/kendo.imageeditor.js',
         'kendo.inputgroupbase': 'src/js/vendor/kendo/kendo.inputgroupbase.js',
@@ -134,7 +136,8 @@ SystemJS.config({
         'kendo.multicolumncombobox':
             'src/js/vendor/kendo/kendo.multicolumncombobox.js',
         'kendo.multiselect': 'src/js/vendor/kendo/kendo.multiselect.js',
-        'kendo.multiviewcalendar': 'src/js/vendor/kendo/kendo.multiviewcalendar.js',
+        'kendo.multiviewcalendar':
+            'src/js/vendor/kendo/kendo.multiviewcalendar.js',
         'kendo.notification': 'src/js/vendor/kendo/kendo.notification.js',
         'kendo.numerictextbox': 'src/js/vendor/kendo/kendo.numerictextbox.js',
         'kendo.ooxml': 'src/js/vendor/kendo/kendo.ooxml.js',
@@ -274,6 +277,8 @@ SystemJS.config({
         },
     },
     paths: {
+        '@progress/kendo-svg-icons':
+            'node_modules/@progress/kendo-svg-icons/dist/index.es.js',
         'plugin-babel': 'node_modules/systemjs-plugin-babel/plugin-babel.js',
         'systemjs-babel-build':
             'node_modules/systemjs-plugin-babel/systemjs-babel-browser.js',
