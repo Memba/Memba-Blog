@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -965,7 +965,18 @@ import "../kendo.icons.js";
         _focusOutside: function() {
             // move focus outside the Editor, see https://github.com/telerik/kendo/issues/3673
             if (kendo.support.browser.msie && this.textarea) {
-                var tempInput = $("<input style='position:fixed;left:1px;top:1px;width:1px;height:1px;font-size:0;border:0;opacity:0' />").appendTo(document.body).trigger("focus");
+                var tempInput = $("<input />")
+                    .css({
+                        position: "fixed",
+                        left: "1px",
+                        top: "1px",
+                        width: "1px",
+                        height: "1px",
+                        "font-size": "0",
+                        border: "0",
+                        opacity: "0"
+                })
+                .appendTo(document.body).trigger("focus");
                 tempInput.trigger("blur").remove();
             }
         },
@@ -1550,17 +1561,22 @@ import "../kendo.icons.js";
                 toolOptions.click = options.exec.bind(that);
                 delete toolOptions.exec;
             }
+
             if (toolOptions.component === "ColorPicker") {
-                if (options.palette || uiOptions.palette !== kendo.ui.editor.ColorTool.fn.options.palette) {
+                if (options.palette !== undefined || uiOptions.palette !== kendo.ui.editor.ColorTool.fn.options.palette) {
                     palette = options.palette || kendo.ui.editor.ColorTool.fn.options.palette;
                     view = options.palette !== undefined && !options.palette ? "gradient" : "palette";
-                    toolOptions.componentOptions.palette = palette;
+                    toolOptions.componentOptions.palette = view === "palette" ? palette : undefined;
                     toolOptions.componentOptions.views = [view];
                     toolOptions.componentOptions.preview = view === "gradient";
                     toolOptions.componentOptions.input = view === "gradient";
                     toolOptions.componentOptions.buttons = view === "gradient";
+
+                    if (view === "gradient") {
+                        delete toolOptions.componentOptions.columns;
+                    }
                 }
-                if (toolOptions.columns) {
+                if (view === "palette" && options.columns) {
                     toolOptions.componentOptions.columns = options.columns;
                 }
             }

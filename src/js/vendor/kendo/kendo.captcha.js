@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -550,7 +550,7 @@ import "./kendo.icons.js";
                 that.element.removeAttr("aria-describedby");
 
                 if (toggle) {
-                    that.successMessage = $("<span id=\"" + idAttr + "\" class=\"" + Captcha.styles.success + "\">" + messages.success + "</span>");
+                    that.successMessage = $("<span id=\"" + idAttr + "\" class=\"" + Captcha.styles.success + "\">" + kendo.htmlEncode(messages.success) + "</span>");
                     that._inputWrapper.after(that.successMessage);
                     that.element.attr("aria-describedby", idAttr);
                 }
@@ -585,7 +585,10 @@ import "./kendo.icons.js";
                 }
 
                 if (toggle) {
-                    that.skeleton = $("<span class='k-skeleton k-skeleton-rect k-skeleton-pulse' style=\"width: 100%; height: 100%;\"></span>");
+                    that.skeleton = $("<span class='k-skeleton k-skeleton-rect k-skeleton-pulse'></span>").css({
+                        width: "100%",
+                        height: "100%"
+                    });
                     that.captchaImage.before(that.skeleton);
                 }
             },
@@ -666,4 +669,5 @@ import "./kendo.icons.js";
         extend(true, Captcha, { styles: CaptchaStyles });
 
     })(window.kendo.jQuery);
+export default kendo;
 

@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -282,21 +282,21 @@ var __meta__ = {
                     },
                     moveConfirm: {
                         title: "Confirm",
-                        content: "<p style='text-align: center;'>Do you want to move or copy?</p>",
+                        content: "<p class='k-text-center'>Do you want to move or copy?</p>",
                         okText: "Copy",
                         cancel: "Move",
                         close: "close"
                     },
                     deleteConfirm: {
                         title: "Confirm",
-                        content: "<p style='text-align: center;'>Are you sure you want to delete the selected file(s)?</br>You cannot undo this action.</p>",
+                        content: "<p class='k-text-center'>Are you sure you want to delete the selected file(s)?</br>You cannot undo this action.</p>",
                         okText: "Delete",
                         cancel: "Cancel",
                         close: "close"
                     },
                     renamePrompt: {
                         title: "Prompt",
-                        content: "<p style='text-align: center;'>Enter new name for the file.</p>",
+                        content: "<p class='k-text-center'>Enter new name for the file.</p>",
                         okText: "Rename",
                         cancel: "Cancel",
                         close: "close"
@@ -362,7 +362,7 @@ var __meta__ = {
                 name: "details",
                 items: [{
                     template: function(data) {
-                        return "<label for='details-toggle'>" + data.componentOptions.messages.text + "</label>";
+                        return "<label for='details-toggle'>" + encode(data.componentOptions.messages.text) + "</label>";
                     },
                     overflow: "never",
                     componentOptions: {
@@ -568,7 +568,7 @@ var __meta__ = {
                return;
             }
 
-            that.preview = $("<div />").addClass(fileManagerStyles.preview);
+            that.preview = $("<div tabindex='0' />").addClass(fileManagerStyles.preview);
             that.previewContainer = $("<div />").addClass(fileManagerStyles.previewContainer);
             that.preview.append(that.previewContainer);
 
@@ -1448,4 +1448,5 @@ var __meta__ = {
 
     ui.plugin(FileManager);
 })(window.kendo.jQuery);
+export default kendo;
 

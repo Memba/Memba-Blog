@@ -1,5 +1,5 @@
 /**
- * Kendo UI v2023.2.606 (http://www.telerik.com/kendo-ui)
+ * Kendo UI v2023.2.829 (http://www.telerik.com/kendo-ui)
  * Copyright 2023 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.
  *
  * Kendo UI commercial licenses may be obtained at
@@ -1402,6 +1402,8 @@ var __meta__ = {
 
                     that._setOption(getter(addedItem.dataItem), true);
                 }
+
+                kendo.applyStylesFromKendoAttributes(that.tagList, ["background-color"]);
             } else {
                 if (!that._maxTotal || that._maxTotal < total) {
                     that._maxTotal = total;
@@ -1447,6 +1449,8 @@ var __meta__ = {
                     maxTotal: that._maxTotal,
                     currentTotal: total
                 }));
+
+                kendo.applyStylesFromKendoAttributes(that.tagList, ["background-color"]);
             }
 
             that._refreshTagListAria();
@@ -1607,7 +1611,7 @@ var __meta__ = {
             }
 
             multipleTemplateFunc = data => encode(kendo.getter(options.dataTextField)(data));
-            singleTemplateFunc = ({ values }) => `${values.length} ${singleTag}`;
+            singleTemplateFunc = ({ values }) => `${values.length} ${encode(singleTag)}`;
 
             defaultTemplate = isMultiple ? multipleTemplateFunc : singleTemplateFunc;
 
@@ -1659,7 +1663,7 @@ var __meta__ = {
         },
 
         _arrowButton: function() {
-            var arrowTitle = this.options.messages.downArrow,
+            var arrowTitle = encode(this.options.messages.downArrow),
                 arrow = $(html.renderButton('<button type="button" aria-label="' + arrowTitle + '" class="k-input-button k-multiselect-toggle-button"></button>', $.extend({}, this.options, {
                     icon: "caret-alt-down"
                 })));
@@ -1756,4 +1760,5 @@ var __meta__ = {
     }]);
 
 })(window.kendo.jQuery);
+export default kendo;
 
