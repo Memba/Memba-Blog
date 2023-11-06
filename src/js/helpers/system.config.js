@@ -7,7 +7,7 @@ const baseURL = new Array(count - 2).fill('../').join('');
 SystemJS.config({
     baseURL,
     map: {
-        jquery: 'src/js/vendor/jquery/jquery-3.7.0.js',
+        jquery: 'src/js/vendor/jquery/jquery-3.7.1.js',
         // http://docs.telerik.com/kendo-ui/third-party/systemjs
         'kendo.culture.en-GB':
             'src/js/vendor/kendo/cultures/kendo.culture.en-GB.js',
@@ -66,6 +66,7 @@ SystemJS.config({
         'kendo.datetimepicker': 'src/js/vendor/kendo/kendo.datetimepicker.js',
         'kendo.dialog': 'src/js/vendor/kendo/kendo.dialog.js',
         'kendo.dom': 'src/js/vendor/kendo/kendo.dom.js',
+        'kendo.dockmanager': 'src/js/vendor/kendo/kendo.dockmanager.js',
         'kendo.draganddrop': 'src/js/vendor/kendo/kendo.draganddrop.js',
         'kendo.drawer': 'src/js/vendor/kendo/kendo.drawer.js',
         'kendo.drawing': 'src/js/vendor/kendo/kendo.drawing.js',
