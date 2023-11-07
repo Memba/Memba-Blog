@@ -7,7 +7,7 @@
 // See https://github.com/zloirock/core-js/blob/master/docs/2019-03-19-core-js-3-babel-and-a-look-into-the-future.md#babel
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'core-js/stable';
-// import 'regenerator-runtime/runtime';
+import 'regenerator-runtime/runtime';
 
 // import Modernizr from '../vendor/modernizr/modernizr';
 // returns an empty object {}, so we need to use window.Modernizr
