@@ -65,7 +65,7 @@ let seleniumArgs = {
 
 if (/^win/.test(process.platform)) {
     seleniumArgs = {
-        version: '4.8.0',
+        version: '4.15.0',
         drivers: {
             chrome: {
                 arch: process.arch,
@@ -327,8 +327,9 @@ module.exports.config = {
     // Services take over a specific job you don't want to take care of. They enhance
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
-    // services: [],//
+    services: [],
     // services: ['selenium-standalone', 'phantomjs'],
+    /*
     services: [
         [
             'selenium-standalone',
@@ -339,6 +340,7 @@ module.exports.config = {
             },
         ],
     ],
+    */
     //
     // selenium-standalone configuration
     // @see https://webdriver.io/docs/selenium-standalone-service.html
